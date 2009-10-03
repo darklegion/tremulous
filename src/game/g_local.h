@@ -1097,6 +1097,7 @@ extern  vmCvar_t  g_alienCredits;
 extern  vmCvar_t  g_alienMaxStage;
 extern  vmCvar_t  g_alienStage2Threshold;
 extern  vmCvar_t  g_alienStage3Threshold;
+extern  vmCvar_t  g_freeKillPeriod;
 
 extern  vmCvar_t  g_unlagged;
 

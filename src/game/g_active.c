@@ -1749,7 +1749,7 @@ void ClientThink_real( gentity_t *ent )
     client->ps.persistant[ PERS_BP ] = 0;
 
   // Give clients some credit periodically
-  if( ent->client->lastKillTime + FREEKILL_PERIOD < level.time )
+  if( ent->client->lastKillTime + g_freeKillPeriod.integer < level.time )
   {
     if( G_TimeTilSuddenDeath( ) <= 0 )
     {

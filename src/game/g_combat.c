@@ -295,10 +295,6 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
         AddScore( attacker, -HUMAN_TK_SUICIDE_PENALTY );
       }
     }
-    else
-    {
-      attacker->client->lastKillTime = level.time;
-    }
   }
   else if( attacker->s.eType != ET_BUILDABLE )
   {
