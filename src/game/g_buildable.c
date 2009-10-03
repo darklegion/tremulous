@@ -1761,8 +1761,13 @@ void ATrapper_Think( gentity_t *self )
 
 //==================================================================================
 
+/*
+================
+G_SuicideIfNoPower
 
-
+Destroy human structures that have been unpowered too long
+================
+*/
 static void G_SuicideIfNoPower( gentity_t *self )
 {
   if( self->buildableTeam != TEAM_HUMANS )
