@@ -2087,6 +2087,8 @@ void CG_Bleed( vec3_t origin, vec3_t normal, int entityNum )
       bleedPS = cgs.media.alienBuildableBleedPS;
     else if( team == TEAM_HUMANS )
       bleedPS = cgs.media.humanBuildableBleedPS;
+    else
+      return;
   }
   else
     return;

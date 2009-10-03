@@ -207,11 +207,9 @@ typedef enum
 {
   STAT_HEALTH,
   STAT_ITEMS,
-  STAT_SLOTS,           // tracks the amount of stuff human players are carrying
   STAT_ACTIVEITEMS,
-  STAT_WEAPONS,         // 16 bit fields
-  STAT_WEAPONS2,        // another 16 bits to push the max weapon count up
-  STAT_MAX_HEALTH, // health / armor limit, changable by handicap
+  STAT_WEAPON,    // current primary weapon
+  STAT_MAX_HEALTH,// health / armor limit, changable by handicap
   STAT_CLASS,     // player class (for aliens AND humans)
   STAT_TEAM,      // player team
   STAT_STAMINA,   // stamina (human only)
@@ -1087,9 +1085,8 @@ typedef struct
 } upgradeAttributes_t;
 
 qboolean  BG_WeaponIsFull( weapon_t weapon, int stats[ ], int ammo, int clips );
-void      BG_AddWeaponToInventory( int weapon, int stats[ ] );
-void      BG_RemoveWeaponFromInventory( int weapon, int stats[ ] );
 qboolean  BG_InventoryContainsWeapon( int weapon, int stats[ ] );
+int       BG_SlotsForInventory( int stats[ ] );
 void      BG_AddUpgradeToInventory( int item, int stats[ ] );
 void      BG_RemoveUpgradeFromInventory( int item, int stats[ ] );
 qboolean  BG_InventoryContainsUpgrade( int item, int stats[ ] );

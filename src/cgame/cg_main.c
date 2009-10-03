@@ -1423,6 +1423,18 @@ static clientInfo_t * CG_InfoFromScoreIndex( int index, int team, int *scoreInde
   return &cgs.clientinfo[ cg.scores[ index ].client ];
 }
 
+static qboolean CG_ClientIsReady( int clientNum )
+{
+  int val = clientNum / 4;
+  const char *s = CG_ConfigString( CS_CLIENTS_READY );
+  while( *s && val-- )
+    s++;
+  if( !*s )
+    return qfalse;
+  sscanf( s, "%1x", &val );
+  return ( ( val & ( clientNum % 4 ) ) != 0 );
+}
+
 static const char *CG_FeederItemText( float feederID, int index, int column, qhandle_t *handle )
 {
   int           scoreIndex = 0;
@@ -1441,8 +1453,7 @@ static const char *CG_FeederItemText( float feederID, int index, int column, qha
   info = CG_InfoFromScoreIndex( index, team, &scoreIndex );
   sp = &cg.scores[ scoreIndex ];
 
-  if( ( atoi( CG_ConfigString( CS_CLIENTS_READY ) ) & ( 1 << sp->client ) ) &&
-      cg.intermissionStarted )
+  if( cg.intermissionStarted && CG_ClientIsReady( sp->client ) )
     showIcons = qfalse;
   else if( cg.snap->ps.pm_type == PM_SPECTATOR || cg.snap->ps.pm_flags & PMF_FOLLOW ||
     team == cg.snap->ps.stats[ STAT_TEAM ] || cg.intermissionStarted )
@@ -1484,8 +1495,7 @@ static const char *CG_FeederItemText( float feederID, int index, int column, qha
         break;
 
       case 2:
-        if( ( atoi( CG_ConfigString( CS_CLIENTS_READY ) ) & ( 1 << sp->client ) ) &&
-            cg.intermissionStarted )
+        if( cg.intermissionStarted && CG_ClientIsReady( sp->client ) )
           return "Ready";
         break;
 

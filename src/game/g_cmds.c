@@ -2078,8 +2078,9 @@ Cmd_Buy_f
 void Cmd_Buy_f( gentity_t *ent )
 {
   char s[ MAX_TOKEN_CHARS ];
-  int weapon, upgrade, maxAmmo, maxClips;
-  qboolean energyOnly;
+  weapon_t  weapon;
+  upgrade_t upgrade, maxAmmo, maxClips;
+  qboolean  energyOnly;
 
   trap_Argv( 1, s, sizeof( s ) );
 
@@ -2089,7 +2090,8 @@ void Cmd_Buy_f( gentity_t *ent )
   // Only give energy from reactors or repeaters
   if( G_BuildableRange( ent->client->ps.origin, 100, BA_H_ARMOURY ) )
     energyOnly = qfalse;
-  else if( upgrade == UP_AMMO && BG_HasEnergyWeapon( &ent->client->ps ) &&
+  else if( upgrade == UP_AMMO &&
+           BG_Weapon( ent->client->ps.stats[ STAT_WEAPON ] )->usesEnergy &&
            ( G_BuildableRange( ent->client->ps.origin, 100, BA_H_REACTOR ) ||
              G_BuildableRange( ent->client->ps.origin, 100, BA_H_REPEATER ) ) )
     energyOnly = qtrue;
@@ -2141,7 +2143,7 @@ void Cmd_Buy_f( gentity_t *ent )
     }
 
     //have space to carry this?
-    if( BG_Weapon( weapon )->slots & ent->client->ps.stats[ STAT_SLOTS ] )
+    if( BG_Weapon( weapon )->slots & BG_SlotsForInventory( ent->client->ps.stats ) )
     {
       G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOSLOTS );
       return;
@@ -2151,8 +2153,7 @@ void Cmd_Buy_f( gentity_t *ent )
     if( !BG_PlayerCanChangeWeapon( &ent->client->ps ) )
       return;
 
-    //add to inventory
-    BG_AddWeaponToInventory( weapon, ent->client->ps.stats );
+    ent->client->ps.stats[ STAT_WEAPON ] = weapon;
     maxAmmo = BG_Weapon( weapon )->maxAmmo;
     maxClips = BG_Weapon( weapon )->maxClips;
 
@@ -2188,7 +2189,7 @@ void Cmd_Buy_f( gentity_t *ent )
     }
 
     //have space to carry this?
-    if( BG_Upgrade( upgrade )->slots & ent->client->ps.stats[ STAT_SLOTS ] )
+    if( BG_Upgrade( upgrade )->slots & BG_SlotsForInventory( ent->client->ps.stats ) )
     {
       G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOSLOTS );
       return;
@@ -2273,7 +2274,11 @@ void Cmd_Sell_f( gentity_t *ent )
     return;
   }
 
-  weapon = BG_WeaponByName( s )->number;
+  if( !Q_stricmpn( s, "weapon", 6 ) )
+    weapon = ent->client->ps.stats[ STAT_WEAPON ];
+  else
+    weapon = BG_WeaponByName( s )->number;
+
   upgrade = BG_UpgradeByName( s )->number;
 
   if( weapon != WP_NONE )
@@ -2300,7 +2305,7 @@ void Cmd_Sell_f( gentity_t *ent )
         return;
       }
 
-      BG_RemoveWeaponFromInventory( weapon, ent->client->ps.stats );
+      ent->client->ps.stats[ STAT_WEAPON ] = WP_NONE;
 
       //add to funds
       G_AddCreditToClient( ent->client, (short)BG_Weapon( weapon )->price, qfalse );
@@ -2366,7 +2371,7 @@ void Cmd_Sell_f( gentity_t *ent )
       if( BG_InventoryContainsWeapon( i, ent->client->ps.stats ) &&
           BG_Weapon( i )->purchasable )
       {
-        BG_RemoveWeaponFromInventory( i, ent->client->ps.stats );
+        ent->client->ps.stats[ STAT_WEAPON ] = WP_NONE;
 
         //add to funds
         G_AddCreditToClient( ent->client, (short)BG_Weapon( i )->price, qfalse );

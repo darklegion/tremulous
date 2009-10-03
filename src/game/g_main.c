@@ -1788,7 +1788,9 @@ void CheckIntermissionExit( void )
   int       ready, notReady, numPlayers;
   int       i;
   gclient_t *cl;
-  int       readyMask;
+  byte      readyMasks[ ( MAX_CLIENTS + 7 ) / 8 ];
+  char      readyString[ 2 * sizeof( readyMasks ) + 1 ];
+  int       index;
 
   //if no clients are connected, just exit
   if( !level.numConnectedClients )
@@ -1800,8 +1802,8 @@ void CheckIntermissionExit( void )
   // see which players are ready
   ready = 0;
   notReady = 0;
-  readyMask = 0;
   numPlayers = 0;
+  Com_Memset( readyMasks, 0, sizeof( readyMasks ) );
   for( i = 0; i < g_maxclients.integer; i++ )
   {
     cl = level.clients + i;
@@ -1814,8 +1816,7 @@ void CheckIntermissionExit( void )
     if( cl->readyToExit )
     {
       ready++;
-      if( i < 16 )
-        readyMask |= 1 << i;
+      readyMasks[ i / 8 ] |= 1 << ( 7 - ( i % 8 ) );
     }
     else
       notReady++;
@@ -1823,7 +1824,11 @@ void CheckIntermissionExit( void )
     numPlayers++;
   }
 
-  trap_SetConfigstring( CS_CLIENTS_READY, va( "%d", readyMask ) );
+  for( i = 0; i < sizeof( readyMasks ); i++ )
+    Com_sprintf( &readyString[ i * 2 ], sizeof( readyString ) - i * 2,
+                 "%2.2x", readyMasks[ i ] );
+
+  trap_SetConfigstring( CS_CLIENTS_READY, readyString );
 
   // never exit in less than five seconds
   if( level.time < level.intermissiontime + 5000 )
