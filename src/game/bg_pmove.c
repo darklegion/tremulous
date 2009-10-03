@@ -650,7 +650,8 @@ static qboolean PM_CheckWallJump( void )
   pm->trace( &trace, pm->ps->origin, pm->mins, pm->maxs, point, pm->ps->clientNum, pm->tracemask );
   
   if( trace.fraction < 1.0f &&
-      !( trace.surfaceFlags & ( SURF_SKY | SURF_SLICK ) ) )
+      !( trace.surfaceFlags & ( SURF_SKY | SURF_SLICK ) ) &&
+      trace.plane.normal[ 2 ] < MIN_WALK_NORMAL )
   {
     if( !VectorCompare( trace.plane.normal, pm->ps->grapplePoint ) )
     {
