@@ -308,7 +308,6 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
       ScoreboardMessage( g_entities + i );
   }
 
-  self->client->pers.classSelection = PCL_NONE; // reset the classtype
   VectorCopy( self->s.origin, self->client->pers.lastDeathLocation );
 
   self->takedamage = qfalse; // can still be gibbed
