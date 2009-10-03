@@ -7892,7 +7892,7 @@ The following table shows the flags for RIGHTS:
 
 
 \begin_inset  Tabular
-<lyxtabular version="3" rows="12" columns="2">
+<lyxtabular version="3" rows="13" columns="2">
 <features islongtable="true">
 <column alignment="center" valignment="top" leftline="true" width="0">
 <column alignment="left" valignment="top" leftline="true" rightline="true" width="0">
@@ -8108,7 +8108,25 @@ no ! commands can be used on a player with this flag
 
 \layout Standard
 
-does not show up as an admin in the output of listplayers
+does not show up as an admin in the output of !listplayers
+\end_inset 
+</cell>
+</row>
+<row topline="true" bottomline="true">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+$
+\end_inset 
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\layout Standard
+
+sees additional player info in the output of !listplayers
 \end_inset 
 </cell>
 </row>
