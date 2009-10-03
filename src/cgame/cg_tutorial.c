@@ -656,7 +656,7 @@ const char *CG_TutorialText( void )
       {
         entityState_t *es = CG_BuildableInRange( ps, NULL );
 
-        if( ps->stats[ STAT_STATE ] & SS_HOVELING )
+        /*if( ps->stats[ STAT_STATE ] & SS_HOVELING )
         {
           Q_strcat( text, MAX_TUTORIAL_TEXT,
               va( "Press %s to exit the hovel\n",
@@ -671,7 +671,8 @@ const char *CG_TutorialText( void )
               va( "Press %s to enter the hovel\n",
                 CG_KeyNameForCommand( "+button7" ) ) );
         }
-        else if( BG_AlienCanEvolve( ps->stats[ STAT_CLASS ],
+        else*/
+        if( BG_AlienCanEvolve( ps->stats[ STAT_CLASS ],
                                     ps->persistant[ PERS_CREDIT ],
                                     cgs.alienStage ) )
         {

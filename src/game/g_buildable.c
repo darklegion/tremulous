@@ -1218,7 +1218,8 @@ Is this hovel entrance blocked?
 */
 qboolean AHovel_Blocked( gentity_t *hovel, gentity_t *player, qboolean provideExit )
 {
-  vec3_t    forward, normal, origin, start, end, angles, hovelMaxs;
+  return qfalse;
+  /*vec3_t    forward, normal, origin, start, end, angles, hovelMaxs;
   vec3_t    mins, maxs;
   float     displacement;
   trace_t   tr;
@@ -1262,7 +1263,7 @@ qboolean AHovel_Blocked( gentity_t *hovel, gentity_t *player, qboolean provideEx
     G_SetClientViewAngle( player, angles );
   }
 
-  return tr.fraction < 1.0f;
+  return tr.fraction < 1.0f;*/
 }
 
 /*
@@ -2664,7 +2665,7 @@ static int G_CompareBuildablesForRemoval( const void *a, const void *b )
     BA_A_TRAPPER,
     BA_A_HIVE,
     BA_A_BOOSTER,
-    BA_A_HOVEL,
+    /*BA_A_HOVEL,*/
     BA_A_SPAWN,
     BA_A_OVERMIND,
 
@@ -2875,8 +2876,8 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
       continue;
 
     // Don't allow destruction of hovel with granger inside
-    if( ent->s.modelindex == BA_A_HOVEL && ent->active )
-      continue;
+    /*if( ent->s.modelindex == BA_A_HOVEL && ent->active )
+      continue;*/
 
     // Explicitly disallow replacement of the core buildable with anything
     // other than the core buildable
@@ -3045,7 +3046,7 @@ itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance
         reason = IBE_NOCREEP;
     }
 
-    if( buildable == BA_A_HOVEL )
+    /*if( buildable == BA_A_HOVEL )
     {
       vec3_t    builderMins, builderMaxs;
 
@@ -3054,7 +3055,7 @@ itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance
 
       if( APropHovel_Blocked( angles, origin, normal, ent ) )
         reason = IBE_HOVELEXIT;
-    }
+        }*/
 
     // Check permission to build here
     if( tr1.surfaceFlags & SURF_NOALIENBUILD || contents & CONTENTS_NOALIENBUILD )
@@ -3108,9 +3109,9 @@ itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance
           reason = IBE_ONEOVERMIND;
           break;
 
-        case BA_A_HOVEL:
+        /*case BA_A_HOVEL:
           reason = IBE_ONEHOVEL;
-          break;
+          break;*/
 
         case BA_H_REACTOR:
           reason = IBE_ONEREACTOR;
@@ -3264,12 +3265,12 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable, vec3_t ori
       built->pain = AGeneric_Pain;
       break;
 
-    case BA_A_HOVEL:
+    /*case BA_A_HOVEL:
       built->die = AHovel_Die;
       built->use = AHovel_Use;
       built->think = AHovel_Think;
       built->pain = AGeneric_Pain;
-      break;
+      break;*/
 
     case BA_H_SPAWN:
       built->die = HSpawn_Die;

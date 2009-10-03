@@ -280,7 +280,7 @@ static const buildableAttributes_t bg_buildableList[ ] =
     qfalse,                //qboolean  uniqueTest;
     HIVE_VALUE,            //int       value;
   },
-  {
+  /*{
     BA_A_HOVEL,            //int       buildNum;
     "hovel",               //char      *buildName;
     "Hovel",               //char      *humanName;
@@ -314,7 +314,7 @@ static const buildableAttributes_t bg_buildableList[ ] =
     qfalse,                //qboolean  transparentTest;
     qtrue,                 //qboolean  uniqueTest;
     HOVEL_VALUE,           //int       value;
-  },
+    },*/
   {
     BA_H_SPAWN,            //int       buildNum;
     "telenode",            //char      *buildName;

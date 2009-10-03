@@ -1808,8 +1808,8 @@ void Cmd_Destroy_f( gentity_t *ent )
     }
 
     // Don't allow destruction of hovel with granger inside
-    if( traceEnt->s.modelindex == BA_A_HOVEL && traceEnt->active )
-      return;
+    /*if( traceEnt->s.modelindex == BA_A_HOVEL && traceEnt->active )
+      return;*/
 
     // Don't allow destruction of buildables that cannot be rebuilt
     if( G_TimeTilSuddenDeath( ) <= 0 )
