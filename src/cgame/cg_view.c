@@ -264,75 +264,52 @@ CG_OffsetThirdPersonView
 
 ===============
 */
-#define FOCUS_DISTANCE  512
 static void CG_OffsetThirdPersonView( void )
 {
   vec3_t        forward, right, up;
   vec3_t        view;
-  vec3_t        focusAngles;
   trace_t       trace;
   static vec3_t mins = { -8, -8, -8 };
   static vec3_t maxs = { 8, 8, 8 };
   vec3_t        focusPoint;
-  float         focusDist;
-  float         forwardScale, sideScale;
+  float         forwardScale, sideScale, upScale;
   vec3_t        surfNormal;
-  float         angleOffsets[3];
-  usercmd_t     cmd;
   int           cmdNum;
-  int           i;
+  usercmd_t     cmd;
+  float         range, pitch, yaw;
 
+  // set the view origin to the class's view height
   BG_GetClientNormal( &cg.predictedPlayerState, surfNormal );
-
   VectorMA( cg.refdef.vieworg, cg.predictedPlayerState.viewheight, surfNormal, cg.refdef.vieworg );
-
-  VectorCopy( cg.refdefViewAngles, focusAngles );
-
-  cmdNum = trap_GetCurrentCmdNumber();
-  trap_GetUserCmd( cmdNum, &cmd );
 
   // if dead, look at killer
   if( cg.predictedPlayerState.stats[ STAT_HEALTH ] <= 0 )
-  {
-    focusAngles[ YAW ] = cg.predictedPlayerState.stats[ STAT_VIEWLOCK ];
     cg.refdefViewAngles[ YAW ] = cg.predictedPlayerState.stats[ STAT_VIEWLOCK ];
-  }
 
-  //if ( focusAngles[PITCH] > 45 ) {
-  //  focusAngles[PITCH] = 45;    // don't go too far overhead
-  //}
-  AngleVectors( focusAngles, forward, NULL, NULL );
+  // set the focus point where the camera will look (at the player's vieworg)
+  VectorCopy( cg.refdef.vieworg, focusPoint );
 
-  VectorMA( cg.refdef.vieworg, FOCUS_DISTANCE, forward, focusPoint );
+  // collect our input values from cvars and the mouse
+  cmdNum = trap_GetCurrentCmdNumber();
+  trap_GetUserCmd( cmdNum, &cmd );
+  yaw = SHORT2ANGLE(cmd.angles[ YAW ]);
+  pitch = SHORT2ANGLE( cmd.angles[ PITCH ] );
+
+  range = cg_thirdPersonRange.value;
+  if( range > 150.0f ) range = 150.0f;
+  if( range < 30.0f ) range = 30.0f;
+
+  // calculate the camera position by moving to the appropriate position on a
+  // sphere around the player with radius 'range'
+  AngleVectors( cg.refdefViewAngles, forward, right, up );
+  sideScale = sin( DEG2RAD( pitch ) ) * cos( DEG2RAD( yaw ) );
+  forwardScale = sin( DEG2RAD( pitch ) ) * sin( DEG2RAD( yaw ) );
+  upScale = cos( DEG2RAD( pitch ) );
 
   VectorCopy( cg.refdef.vieworg, view );
-
-  VectorMA( view, 12, surfNormal, view );
-
-  //cg.refdefViewAngles[PITCH] *= 0.5;
-
-  AngleVectors( cg.refdefViewAngles, forward, right, up );
-
-  for( i = 0; i < 3; i++ )
-  {
-    if ( cg.snap->ps.pm_flags & PMF_FOLLOW )
-      angleOffsets[ i ] = SHORT2ANGLE(cmd.angles[ i ]);
-    else
-      angleOffsets[ i ] = 0;
-
-    if( i == YAW )
-      angleOffsets[ i ] += cg_thirdPersonAngle.value;
-    
-    while( angleOffsets[ i ] > 180.0f )
-      angleOffsets[ i ] -= 360.0f;
-    while( angleOffsets[ i ] < -180.0f )
-      angleOffsets[ i ] += 360.0f;
-  }
-
-  forwardScale = cos( angleOffsets[ YAW ] / 180 * M_PI );
-  sideScale = sin( angleOffsets[ YAW ] / 180 * M_PI );
-  VectorMA( view, -cg_thirdPersonRange.value * forwardScale, forward, view );
-  VectorMA( view, -cg_thirdPersonRange.value * sideScale, right, view );
+  VectorMA( view, -range * forwardScale, forward, view );
+  VectorMA( view, range * sideScale, right, view );
+  VectorMA( view, range * upScale, up, view );
 
   // trace a ray from the origin to the viewpoint to make sure the view isn't
   // in a solid block.  Use an 8 by 8 block to prevent the view from near clipping anything
@@ -353,21 +330,13 @@ static void CG_OffsetThirdPersonView( void )
     }
   }
 
+  // set the camera position to what we calculated
   VectorCopy( view, cg.refdef.vieworg );
 
-  // select pitch to look at focus point from vieword
+  // from the camera position, look at the player
   VectorSubtract( focusPoint, cg.refdef.vieworg, focusPoint );
-  focusDist = sqrt( focusPoint[ 0 ] * focusPoint[ 0 ] + focusPoint[ 1 ] * focusPoint[ 1 ] );
-  if ( focusDist < 1 ) {
-    focusDist = 1;  // should never happen
-  }
-
-  cg.refdefViewAngles[ PITCH ] = -180 / M_PI * atan2( focusPoint[ 2 ], focusDist ) + 
-                                   angleOffsets[ PITCH ];
-
-  cg.refdefViewAngles[ YAW ] -= angleOffsets[ YAW ];
+  vectoangles( focusPoint, cg.refdefViewAngles );
 }
-
 
 // this causes a compiler bug on mac MrC compiler
 static void CG_StepOffset( void )
@@ -736,9 +705,10 @@ static int CG_CalcFov( void )
   }
 
   if( cg.predictedPlayerState.pm_type == PM_INTERMISSION ||
-      ( cg.snap->ps.persistant[ PERS_SPECSTATE ] != SPECTATOR_NOT ) )
+      ( cg.snap->ps.persistant[ PERS_SPECSTATE ] != SPECTATOR_NOT ) || 
+      ( cg.renderingThirdPerson ) )
   {
-    // if in intermission, use a fixed value
+    // if in intermission or third person, use a fixed value
     fov_x = 90;
   }
   else
