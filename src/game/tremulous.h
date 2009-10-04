@@ -146,65 +146,65 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ALIEN_HLTH_MODIFIER         1.0f
 #define AHM(h)                      ((int)((float)h*ALIEN_HLTH_MODIFIER))
 
-#define ALIEN_VALUE_MODIFIER        1.2f
+#define ALIEN_VALUE_MODIFIER        1.0f
 #define AVM(h)                      ((int)((float)h*ALIEN_VALUE_MODIFIER))
 
 #define ABUILDER_SPEED              0.9f
-#define ABUILDER_VALUE              AVM(200)
+#define ABUILDER_VALUE              AVM(240)
 #define ABUILDER_HEALTH             AHM(50)
 #define ABUILDER_REGEN              (0.04f * ABUILDER_HEALTH)
 #define ABUILDER_COST               0
 
 #define ABUILDER_UPG_SPEED          0.9f
-#define ABUILDER_UPG_VALUE          AVM(250)
+#define ABUILDER_UPG_VALUE          AVM(300)
 #define ABUILDER_UPG_HEALTH         AHM(75)
 #define ABUILDER_UPG_REGEN          (0.04f * ABUILDER_UPG_HEALTH)
 #define ABUILDER_UPG_COST           0
 
 #define LEVEL0_SPEED                1.4f
-#define LEVEL0_VALUE                AVM(150)
+#define LEVEL0_VALUE                AVM(180)
 #define LEVEL0_HEALTH               AHM(25)
 #define LEVEL0_REGEN                (0.05f * LEVEL0_HEALTH)
 #define LEVEL0_COST                 0
 
 #define LEVEL1_SPEED                1.25f
-#define LEVEL1_VALUE                AVM(225)
+#define LEVEL1_VALUE                AVM(270)
 #define LEVEL1_HEALTH               AHM(60)
 #define LEVEL1_REGEN                (0.03f * LEVEL1_HEALTH)
 #define LEVEL1_COST                 1
 
 #define LEVEL1_UPG_SPEED            1.25f
-#define LEVEL1_UPG_VALUE            AVM(275)
+#define LEVEL1_UPG_VALUE            AVM(330)
 #define LEVEL1_UPG_HEALTH           AHM(80)
 #define LEVEL1_UPG_REGEN            (0.03f * LEVEL1_UPG_HEALTH)
 #define LEVEL1_UPG_COST             1
 
 #define LEVEL2_SPEED                1.2f
-#define LEVEL2_VALUE                AVM(350)
+#define LEVEL2_VALUE                AVM(420)
 #define LEVEL2_HEALTH               AHM(150)
 #define LEVEL2_REGEN                (0.03f * LEVEL2_HEALTH)
 #define LEVEL2_COST                 1
 
 #define LEVEL2_UPG_SPEED            1.2f
-#define LEVEL2_UPG_VALUE            AVM(450)
+#define LEVEL2_UPG_VALUE            AVM(540)
 #define LEVEL2_UPG_HEALTH           AHM(175)
 #define LEVEL2_UPG_REGEN            (0.03f * LEVEL2_UPG_HEALTH)
 #define LEVEL2_UPG_COST             1
 
 #define LEVEL3_SPEED                1.1f
-#define LEVEL3_VALUE                AVM(500)
+#define LEVEL3_VALUE                AVM(600)
 #define LEVEL3_HEALTH               AHM(200)
 #define LEVEL3_REGEN                (0.03f * LEVEL3_HEALTH)
 #define LEVEL3_COST                 1
 
 #define LEVEL3_UPG_SPEED            1.1f
-#define LEVEL3_UPG_VALUE            AVM(600)
+#define LEVEL3_UPG_VALUE            AVM(720)
 #define LEVEL3_UPG_HEALTH           AHM(250)
 #define LEVEL3_UPG_REGEN            (0.03f * LEVEL3_UPG_HEALTH)
 #define LEVEL3_UPG_COST             1
 
 #define LEVEL4_SPEED                1.2f
-#define LEVEL4_VALUE                AVM(800)
+#define LEVEL4_VALUE                AVM(960)
 #define LEVEL4_HEALTH               AHM(350)
 #define LEVEL4_REGEN                (0.025f * LEVEL4_HEALTH)
 #define LEVEL4_COST                 2
