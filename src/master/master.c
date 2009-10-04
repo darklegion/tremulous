@@ -555,7 +555,7 @@ typedef struct
 	char address[ ADDRESS_LENGTH ]; // Dotted quad
 } ignoreAddress_t;
 
-#define PARSE_INTERVAL		60 // seconds
+#define PARSE_INTERVAL		10 // seconds
 
 static time_t							lastParseTime				= 0;
 static int								numIgnoreAddresses	= 0;
@@ -787,14 +787,23 @@ int main (int argc, const char* argv [])
 			continue;
 		}
 
-		// Ignore abusers
-		if( ignoreAddress( inet_ntoa( address.sin_addr ) ) )
-			continue;
-
 		// If we may have to print something, rebuild the peer address buffer
 		if (max_msg_level != MSG_NOPRINT)
 			snprintf (peer_address, sizeof (peer_address), "%s:%hu",
 					  inet_ntoa (address.sin_addr), ntohs (address.sin_port));
+
+		// Ignore abusers
+		if( ignoreAddress( inet_ntoa( address.sin_addr ) ) )
+		{
+			server_t* abuser = Sv_GetByAddr( &address, qfalse );
+			if( abuser != NULL )
+			{
+				abuser->timeout = crt_time - 1;
+				Sv_GetByAddr( &address, qfalse );
+				MsgPrint( MSG_WARNING, "WARNING: removing abuser %s\n", peer_address );
+			}
+			continue;
+		}
 
 		// We print the packet contents if necessary
 		// TODO: print the current time here
