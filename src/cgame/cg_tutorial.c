@@ -156,8 +156,8 @@ static entityState_t *CG_BuildableInRange( playerState_t *ps, float *healthFract
 
   if( healthFraction )
   {
-    health = es->generic1 & B_HEALTH_MASK;
-    *healthFraction = (float)health / B_HEALTH_MASK;
+    health = es->generic1;
+    *healthFraction = (float)health / BG_Buildable( es->modelindex )->health;
   }
 
   if( es->eType == ET_BUILDABLE &&

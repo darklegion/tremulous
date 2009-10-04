@@ -420,9 +420,6 @@ typedef enum
   BA_NUM_BUILDABLES
 } buildable_t;
 
-#define B_HEALTH_BITS       12
-#define B_HEALTH_MASK       ((1<<B_HEALTH_BITS)-1)
-
 // reward sounds (stored in ps->persistant[PERS_PLAYEREVENTS])
 #define PLAYEREVENT_DENIEDREWARD      0x0001
 #define PLAYEREVENT_GAUNTLETREWARD    0x0002

@@ -650,7 +650,7 @@ typedef struct centity_s
   particleSystem_t      *buildablePS;
   buildableStatus_t     buildableStatus;
   buildableCache_t      buildableCache;   // so we don't recalculate things
-  float                 lastBuildableHealthScale;
+  float                 lastBuildableHealth;
   int                   lastBuildableDamageSoundTime;
 
   lightFlareStatus_t    lfs;

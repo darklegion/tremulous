@@ -2737,14 +2737,14 @@ General think function for buildables
 */
 void G_BuildableThink( gentity_t *ent, int msec )
 {
-  int bHealth = BG_Buildable( ent->s.modelindex )->health;
-  int bRegen = BG_Buildable( ent->s.modelindex )->regenRate;
-  int bTime = BG_Buildable( ent->s.modelindex )->buildTime;
+  int maxHealth = BG_Buildable( ent->s.modelindex )->health;
+  int regenRate = BG_Buildable( ent->s.modelindex )->regenRate;
+  int buildTime = BG_Buildable( ent->s.modelindex )->buildTime;
 
   //toggle spawned flag for buildables
   if( !ent->spawned && ent->health > 0 )
   {
-    if( ent->buildTime + bTime < level.time )
+    if( ent->buildTime + buildTime < level.time )
       ent->spawned = qtrue;
   }
 
@@ -2755,13 +2755,13 @@ void G_BuildableThink( gentity_t *ent, int msec )
     ent->time1000 -= 1000;
 
     if( !ent->spawned && ent->health > 0 )
-      ent->health += (int)( ceil( (float)bHealth / (float)( bTime * 0.001 ) ) );
-    else if( ent->health > 0 && ent->health < bHealth )
+      ent->health += (int)( ceil( (float)maxHealth / (float)( buildTime * 0.001f ) ) );
+    else if( ent->health > 0 && ent->health < maxHealth )
     {
-      if( ent->buildableTeam == TEAM_ALIENS && bRegen &&
+      if( ent->buildableTeam == TEAM_ALIENS && regenRate &&
         ( ent->lastDamageTime + ALIEN_REGEN_DAMAGE_TIME ) < level.time )
       {
-        ent->health += bRegen;
+        ent->health += regenRate;
       }
       else if( ent->buildableTeam == TEAM_HUMANS && ent->dcc &&
         ( ent->lastDamageTime + HUMAN_REGEN_DAMAGE_TIME ) < level.time )
@@ -2770,10 +2770,10 @@ void G_BuildableThink( gentity_t *ent, int msec )
       }
     }
 
-    if( ent->health >= bHealth )
+    if( ent->health >= maxHealth )
     {
       int i;
-      ent->health = bHealth;
+      ent->health = maxHealth;
       for( i = 0; i < MAX_CLIENTS; i++ )
         ent->credits[ i ] = 0;
     }
@@ -2786,15 +2786,10 @@ void G_BuildableThink( gentity_t *ent, int msec )
   if( ent->clientSpawnTime < 0 )
     ent->clientSpawnTime = 0;
 
-  // Pack health
   ent->dcc = ( ent->buildableTeam != TEAM_HUMANS ) ? 0 : G_FindDCC( ent );
-  if( ent->health > 0 )
-  {
-    ent->s.generic1 = (int)( ( ent->health + bHealth / B_HEALTH_MASK - 1 ) *
-                             B_HEALTH_MASK / bHealth );
-  }
-  else
-    ent->s.generic1 = 0;
+
+  // Set health
+  ent->s.generic1 = ent->health;
     
   // Set flags
   ent->s.eFlags &= ~( EF_B_POWERED | EF_B_SPAWNED | EF_B_MARKED );
@@ -2807,10 +2802,10 @@ void G_BuildableThink( gentity_t *ent, int msec )
   if( ent->deconstruct )
     ent->s.eFlags |= EF_B_MARKED;
 
-  //check if this buildable is touching any triggers
+  // Check if this buildable is touching any triggers
   G_BuildableTouchTriggers( ent );
 
-  //fall back on normal physics routines
+  // Fall back on normal physics routines
   G_Physics( ent, msec );
 }
 
@@ -3646,8 +3641,7 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable, vec3_t ori
   built->physicsBounce = BG_Buildable( buildable )->bounce;
   built->s.groundEntityNum = -1;
 
-  built->s.generic1 = (int)( ( (float)built->health /
-        (float)BG_Buildable( buildable )->health ) * B_HEALTH_MASK );
+  built->s.generic1 = built->health;
 
   if( built->s.generic1 < 0 )
     built->s.generic1 = 0;

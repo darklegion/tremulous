@@ -1015,6 +1015,10 @@ static void CG_CEntityPVSEnter( centity_t *cent )
     case ET_MISSILE:
       CG_LaunchMissile( cent );
       break;
+
+    case ET_BUILDABLE:
+      cent->lastBuildableHealth = es->generic1;
+      break;
   }
 
   //clear any particle systems from previous uses of this centity_t
