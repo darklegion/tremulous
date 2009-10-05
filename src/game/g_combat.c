@@ -98,8 +98,6 @@ char *modNames[ ] =
   "MOD_TELEFRAG",
   "MOD_FALLING",
   "MOD_SUICIDE",
-  "MOD_DECONSTRUCT",
-  "MOD_NOCREEP",
   "MOD_TARGET_LASER",
   "MOD_TRIGGER_HURT",
 
@@ -127,7 +125,9 @@ char *modNames[ ] =
 
   "MOD_ASPAWN",
   "MOD_ATUBE",
-  "MOD_OVERMIND"
+  "MOD_OVERMIND",
+  "MOD_DECONSTRUCT",
+  "MOD_NOCREEP"
 };
 
 /*

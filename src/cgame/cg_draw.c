@@ -2913,12 +2913,22 @@ static qboolean CG_DrawQueue( void )
   if( position < 1 )
     return qfalse;
 
-  switch( position )
+  switch( position % 100 )
   {
-    case 1:  ordinal = "st"; break;
-    case 2:  ordinal = "nd"; break;
-    case 3:  ordinal = "rd"; break;
-    default: ordinal = "th"; break;
+    case 11:
+    case 12:
+    case 13:
+      ordinal = "th";
+      break;
+    default:
+      switch( position % 10 )
+      {
+        case 1:  ordinal = "st"; break;
+        case 2:  ordinal = "nd"; break;
+        case 3:  ordinal = "rd"; break;
+        default: ordinal = "th"; break;
+      }
+      break;
   }
 
   Com_sprintf( buffer, MAX_STRING_CHARS, "You are %d%s in the spawn queue",
