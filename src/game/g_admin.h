@@ -45,7 +45,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 /*
  * IMMUNITY - cannot be vote kicked, vote muted
  * NOCENSORFLOOD - cannot be censored or flood protected
- * TEAMCHANGEFREE - never loses credits for changing teams
  * SPECALLCHAT - can see team chat as a spectator
  * FORCETEAMCHANGE - can switch teams any time, regardless of balance
  * UNACCOUNTABLE - does not need to specify a reason for a kick/ban
@@ -57,11 +56,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  * IMMUTABLE - admin commands cannot be used on them
  * INCOGNITO - does not show up as an admin in !listplayers
  * ALLFLAGS - all flags (including command flags) apply to this player
- * ? - receieves and can send /a admin messages
+ * ADMINCHAT - receieves and can send /a admin messages
  */
 #define ADMF_IMMUNITY        "IMMUNITY"
 #define ADMF_NOCENSORFLOOD   "NOCENSORFLOOD"
-#define ADMF_TEAMCHANGEFREE  "TEAMCHANGEFREE"
 #define ADMF_SPEC_ALLCHAT    "SPECALLCHAT"
 #define ADMF_FORCETEAMCHANGE "FORCETEAMCHANGE"
 #define ADMF_UNACCOUNTABLE   "UNACCOUNTABLE"
