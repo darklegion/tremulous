@@ -1221,14 +1221,14 @@ char *ClientConnect( int clientNum, qboolean firstTime )
   value = Info_ValueForKey( userinfo, "cl_guid" );
   Q_strncpyz( client->pers.guid, value, sizeof( client->pers.guid ) );
 
+  value = Info_ValueForKey( userinfo, "ip" );
+  Q_strncpyz( client->pers.ip, value, sizeof( client->pers.ip ) );
+
   // check for admin ban
-  if( G_admin_ban_check( userinfo, reason, sizeof( reason ) ) )
+  if( G_admin_ban_check( ent, reason, sizeof( reason ) ) )
   {
     return va( "%s", reason );
   }
-
-  value = Info_ValueForKey( userinfo, "ip" );
-  Q_strncpyz( client->pers.ip, value, sizeof( client->pers.ip ) );
 
   // check for a password
   value = Info_ValueForKey( userinfo, "password" );

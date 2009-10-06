@@ -44,7 +44,7 @@ g_admin_cmd_t g_admin_cmds[ ] =
       "'m' (minutes), or seconds if no units are specified.  if the duration is"
       " preceded by a + or -, the ban duration will be extended or shortened by"
       " the specified amount",
-      "[^3ban#^7] (^5duration^7) (^5reason^7)"
+      "[^3ban#^7] (^5/mask^7) (^5duration^7) (^5reason^7)"
     },
 
     {"admintest", G_admin_admintest, "admintest",
@@ -67,7 +67,7 @@ g_admin_cmd_t g_admin_cmds[ ] =
       " duration is specified as numbers followed by units 'w' (weeks), 'd' "
       "(days), 'h' (hours) or 'm' (minutes), or seconds if no units are "
       "specified",
-      "[^3name|slot#|IP^7] (^5duration^7) (^5reason^7)"
+      "[^3name|slot#|IP(/mask)^7] (^5duration^7) (^5reason^7)"
     },
 
     {"cancelvote", G_admin_endvote, "cancelvote",
@@ -122,7 +122,7 @@ g_admin_cmd_t g_admin_cmds[ ] =
 
     {"namelog", G_admin_namelog, "namelog",
       "display a list of names used by recently connected players",
-      "(^5name^7)"
+      "(^5name|IP(/mask)^7)"
     },
 
     {"nextmap", G_admin_nextmap, "nextmap",
@@ -162,7 +162,7 @@ g_admin_cmd_t g_admin_cmds[ ] =
 
     {"showbans", G_admin_showbans, "showbans",
       "display a (partial) list of active bans",
-      "(^5start at ban#^7) (^5name|IP^7)"
+      "(^5start at ban#^7) (^5name|IP(/mask)^7)"
     },
 
     {"spec999", G_admin_spec999, "spec999",
@@ -803,40 +803,42 @@ void G_admin_duration( int secs, char *duration, int dursize )
     Com_sprintf( duration, dursize, "%i seconds", secs );
 }
 
-qboolean G_admin_ban_check( char *userinfo, char *reason, int rlen )
+qboolean G_admin_ban_check( gentity_t *ent, char *reason, int rlen )
 {
-  char *guid, *ip;
   int i;
   int t;
+  addr_t ip, test;
+  int mask = -1;
 
   *reason = '\0';
   t = trap_RealTime( NULL );
-  if( !*userinfo )
+  // this happens when ip = localhost
+  if( !G_AddressParse( ent->client->pers.ip, &ip, NULL ) )
     return qfalse;
-  ip = Info_ValueForKey( userinfo, "ip" );
-  if( !*ip )
-    return qfalse;
-  guid = Info_ValueForKey( userinfo, "cl_guid" );
   for( i = 0; i < MAX_ADMIN_BANS && g_admin_bans[ i ]; i++ )
   {
     // 0 is for perm ban
     if( g_admin_bans[ i ]->expires != 0 && g_admin_bans[ i ]->expires <= t )
       continue;
-    if( strstr( ip, g_admin_bans[ i ]->ip ) ||
-      ( *guid && !Q_stricmp( g_admin_bans[ i ]->guid, guid ) ) )
+    
+    if( !Q_stricmp( g_admin_bans[ i ]->guid, ent->client->pers.guid ) ||
+      ( !G_admin_permission( ent, ADMF_IMMUNITY ) &&
+        G_AddressParse( g_admin_bans[ i ]->ip, &test, &mask ) &&
+        G_AddressCompare( &ip, &test, mask ) ) )
     {
       char duration[ 13 ];
       G_admin_duration( g_admin_bans[ i ]->expires - t,
         duration, sizeof( duration ) );
-      Com_sprintf(
-        reason,
-        rlen,
-        "You have been banned by %s^7 reason: %s^7 expires: %s",
-        g_admin_bans[ i ]->banner,
-        g_admin_bans[ i ]->reason,
-        duration
-      );
-      G_Printf( "Banned player (#%d) tried to connect from %s\n", i + 1, ip );
+      if( reason )
+        Com_sprintf(
+          reason,
+          rlen,
+          "You have been banned by %s^7 reason: %s^7 expires: %s",
+          g_admin_bans[ i ]->banner,
+          g_admin_bans[ i ]->reason,
+          duration
+        );
+      G_Printf( "%s matches ban #%d\n", ip, i + 1 );
       return qtrue;
     }
   }
@@ -1433,6 +1435,21 @@ static qboolean admin_create_ban( gentity_t *ent,
     Q_strncpyz( b->reason, "banned by admin", sizeof( b->reason ) );
   else
     Q_strncpyz( b->reason, reason, sizeof( b->reason ) );
+
+  for( i = 0; i < level.maxclients; i++ )
+  {
+    if( level.clients[ i ].pers.connected == CON_DISCONNECTED )
+      continue;
+    if( G_admin_ban_check( &g_entities[ i ], NULL, 0 ) )
+    {
+      trap_SendServerCommand( i,
+        va( "disconnect \"You have been kicked by %s\nreason:\n%s\"",
+          b->banner, b->reason ) );
+
+      trap_DropClient( i, va( "has been kicked by %s^7. reason: %s",
+        b->banner, b->reason ) );
+    }
+  }
   return qtrue;
 }
 
@@ -1509,15 +1526,6 @@ qboolean G_admin_kick( gentity_t *ent, int skiparg )
     ( *reason ) ? reason : "kicked by admin" );
   admin_writeconfig();
 
-  trap_SendServerCommand( pids[ 0 ],
-    va( "disconnect \"You have been kicked.\n%s^7\nreason:\n%s\"",
-      ( ent ) ? va( "admin:\n%s", ent->client->pers.netname ) : "",
-      ( *reason ) ? reason : "kicked by admin" ) );
-
-  trap_DropClient( pids[ 0 ], va( "has been kicked%s^7. reason: %s",
-    ( ent ) ? va( " by %s", ent->client->pers.netname ) : "",
-    ( *reason ) ? reason : "kicked by admin" ) );
-
   return qtrue;
 }
 
@@ -1533,10 +1541,13 @@ qboolean G_admin_ban( gentity_t *ent, int skiparg )
   qboolean exactmatch = qfalse;
   char n2[ MAX_NAME_LENGTH ];
   char s2[ MAX_NAME_LENGTH ];
+  int netmask = -1;
+  addr_t ip, cmp;
+  qboolean ipmatch = qfalse;
 
   if( G_SayArgc() < 2 + skiparg )
   {
-    ADMP( "^3!ban: ^7usage: !ban [name|slot|ip] [duration] [reason]\n" );
+    ADMP( "^3!ban: ^7usage: !ban [name|slot|IP(/mask)] [duration] [reason]\n" );
     return qfalse;
   }
   G_SayArgv( 1 + skiparg, search, sizeof( search ) );
@@ -1581,6 +1592,18 @@ qboolean G_admin_ban( gentity_t *ent, int skiparg )
       for( logmatch = 0; g_admin_namelog[ logmatch ]->slot != i; logmatch++ );
     }
   }
+  else if( G_AddressParse( search, &ip, &netmask ) )
+  {
+    int max = ip.type == IPv4 ? 32 : 128;
+    int min = ent ? max / 2 : 1;
+    if( netmask < min || netmask > max )
+    {
+      ADMP( va( "^3!ban: ^7invalid netmask (%d is not one of %d-%d)\n",
+        netmask, min, max ) );
+      return qfalse;
+    }
+    ipmatch = qtrue;
+  }
 
   for( i = 0;
        !exactmatch && i < MAX_ADMIN_NAMELOGS && g_admin_namelog[ i ];
@@ -1590,12 +1613,21 @@ qboolean G_admin_ban( gentity_t *ent, int skiparg )
     if( g_admin_namelog[ i ]->banned )
       continue;
 
-    if( !Q_stricmp( g_admin_namelog[ i ]->ip, search ) )
+    if( ipmatch )
     {
-      logmatches = 1;
-      logmatch = i;
-      exactmatch = qtrue;
-      break;
+      if( G_AddressParse( g_admin_namelog[ i ]->ip, &cmp, NULL ) &&
+          G_AddressCompare( &ip, &cmp, netmask ) )
+      {
+        logmatches++;
+        logmatch = i;
+        if( ( ip.type == IPv4 && netmask == 32 ) ||
+          ( ip.type == IPv6 && netmask == 128 ) )
+        {
+          exactmatch = qtrue;
+          break;
+        }
+      }
+      continue;
     }
     for( j = 0; j < MAX_ADMIN_NAMELOG_NAMES &&
        g_admin_namelog[ i ]->name[ j ][ 0 ]; j++ )
@@ -1615,7 +1647,7 @@ qboolean G_admin_ban( gentity_t *ent, int skiparg )
     ADMP( "^3!ban: ^7no player found by that name, IP, or slot number\n" );
     return qfalse;
   }
-  else if( logmatches > 1 )
+  if( !ipmatch && logmatches > 1 )
   {
     ADMBP_begin();
     ADMBP( "^3!ban: ^7multiple recent clients match name, use IP or slot#:\n" );
@@ -1660,7 +1692,7 @@ qboolean G_admin_ban( gentity_t *ent, int skiparg )
   admin_create_ban( ent,
     g_admin_namelog[ logmatch ]->name[ 0 ],
     g_admin_namelog[ logmatch ]->guid,
-    g_admin_namelog[ logmatch ]->ip,
+    ipmatch ? search : g_admin_namelog[ logmatch ]->ip,
     seconds, reason );
 
   g_admin_namelog[ logmatch ]->banned = qtrue;
@@ -1670,30 +1702,6 @@ qboolean G_admin_ban( gentity_t *ent, int skiparg )
   else
     admin_writeconfig();
 
-  if( g_admin_namelog[ logmatch ]->slot == -1 )
-  {
-    // client is already disconnected so stop here
-    AP( va( "print \"^3!ban:^7 %s^7 has been banned by %s^7, "
-      "duration: %s, reason: %s\n\"",
-      g_admin_namelog[ logmatch ]->name[ 0 ],
-      ( ent ) ? ent->client->pers.netname : "console",
-      duration,
-      ( *reason ) ? reason : "banned by admin" ) );
-    return qtrue;
-  }
-
-  trap_SendServerCommand( g_admin_namelog[ logmatch ]->slot,
-    va( "disconnect \"You have been banned.\n"
-      "admin:\n%s^7\nduration:\n%s\nreason:\n%s\"",
-      ( ent ) ? ent->client->pers.netname : "console",
-      duration,
-      ( *reason ) ? reason : "banned by admin" ) );
-
-  trap_DropClient(  g_admin_namelog[ logmatch ]->slot,
-    va( "has been banned by %s^7, duration: %s, reason: %s",
-      ( ent ) ? ent->client->pers.netname : "console",
-      duration,
-      ( *reason ) ? reason : "banned by admin" ) );
   return qtrue;
 }
 
@@ -1744,10 +1752,12 @@ qboolean G_admin_adjustban( gentity_t *ent, int skiparg )
   char secs[ MAX_TOKEN_CHARS ];
   char mode = '\0';
   g_admin_ban_t *ban;
+  int mask = 0;
 
   if( G_SayArgc() < 3 + skiparg )
   {
-    ADMP( "^3!adjustban: ^7usage: !adjustban [ban#] [duration] [reason]\n" );
+    ADMP( "^3!adjustban: ^7usage: !adjustban [ban#] [/mask] [duration] [reason]"
+      "\n" );
     return qfalse;
   }
   G_SayArgv( 1 + skiparg, bs, sizeof( bs ) );
@@ -1766,6 +1776,19 @@ qboolean G_admin_adjustban( gentity_t *ent, int skiparg )
     return qfalse;
   }
   G_SayArgv( 2 + skiparg, secs, sizeof( secs ) );
+  if( secs[ 0 ] == '/' )
+  {
+    int max = strchr( ban->ip, ':' ) ? 128 : 32;
+    int min = ent ? max / 2 : 1;
+    mask = atoi( secs + 1 );
+    if( mask < min || mask > max )
+    {
+      ADMP( va( "^3!adjustban: ^7invalid netmask (%d is not one of %d-%d)\n",
+        mask, min, max ) );
+      return qfalse;
+    }
+    G_SayArgv( 3 + skiparg++, secs, sizeof( secs ) );
+  }
   if( secs[ 0 ] == '+' || secs[ 0 ] == '-' )
     mode = secs[ 0 ];
   length = G_admin_parse_time( &secs[ mode ? 1 : 0 ] );
@@ -1805,14 +1828,24 @@ qboolean G_admin_adjustban( gentity_t *ent, int skiparg )
     G_admin_duration( ( expires ) ? expires - time : -1, duration,
       sizeof( duration ) );
   }
+  if( mask )
+  {
+    char *p = strchr( ban->ip, '/' );
+    if( !p )
+      p = ban->ip + strlen( ban->ip );
+    Com_sprintf( p, sizeof( ban->ip ) - ( p - ban->ip ), "/%d", mask );
+  }
   reason = G_SayConcatArgs( 3 + skiparg );
   if( *reason )
     Q_strncpyz( ban->reason, reason, sizeof( ban->reason ) );
   AP( va( "print \"^3!adjustban: ^7ban #%d for %s^7 has been updated by %s^7 "
-    "%s%s%s%s%s\n\"",
+    "%s%s%s%s%s%s\n\"",
     bnum,
     ban->name,
     ( ent ) ? ent->client->pers.netname : "console",
+    ( mask ) ?
+      va( "netmask: /%d%s", mask,
+        ( length >= 0 || *reason ) ? ", " : "" ) : "",
     ( length >= 0 ) ? "duration: " : "",
     duration,
     ( length >= 0 && *reason ) ? ", " : "",
@@ -2249,9 +2282,9 @@ qboolean G_admin_showbans( gentity_t *ent, int skiparg )
   char date[ 11 ];
   char *made;
   char n1[ MAX_NAME_LENGTH * 2 ] = {""};
-  qboolean numeric = qtrue;
-  char *ip_match = NULL;
-  int ip_match_len = 0;
+  qboolean ipmatch = qfalse;
+  addr_t ipa, ipb;
+  int neta, netb;
   char name_match[ MAX_NAME_LENGTH ] = {""};
 
   t = trap_RealTime( NULL );
@@ -2278,28 +2311,13 @@ qboolean G_admin_showbans( gentity_t *ent, int skiparg )
       start = atoi( filter );
       G_SayArgv( 2 + skiparg, filter, sizeof( filter ) );
     }
-    for( i = 0; i < sizeof( filter ) && filter[ i ] ; i++ )
-    {
-      if( !isdigit( filter[ i ] ) &&
-          filter[ i ] != '.' && filter[ i ] != '-' )
-      {
-        numeric = qfalse;
-        break;
-      }
-    }
-    if( !numeric )
-    {
-      G_SanitiseString( filter, name_match, sizeof( name_match ) );
-    }
-    else if( strchr( filter, '.' ) )
-    {
-      ip_match = filter;
-      ip_match_len = strlen(ip_match);
-    }
     else
     {
-      start = atoi( filter );
-      filter[ 0 ] = '\0';
+      for( i = 0; filter[ i ] && isdigit( filter[ i ] ); i++ );
+      if( filter[ i ] )
+        G_SanitiseString( filter, name_match, sizeof( name_match ) );
+      else
+        start = atoi( filter );
     }
     // showbans 1 means start with ban 0
     if( start > 0 )
@@ -2314,6 +2332,8 @@ qboolean G_admin_showbans( gentity_t *ent, int skiparg )
 
       start = i + 1;
     }
+    else
+      ipmatch = G_AddressParse( filter, &ipa, &neta );
   }
 
   if( start > max )
@@ -2327,15 +2347,20 @@ qboolean G_admin_showbans( gentity_t *ent, int skiparg )
     if( g_admin_bans[ i ]->expires != 0 && g_admin_bans[ i ]->expires <= t )
       continue;
 
-    if( name_match[ 0 ] )
+    if( ipmatch )
+    {
+      if( !G_AddressParse( g_admin_bans[ i ]->ip, &ipb, &netb ) )
+        continue;
+      if( !G_AddressCompare( &ipa, &ipb, neta ) &&
+          !G_AddressCompare( &ipa, &ipb, netb ) )
+        continue;
+    }
+    else if( name_match[ 0 ] )
     {
       G_SanitiseString( g_admin_bans[ i ]->name, n1, sizeof( n1 ) );
       if( !strstr( n1, name_match) )
         continue;
     }
-    if( ip_match &&
-      Q_strncmp( ip_match, g_admin_bans[ i ]->ip, ip_match_len ) )
-        continue;
 
     count++;
 
@@ -2354,15 +2379,20 @@ qboolean G_admin_showbans( gentity_t *ent, int skiparg )
     if( g_admin_bans[ i ]->expires != 0 && g_admin_bans[ i ]->expires <= t )
       continue;
 
-    if( name_match[ 0 ] )
+    if( ipmatch )
+    {
+      if( !G_AddressParse( g_admin_bans[ i ]->ip, &ipb, &netb ) )
+        continue;
+      if( !G_AddressCompare( &ipa, &ipb, neta ) &&
+          !G_AddressCompare( &ipa, &ipb, netb ) )
+        continue;
+    }
+    else if( name_match[ 0 ] )
     {
       G_SanitiseString( g_admin_bans[ i ]->name, n1, sizeof( n1 ) );
       if( !strstr( n1, name_match) )
         continue;
     }
-    if( ip_match &&
-      Q_strncmp( ip_match, g_admin_bans[ i ]->ip, ip_match_len ) )
-        continue;
 
     count++;
 
@@ -2401,11 +2431,11 @@ qboolean G_admin_showbans( gentity_t *ent, int skiparg )
              g_admin_bans[ i ]->reason ) );
   }
 
-  if( name_match[ 0 ] || ip_match )
+  if( name_match[ 0 ] || ipmatch )
   {
     ADMBP( va( "^3!showbans:^7 found %d matching bans by %s.  ",
              count,
-             ( ip_match ) ? "IP" : "name" ) );
+             ( ipmatch ) ? "IP" : "name" ) );
   }
   else
   {
@@ -2419,8 +2449,8 @@ qboolean G_admin_showbans( gentity_t *ent, int skiparg )
   if( i <= max )
     ADMBP( va( "  run !showbans %d%s%s to see more",
              i + 1,
-             ( filter[ 0 ] ) ? " " : "",
-             ( filter[ 0 ] ) ? filter : "" ) );
+             ( name_match[ 0 ] ) ? " " : "",
+             ( name_match[ 0 ] ) ? filter : "" ) );
   ADMBP( "\n" );
   ADMBP_end();
   return qtrue;
@@ -2764,28 +2794,42 @@ qboolean G_admin_namelog( gentity_t *ent, int skiparg )
   char s2[ MAX_NAME_LENGTH ] = {""};
   char n2[ MAX_NAME_LENGTH ] = {""};
   int printed = 0;
+  addr_t a, b;
+  int mask = -1;
+  qboolean ipmatch = qfalse;
 
   if( G_SayArgc() > 1 + skiparg )
   {
     G_SayArgv( 1 + skiparg, search, sizeof( search ) );
-    G_SanitiseString( search, s2, sizeof( s2 ) );
+    ipmatch = G_AddressParse( search, &a, &mask );
+    if( !ipmatch )
+      G_SanitiseString( search, s2, sizeof( s2 ) );
   }
   ADMBP_begin();
   for( i = 0; i < MAX_ADMIN_NAMELOGS && g_admin_namelog[ i ]; i++ )
   {
     if( search[ 0 ] )
     {
-      for( j = 0; j < MAX_ADMIN_NAMELOG_NAMES &&
-        g_admin_namelog[ i ]->name[ j ][ 0 ]; j++ )
+      if( ipmatch )
       {
-        G_SanitiseString( g_admin_namelog[ i ]->name[ j ], n2, sizeof( n2 ) );
-        if( strstr( n2, s2 ) )
-        {
-          break;
-        }
+        if( !G_AddressParse( g_admin_namelog[ i ]->ip, &b, NULL ) ||
+            !G_AddressCompare( &a, &b, mask ) )
+          continue;
       }
-      if( j == MAX_ADMIN_NAMELOG_NAMES || !g_admin_namelog[ i ]->name[ j ][ 0 ] )
-        continue;
+      else
+      {
+        for( j = 0; j < MAX_ADMIN_NAMELOG_NAMES &&
+          g_admin_namelog[ i ]->name[ j ][ 0 ]; j++ )
+        {
+          G_SanitiseString( g_admin_namelog[ i ]->name[ j ], n2, sizeof( n2 ) );
+          if( strstr( n2, s2 ) )
+          {
+            break;
+          }
+        }
+        if( j == MAX_ADMIN_NAMELOG_NAMES || !g_admin_namelog[ i ]->name[ j ][ 0 ] )
+          continue;
+      }
     }
     printed++;
     ADMBP( va( "%s (*%s) %15s^7",

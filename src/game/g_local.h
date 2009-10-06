@@ -773,6 +773,20 @@ qboolean          G_InPowerZone( gentity_t *self );
 //
 // g_utils.c
 //
+#define ADDRLEN 16
+typedef struct
+{
+  enum
+  {
+    IPv4,
+    IPv6
+  } type;
+  byte addr[ ADDRLEN ];
+} addr_t;
+qboolean    G_AddressParse( const char *str, addr_t *addr, int *netmask );
+qboolean    G_AddressCompare( const addr_t *a, const addr_t *b, int netmask );
+qboolean    G_AdrCmpStr( const char *a, const char *b );
+
 int         G_ParticleSystemIndex( char *name );
 int         G_ShaderIndex( char *name );
 int         G_ModelIndex( char *name );

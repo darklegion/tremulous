@@ -109,7 +109,7 @@ typedef struct g_admin_ban
 {
   char name[ MAX_NAME_LENGTH ];
   char guid[ 33 ];
-  char ip[ 40 ];
+  char ip[ 44 ]; // big enough for IPv6 CIDR notation (without brackets)
   char reason[ MAX_ADMIN_BAN_REASON ];
   char made[ 18 ]; // big enough for strftime() %c
   int expires;
@@ -136,7 +136,7 @@ typedef struct g_admin_namelog
 }
 g_admin_namelog_t;
 
-qboolean G_admin_ban_check( char *userinfo, char *reason, int rlen );
+qboolean G_admin_ban_check( gentity_t *ent, char *reason, int rlen );
 qboolean G_admin_cmd_check( gentity_t *ent, qboolean say );
 qboolean G_admin_readconfig( gentity_t *ent, int skiparg );
 qboolean G_admin_permission( gentity_t *ent, const char *flag );
