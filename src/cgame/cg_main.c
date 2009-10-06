@@ -129,7 +129,6 @@ vmCvar_t  cg_noPlayerAnims;
 vmCvar_t  cg_showmiss;
 vmCvar_t  cg_footsteps;
 vmCvar_t  cg_addMarks;
-vmCvar_t  cg_brassTime;
 vmCvar_t  cg_viewsize;
 vmCvar_t  cg_drawGun;
 vmCvar_t  cg_gun_frame;
@@ -139,7 +138,6 @@ vmCvar_t  cg_gun_z;
 vmCvar_t  cg_tracerChance;
 vmCvar_t  cg_tracerWidth;
 vmCvar_t  cg_tracerLength;
-vmCvar_t  cg_autoswitch;
 vmCvar_t  cg_thirdPerson;
 vmCvar_t  cg_thirdPersonAngle;
 vmCvar_t  cg_thirdPersonShoulderViewMode;
@@ -151,7 +149,6 @@ vmCvar_t  cg_synchronousClients;
 vmCvar_t  cg_stats;
 vmCvar_t  cg_paused;
 vmCvar_t  cg_blood;
-vmCvar_t  cg_drawFriend;
 vmCvar_t  cg_teamChatsOnly;
 vmCvar_t  cg_noPrintDuplicate;
 vmCvar_t  cg_noVoiceChats;
@@ -224,7 +221,6 @@ typedef struct
 
 static cvarTable_t cvarTable[ ] =
 {
-  { &cg_autoswitch, "cg_autoswitch", "1", CVAR_ARCHIVE },
   { &cg_drawGun, "cg_drawGun", "1", CVAR_ARCHIVE },
   { &cg_viewsize, "cg_viewsize", "100", CVAR_ARCHIVE },
   { &cg_stereoSeparation, "cg_stereoSeparation", "0.4", CVAR_ARCHIVE  },
@@ -239,7 +235,6 @@ static cvarTable_t cvarTable[ ] =
   { &cg_drawCrosshair, "cg_drawCrosshair", "1", CVAR_ARCHIVE },
   { &cg_drawCrosshairNames, "cg_drawCrosshairNames", "1", CVAR_ARCHIVE },
   { &cg_crosshairSize, "cg_crosshairSize", "1", CVAR_ARCHIVE },
-  { &cg_brassTime, "cg_brassTime", "2500", CVAR_ARCHIVE },
   { &cg_addMarks, "cg_marks", "1", CVAR_ARCHIVE },
   { &cg_lagometer, "cg_lagometer", "0", CVAR_ARCHIVE },
   { &cg_teslaTrailTime, "cg_teslaTrailTime", "250", CVAR_ARCHIVE  },
@@ -269,7 +264,6 @@ static cvarTable_t cvarTable[ ] =
   { &cg_thirdPersonPitchFollow, "cg_thirdPersonPitchFollow", "0", 0 },
   { &cg_thirdPersonShoulderViewMode, "cg_thirdPersonShoulderViewMode", "1", CVAR_ARCHIVE },
   { &cg_stats, "cg_stats", "0", 0 },
-  { &cg_drawFriend, "cg_drawFriend", "1", CVAR_ARCHIVE },
   { &cg_teamChatsOnly, "cg_teamChatsOnly", "0", CVAR_ARCHIVE },
   { &cg_noPrintDuplicate, "cg_noPrintDuplicate", "0", CVAR_ARCHIVE },
   { &cg_noVoiceChats, "cg_noVoiceChats", "0", CVAR_ARCHIVE },
@@ -364,9 +358,6 @@ void CG_RegisterCvars( void )
     trap_Cvar_Register( cv->vmCvar, cv->cvarName,
       cv->defaultString, cv->cvarFlags );
   }
-
-  //repress standard Q3 console
-  trap_Cvar_Set( "con_notifytime", "-2" );
 
   // see if we are also running the server on this machine
   trap_Cvar_VariableStringBuffer( "sv_running", var, sizeof( var ) );

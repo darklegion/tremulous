@@ -713,7 +713,7 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText )
   char        text[ MAX_SAY_TEXT ];
   char        location[ 64 ];
 
-  if( ent && g_chatTeamPrefix.integer )
+  if( ent )
   {
     prefix = BG_TeamName( ent->client->pers.teamSelection );
     prefix = va( "[%c] ", toupper( *prefix ) );
@@ -794,13 +794,8 @@ static void Cmd_SayArea_f( gentity_t *ent )
   for(i = 0; i < 3; i++ )
     range[ i ] = g_sayAreaRange.value;
   
-  if( g_chatTeamPrefix.integer )
-  {
-    prefix = BG_TeamName( ent->client->pers.teamSelection );
-    prefix = va( "[%c] ", toupper( *prefix ) );
-  }
-  else
-    prefix = "";
+  prefix = BG_TeamName( ent->client->pers.teamSelection );
+  prefix = va( "[%c] ", toupper( *prefix ) );
 
   G_LogPrintf( "sayarea: %s%s^7: %s\n", prefix, ent->client->pers.netname, msg );
   Com_sprintf( name, sizeof( name ), "%s<%s%c%c> ",

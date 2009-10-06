@@ -57,12 +57,9 @@ vmCvar_t  g_speed;
 vmCvar_t  g_gravity;
 vmCvar_t  g_cheats;
 vmCvar_t  g_knockback;
-vmCvar_t  g_quadfactor;
 vmCvar_t  g_inactivity;
 vmCvar_t  g_debugMove;
 vmCvar_t  g_debugDamage;
-vmCvar_t  g_weaponRespawn;
-vmCvar_t  g_weaponTeamRespawn;
 vmCvar_t  g_motd;
 vmCvar_t  g_synchronousClients;
 vmCvar_t  g_warmup;
@@ -71,18 +68,14 @@ vmCvar_t  g_restarted;
 vmCvar_t  g_logFile;
 vmCvar_t  g_logFileSync;
 vmCvar_t  g_blood;
-vmCvar_t  g_podiumDist;
-vmCvar_t  g_podiumDrop;
 vmCvar_t  g_allowVote;
 vmCvar_t  g_voteLimit;
 vmCvar_t  g_suddenDeathVotePercent;
 vmCvar_t  g_suddenDeathVoteDelay;
-vmCvar_t  g_teamAutoJoin;
 vmCvar_t  g_teamForceBalance;
 vmCvar_t  g_smoothClients;
 vmCvar_t  pmove_fixed;
 vmCvar_t  pmove_msec;
-vmCvar_t  g_rankings;
 vmCvar_t  g_minCommandPeriod;
 vmCvar_t  g_minNameChangePeriod;
 vmCvar_t  g_maxNameChanges;
@@ -127,7 +120,6 @@ vmCvar_t  g_voiceChats;
 vmCvar_t  g_shove;
 
 vmCvar_t  g_mapConfigs;
-vmCvar_t  g_chatTeamPrefix;
 vmCvar_t  g_sayAreaRange;
 
 vmCvar_t  g_floodMaxDemerits;
@@ -141,7 +133,6 @@ vmCvar_t  g_emoticonsAllowedInNames;
 vmCvar_t  g_admin;
 vmCvar_t  g_adminLog;
 vmCvar_t  g_adminParseSay;
-vmCvar_t  g_adminNameProtect;
 vmCvar_t  g_adminTempBan;
 vmCvar_t  g_adminMaxBan;
 
@@ -185,7 +176,6 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_friendlyBuildableFire, "g_friendlyBuildableFire", "0", CVAR_ARCHIVE, 0, qtrue  },
   { &g_dretchPunt, "g_dretchPunt", "0", CVAR_ARCHIVE, 0, qtrue  },
 
-  { &g_teamAutoJoin, "g_teamAutoJoin", "0", CVAR_ARCHIVE  },
   { &g_teamForceBalance, "g_teamForceBalance", "0", CVAR_ARCHIVE  },
 
   { &g_warmup, "g_warmup", "20", CVAR_ARCHIVE, 0, qtrue  },
@@ -202,17 +192,11 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_speed, "g_speed", "320", 0, 0, qtrue  },
   { &g_gravity, "g_gravity", "800", 0, 0, qtrue  },
   { &g_knockback, "g_knockback", "1000", 0, 0, qtrue  },
-  { &g_quadfactor, "g_quadfactor", "3", 0, 0, qtrue  },
-  { &g_weaponRespawn, "g_weaponrespawn", "5", 0, 0, qtrue  },
-  { &g_weaponTeamRespawn, "g_weaponTeamRespawn", "30", 0, 0, qtrue },
   { &g_inactivity, "g_inactivity", "0", 0, 0, qtrue },
   { &g_debugMove, "g_debugMove", "0", 0, 0, qfalse },
   { &g_debugDamage, "g_debugDamage", "0", 0, 0, qfalse },
   { &g_motd, "g_motd", "", 0, 0, qfalse },
   { &g_blood, "com_blood", "1", 0, 0, qfalse },
-
-  { &g_podiumDist, "g_podiumDist", "80", 0, 0, qfalse },
-  { &g_podiumDrop, "g_podiumDrop", "70", 0, 0, qfalse },
 
   { &g_allowVote, "g_allowVote", "1", CVAR_ARCHIVE, 0, qfalse },
   { &g_voteLimit, "g_voteLimit", "5", CVAR_ARCHIVE, 0, qfalse },
@@ -251,7 +235,6 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_disabledClasses, "g_disabledClasses", "", CVAR_ROM, 0, qfalse  },
   { &g_disabledBuildables, "g_disabledBuildables", "", CVAR_ROM, 0, qfalse  },
 
-  { &g_chatTeamPrefix, "g_chatTeamPrefix", "0", CVAR_ARCHIVE, 0, qfalse  },
   { &g_sayAreaRange, "g_sayAreaRange", "1000", CVAR_ARCHIVE, 0, qtrue  },
 
   { &g_floodMaxDemerits, "g_floodMaxDemerits", "5000", CVAR_ARCHIVE, 0, qfalse  },
@@ -279,7 +262,6 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_admin, "g_admin", "admin.dat", CVAR_ARCHIVE, 0, qfalse  },
   { &g_adminLog, "g_adminLog", "admin.log", CVAR_ARCHIVE, 0, qfalse  },
   { &g_adminParseSay, "g_adminParseSay", "1", CVAR_ARCHIVE, 0, qfalse  },
-  { &g_adminNameProtect, "g_adminNameProtect", "1", CVAR_ARCHIVE, 0, qfalse  },
   { &g_adminTempBan, "g_adminTempBan", "2m", CVAR_ARCHIVE, 0, qfalse  },
   { &g_adminMaxBan, "g_adminMaxBan", "2w", CVAR_ARCHIVE, 0, qfalse  },
 
@@ -289,9 +271,7 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_specChat, "g_specChat", "1", CVAR_ARCHIVE, 0, qfalse  },
   { &g_publicAdminMessages, "g_publicAdminMessages", "1", CVAR_ARCHIVE, 0, qfalse  },
 
-  { &g_tag, "g_tag", "main", CVAR_INIT, 0, qfalse },
-
-  { &g_rankings, "g_rankings", "0", 0, 0, qfalse}
+  { &g_tag, "g_tag", "main", CVAR_INIT, 0, qfalse }
 };
 
 static int gameCvarTableSize = sizeof( gameCvarTable ) / sizeof( gameCvarTable[ 0 ] );

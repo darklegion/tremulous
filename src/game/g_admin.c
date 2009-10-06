@@ -287,9 +287,6 @@ qboolean G_admin_name_check( gentity_t *ent, char *name, char *err, int len )
     }
   }
 
-  if( !g_adminNameProtect.integer )
-    return qtrue;
-
   for( i = 0; i < MAX_ADMIN_ADMINS && g_admin_admins[ i ]; i++ )
   {
     if( g_admin_admins[ i ]->level < 1 )
