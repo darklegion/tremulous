@@ -943,7 +943,8 @@ static int CG_CalcFov( void )
         if( !( cmd.buttons & BUTTON_ATTACK2 ) )
         {
           cg.zoomed   = qfalse;
-          cg.zoomTime = cg.time;
+          cg.zoomTime = MIN( cg.time, 
+              cg.time + cg.time - cg.zoomTime - ZOOM_TIME );
         }
       }
       else
@@ -959,7 +960,8 @@ static int CG_CalcFov( void )
         if( cmd.buttons & BUTTON_ATTACK2 )
         {
           cg.zoomed   = qtrue;
-          cg.zoomTime = cg.time;
+          cg.zoomTime = MIN( cg.time, 
+              cg.time + cg.time - cg.zoomTime - ZOOM_TIME );
         }
       }
     }
