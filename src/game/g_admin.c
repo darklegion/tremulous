@@ -835,7 +835,11 @@ qboolean G_admin_ban_check( gentity_t *ent, char *reason, int rlen )
           g_admin_bans[ i ]->reason,
           duration
         );
-      G_Printf( "%s matches ban #%d\n", ip, i + 1 );
+      G_Printf( S_COLOR_YELLOW "%s" S_COLOR_YELLOW " tried to connect from %s "
+        "(ban #%d)\n",
+        g_admin_bans[ i ]->name,
+        ent->client->pers.ip,
+        i + 1 );
       return qtrue;
     }
   }
