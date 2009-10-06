@@ -84,7 +84,8 @@ itemDef
   aspectBias ALIGN_LEFT
   visible MENU_TRUE
   decoration
-  forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.5
+  forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.8
+  backcolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.2
   background "ui/assets/alien/bolt.tga"
   ownerdraw CG_PLAYER_BOOST_BOLT
 }
@@ -109,7 +110,8 @@ itemDef
   aspectBias ALIGN_LEFT
   visible MENU_TRUE
   decoration
-  forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.5
+  forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.8
+  backcolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.2
   background "ui/assets/alien/left-ring.tga"
   ownerdraw CG_PLAYER_BOOSTED
 }
@@ -123,6 +125,7 @@ itemDef
   visible MENU_TRUE
   decoration
   forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 1.0
+  backcolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.2
   background "ui/assets/alien/left-spikes.tga"
   ownerdraw CG_PLAYER_WALLCLIMBING
 }
@@ -135,7 +138,8 @@ itemDef
   aspectBias ALIGN_RIGHT
   visible MENU_TRUE
   decoration
-  forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.5
+  forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.8
+  backcolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.2
   background "ui/assets/alien/right-ring.tga"
   ownerdraw CG_PLAYER_BOOSTED
 }
@@ -149,6 +153,7 @@ itemDef
   visible MENU_TRUE
   decoration
   forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 1.0
+  backcolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.2
   background "ui/assets/alien/right-spikes.tga"
   ownerdraw CG_PLAYER_WALLCLIMBING
 }
