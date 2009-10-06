@@ -14,6 +14,6 @@
   maxHeight 1.0
   minAngle  0
   maxAngle  360
-  modifer   0.4
+  modifier  0.4
   crouch
 }
