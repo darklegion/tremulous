@@ -683,7 +683,7 @@ const char *CG_TutorialText( void )
       }
     }
 
-    Q_strcat( text, MAX_TUTORIAL_TEXT, "Press ESC for the menu" );
+    Q_strcat( text, MAX_TUTORIAL_TEXT, "Press ESC for the menu\n" );
   }
 
   return text;
