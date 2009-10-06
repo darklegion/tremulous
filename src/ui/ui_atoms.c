@@ -135,13 +135,11 @@ static void UI_MessageMode_f( void )
     case '\0':
       // Global
       uiInfo.chatTeam             = qfalse;
-      uiInfo.chatTargetClientNum  = -1;
       break;
 
     case '2':
       // Team
       uiInfo.chatTeam             = qtrue;
-      uiInfo.chatTargetClientNum  = -1;
       break;
   }
 

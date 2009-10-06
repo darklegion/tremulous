@@ -2995,9 +2995,7 @@ static void UI_RunMenuScript( char **args )
 
       if( buffer[ 0 ] )
       {
-        if( uiInfo.chatTargetClientNum != -1 )
-          trap_Cmd_ExecuteText( EXEC_APPEND, va( "tell %i \"%s\"\n", uiInfo.chatTargetClientNum, buffer  ) );
-        else if( uiInfo.chatTeam )
+        if( uiInfo.chatTeam )
           trap_Cmd_ExecuteText( EXEC_APPEND, va( "say_team \"%s\"\n", buffer ) );
         else
           trap_Cmd_ExecuteText( EXEC_APPEND, va( "say \"%s\"\n", buffer ) );

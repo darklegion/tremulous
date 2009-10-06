@@ -143,36 +143,6 @@ static void CG_ScoresUp_f( void )
   }
 }
 
-static void CG_TellTarget_f( void )
-{
-  int   clientNum;
-  char  command[ 128 ];
-  char  message[ 128 ];
-
-  clientNum = CG_CrosshairPlayer( );
-  if( clientNum == -1 )
-    return;
-
-  trap_Args( message, 128 );
-  Com_sprintf( command, 128, "tell %i %s", clientNum, message );
-  trap_SendClientCommand( command );
-}
-
-static void CG_TellAttacker_f( void )
-{
-  int   clientNum;
-  char  command[ 128 ];
-  char  message[ 128 ];
-
-  clientNum = CG_LastAttacker( );
-  if( clientNum == -1 )
-    return;
-
-  trap_Args( message, 128 );
-  Com_sprintf( command, 128, "tell %i %s", clientNum, message );
-  trap_SendClientCommand( command );
-}
-
 void CG_ClientList_f( void )
 {
   clientInfo_t *ci;
@@ -232,8 +202,6 @@ static consoleCommand_t commands[ ] =
   { "weapnext", CG_NextWeapon_f },
   { "weapprev", CG_PrevWeapon_f },
   { "weapon", CG_Weapon_f },
-  { "tell_target", CG_TellTarget_f },
-  { "tell_attacker", CG_TellAttacker_f },
   { "testPS", CG_TestPS_f },
   { "destroyTestPS", CG_DestroyTestPS_f },
   { "testTS", CG_TestTS_f },
@@ -301,7 +269,6 @@ void CG_InitConsoleCommands( void )
   trap_AddCommand( "vsay_local" );
   trap_AddCommand( "m" );
   trap_AddCommand( "mt" );
-  trap_AddCommand( "tell" );
   trap_AddCommand( "give" );
   trap_AddCommand( "god" );
   trap_AddCommand( "notarget" );
@@ -319,7 +286,6 @@ void CG_InitConsoleCommands( void )
   trap_AddCommand( "buy" );
   trap_AddCommand( "sell" );
   trap_AddCommand( "reload" );
-  trap_AddCommand( "boost" );
   trap_AddCommand( "itemact" );
   trap_AddCommand( "itemdeact" );
   trap_AddCommand( "itemtoggle" );

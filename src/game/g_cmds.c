@@ -757,17 +757,6 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText )
           ent->client->pers.netname );
       color = COLOR_CYAN;
       break;
-
-    case SAY_TELL:
-      if( target && OnSameTeam( target, ent ) &&
-          Team_GetLocationMsg( ent, location, sizeof( location ) ) )
-        Com_sprintf( name, sizeof( name ), "[%s" S_COLOR_WHITE "] (%s): ",
-          ( ent ) ? ent->client->pers.netname : "console", location );
-      else
-        Com_sprintf( name, sizeof( name ), "[%s" S_COLOR_WHITE "]: ",
-          ( ent ) ? ent->client->pers.netname : "console" );
-      color = COLOR_MAGENTA;
-      break;
   }
 
   Q_strncpyz( text, chatText, sizeof( text ) );
@@ -876,41 +865,6 @@ static void Cmd_Say_f( gentity_t *ent )
   p = ConcatArgs( 1 );
 
   G_Say( ent, NULL, mode, p );
-}
-
-/*
-==================
-Cmd_Tell_f
-==================
-*/
-static void Cmd_Tell_f( gentity_t *ent )
-{
-  int     targetNum;
-  gentity_t *target;
-  char    *p;
-  char    arg[MAX_TOKEN_CHARS];
-
-  if( trap_Argc( ) < 2 )
-    return;
-
-  trap_Argv( 1, arg, sizeof( arg ) );
-  targetNum = atoi( arg );
-
-  if( targetNum < 0 || targetNum >= level.maxclients )
-    return;
-
-  target = &g_entities[ targetNum ];
-  if( !target || !target->inuse || !target->client )
-    return;
-
-  p = ConcatArgs( 2 );
-
-  G_LogPrintf( "tell: %s^7 to %s^7: %s\n", ent->client->pers.netname, target->client->pers.netname, p );
-  G_Say( ent, target, SAY_TELL, p );
-  // don't tell to the player self if it was already directed to this player
-  // also don't send the chat back to a bot
-  if( ent != target )
-    G_Say( ent, ent, SAY_TELL, p );
 }
 
 /*
@@ -3156,7 +3110,6 @@ commands_t cmds[ ] = {
   { "unignore", 0, Cmd_Ignore_f },
 
   // communication commands
-  { "tell", CMD_MESSAGE, Cmd_Tell_f },
   { "callvote", CMD_MESSAGE, Cmd_CallVote_f },
   { "callteamvote", CMD_MESSAGE|CMD_TEAM, Cmd_CallTeamVote_f },
   { "say_area", CMD_MESSAGE|CMD_TEAM, Cmd_SayArea_f },

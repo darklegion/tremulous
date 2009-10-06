@@ -1366,7 +1366,6 @@ typedef enum {
 
 #define SAY_ALL		0
 #define SAY_TEAM	1
-#define SAY_TELL	2
 
 #define MAX_EMOTICON_NAME_LEN 16
 #define MAX_EMOTICONS 64

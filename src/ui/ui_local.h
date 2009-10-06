@@ -282,7 +282,6 @@ typedef struct
   qboolean inGameLoad;
 
   qboolean  chatTeam;
-  int       chatTargetClientNum;
 }
 uiInfo_t;
 
