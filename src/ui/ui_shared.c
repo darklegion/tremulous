@@ -4529,102 +4529,143 @@ void Item_TextColor( itemDef_t *item, vec4_t *newColor )
 
 static const char *Item_Text_Wrap( const char *text, float scale, float width )
 {
-  static char   out[ 8192 ] = { 0 };
-  char          c[ 2 ] = { 0 };
-  const char    *thisline = text;
-  size_t        outlen = 0, testlen;
-  int           eol;
+  static char   out[ 8192 ] = "";
+  char          *paint = out;
+  char          c[ 3 ] = "^7";
+  const char    *p = text;
+  const char    *eol;
+  const char    *q = NULL, *qMinus1 = NULL;
+  unsigned int  testLength;
+  unsigned int  i;
+  int           emoticonLen;
+  qboolean      emoticonEscaped;
 
   if( strlen( text ) >= sizeof( out ) )
     return NULL;
 
-  while( *thisline )
-  {
-    // strip leading space and collapse colours
-    while( *thisline )
-    {
-      while( isspace( *thisline ) && *thisline != '\n' )
-        thisline++;
+  *paint = '\0';
 
-      if( Q_IsColorString( thisline ) )
+  while( *p )
+  {
+    // Skip leading whitespace
+
+    while( *p )
+    {
+      if( Q_IsColorString( p ) )
       {
-        Com_Memcpy( c, thisline, 2 );
-        thisline += 2;
+        c[ 0 ] = p[ 0 ];
+        c[ 1 ] = p[ 1 ];
+        p += 2;
       }
+      else if( *p != '\n' && isspace( *p ) )
+        p++;
       else
         break;
     }
 
-    if( !*thisline || outlen + 1 >= sizeof( out ) )
+    if( !*p )
       break;
 
-    if( c[ 0 ] && outlen < sizeof( out ) - 3 )
+    Q_strcat( paint, out + sizeof( out ) - paint, c );
+
+    testLength = 1;
+
+    eol = p;
+
+    q = p + 1;
+
+    while( Q_IsColorString( q ) )
     {
-      Com_Memcpy( &out[ outlen ], c, 2 );
-      outlen += 2;
+      c[ 0 ] = q[ 0 ];
+      c[ 1 ] = q[ 1 ];
+      q += 2;
     }
 
-    for( testlen = 1, eol = 0; thisline[ testlen ] &&
-        outlen + testlen + 2 < sizeof( out ) &&
-        UI_Text_Width( thisline, scale, testlen ) < width; testlen++ )
+    while( UI_Text_Width( p, scale, testLength ) < width )
     {
-      // set an eol marker in the last whitespace
-      if( isspace( thisline[ testlen ] ) )
+      if( testLength >= strlen( p ) )
       {
-        if( thisline[ eol = testlen ] == '\n' )
-          break;
+        eol = p + strlen( p );
+        break;
       }
 
-      // save colour codes for restoration next line
-      if( Q_IsColorString( &thisline[ testlen ] ) )
+      // Point q at the end of the current testLength
+      q = p;
+
+      for( i = 0; i < testLength; )
       {
-        Com_Memcpy( c, &thisline[ testlen ], 2 );
-        testlen++;
-        continue;
+        // Skip color escapes
+        while( Q_IsColorString( q ) )
+        {
+          c[ 0 ] = q[ 0 ];
+          c[ 1 ] = q[ 1 ];
+          q += 2;
+        }
+        while( UI_Text_Emoticon( q, &emoticonEscaped, &emoticonLen, NULL, NULL ) )
+        {
+          if( emoticonEscaped )
+            q++;
+          else
+            q += emoticonLen;
+        }
+
+        qMinus1 = q;
+        q++;
+        i++;
       }
+
+      // Some color escapes might still be present
+      while( Q_IsColorString( q ) )
+      {
+        c[ 0 ] = q[ 0 ];
+        c[ 1 ] = q[ 1 ];
+        q += 2;
+      }
+      while( UI_Text_Emoticon( q, &emoticonEscaped, &emoticonLen, NULL, NULL ) )
+      {
+        if( emoticonEscaped )
+          q++;
+        else
+          q += emoticonLen;
+      }
+
+      // Manual line break
+      if( *q == '\n' )
+      {
+        eol = q + 1;
+        break;
+      }
+
+      if( !isspace( *qMinus1 ) && isspace( *q ) )
+        eol = q;
+
+      testLength++;
     }
 
-    // if we couldn't place a whitespace eol then just put it at the end
-    if( eol == 0 )
-      eol = testlen;
+    // No split has taken place, so just split mid-word
+    if( eol == p )
+      eol = q;
 
-    // copy up the the line break
-    Com_Memcpy( &out[ outlen ], thisline, eol );
-    outlen += eol;
+    paint = out + strlen( out );
 
-    if( outlen + 1 < sizeof( out ) )
-      out[ outlen++ ] = '\n';
+    // Copy text
+    strncpy( paint, p, eol - p );
 
-    // if there is another line, continue colour codes
-    // if it is a wrapped line then add a space to prevent it masquerading as
-    // another server message
-    if( thisline[ eol ] && thisline[ eol + 1 ] && 
-        outlen + 1 < sizeof( out ) )
+    paint[ eol - p ] = '\0';
+
+    // Add a \n if it's not there already
+    if( out[ strlen( out ) - 1 ] != '\n' )
     {
-      if( thisline[ eol ] != '\n' && outlen + 2 < sizeof( out ) )
-        out[ outlen++ ] = ' ';
-
-      if( c[ 0 ] && outlen + 3 < sizeof( out ) )
-      { 
-        Com_Memcpy( &out[ outlen ], c, 2 );
-        outlen += 2;
-      }
+      Q_strcat( out, sizeof( out ), "\n " );
+      Q_strcat( out, sizeof( out ), c );
     }
     else
-      break;
+      c[ 0 ] = '\0';
 
-    thisline += eol;
+    paint = out + strlen( out );
 
-    if( *thisline == '\n' )
-      thisline++;
+    p = eol;
   }
-
-  // definitely put a newline on the end
-  assert( out[ outlen - 1 ] == '\n' );
-  if( out[ outlen - 1 ] != '\n' )
-    out[ outlen++ ] = '\n';
-
-  out[ outlen ] = '\0';
 
   return out;
 }
