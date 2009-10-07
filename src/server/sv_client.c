@@ -1548,13 +1548,6 @@ void SV_UserVoip( client_t *cl, msg_t *msg ) {
 		else if ( ((i >= 62) && (i < 93)) && ((recip3 & (1 << (i-62))) == 0) )
 			continue;  // not addressed to this player.
 
-		// this is not really the best way to do this
-		else if (atoi(Info_ValueForKey(svs.clients[sender].userinfo,
-			"cg_voipTeamOnly")) && 
-			atoi(Info_ValueForKey(svs.clients[sender].userinfo, "t")) !=
-			atoi(Info_ValueForKey(svs.clients[i].userinfo, "t")))
-			continue;
-
 		// Transmit this packet to the client.
 		// !!! FIXME: I don't like this queueing system.
 		if (client->queuedVoipPackets >= (sizeof (client->voipPacket) / sizeof (client->voipPacket[0]))) {
