@@ -761,46 +761,6 @@ void CL_WritePacket( void ) {
 
 #ifdef USE_VOIP
 	if (clc.voipOutgoingDataSize > 0) {  // only send if data.
-		// Move cl_voipSendTarget from a string to the bitmasks if needed.
-		if (cl_voipSendTarget->modified) {
-			char buffer[32];
-			const char *target = cl_voipSendTarget->string;
-
-			if (Q_stricmp(target, "attacker") == 0) {
-				int player = VM_Call( cgvm, CG_LAST_ATTACKER );
-				Com_sprintf(buffer, sizeof (buffer), "%d", player);
-				target = buffer;
-			} else if (Q_stricmp(target, "crosshair") == 0) {
-				int player = VM_Call( cgvm, CG_CROSSHAIR_PLAYER );
-				Com_sprintf(buffer, sizeof (buffer), "%d", player);
-				target = buffer;
-			}
-
-			if ((*target == '\0') || (Q_stricmp(target, "all") == 0)) {
-				const int all = 0x7FFFFFFF;
-				clc.voipTarget1 = clc.voipTarget2 = clc.voipTarget3 = all;
-			} else if (Q_stricmp(target, "none") == 0) {
-				clc.voipTarget1 = clc.voipTarget2 = clc.voipTarget3 = 0;
-			} else {
-				const char *ptr = target;
-				clc.voipTarget1 = clc.voipTarget2 = clc.voipTarget3 = 0;
-				do {
-					if ((*ptr == ',') || (*ptr == '\0')) {
-						const int val = atoi(target);
-						target = ptr + 1;
-						if ((val >= 0) && (val < 31)) {
-							clc.voipTarget1 |= (1 << (val-0));
-						} else if ((val >= 31) && (val < 62)) {
-							clc.voipTarget2 |= (1 << (val-31));
-						} else if ((val >= 62) && (val < 93)) {
-							clc.voipTarget3 |= (1 << (val-62));
-						}
-					}
-				} while (*(ptr++));
-			}
-			cl_voipSendTarget->modified = qfalse;
-		}
-
 		MSG_WriteByte (&buf, clc_EOF);  // placate legacy servers.
 		MSG_WriteByte (&buf, clc_extension);
 		MSG_WriteByte (&buf, clc_voip);

@@ -214,6 +214,58 @@ void CL_UpdateVoipGain(const char *idstr, float gain)
 	}
 }
 
+/*
+================
+CL_VoipParseTargets
+
+Sets clc.voipTarget{1,2,3} by asking the cgame to produce a string and then
+parsing it as a series of client numbers
+Perhaps it would be better to allow the cgame to set the three integers
+directly, but this way we can change the net protocol without changing the
+vmcall
+================
+*/
+static void CL_VoipParseTargets( void )
+{
+  const char *target = cl_voipSendTarget->string;
+  intptr_t p = VM_Call( cgvm, CG_VOIP_STRING );
+
+  if( p )
+    target = VM_ExplicitArgPtr( cgvm, p );
+
+  if( !target[ 0 ] || Q_stricmp( target, "all" ) == 0 )
+    clc.voipTarget1 = clc.voipTarget2 = clc.voipTarget3 = 0x7FFFFFFF;
+  else if( Q_stricmp( target, "none" ) == 0 )
+    clc.voipTarget1 = clc.voipTarget2 = clc.voipTarget3 = 0;
+  else
+  {
+    char *end;
+    int val;
+    clc.voipTarget1 = clc.voipTarget2 = clc.voipTarget3 = 0;
+
+    while( 1 )
+    {
+      while( *target && !isdigit( *target ) )
+        target++;
+      if( !*target )
+        break;
+
+      val = strtol( target, &end, 10 );
+      assert( target != end );
+      if( val < 0 || val >= MAX_CLIENTS )
+        Com_Printf( S_COLOR_YELLOW "WARNING: VoIP target %d is not a valid "
+                    "client number\n", val );
+      else if( val < 31 )
+        clc.voipTarget1 |= 1 << val;
+      else if( ( val -= 31 ) < 31 )
+        clc.voipTarget2 |= 1 << val;
+      else if( ( val -= 31 ) < 31 )
+        clc.voipTarget3 |= 1 << val;
+      target = end;
+    }
+  }
+}
+
 void CL_Voip_f( void )
 {
 	const char *cmd = Cmd_Argv(1);
@@ -348,6 +400,7 @@ void CL_CaptureVoip(void)
 		S_MasterGain(cl_voipGainDuringCapture->value);
 		S_StartCapture();
 		CL_VoipNewGeneration();
+		CL_VoipParseTargets();
 	}
 
 	if ((cl_voipSend->integer) || (finalFrame)) { // user wants to capture audio?
