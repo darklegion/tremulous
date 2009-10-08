@@ -51,7 +51,7 @@ void multi_trigger( gentity_t *ent, gentity_t *activator )
   if( ent->nextthink )
     return;   // can't retrigger until the wait is over
 
-  if( activator->client )
+  if( activator && activator->client )
   {
     if( ( ent->spawnflags & 1 ) &&
         activator->client->ps.stats[ STAT_TEAM ] != TEAM_HUMANS )
@@ -227,7 +227,7 @@ void SP_trigger_push( gentity_t *self )
 
 void Use_target_push( gentity_t *self, gentity_t *other, gentity_t *activator )
 {
-  if( !activator->client )
+  if( !activator || !activator->client )
     return;
 
   if( activator->client->ps.pm_type != PM_NORMAL )
@@ -558,6 +558,9 @@ qboolean trigger_buildable_match( gentity_t *self, gentity_t *activator )
 {
   int i = 0;
 
+  if( !activator )
+    return qfalse;
+
   //if there is no buildable list every buildable triggers
   if( self->bTriggers[ i ] == BA_NONE )
     return qtrue;
@@ -623,7 +626,7 @@ trigger_buildable_touch
 void trigger_buildable_touch( gentity_t *ent, gentity_t *other, trace_t *trace )
 {
   //only triggered by buildables
-  if( other->s.eType != ET_BUILDABLE )
+  if( !other || other->s.eType != ET_BUILDABLE )
     return;
 
   trigger_buildable_trigger( ent, other );
@@ -686,6 +689,9 @@ qboolean trigger_class_match( gentity_t *self, gentity_t *activator )
 {
   int i = 0;
 
+  if( !activator )
+    return qfalse;
+
   //if there is no class list every class triggers (stupid case)
   if( self->cTriggers[ i ] == PCL_NONE )
     return qtrue;
@@ -710,7 +716,7 @@ trigger_class_trigger
 void trigger_class_trigger( gentity_t *self, gentity_t *activator )
 {
   //sanity check
-  if( !activator->client )
+  if( !activator || !activator->client )
     return;
 
   if( activator->client->ps.stats[ STAT_TEAM ] != TEAM_ALIENS )
@@ -820,6 +826,9 @@ qboolean trigger_equipment_match( gentity_t *self, gentity_t *activator )
 {
   int i = 0;
 
+  if( !activator )
+    return qfalse;
+
   //if there is no equipment list all equipment triggers (stupid case)
   if( self->wTriggers[ i ] == WP_NONE && self->uTriggers[ i ] == UP_NONE )
     return qtrue;
@@ -850,7 +859,7 @@ trigger_equipment_trigger
 void trigger_equipment_trigger( gentity_t *self, gentity_t *activator )
 {
   //sanity check
-  if( !activator->client )
+  if( !activator || !activator->client )
     return;
 
   if( activator->client->ps.stats[ STAT_TEAM ] != TEAM_HUMANS )
