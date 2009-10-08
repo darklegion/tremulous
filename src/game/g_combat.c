@@ -939,6 +939,11 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
       BG_Class( targ->client->ps.stats[ STAT_CLASS ] )->knockbackScale );
   }
 
+  // Too much knockback from falling really far makes you "bounce" and 
+  //  looks silly. However, none at all also looks bad. Cap it.
+  if( mod == MOD_FALLING && knockback > 50 ) 
+    knockback = 50;
+
   if( knockback > 200 )
     knockback = 200;
 
