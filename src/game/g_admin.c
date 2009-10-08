@@ -827,7 +827,6 @@ qboolean G_admin_ban_check( gentity_t *ent, char *reason, int rlen )
   addr_t ip, test;
   int mask = -1;
 
-  *reason = '\0';
   t = trap_RealTime( NULL );
   // this happens when ip = localhost
   if( !G_AddressParse( ent->client->pers.ip, &ip, NULL ) )
