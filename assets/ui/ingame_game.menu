@@ -747,12 +747,11 @@
       name info
       group gameGrp
       rect 0 (INFO_Y+(6*INFOELEM_H)) W INFOELEM_H
-      type ITEM_TYPE_MULTI
+      type ITEM_TYPE_YESNO
       style WINDOW_STYLE_EMPTY
       text "Friendly Fire:"
-      cvar ui_serverinfo_ff
-      cvarFloatList { "Off" 0 "Humans Only" 1 "Aliens Only" 2 "Both Teams" 3 "Buildables Only" 4 "Humans and Buildables" 5 "Aliens and Buildables" 6 "Both Teams and Buildables" 7 }
       textalign ALIGN_RIGHT
+      cvar ui_serverinfo_friendlyFire
       textvalign VALIGN_CENTER
       textalignx INFO_OFF
       textscale .25
@@ -766,6 +765,24 @@
       name info
       group gameGrp
       rect 0 (INFO_Y+(7*INFOELEM_H)) W INFOELEM_H
+      type ITEM_TYPE_YESNO
+      style WINDOW_STYLE_EMPTY
+      text "Buildable Friendly Fire:"
+      cvar ui_serverinfo_friendlyBuildableFire
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textalignx INFO_OFF
+      textscale .25
+      forecolor 1 1 1 1
+      visible MENU_FALSE
+      decoration
+    }
+
+    itemDef
+    {
+      name info
+      group gameGrp
+      rect 0 (INFO_Y+(8*INFOELEM_H)) W INFOELEM_H
       type ITEM_TYPE_EDITFIELD
       style WINDOW_STYLE_EMPTY
       text "Version:"

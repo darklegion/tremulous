@@ -44,8 +44,6 @@ vmCvar_t  g_suddenDeathTime;
 vmCvar_t  g_suddenDeath;
 vmCvar_t  g_capturelimit;
 vmCvar_t  g_friendlyFire;
-vmCvar_t  g_friendlyFireAliens;
-vmCvar_t  g_friendlyFireHumans;
 vmCvar_t  g_friendlyBuildableFire;
 vmCvar_t  g_dretchPunt;
 vmCvar_t  g_password;
@@ -170,10 +168,8 @@ static cvarTable_t   gameCvarTable[ ] =
 
   { &g_synchronousClients, "g_synchronousClients", "0", CVAR_SYSTEMINFO, 0, qfalse  },
 
-  { &g_friendlyFire, "g_friendlyFire", "0", CVAR_ARCHIVE, 0, qtrue  },
-  { &g_friendlyFireAliens, "g_friendlyFireAliens", "0", CVAR_ARCHIVE, 0, qtrue  },
-  { &g_friendlyFireHumans, "g_friendlyFireHumans", "0", CVAR_ARCHIVE, 0, qtrue  },
-  { &g_friendlyBuildableFire, "g_friendlyBuildableFire", "0", CVAR_ARCHIVE, 0, qtrue  },
+  { &g_friendlyFire, "g_friendlyFire", "0", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qtrue  },
+  { &g_friendlyBuildableFire, "g_friendlyBuildableFire", "0", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qtrue  },
   { &g_dretchPunt, "g_dretchPunt", "0", CVAR_ARCHIVE, 0, qtrue  },
 
   { &g_teamForceBalance, "g_teamForceBalance", "0", CVAR_ARCHIVE  },
@@ -478,12 +474,8 @@ void G_UpdateCvars( void )
         cv->modificationCount = cv->vmCvar->modificationCount;
 
         if( cv->trackChange )
-        {
           trap_SendServerCommand( -1, va( "print \"Server: %s changed to %s\n\"",
             cv->cvarName, cv->vmCvar->string ) );
-          // update serverinfo in case this cvar is passed to clients indirectly
-          CalculateRanks( );
-        }
       }
     }
   }
@@ -1417,7 +1409,6 @@ void CalculateRanks( void )
 {
   int       i;
   char      P[ MAX_CLIENTS + 1 ] = {""};
-  int       ff = 0;
 
   level.numConnectedClients = 0;
   level.numPlayingClients = 0;
@@ -1464,16 +1455,6 @@ void CalculateRanks( void )
   level.numteamVotingClients[ 1 ] = level.numAlienClients;
   P[ i ] = '\0';
   trap_Cvar_Set( "P", P );
-
-  if( g_friendlyFire.integer )
-    ff |= ( FFF_HUMANS | FFF_ALIENS );
-  if( g_friendlyFireHumans.integer )
-    ff |=  FFF_HUMANS;
-  if( g_friendlyFireAliens.integer )
-    ff |=  FFF_ALIENS;
-  if( g_friendlyBuildableFire.integer )
-    ff |=  FFF_BUILDABLES;
-  trap_Cvar_Set( "ff", va( "%i", ff ) );
 
   qsort( level.sortedClients, level.numConnectedClients,
     sizeof( level.sortedClients[ 0 ] ), SortRanks );

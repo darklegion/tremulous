@@ -365,8 +365,10 @@ void UI_ServerInfo( void )
                    Info_ValueForKey( info, "version" ) );
     trap_Cvar_Set( "ui_serverinfo_unlagged",
                    Info_ValueForKey( info, "g_unlagged" ) );
-    trap_Cvar_Set( "ui_serverinfo_ff",
-                   Info_ValueForKey( info, "ff" ) );
+    trap_Cvar_Set( "ui_serverinfo_friendlyFire",
+                   Info_ValueForKey( info, "g_friendlyFire" ) );
+    trap_Cvar_Set( "ui_serverinfo_friendlyBuildableFire",
+                   Info_ValueForKey( info, "g_friendlyBuildableFire" ) );
     trap_Cvar_Set( "ui_serverinfo_allowdl",
                    Info_ValueForKey( info, "sv_allowdownload" ) );
   }

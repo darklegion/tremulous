@@ -1020,17 +1020,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
       // check if friendly fire has been disabled
       if( !g_friendlyFire.integer )
       {
-        if( !g_friendlyFireHumans.integer &&
-            targ->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS )
-        {
-          return;
-        }
-
-        if( !g_friendlyFireAliens.integer &&
-             targ->client->ps.stats[ STAT_TEAM ] == TEAM_ALIENS )
-        {
-          return;
-        }
+        return;
       }
     }
 
