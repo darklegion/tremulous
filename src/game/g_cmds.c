@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ==================
 G_SanitiseString
 
-Remove case and control characters from a string
+Remove color codes and non-alphanumeric characters from a string
 ==================
 */
 void G_SanitiseString( char *in, char *out, int len )
@@ -61,14 +61,12 @@ void G_SanitiseString( char *in, char *out, int len )
       continue;
     }
 
-    if( *in < 32 )
+    if( isalnum( *in ) )
     {
-      in++;
-      continue;
+        *out++ = tolower( *in );
+        len--;
     }
-
-    *out++ = tolower( *in++ );
-    len--;
+    in++;
   }
   out -= spaces;
   *out = 0;

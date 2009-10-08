@@ -263,11 +263,31 @@ qboolean G_admin_name_check( gentity_t *ent, char *name, char *err, int len )
   gclient_t *client;
   char testName[ MAX_NAME_LENGTH ] = {""};
   char name2[ MAX_NAME_LENGTH ] = {""};
+  int alphaCount = 0;
 
   G_SanitiseString( name, name2, sizeof( name2 ) );
 
   if( !strcmp( name2, "unnamedplayer" ) )
     return qtrue;
+
+  G_DecolorString( name, testName, sizeof( testName ) );
+  if( isdigit( testName[ 0 ] ) )
+  {
+    Q_strncpyz( err, "Names cannot begin with numbers", len );
+    return qfalse;
+  }
+
+  for( i = 0; testName[ i ]; i++)
+  {
+    if( isalpha( testName[ i ] ) )
+     alphaCount++;
+  }
+
+  if( alphaCount == 0 )
+  {
+    Q_strncpyz( err, "Names must contain letters", len );
+    return qfalse;
+  }
 
   for( i = 0; i < level.maxclients; i++ )
   {
