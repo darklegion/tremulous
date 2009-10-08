@@ -3149,7 +3149,7 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
 
     // Don't allow a power source to be replaced by a dependant
     if( team == TEAM_HUMANS &&
-        G_PowerEntityForPoint( origin ) != ent &&
+        G_PowerEntityForPoint( origin ) == ent &&
         buildable != BA_H_REPEATER &&
         buildable != core )
       continue;
