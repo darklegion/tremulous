@@ -991,8 +991,12 @@ qboolean G_AddressParse( const char *str, addr_t *addr, int *netmask )
         *netmask = max;
     }
   }
-  else if( *p )
-    return qfalse;
+  else
+  {
+    if( *p )
+      return qfalse;
+    *subnet = max;
+  }
   return qtrue;
 }
 
