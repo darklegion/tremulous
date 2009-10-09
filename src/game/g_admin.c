@@ -270,6 +270,12 @@ qboolean G_admin_name_check( gentity_t *ent, char *name, char *err, int len )
   if( !strcmp( name2, "unnamedplayer" ) )
     return qtrue;
 
+  if( !strcmp( name2, "console" ) )
+  {
+    Q_strncpyz( err, "The name 'console' is not allowed.", len );
+    return qfalse;
+  }
+
   G_DecolorString( name, testName, sizeof( testName ) );
   if( isdigit( testName[ 0 ] ) )
   {
