@@ -64,6 +64,13 @@ typedef enum {
 	SS_GAME				// actively running
 } serverState_t;
 
+typedef struct configString_s {
+	char					*s;
+
+	qboolean			restricted; // if true, don't send to clientList
+	clientList_t	clientList;
+} configString_t;
+
 typedef struct {
 	serverState_t	state;
 	qboolean		restarting;			// if true, send configstring changes during SS_LOADING
@@ -77,7 +84,7 @@ typedef struct {
 	int				timeResidual;		// <= 1000 / sv_frame->value
 	int				nextFrameTime;		// when time > nextFrameTime, process world
 	struct cmodel_s	*models[MAX_MODELS];
-	char			*configstrings[MAX_CONFIGSTRINGS];
+	configString_t	configstrings[MAX_CONFIGSTRINGS];
 	svEntity_t		svEntities[MAX_GENTITIES];
 
 	char			*entityParsePoint;	// used during game VM init
@@ -301,6 +308,7 @@ void SV_MasterGameStat( const char *data );
 //
 void SV_SetConfigstring( int index, const char *val );
 void SV_GetConfigstring( int index, char *buffer, int bufferSize );
+void SV_SetConfigstringRestrictions(int index, const clientList_t* clientList);
 void SV_UpdateConfigstrings( client_t *client );
 
 void SV_SetUserinfo( int index, const char *val );

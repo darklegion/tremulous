@@ -50,7 +50,7 @@ void G_WriteClientSessionData( gclient_t *client )
     client->sess.spectatorTime,
     client->sess.spectatorState,
     client->sess.spectatorClient,
-    BG_ClientListString( &client->sess.ignoreList )
+    Com_ClientListString( &client->sess.ignoreList )
     );
 
   var = va( "session%i", client - level.clients );
@@ -83,7 +83,7 @@ void G_ReadSessionData( gclient_t *client )
     );
 
   client->sess.spectatorState = (spectatorState_t)spectatorState;
-  BG_ClientListParse( &client->sess.ignoreList, ignorelist );
+  Com_ClientListParse( &client->sess.ignoreList, ignorelist );
 }
 
 

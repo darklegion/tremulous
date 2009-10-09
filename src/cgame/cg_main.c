@@ -1430,9 +1430,9 @@ static qboolean CG_ClientIsReady( int clientNum )
 {
   clientList_t ready;
 
-  BG_ClientListParse( &ready, CG_ConfigString( CS_CLIENTS_READY ) );
+  Com_ClientListParse( &ready, CG_ConfigString( CS_CLIENTS_READY ) );
 
-  return BG_ClientListTest( &ready, clientNum );
+  return Com_ClientListContains( &ready, clientNum );
 }
 
 static const char *CG_FeederItemText( float feederID, int index, int column, qhandle_t *handle )
@@ -1761,13 +1761,13 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
   // get the gamestate from the client system
   trap_GetGameState( &cgs.gameState );
 
-  // copy vote display strings so they don't show up blank if we see 
+  // copy vote display strings so they don't show up blank if we see
   // the same one directly after connecting
   Q_strncpyz( cgs.voteString[ TEAM_NONE ],
-      CG_ConfigString( CS_VOTE_STRING + TEAM_NONE ), 
+      CG_ConfigString( CS_VOTE_STRING + TEAM_NONE ),
       sizeof( cgs.voteString ) );
   Q_strncpyz( cgs.voteString[ TEAM_ALIENS ],
-      CG_ConfigString( CS_VOTE_STRING + TEAM_ALIENS ), 
+      CG_ConfigString( CS_VOTE_STRING + TEAM_ALIENS ),
       sizeof( cgs.voteString[ TEAM_ALIENS ] ) );
   Q_strncpyz( cgs.voteString[ TEAM_HUMANS ],
       CG_ConfigString( CS_VOTE_STRING + TEAM_ALIENS ),

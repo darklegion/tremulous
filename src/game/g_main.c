@@ -635,7 +635,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
   level.suddenDeathBeginTime = g_suddenDeathTime.integer * 60000;
 
   G_Printf( "-----------------------------------\n" );
-  
+
   // So the server counts the spawns without a client attached
   G_CountSpawns( );
 
@@ -1312,10 +1312,13 @@ void G_CalculateStages( void )
   if( humanNextStageThreshold > 0 )
     humanNextStageThreshold = ceil( (float)humanNextStageThreshold / 100 ) * 100;
 
-  trap_SetConfigstring( CS_STAGES, va( "%d %d %d %d %d %d",
-        g_alienStage.integer, g_humanStage.integer,
-        g_alienCredits.integer, g_humanCredits.integer,
-        alienNextStageThreshold, humanNextStageThreshold ) );
+  trap_SetConfigstring( CS_ALIEN_STAGES, va( "%d %d %d",
+        g_alienStage.integer, g_alienCredits.integer,
+        alienNextStageThreshold ) );
+
+  trap_SetConfigstring( CS_HUMAN_STAGES, va( "%d %d %d",
+        g_humanStage.integer, g_humanCredits.integer,
+        humanNextStageThreshold ) );
 }
 
 /*
@@ -1874,13 +1877,13 @@ void CheckIntermissionExit( void )
     {
       ready++;
 
-      BG_ClientListAdd( &readyMasks, i );
+      Com_ClientListAdd( &readyMasks, i );
     }
     else
       notReady++;
   }
 
-  trap_SetConfigstring( CS_CLIENTS_READY, BG_ClientListString( &readyMasks ) );
+  trap_SetConfigstring( CS_CLIENTS_READY, Com_ClientListString( &readyMasks ) );
 
   // never exit in less than five seconds
   if( level.time < level.intermissiontime + 5000 )
@@ -2030,8 +2033,10 @@ void G_Vote( gentity_t *ent, team_t team, qboolean voting )
 
   if( voting && ent->client->pers.voted[ team ] )
     return;
+
   if( !voting && !ent->client->pers.voted[ team ] )
     return;
+
   ent->client->pers.voted[ team ] = voting;
 
   if( ent->client->pers.vote[ team ] )
@@ -2040,6 +2045,7 @@ void G_Vote( gentity_t *ent, team_t team, qboolean voting )
       level.voteYes[ team ]++;
     else
       level.voteYes[ team ]--;
+
     trap_SetConfigstring( CS_VOTE_YES + team,
       va( "%d", level.voteYes[ team ] ) );
   }
@@ -2049,6 +2055,7 @@ void G_Vote( gentity_t *ent, team_t team, qboolean voting )
       level.voteNo[ team ]++;
     else
       level.voteNo[ team ]--;
+
     trap_SetConfigstring( CS_VOTE_NO + team,
       va( "%d", level.voteNo[ team ] ) );
   }
@@ -2092,8 +2099,8 @@ void CheckVote( team_t team )
 
   if( !level.voteTime[ team ] )
     return;
-  
-  if( ( level.time - level.voteTime[ team ] >= VOTE_TIME ) || 
+
+  if( ( level.time - level.voteTime[ team ] >= VOTE_TIME ) ||
       ( level.voteYes[ team ] + level.voteNo[ team ] == level.numVotingClients[ team ] ) )
   {
     pass = (float)level.voteYes[ team ] / 100.0f > votePassThreshold ||
@@ -2119,6 +2126,7 @@ void CheckVote( team_t team )
   msg = va( "print \"%sote %sed (%d - %d)\n\"",
     team == TEAM_NONE ? "V" : "Team v", pass ? "pass" : "fail",
     level.voteYes[ team ], level.voteNo[ team ] );
+
   if( team == TEAM_NONE )
     trap_SendServerCommand( -1, msg );
   else

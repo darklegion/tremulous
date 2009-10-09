@@ -691,7 +691,7 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
     // specs with ADMF_SPEC_ALLCHAT flag can see team chat
   }
 
-  if( ent && BG_ClientListTest( &other->client->sess.ignoreList, ent-g_entities ) )
+  if( ent && Com_ClientListContains( &other->client->sess.ignoreList, ent-g_entities ) )
     ignore = qtrue;
 
   trap_SendServerCommand( other-g_entities, va( "%s \"%s%s%c%c%s%s\"",
@@ -2751,9 +2751,9 @@ static void Cmd_Ignore_f( gentity_t *ent )
   {
     if( ignore )
     {
-      if( !BG_ClientListTest( &ent->client->sess.ignoreList, pids[ i ] ) )
+      if( !Com_ClientListContains( &ent->client->sess.ignoreList, pids[ i ] ) )
       {
-        BG_ClientListAdd( &ent->client->sess.ignoreList, pids[ i ] );
+        Com_ClientListAdd( &ent->client->sess.ignoreList, pids[ i ] );
         ClientUserinfoChanged( ent->client->ps.clientNum );
         trap_SendServerCommand( ent-g_entities, va( "print \"[skipnotify]"
           "ignore: added %s^7 to your ignore list\n\"",
@@ -2768,9 +2768,9 @@ static void Cmd_Ignore_f( gentity_t *ent )
     }
     else
     {
-      if( BG_ClientListTest( &ent->client->sess.ignoreList, pids[ i ] ) )
+      if( Com_ClientListContains( &ent->client->sess.ignoreList, pids[ i ] ) )
       {
-        BG_ClientListRemove( &ent->client->sess.ignoreList, pids[ i ] );
+        Com_ClientListRemove( &ent->client->sess.ignoreList, pids[ i ] );
         ClientUserinfoChanged( ent->client->ps.clientNum );
         trap_SendServerCommand( ent-g_entities, va( "print \"[skipnotify]"
           "unignore: removed %s^7 from your ignore list\n\"",
@@ -3155,7 +3155,7 @@ void Cmd_PrivateMessage_f( gentity_t *ent )
       if( teamonly && !OnSameTeam( ent, tmpent ) )
         continue;
 
-      if( BG_ClientListTest( &tmpent->client->sess.ignoreList,
+      if( Com_ClientListContains( &tmpent->client->sess.ignoreList,
         ent-g_entities ) )
       {
         ignoreids[ ignored++ ] = pids[ i ];

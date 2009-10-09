@@ -64,7 +64,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define CS_BOTINFO          25
 #define CS_CLIENTS_READY    26
 
-#define CS_STAGES           29
+#define CS_ALIEN_STAGES     29
+#define CS_HUMAN_STAGES     30
 
 #define CS_MODELS           33
 #define CS_SOUNDS           (CS_MODELS+MAX_MODELS)
@@ -1231,17 +1232,6 @@ qboolean BG_UpgradeIsAllowed( upgrade_t upgrade );
 qboolean BG_ClassIsAllowed( class_t class );
 qboolean BG_BuildableIsAllowed( buildable_t buildable );
 weapon_t BG_PrimaryWeapon( int stats[ ] );
-
-typedef struct 
-{
-  unsigned int hi;
-  unsigned int lo;
-} clientList_t;
-qboolean BG_ClientListTest( clientList_t *list, int clientNum );
-void BG_ClientListAdd( clientList_t *list, int clientNum );
-void BG_ClientListRemove( clientList_t *list, int clientNum );
-char *BG_ClientListString( clientList_t *list );
-void BG_ClientListParse( clientList_t *list, const char *s );
 
 // Friendly Fire Flags
 #define FFF_HUMANS         1

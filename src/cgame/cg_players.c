@@ -796,7 +796,7 @@ void CG_NewClientInfo( int clientNum )
   if( clientNum == cg.predictedPlayerState.clientNum )
   {
     v = Info_ValueForKey( configstring, "ig" );
-    BG_ClientListParse( &cgs.ignoreList, v );
+    Com_ClientListParse( &cgs.ignoreList, v );
   }
 
   // isolate the player's name

@@ -80,6 +80,62 @@ qboolean OnSameTeam( gentity_t *ent1, gentity_t *ent2 )
 
 /*
 ==================
+G_ClientListForTeam
+==================
+*/
+static clientList_t G_ClientListForTeam( team_t team )
+{
+  int           i;
+  clientList_t  clientList;
+
+  Com_Memset( &clientList, 0, sizeof( clientList_t ) );
+
+  for( i = 0; i < g_maxclients.integer; i++ )
+  {
+    gentity_t *ent = g_entities + i;
+    if( ent->client->pers.connected != CON_CONNECTED )
+      continue;
+
+    if( ent->inuse && ( ent->client->ps.stats[ STAT_TEAM ] == team ) )
+      Com_ClientListAdd( &clientList, ent->client->ps.clientNum );
+  }
+
+  return clientList;
+}
+
+/*
+==================
+G_UpdateTeamConfigStrings
+==================
+*/
+static void G_UpdateTeamConfigStrings( void )
+{
+  clientList_t alienTeam = G_ClientListForTeam( TEAM_ALIENS );
+  clientList_t humanTeam = G_ClientListForTeam( TEAM_HUMANS );
+
+  if( level.intermissiontime )
+  {
+    // No restrictions once the game has ended
+    Com_Memset( &alienTeam, 0, sizeof( clientList_t ) );
+    Com_Memset( &humanTeam, 0, sizeof( clientList_t ) );
+  }
+
+  trap_SetConfigstringRestrictions( CS_VOTE_TIME + TEAM_ALIENS,   &humanTeam );
+  trap_SetConfigstringRestrictions( CS_VOTE_STRING + TEAM_ALIENS, &humanTeam );
+  trap_SetConfigstringRestrictions( CS_VOTE_YES + TEAM_ALIENS,    &humanTeam );
+  trap_SetConfigstringRestrictions( CS_VOTE_NO + TEAM_ALIENS,     &humanTeam );
+
+  trap_SetConfigstringRestrictions( CS_VOTE_TIME + TEAM_HUMANS,   &alienTeam );
+  trap_SetConfigstringRestrictions( CS_VOTE_STRING + TEAM_HUMANS, &alienTeam );
+  trap_SetConfigstringRestrictions( CS_VOTE_YES + TEAM_HUMANS,    &alienTeam );
+  trap_SetConfigstringRestrictions( CS_VOTE_NO + TEAM_HUMANS,     &alienTeam );
+
+  trap_SetConfigstringRestrictions( CS_ALIEN_STAGES, &humanTeam );
+  trap_SetConfigstringRestrictions( CS_HUMAN_STAGES, &alienTeam );
+}
+
+/*
+==================
 G_LeaveTeam
 ==================
 */
@@ -162,6 +218,8 @@ void G_ChangeTeam( gentity_t *ent, team_t newTeam )
   ent->client->ps.persistant[ PERS_CREDIT ] = ent->client->pers.credit;
 
   ClientUserinfoChanged( ent->client->ps.clientNum );
+
+  G_UpdateTeamConfigStrings( );
 
   if( oldTeam != TEAM_NONE && newTeam != TEAM_NONE )
   {

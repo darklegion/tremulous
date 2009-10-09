@@ -160,8 +160,25 @@ Called on load to set the initial values from configure strings
 */
 void CG_SetConfigValues( void )
 {
-  sscanf( CG_ConfigString( CS_STAGES ), "%d %d %d %d %d %d", &cgs.alienStage, &cgs.humanStage,
-      &cgs.alienCredits, &cgs.humanCredits, &cgs.alienNextStageThreshold, &cgs.humanNextStageThreshold );
+  const char *alienStages = CG_ConfigString( CS_ALIEN_STAGES );
+  const char *humanStages = CG_ConfigString( CS_HUMAN_STAGES );
+
+  if( alienStages[0] )
+  {
+    sscanf( alienStages, "%d %d %d", &cgs.alienStage, &cgs.alienCredits,
+        &cgs.alienNextStageThreshold );
+  }
+  else
+    cgs.alienStage = cgs.alienCredits = cgs.alienNextStageThreshold = 0;
+
+
+  if( humanStages[0] )
+  {
+    sscanf( humanStages, "%d %d %d", &cgs.humanStage, &cgs.humanCredits,
+        &cgs.humanNextStageThreshold );
+  }
+  else
+    cgs.humanStage = cgs.humanCredits = cgs.humanNextStageThreshold = 0;
 
   cgs.levelStartTime = atoi( CG_ConfigString( CS_LEVEL_START_TIME ) );
   cg.warmup = atoi( CG_ConfigString( CS_WARMUP ) );
@@ -273,21 +290,39 @@ static void CG_ConfigStringModified( void )
     CG_ParseServerinfo( );
   else if( num == CS_WARMUP )
     CG_ParseWarmup( );
-  else if( num == CS_STAGES )
+  else if( num == CS_ALIEN_STAGES )
   {
     stage_t oldAlienStage = cgs.alienStage;
+
+    if( str[0] )
+    {
+      sscanf( str, "%d %d %d", &cgs.alienStage, &cgs.alienCredits,
+          &cgs.alienNextStageThreshold );
+
+      if( cgs.alienStage != oldAlienStage )
+        CG_AnnounceAlienStageTransistion( oldAlienStage, cgs.alienStage );
+    }
+    else
+    {
+      cgs.alienStage = cgs.alienCredits = cgs.alienNextStageThreshold = 0;
+    }
+  }
+  else if( num == CS_HUMAN_STAGES )
+  {
     stage_t oldHumanStage = cgs.humanStage;
 
-    sscanf( str, "%d %d %d %d %d %d",
-        &cgs.alienStage, &cgs.humanStage,
-        &cgs.alienCredits, &cgs.humanCredits,
-        &cgs.alienNextStageThreshold, &cgs.humanNextStageThreshold );
+    if( str[0] )
+    {
+      sscanf( str, "%d %d %d", &cgs.humanStage, &cgs.humanCredits,
+          &cgs.humanNextStageThreshold );
 
-    if( cgs.alienStage != oldAlienStage )
-      CG_AnnounceAlienStageTransistion( oldAlienStage, cgs.alienStage );
-
-    if( cgs.humanStage != oldHumanStage )
-      CG_AnnounceHumanStageTransistion( oldHumanStage, cgs.humanStage );
+      if( cgs.humanStage != oldHumanStage )
+        CG_AnnounceHumanStageTransistion( oldHumanStage, cgs.humanStage );
+    }
+    else
+    {
+      cgs.humanStage = cgs.humanCredits = cgs.humanNextStageThreshold = 0;
+    }
   }
   else if( num == CS_LEVEL_START_TIME )
     cgs.levelStartTime = atoi( str );
@@ -895,7 +930,7 @@ static void CG_Say( int clientNum, char *text )
     "%s: " S_COLOR_WHITE S_COLOR_GREEN "%s" S_COLOR_WHITE "\n",
     ci->name, text );
   
-  if( BG_ClientListTest( &cgs.ignoreList, clientNum ) )
+  if( Com_ClientListContains( &cgs.ignoreList, clientNum ) )
     CG_Printf( "[skipnotify]%s", sayText );
   else
     CG_Printf( "%s", sayText );
@@ -919,7 +954,7 @@ static void CG_SayTeam( int clientNum, char *text )
     "%s: " S_COLOR_CYAN "%s" S_COLOR_WHITE "\n",
     ci->name, text );
 
-  if( BG_ClientListTest( &cgs.ignoreList, clientNum ) )
+  if( Com_ClientListContains( &cgs.ignoreList, clientNum ) )
     CG_Printf( "[skipnotify]%s", sayText );
   else
     CG_Printf( "%s", sayText );
@@ -1042,7 +1077,7 @@ static void CG_ParseVoice( void )
     return;
 
   // don't play audio track for lamers
-  if( BG_ClientListTest( &cgs.ignoreList, clientNum ) )
+  if( Com_ClientListContains( &cgs.ignoreList, clientNum ) )
     return;
 
   switch( vChan )

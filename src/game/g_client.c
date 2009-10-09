@@ -1173,7 +1173,7 @@ void ClientUserinfoChanged( int clientNum )
     "n\\%s\\t\\%i\\model\\%s\\c1\\%s\\c2\\%s\\"
     "hc\\%i\\ig\\%16s\\v\\%s",
     client->pers.netname, client->pers.teamSelection, model, c1, c2,
-    client->pers.maxHealth, BG_ClientListString( &client->sess.ignoreList ),
+    client->pers.maxHealth, Com_ClientListString( &client->sess.ignoreList ),
     client->pers.voice );
 
   trap_SetConfigstring( CS_PLAYERS + clientNum, userinfo );
@@ -1694,7 +1694,7 @@ void ClientDisconnect( int clientNum )
   for( i = 0; i < level.maxclients; i++ )
   {
     // remove any /ignore settings for this clientNum
-    BG_ClientListRemove( &level.clients[ i ].sess.ignoreList, clientNum );
+    Com_ClientListRemove( &level.clients[ i ].sess.ignoreList, clientNum );
   }
 
   // send effect if they were completely connected
