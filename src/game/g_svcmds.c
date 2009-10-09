@@ -513,7 +513,7 @@ static void Svcmd_SuddenDeath_f( void )
 {
   char secs[ 5 ];
   int  offset;
-  trap_Argv( 0, secs, sizeof( secs ) );
+  trap_Argv( 1, secs, sizeof( secs ) );
   offset = atoi( secs );
 
   level.suddenDeathBeginTime = level.time - level.startTime + offset * 1000;
