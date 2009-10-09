@@ -700,7 +700,7 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
     name, Q_COLOR_ESCAPE, color, message, S_COLOR_WHITE ) );
 }
 
-void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText )
+void G_Say( gentity_t *ent, int mode, const char *chatText )
 {
   int         j;
   gentity_t   *other;
@@ -733,7 +733,8 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText )
   {
     default:
     case SAY_ALL:
-      G_LogPrintf( "say: %s%s^7: " S_COLOR_GREEN "%s\n", prefix, 
+      G_LogPrintf( "Say: %d \"%s" S_COLOR_WHITE "\": " S_COLOR_GREEN "%s\n",
+        ( ent ) ? ent - g_entities : -1,
         ( ent ) ? ent->client->pers.netname : "console", chatText );
       Com_sprintf( name, sizeof( name ), "%s%s" S_COLOR_WHITE ": ", prefix,
         ( ent ) ? ent->client->pers.netname : "console" );
@@ -745,8 +746,8 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText )
       if( !ent || !ent->client )
         Com_Error( ERR_FATAL, "SAY_TEAM by non-client entity\n" );
 
-      G_LogPrintf( "sayteam: %s%s^7: " S_COLOR_CYAN "%s\n", prefix, 
-        ent->client->pers.netname, chatText );
+      G_LogPrintf( "SayTeam: %d \"%s" S_COLOR_WHITE "\": " S_COLOR_CYAN "%s\n",
+        ent - g_entities, ent->client->pers.netname, chatText );
       if( Team_GetLocationMsg( ent, location, sizeof( location ) ) )
         Com_sprintf( name, sizeof( name ), "(%s" S_COLOR_WHITE ") (%s): ",
           ent->client->pers.netname, location );
@@ -758,12 +759,6 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText )
   }
 
   Q_strncpyz( text, chatText, sizeof( text ) );
-
-  if( target )
-  {
-    G_SayTo( ent, target, mode, color, name, text );
-    return;
-  }
 
   // send it to all the apropriate clients
   for( j = 0; j < level.maxclients; j++ )
@@ -795,7 +790,8 @@ static void Cmd_SayArea_f( gentity_t *ent )
   prefix = BG_TeamName( ent->client->pers.teamSelection );
   prefix = va( "[%c] ", toupper( *prefix ) );
 
-  G_LogPrintf( "sayarea: %s%s^7: %s\n", prefix, ent->client->pers.netname, msg );
+  G_LogPrintf( "SayArea: %d \"%s" S_COLOR_WHITE "\": " S_COLOR_BLUE "%s\n",
+    ent - g_entities, ent->client->pers.netname, msg );
   Com_sprintf( name, sizeof( name ), "%s<%s%c%c> ",
     prefix, ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
 
@@ -809,7 +805,7 @@ static void Cmd_SayArea_f( gentity_t *ent )
   //Send to ADMF_SPEC_ALLCHAT candidates
   for( i = 0; i < level.maxclients; i++ )
   {
-    if( (&g_entities[ i ])->client->pers.teamSelection == TEAM_NONE  &&
+    if( g_entities[ i ].client->pers.teamSelection == TEAM_NONE &&
         G_admin_permission( &g_entities[ i ], ADMF_SPEC_ALLCHAT ) )
     {
       G_SayTo( ent, &g_entities[ i ], SAY_TEAM, color, name, msg );   
@@ -857,7 +853,7 @@ static void Cmd_Say_f( gentity_t *ent )
 
   p = ConcatArgs( 1 );
 
-  G_Say( ent, NULL, mode, p );
+  G_Say( ent, mode, p );
 }
 
 /*
@@ -1251,8 +1247,8 @@ void Cmd_CallVote_f( gentity_t *ent )
         " called a vote: %s^7\n\"", ent->client->pers.netname, 
         level.voteDisplayString ) );
 
-  G_LogPrintf("Vote: %s^7 called a vote: %s^7\n", 
-      ent->client->pers.netname, level.voteDisplayString );
+  G_LogPrintf( "CallVote: %d \"%s" S_COLOR_WHITE "\": %s\n",
+    ent - g_entities, ent->client->pers.netname, level.voteString );
 
   ent->client->pers.voteCount++;
 
@@ -1497,9 +1493,9 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
   G_TeamCommand( team, va( "print \"%s " S_COLOR_WHITE "called a team vote: %s\n\"",
     ent->client->pers.netname, level.teamVoteDisplayString[ cs_offset ] ) );
 
-  G_LogPrintf( "Teamvote: %s^7 called a teamvote (%s): %s\n", 
-      ent->client->pers.netname, BG_TeamName(team), 
-      level.teamVoteDisplayString[ cs_offset ] );
+  G_LogPrintf( "CallTeamVote: %d \"%s" S_COLOR_WHITE "\": %s\n",
+    ent - g_entities, ent->client->pers.netname,
+    level.teamVoteDisplayString[ cs_offset ] );
 
   // start the voting, the caller autoamtically votes yes
   level.teamVoteTime[ cs_offset ] = level.time;
@@ -3438,8 +3434,9 @@ void Cmd_PrivateMessage_f( gentity_t *ent )
     ADMP( va( "^%cPrivate message: ^7%s\n", color, msg ) );
     ADMP( va( "%s\n", str ) );
 
-    G_LogPrintf( "%s: %s^7: %s^7: %s\n",
-      ( teamonly ) ? "tprivmsg" : "privmsg",
+    G_LogPrintf( "%s: %d \"%s" S_COLOR_WHITE "\" \"%s\": %s\n",
+      ( teamonly ) ? "TPrivMsg" : "PrivMsg",
+      ( ent ) ? ent - g_entities : -1,
       ( ent ) ? ent->client->pers.netname : "console",
       name, msg );
   }
@@ -3469,16 +3466,10 @@ Send a message to all active admins
 void Cmd_AdminMessage_f( gentity_t *ent )
 {
   char cmd[ sizeof( "say_team" ) ];
-  char prefix[ 50 ];
-  char *msg;
   int skiparg = 0;
 
   // Check permissions and add the appropriate user [prefix]
-  if( !ent )
-  {
-    Com_sprintf( prefix, sizeof( prefix ), "[CONSOLE]:" );
-  }
-  else if( !G_admin_permission( ent, ADMF_ADMINCHAT ) )
+  if( !G_admin_permission( ent, ADMF_ADMINCHAT ) )
   {
     if( !g_publicAdminMessages.integer )
     {
@@ -3487,16 +3478,9 @@ void Cmd_AdminMessage_f( gentity_t *ent )
     }
     else
     {
-      Com_sprintf( prefix, sizeof( prefix ), "[PLAYER] %s" S_COLOR_WHITE ":",
-                   ent->client->pers.netname );
       ADMP( "Your message has been sent to any available admins "
             "and to the server logs.\n" );
     }
-  }
-  else
-  {
-    Com_sprintf( prefix, sizeof( prefix ), "[ADMIN] %s" S_COLOR_WHITE ":",
-                 ent->client->pers.netname );
   }
 
   // Skip say/say_team if this was used from one of those
@@ -3512,9 +3496,6 @@ void Cmd_AdminMessage_f( gentity_t *ent )
     return;
   }
 
-  msg = G_SayConcatArgs( 1 + skiparg );
-
-  // Send it
-  G_AdminMessage( prefix, "%s", msg );
+  G_AdminMessage( ent, "%s", G_SayConcatArgs( 1 + skiparg ) );
 }
 

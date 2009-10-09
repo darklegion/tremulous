@@ -376,7 +376,7 @@ static void Svcmd_TeamMessage_f( void )
   prefix = va( "[%c] ", toupper( *prefix ) );
 
   G_TeamCommand( team, va( "tchat \"(console): " S_COLOR_CYAN "%s\"", ConcatArgs( 2 ) ) );
-  G_LogPrintf( "sayteam: %sconsole: " S_COLOR_CYAN "%s\n", prefix, ConcatArgs( 2 ) );
+  G_LogPrintf( "SayTeam: -1 \"console\": " S_COLOR_CYAN "%s\n", ConcatArgs( 2 ) );
 }
 
 static void Svcmd_CenterPrint_f( void )
@@ -473,13 +473,13 @@ static void Svcmd_PrintQueue_f( void )
 
   trap_Argv( 1, team, sizeof( team ) );
 
-  switch( team[0] )
+  switch( G_TeamFromString( team ) )
   {
-    case 'a':
+    case TEAM_ALIENS:
       G_PrintSpawnQueue( &level.alienSpawnQueue );
       break;
 
-    case 'h':
+    case TEAM_HUMANS:
       G_PrintSpawnQueue( &level.humanSpawnQueue );
       break;
 
@@ -490,8 +490,9 @@ static void Svcmd_PrintQueue_f( void )
 
 static void Svcmd_Chat_f( void )
 {
-  trap_SendServerCommand( -1, va( "chat \"%s\"", ConcatArgs( 1 ) ) );
-  G_LogPrintf("chat: %s\n", ConcatArgs( 1 ) );
+  char *s = ConcatArgs( 1 );
+  trap_SendServerCommand( -1, va( "chat \"%s\"", s ) );
+  G_LogPrintf("chat: %s\n", s );
 }
 
 // dumb wrapper for "a" and "m" and "say"
@@ -505,7 +506,7 @@ static void Svcmd_MessageWrapper( void )
   else if( !Q_stricmp( cmd, "m" ) )
     Cmd_PrivateMessage_f( NULL );
   else if( !Q_stricmp( cmd, "say" ) )
-    G_Say( NULL, NULL, SAY_ALL, ConcatArgs( 1 ) );
+    G_Say( NULL, SAY_ALL, ConcatArgs( 1 ) );
 }
 
 struct
