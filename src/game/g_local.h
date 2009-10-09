@@ -324,9 +324,8 @@ typedef struct
   // used to save persistant[] values while in SPECTATOR_FOLLOW mode
   int                 credit;
 
-  // votes
-  qboolean            vote;
-  qboolean            teamVote;
+  qboolean            voted[ NUM_TEAMS ];
+  qboolean            vote[ NUM_TEAMS ];
 
   // flood protection
   int                 floodDemerits;
@@ -542,22 +541,14 @@ typedef struct
   int               warmupModificationCount;      // for detecting if g_warmup is changed
 
   // voting state
-  char              voteString[MAX_STRING_CHARS];
-  char              voteDisplayString[MAX_STRING_CHARS];
-  int               voteTime;                     // level.time vote was called
-  int               votePassThreshold;            // need at least this percent to pass
-  int               voteExecuteTime;              // time the vote is executed
-  int               voteYes;
-  int               voteNo;
-  int               numVotingClients;             // set by CalculateRanks
-
-  // team voting state
-  char              teamVoteString[ 2 ][ MAX_STRING_CHARS ];
-  char              teamVoteDisplayString[ 2 ][ MAX_STRING_CHARS ];
-  int               teamVoteTime[ 2 ];            // level.time vote was called
-  int               teamVoteYes[ 2 ];
-  int               teamVoteNo[ 2 ];
-  int               numteamVotingClients[ 2 ];    // set by CalculateRanks
+  int               voteThreshold[ NUM_TEAMS ];   // need at least this percent to pass
+  char              voteString[ NUM_TEAMS ][ MAX_STRING_CHARS ];
+  char              voteDisplayString[ NUM_TEAMS ][ MAX_STRING_CHARS ];
+  int               voteTime[ NUM_TEAMS ];        // level.time vote was called
+  int               voteExecuteTime[ NUM_TEAMS ]; // time the vote is executed
+  int               voteYes[ NUM_TEAMS ];
+  int               voteNo[ NUM_TEAMS ];
+  int               numVotingClients[ NUM_TEAMS ];// set by CalculateRanks
 
   // spawn variables
   qboolean          spawning;                     // the G_Spawn*() functions are valid
@@ -617,7 +608,6 @@ typedef struct
 
   team_t            lastWin;
 
-  qboolean          suddenDeath;
   int               suddenDeathBeginTime;
   timeWarning_t     suddenDeathWarning;
   timeWarning_t     timelimitWarning;
@@ -966,10 +956,8 @@ void QDECL G_LogPrintf( const char *fmt, ... );
 void SendScoreboardMessageToAllClients( void );
 void QDECL G_Printf( const char *fmt, ... );
 void QDECL G_Error( const char *fmt, ... );
-void G_Vote( gentity_t *ent, qboolean voting );
-void G_TeamVote( gentity_t *ent, qboolean voting );
-void CheckVote( void );
-void CheckTeamVote( team_t teamnum );
+void G_Vote( gentity_t *ent, team_t team, qboolean voting );
+void CheckVote( team_t teamnum );
 void LogExit( const char *string );
 int  G_TimeTilSuddenDeath( void );
 
@@ -1056,7 +1044,6 @@ extern  vmCvar_t  g_maxNameChanges;
 
 extern  vmCvar_t  g_timelimit;
 extern  vmCvar_t  g_suddenDeathTime;
-extern  vmCvar_t  g_suddenDeath;
 extern  vmCvar_t  g_friendlyFire;
 extern  vmCvar_t  g_friendlyBuildableFire;
 extern  vmCvar_t  g_dretchPunt;

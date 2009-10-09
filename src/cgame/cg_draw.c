@@ -2756,76 +2756,39 @@ static void CG_DrawCenterString( void )
 CG_DrawVote
 =================
 */
-static void CG_DrawVote( void )
+static void CG_DrawVote( team_t team )
 {
   char    *s;
   int     sec;
   vec4_t  white = { 1.0f, 1.0f, 1.0f, 1.0f };
   char    yeskey[ 32 ], nokey[ 32 ];
 
-  if( !cgs.voteTime )
+  if( !cgs.voteTime[ team ] )
     return;
 
   // play a talk beep whenever it is modified
-  if( cgs.voteModified )
+  if( cgs.voteModified[ team ] )
   {
-    cgs.voteModified = qfalse;
+    cgs.voteModified[ team ] = qfalse;
     trap_S_StartLocalSound( cgs.media.talkSound, CHAN_LOCAL_SOUND );
   }
 
-  sec = ( VOTE_TIME - ( cg.time - cgs.voteTime ) ) / 1000;
-
-  if( sec < 0 )
-    sec = 0;
-  Q_strncpyz( yeskey, CG_KeyBinding( "vote yes" ), sizeof( yeskey ) ); 
-  Q_strncpyz( nokey, CG_KeyBinding( "vote no" ), sizeof( nokey ) ); 
-  s = va( "VOTE(%i): \"%s\"  [%s]Yes:%i [%s]No:%i", sec, cgs.voteString,
-    yeskey, cgs.voteYes, nokey, cgs.voteNo );
-  UI_Text_Paint( 8, 340, 0.3f, white, s, 0, 0, ITEM_TEXTSTYLE_NORMAL );
-}
-
-/*
-=================
-CG_DrawTeamVote
-=================
-*/
-static void CG_DrawTeamVote( void )
-{
-  char    *s;
-  int     sec, cs_offset;
-  vec4_t  white = { 1.0f, 1.0f, 1.0f, 1.0f };
-  char    yeskey[ 32 ], nokey[ 32 ];
-
-  if( cg.predictedPlayerState.stats[ STAT_TEAM ] == TEAM_HUMANS )
-    cs_offset = 0;
-  else if( cg.predictedPlayerState.stats[ STAT_TEAM ] == TEAM_ALIENS )
-    cs_offset = 1;
-  else
-    return;
-
-  if( !cgs.teamVoteTime[ cs_offset ] )
-    return;
-
-  // play a talk beep whenever it is modified
-  if ( cgs.teamVoteModified[ cs_offset ] )
-  {
-    cgs.teamVoteModified[ cs_offset ] = qfalse;
-    trap_S_StartLocalSound( cgs.media.talkSound, CHAN_LOCAL_SOUND );
-  }
-
-  sec = ( VOTE_TIME - ( cg.time - cgs.teamVoteTime[ cs_offset ] ) ) / 1000;
+  sec = ( VOTE_TIME - ( cg.time - cgs.voteTime[ team ] ) ) / 1000;
 
   if( sec < 0 )
     sec = 0;
 
-  Q_strncpyz( yeskey, CG_KeyBinding( "teamvote yes" ), sizeof( yeskey ) ); 
-  Q_strncpyz( nokey, CG_KeyBinding( "teamvote no" ), sizeof( nokey ) ); 
-  s = va( "TEAMVOTE(%i): \"%s\"  [%s]Yes:%i   [%s]No:%i", sec,
-          cgs.teamVoteString[ cs_offset ],
-          yeskey, cgs.teamVoteYes[cs_offset],
-          nokey, cgs.teamVoteNo[ cs_offset ] );
-
-  UI_Text_Paint( 8, 360, 0.3f, white, s, 0, 0, ITEM_TEXTSTYLE_NORMAL );
+  Q_strncpyz( yeskey,
+    CG_KeyBinding( va( "%svote yes", team == TEAM_NONE ? "" : "team" ) ),
+    sizeof( yeskey ) );
+  Q_strncpyz( nokey,
+    CG_KeyBinding( va( "%svote no", team == TEAM_NONE ? "" : "team" ) ),
+    sizeof( nokey ) );
+  s = va( "%sVOTE(%i): \"%s\"  [%s]Yes:%i [%s]No:%i",
+    team == TEAM_NONE ? "" : "TEAM", sec, cgs.voteString[ team ],
+    yeskey, cgs.voteYes[ team ], nokey, cgs.voteNo[ team ] );
+  UI_Text_Paint( 8, team == TEAM_NONE ? 340 : 360, 0.3f, white, s, 0, 0,
+    ITEM_TEXTSTYLE_NORMAL );
 }
 
 
@@ -2999,8 +2962,8 @@ static void CG_Draw2D( void )
 
   Menu_Paint( menu, qtrue );
 
-  CG_DrawVote( );
-  CG_DrawTeamVote( );
+  CG_DrawVote( TEAM_NONE );
+  CG_DrawVote( cg.predictedPlayerState.stats[ STAT_TEAM ] );
   CG_DrawQueue( );
 
   // don't draw center string if scoreboard is up

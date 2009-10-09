@@ -1356,17 +1356,11 @@ typedef struct
   char          mapname[ MAX_QPATH ];
   qboolean      markDeconstruct;        // Whether or not buildables are marked
 
-  int           voteTime;
-  int           voteYes;
-  int           voteNo;
-  qboolean      voteModified;           // beep whenever changed
-  char          voteString[ MAX_STRING_TOKENS ];
-
-  int           teamVoteTime[ 2 ];
-  int           teamVoteYes[ 2 ];
-  int           teamVoteNo[ 2 ];
-  qboolean      teamVoteModified[ 2 ];  // beep whenever changed
-  char          teamVoteString[ 2 ][ MAX_STRING_TOKENS ];
+  int           voteTime[ NUM_TEAMS ];
+  int           voteYes[ NUM_TEAMS ];
+  int           voteNo[ NUM_TEAMS ];
+  qboolean      voteModified[ NUM_TEAMS ];// beep whenever changed
+  char          voteString[ NUM_TEAMS ][ MAX_STRING_TOKENS ];
 
   int           levelStartTime;
 

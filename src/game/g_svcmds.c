@@ -509,6 +509,19 @@ static void Svcmd_MessageWrapper( void )
     G_Say( NULL, SAY_ALL, ConcatArgs( 1 ) );
 }
 
+static void Svcmd_SuddenDeath_f( void )
+{
+  char secs[ 5 ];
+  int  offset;
+  trap_Argv( 0, secs, sizeof( secs ) );
+  offset = atoi( secs );
+
+  level.suddenDeathBeginTime = level.time - level.startTime + offset * 1000;
+  trap_SendServerCommand( -1,
+    va( "cp \"Sudden Death will begin in %d second%s\"",
+      offset, offset == 1 ? "" : "s" ) );
+}
+
 struct
 {
   char     *cmd;
@@ -536,7 +549,8 @@ struct
   { "say", qtrue, Svcmd_MessageWrapper },
   { "chat", qtrue, Svcmd_Chat_f },
   { "m", qtrue, Svcmd_MessageWrapper },
-  { "a", qtrue, Svcmd_MessageWrapper }
+  { "a", qtrue, Svcmd_MessageWrapper },
+  { "suddendeath", qfalse, Svcmd_SuddenDeath_f }
 };
 
 /*

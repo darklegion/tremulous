@@ -1812,7 +1812,7 @@ SpectatorClientEndFrame
 void SpectatorClientEndFrame( gentity_t *ent )
 {
   gclient_t *cl;
-  int       clientNum, flags;
+  int       clientNum;
   int       score, ping;
 
   // if we are doing a chase cam or a remote view, grab the latest info
@@ -1824,9 +1824,6 @@ void SpectatorClientEndFrame( gentity_t *ent )
       cl = &level.clients[ clientNum ];
       if( cl->pers.connected == CON_CONNECTED )
       {
-        // Save
-        flags = ( cl->ps.eFlags & ~( EF_VOTED | EF_TEAMVOTED ) ) |
-                ( ent->client->ps.eFlags & ( EF_VOTED | EF_TEAMVOTED ) );
         score = ent->client->ps.persistant[ PERS_SCORE ];
         ping = ent->client->ps.ping;
 
@@ -1834,7 +1831,6 @@ void SpectatorClientEndFrame( gentity_t *ent )
         ent->client->ps = cl->ps;
 
         // Restore
-        ent->client->ps.eFlags = flags;
         ent->client->ps.persistant[ PERS_SCORE ] = score;
         ent->client->ps.ping = ping;
 

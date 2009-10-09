@@ -346,7 +346,7 @@ Get the number of build points from a position
 */
 int G_GetBuildPoints( const vec3_t pos, team_t team, int extraDistance )
 {
-  if( level.suddenDeath )
+  if( G_TimeTilSuddenDeath( ) <= 0 )
   {
     return 0;
   }

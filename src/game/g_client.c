@@ -1436,8 +1436,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   }
 
   // toggle the teleport bit so the client knows to not lerp
-  flags = ent->client->ps.eFlags & ( EF_TELEPORT_BIT | EF_VOTED | EF_TEAMVOTED );
-  flags ^= EF_TELEPORT_BIT;
+  flags = ( ent->client->ps.eFlags & EF_TELEPORT_BIT ) ^ EF_TELEPORT_BIT;
   G_UnlaggedClear( ent );
 
   // clear everything but the persistant data
@@ -1689,7 +1688,7 @@ void ClientDisconnect( int clientNum )
 
   G_admin_namelog_update( ent->client, qtrue );
   G_LeaveTeam( ent );
-  G_Vote( ent, qfalse );
+  G_Vote( ent, TEAM_NONE, qfalse );
 
   // stop any following clients
   for( i = 0; i < level.maxclients; i++ )

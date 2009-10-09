@@ -52,14 +52,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // 6 UNUSED
 // 7 UNUSED
 #define CS_VOTE_TIME        8
-#define CS_VOTE_STRING      9
-#define CS_VOTE_YES         10
-#define CS_VOTE_NO          11
-
-#define CS_TEAMVOTE_TIME    12
-#define CS_TEAMVOTE_STRING  14
-#define CS_TEAMVOTE_YES     16
-#define CS_TEAMVOTE_NO      18
+#define CS_VOTE_STRING      (CS_VOTE_TIME + NUM_TEAMS)
+#define CS_VOTE_YES         (CS_VOTE_STRING + NUM_TEAMS)
+#define CS_VOTE_NO          (CS_VOTE_YES + NUM_TEAMS)
 
 #define CS_GAME_VERSION     20
 #define CS_LEVEL_START_TIME 21    // so the timer only shows the current level
@@ -296,8 +291,6 @@ typedef enum
 #define EF_MOVER_STOP       0x00001000    // will push otherwise
 #define EF_POISONCLOUDED    0x00002000    // player hit with basilisk gas
 #define EF_CONNECTION       0x00004000    // draw a connection trouble sprite
-#define EF_VOTED            0x00008000    // already cast a vote
-#define EF_TEAMVOTED        0x00010000    // already cast a vote
 #define EF_BLOBLOCKED       0x00020000    // caught by a trapper
 #define EF_WARN_CHARGE      0x00040000    // Lucifer Cannon is about to overcharge
 

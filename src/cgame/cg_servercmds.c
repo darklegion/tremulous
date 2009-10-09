@@ -291,65 +291,33 @@ static void CG_ConfigStringModified( void )
   }
   else if( num == CS_LEVEL_START_TIME )
     cgs.levelStartTime = atoi( str );
-  else if( num == CS_VOTE_TIME )
+  else if( num >= CS_VOTE_TIME && num < CS_VOTE_TIME + NUM_TEAMS )
   {
-    cgs.voteTime = atoi( str );
-    cgs.voteModified = qtrue;
+    cgs.voteTime[ num - CS_VOTE_TIME ] = atoi( str );
+    cgs.voteModified[ num - CS_VOTE_TIME ] = qtrue;
 
-    if( cgs.voteTime )
-      trap_Cvar_Set( "ui_voteActive", "1" );
-    else
-      trap_Cvar_Set( "ui_voteActive", "0" );
+    if( num - CS_VOTE_TIME == TEAM_NONE )
+      trap_Cvar_Set( "ui_voteActive", cgs.voteTime[ TEAM_NONE ] ? "1" : "0" );
+    else if( num - CS_VOTE_TIME == TEAM_ALIENS )
+      trap_Cvar_Set( "ui_alienTeamVoteActive",
+        cgs.voteTime[ TEAM_ALIENS ] ? "1" : "0" );
+    else if( num - CS_VOTE_TIME == TEAM_HUMANS )
+      trap_Cvar_Set( "ui_humanTeamVoteActive",
+        cgs.voteTime[ TEAM_HUMANS ] ? "1" : "0" );
   }
-  else if( num == CS_VOTE_YES )
+  else if( num >= CS_VOTE_YES && num < CS_VOTE_YES + NUM_TEAMS )
   {
-    cgs.voteYes = atoi( str );
-    cgs.voteModified = qtrue;
+    cgs.voteYes[ num - CS_VOTE_YES ] = atoi( str );
+    cgs.voteModified[ num - CS_VOTE_YES ] = qtrue;
   }
-  else if( num == CS_VOTE_NO )
+  else if( num >= CS_VOTE_NO && num < CS_VOTE_NO + NUM_TEAMS )
   {
-    cgs.voteNo = atoi( str );
-    cgs.voteModified = qtrue;
+    cgs.voteNo[ num - CS_VOTE_NO ] = atoi( str );
+    cgs.voteModified[ num - CS_VOTE_NO ] = qtrue;
   }
-  else if( num == CS_VOTE_STRING )
-    Q_strncpyz( cgs.voteString, str, sizeof( cgs.voteString ) );
-  else if( num >= CS_TEAMVOTE_TIME && num <= CS_TEAMVOTE_TIME + 1 )
-  {
-    int cs_offset = num - CS_TEAMVOTE_TIME;
-
-    cgs.teamVoteTime[ cs_offset ] = atoi( str );
-    cgs.teamVoteModified[ cs_offset ] = qtrue;
-
-    if( cs_offset == 0 )
-    {
-      if( cgs.teamVoteTime[ cs_offset ] )
-        trap_Cvar_Set( "ui_humanTeamVoteActive", "1" );
-      else
-        trap_Cvar_Set( "ui_humanTeamVoteActive", "0" );
-    }
-    else if( cs_offset == 1 )
-    {
-      if( cgs.teamVoteTime[ cs_offset ] )
-        trap_Cvar_Set( "ui_alienTeamVoteActive", "1" );
-      else
-        trap_Cvar_Set( "ui_alienTeamVoteActive", "0" );
-    }
-  }
-  else if( num >= CS_TEAMVOTE_YES && num <= CS_TEAMVOTE_YES + 1 )
-  {
-    cgs.teamVoteYes[ num - CS_TEAMVOTE_YES ] = atoi( str );
-    cgs.teamVoteModified[ num - CS_TEAMVOTE_YES ] = qtrue;
-  }
-  else if( num >= CS_TEAMVOTE_NO && num <= CS_TEAMVOTE_NO + 1 )
-  {
-    cgs.teamVoteNo[ num - CS_TEAMVOTE_NO ] = atoi( str );
-    cgs.teamVoteModified[ num - CS_TEAMVOTE_NO ] = qtrue;
-  }
-  else if( num >= CS_TEAMVOTE_STRING && num <= CS_TEAMVOTE_STRING + 1 )
-  {
-    Q_strncpyz( cgs.teamVoteString[ num - CS_TEAMVOTE_STRING ], str,
-      sizeof( cgs.teamVoteString[ num - CS_TEAMVOTE_STRING ] ) );
-  }
+  else if( num >= CS_VOTE_STRING && num < CS_VOTE_STRING + NUM_TEAMS )
+    Q_strncpyz( cgs.voteString[ num - CS_VOTE_STRING ], str,
+      sizeof( cgs.voteString[ num - CS_VOTE_STRING ] ) );
   else if( num == CS_INTERMISSION )
     cg.intermissionStarted = atoi( str );
   else if( num >= CS_MODELS && num < CS_MODELS+MAX_MODELS )
@@ -406,7 +374,7 @@ static void CG_MapRestart( void )
 
   cg.intermissionStarted = qfalse;
 
-  cgs.voteTime = 0;
+  cgs.voteTime[ TEAM_NONE ] = 0;
 
   cg.mapRestart = qtrue;
 
