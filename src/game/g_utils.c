@@ -995,7 +995,8 @@ qboolean G_AddressParse( const char *str, addr_t *addr, int *netmask )
   {
     if( *p )
       return qfalse;
-    *netmask = max;
+    if( netmask )
+      *netmask = max;
   }
   return qtrue;
 }
