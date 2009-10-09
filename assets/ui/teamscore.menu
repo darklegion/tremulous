@@ -341,6 +341,7 @@
 
     itemDef
     {
+      type ITEM_TYPE_TEXT
       name window
       text "Spectating:"
       rect 0 (H-BAR_H) SPEC_W BAR_H
