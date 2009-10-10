@@ -639,6 +639,8 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
   // So the server counts the spawns without a client attached
   G_CountSpawns( );
 
+  G_UpdateTeamConfigStrings( );
+
   G_ResetPTRConnections( );
 }
 
