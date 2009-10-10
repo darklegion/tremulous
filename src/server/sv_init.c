@@ -38,7 +38,7 @@ static void SV_SendConfigstring(client_t *client, int index)
 	int len;
 
 	if( sv.configstrings[index].restricted && Com_ClientListContains(
-		&sv.configstrings[index].clientList, client->gentity->s.number ) ) {
+		&sv.configstrings[index].clientList, client - svs.clients ) ) {
 		// Send a blank config string for this client if it's listed
 		SV_SendServerCommand( client, "cs %i \"\"\n", index );
 		return;
