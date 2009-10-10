@@ -1269,6 +1269,11 @@ static void CG_DrawKiller( rectDef_t *rect, float scale, vec4_t color,
 static void CG_DrawTeamSpectators( rectDef_t *rect, float scale, int textvalign, vec4_t color, qhandle_t shader )
 {
   float y;
+  qboolean isEmoticon;
+  qboolean emoticonEscaped;
+  char secondPart[ MAX_STRING_CHARS ] = "";
+  int emoticonLen;
+  static char lastColorSeen = COLOR_WHITE;
 
   if( cg.spectatorLen )
   {
@@ -1298,9 +1303,20 @@ static void CG_DrawTeamSpectators( rectDef_t *rect, float scale, int textvalign,
         {
           // skip colour directives
           if( Q_IsColorString( &cg.spectatorList[ cg.spectatorOffset ] ) )
+          {
+            lastColorSeen = cg.spectatorList[ cg.spectatorOffset + 1 ];
             cg.spectatorOffset += 2;
+          }
           else
           {
+            isEmoticon = UI_Text_Emoticon( &cg.spectatorList[ cg.spectatorOffset ], 
+                            &emoticonEscaped, &emoticonLen, NULL, NULL );
+            if( isEmoticon )
+            {
+              cg.spectatorOffset += emoticonLen;
+              if( emoticonEscaped ) cg.spectatorOffset++; // skip an extra char to not un-scape by eating the escaping [
+            }
+
             cg.spectatorPaintX += UI_Text_Width( &cg.spectatorList[ cg.spectatorOffset ], scale, 1 ) - 1;
             cg.spectatorOffset++;
           }
@@ -1326,12 +1342,16 @@ static void CG_DrawTeamSpectators( rectDef_t *rect, float scale, int textvalign,
       }
     }
 
+    secondPart[ 0 ] = Q_COLOR_ESCAPE;
+    secondPart[ 1 ] = lastColorSeen;
+    Q_strncpyz( secondPart+2, &cg.spectatorList[ cg.spectatorOffset ], sizeof( secondPart ) - 2 );
+
     maxX = rect->x + rect->w - 2;
     CG_AlignText( rect, NULL, 0.0f, 0.0f, UI_Text_EmHeight( scale ),
                   ALIGN_LEFT, textvalign, NULL, &y );
 
     UI_Text_Paint_Limit( &maxX, cg.spectatorPaintX, y, scale, color,
-                         &cg.spectatorList[ cg.spectatorOffset ], 0, 0 );
+                         secondPart, 0, 0 );
 
     if( cg.spectatorPaintX2 >= 0 )
     {

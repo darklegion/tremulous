@@ -877,7 +877,7 @@ void CG_BuildSpectatorString( void )
   for( i = 0; i < MAX_CLIENTS; i++ )
   {
     if( cgs.clientinfo[ i ].infoValid && cgs.clientinfo[ i ].team == TEAM_NONE )
-      Q_strcat( cg.spectatorList, sizeof( cg.spectatorList ), va( "%s     " S_COLOR_WHITE, cgs.clientinfo[ i ].name ) );
+      Q_strcat( cg.spectatorList, sizeof( cg.spectatorList ), va( S_COLOR_WHITE "%s     ", cgs.clientinfo[ i ].name ) );
   }
 
   i = strlen( cg.spectatorList );
