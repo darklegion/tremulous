@@ -1545,6 +1545,8 @@ void BeginIntermission( void )
 
   G_ClearVotes( );
 
+  G_UpdateTeamConfigStrings( );
+
   FindIntermissionPoint( );
 
   // move all clients to the intermission point

@@ -108,7 +108,7 @@ static clientList_t G_ClientListForTeam( team_t team )
 G_UpdateTeamConfigStrings
 ==================
 */
-static void G_UpdateTeamConfigStrings( void )
+void G_UpdateTeamConfigStrings( void )
 {
   clientList_t alienTeam = G_ClientListForTeam( TEAM_ALIENS );
   clientList_t humanTeam = G_ClientListForTeam( TEAM_HUMANS );
