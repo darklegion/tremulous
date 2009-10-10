@@ -4527,7 +4527,7 @@ void Item_TextColor( itemDef_t *item, vec4_t *newColor )
   }
 }
 
-static const char *Item_Text_Wrap( const char *text, float scale, float width )
+const char *Item_Text_Wrap( const char *text, float scale, float width )
 {
   static char   out[ 8192 ] = "";
   char          *paint = out;

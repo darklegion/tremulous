@@ -509,6 +509,7 @@ void Controls_SetDefaults( void );
 
 //for cg_draw.c
 void Item_Text_Wrapped_Paint( itemDef_t *item );
+const char *Item_Text_Wrap( const char *text, float scale, float width );
 void UI_DrawTextBlock( rectDef_t *rect, float text_x, float text_y, vec4_t color,
                        float scale, int textalign, int textvalign,
                        int textStyle, const char *text );

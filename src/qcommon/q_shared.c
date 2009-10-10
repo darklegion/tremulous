@@ -935,6 +935,13 @@ int Q_CountChar(const char *string, char tocount)
 	return count;
 }
 
+void Q_ParseNewlines( char *dest, const char *src, int destsize )
+{
+  for( ; *src && destsize > 1; src++, destsize-- )
+    *dest++ = ( ( *src == '\\' && *( ++src ) == 'n' ) ? '\n' : *src );
+  *dest++ = '\0';
+}
+
 void QDECL Com_sprintf( char *dest, int size, const char *fmt, ...) {
 	int		len;
 	va_list		argptr;

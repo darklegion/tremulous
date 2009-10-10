@@ -1131,10 +1131,13 @@ static void CG_DrawMOTD( rectDef_t *rect, float text_x, float text_y,
                          int textalign, int textvalign, int textStyle )
 {
   const char  *s;
+  char parsed[ MAX_STRING_CHARS ];
 
   s = CG_ConfigString( CS_MOTD );
 
-  UI_DrawTextBlock( rect, text_x, text_y, color, scale, textalign, textvalign, textStyle, s );
+  Q_ParseNewlines( parsed, s, sizeof( parsed ) );
+
+  UI_DrawTextBlock( rect, text_x, text_y, color, scale, textalign, textvalign, textStyle, parsed );
 }
 
 static void CG_DrawHostname( rectDef_t *rect, float text_x, float text_y,
@@ -2685,8 +2688,15 @@ for a few moments
 void CG_CenterPrint( const char *str, int y, int charWidth )
 {
   char  *s;
+  char newlineParsed[ MAX_STRING_CHARS ]; 
+  const char *wrapped; 
+  static int maxWidth = (int) ((2.0/3.0) * (double) SCREEN_WIDTH );
 
-  Q_strncpyz( cg.centerPrint, str, sizeof( cg.centerPrint ) );
+  Q_ParseNewlines( newlineParsed, str, sizeof( newlineParsed ) );
+  
+  wrapped = Item_Text_Wrap( newlineParsed, 0.5, maxWidth );
+
+  Q_strncpyz( cg.centerPrint, wrapped, sizeof( cg.centerPrint ) );
 
   cg.centerPrintTime = cg.time;
   cg.centerPrintY = y;
@@ -2733,9 +2743,9 @@ static void CG_DrawCenterString( void )
 
   while( 1 )
   {
-    char linebuffer[ 1024 ];
+    char linebuffer[ MAX_STRING_CHARS ];
 
-    for( l = 0; l < 50; l++ )
+    for( l = 0; l < sizeof(linebuffer) - 1; l++ )
     {
       if( !start[ l ] || start[ l ] == '\n' )
         break;
