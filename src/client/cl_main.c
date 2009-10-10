@@ -2315,7 +2315,7 @@ void CL_InitServerInfo( serverInfo_t *server, netadr_t *address ) {
 	server->clients = 0;
 	server->hostName[0] = '\0';
 	server->mapName[0] = '\0';
-	server->label = NULL;
+	server->label[0] = '\0';
 	server->maxClients = 0;
 	server->maxPing = 0;
 	server->minPing = 0;
@@ -2378,47 +2378,25 @@ CL_GSRFeaturedLabel
 
 Parses from the data an arbitrary text string labelling the servers in the
 following getserversresponse packet.
-Either this matches an existing label, or it is copied into a new one.
-The relevant buffer, or NULL, is returned, and *data is advanced as appropriate
+The result is copied to *buf, and *data is advanced as appropriate
 ===================
 */
-char *CL_GSRFeaturedLabel( byte **data )
+void CL_GSRFeaturedLabel( byte **data, char *buf, int size )
 {
-	char label[ MAX_FEATLABEL_CHARS ] = { 0 }, *l = label;
-	int  i;
+	char *l = buf;
+	buf[0] = '\0';
 
 	// copy until '\0' which indicates field break
 	// or slash which indicates beginning of server list
 	while( **data && **data != '\\' && **data != '/' )
 	{
-		if( l < &label[ sizeof( label ) - 1 ] )
+		if( l < &buf[ size - 1 ] )
 			*l = **data;
-		else if( l == &label[ sizeof( label ) - 1 ] )
+		else if( l == &buf[ size - 1 ] )
 			Com_DPrintf( S_COLOR_YELLOW "Warning: "
 				"CL_GSRFeaturedLabel: overflow\n" );
 		l++, (*data)++;
 	}
-
-	if( !label[ 0 ] )
-		return NULL;
-
-	// find the label in the stored array
-	for( i = 0; i < cls.numFeaturedServerLabels; i++ )
-	{
-		l = cls.featuredServerLabels[ i ];
-		if( strcmp( label, l ) == 0 )
-			return l;
-	}
-	if( i == MAX_FEATURED_LABELS )
-	{
-		Com_DPrintf( S_COLOR_YELLOW "Warning: CL_GSRFeaturedLabel: "
-			"ran out of label space, dropping %s\n", label );
-		return NULL;
-	}
-	if( i == 0 )
-		l = cls.featuredServerLabels[ 0 ];
-	Q_strncpyz( l, label, sizeof( *cls.featuredServerLabels ) );
-	return l;
 }
 
 #define MAX_SERVERSPERPACKET	256
@@ -2434,7 +2412,7 @@ void CL_ServersResponsePacket( const netadr_t* from, msg_t *msg, qboolean extend
 	int				numservers;
 	byte*			buffptr;
 	byte*			buffend;
-	char			*label = NULL;
+	char			label[MAX_FEATLABEL_CHARS];
 	
 	Com_DPrintf("CL_ServersResponsePacket%s\n",
 		(extended) ? " (extended)" : "");
@@ -2445,7 +2423,6 @@ void CL_ServersResponsePacket( const netadr_t* from, msg_t *msg, qboolean extend
 		cls.numGlobalServerAddresses = 0;
 		cls.numMasterPackets = 0;
 		cls.receivedMasterPackets = 0;
-		cls.numFeaturedServerLabels = 0;
 	}
 
 	// parse through server response string
@@ -2487,8 +2464,7 @@ void CL_ServersResponsePacket( const netadr_t* from, msg_t *msg, qboolean extend
 				"%d of %d\n", ind, cls.numMasterPackets );
 			cls.receivedMasterPackets |= ( 1 << ( ind - 1 ) );
 
-			label = CL_GSRFeaturedLabel( &buffptr );
-			Com_DPrintf( "CL_GSRFeaturedLabel: %s\n", label );
+			CL_GSRFeaturedLabel( &buffptr, label, sizeof( label ) );
 		}
 		// now skip to the server list
 		for(; buffptr < buffend && *buffptr != '\\' && *buffptr != '/';
@@ -2549,7 +2525,7 @@ void CL_ServersResponsePacket( const netadr_t* from, msg_t *msg, qboolean extend
 		serverInfo_t *server = &cls.globalServers[count];
 
 		CL_InitServerInfo( server, &addresses[i] );
-		server->label = label;
+		Q_strncpyz( server->label, label, sizeof( server->label ) );
 		// advance to next slot
 		count++;
 	}

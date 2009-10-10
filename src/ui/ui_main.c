@@ -273,12 +273,18 @@ UI_InsertServerIntoDisplayList
 static void UI_InsertServerIntoDisplayList( int num, int position )
 {
   int i;
+  static char info[MAX_STRING_CHARS];
 
   if( position < 0 || position > uiInfo.serverStatus.numDisplayServers )
     return;
 
-  //
+
+  trap_LAN_GetServerInfo( ui_netSource.integer, num, info, MAX_STRING_CHARS );
+
   uiInfo.serverStatus.numDisplayServers++;
+
+  if( Info_ValueForKey( info, "label" )[0] )
+    uiInfo.serverStatus.numFeaturedServers++;
 
   for( i = uiInfo.serverStatus.numDisplayServers; i > position; i-- )
     uiInfo.serverStatus.displayServers[i] = uiInfo.serverStatus.displayServers[i-1];
@@ -294,12 +300,17 @@ UI_RemoveServerFromDisplayList
 static void UI_RemoveServerFromDisplayList( int num )
 {
   int i, j;
+  static char info[MAX_STRING_CHARS];
 
   for( i = 0; i < uiInfo.serverStatus.numDisplayServers; i++ )
   {
     if( uiInfo.serverStatus.displayServers[i] == num )
     {
       uiInfo.serverStatus.numDisplayServers--;
+
+      trap_LAN_GetServerInfo( ui_netSource.integer, num, info, MAX_STRING_CHARS );
+      if( Info_ValueForKey( info, "label" )[0] )
+          uiInfo.serverStatus.numFeaturedServers--;
 
       for( j = i; j < uiInfo.serverStatus.numDisplayServers; j++ )
         uiInfo.serverStatus.displayServers[j] = uiInfo.serverStatus.displayServers[j+1];
@@ -837,6 +848,7 @@ static void UI_BuildServerDisplayList( qboolean force )
     numinvisible = 0;
     // clear number of displayed servers
     uiInfo.serverStatus.numDisplayServers = 0;
+    uiInfo.serverStatus.numFeaturedServers = 0;
     uiInfo.serverStatus.numPlayersOnServers = 0;
     // set list box index to zero
     Menu_SetFeederSelection( NULL, FEEDER_SERVERS, 0, NULL );
@@ -851,6 +863,7 @@ static void UI_BuildServerDisplayList( qboolean force )
   {
     // still waiting on a response from the master
     uiInfo.serverStatus.numDisplayServers = 0;
+    uiInfo.serverStatus.numFeaturedServers = 0;
     uiInfo.serverStatus.numPlayersOnServers = 0;
     uiInfo.serverStatus.nextDisplayRefresh = uiInfo.uiDC.realTime + 500;
     return;
@@ -907,8 +920,6 @@ static void UI_BuildServerDisplayList( qboolean force )
       if( ping > 0 )
       {
         trap_LAN_MarkServerVisible( ui_netSource.integer, i, qfalse );
-        if( Info_ValueForKey( info, "label" )[0] )
-          uiInfo.serverStatus.numFeaturedServers++;
         numinvisible++;
       }
     }
@@ -3683,9 +3694,12 @@ static void UI_FeederSelection( float feederID, int index )
       trap_CIN_PlayCinematic( va( "%s.roq", uiInfo.mapList[ui_selectedMap.integer].mapLoadName ),
                               0, 0, 0, 0, ( CIN_loop | CIN_silent ) );
   }
-  else if( feederID == FEEDER_SERVERS )
+  else if( feederID == FEEDER_SERVERS || feederID == FEEDER_FEATURED )
   {
     const char *mapName = NULL;
+
+    if( feederID == FEEDER_SERVERS )
+      index += UI_FeederCount( FEEDER_FEATURED );
     uiInfo.serverStatus.currentServer = index;
     trap_LAN_GetServerInfo( ui_netSource.integer, uiInfo.serverStatus.displayServers[index],
                             info, MAX_STRING_CHARS );
