@@ -1727,14 +1727,13 @@ void Cmd_Destroy_f( gentity_t *ent )
       }
       else
       {
+        if( !g_cheats.integer ) // add a bit to the build timer
+        {
+            ent->client->ps.stats[ STAT_MISC ] +=
+            BG_Buildable( traceEnt->s.modelindex )->buildTime / 4;
+        }
         G_LogDestruction( traceEnt, ent, MOD_DECONSTRUCT );
         G_FreeEntity( traceEnt );
-      }
-
-      if( !g_cheats.integer )
-      {
-        ent->client->ps.stats[ STAT_MISC ] +=
-          BG_Buildable( traceEnt->s.modelindex )->buildTime / 4;
       }
     }
   }

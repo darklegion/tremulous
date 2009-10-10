@@ -1028,7 +1028,8 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
     {
       if( targ->buildableTeam == attacker->client->pers.teamSelection )
       {
-        if( !g_friendlyBuildableFire.integer )
+        if( !g_friendlyBuildableFire.integer && mod != MOD_DECONSTRUCT
+            && mod != MOD_SUICIDE )
           return;
       }
 
