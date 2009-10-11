@@ -2118,31 +2118,6 @@ static const weaponAttributes_t bg_weapons[ ] =
     TEAM_HUMANS           //team_t    team;
   },
   {
-    WP_PULSE_RIFLE,       //int       weaponNum;
-    PRIFLE_PRICE,         //int       price;
-    ( 1 << S2 )|( 1 << S3 ), //int  stages
-    SLOT_WEAPON,          //int       slots;
-    "prifle",             //char      *weaponName;
-    "Pulse Rifle",        //char      *humanName;
-    "An energy weapon that fires rapid pulses of concentrated energy.",
-    PRIFLE_CLIPS,         //int       maxAmmo;
-    PRIFLE_MAXCLIPS,      //int       maxClips;
-    qfalse,               //int       infiniteAmmo;
-    qtrue,                //int       usesEnergy;
-    PRIFLE_REPEAT,        //int       repeatRate1;
-    0,                    //int       repeatRate2;
-    0,                    //int       repeatRate3;
-    PRIFLE_RELOAD,        //int       reloadTime;
-    PRIFLE_K_SCALE,       //float     knockbackScale;
-    qfalse,               //qboolean  hasAltMode;
-    qfalse,               //qboolean  hasThirdMode;
-    qfalse,               //qboolean  canZoom;
-    90.0f,                //float     zoomFov;
-    qtrue,                //qboolean  purchasable;
-    qtrue,                //qboolean  longRanged;
-    TEAM_HUMANS           //team_t    team;
-  },
-  {
     WP_FLAMER,            //int       weaponNum;
     FLAMER_PRICE,         //int       price;
     ( 1 << S2 )|( 1 << S3 ), //int  stages
@@ -2161,6 +2136,31 @@ static const weaponAttributes_t bg_weapons[ ] =
     0,                    //int       repeatRate3;
     0,                    //int       reloadTime;
     FLAMER_K_SCALE,       //float     knockbackScale;
+    qfalse,               //qboolean  hasAltMode;
+    qfalse,               //qboolean  hasThirdMode;
+    qfalse,               //qboolean  canZoom;
+    90.0f,                //float     zoomFov;
+    qtrue,                //qboolean  purchasable;
+    qtrue,                //qboolean  longRanged;
+    TEAM_HUMANS           //team_t    team;
+  },
+  {
+    WP_PULSE_RIFLE,       //int       weaponNum;
+    PRIFLE_PRICE,         //int       price;
+    ( 1 << S2 )|( 1 << S3 ), //int  stages
+    SLOT_WEAPON,          //int       slots;
+    "prifle",             //char      *weaponName;
+    "Pulse Rifle",        //char      *humanName;
+    "An energy weapon that fires rapid pulses of concentrated energy.",
+    PRIFLE_CLIPS,         //int       maxAmmo;
+    PRIFLE_MAXCLIPS,      //int       maxClips;
+    qfalse,               //int       infiniteAmmo;
+    qtrue,                //int       usesEnergy;
+    PRIFLE_REPEAT,        //int       repeatRate1;
+    0,                    //int       repeatRate2;
+    0,                    //int       repeatRate3;
+    PRIFLE_RELOAD,        //int       reloadTime;
+    PRIFLE_K_SCALE,       //float     knockbackScale;
     qfalse,               //qboolean  hasAltMode;
     qfalse,               //qboolean  hasThirdMode;
     qfalse,               //qboolean  canZoom;
