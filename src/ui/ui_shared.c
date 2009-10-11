@@ -1834,7 +1834,7 @@ void Script_playLooped( itemDef_t *item, char **args )
 }
 
 qboolean UI_Text_Emoticon( const char *s, qboolean *escaped,
-                                  int *length, qhandle_t *h, int *width )
+                           int *length, qhandle_t *h, int *width )
 {
   char name[ MAX_EMOTICON_NAME_LEN ] = {""};
   const char *p = s;

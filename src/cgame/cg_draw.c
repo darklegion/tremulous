@@ -2688,13 +2688,13 @@ for a few moments
 void CG_CenterPrint( const char *str, int y, int charWidth )
 {
   char  *s;
-  char newlineParsed[ MAX_STRING_CHARS ]; 
-  const char *wrapped; 
-  static int maxWidth = (int) ((2.0/3.0) * (double) SCREEN_WIDTH );
+  char newlineParsed[ MAX_STRING_CHARS ];
+  const char *wrapped;
+  static int maxWidth = (int)( ( 2.0f / 3.0f ) * (float)SCREEN_WIDTH );
 
   Q_ParseNewlines( newlineParsed, str, sizeof( newlineParsed ) );
-  
-  wrapped = Item_Text_Wrap( newlineParsed, 0.5, maxWidth );
+
+  wrapped = Item_Text_Wrap( newlineParsed, 0.5f, maxWidth );
 
   Q_strncpyz( cg.centerPrint, wrapped, sizeof( cg.centerPrint ) );
 
