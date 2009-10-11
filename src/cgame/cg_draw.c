@@ -2260,8 +2260,9 @@ static void CG_DrawLocation( rectDef_t *rect, float scale, int textalign, vec4_t
   centity_t     *locent;
   float         maxX;
   float         tx = rect->x, ty = rect->y;
+  qboolean aligned = qfalse;
+
   maxX = rect->x + rect->w;
-  qboolean      aligned = qfalse;
 
   locent = CG_GetPlayerLocation( );
   if( locent )
