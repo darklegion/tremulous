@@ -1101,6 +1101,7 @@ void G_CalculateBuildPoints( void )
     G_LogPrintf( "Beginning Sudden Death\n" );
     trap_SendServerCommand( -1, "cp \"Sudden Death!\"" );
     level.suddenDeathWarning = TW_PASSED;
+    G_ClearDeconMarks( );
   }
   else if( G_TimeTilSuddenDeath( ) <= SUDDENDEATHWARNING &&
     level.suddenDeathWarning < TW_IMMINENT )
@@ -2176,21 +2177,8 @@ void CheckCvars( void )
   // the server setting is changed
   if( g_markDeconstruct.modificationCount != lastMarkDeconModCount )
   {
-    int       i;
-    gentity_t *ent;
-
     lastMarkDeconModCount = g_markDeconstruct.modificationCount;
-
-    for( i = 1, ent = g_entities + i ; i < level.num_entities ; i++, ent++ )
-    {
-      if( !ent->inuse )
-        continue;
-
-      if( ent->s.eType != ET_BUILDABLE )
-        continue;
-
-      ent->deconstruct = qfalse;
-    }
+    G_ClearDeconMarks( );
   }
 
   // If we change g_suddenDeathTime during a map, we need to update 

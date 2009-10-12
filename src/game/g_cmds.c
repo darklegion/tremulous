@@ -1205,7 +1205,8 @@ void Cmd_CallVote_f( gentity_t *ent )
               va( "print \"callvote: Sudden Death has already begun\n\"") );
         return;
       }
-      if( G_TimeTilSuddenDeath() <= g_suddenDeathVoteDelay.integer * 1000 )
+      if( g_suddenDeathTime.integer > 0 &&
+          G_TimeTilSuddenDeath() <= g_suddenDeathVoteDelay.integer * 1000 )
       {
         trap_SendServerCommand( ent - g_entities, 
               va( "print \"callvote: Sudden Death is already immenent\n\"") );
@@ -1214,13 +1215,14 @@ void Cmd_CallVote_f( gentity_t *ent )
       level.voteThreshold[ team ] = g_suddenDeathVotePercent.integer;
       Com_sprintf( level.voteString[ team ], sizeof( level.voteString[ team ] ),
         "suddendeath %d", g_suddenDeathVoteDelay.integer );
-      strcpy( level.voteDisplayString[ team ], "Begin sudden death" );
+      strcpy( level.voteDisplayString[ team ],
+        va( "Begin sudden death in %d seconds", g_suddenDeathVoteDelay.integer ) );
     }
     else
     {
       trap_SendServerCommand( ent-g_entities, "print \"Invalid vote string\n\"" );
       trap_SendServerCommand( ent-g_entities, "print \"Valid vote commands are: "
-        "map, nextmap, map_restart, draw, kick, mute and unmute\n" );
+        "map, nextmap, map_restart, draw, sudden_death, kick, mute and unmute\n" );
       return;
     }
   }

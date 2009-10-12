@@ -222,23 +222,22 @@ static void CG_AlienBuilderText( char *text, playerState_t *ps )
     }
   }
 
-  if( ps->stats[ STAT_CLASS ] == PCL_ALIEN_BUILDER0 ||
-      ps->stats[ STAT_CLASS ] == PCL_ALIEN_BUILDER0_UPG )
+  if( ( ps->stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT ) == BA_NONE )
   {
-    if( ( ps->stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT ) == BA_NONE )
-    {
-      Q_strcat( text, MAX_TUTORIAL_TEXT,
-          va( "Press %s to swipe\n",
-            CG_KeyNameForCommand( "+button5" ) ) );
-    }
+    Q_strcat( text, MAX_TUTORIAL_TEXT,
+        va( "Press %s to swipe\n",
+          CG_KeyNameForCommand( "+button5" ) ) );
+  }
 
+  if( ps->stats[ STAT_CLASS ] == PCL_ALIEN_BUILDER0_UPG )
+  {
     Q_strcat( text, MAX_TUTORIAL_TEXT,
         va( "Press %s to launch a projectile\n",
-          CG_KeyNameForCommand( "+button2" ) ) );
+        CG_KeyNameForCommand( "+button2" ) ) );
 
     Q_strcat( text, MAX_TUTORIAL_TEXT,
         va( "Press %s to walk on walls\n",
-          CG_KeyNameForCommand( "+movedown" ) ) );
+        CG_KeyNameForCommand( "+movedown" ) ) );
   }
 }
 

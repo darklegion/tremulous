@@ -2988,6 +2988,30 @@ static int G_CompareBuildablesForRemoval( const void *a, const void *b )
 
 /*
 ===============
+G_ClearDeconMarks
+
+Remove decon mark from all buildables
+===============
+*/
+void G_ClearDeconMarks( void )
+{
+  int       i;
+  gentity_t *ent;
+
+  for( i = MAX_CLIENTS, ent = g_entities + i ; i < level.num_entities ; i++, ent++ )
+  {
+    if( !ent->inuse )
+      continue;
+
+    if( ent->s.eType != ET_BUILDABLE )
+      continue;
+
+    ent->deconstruct = qfalse;
+  }
+}
+
+/*
+===============
 G_FreeMarkedBuildables
 
 Free up build points for a team by deconstructing marked buildables
