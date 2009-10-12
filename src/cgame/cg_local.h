@@ -1477,6 +1477,7 @@ extern  vmCvar_t    cg_synchronousClients;
 extern  vmCvar_t    cg_stats;
 extern  vmCvar_t    cg_paused;
 extern  vmCvar_t    cg_blood;
+extern  vmCvar_t    cg_teamOverlayUserinfo;
 extern  vmCvar_t    cg_teamChatsOnly;
 extern  vmCvar_t    cg_noVoiceChats;
 extern  vmCvar_t    cg_noVoiceText;
@@ -1535,6 +1536,8 @@ extern  vmCvar_t    cg_projectileNudge;
 extern  vmCvar_t    cg_voice;
 
 extern  vmCvar_t    cg_emoticons;
+
+extern  vmCvar_t    cg_chatTeamPrefix;
 
 //
 // cg_main.c

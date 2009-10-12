@@ -1643,15 +1643,14 @@ void QDECL G_AdminMessage( gentity_t *ent, const char *fmt, ... )
 
   // Create the final string
   Q_strcat( outstring, sizeof( outstring ), string );
-  Com_sprintf( string, sizeof( string ), "chat \"%s\"", outstring );
+  Com_sprintf( string, sizeof( string ), "chat %d \"%s\"",
+    ent ? ent - g_entities : -1, outstring );
 
   // Send to all appropriate clients
   for( i = 0; i < level.maxclients; i++ )
-  {
-    if( G_admin_permission( &g_entities[ i ], ADMF_ADMINCHAT ) ) 
+    if( G_admin_permission( &g_entities[ i ], ADMF_ADMINCHAT ) )
        trap_SendServerCommand( i, string );
-  }
-  
+
   // Send to the logfile and server console
   G_LogPrintf( "AdminMsg: %d \"%s" S_COLOR_WHITE "\": %s\n",
     ent ? ent - g_entities : -1, ent ? ent->client->pers.netname : "console",

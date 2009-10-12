@@ -253,23 +253,18 @@ gentity_t *Team_GetLocation( gentity_t *ent )
 {
   gentity_t   *eloc, *best;
   float       bestlen, len;
-  vec3_t      origin;
 
   best = NULL;
   bestlen = 3.0f * 8192.0f * 8192.0f;
 
-  VectorCopy( ent->r.currentOrigin, origin );
-
   for( eloc = level.locationHead; eloc; eloc = eloc->nextTrain )
   {
-    len = ( origin[ 0 ] - eloc->r.currentOrigin[ 0 ] ) * ( origin[ 0 ] - eloc->r.currentOrigin[ 0 ] )
-        + ( origin[ 1 ] - eloc->r.currentOrigin[ 1 ] ) * ( origin[ 1 ] - eloc->r.currentOrigin[ 1 ] )
-        + ( origin[ 2 ] - eloc->r.currentOrigin[ 2 ] ) * ( origin[ 2 ] - eloc->r.currentOrigin[ 2 ] );
+    len = DistanceSquared( ent->r.currentOrigin, eloc->r.currentOrigin );
 
     if( len > bestlen )
       continue;
 
-    if( !trap_InPVS( origin, eloc->r.currentOrigin ) )
+    if( !trap_InPVS( ent->r.currentOrigin, eloc->r.currentOrigin ) )
       continue;
 
     bestlen = len;
@@ -277,39 +272,6 @@ gentity_t *Team_GetLocation( gentity_t *ent )
   }
 
   return best;
-}
-
-
-/*
-===========
-Team_GetLocationMsg
-
-Report a location message for the player. Uses placed nearby target_location entities
-============
-*/
-qboolean Team_GetLocationMsg( gentity_t *ent, char *loc, int loclen )
-{
-  gentity_t *best;
-
-  best = Team_GetLocation( ent );
-
-  if( !best )
-    return qfalse;
-
-  if( best->count )
-  {
-    if( best->count < 0 )
-      best->count = 0;
-
-    if( best->count > 7 )
-      best->count = 7;
-
-    Com_sprintf( loc, loclen, "%c%c%s" S_COLOR_WHITE, Q_COLOR_ESCAPE, best->count + '0', best->message );
-  }
-  else
-    Com_sprintf( loc, loclen, "%s", best->message );
-
-  return qtrue;
 }
 
 
@@ -391,7 +353,7 @@ void TeamplayInfoMessage( gentity_t *ent )
     }
   }
 
-  trap_SendServerCommand( ent - g_entities, va( "tinfo %i %s", cnt, string ) );
+  trap_SendServerCommand( ent - g_entities, va( "tinfo %i%s", cnt, string ) );
 }
 
 void CheckTeamStatus( void )

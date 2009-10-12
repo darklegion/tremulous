@@ -288,35 +288,6 @@ void SP_target_position( gentity_t *self )
   G_SetOrigin( self, self->s.origin );
 }
 
-static void target_location_linkup( gentity_t *ent )
-{
-  int i;
-  int n;
-
-  if( level.locationLinked )
-    return;
-
-  level.locationLinked = qtrue;
-
-  level.locationHead = NULL;
-
-  trap_SetConfigstring( CS_LOCATIONS, "unknown" );
-
-  for( i = 0, ent = g_entities, n = 1; i < level.num_entities; i++, ent++)
-  {
-    if( ent->s.eType == ET_LOCATION )
-    {
-      // lets overload some variables!
-      ent->s.generic1 = n; // use for location marking
-      trap_SetConfigstring( CS_LOCATIONS + n, ent->message );
-      n++;
-      ent->nextTrain = level.locationHead;
-      level.locationHead = ent;
-    }
-  }
-  // All linked together now
-}
-
 /*QUAKED target_location (0 0.5 0) (-8 -8 -8) (8 8 8)
 Set "message" to the name of this location.
 Set "count" to 0-7 for color.
@@ -327,11 +298,32 @@ in site, closest in distance
 */
 void SP_target_location( gentity_t *self )
 {
-  self->think = target_location_linkup;
-  self->nextthink = level.time + 200;  // Let them all spawn first
+  static int n = 1;
+  char *message;
   self->s.eType = ET_LOCATION;
   self->r.svFlags = SVF_BROADCAST;
   trap_LinkEntity( self ); // make the server send them to the clients
+  if( !level.locationHead )
+    trap_SetConfigstring( CS_LOCATIONS, "unknown" );
+  if( self->count )
+  {
+    if( self->count < 0 )
+      self->count = 0;
+
+    if( self->count > 7 )
+      self->count = 7;
+
+    message = va( "%c%c%s" S_COLOR_WHITE, Q_COLOR_ESCAPE, self->count + '0',
+      self->message);
+  }
+  else
+    message = self->message;
+  trap_SetConfigstring( CS_LOCATIONS + n, message );
+  self->nextTrain = level.locationHead;
+  self->health = n; // use for location marking
+  level.locationHead = self;
+  n++;
+
   G_SetOrigin( self, self->s.origin );
 }
 

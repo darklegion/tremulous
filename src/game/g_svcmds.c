@@ -354,7 +354,6 @@ static void Svcmd_MapRotation_f( void )
 static void Svcmd_TeamMessage_f( void )
 {
   char   teamNum[ 2 ];
-  const char*   prefix;
   team_t team;
 
   if( trap_Argc( ) < 3 )
@@ -372,11 +371,8 @@ static void Svcmd_TeamMessage_f( void )
     return;
   }
 
-  prefix = BG_TeamName( team );
-  prefix = va( "[%c] ", toupper( *prefix ) );
-
-  G_TeamCommand( team, va( "tchat \"(console): " S_COLOR_CYAN "%s\"", ConcatArgs( 2 ) ) );
-  G_LogPrintf( "SayTeam: -1 \"console\": " S_COLOR_CYAN "%s\n", ConcatArgs( 2 ) );
+  G_TeamCommand( team, va( "tchat -1 \"%s\"", ConcatArgs( 2 ) ) );
+  G_LogPrintf( "SayTeam: -1 \"console\": %s\n", ConcatArgs( 2 ) );
 }
 
 static void Svcmd_CenterPrint_f( void )
@@ -491,7 +487,7 @@ static void Svcmd_PrintQueue_f( void )
 static void Svcmd_Chat_f( void )
 {
   char *s = ConcatArgs( 1 );
-  trap_SendServerCommand( -1, va( "chat \"%s\"", s ) );
+  trap_SendServerCommand( -1, va( "chat -1 \"%s\"", s ) );
   G_LogPrintf("chat: %s\n", s );
 }
 

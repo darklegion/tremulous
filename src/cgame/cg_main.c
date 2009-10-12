@@ -153,6 +153,7 @@ vmCvar_t  cg_synchronousClients;
 vmCvar_t  cg_stats;
 vmCvar_t  cg_paused;
 vmCvar_t  cg_blood;
+vmCvar_t  cg_teamOverlayUserinfo;
 vmCvar_t  cg_teamChatsOnly;
 vmCvar_t  cg_noPrintDuplicate;
 vmCvar_t  cg_noVoiceChats;
@@ -214,6 +215,7 @@ vmCvar_t  cg_voice;
 
 vmCvar_t  cg_emoticons;
 
+vmCvar_t  cg_chatTeamPrefix;
 
 typedef struct
 {
@@ -268,6 +270,7 @@ static cvarTable_t cvarTable[ ] =
   { &cg_thirdPersonPitchFollow, "cg_thirdPersonPitchFollow", "0", 0 },
   { &cg_thirdPersonShoulderViewMode, "cg_thirdPersonShoulderViewMode", "1", CVAR_ARCHIVE },
   { &cg_stats, "cg_stats", "0", 0 },
+  { &cg_teamOverlayUserinfo, "teamoverlay", "1", CVAR_ARCHIVE|CVAR_USERINFO },
   { &cg_teamChatsOnly, "cg_teamChatsOnly", "0", CVAR_ARCHIVE },
   { &cg_noPrintDuplicate, "cg_noPrintDuplicate", "0", CVAR_ARCHIVE },
   { &cg_noVoiceChats, "cg_noVoiceChats", "0", CVAR_ARCHIVE },
@@ -341,7 +344,9 @@ static cvarTable_t cvarTable[ ] =
   
   { &cg_voice, "voice", "default", CVAR_USERINFO|CVAR_ARCHIVE},
 
-  { &cg_emoticons, "cg_emoticons", "1", CVAR_LATCH|CVAR_ARCHIVE}
+  { &cg_emoticons, "cg_emoticons", "1", CVAR_LATCH|CVAR_ARCHIVE},
+
+  { &cg_chatTeamPrefix, "cg_chatTeamPrefix", "1", CVAR_ARCHIVE}
 };
 
 static int   cvarTableSize = sizeof( cvarTable ) / sizeof( cvarTable[0] );

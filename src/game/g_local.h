@@ -570,7 +570,6 @@ typedef struct
   vec3_t            intermission_origin;          // also used for spectator spawns
   vec3_t            intermission_angle;
 
-  qboolean          locationLinked;               // target_locations get linked
   gentity_t         *locationHead;                // head of the location list
 
   int               numAlienSpawns;
@@ -991,7 +990,6 @@ qboolean  OnSameTeam( gentity_t *ent1, gentity_t *ent2 );
 void      G_LeaveTeam( gentity_t *self );
 void      G_ChangeTeam( gentity_t *ent, team_t newTeam );
 gentity_t *Team_GetLocation( gentity_t *ent );
-qboolean  Team_GetLocationMsg( gentity_t *ent, char *loc, int loclen );
 void      TeamplayInfoMessage( gentity_t *ent );
 void      CheckTeamStatus( void );
 void      G_UpdateTeamConfigStrings( void );
@@ -1107,7 +1105,6 @@ extern  vmCvar_t  g_mapRotationNodes;
 extern  vmCvar_t  g_mapRotationStack;
 extern  vmCvar_t  g_nextMap;
 extern  vmCvar_t  g_initialMapRotation;
-extern  vmCvar_t  g_chatTeamPrefix;
 extern  vmCvar_t  g_sayAreaRange;
 
 extern  vmCvar_t  g_debugVoices;

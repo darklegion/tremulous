@@ -664,10 +664,8 @@ void Cmd_Team_f( gentity_t *ent )
 G_Say
 ==================
 */
-static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, const char *name, const char *message )
+static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, const char *message )
 {
-  qboolean ignore = qfalse;
-
   if( !other )
     return;
 
@@ -691,33 +689,18 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
     // specs with ADMF_SPEC_ALLCHAT flag can see team chat
   }
 
-  if( ent && Com_ClientListContains( &other->client->sess.ignoreList, ent-g_entities ) )
-    ignore = qtrue;
-
-  trap_SendServerCommand( other-g_entities, va( "%s \"%s%s%c%c%s%s\"",
+  trap_SendServerCommand( other-g_entities, va( "%s %d \"%s\"",
     mode == SAY_TEAM ? "tchat" : "chat",
-    ( ignore ) ? "[skipnotify]" : "",
-    name, Q_COLOR_ESCAPE, color, message, S_COLOR_WHITE ) );
+    ent ? ent-g_entities : -1,
+    message ) );
 }
 
 void G_Say( gentity_t *ent, int mode, const char *chatText )
 {
   int         j;
   gentity_t   *other;
-  int         color;
-  const char  *prefix;
-  char        name[ 64 ];
   // don't let text be too long for malicious reasons
   char        text[ MAX_SAY_TEXT ];
-  char        location[ 64 ];
-
-  if( ent )
-  {
-    prefix = BG_TeamName( ent->client->pers.teamSelection );
-    prefix = va( "[%c] ", toupper( *prefix ) );
-  }
-  else
-    prefix = "";
 
   // check if blocked by g_specChat 0
   if( ( !g_specChat.integer ) && ( mode != SAY_TEAM ) &&
@@ -736,9 +719,6 @@ void G_Say( gentity_t *ent, int mode, const char *chatText )
       G_LogPrintf( "Say: %d \"%s" S_COLOR_WHITE "\": " S_COLOR_GREEN "%s\n",
         ( ent ) ? ent - g_entities : -1,
         ( ent ) ? ent->client->pers.netname : "console", chatText );
-      Com_sprintf( name, sizeof( name ), "%s%s" S_COLOR_WHITE ": ", prefix,
-        ( ent ) ? ent->client->pers.netname : "console" );
-      color = COLOR_GREEN;
       break;
 
     case SAY_TEAM:
@@ -748,13 +728,6 @@ void G_Say( gentity_t *ent, int mode, const char *chatText )
 
       G_LogPrintf( "SayTeam: %d \"%s" S_COLOR_WHITE "\": " S_COLOR_CYAN "%s\n",
         ent - g_entities, ent->client->pers.netname, chatText );
-      if( Team_GetLocationMsg( ent, location, sizeof( location ) ) )
-        Com_sprintf( name, sizeof( name ), "(%s" S_COLOR_WHITE ") (%s): ",
-          ent->client->pers.netname, location );
-      else
-        Com_sprintf( name, sizeof( name ), "(%s" S_COLOR_WHITE "): ",
-          ent->client->pers.netname );
-      color = COLOR_CYAN;
       break;
   }
 
@@ -764,7 +737,7 @@ void G_Say( gentity_t *ent, int mode, const char *chatText )
   for( j = 0; j < level.maxclients; j++ )
   {
     other = &g_entities[ j ];
-    G_SayTo( ent, other, mode, color, name, text );
+    G_SayTo( ent, other, mode, text );
   }
 
   if( g_adminParseSay.integer )
@@ -777,30 +750,22 @@ static void Cmd_SayArea_f( gentity_t *ent )
 {
   int    entityList[ MAX_GENTITIES ];
   int    num, i;
-  int    color = COLOR_BLUE;
-  const char  *prefix;
   vec3_t range = { 1000.0f, 1000.0f, 1000.0f };
   vec3_t mins, maxs;
   char   *msg = ConcatArgs( 1 );
-  char   name[ 64 ];
 
   for(i = 0; i < 3; i++ )
     range[ i ] = g_sayAreaRange.value;
-  
-  prefix = BG_TeamName( ent->client->pers.teamSelection );
-  prefix = va( "[%c] ", toupper( *prefix ) );
 
   G_LogPrintf( "SayArea: %d \"%s" S_COLOR_WHITE "\": " S_COLOR_BLUE "%s\n",
     ent - g_entities, ent->client->pers.netname, msg );
-  Com_sprintf( name, sizeof( name ), "%s<%s%c%c> ",
-    prefix, ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE );
 
   VectorAdd( ent->s.origin, range, maxs );
   VectorSubtract( ent->s.origin, range, mins );
 
   num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
   for( i = 0; i < num; i++ )
-    G_SayTo( ent, &g_entities[ entityList[ i ] ], SAY_TEAM, color, name, msg );
+    G_SayTo( ent, &g_entities[ entityList[ i ] ], SAY_TEAM, msg );
   
   //Send to ADMF_SPEC_ALLCHAT candidates
   for( i = 0; i < level.maxclients; i++ )
@@ -808,7 +773,7 @@ static void Cmd_SayArea_f( gentity_t *ent )
     if( g_entities[ i ].client->pers.teamSelection == TEAM_NONE &&
         G_admin_permission( &g_entities[ i ], ADMF_SPEC_ALLCHAT ) )
     {
-      G_SayTo( ent, &g_entities[ i ], SAY_TEAM, color, name, msg );   
+      G_SayTo( ent, &g_entities[ i ], SAY_TEAM, msg );   
     }
   }
 }
@@ -3185,22 +3150,7 @@ void Cmd_PrivateMessage_f( gentity_t *ent )
     if( i > 0 )
       Q_strcat( str, sizeof( str ), "^7, " );
     Q_strcat( str, sizeof( str ), tmpent->client->pers.netname );
-    trap_SendServerCommand( pids[ i ], va(
-      "chat \"%s^%c -> ^7%s^7: (%d recipient%s): ^%c%s^7\" %i",
-      ( ent ) ? ent->client->pers.netname : "console",
-      color,
-      name,
-      matches,
-      ( matches == 1 ) ? "" : "s",
-      color,
-      msg,
-      ent ? ent-g_entities : -1 ) );
-    if( ent )
-    {
-      trap_SendServerCommand( pids[ i ], va(
-        "print \">> to reply, say: /m %d [your message] <<\n\"",
-        ( ent - g_entities ) ) );
-    }
+    G_SayTo( ent, tmpent, teamonly ? SAY_TEAM : SAY_ALL, msg );
     trap_SendServerCommand( pids[ i ], va(
       "cp \"^%cprivate message from ^7%s^7\"", color,
       ( ent ) ? ent->client->pers.netname : "console" ) );
