@@ -127,6 +127,7 @@ char *modNames[ ] =
   "MOD_ATUBE",
   "MOD_OVERMIND",
   "MOD_DECONSTRUCT",
+  "MOD_REPLACE",
   "MOD_NOCREEP"
 };
 
@@ -1024,7 +1025,8 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
       }
     }
 
-    if( targ->s.eType == ET_BUILDABLE && attacker->client )
+    if( targ->s.eType == ET_BUILDABLE && attacker->client &&
+        mod != MOD_DECONSTRUCT && mod != MOD_REPLACE )
     {
       if( targ->buildableTeam == attacker->client->pers.teamSelection )
       {
@@ -1036,7 +1038,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
       // base is under attack warning if DCC'd
       if( targ->buildableTeam == TEAM_HUMANS && G_FindDCC( targ ) &&
           level.time > level.humanBaseAttackTimer &&
-          mod != MOD_DECONSTRUCT && mod != MOD_SUICIDE )
+          mod != MOD_SUICIDE )
       {
         level.humanBaseAttackTimer = level.time + DC_ATTACK_PERIOD;
         G_BroadcastEvent( EV_DCC_ATTACK, 0 );
@@ -1364,7 +1366,8 @@ void G_LogDestruction( gentity_t *self, gentity_t *actor, int mod )
   if( !actor || !actor->client )
     return;
 
-  if( actor->client->ps.stats[ STAT_TEAM ] ==
+  if( mod != MOD_REPLACE &&
+    actor->client->ps.stats[ STAT_TEAM ] ==
     BG_Buildable( self->s.modelindex )->team )
   {
     G_TeamCommand( actor->client->ps.stats[ STAT_TEAM ],
@@ -1374,7 +1377,7 @@ void G_LogDestruction( gentity_t *self, gentity_t *actor, int mod )
         actor->client->pers.netname ) );
   }
 
-  if( mod == MOD_DECONSTRUCT )
+  if( mod == MOD_DECONSTRUCT || mod == MOD_REPLACE )
     G_LogPrintf( "Decon: %d %d %d: %s^7 deconstructed %s\n",
       actor->client->ps.clientNum,
       self->s.modelindex,

@@ -3017,10 +3017,17 @@ G_FreeMarkedBuildables
 Free up build points for a team by deconstructing marked buildables
 ===============
 */
-void G_FreeMarkedBuildables( gentity_t *deconner )
+void G_FreeMarkedBuildables( gentity_t *deconner, char *buffer, int size )
 {
   int       i;
+  int bNum;
+  int listItems = 0;
+  int totalListItems = 0;
   gentity_t *ent;
+  int removalCounts[ BA_NUM_BUILDABLES ] = {0};
+
+  if( buffer )
+    buffer[0] = '\0';
 
   if( !g_markDeconstruct.integer )
     return; // Not enabled, can't deconstruct anything
@@ -3028,9 +3035,33 @@ void G_FreeMarkedBuildables( gentity_t *deconner )
   for( i = 0; i < level.numBuildablesForRemoval; i++ )
   {
     ent = level.markedBuildables[ i ];
+    bNum = BG_Buildable( ent->s.modelindex )->number;
 
-    G_Damage( ent, NULL, deconner, NULL, NULL, ent->health, 0, MOD_DECONSTRUCT );      
+    if( removalCounts[ bNum ] == 0 )
+        totalListItems++;
+
+    removalCounts[ bNum ]++;
+
+    G_Damage( ent, NULL, deconner, NULL, NULL, ent->health, 0, MOD_REPLACE );      
     G_FreeEntity( ent );
+  }
+
+  for( i = 0; i < BA_NUM_BUILDABLES; i++ )
+  {
+    if( buffer && removalCounts[ i ] )
+    {
+      if( listItems )
+      {
+        if( listItems == ( totalListItems - 1 ) )
+          Q_strcat( buffer, size,  va( "%s and ", ( totalListItems > 2 ) ? "," : "" ) );
+        else
+          Q_strcat( buffer, size, ", " );
+      }
+      Q_strcat( buffer, size, va( "%s", BG_Buildable( i )->humanName ) );
+      if( removalCounts[ i ] > 1 )
+        Q_strcat( buffer, size, va( " x%d", removalCounts[ i ] ) );
+      listItems++;
+    }
   }
 }
 
@@ -3472,9 +3503,10 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable, vec3_t ori
 {
   gentity_t *built;
   vec3_t    normal;
+  char removed[ MAX_STRING_CHARS ];
 
   // Free existing buildables
-  G_FreeMarkedBuildables( builder );
+  G_FreeMarkedBuildables( builder, removed, sizeof( removed ) );
 
   // Spawn the buildable
   built = G_Spawn();
@@ -3690,6 +3722,22 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable, vec3_t ori
     G_SetBuildableAnim( built, BANIM_CONSTRUCT1, qtrue );
 
   trap_LinkEntity( built );
+
+  if( builder && builder->client )
+  {
+    G_TeamCommand( builder->client->ps.stats[ STAT_TEAM ],
+      va( "print \"%s ^2built^7 by %s%s%s\n\"",
+        BG_Buildable( built->s.modelindex )->humanName,
+        builder->client->pers.netname,
+        ( removed[0] ) ? "^7, replacing " : "",
+        removed ) );
+    G_LogPrintf( "Build: %d %d %d: %s^7 is building %s\n",
+      builder->client->ps.clientNum,
+      built->s.modelindex,
+      level.numBuildablesForRemoval,
+      builder->client->pers.netname,
+      BG_Buildable( built->s.modelindex )->name );
+  }
 
   return built;
 }
