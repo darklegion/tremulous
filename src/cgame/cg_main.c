@@ -882,15 +882,10 @@ void CG_BuildSpectatorString( void )
   for( i = 0; i < MAX_CLIENTS; i++ )
   {
     if( cgs.clientinfo[ i ].infoValid && cgs.clientinfo[ i ].team == TEAM_NONE )
-      Q_strcat( cg.spectatorList, sizeof( cg.spectatorList ), va( S_COLOR_WHITE "%s     ", cgs.clientinfo[ i ].name ) );
-  }
-
-  i = strlen( cg.spectatorList );
-
-  if( i != cg.spectatorLen )
-  {
-    cg.spectatorLen = i;
-    cg.spectatorWidth = -1;
+    {
+      Q_strcat( cg.spectatorList, sizeof( cg.spectatorList ),
+          va( S_COLOR_WHITE "%s     ", cgs.clientinfo[ i ].name ) );
+    }
   }
 }
 

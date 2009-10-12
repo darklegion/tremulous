@@ -344,6 +344,7 @@ void      trap_R_AddPolyToScene( qhandle_t hShader , int numVerts, const polyVer
 void      trap_R_AddLightToScene( const vec3_t org, float intensity, float r, float g, float b );
 void      trap_R_RenderScene( const refdef_t *fd );
 void      trap_R_SetColor( const float *rgba );
+void      trap_R_SetClipRegion( const float *region );
 void      trap_R_DrawStretchPic( float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader );
 void      trap_R_ModelBounds( clipHandle_t model, vec3_t mins, vec3_t maxs );
 void      trap_UpdateScreen( void );

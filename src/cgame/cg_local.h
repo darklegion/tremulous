@@ -1012,13 +1012,8 @@ typedef struct
   int           scoreFadeTime;
   char          killerName[ MAX_NAME_LENGTH ];
   char          spectatorList[ MAX_STRING_CHARS ];  // list of names
-  int           spectatorLen;                       // length of list
-  float         spectatorWidth;                     // width in device units
   int           spectatorTime;                      // next time to offset
-  int           spectatorPaintX;                    // current paint x
-  int           spectatorPaintX2;                   // current paint x
-  int           spectatorOffset;                    // current offset from start
-  int           spectatorPaintLen;                  // current offset from start
+  float         spectatorOffset;                    // current offset from start
 
   // centerprinting
   int           centerPrintTime;
@@ -1593,6 +1588,8 @@ void        CG_FillRect( float x, float y, float width, float height, const floa
 void        CG_DrawPic( float x, float y, float width, float height, qhandle_t hShader );
 void        CG_DrawFadePic( float x, float y, float width, float height, vec4_t fcolor,
                             vec4_t tcolor, float amount, qhandle_t hShader );
+void        CG_SetClipRegion( float x, float y, float w, float h );
+void        CG_ClearClipRegion( void );
 
 int         CG_DrawStrlen( const char *str );
 
@@ -1992,6 +1989,7 @@ void          trap_R_AddAdditiveLightToScene( const vec3_t org, float intensity,
 int           trap_R_LightForPoint( vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir );
 void          trap_R_RenderScene( const refdef_t *fd );
 void          trap_R_SetColor( const float *rgba ); // NULL = 1,1,1,1
+void          trap_R_SetClipRegion( const float *region );
 void          trap_R_DrawStretchPic( float x, float y, float w, float h,
                                      float s1, float t1, float s2, float t2, qhandle_t hShader );
 void          trap_R_ModelBounds( clipHandle_t model, vec3_t mins, vec3_t maxs );

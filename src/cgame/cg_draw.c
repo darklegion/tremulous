@@ -1269,108 +1269,44 @@ static void CG_DrawKiller( rectDef_t *rect, float scale, vec4_t color,
 }
 
 
+#define SPECTATORS_PIXELS_PER_SECOND 30.0f
+
+/*
+==================
+CG_DrawTeamSpectators
+==================
+*/
 static void CG_DrawTeamSpectators( rectDef_t *rect, float scale, int textvalign, vec4_t color, qhandle_t shader )
 {
   float y;
-  qboolean isEmoticon;
-  qboolean emoticonEscaped;
-  char secondPart[ MAX_STRING_CHARS ] = "";
-  int emoticonLen;
-  static char lastColorSeen = COLOR_WHITE;
+  char  *text = cg.spectatorList;
+  float textWidth = UI_Text_Width( text, scale, 0 );
 
-  if( cg.spectatorLen )
+  CG_AlignText( rect, text, scale, 0.0f, 0.0f, ALIGN_LEFT, textvalign, NULL, &y );
+
+  if( textWidth > rect->w )
   {
-    float maxX;
+    // The text is too wide to fit, so scroll it
+    int now = trap_Milliseconds( );
+    int delta = now - cg.spectatorTime;
 
-    if( cg.spectatorWidth == -1 )
-    {
-      cg.spectatorWidth = 0;
-      cg.spectatorPaintX = rect->x + 1;
-      cg.spectatorPaintX2 = -1;
-    }
+    CG_SetClipRegion( rect->x, rect->y, rect->w, rect->h );
 
-    if( cg.spectatorOffset > cg.spectatorLen )
-    {
-      cg.spectatorOffset = 0;
-      cg.spectatorPaintX = rect->x + 1;
-      cg.spectatorPaintX2 = -1;
-    }
+    UI_Text_Paint( rect->x - cg.spectatorOffset, y, scale, color, text, 0, 0, 0 );
+    UI_Text_Paint( rect->x + textWidth - cg.spectatorOffset, y, scale, color, text, 0, 0, 0 );
 
-    if( cg.time > cg.spectatorTime )
-    {
-      cg.spectatorTime = cg.time + 10;
+    CG_ClearClipRegion( );
 
-      if( cg.spectatorPaintX <= rect->x + 2 )
-      {
-        if( cg.spectatorOffset < cg.spectatorLen )
-        {
-          // skip colour directives
-          if( Q_IsColorString( &cg.spectatorList[ cg.spectatorOffset ] ) )
-          {
-            lastColorSeen = cg.spectatorList[ cg.spectatorOffset + 1 ];
-            cg.spectatorOffset += 2;
-          }
-          else
-          {
-            isEmoticon = UI_Text_Emoticon( &cg.spectatorList[ cg.spectatorOffset ], 
-                            &emoticonEscaped, &emoticonLen, NULL, NULL );
-            if( isEmoticon )
-            {
-              cg.spectatorOffset += emoticonLen;
-              if( emoticonEscaped ) cg.spectatorOffset++; // skip an extra char to not un-scape by eating the escaping [
-            }
+    cg.spectatorOffset += ( delta / 1000.0f ) * SPECTATORS_PIXELS_PER_SECOND;
 
-            cg.spectatorPaintX += UI_Text_Width( &cg.spectatorList[ cg.spectatorOffset ], scale, 1 ) - 1;
-            cg.spectatorOffset++;
-          }
-        }
-        else
-        {
-          cg.spectatorOffset = 0;
+    while( cg.spectatorOffset > textWidth )
+      cg.spectatorOffset -= textWidth;
 
-          if( cg.spectatorPaintX2 >= 0 )
-            cg.spectatorPaintX = cg.spectatorPaintX2;
-          else
-            cg.spectatorPaintX = rect->x + rect->w - 2;
-
-          cg.spectatorPaintX2 = -1;
-        }
-      }
-      else
-      {
-        cg.spectatorPaintX--;
-
-        if( cg.spectatorPaintX2 >= 0 )
-          cg.spectatorPaintX2--;
-      }
-    }
-
-    secondPart[ 0 ] = Q_COLOR_ESCAPE;
-    secondPart[ 1 ] = lastColorSeen;
-    Q_strncpyz( secondPart+2, &cg.spectatorList[ cg.spectatorOffset ], sizeof( secondPart ) - 2 );
-
-    maxX = rect->x + rect->w - 2;
-    CG_AlignText( rect, NULL, 0.0f, 0.0f, UI_Text_EmHeight( scale ),
-                  ALIGN_LEFT, textvalign, NULL, &y );
-
-    UI_Text_Paint_Limit( &maxX, cg.spectatorPaintX, y, scale, color,
-                         secondPart, 0, 0 );
-
-    if( cg.spectatorPaintX2 >= 0 )
-    {
-      float maxX2 = rect->x + rect->w - 2;
-      UI_Text_Paint_Limit( &maxX2, cg.spectatorPaintX2, y, scale,
-                           color, cg.spectatorList, 0, cg.spectatorOffset );
-    }
-
-    if( cg.spectatorOffset && maxX > 0 )
-    {
-      // if we have an offset ( we are skipping the first part of the string ) and we fit the string
-      if( cg.spectatorPaintX2 == -1 )
-        cg.spectatorPaintX2 = rect->x + rect->w - 2;
-    }
-    else
-      cg.spectatorPaintX2 = -1;
+    cg.spectatorTime = now;
+  }
+  else
+  {
+    UI_Text_Paint( rect->x, y, scale, color, text, 0, 0, 0 );
   }
 }
 
@@ -2864,6 +2800,7 @@ static qboolean CG_DrawScoreboard( void )
   {
     if( firstTime )
     {
+      cg.spectatorTime = trap_Milliseconds();
       CG_SetScoreSelection( menuScoreboard );
       firstTime = qfalse;
     }
