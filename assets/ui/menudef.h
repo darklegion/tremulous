@@ -93,6 +93,7 @@ enum
   FEEDER_HUMANTEAM_LIST, // human team members
   FEEDER_TEAM_LIST,      // team members for team voting
   FEEDER_PLAYER_LIST,    // players
+  FEEDER_NEWS,           // news
   FEEDER_MODS,           // list of available mods
   FEEDER_DEMOS,          // list of available demo files
   FEEDER_SERVERSTATUS,   // server status

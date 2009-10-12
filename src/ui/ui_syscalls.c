@@ -322,6 +322,11 @@ int trap_LAN_ServerStatus( const char *serverAddress, char *serverStatus, int ma
   return syscall( UI_LAN_SERVERSTATUS, serverAddress, serverStatus, maxLen );
 }
 
+qboolean trap_GetNews( qboolean force )
+{
+  return syscall( UI_GETNEWS, force );
+}
+
 void trap_LAN_SaveCachedServers( void )
 {
   syscall( UI_LAN_SAVECACHEDSERVERS );

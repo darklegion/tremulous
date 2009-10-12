@@ -41,6 +41,7 @@ int UI_AdjustTimeByGame( int time );
 void UI_ClearScores( void );
 void UI_LoadArenas( void );
 void UI_ServerInfo( void );
+void UI_UpdateNews( qboolean );
 
 void UI_RegisterCvars( void );
 void UI_UpdateCvars( void );
@@ -53,6 +54,8 @@ void UI_DrawConnectScreen( qboolean overlay );
 #define MAX_DISPLAY_SERVERS 2048
 #define MAX_SERVERSTATUS_LINES 128
 #define MAX_SERVERSTATUS_TEXT 1024
+#define MAX_NEWS_LINES 50
+#define MAX_NEWS_LINEWIDTH 85
 #define MAX_FOUNDPLAYER_SERVERS 16
 #define MAX_MODS 64
 #define MAX_DEMOS 256
@@ -145,6 +148,15 @@ typedef struct
   int numLines;
 }
 serverStatusInfo_t;
+
+typedef struct
+{
+  char text[MAX_NEWS_LINES][MAX_NEWS_LINEWIDTH];
+  int numLines;
+  qboolean refreshActive;
+  int refreshtime;
+}
+newsInfo_t;
 
 typedef struct
 {
@@ -262,6 +274,9 @@ typedef struct
 
   serverStatus_t serverStatus;
 
+  // for showing the game news window
+  newsInfo_t newsInfo;
+
   // for the showing the status of a server
   char serverStatusAddress[MAX_ADDRESSLENGTH];
   serverStatusInfo_t serverStatusInfo;
@@ -365,6 +380,7 @@ int        trap_LAN_AddServer( int source, const char *name, const char *addr );
 void      trap_LAN_RemoveServer( int source, const char *addr );
 void      trap_LAN_ResetPings( int n );
 int        trap_LAN_ServerStatus( const char *serverAddress, char *serverStatus, int maxLen );
+qboolean    trap_GetNews( qboolean force );
 int        trap_LAN_CompareServers( int source, int sortKey, int sortDir, int s1, int s2 );
 int        trap_MemoryRemaining( void );
 void      trap_R_RegisterFont( const char *pFontname, int pointSize, fontInfo_t *font );

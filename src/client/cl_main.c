@@ -1869,11 +1869,13 @@ void CL_DownloadsComplete( void ) {
 		CL_cURL_Shutdown();
 		if( clc.cURLDisconnected ) {
 			if(clc.downloadRestart) {
-				FS_Restart(clc.checksumFeed);
+                if( !clc.activeCURLNotGameRelated )
+                    FS_Restart(clc.checksumFeed);
 				clc.downloadRestart = qfalse;
 			}
 			clc.cURLDisconnected = qfalse;
-			CL_Reconnect_f();
+            if( !clc.activeCURLNotGameRelated )
+                CL_Reconnect_f();
 			return;
 		}
 	}

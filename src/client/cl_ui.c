@@ -81,6 +81,52 @@ void LAN_SaveServersToCache( void ) {
 	FS_FCloseFile(fileOut);
 }
 
+/*
+====================
+GetNews
+====================
+*/
+qboolean GetNews( qboolean begin )
+{
+#ifdef USE_CURL
+	qboolean finished = qfalse;
+	fileHandle_t fileIn;
+	int readSize;
+
+	if( begin ) { // if not already using curl, start the download
+		if( !clc.downloadCURLM ) { 
+			if(!CL_cURL_Init()) {
+				Cvar_Set( "cl_newsString", "^1Error: Could not load cURL library" );
+				return qtrue;
+			}
+			clc.activeCURLNotGameRelated = qtrue;
+			CL_cURL_BeginDownload("news.dat", 
+				"http://tremulous.net/clientnews.txt");
+			return qfalse;
+		}
+	}
+
+	if ( !clc.downloadCURLM && FS_SV_FOpenFileRead("news.dat", &fileIn)) {
+		readSize = FS_Read(clc.newsString, sizeof( clc.newsString ), fileIn);
+		FS_FCloseFile(fileIn);
+		clc.newsString[ readSize ] = '\0';
+		if( readSize > 0 ) {
+			finished = qtrue;
+			clc.cURLUsed = qfalse;
+			CL_cURL_Shutdown();
+			clc.activeCURLNotGameRelated = qfalse;
+		}
+	}
+	if( !finished ) 
+		strcpy( clc.newsString, "Retrieving..." );
+#else
+	Cvar_Set( "cl_newsString", 
+		"^1You must compile your client with CURL support to use this feature" );
+	return qtrue;
+#endif
+	Cvar_Set( "cl_newsString", clc.newsString );
+	return finished;
+}
 
 /*
 ====================
@@ -907,6 +953,9 @@ intptr_t CL_UISystemCalls( intptr_t *args ) {
 	case UI_LAN_SERVERSTATUS:
 		return LAN_GetServerStatus( VMA(1), VMA(2), args[3] );
 
+	case UI_GETNEWS:
+		return GetNews( args[1] );
+
 	case UI_LAN_COMPARESERVERS:
 		return LAN_CompareServers( args[1], args[2], args[3], args[4], args[5] );
 
@@ -1059,6 +1108,8 @@ void CL_InitUI( void ) {
 	// reset any CVAR_CHEAT cvars registered by ui
 	if ( !clc.demoplaying && !cl_connectedToCheatServer ) 
 		Cvar_SetCheatState();
+
+    clc.newsString[ 0 ] = '\0';
 }
 
 /*

@@ -204,6 +204,7 @@ typedef struct {
 	char		downloadURL[MAX_OSPATH];
 	CURL		*downloadCURL;
 	CURLM		*downloadCURLM;
+	qboolean	activeCURLNotGameRelated;
 #endif /* USE_CURL */
 	int		sv_allowDownload;
 	char		sv_dlURL[MAX_CVAR_VALUE_STRING];
@@ -213,6 +214,7 @@ typedef struct {
 	int			downloadSize;	// how many bytes we got
 	char		downloadList[MAX_INFO_STRING]; // list of paks we need to download
 	qboolean	downloadRestart;	// if true, we need to do another FS_Restart because we downloaded a pak
+	char		newsString[ MAX_NEWS_STRING ];
 
 	// demo information
 	char		demoName[MAX_QPATH];

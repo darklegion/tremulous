@@ -86,6 +86,7 @@ equ trap_Parse_LoadSource             -82
 equ trap_Parse_FreeSource             -83
 equ trap_Parse_ReadToken              -84
 equ trap_Parse_SourceFileAndLine      -85
+equ trap_GetNews                      -86
 
 
 equ memset                            -101

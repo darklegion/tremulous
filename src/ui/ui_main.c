@@ -1138,6 +1138,8 @@ void UI_Refresh( int realtime )
     UI_BuildServerStatus( qfalse );
     // refresh find player list
     UI_BuildFindPlayerList( qfalse );
+    // refresh news
+    UI_UpdateNews( qfalse );
   }
 
   // draw cursor
@@ -2856,6 +2858,8 @@ static void UI_RunMenuScript( char **args )
     }
     else if( Q_stricmp( name, "loadServerInfo" ) == 0 )
       UI_ServerInfo();
+    else if( Q_stricmp( name, "getNews" ) == 0 )
+      UI_UpdateNews( qtrue );
     else if( Q_stricmp( name, "saveControls" ) == 0 )
       Controls_SetConfig( qtrue );
     else if( Q_stricmp( name, "loadControls" ) == 0 )
@@ -3356,6 +3360,8 @@ static int UI_FeederCount( float feederID )
     return uiInfo.serverStatus.numFeaturedServers;
   else if( feederID == FEEDER_SERVERSTATUS )
     return uiInfo.serverStatusInfo.numLines;
+  else if( feederID == FEEDER_NEWS )
+    return uiInfo.newsInfo.numLines;
   else if( feederID == FEEDER_FINDPLAYER )
     return uiInfo.numFoundPlayerServers;
   else if( feederID == FEEDER_PLAYER_LIST )
@@ -3522,6 +3528,13 @@ static const char *UI_FeederItemText( float feederID, int index, int column, qha
     {
       if( column >= 0 && column < 4 )
         return uiInfo.serverStatusInfo.lines[index][column];
+    }
+  }
+  else if( feederID == FEEDER_NEWS )
+  {
+    if( index >= 0 && index < uiInfo.newsInfo.numLines )
+    {
+      return uiInfo.newsInfo.text[index];
     }
   }
   else if( feederID == FEEDER_FINDPLAYER )
@@ -4473,3 +4486,68 @@ void UI_UpdateCvars( void )
   for( i = 0, cv = cvarTable ; i < cvarTableSize ; i++, cv++ )
     trap_Cvar_Update( cv->vmCvar );
 }
+
+/*
+=================
+UI_UpdateNews
+=================
+*/
+void UI_UpdateNews( qboolean begin )
+{
+  char newsString[ MAX_NEWS_STRING ];
+  const char *c;
+  const char *wrapped;
+  int line = 0;
+  int linePos = 0;
+  qboolean finished;
+
+  if( begin && !uiInfo.newsInfo.refreshActive ) {
+    uiInfo.newsInfo.refreshtime = uiInfo.uiDC.realTime + 10000;
+    uiInfo.newsInfo.refreshActive = qtrue;
+  }
+  else if( !uiInfo.newsInfo.refreshActive ) // do nothing
+    return; 
+  else if( uiInfo.uiDC.realTime > uiInfo.newsInfo.refreshtime ) {
+    strcpy( uiInfo.newsInfo.text[ 0 ], 
+      "^1Error: Timed out while contacting the server.");
+    uiInfo.newsInfo.numLines = 1;
+    return; 
+  }
+
+  // start the news fetching
+  finished = trap_GetNews( begin );
+
+  // parse what comes back. Parse newlines and otherwise chop when necessary
+  trap_Cvar_VariableStringBuffer( "cl_newsString", newsString, 
+    sizeof( newsString ) );
+
+  wrapped = Item_Text_Wrap( newsString, .25, 300 );
+
+  for( c = wrapped; *c != '\0'; ++c ) {
+    if( linePos == (MAX_NEWS_LINEWIDTH - 1) || *c == '\n' ) {
+      uiInfo.newsInfo.text[ line ][ linePos ] = '\0';
+
+      if( line == ( MAX_NEWS_LINES  - 1 ) )
+        break;
+
+      linePos = 0;
+      line++;
+
+      if( *c != '\n' ) {
+        uiInfo.newsInfo.text[ line ][ linePos ] = *c;
+        linePos++;
+      }
+    } else if( isprint( *c ) ) {
+      uiInfo.newsInfo.text[ line ][ linePos ] = *c;
+      linePos++;
+    }
+  }
+
+  uiInfo.newsInfo.text[ line ] [linePos ] = '\0';
+  uiInfo.newsInfo.numLines = line + 1;
+
+  if( finished )
+    uiInfo.newsInfo.refreshActive = qfalse;
+
+}
+
