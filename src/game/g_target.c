@@ -320,7 +320,7 @@ void SP_target_location( gentity_t *self )
     message = self->message;
   trap_SetConfigstring( CS_LOCATIONS + n, message );
   self->nextTrain = level.locationHead;
-  self->health = n; // use for location marking
+  self->s.generic1 = n; // use for location marking
   level.locationHead = self;
   n++;
 
