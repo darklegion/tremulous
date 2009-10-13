@@ -1141,17 +1141,17 @@ endef
 
 define DO_CGAME_Q3LCC
 $(echo_cmd) "CGAME_Q3LCC $<"
-$(Q)$(Q3LCC) -DPRODUCT_VERSION=\"$(VERSION)\" -DCGAME -o $@ $<
+$(Q)$(Q3LCC) -DPRODUCT_VERSION=\\\"$(VERSION)\\\" -DCGAME -o $@ $<
 endef
 
 define DO_GAME_Q3LCC
 $(echo_cmd) "GAME_Q3LCC $<"
-$(Q)$(Q3LCC) -DPRODUCT_VERSION=\"$(VERSION)\" -DGAME -o $@ $<
+$(Q)$(Q3LCC) -DPRODUCT_VERSION=\\\"$(VERSION)\\\" -DGAME -o $@ $<
 endef
 
 define DO_UI_Q3LCC
 $(echo_cmd) "UI_Q3LCC $<"
-$(Q)$(Q3LCC) -DPRODUCT_VERSION=\"$(VERSION)\" -DUI -o $@ $<
+$(Q)$(Q3LCC) -DPRODUCT_VERSION=\\\"$(VERSION)\\\" -DUI -o $@ $<
 endef
 
 
