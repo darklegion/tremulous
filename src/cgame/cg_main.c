@@ -1894,3 +1894,4 @@ static char *CG_VoIPString( void )
 
   return voipString;
 }
+
