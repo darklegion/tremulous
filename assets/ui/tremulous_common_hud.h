@@ -115,7 +115,7 @@ itemDef
   aspectBias ALIGN_RIGHT
   visible MENU_TRUE
   decoration
-  forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 1
+  forecolor 1 1 1 1
   textalign ALIGN_RIGHT
   textscale 0.3
   ownerdraw CG_PLAYER_LOCATION

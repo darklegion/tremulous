@@ -312,9 +312,9 @@ void MSG_WriteString( msg_t *sb, const char *s ) {
 		}
 		Q_strncpyz( string, s, sizeof( string ) );
 
-		// get rid of 0x80+ and '%' chars, because old clients don't like them
+		// get rid of 0x80+ chars, because old clients don't like them
 		for ( i = 0 ; i < l ; i++ ) {
-			if ( ((byte *)string)[i] > 127 || string[i] == '%' ) {
+			if ( ((byte *)string)[i] > 127 ) {
 				string[i] = '.';
 			}
 		}
@@ -338,9 +338,9 @@ void MSG_WriteBigString( msg_t *sb, const char *s ) {
 		}
 		Q_strncpyz( string, s, sizeof( string ) );
 
-		// get rid of 0x80+ and '%' chars, because old clients don't like them
+		// get rid of 0x80+ chars, because old clients don't like them
 		for ( i = 0 ; i < l ; i++ ) {
-			if ( ((byte *)string)[i] > 127 || string[i] == '%' ) {
+			if ( ((byte *)string)[i] > 127 ) {
 				string[i] = '.';
 			}
 		}
