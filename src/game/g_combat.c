@@ -411,7 +411,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 G_ParseDmgScript
 ===============
 */
-int G_ParseDmgScript( damageRegion_t *regions, char *buf )
+static int G_ParseDmgScript( damageRegion_t *regions, char *buf )
 {
   char  *token;
   float angleSpan, heightSpan;
@@ -425,13 +425,13 @@ int G_ParseDmgScript( damageRegion_t *regions, char *buf )
 
     if( strcmp( token, "{" ) )
     {
-      G_Printf( "Missing { in damage region file\n" );
+      COM_ParseError( "Missing {" );
       break;
     }
 
     if( count >= MAX_DAMAGE_REGIONS )
     {
-      G_Printf( "Max damage regions exceeded in damage region file\n" );
+      COM_ParseError( "Max damage regions exceeded" );
       break;
     }
 
@@ -450,7 +450,7 @@ int G_ParseDmgScript( damageRegion_t *regions, char *buf )
 
       if( !token[ 0 ] )
       {
-        G_Printf( "Unexpected end of damage region file\n" );
+        COM_ParseError( "Unexpected end of file" );
         break;
       }
 
@@ -506,7 +506,7 @@ int G_ParseDmgScript( damageRegion_t *regions, char *buf )
       }
       else
       {
-        G_Printf("WARNING: unknown token \"%s\" in damage script\n", token);
+        COM_ParseWarning("Unknown token \"%s\"", token);
       }
     }
     
@@ -818,6 +818,8 @@ void G_InitDamageLocations( void )
       continue;
     }
 
+    COM_BeginParseSession( filename );
+
     trap_FS_Read( buffer, len, fileHandle );
     buffer[len] = 0;
     trap_FS_FCloseFile( fileHandle );
@@ -843,6 +845,8 @@ void G_InitDamageLocations( void )
       trap_FS_FCloseFile( fileHandle );
       continue;
     }
+
+    COM_BeginParseSession( filename );
 
     trap_FS_Read( buffer, len, fileHandle );
     buffer[len] = 0;
