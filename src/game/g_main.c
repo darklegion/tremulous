@@ -1628,25 +1628,17 @@ void ExitLevel( void )
 G_AdminMessage
 
 Print to all active server admins, and to the logfile, and to the server console
-Prepend *prefix, or '[SERVER]' if no *prefix is given
 =================
 */
-void QDECL G_AdminMessage( gentity_t *ent, const char *fmt, ... )
+void G_AdminMessage( gentity_t *ent, const char *msg )
 {
-  va_list argptr;
   char    string[ 1024 ];
-  char    outstring[ 1024 ] = S_COLOR_MAGENTA;
   int     i;
 
-  // Format the text
-  va_start( argptr, fmt );
-  Q_vsnprintf( string, sizeof( string ), fmt, argptr );
-  va_end( argptr );
-
-  // Create the final string
-  Q_strcat( outstring, sizeof( outstring ), string );
-  Com_sprintf( string, sizeof( string ), "chat %d \"%s\"",
-    ent ? ent - g_entities : -1, outstring );
+  Com_sprintf( string, sizeof( string ), "chat %d %d \"" S_COLOR_MAGENTA "%s\"",
+    ent ? ent - g_entities : -1, 
+    G_admin_permission( ent, ADMF_ADMINCHAT ) ? SAY_ADMINS : SAY_ADMINS_PUBLIC,
+    msg );
 
   // Send to all appropriate clients
   for( i = 0; i < level.maxclients; i++ )
@@ -1654,9 +1646,10 @@ void QDECL G_AdminMessage( gentity_t *ent, const char *fmt, ... )
        trap_SendServerCommand( i, string );
 
   // Send to the logfile and server console
-  G_LogPrintf( "AdminMsg: %d \"%s" S_COLOR_WHITE "\": %s\n",
+  G_LogPrintf( "%s: %d \"%s" S_COLOR_WHITE "\": " S_COLOR_MAGENTA "%s\n",
+    G_admin_permission( ent, ADMF_ADMINCHAT ) ? "AdminMsg" : "AdminMsgPublic",
     ent ? ent - g_entities : -1, ent ? ent->client->pers.netname : "console",
-    outstring );
+    msg );
 }
 
 

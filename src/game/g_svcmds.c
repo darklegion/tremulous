@@ -371,7 +371,7 @@ static void Svcmd_TeamMessage_f( void )
     return;
   }
 
-  G_TeamCommand( team, va( "tchat -1 \"%s\"", ConcatArgs( 2 ) ) );
+  G_TeamCommand( team, va( "chat -1 %d \"%s\"", SAY_TEAM, ConcatArgs( 2 ) ) );
   G_LogPrintf( "SayTeam: -1 \"console\": %s\n", ConcatArgs( 2 ) );
 }
 
@@ -484,14 +484,7 @@ static void Svcmd_PrintQueue_f( void )
   }
 }
 
-static void Svcmd_Chat_f( void )
-{
-  char *s = ConcatArgs( 1 );
-  trap_SendServerCommand( -1, va( "chat -1 \"%s\"", s ) );
-  G_LogPrintf("chat: %s\n", s );
-}
-
-// dumb wrapper for "a" and "m" and "say"
+// dumb wrapper for "a", "m", "chat", and "say"
 static void Svcmd_MessageWrapper( void )
 {
   char cmd[ 5 ];
@@ -503,6 +496,8 @@ static void Svcmd_MessageWrapper( void )
     Cmd_PrivateMessage_f( NULL );
   else if( !Q_stricmp( cmd, "say" ) )
     G_Say( NULL, SAY_ALL, ConcatArgs( 1 ) );
+  else if( !Q_stricmp( cmd, "chat" ) )
+    G_Say( NULL, SAY_RAW, ConcatArgs( 1 ) );
 }
 
 static void Svcmd_SuddenDeath_f( void )
@@ -543,7 +538,7 @@ struct
   { "cp", qtrue, Svcmd_CenterPrint_f },
   { "say_team", qtrue, Svcmd_TeamMessage_f },
   { "say", qtrue, Svcmd_MessageWrapper },
-  { "chat", qtrue, Svcmd_Chat_f },
+  { "chat", qtrue, Svcmd_MessageWrapper },
   { "m", qtrue, Svcmd_MessageWrapper },
   { "a", qtrue, Svcmd_MessageWrapper },
   { "suddendeath", qfalse, Svcmd_SuddenDeath_f }

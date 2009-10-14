@@ -912,56 +912,39 @@ void CG_Menu( int menu, int arg )
 CG_Say
 =================
 */
-static void CG_Say( int clientNum, const char *text )
+static void CG_Say( int clientNum, saymode_t mode, const char *text )
 {
   clientInfo_t *ci;
-  char sayText[ MAX_STRING_CHARS ];
   char *prefix, *name;
+  qboolean isIgnored = qfalse;
+  char *location = "";
+  char tcolor = COLOR_WHITE;
+  char color;
 
   if( clientNum >= 0 && clientNum < MAX_CLIENTS )
     ci = &cgs.clientinfo[ clientNum ];
   else
     ci = NULL;
 
-  if( ci && cg_chatTeamPrefix.integer )
-    prefix = va( "[%c] ", toupper( *( BG_TeamName( ci->team ) ) ) );
-  else
-    prefix = "";
 
   if( ci )
+  {
     name = ci->name;
+    if( ci->team == TEAM_ALIENS )
+      tcolor = COLOR_RED;
+    else if( ci->team == TEAM_HUMANS )
+      tcolor = COLOR_CYAN;
+  }
   else
     name = "console";
 
-  Com_sprintf( sayText, sizeof( sayText ), "%s%s: " S_COLOR_GREEN "%s\n",
-    prefix, name, text );
-  
-  if( ci && ( cg_teamChatsOnly.integer ||
-              Com_ClientListContains( &cgs.ignoreList, clientNum ) ) )
-    CG_Printf( "[skipnotify]%s", sayText );
+  if( ci && cg_chatTeamPrefix.integer )
+    prefix = va( "^%c[%c] " S_COLOR_WHITE, 
+                 tcolor, toupper( *( BG_TeamName( ci->team ) ) ) );
   else
-  {
-    CG_Printf( "%s", sayText );
-    trap_S_StartLocalSound( cgs.media.talkSound, CHAN_LOCAL_SOUND );
-  }
-}
+    prefix = "";
 
-/*
-=================
-CG_SayTeam
-=================
-*/
-static void CG_SayTeam( int clientNum, const char *text )
-{
-  clientInfo_t *ci;
-  char sayText[ MAX_STRING_CHARS ];
-  char *location = "", *name;
-
-  if( clientNum >= 0 && clientNum < MAX_CLIENTS )
-    ci = &cgs.clientinfo[ clientNum ];
-  else
-    ci = NULL;
-
+  if( mode == SAY_TEAM || mode == SAY_AREA )
   // don't always use "unknown"
   if( ci && ci->location > 0 && ci->location < MAX_LOCATIONS )
   {
@@ -970,23 +953,68 @@ static void CG_SayTeam( int clientNum, const char *text )
       location = va( " (%s" S_COLOR_WHITE ")", s );
   }
 
-  if( ci )
-    name = ci->name;
-  else
-    name = "console";
-
-  Com_sprintf( sayText, sizeof( sayText ), "%s%s: " S_COLOR_CYAN "%s\n",
-    name, location, text );
-
   if( ci && Com_ClientListContains( &cgs.ignoreList, clientNum ) )
-    CG_Printf( "[skipnotify]%s", sayText );
-  else
+    isIgnored = qtrue;
+
+  switch( mode )
   {
-    CG_Printf( "%s", sayText );
-    if( cg.snap->ps.stats[ STAT_TEAM ] == TEAM_ALIENS )
-      trap_S_StartLocalSound( cgs.media.alienTalkSound, CHAN_LOCAL_SOUND );
-    else if( cg.snap->ps.stats[ STAT_TEAM ] == TEAM_HUMANS )
-      trap_S_StartLocalSound( cgs.media.humanTalkSound, CHAN_LOCAL_SOUND );
+    case SAY_ALL:
+      if( isIgnored || ( ci && cg_teamChatsOnly.integer ) )
+        CG_Printf( "[skipnotify]%s%s: " S_COLOR_GREEN "%s\n",
+                   prefix, name, text );
+      else
+        CG_Printf( "%s%s: " S_COLOR_GREEN "%s\n", prefix, name, text );
+      break;
+    case SAY_TEAM:
+      CG_Printf( "%s(%s)%s: " S_COLOR_CYAN "%s\n",
+                 prefix, name, location, text );
+      break;
+    case SAY_ADMINS:
+      CG_Printf( "%s[ADMIN]%s: " S_COLOR_MAGENTA "%s\n", prefix, name, text );
+      break;
+    case SAY_ADMINS_PUBLIC:
+      CG_Printf( "%s[PLAYER]%s: " S_COLOR_MAGENTA "%s\n", prefix, name, text );
+      break;
+    case SAY_AREA:
+      CG_Printf( "%s<%s>: " S_COLOR_BLUE "%s\n", prefix, name, text );
+      break;
+    case SAY_PRIVMSG:
+    case SAY_TPRIVMSG:
+      color = ( mode == SAY_TPRIVMSG ) ? COLOR_CYAN : COLOR_GREEN;
+      if( isIgnored )
+        CG_Printf( "[skipnotify]%s" S_COLOR_YELLOW " -> " S_COLOR_WHITE "%s: "
+                   "^%c%s\n", name, cgs.clientinfo[ cg.clientNum ].name, color,
+                   text );
+      else
+      {
+        CG_Printf( "%s" S_COLOR_YELLOW " -> " S_COLOR_WHITE "%s: ^%c%s\n",
+                   name, cgs.clientinfo[ cg.clientNum ].name, color, text );
+        CG_CenterPrint( va( "^%cPrivate message from: " S_COLOR_WHITE "%s", 
+                            color, name ), 200, GIANTCHAR_WIDTH * 4 );
+      }
+      break;
+    case SAY_RAW:
+      CG_Printf( "%s\n", text );
+      break;
+  }
+
+  switch( mode )
+  {
+    case SAY_TEAM:
+    case SAY_AREA:
+    case SAY_TPRIVMSG:
+      if( cg.snap->ps.stats[ STAT_TEAM ] == TEAM_ALIENS )
+      {
+        trap_S_StartLocalSound( cgs.media.alienTalkSound, CHAN_LOCAL_SOUND );
+        break;
+      }
+      else if( cg.snap->ps.stats[ STAT_TEAM ] == TEAM_HUMANS )
+      {
+        trap_S_StartLocalSound( cgs.media.humanTalkSound, CHAN_LOCAL_SOUND );
+        break;
+      }
+    default: 
+      trap_S_StartLocalSound( cgs.media.talkSound, CHAN_LOCAL_SOUND );
   }
 }
 
@@ -1088,10 +1116,10 @@ static void CG_ParseVoice( void )
     switch( vChan )
     {
       case VOICE_CHAN_ALL:
-        CG_Say( clientNum, sayText );
+        CG_Say( clientNum, SAY_ALL, sayText );
         break;
       case VOICE_CHAN_TEAM:
-        CG_SayTeam( clientNum, sayText );
+        CG_Say( clientNum, SAY_TEAM, sayText );
         break;
       default:
         break;
@@ -1153,18 +1181,13 @@ CG_Chat_f
 */
 static void CG_Chat_f( void )
 {
-  char     cmd[ 6 ];
-  qboolean team;
+  char     id[ 3 ];
+  char     mode[ 3 ];
 
-  trap_Argv( 0, cmd, sizeof( cmd ) );
-  team = Q_stricmp( cmd, "chat" );
+  trap_Argv( 1, id, sizeof( id ) );
+  trap_Argv( 2, mode, sizeof( mode ) );
 
-  trap_Argv( 1, cmd, sizeof( cmd ) );
-
-  if( team )
-    CG_SayTeam( atoi( cmd ), CG_Argv( 2 ) );
-  else
-    CG_Say( atoi( cmd ), CG_Argv( 2 ) );
+  CG_Say( atoi( id ), atoi( mode ), CG_Argv( 3 ) );
 }
 
 /*
@@ -1257,7 +1280,6 @@ static consoleCommand_t svcommands[ ] =
   { "cs", CG_ConfigStringModified },
   { "print", CG_Print_f },
   { "chat", CG_Chat_f },
-  { "tchat", CG_Chat_f },
   { "scores", CG_ParseScores },
   { "tinfo", CG_ParseTeamInfo },
   { "map_restart", CG_MapRestart },

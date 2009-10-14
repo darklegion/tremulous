@@ -664,38 +664,40 @@ void Cmd_Team_f( gentity_t *ent )
 G_Say
 ==================
 */
-static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, const char *message )
+static qboolean G_SayTo( gentity_t *ent, gentity_t *other, saymode_t mode, const char *message )
 {
   if( !other )
-    return;
+    return qfalse;
 
   if( !other->inuse )
-    return;
+    return qfalse;
 
   if( !other->client )
-    return;
+    return qfalse;
 
   if( other->client->pers.connected != CON_CONNECTED )
-    return;
+    return qfalse;
 
-  if( mode == SAY_TEAM && !OnSameTeam( ent, other ) )
+  if( ( ent && !OnSameTeam( ent, other ) ) &&
+      ( mode == SAY_TEAM || mode == SAY_AREA || mode == SAY_TPRIVMSG ) )
   {
     if( other->client->pers.teamSelection != TEAM_NONE )
-      return;
-
-    if( !G_admin_permission( other, ADMF_SPEC_ALLCHAT ) )
-      return;
+      return qfalse;
 
     // specs with ADMF_SPEC_ALLCHAT flag can see team chat
+    if( !G_admin_permission( other, ADMF_SPEC_ALLCHAT ) && mode != SAY_TPRIVMSG )
+      return qfalse;
   }
 
-  trap_SendServerCommand( other-g_entities, va( "%s %d \"%s\"",
-    mode == SAY_TEAM ? "tchat" : "chat",
+  trap_SendServerCommand( other-g_entities, va( "chat %d %d\"%s\"",
     ent ? ent-g_entities : -1,
+    mode,
     message ) );
+
+  return qtrue;
 }
 
-void G_Say( gentity_t *ent, int mode, const char *chatText )
+void G_Say( gentity_t *ent, saymode_t mode, const char *chatText )
 {
   int         j;
   gentity_t   *other;
@@ -714,20 +716,23 @@ void G_Say( gentity_t *ent, int mode, const char *chatText )
 
   switch( mode )
   {
-    default:
     case SAY_ALL:
       G_LogPrintf( "Say: %d \"%s" S_COLOR_WHITE "\": " S_COLOR_GREEN "%s\n",
         ( ent ) ? ent - g_entities : -1,
         ( ent ) ? ent->client->pers.netname : "console", chatText );
       break;
-
     case SAY_TEAM:
       // console say_team is handled in g_svscmds, not here
       if( !ent || !ent->client )
         Com_Error( ERR_FATAL, "SAY_TEAM by non-client entity\n" );
-
       G_LogPrintf( "SayTeam: %d \"%s" S_COLOR_WHITE "\": " S_COLOR_CYAN "%s\n",
         ent - g_entities, ent->client->pers.netname, chatText );
+      break;
+    case SAY_RAW:
+      if( ent )
+        Com_Error( ERR_FATAL, "SAY_RAW by client entity\n" );
+      G_LogPrintf( "Chat: -1 \"console\": %s\n", chatText );
+    default:
       break;
   }
 
@@ -752,7 +757,30 @@ static void Cmd_SayArea_f( gentity_t *ent )
   int    num, i;
   vec3_t range = { 1000.0f, 1000.0f, 1000.0f };
   vec3_t mins, maxs;
-  char   *msg = ConcatArgs( 1 );
+  char   *msg;
+  char cmd[ sizeof( "say_team" ) ];
+  int skiparg = 0;
+
+  if( ent->client->pers.teamSelection == TEAM_NONE )
+  {
+    G_TriggerMenu( ent->client->ps.clientNum, MN_CMD_TEAM );
+    return;
+  }
+
+  // Skip say/say_team if this was used from one of those
+  G_SayArgv( 0, cmd, sizeof( cmd ) );
+  if( !Q_stricmp( cmd, "say" ) || !Q_stricmp( cmd, "say_team" ) )
+  {
+    skiparg = 1;
+    G_SayArgv( 1, cmd, sizeof( cmd ) );
+  }
+  if( G_SayArgc( ) < 2 + skiparg )
+  {
+    ADMP( va( "usage: %s [message]\n", cmd ) );
+    return;
+  }
+
+  msg = G_SayConcatArgs( 1 + skiparg );
 
   for(i = 0; i < 3; i++ )
     range[ i ] = g_sayAreaRange.value;
@@ -765,7 +793,7 @@ static void Cmd_SayArea_f( gentity_t *ent )
 
   num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
   for( i = 0; i < num; i++ )
-    G_SayTo( ent, &g_entities[ entityList[ i ] ], SAY_TEAM, msg );
+    G_SayTo( ent, &g_entities[ entityList[ i ] ], SAY_AREA, msg );
   
   //Send to ADMF_SPEC_ALLCHAT candidates
   for( i = 0; i < level.maxclients; i++ )
@@ -773,7 +801,7 @@ static void Cmd_SayArea_f( gentity_t *ent )
     if( g_entities[ i ].client->pers.teamSelection == TEAM_NONE &&
         G_admin_permission( &g_entities[ i ], ADMF_SPEC_ALLCHAT ) )
     {
-      G_SayTo( ent, &g_entities[ i ], SAY_TEAM, msg );   
+      G_SayTo( ent, &g_entities[ i ], SAY_AREA, msg );   
     }
   }
 }
@@ -788,7 +816,7 @@ static void Cmd_Say_f( gentity_t *ent )
 {
   char    *p;
   char    *args;
-  int     mode = SAY_ALL;
+  saymode_t mode = SAY_ALL;
 
   args = G_SayConcatArgs( 0 );
   if( Q_stricmpn( args, "say_team ", 9 ) == 0 )
@@ -810,6 +838,14 @@ static void Cmd_Say_f( gentity_t *ent )
       !Q_stricmpn( args, "say_team /a ", 12 ) )
   {
     Cmd_AdminMessage_f( ent );
+    return;
+  }
+
+  // support parsing /say_area out of say text for the same reason
+  if( !Q_stricmpn( args, "say /say_area ", 14 ) ||
+      !Q_stricmpn( args, "say_team /say_area ", 19 ) )
+  {
+    Cmd_SayArea_f( ent );
     return;
   }
 
@@ -3073,17 +3109,15 @@ void G_DecolorString( char *in, char *out, int len )
 void Cmd_PrivateMessage_f( gentity_t *ent )
 {
   int pids[ MAX_CLIENTS ];
-  int ignoreids[ MAX_CLIENTS ];
   char name[ MAX_NAME_LENGTH ];
   char cmd[ 12 ];
   char str[ MAX_STRING_CHARS ];
   char *msg;
   char color;
-  int pcount, matches, ignored = 0;
-  int i;
+  int i, pcount;
   int skipargs = 0;
+  int count = 0;
   qboolean teamonly = qfalse;
-  gentity_t *tmpent;
 
   if( !g_privateMessages.integer && ent )
   {
@@ -3091,6 +3125,7 @@ void Cmd_PrivateMessage_f( gentity_t *ent )
     return;
   }
 
+  // parse arguments
   G_SayArgv( 0, cmd, sizeof( cmd ) );
   if( !Q_stricmp( cmd, "say" ) || !Q_stricmp( cmd, "say_team" ) )
   {
@@ -3106,57 +3141,24 @@ void Cmd_PrivateMessage_f( gentity_t *ent )
   if( !Q_stricmp( cmd, "mt" ) || !Q_stricmp( cmd, "/mt" ) )
     teamonly = qtrue;
 
+  // figure out the name matches
   G_SayArgv( 1+skipargs, name, sizeof( name ) );
   msg = G_SayConcatArgs( 2+skipargs );
   pcount = G_ClientNumbersFromString( name, pids, MAX_CLIENTS );
 
-  if( ent )
-  {
-    int count = 0;
-
-    for( i = 0; i < pcount; i++ )
-    {
-      tmpent = &g_entities[ pids[ i ] ];
-
-      if( teamonly && !OnSameTeam( ent, tmpent ) )
-        continue;
-
-      if( Com_ClientListContains( &tmpent->client->sess.ignoreList,
-        ent-g_entities ) )
-      {
-        ignoreids[ ignored++ ] = pids[ i ];
-        continue;
-      }
-
-      pids[ count ] = pids[ i ];
+  // send the message
+  for( i = 0; i < pcount; i++ )
+    if( G_SayTo( ent, &g_entities[ pids[ i ] ], 
+        teamonly ? SAY_TPRIVMSG : SAY_PRIVMSG, msg ) )
       count++;
-    }
-    matches = count;
-  }
-  else
-  {
-    matches = pcount;
-  }
 
+  // report the results
   color = teamonly ? COLOR_CYAN : COLOR_YELLOW;
 
-  Com_sprintf( str, sizeof( str ), "^%csent to %i player%s: ^7", color, matches,
-    ( matches == 1 ) ? "" : "s" );
+  Com_sprintf( str, sizeof( str ), "^%csent to %i player%s", color, count,
+    ( count == 1 ) ? "" : "s" );
 
-  for( i=0; i < matches; i++ )
-  {
-    tmpent = &g_entities[ pids[ i ] ];
-
-    if( i > 0 )
-      Q_strcat( str, sizeof( str ), "^7, " );
-    Q_strcat( str, sizeof( str ), tmpent->client->pers.netname );
-    G_SayTo( ent, tmpent, teamonly ? SAY_TEAM : SAY_ALL, msg );
-    trap_SendServerCommand( pids[ i ], va(
-      "cp \"^%cprivate message from ^7%s^7\"", color,
-      ( ent ) ? ent->client->pers.netname : "console" ) );
-  }
-
-  if( !matches )
+  if( !count )
     ADMP( va( "^3No player matching ^7\'%s^7\' ^3to send message to.\n",
       name ) );
   else
@@ -3164,25 +3166,11 @@ void Cmd_PrivateMessage_f( gentity_t *ent )
     ADMP( va( "^%cPrivate message: ^7%s\n", color, msg ) );
     ADMP( va( "%s\n", str ) );
 
-    G_LogPrintf( "%s: %d \"%s" S_COLOR_WHITE "\" \"%s\": %s\n",
+    G_LogPrintf( "%s: %d \"%s" S_COLOR_WHITE "\" \"%s\": ^%c%s\n",
       ( teamonly ) ? "TPrivMsg" : "PrivMsg",
       ( ent ) ? ent - g_entities : -1,
       ( ent ) ? ent->client->pers.netname : "console",
-      name, msg );
-  }
-
-  if( ignored )
-  {
-    Com_sprintf( str, sizeof( str ), "^%cignored by %i player%s: ^7", color,
-      ignored, ( ignored == 1 ) ? "" : "s" );
-    for( i=0; i < ignored; i++ )
-    {
-      tmpent = &g_entities[ ignoreids[ i ] ];
-      if( i > 0 )
-        Q_strcat( str, sizeof( str ), "^7, " );
-      Q_strcat( str, sizeof( str ), tmpent->client->pers.netname );
-    }
-    ADMP( va( "%s\n", str ) );
+      name, color, msg );
   }
 }
 
@@ -3226,6 +3214,6 @@ void Cmd_AdminMessage_f( gentity_t *ent )
     return;
   }
 
-  G_AdminMessage( ent, "%s", G_SayConcatArgs( 1 + skiparg ) );
+  G_AdminMessage( ent, G_SayConcatArgs( 1 + skiparg ) );
 }
 
