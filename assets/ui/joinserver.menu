@@ -43,9 +43,6 @@
 #define LIST_Y      ((2*BORDER)+TOP_H)
 #define LIST_TOFF   5
 #define HEADFOOT_H  25
-#define SERVER_H    16
-#define NUM_FEATURED 4
-#define FEATURED_H  (SERVER_H*NUM_FEATURED+2)
 
   menuDef
   {
@@ -195,6 +192,24 @@
       }
     }
 
+    //  LEGEND   //
+
+    itemDef
+    {
+      name legend
+      type ITEM_TYPE_TEXT
+      text "[official] = Offical Server\n[featured] = Featured Server"
+      style WINDOW_STYLE_EMPTY
+      textstyle ITEM_TEXTSTYLE_NORMAL
+      textscale .25
+      wrapped
+      rect (TOP_X+(2*TOPBUTT_W)) (TOP_Y+TOPBUTT_H) (TOPBUTT_W) (TOPBUTT_H)
+      textalign ALIGN_LEFT
+      textvalign VALIGN_CENTER
+      forecolor     1   1   1   1
+      visible MENU_TRUE
+      decoration
+    }
 
     // MAP PREVIEW //
 
@@ -216,7 +231,7 @@
     {
       name server
       group grpTabs
-      text "Featured Servers"
+      text "Server Name"
       type ITEM_TYPE_BUTTON
       textscale .33
       style WINDOW_STYLE_EMPTY
@@ -384,57 +399,13 @@
 
     itemDef
     {
-      name featuredlist
-      rect LIST_X (LIST_Y+HEADFOOT_H) LIST_W FEATURED_H
-      type ITEM_TYPE_LISTBOX
-      style WINDOW_STYLE_EMPTY
-      elementwidth 120
-      elementheight SERVER_H
-      textscale .25
-      elementtype LISTBOX_TEXT
-      feeder FEEDER_FEATURED
-      border WINDOW_BORDER_FULL
-      bordercolor   0.5 0.5 0.5 1
-      forecolor     1   1   1   1
-      backcolor     0.2 0.2 0.2 1
-      outlinecolor  0.1 0.1 0.1 0.5
-      visible MENU_TRUE
-      columns 4
-        LIST_TOFF                                       ((SERVER_C*LIST_W)-(3*LIST_TOFF))   ALIGN_LEFT
-        (LIST_TOFF+((SERVER_C)*LIST_W))                 ((MAP_C*LIST_W)-(3*LIST_TOFF))      ALIGN_LEFT
-        (LIST_TOFF+((SERVER_C+MAP_C)*LIST_W))           ((PLAYERS_C*LIST_W)-(3*LIST_TOFF))  ALIGN_LEFT
-        (LIST_TOFF+((SERVER_C+MAP_C+PLAYERS_C)*LIST_W)) ((PING_C*LIST_W)-(3*LIST_TOFF))     ALIGN_LEFT
-
-      doubleClick { uiScript JoinServer }
-    }
-
-    itemDef
-    {
-      name featuredseparator
-      rect LIST_X (LIST_Y+FEATURED_H+HEADFOOT_H) LIST_W HEADFOOT_H
-      type ITEM_TYPE_TEXT
-      text "Community Servers"
-      textalign ALIGN_LEFT
-      textvalign VALIGN_CENTER
-      textalignx LIST_TOFF
-      visible MENU_TRUE
-      textScale 0.33
-      border WINDOW_BORDER_FULL
-      bordercolor   0.5 0.5 0.5 1
-      forecolor     1   1   1   1
-      backcolor     0.2 0.2 0.2 1
-      outlinecolor  0.1 0.1 0.1 0.5
-    }
-
-    itemDef
-    {
       name serverlist
-      rect LIST_X (LIST_Y+FEATURED_H+(HEADFOOT_H*2)) LIST_W (LIST_H-(FEATURED_H+(HEADFOOT_H*3)))
+      rect LIST_X (LIST_Y+HEADFOOT_H) LIST_W (LIST_H-(2*HEADFOOT_H))
       type ITEM_TYPE_LISTBOX
       style WINDOW_STYLE_EMPTY
       elementwidth 120
-      elementheight SERVER_H
-      textscale .25
+      elementheight 20
+      textscale .33
       elementtype LISTBOX_TEXT
       feeder FEEDER_SERVERS
       border WINDOW_BORDER_FULL

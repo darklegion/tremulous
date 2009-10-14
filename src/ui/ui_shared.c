@@ -1833,6 +1833,22 @@ void Script_playLooped( itemDef_t *item, char **args )
   }
 }
 
+void UI_EscapeEmoticons( char *dest, const char *src, int destsize )
+{
+  int len;
+  qboolean escaped;
+  for( ; *src && destsize > 1; src++, destsize-- )
+  {
+    if ( UI_Text_Emoticon( src, &escaped, &len, NULL, NULL ) && !escaped )
+    {
+      *dest++ = '[';
+      destsize--;
+    }
+    *dest++ = *src;
+  }
+  *dest++ = '\0';
+}
+
 qboolean UI_Text_Emoticon( const char *s, qboolean *escaped,
                            int *length, qhandle_t *h, int *width )
 {

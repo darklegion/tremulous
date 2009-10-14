@@ -1149,7 +1149,7 @@ static void CG_DrawHostname( rectDef_t *rect, float text_x, float text_y,
 
   info = CG_ConfigString( CS_SERVERINFO );
 
-  Q_strncpyz( buffer, Info_ValueForKey( info, "sv_hostname" ), 1024 );
+  UI_EscapeEmoticons( buffer, Info_ValueForKey( info, "sv_hostname" ), sizeof( buffer ) );
   Q_CleanStr( buffer );
 
   UI_DrawTextBlock( rect, text_x, text_y, color, scale, textalign, textvalign, textStyle, buffer );

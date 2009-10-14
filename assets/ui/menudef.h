@@ -87,7 +87,6 @@ enum
 enum
 {
   FEEDER_SERVERS,        // servers
-  FEEDER_FEATURED,       // featured servers
   FEEDER_MAPS,           // all maps available, in graphic format
   FEEDER_ALIENTEAM_LIST, // alien team members
   FEEDER_HUMANTEAM_LIST, // human team members
