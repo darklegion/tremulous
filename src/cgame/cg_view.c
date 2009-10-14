@@ -1437,6 +1437,9 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
   cg.renderingThirdPerson = ( cg_thirdPerson.integer || ( cg.snap->ps.stats[ STAT_HEALTH ] <= 0 ) || 
                             ( cg.chaseFollow && cg.snap->ps.pm_flags & PMF_FOLLOW) );
 
+  // update speedometer
+  CG_AddSpeed( );
+
   // build cg.refdef
   inwater = CG_CalcViewValues( );
 

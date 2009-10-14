@@ -90,6 +90,22 @@ itemDef
   ownerdraw CG_LAGOMETER
 }
 
+//SPEEDOMETER
+itemDef
+{
+  name "speedometer"
+  rect (320-(STAT_W/2)) 350 STAT_W STAT_H
+  aspectBias ALIGN_CENTER
+  type ITEM_TYPE_OWNERDRAW
+  ownerdraw CG_SPEEDOMETER
+  style WINDOW_STYLE_EMPTY
+  visible MENU_TRUE
+  decoration
+  backColor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.2
+  foreColor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.8
+  textscale 0.3
+}
+
 //CLOCK
 itemDef
 {
