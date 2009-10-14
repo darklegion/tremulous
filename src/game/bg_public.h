@@ -837,6 +837,18 @@ typedef enum
   NUM_TEAMS
 } team_t;
 
+// modes of text communication
+typedef enum
+{
+  SAY_ALL,
+  SAY_TEAM,
+  SAY_PRIVMSG,
+  SAY_TPRIVMSG,
+  SAY_AREA,
+  SAY_ADMINS,
+  SAY_ADMINS_PUBLIC,
+  SAY_RAW
+} saymode_t;
 
 // means of death
 typedef enum

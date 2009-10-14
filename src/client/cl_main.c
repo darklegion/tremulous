@@ -2387,7 +2387,7 @@ void CL_ServersResponsePacket( const netadr_t* from, msg_t *msg, qboolean extend
 	int				numservers;
 	byte*			buffptr;
 	byte*			buffend;
-	char			label[MAX_FEATLABEL_CHARS];
+	char			label[MAX_FEATLABEL_CHARS] = "";
 	
 	Com_DPrintf("CL_ServersResponsePacket%s\n",
 		(extended) ? " (extended)" : "");

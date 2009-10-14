@@ -289,14 +289,15 @@ Format:
 */
 void TeamplayInfoMessage( gentity_t *ent )
 {
-  char entry[ 19 ], string[ 1143 ];
-  int i, j, team, stringlength;
-  int sent = 0;
+  char      entry[ 19 ], string[ 1143 ];
+  int       i, j; 
+  int       team, stringlength;
+  int       sent = 0;
   gentity_t *player;
   gclient_t *cl;
   upgrade_t upgrade = UP_NONE;
-  int curWeaponClass = WP_NONE ; // sends weapon for humans, class for aliens
-  char *tmp;
+  int       curWeaponClass = WP_NONE ; // sends weapon for humans, class for aliens
+  char      *tmp;
 
   if( !g_allowTeamOverlay.integer )
      return;
@@ -332,7 +333,7 @@ void TeamplayInfoMessage( gentity_t *ent )
       curWeaponClass = WP_NONE;
       upgrade = UP_NONE;
     }
-    else if (cl->pers.teamSelection == TEAM_HUMANS )
+    else if ( cl->pers.teamSelection == TEAM_HUMANS )
     {
       curWeaponClass = cl->ps.weapon;
 

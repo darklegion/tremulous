@@ -1620,24 +1620,23 @@ static void CG_DrawTimer( rectDef_t *rect, float text_x, float text_y,
 CG_DrawTeamOverlay
 =================
 */
-
 static void CG_DrawTeamOverlay( rectDef_t *rect, float scale, vec4_t color )
 {
-  char *s;
-  int i;
-  float x = rect->x;
-  float y, dx;
+  char         *s;
+  int          i;
+  float        x = rect->x;
+  float        y, dx;
   clientInfo_t *ci, *pci;
-  vec4_t tcolor;
-  float iconSize = rect->h/8.0f;
-  float leftMargin = 4.0f;
-  float iconTopMargin = 2.0f;
-  float midSep = 2.0f;
-  float backgroundWidth = rect->w;
-  float fontScale = 0.30f;
-  int maxDisplayCount = 0;
-  int displayCount = 0;
-  weapon_t curWeapon = WP_NONE;
+  vec4_t       tcolor;
+  float        iconSize = rect->h / 8.0f;
+  float        leftMargin = 4.0f;
+  float        iconTopMargin = 2.0f;
+  float        midSep = 2.0f;
+  float        backgroundWidth = rect->w;
+  float        fontScale = 0.30f;
+  int          maxDisplayCount = 0;
+  int          displayCount = 0;
+  weapon_t     curWeapon = WP_NONE;
 
   if( cg.predictedPlayerState.pm_type == PM_SPECTATOR )
     return;
@@ -1645,10 +1644,10 @@ static void CG_DrawTeamOverlay( rectDef_t *rect, float scale, vec4_t color )
   if( !cg_drawTeamOverlay.integer || !cg_teamOverlayMaxPlayers.integer )
     return;
 
-  if( !cgs.teaminfoReceievedTime ) return;
+  if( !cgs.teaminfoReceievedTime )
+    return;
 
   pci = cgs.clientinfo + cg.snap->ps.clientNum;
-
 
   for( i = 0; i < MAX_CLIENTS; i++ )
   {
