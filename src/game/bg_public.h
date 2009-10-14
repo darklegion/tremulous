@@ -789,10 +789,7 @@ typedef struct animation_s
 #define ANIM_FORCEBIT     0x40
 
 // Time between location updates
-#define TEAM_LOCATION_UPDATE_TIME   1000
-
-// How many players on the overlay
-#define TEAM_MAXOVERLAY   32
+#define TEAM_LOCATION_UPDATE_TIME   500
 
 // player classes
 typedef enum

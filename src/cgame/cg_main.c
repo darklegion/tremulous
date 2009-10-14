@@ -153,8 +153,10 @@ vmCvar_t  cg_synchronousClients;
 vmCvar_t  cg_stats;
 vmCvar_t  cg_paused;
 vmCvar_t  cg_blood;
-vmCvar_t  cg_teamOverlayUserinfo;
 vmCvar_t  cg_teamChatsOnly;
+vmCvar_t  cg_drawTeamOverlay;
+vmCvar_t  cg_teamOverlayMaxPlayers;
+vmCvar_t  cg_teamOverlayUserinfo;
 vmCvar_t  cg_noPrintDuplicate;
 vmCvar_t  cg_noVoiceChats;
 vmCvar_t  cg_noVoiceText;
@@ -270,6 +272,8 @@ static cvarTable_t cvarTable[ ] =
   { &cg_thirdPersonPitchFollow, "cg_thirdPersonPitchFollow", "0", 0 },
   { &cg_thirdPersonShoulderViewMode, "cg_thirdPersonShoulderViewMode", "1", CVAR_ARCHIVE },
   { &cg_stats, "cg_stats", "0", 0 },
+  { &cg_drawTeamOverlay, "cg_drawTeamOverlay", "1", CVAR_ARCHIVE },
+  { &cg_teamOverlayMaxPlayers, "cg_teamOverlayMaxPlayers", "8", CVAR_ARCHIVE },
   { &cg_teamOverlayUserinfo, "teamoverlay", "1", CVAR_ARCHIVE|CVAR_USERINFO },
   { &cg_teamChatsOnly, "cg_teamChatsOnly", "0", CVAR_ARCHIVE },
   { &cg_noPrintDuplicate, "cg_noPrintDuplicate", "0", CVAR_ARCHIVE },
@@ -428,6 +432,7 @@ void CG_UpdateCvars( void )
   // check for modications here
 
   CG_SetUIVars( );
+
 }
 
 
@@ -746,6 +751,8 @@ static void CG_RegisterGraphics( void )
 
   cgs.media.scannerBlipShader         = trap_R_RegisterShader( "gfx/2d/blip" );
   cgs.media.scannerLineShader         = trap_R_RegisterShader( "gfx/2d/stalk" );
+
+  cgs.media.teamOverlayShader         = trap_R_RegisterShader( "gfx/2d/teamoverlay" );
 
   cgs.media.tracerShader              = trap_R_RegisterShader( "gfx/misc/tracer" );
 

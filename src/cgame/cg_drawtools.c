@@ -403,3 +403,30 @@ char *CG_KeyBinding( const char *bind )
   }
   return key;
 }
+
+/*
+=================
+CG_GetColorCharForHealth
+=================
+*/
+char CG_GetColorCharForHealth( int clientnum )
+{
+  char health_char = '2';
+  int healthPercent;
+  int maxHealth;
+  int curWeaponClass = cgs.clientinfo[ clientnum ].curWeaponClass;
+
+  if( cgs.clientinfo[ clientnum ].team == TEAM_ALIENS )
+    maxHealth = BG_Class( curWeaponClass )->health;
+  else
+    maxHealth = BG_Class( PCL_HUMAN )->health;
+
+  healthPercent = (int) ( 100.0f * (float) cgs.clientinfo[ clientnum ].health
+                          / (float) maxHealth );
+
+  if( healthPercent < 33 )
+    health_char = '1';
+  else if( healthPercent < 67 )
+    health_char = '3';
+  return health_char;
+}

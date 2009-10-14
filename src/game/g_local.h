@@ -339,6 +339,8 @@ typedef struct
   int                 adminLevel;
   char                voice[ MAX_VOICE_NAME_LEN ];
   qboolean            useUnlagged;  
+  // keep track of other players' info for tinfo
+  char                cinfo[ MAX_CLIENTS ][ 16 ];
 } clientPersistant_t;
 
 #define MAX_UNLAGGED_MARKERS 10
@@ -1133,6 +1135,7 @@ extern  vmCvar_t  g_dretchPunt;
 extern  vmCvar_t  g_privateMessages;
 extern  vmCvar_t  g_specChat;
 extern  vmCvar_t  g_publicAdminMessages;
+extern  vmCvar_t  g_allowTeamOverlay;
 
 void      trap_Print( const char *fmt );
 void      trap_Error( const char *fmt );

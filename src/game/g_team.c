@@ -240,6 +240,7 @@ void G_ChangeTeam( gentity_t *ent, team_t newTeam )
       ent->s.number, newTeam, oldTeam, ent->client->pers.netname,
       BG_TeamName( newTeam ) );
   }
+  TeamplayInfoMessage( ent );
 }
 
 /*
@@ -277,83 +278,112 @@ gentity_t *Team_GetLocation( gentity_t *ent )
 
 /*---------------------------------------------------------------------------*/
 
-static int QDECL SortClients( const void *a, const void *b )
-{
-  return *(int *)a - *(int *)b;
-}
-
-
 /*
 ==================
-TeamplayLocationsMessage
+TeamplayInfoMessage
 
 Format:
-  clientNum location health armor weapon misc
+  clientNum location health weapon upgrade
 
 ==================
 */
 void TeamplayInfoMessage( gentity_t *ent )
 {
-  char      entry[ 1024 ];
-  char      string[ 8192 ];
-  int       stringlength;
-  int       i, j;
+  char entry[ 19 ], string[ 1143 ];
+  int i, j, team, stringlength;
+  int sent = 0;
   gentity_t *player;
-  int       cnt;
-  int       h, a = 0;
-  int       clients[ TEAM_MAXOVERLAY ];
+  gclient_t *cl;
+  upgrade_t upgrade = UP_NONE;
+  int curWeaponClass = WP_NONE ; // sends weapon for humans, class for aliens
+  char *tmp;
 
-  if( ! ent->client->pers.teamInfo )
-    return;
+  if( !g_allowTeamOverlay.integer )
+     return;
 
-  // figure out what client should be on the display
-  // we are limited to 8, but we want to use the top eight players
-  // but in client order (so they don't keep changing position on the overlay)
-  for( i = 0, cnt = 0; i < g_maxclients.integer && cnt < TEAM_MAXOVERLAY; i++ )
+  if( !ent->client->pers.teamInfo )
+     return;
+
+  if( ent->client->pers.teamSelection == TEAM_NONE )
   {
-    player = g_entities + level.sortedClients[ i ];
-
-    if( player->inuse && player->client->ps.stats[ STAT_TEAM ] ==
-        ent->client->ps.stats[ STAT_TEAM ] )
-      clients[ cnt++ ] = level.sortedClients[ i ];
+    if( ent->client->sess.spectatorState == SPECTATOR_FREE ||
+        ent->client->sess.spectatorClient < 0 )
+      return;
+    team = g_entities[ ent->client->sess.spectatorClient ].client->
+      pers.teamSelection;
   }
+  else
+    team = ent->client->pers.teamSelection;
 
-  // We have the top eight players, sort them by clientNum
-  qsort( clients, cnt, sizeof( clients[ 0 ] ), SortClients );
-
-  // send the latest information on all clients
-  string[ 0 ] = 0;
+  string[ 0 ] = '\0';
   stringlength = 0;
 
-  for( i = 0, cnt = 0; i < g_maxclients.integer && cnt < TEAM_MAXOVERLAY; i++)
+  for( i = 0; i < MAX_CLIENTS; i++)
   {
-    player = g_entities + i;
+    player = g_entities + i ;
+    cl = player->client;
 
-    if( player->inuse && player->client->ps.stats[ STAT_TEAM ] ==
-        ent->client->ps.stats[ STAT_TEAM ] )
+    if( ent == player || !cl || team != cl->pers.teamSelection ||
+        !player->inuse )
+      continue;
+
+    if( cl->sess.spectatorState != SPECTATOR_NOT )
     {
-      h = player->client->ps.stats[ STAT_HEALTH ];
-
-      if( h < 0 )
-        h = 0;
-
-      Com_sprintf( entry, sizeof( entry ),
-        " %i %i %i %i %i",
-        i, player->client->pers.location, h, a,
-        player->client->ps.weapon );
-
-      j = strlen( entry );
-
-      if( stringlength + j > sizeof( string ) )
-        break;
-
-      strcpy( string + stringlength, entry );
-      stringlength += j;
-      cnt++;
+      curWeaponClass = WP_NONE;
+      upgrade = UP_NONE;
     }
+    else if (cl->pers.teamSelection == TEAM_HUMANS )
+    {
+      curWeaponClass = cl->ps.weapon;
+
+      if( BG_InventoryContainsUpgrade( UP_BATTLESUIT, cl->ps.stats ) )
+        upgrade = UP_BATTLESUIT;
+      else if( BG_InventoryContainsUpgrade( UP_JETPACK, cl->ps.stats ) )
+        upgrade = UP_JETPACK;
+      else if( BG_InventoryContainsUpgrade( UP_BATTPACK, cl->ps.stats ) )
+        upgrade = UP_BATTPACK;
+      else if( BG_InventoryContainsUpgrade( UP_HELMET, cl->ps.stats ) )
+        upgrade = UP_HELMET;
+      else if( BG_InventoryContainsUpgrade( UP_LIGHTARMOUR, cl->ps.stats ) )
+        upgrade = UP_LIGHTARMOUR;
+      else
+        upgrade = UP_NONE;
+    }
+    else if( cl->pers.teamSelection == TEAM_ALIENS )
+    {
+      curWeaponClass = cl->ps.stats[ STAT_CLASS ];
+      upgrade = UP_NONE;
+    }
+ 
+    tmp = va( "%i %i %i %i",
+      player->client->pers.location,
+      player->client->ps.stats[ STAT_HEALTH ] < 1 ? 0 :
+        player->client->ps.stats[ STAT_HEALTH ],
+      curWeaponClass, 
+      upgrade );
+
+    if( !strcmp( ent->client->pers.cinfo[ i ], tmp ) )
+      continue;
+
+    Q_strncpyz( ent->client->pers.cinfo[ i ], tmp,
+      sizeof( ent->client->pers.cinfo[ i ] ) );
+
+    Com_sprintf( entry, sizeof( entry ), " %i %s", i, tmp );
+
+    j = strlen( entry );
+
+    if( stringlength + j > sizeof( string ) )
+      break;
+
+    strcpy( string + stringlength, entry );
+    stringlength += j;
+    sent++;
   }
 
-  trap_SendServerCommand( ent - g_entities, va( "tinfo %i%s", cnt, string ) );
+  if( !sent )
+    return; 
+
+  trap_SendServerCommand( ent - g_entities, va( "tinfo %i%s", sent, string ) );
 }
 
 void CheckTeamStatus( void )
@@ -390,8 +420,7 @@ void CheckTeamStatus( void )
       if( ent->client->pers.connected != CON_CONNECTED )
         continue;
 
-      if( ent->inuse && ( ent->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS ||
-                          ent->client->ps.stats[ STAT_TEAM ] == TEAM_ALIENS ) )
+      if( ent->inuse )
         TeamplayInfoMessage( ent );
     }
   }

@@ -30,11 +30,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 menuDef_t *menuScoreboard = NULL;
 
-int drawTeamOverlayModificationCount = -1;
-
-int   sortedTeamPlayers[ TEAM_MAXOVERLAY ];
-int   numSortedTeamPlayers;
-
 static void CG_AlignText( rectDef_t *rect, const char *text, float scale,
                           float w, float h,
                           int align, int valign,
@@ -1622,6 +1617,123 @@ static void CG_DrawTimer( rectDef_t *rect, float text_x, float text_y,
 
 /*
 =================
+CG_DrawTeamOverlay
+=================
+*/
+
+static void CG_DrawTeamOverlay( rectDef_t *rect, float scale, vec4_t color )
+{
+  char *s;
+  int i;
+  float x = rect->x;
+  float y, dx;
+  clientInfo_t *ci, *pci;
+  vec4_t tcolor;
+  float iconSize = rect->h/8.0f;
+  float leftMargin = 4.0f;
+  float iconTopMargin = 2.0f;
+  float midSep = 2.0f;
+  float backgroundWidth = rect->w;
+  float fontScale = 0.30f;
+  int maxDisplayCount = 0;
+  int displayCount = 0;
+  weapon_t curWeapon = WP_NONE;
+
+  if( cg.predictedPlayerState.pm_type == PM_SPECTATOR )
+    return;
+
+  if( !cg_drawTeamOverlay.integer || !cg_teamOverlayMaxPlayers.integer )
+    return;
+
+  if( !cgs.teaminfoReceievedTime ) return;
+
+  pci = cgs.clientinfo + cg.snap->ps.clientNum;
+
+
+  for( i = 0; i < MAX_CLIENTS; i++ )
+  {
+    ci = cgs.clientinfo + i;
+    if( ci->infoValid && pci != ci && ci->team == pci->team)
+      maxDisplayCount++;
+  }
+
+  if( maxDisplayCount > cg_teamOverlayMaxPlayers.integer )
+    maxDisplayCount = cg_teamOverlayMaxPlayers.integer;
+
+  iconSize *= scale;
+  leftMargin *= scale;
+  iconTopMargin *= scale;
+  midSep *= scale;
+  backgroundWidth *= scale;
+  fontScale *= scale;
+
+  y = rect->y - (float) maxDisplayCount * ( iconSize / 2.0f );
+
+  tcolor[ 0 ] = 1.0f;
+  tcolor[ 1 ] = 1.0f;
+  tcolor[ 2 ] = 1.0f;
+  tcolor[ 3 ] = color[ 3 ];
+
+  for( i = 0; i < MAX_CLIENTS && displayCount < maxDisplayCount; i++ )
+  {
+    ci = cgs.clientinfo + i;
+
+    if( !ci->infoValid || pci == ci || ci->team != pci->team )
+      continue;
+
+    dx = 0.f;
+    trap_R_SetColor( color );
+    CG_DrawPic( x, y-iconSize+iconTopMargin, backgroundWidth, 
+                iconSize, cgs.media.teamOverlayShader );
+    trap_R_SetColor( tcolor );
+    if( ci->health <= 0 || !ci->curWeaponClass )
+    {
+      dx = -iconSize;
+      s = va( "%s^7", ci->name );
+    }
+    else
+    {
+      if( ci->team == TEAM_HUMANS )
+        curWeapon = ci->curWeaponClass;
+      else if( ci->team == TEAM_ALIENS )
+        curWeapon = BG_Class( ci->curWeaponClass )->startWeapon;
+
+      CG_DrawPic( x+leftMargin, y-iconSize+iconTopMargin, iconSize, iconSize, 
+                  cg_weapons[ curWeapon ].weaponIcon );
+      if( cg.predictedPlayerState.stats[ STAT_TEAM ] == TEAM_HUMANS )
+      {
+        if( ci->upgrade != UP_NONE )
+        {
+          CG_DrawPic( x+iconSize+leftMargin, y-iconSize+iconTopMargin,
+                      iconSize, iconSize, cg_upgrades[ ci->upgrade ].upgradeIcon );
+          dx = iconSize;
+        }
+      }
+      else
+      {
+        if( curWeapon == WP_ABUILD2 || curWeapon == WP_ALEVEL1_UPG || 
+            curWeapon == WP_ALEVEL2_UPG || curWeapon == WP_ALEVEL3_UPG )
+        {
+          CG_DrawPic( x+iconSize+leftMargin, y-iconSize+iconTopMargin, 
+                      iconSize, iconSize, cgs.media.upgradeClassIconShader );
+          dx = iconSize;
+        }
+      }
+      s = va( "%s^7 [^%c%d^7] ^7%s", ci->name,
+              CG_GetColorCharForHealth( i ),
+              ci->health,
+              CG_ConfigString( CS_LOCATIONS + ci->location ) );
+    }
+    trap_R_SetColor( NULL );
+    UI_Text_Paint( x+iconSize+leftMargin+midSep+dx, y, fontScale, tcolor, s, 
+                   0, 0, ITEM_TEXTSTYLE_NORMAL );
+    y += iconSize;
+    displayCount++;
+  }
+}
+
+/*
+=================
 CG_DrawClock
 =================
 */
@@ -2244,10 +2356,20 @@ static void CG_DrawCrosshairNames( rectDef_t *rect, float scale, int textStyle )
     return;
   }
 
+  // add health from overlay info to the crosshair client name
   name = cgs.clientinfo[ cg.crosshairClientNum ].name;
+  if( cg_teamOverlayUserinfo.integer &&
+      cg.snap->ps.stats[ STAT_TEAM ] != TEAM_NONE &&
+      cgs.teaminfoReceievedTime )
+  {
+    name = va( "%s ^7[^%c%d^7]", name,
+               CG_GetColorCharForHealth( cg.crosshairClientNum ),
+               cgs.clientinfo[ cg.crosshairClientNum ].health );
+  }
+
   w = UI_Text_Width( name, scale, 0 );
-  x = rect->x + rect->w / 2;
-  UI_Text_Paint( x - w / 2, rect->y + rect->h, scale, color, name, 0, 0, textStyle );
+  x = rect->x + rect->w / 2.0f;
+  UI_Text_Paint( x - w / 2.0f, rect->y + rect->h, scale, color, name, 0, 0, textStyle );
   trap_R_SetColor( NULL );
 }
 
@@ -2439,6 +2561,9 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
       break;
     case CG_LAGOMETER:
       CG_DrawLagometer( &rect, text_x, text_y, scale, foreColor );
+      break;
+    case CG_TEAMOVERLAY:
+      CG_DrawTeamOverlay( &rect, scale, foreColor );
       break;
 
     case CG_DEMO_PLAYBACK:

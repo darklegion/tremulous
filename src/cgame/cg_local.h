@@ -730,8 +730,8 @@ typedef struct
   int         score;                      // updated by score servercmds
   int         location;                   // location index for team mode
   int         health;                     // you only get this info about your teammates
-  int         armor;
-  int         curWeapon;
+  int         upgrade; 
+  int         curWeaponClass;             // sends current weapon for H, current class for A
 
   int         handicap;
 
@@ -1188,6 +1188,7 @@ typedef struct
   qhandle_t   scannerBlipShader;
   qhandle_t   scannerLineShader;
 
+  qhandle_t   teamOverlayShader;
 
   qhandle_t   numberShaders[ 11 ];
 
@@ -1384,6 +1385,8 @@ typedef struct
 
   clientInfo_t  clientinfo[ MAX_CLIENTS ];
 
+  int teaminfoReceievedTime;
+
   // corpse info
   clientInfo_t  corpseinfo[ MAX_CLIENTS ];
 
@@ -1440,6 +1443,9 @@ extern  vmCvar_t    cg_drawChargeBar;
 extern  vmCvar_t    cg_drawCrosshair;
 extern  vmCvar_t    cg_drawCrosshairNames;
 extern  vmCvar_t    cg_crosshairSize;
+extern  vmCvar_t    cg_drawTeamOverlay;
+extern  vmCvar_t    cg_teamOverlayMaxPlayers;
+extern  vmCvar_t    cg_teamOverlayUserinfo;
 extern  vmCvar_t    cg_draw2D;
 extern  vmCvar_t    cg_animSpeed;
 extern  vmCvar_t    cg_debugAnim;
@@ -1596,20 +1602,16 @@ int         CG_DrawStrlen( const char *str );
 float       *CG_FadeColor( int startMsec, int totalMsec );
 void        CG_TileClear( void );
 void        CG_ColorForHealth( vec4_t hcolor );
-void        CG_GetColorForHealth( int health, int armor, vec4_t hcolor );
-
 void        CG_DrawRect( float x, float y, float width, float height, float size, const float *color );
 void        CG_DrawSides(float x, float y, float w, float h, float size);
 void        CG_DrawTopBottom(float x, float y, float w, float h, float size);
 qboolean    CG_WorldToScreen( vec3_t point, float *x, float *y );
 char        *CG_KeyBinding( const char *bind );
-
+char        CG_GetColorCharForHealth( int clientnum );
 
 //
 // cg_draw.c
 //
-extern  int sortedTeamPlayers[ TEAM_MAXOVERLAY ];
-extern  int numSortedTeamPlayers;
 
 void        CG_AddLagometerFrameInfo( void );
 void        CG_AddLagometerSnapshotInfo( snapshot_t *snap );
