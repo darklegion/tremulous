@@ -1041,7 +1041,6 @@ void Cmd_CallVote_f( gentity_t *ent )
     return;
   }
 
-  trap_Argv( 1, vote, sizeof( vote ) );
   // kick, mute, unmute, denybuild, allowbuild
   if( !Q_stricmp( vote, "kick" ) ||
       !Q_stricmp( vote, "mute" ) || !Q_stricmp( vote, "unmute" ) ||
@@ -1104,7 +1103,7 @@ void Cmd_CallVote_f( gentity_t *ent )
     }
 
     Com_sprintf( level.voteString[ team ], sizeof( level.voteString[ team ] ),
-      "ban %s \"1s%s\" vote kick", level.clients[ clientNum ].pers.ip,
+      "!ban %s \"1s%s\" vote kick", level.clients[ clientNum ].pers.ip,
       g_adminTempBan.string );
     Com_sprintf( level.voteDisplayString[ team ],
       sizeof( level.voteDisplayString[ team ] ),
@@ -1122,7 +1121,7 @@ void Cmd_CallVote_f( gentity_t *ent )
       }
 
       Com_sprintf( level.voteString[ team ], sizeof( level.voteString[ team ] ),
-        "mute %d", clientNum );
+        "!mute %d", clientNum );
       Com_sprintf( level.voteDisplayString[ team ],
         sizeof( level.voteDisplayString[ team ] ),
         "Mute player '%s'", name );
@@ -1137,7 +1136,7 @@ void Cmd_CallVote_f( gentity_t *ent )
       }
 
       Com_sprintf( level.voteString[ team ], sizeof( level.voteString[ team ] ),
-        "unmute %d", clientNum );
+        "!unmute %d", clientNum );
       Com_sprintf( level.voteDisplayString[ team ],
         sizeof( level.voteDisplayString[ team ] ),
         "Unmute player '%s'", name );
@@ -1237,7 +1236,7 @@ void Cmd_CallVote_f( gentity_t *ent )
     }
 
     Com_sprintf( level.voteString[ team ], sizeof( level.voteString[ team ] ),
-      "denybuild %d", clientNum );
+      "!denybuild %d", clientNum );
     Com_sprintf( level.voteDisplayString[ team ],
       sizeof( level.voteDisplayString[ team ] ),
       "Take away building rights from '%s'", name );
@@ -1252,7 +1251,7 @@ void Cmd_CallVote_f( gentity_t *ent )
     }
 
     Com_sprintf( level.voteString[ team ], sizeof( level.voteString[ team ] ),
-      "allowbuild %d", clientNum );
+      "!allowbuild %d", clientNum );
     Com_sprintf( level.voteDisplayString[ team ],
       sizeof( level.voteDisplayString[ team ] ),
       "Allow '%s' to build", name );
