@@ -291,9 +291,9 @@ static qboolean UI_ServerInfoIsValid( char *info )
   }
 
   if( len )
-    return qfalse;
-  else
     return qtrue;
+  else
+    return qfalse;
 }
 
 /*
