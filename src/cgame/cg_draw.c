@@ -36,7 +36,7 @@ static void CG_AlignText( rectDef_t *rect, const char *text, float scale,
                           float *x, float *y )
 {
   float tx, ty;
-
+  
   if( scale > 0.0f )
   {
     w = UI_Text_Width( text, scale, 0 );
@@ -795,7 +795,7 @@ static void CG_DrawPlayerHealthCross( rectDef_t *rect, vec4_t ref_color )
   qhandle_t shader;
   vec4_t color;
   float ref_alpha;
-  
+
   // Pick the current icon
   shader = cgs.media.healthCross;
   if( cg.snap->ps.stats[ STAT_STATE ] & SS_HEALING_3X )
@@ -821,11 +821,11 @@ static void CG_DrawPlayerHealthCross( rectDef_t *rect, vec4_t ref_color )
   ref_alpha = ref_color[ 3 ];
   if( cg.snap->ps.stats[ STAT_STATE ] & SS_HEALING_ACTIVE )
     ref_alpha = 1.0f;
-    
+
   // Don't fade from nothing
   if( !cg.lastHealthCross )
     cg.lastHealthCross = shader;
-  
+
   // Fade the icon during transition
   if( cg.lastHealthCross != shader )
   {
@@ -911,7 +911,7 @@ static void CG_DrawPlayerChargeBarBG( rectDef_t *rect, vec4_t ref_color,
                                       qhandle_t shader )
 {
   vec4_t color;
-  
+
   if( !cg_drawChargeBar.integer || cg.chargeMeterAlpha <= 0.0f )
     return;
 
@@ -934,10 +934,10 @@ static void CG_DrawPlayerChargeBar( rectDef_t *rect, vec4_t ref_color,
 {
   vec4_t color;
   float x, y, width, height, cap_size, progress;
-  
+
   if( !cg_drawChargeBar.integer )
     return;
-  
+
   // Get progress proportion and pump fade
   progress = CG_ChargeProgress();
   if( progress <= 0.0f )
@@ -961,7 +961,7 @@ static void CG_DrawPlayerChargeBar( rectDef_t *rect, vec4_t ref_color,
   color[ 1 ] = ref_color[ 1 ];
   color[ 2 ] = ref_color[ 2 ];
   color[ 3 ] = ref_color[ 3 ] * cg.chargeMeterAlpha;
-  
+
   // Flash red for Lucifer Cannon warning
   if( cg.snap->ps.weapon == WP_LUCIFER_CANNON &&
       cg.snap->ps.stats[ STAT_MISC ] >= LCANNON_CHARGE_TIME_WARN &&
@@ -974,7 +974,7 @@ static void CG_DrawPlayerChargeBar( rectDef_t *rect, vec4_t ref_color,
 
   x = rect->x;
   y = rect->y;
-  
+
   // Horizontal charge bar
   if( rect->w >= rect->h )
   {
@@ -982,7 +982,7 @@ static void CG_DrawPlayerChargeBar( rectDef_t *rect, vec4_t ref_color,
     height = rect->h;
     CG_AdjustFrom640( &x, &y, &width, &height );
     cap_size = CHARGE_BAR_CAP_SIZE * cgs.screenXScale;
-  
+
     // Draw the meter
     trap_R_SetColor( color );
     trap_R_DrawStretchPic( x, y, cap_size, height, 0, 0, 1, 1, shader );
@@ -991,7 +991,7 @@ static void CG_DrawPlayerChargeBar( rectDef_t *rect, vec4_t ref_color,
     trap_R_DrawStretchPic( x + cap_size, y, width, height, 1, 0, 1, 1, shader );
     trap_R_SetColor( NULL );
   }
-  
+
   // Vertical charge bar
   else
   {
@@ -1000,7 +1000,7 @@ static void CG_DrawPlayerChargeBar( rectDef_t *rect, vec4_t ref_color,
     height = ( rect->h - CHARGE_BAR_CAP_SIZE * 2 ) * cg.chargeMeterValue;
     CG_AdjustFrom640( &x, &y, &width, &height );
     cap_size = CHARGE_BAR_CAP_SIZE * cgs.screenYScale;
-  
+
     // Draw the meter
     trap_R_SetColor( color );
     trap_R_DrawStretchPic( x, y - cap_size, width, cap_size,
@@ -1322,9 +1322,9 @@ static void CG_DrawFollow( rectDef_t *rect, float text_x, float text_y,
   {
     char buffer[ MAX_STRING_CHARS ];
 
-    if( !cg.chaseFollow ) 
+    if( !cg.chaseFollow )
       strcpy( buffer, FOLLOWING_STRING );
-    else 
+    else
       strcpy( buffer, CHASING_STRING );
 
     strcat( buffer, cgs.clientinfo[ cg.snap->ps.clientNum ].name );
@@ -1682,7 +1682,7 @@ static void CG_DrawTeamOverlay( rectDef_t *rect, float scale, vec4_t color )
 
     dx = 0.f;
     trap_R_SetColor( color );
-    CG_DrawPic( x, y-iconSize+iconTopMargin, backgroundWidth, 
+    CG_DrawPic( x, y - iconSize + iconTopMargin, backgroundWidth,
                 iconSize, cgs.media.teamOverlayShader );
     trap_R_SetColor( tcolor );
     if( ci->health <= 0 || !ci->curWeaponClass )
@@ -1697,34 +1697,36 @@ static void CG_DrawTeamOverlay( rectDef_t *rect, float scale, vec4_t color )
       else if( ci->team == TEAM_ALIENS )
         curWeapon = BG_Class( ci->curWeaponClass )->startWeapon;
 
-      CG_DrawPic( x+leftMargin, y-iconSize+iconTopMargin, iconSize, iconSize, 
+      CG_DrawPic( x + leftMargin, y - iconSize + iconTopMargin, iconSize, iconSize,
                   cg_weapons[ curWeapon ].weaponIcon );
       if( cg.predictedPlayerState.stats[ STAT_TEAM ] == TEAM_HUMANS )
       {
         if( ci->upgrade != UP_NONE )
         {
-          CG_DrawPic( x+iconSize+leftMargin, y-iconSize+iconTopMargin,
+          CG_DrawPic( x + iconSize + leftMargin, y - iconSize + iconTopMargin,
                       iconSize, iconSize, cg_upgrades[ ci->upgrade ].upgradeIcon );
           dx = iconSize;
         }
       }
       else
       {
-        if( curWeapon == WP_ABUILD2 || curWeapon == WP_ALEVEL1_UPG || 
+        if( curWeapon == WP_ABUILD2 || curWeapon == WP_ALEVEL1_UPG ||
             curWeapon == WP_ALEVEL2_UPG || curWeapon == WP_ALEVEL3_UPG )
         {
-          CG_DrawPic( x+iconSize+leftMargin, y-iconSize+iconTopMargin, 
+          CG_DrawPic( x + iconSize + leftMargin, y - iconSize + iconTopMargin,
                       iconSize, iconSize, cgs.media.upgradeClassIconShader );
           dx = iconSize;
         }
       }
+
       s = va( "%s^7 [^%c%d^7] ^7%s", ci->name,
               CG_GetColorCharForHealth( i ),
               ci->health,
               CG_ConfigString( CS_LOCATIONS + ci->location ) );
     }
+
     trap_R_SetColor( NULL );
-    UI_Text_Paint( x+iconSize+leftMargin+midSep+dx, y, fontScale, tcolor, s, 
+    UI_Text_Paint( x + iconSize + leftMargin + midSep + dx, y, fontScale, tcolor, s,
                    0, 0, ITEM_TEXTSTYLE_NORMAL );
     y += iconSize;
     displayCount++;
@@ -1887,7 +1889,7 @@ void CG_AddLagometerSnapshotInfo( snapshot_t *snap )
   {
     previousPings[ index++ ] = cg.snap->ping;
     index = index % PING_FRAMES;
-  
+
     for( i = 0; i < PING_FRAMES; i++ )
     {
       cg.ping += previousPings[ i ];
@@ -2144,17 +2146,15 @@ void CG_AddSpeed( void )
   oldestSpeedSample %= SPEEDOMETER_NUM_SAMPLES;
 }
 
-/*
-===================
-CG_DrawSpeedText
-CG_DrawSpeedGraph
-CG_DrawSpeed
-===================
-*/
 #define SPEEDOMETER_MIN_RANGE 900
 #define SPEED_MED 1000.f
 #define SPEED_FAST 1600.f
 
+/*
+===================
+CG_DrawSpeedGraph
+===================
+*/
 static void CG_DrawSpeedGraph( rectDef_t *rect, vec4_t foreColor,
                                vec4_t backColor )
 {
@@ -2194,6 +2194,11 @@ static void CG_DrawSpeedGraph( rectDef_t *rect, vec4_t foreColor,
   trap_R_SetColor( NULL );
 }
 
+/*
+===================
+CG_DrawSpeedText
+===================
+*/
 static void CG_DrawSpeedText( rectDef_t *rect, float text_x, float text_y,
                               float scale, vec4_t foreColor )
 {
@@ -2217,7 +2222,12 @@ static void CG_DrawSpeedText( rectDef_t *rect, float text_x, float text_y,
       scale, color, speedstr, 0, 0, ITEM_TEXTSTYLE_NORMAL );
 }
 
-static void CG_DrawSpeed( rectDef_t *rect, float text_x, float text_y, 
+/*
+===================
+CG_DrawSpeed
+===================
+*/
+static void CG_DrawSpeed( rectDef_t *rect, float text_x, float text_y,
                           float scale, vec4_t foreColor, vec4_t backColor )
 {
   if( cg_drawSpeed.integer & SPEEDOMETER_DRAW_GRAPH )
@@ -2330,7 +2340,7 @@ static void CG_DrawCrosshair( rectDef_t *rect, vec4_t color )
   float         x, y;
   weaponInfo_t  *wi;
   weapon_t      weapon;
-  
+
   weapon = BG_GetPlayerWeapon( &cg.snap->ps );
 
   if( cg_drawCrosshair.integer == CROSSHAIR_ALWAYSOFF )
@@ -2351,14 +2361,14 @@ static void CG_DrawCrosshair( rectDef_t *rect, vec4_t color )
 
   w = h = wi->crossHairSize * cg_crosshairSize.value;
   w *= cgDC.aspectScale;
-  
+
   //FIXME: this still ignores the width/height of the rect, but at least it's
   //neater than cg_crosshairX/cg_crosshairY
   x = rect->x + ( rect->w / 2 ) - ( w / 2 );
   y = rect->y + ( rect->h / 2 ) - ( h / 2 );
 
   hShader = wi->crossHair;
-  
+
   //aiming at a friendly player/buildable, dim the crosshair
   if( cg.time == cg.crosshairClientTime || cg.crosshairBuildable >= 0 )
   {
@@ -2449,7 +2459,7 @@ static void CG_DrawLocation( rectDef_t *rect, float scale, int textalign, vec4_t
   else
     location = CG_ConfigString( CS_LOCATIONS );
 
-  if( UI_Text_Width( location, scale, 0 ) < rect->w ) 
+  if( UI_Text_Width( location, scale, 0 ) < rect->w )
   {
     CG_AlignText( rect, location, scale, 0.0f, 0.0f, textalign, VALIGN_CENTER, &tx, &ty );
     UI_Text_Paint( tx, ty, scale, color, location, 0, 0, ITEM_TEXTSTYLE_NORMAL );
@@ -2784,11 +2794,11 @@ void CG_ShowTeamMenu( void )
 /*
 ==================
 CG_EventHandling
-==================
- type 0 - no event handling
-      1 - team menu
-      2 - hud editor
 
+type 0 - no event handling
+     1 - team menu
+     2 - hud editor
+==================
 */
 void CG_EventHandling( int type )
 {
