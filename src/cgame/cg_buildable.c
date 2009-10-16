@@ -814,20 +814,7 @@ void CG_BuildableStatusParse( const char *filename, buildStat_t *bs )
   trap_Parse_FreeSource( handle );
 }
 
-static void CG_ViewScaleGeometry( float x, float y, float w, float h,
-                                  float *sx, float *sy, float *sw, float *sh, float scale )
-{
-  if( sx )
-    *sx = 320.0f - 320.0f * scale + x * scale;
-  if( sy )
-    *sy = 240.0f - 240.0f * scale + y * scale;
-  if( sw )
-    *sw = w * scale;
-  if( sh )
-    *sh = h * scale;
-}
-
-#define STATUS_FADE_TIME      200.0f
+#define STATUS_FADE_TIME      200
 #define STATUS_MAX_VIEW_DIST  900.0f
 #define STATUS_PEEK_DIST      20
 /*
@@ -985,14 +972,11 @@ static void CG_BuildableStatusDisplay( centity_t *cent )
     float  picX = x;
     float  picY = y;
     float  scale;
-    float  viewscale;
     float  subH, subY;
-    float  sX, sY, sW, sH;
     vec4_t frameColor;
 
     // this is fudged to get the width/height in the cfg to be more realistic
-    scale = ( picH / d ) * 3.0f;
-    viewscale = (float)cg_viewsize.integer / 100.0f;
+    scale = ( picH / d ) * 3;
 
     powered = es->eFlags & EF_B_POWERED;
     marked = es->eFlags & EF_B_MARKED;
@@ -1006,16 +990,12 @@ static void CG_BuildableStatusDisplay( centity_t *cent )
     subH = picH - ( picH * bs->verticalMargin );
     subY = picY + ( picH * 0.5f ) - ( subH * 0.5f );
 
-    CG_ViewScaleGeometry( 0.0f, 0.0f, 640.0f, 480.0f, &sX, &sY, &sW, &sH, viewscale );
-    CG_SetClipRegion( sX, sY, sW, sH );
-
     if( bs->frameShader )
     {
       Vector4Copy( bs->backColor, frameColor );
       frameColor[ 3 ] = color[ 3 ];
       trap_R_SetColor( frameColor );
-      CG_ViewScaleGeometry( picX, picY, picW, picH, &sX, &sY, &sW, &sH, viewscale );
-      CG_DrawPic( sX, sY, sW, sH, bs->frameShader );
+      CG_DrawPic( picX, picY, picW, picH, bs->frameShader );
       trap_R_SetColor( NULL );
     }
 
@@ -1043,8 +1023,7 @@ static void CG_BuildableStatusDisplay( centity_t *cent )
       healthColor[ 3 ] = color[ 3 ];
       trap_R_SetColor( healthColor );
 
-      CG_ViewScaleGeometry( hX, hY, hW, hH, &sX, &sY, &sW, &sH, viewscale );
-      CG_DrawPic( sX, sY, sW, sH, cgs.media.whiteShader );
+      CG_DrawPic( hX, hY, hW, hH, cgs.media.whiteShader );
       trap_R_SetColor( NULL );
     }
 
@@ -1061,8 +1040,7 @@ static void CG_BuildableStatusDisplay( centity_t *cent )
       oY -= ( oH * 0.5f );
 
       trap_R_SetColor( frameColor );
-      CG_ViewScaleGeometry( oX, oY, oW, oH, &sX, &sY, &sW, &sH, viewscale );
-      CG_DrawPic( sX, sY, sW, sH, bs->overlayShader );
+      CG_DrawPic( oX, oY, oW, oH, bs->overlayShader );
       trap_R_SetColor( NULL );
     }
 
@@ -1072,8 +1050,7 @@ static void CG_BuildableStatusDisplay( centity_t *cent )
       float pX;
 
       pX = picX + ( subH * bs->horizontalMargin );
-      CG_ViewScaleGeometry( pX, subY, subH, subH, &sX, &sY, &sW, &sH, viewscale );
-      CG_DrawPic( sX, sY, sH, sH, bs->noPowerShader );
+      CG_DrawPic( pX, subY, subH, subH, bs->noPowerShader );
     }
 
     if( marked )
@@ -1081,13 +1058,11 @@ static void CG_BuildableStatusDisplay( centity_t *cent )
       float mX;
 
       mX = picX + picW - ( subH * bs->horizontalMargin ) - subH;
-      CG_ViewScaleGeometry( mX, subY, subH, subH, &sX, &sY, &sW, &sH, viewscale );
-      CG_DrawPic( sX, sY, sH, sH, bs->markedShader );
+      CG_DrawPic( mX, subY, subH, subH, bs->markedShader );
     }
 
     {
       float nX;
-      float cW;
       int healthMax;
       int healthPoints;
 
@@ -1095,22 +1070,19 @@ static void CG_BuildableStatusDisplay( centity_t *cent )
       healthPoints = (int)( healthScale * healthMax );
       if( health > 0 && healthPoints < 1 )
         healthPoints = 1;
-      cW = subH * CHAR_WIDTH / CHAR_HEIGHT;
-      nX = picX + ( picW * 0.5f ) - 2.0f - ( ( cW * 4.0f ) * 0.5f );
+      nX = picX + ( picW * 0.5f ) - 2.0f - ( ( subH * 4 ) * 0.5f );
 
       if( healthPoints > 999 )
         nX -= 0.0f;
       else if( healthPoints > 99 )
-        nX -= cW * 0.5f;
+        nX -= subH * 0.5f;
       else if( healthPoints > 9 )
-        nX -= cW * 1.0f;
+        nX -= subH * 1.0f;
       else
-        nX -= cW * 1.5f;
+        nX -= subH * 1.5f;
 
-      CG_ViewScaleGeometry( nX, subY, cW, subH, &sX, &sY, &sW, &sH, viewscale );
-      CG_DrawField( sX, sY, 4, sW, sH, healthPoints );
+      CG_DrawField( nX, subY, 4, subH, subH, healthPoints );
     }
-    CG_ClearClipRegion( );
     trap_R_SetColor( NULL );
   }
 }
