@@ -385,6 +385,15 @@ serverStatusCvar_t serverStatusCvars[] = {
 UI_SortServerStatusInfo
 ==================
 */
+
+static int UI_SortServerStatusCompare( const void *a, const void *b )
+{
+  const char **la = (const char **)a;
+  const char **lb = (const char **)b;
+
+  return strcmp( la[0], lb[0] );
+}
+
 static void UI_SortServerStatusInfo( serverStatusInfo_t *info )
 {
   int i, j, index;
@@ -417,6 +426,11 @@ static void UI_SortServerStatusInfo( serverStatusInfo_t *info )
       }
     }
   }
+
+  // sort remaining cvars
+  qsort( info->lines + index,
+         info->numLines - index, sizeof( info->lines[ 0 ] ),
+         UI_SortServerStatusCompare );
 }
 
 /*
@@ -476,6 +490,8 @@ static int UI_GetServerStatusInfo( const char *serverAddress, serverStatusInfo_t
       if( info->numLines >= MAX_SERVERSTATUS_LINES )
         break;
     }
+
+    UI_SortServerStatusInfo( info );
 
     // get the player list
     if( info->numLines < MAX_SERVERSTATUS_LINES - 3 )
@@ -550,7 +566,6 @@ static int UI_GetServerStatusInfo( const char *serverAddress, serverStatusInfo_t
       }
     }
 
-    UI_SortServerStatusInfo( info );
     return qtrue;
   }
 
