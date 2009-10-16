@@ -358,18 +358,18 @@ qboolean CG_WorldToScreen( vec3_t point, float *x, float *y )
 
   VectorSubtract( point, cg.refdef.vieworg, trans );
 
-  xc = 640.0f / 2.0f;
-  yc = 480.0f / 2.0f;
+  xc = ( 640.0f * cg_viewsize.integer ) / 200.0f;
+  yc = ( 480.0f * cg_viewsize.integer ) / 200.0f;
 
   z = DotProduct( trans, cg.refdef.viewaxis[ 0 ] );
   if( z <= 0.001f )
     return qfalse;
 
   if( x )
-    *x = xc - DotProduct( trans, cg.refdef.viewaxis[ 1 ] ) * xc / ( z * px );
+    *x = 320.0f - DotProduct( trans, cg.refdef.viewaxis[ 1 ] ) * xc / ( z * px );
 
   if( y )
-    *y = yc - DotProduct( trans, cg.refdef.viewaxis[ 2 ] ) * yc / ( z * py );
+    *y = 240.0f - DotProduct( trans, cg.refdef.viewaxis[ 2 ] ) * yc / ( z * py );
 
   return qtrue;
 }
@@ -386,6 +386,7 @@ char *CG_KeyBinding( const char *bind )
   int i;
 
   key[ 0 ] = '\0';
+
   // NOTE: change K_LAST_KEY to MAX_KEYS for full key support (eventually)
   for( i = 0; i < K_LAST_KEY; i++ )
   {
@@ -394,13 +395,15 @@ char *CG_KeyBinding( const char *bind )
     {
       trap_Key_KeynumToStringBuf( i, key, sizeof( key ) );
       break;
-    } 
+    }
   }
+
   if( !key[ 0 ] )
   {
     Q_strncpyz( key, "\\", sizeof( key ) );
     Q_strcat( key, sizeof( key ), bind );
   }
+
   return key;
 }
 
@@ -421,7 +424,7 @@ char CG_GetColorCharForHealth( int clientnum )
   else
     maxHealth = BG_Class( PCL_HUMAN )->health;
 
-  healthPercent = (int) ( 100.0f * (float) cgs.clientinfo[ clientnum ].health / 
+  healthPercent = (int) ( 100.0f * (float) cgs.clientinfo[ clientnum ].health /
                         (float) maxHealth );
 
   if( healthPercent < 33 )

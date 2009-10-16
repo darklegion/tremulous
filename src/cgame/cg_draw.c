@@ -36,7 +36,7 @@ static void CG_AlignText( rectDef_t *rect, const char *text, float scale,
                           float *x, float *y )
 {
   float tx, ty;
-  
+
   if( scale > 0.0f )
   {
     w = UI_Text_Width( text, scale, 0 );
@@ -1318,7 +1318,7 @@ static void CG_DrawFollow( rectDef_t *rect, float text_x, float text_y,
 {
   float tx, ty;
 
-  if( cg.snap->ps.pm_flags & PMF_FOLLOW )
+  if( cg.snap && cg.snap->ps.pm_flags & PMF_FOLLOW )
   {
     char buffer[ MAX_STRING_CHARS ];
 

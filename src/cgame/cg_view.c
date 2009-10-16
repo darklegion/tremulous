@@ -229,21 +229,7 @@ static void CG_CalcVrect( void )
   if( cg.snap->ps.pm_type == PM_INTERMISSION )
     size = 100;
   else
-  {
-    // bound normal viewsize
-    if( cg_viewsize.integer < 30 )
-    {
-      trap_Cvar_Set( "cg_viewsize", "30" );
-      size = 30;
-    }
-    else if( cg_viewsize.integer > 100 )
-    {
-      trap_Cvar_Set( "cg_viewsize","100" );
-      size = 100;
-    }
-    else
-      size = cg_viewsize.integer;
-  }
+    size = cg_viewsize.integer;
 
   cg.refdef.width = cgs.glconfig.vidWidth * size / 100;
   cg.refdef.width &= ~1;

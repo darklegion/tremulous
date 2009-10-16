@@ -973,6 +973,7 @@ static void CG_BuildableStatusDisplay( centity_t *cent )
     float  picY = y;
     float  scale;
     float  subH, subY;
+    float  clipX, clipY, clipW, clipH;
     vec4_t frameColor;
 
     // this is fudged to get the width/height in the cfg to be more realistic
@@ -989,6 +990,12 @@ static void CG_BuildableStatusDisplay( centity_t *cent )
     // sub-elements such as icons and number
     subH = picH - ( picH * bs->verticalMargin );
     subY = picY + ( picH * 0.5f ) - ( subH * 0.5f );
+
+    clipW = ( 640.0f * cg_viewsize.integer ) / 100.0f;
+    clipH = ( 480.0f * cg_viewsize.integer ) / 100.0f;
+    clipX = 320.0f - ( clipW * 0.5f );
+    clipY = 240.0f - ( clipH * 0.5f );
+    CG_SetClipRegion( clipX, clipY, clipW, clipH );
 
     if( bs->frameShader )
     {
@@ -1083,7 +1090,9 @@ static void CG_BuildableStatusDisplay( centity_t *cent )
 
       CG_DrawField( nX, subY, 4, subH, subH, healthPoints );
     }
+
     trap_R_SetColor( NULL );
+    CG_ClearClipRegion( );
   }
 }
 
