@@ -915,17 +915,18 @@ CG_Say
 static void CG_Say( int clientNum, saymode_t mode, const char *text )
 {
   clientInfo_t *ci;
-  char *prefix, *name;
-  char *ignore = "";
-  char *location = "";
-  char tcolor = COLOR_WHITE;
-  char color;
+  char         *name;
+  char         prefix[ 11 ] = "";
+  char         *ignore = "";
+  int          locationNum = 0;
+  char         *location = "";
+  char         tcolor = COLOR_WHITE;
+  char         color;
 
   if( clientNum >= 0 && clientNum < MAX_CLIENTS )
     ci = &cgs.clientinfo[ clientNum ];
   else
     ci = NULL;
-
 
   if( ci )
   {
@@ -939,18 +940,27 @@ static void CG_Say( int clientNum, saymode_t mode, const char *text )
     name = "console";
 
   if( ci && cg_chatTeamPrefix.integer )
-    prefix = va( "[^%c%c" S_COLOR_WHITE "] " S_COLOR_WHITE, 
+    Com_sprintf( prefix, sizeof( prefix ), "[^%c%c" S_COLOR_WHITE "] " S_COLOR_WHITE, 
                  tcolor, toupper( *( BG_TeamName( ci->team ) ) ) );
-  else
-    prefix = "";
 
-  if( mode == SAY_TEAM || mode == SAY_AREA )
-  // don't always use "unknown"
-  if( ci && ci->location > 0 && ci->location < MAX_LOCATIONS )
+  if( ci && ( mode == SAY_TEAM || mode == SAY_AREA ) )
   {
-    const char *s = CG_ConfigString( CS_LOCATIONS + ci->location );
-    if( *s )
-      location = va( " (%s" S_COLOR_WHITE ")", s );
+    if( clientNum == cg.snap->ps.clientNum )
+    {
+      centity_t     *locent;
+
+      locent = CG_GetPlayerLocation( );
+      locationNum = locent->currentState.generic1;
+    }
+    else
+      locationNum = ci->location;
+
+    if( locationNum > 0 && locationNum < MAX_LOCATIONS )
+    {
+        const char *s = CG_ConfigString( CS_LOCATIONS + locationNum );
+        if( *s )
+          location = va( " (%s" S_COLOR_WHITE ")", s );
+    }
   }
 
   if( ci && Com_ClientListContains( &cgs.ignoreList, clientNum ) )
@@ -976,7 +986,7 @@ static void CG_Say( int clientNum, saymode_t mode, const char *text )
       CG_Printf( "%s%s[PLAYER]%s: " S_COLOR_MAGENTA "%s\n", ignore, prefix, name, text );
       break;
     case SAY_AREA:
-      CG_Printf( "%s%s<%s>: " S_COLOR_BLUE "%s\n", ignore, prefix, name, text );
+      CG_Printf( "%s%s<%s>%s: " S_COLOR_BLUE "%s\n", ignore, prefix, name, location, text );
       break;
     case SAY_PRIVMSG:
     case SAY_TPRIVMSG:
