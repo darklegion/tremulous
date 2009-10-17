@@ -54,6 +54,7 @@ static void CG_Obituary( entityState_t *ent )
     CG_Error( "CG_Obituary: target out of range" );
 
   ci = &cgs.clientinfo[ target ];
+  gender = ci->gender;
 
   if( attacker < 0 || attacker >= MAX_CLIENTS )
   {
@@ -143,7 +144,6 @@ static void CG_Obituary( entityState_t *ent )
 
   if( attacker == target )
   {
-    gender = ci->gender;
     switch( mod )
     {
       case MOD_FLAMER_SPLASH:
