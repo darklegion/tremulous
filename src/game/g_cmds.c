@@ -1184,7 +1184,7 @@ void Cmd_CallVote_f( gentity_t *ent )
         "set g_nextMap \"%s\"", arg );
       Com_sprintf( level.voteDisplayString[ team ],
         sizeof( level.voteDisplayString[ team ] ),
-        "Set the next map go '%s'", arg );
+        "Set the next map to '%s'", arg );
     }
     else if( !Q_stricmp( vote, "draw" ) )
     {
@@ -1672,7 +1672,8 @@ void Cmd_Destroy_f( gentity_t *ent )
     }
 
     // Prevent destruction of the last spawn
-    if( !g_markDeconstruct.integer && !g_cheats.integer )
+    if( !g_cheats.integer &&
+        ( !g_markDeconstruct.integer || !G_FindPower( traceEnt ) ) )
     {
       if( ent->client->pers.teamSelection == TEAM_ALIENS &&
           traceEnt->s.modelindex == BA_A_SPAWN )
@@ -1732,7 +1733,7 @@ void Cmd_Destroy_f( gentity_t *ent )
         if( !g_cheats.integer ) // add a bit to the build timer
         {
             ent->client->ps.stats[ STAT_MISC ] +=
-            BG_Buildable( traceEnt->s.modelindex )->buildTime / 4;
+              BG_Buildable( traceEnt->s.modelindex )->buildTime / 4;
         }
         G_LogDestruction( traceEnt, ent, MOD_DECONSTRUCT );
         G_FreeEntity( traceEnt );

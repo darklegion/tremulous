@@ -3628,11 +3628,11 @@ qboolean Item_TextField_HandleKey( itemDef_t *item, int key )
         else
         {
           // Reached maximum field length
-
           if( editPtr->maxChars && item->cursorPos >= editPtr->maxChars )
+          {
             releaseFocus = qfalse;
-
-          goto exit;
+            goto exit;
+          }
         }
 
         buff[ item->cursorPos ] = key;
