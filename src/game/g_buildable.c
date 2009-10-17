@@ -2026,7 +2026,7 @@ void HReactor_Think( gentity_t *self )
   if( self->spawned && ( self->health > 0 ) )
   {
     qboolean fired = qfalse;
-  
+
     // Creates a tesla trail for every target
     num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
     for( i = 0; i < num; i++ )
@@ -2062,7 +2062,7 @@ void HReactor_Think( gentity_t *self )
 
   if( self->dcc )
     self->nextthink = level.time + REACTOR_ATTACK_DCC_REPEAT;
-  else 
+  else
     self->nextthink = level.time + REACTOR_ATTACK_REPEAT;
 }
 
@@ -2777,7 +2777,6 @@ void G_BuildableThink( gentity_t *ent, int msec )
       for( i = 0; i < MAX_CLIENTS; i++ )
         ent->credits[ i ] = 0;
     }
-    
   }
 
   if( ent->clientSpawnTime > 0 )
@@ -2789,8 +2788,8 @@ void G_BuildableThink( gentity_t *ent, int msec )
   ent->dcc = ( ent->buildableTeam != TEAM_HUMANS ) ? 0 : G_FindDCC( ent );
 
   // Set health
-  ent->s.generic1 = ent->health;
-    
+  ent->s.generic1 = MAX( ent->health, 0 );
+
   // Set flags
   ent->s.eFlags &= ~( EF_B_POWERED | EF_B_SPAWNED | EF_B_MARKED );
   if( ent->powered )
@@ -3697,10 +3696,7 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable, vec3_t ori
   built->physicsBounce = BG_Buildable( buildable )->bounce;
   built->s.groundEntityNum = -1;
 
-  built->s.generic1 = built->health;
-
-  if( built->s.generic1 < 0 )
-    built->s.generic1 = 0;
+  built->s.generic1 = MAX( built->health, 0 );
 
   if( BG_Buildable( buildable )->team == TEAM_ALIENS )
   {
