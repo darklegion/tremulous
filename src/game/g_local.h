@@ -1155,7 +1155,6 @@ void      trap_Cvar_Register( vmCvar_t *cvar, const char *var_name, const char *
 void      trap_Cvar_Update( vmCvar_t *cvar );
 void      trap_Cvar_Set( const char *var_name, const char *value );
 int       trap_Cvar_VariableIntegerValue( const char *var_name );
-float     trap_Cvar_VariableValue( const char *var_name );
 void      trap_Cvar_VariableStringBuffer( const char *var_name, char *buffer, int bufsize );
 void      trap_LocateGameData( gentity_t *gEnts, int numGEntities, int sizeofGEntity_t,
                                playerState_t *gameClients, int sizeofGameClient );
