@@ -8120,8 +8120,8 @@ void Menu_PaintAll( void )
       captureFunc( captureData );
   }
 
-  for( i = 0; i < Menu_Count(); i++ )
-    Menu_Paint( &Menus[i], qfalse );
+  for( i = 0; i < openMenuCount; i++ )
+    Menu_Paint( menuStack[i], qfalse );
 
   if( DC->getCVarValue( "ui_developer" ) )
   {
