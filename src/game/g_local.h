@@ -315,6 +315,7 @@ typedef struct
   int                 teamChangeTime;     // level.time of last team change
   qboolean            joinedATeam;        // used to tell when a PTR code is valid
   connectionRecord_t  *connection;
+  g_admin_admin_t     *admin;
 
   int                 aliveSeconds;       // time player has been alive in seconds
 
@@ -336,7 +337,6 @@ typedef struct
   char                ip[ 40 ];
   qboolean            muted;
   qboolean            denyBuild;
-  int                 adminLevel;
   char                voice[ MAX_VOICE_NAME_LEN ];
   qboolean            useUnlagged;  
   // keep track of other players' info for tinfo

@@ -1263,7 +1263,7 @@ char *ClientConnect( int clientNum, qboolean firstTime )
   // check for local client
   if( !strcmp( client->pers.ip, "localhost" ) )
     client->pers.localClient = qtrue;
-  client->pers.adminLevel = G_admin_level( ent );
+  client->pers.admin = G_admin_admin( client->pers.guid );
 
   client->pers.connected = CON_CONNECTING;
 

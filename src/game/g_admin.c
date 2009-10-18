@@ -202,6 +202,9 @@ g_admin_namelog_t *g_admin_namelog[ MAX_ADMIN_NAMELOGS ];
 static qboolean admin_permission( char *flags, const char *flag, qboolean *perm )
 {
   char *token, *token_p = flags;
+  qboolean allflags = qfalse;
+  qboolean p = qfalse;
+  *perm = qfalse;
   while( *( token = COM_Parse( &token_p ) ) )
   {
     *perm = qtrue;
@@ -211,49 +214,90 @@ static qboolean admin_permission( char *flags, const char *flag, qboolean *perm 
       return qtrue;
     if( !strcmp( token, ADMF_ALLFLAGS ) )
     {
-      while( *( token = COM_Parse( &token_p ) ) )
-      {
-        // -ALLFLAGS +flag or ALLFLAGS -flag
-        if( *token != ( *perm ? '-' : '+' ) )
-          continue;
-        if( !strcmp( token + 1, flag ) )
-        {
-          *perm = !*perm;
-          break;
-        }
-      }
-      return qtrue;
+      allflags = qtrue;
+      p = *perm;
     }
   }
-  return qfalse;
+  if( allflags )
+    *perm = p;
+  return allflags;
+}
+
+g_admin_cmd_t *G_admin_cmd( const char *cmd )
+{
+  int i;
+
+  for( i = 0; i < adminNumCmds; i++ )
+  {
+    if( !Q_stricmp( g_admin_cmds[ i ].keyword, cmd ) )
+      return &g_admin_cmds[ i ];
+  }
+
+  return NULL;
+}
+
+g_admin_level_t *G_admin_level( const int l )
+{
+  int i;
+
+  for( i = 0; i < MAX_ADMIN_LEVELS && g_admin_levels[ i ]; i++ )
+  {
+    if( g_admin_levels[ i ]->level == l )
+      return g_admin_levels[ i ];
+  }
+
+  return NULL;
+}
+
+g_admin_admin_t *G_admin_admin( const char *guid )
+{
+  int i;
+
+  for( i = 0; i < MAX_ADMIN_ADMINS && g_admin_admins[ i ]; i++ )
+  {
+    if( !Q_stricmp( g_admin_admins[ i ]->guid, guid ) )
+      return g_admin_admins[ i ];
+  }
+
+  return NULL;
+}
+
+g_admin_command_t *G_admin_command( const char *cmd )
+{
+  int i;
+
+  for( i = 0; i < MAX_ADMIN_COMMANDS && g_admin_commands[ i ]; i++ )
+  {
+    if( !Q_stricmp( g_admin_commands[ i ]->command, cmd ) )
+      return g_admin_commands[ i ];
+  }
+
+  return NULL;
 }
 
 qboolean G_admin_permission( gentity_t *ent, const char *flag )
 {
-  int i;
-  int l = 0;
-  qboolean perm = qfalse;
+  qboolean perm;
+  g_admin_admin_t *a;
+  g_admin_level_t *l;
 
   // console always wins
   if( !ent )
     return qtrue;
 
-  for( i = 0; i < MAX_ADMIN_ADMINS && g_admin_admins[ i ]; i++ )
+  if( ( a = ent->client->pers.admin ) )
   {
-    if( !Q_stricmp( ent->client->pers.guid, g_admin_admins[ i ]->guid ) )
-    {
-      if( admin_permission( g_admin_admins[ i ]->flags, flag, &perm ) )
-        return perm;
-      l = g_admin_admins[ i ]->level;
-      break;
-    }
+    if( admin_permission( a->flags, flag, &perm ) )
+      return perm;
+
+    l = G_admin_level( a->level );
   }
-  for( i = 0; i < MAX_ADMIN_LEVELS && g_admin_levels[ i ]; i++ )
-  {
-    if( g_admin_levels[ i ]->level == l )
-      return admin_permission( g_admin_levels[ i ]->flags, flag, &perm ) &&
-        perm;
-  }
+  else
+    l = G_admin_level( 0 );
+
+  if( l )
+    return admin_permission( l->flags, flag, &perm ) && perm;
+
   return qfalse;
 }
 
@@ -319,7 +363,7 @@ qboolean G_admin_name_check( gentity_t *ent, char *name, char *err, int len )
       continue;
     G_SanitiseString( g_admin_admins[ i ]->name, testName, sizeof( testName ) );
     if( !strcmp( name2, testName ) &&
-      Q_stricmp( ent->client->pers.guid, g_admin_admins[ i ]->guid ) )
+      ent->client->pers.admin != g_admin_admins[ i ] )
     {
       Com_sprintf( err, len, "The name '%s^7' belongs to an admin, "
         "please use another name", name );
@@ -329,33 +373,23 @@ qboolean G_admin_name_check( gentity_t *ent, char *name, char *err, int len )
   return qtrue;
 }
 
+static qboolean admin_higher_admin( g_admin_admin_t *a, g_admin_admin_t *b )
+{
+  qboolean perm;
+
+  if( !b )
+    return qtrue;
+
+  if( admin_permission( b->flags, ADMF_IMMUTABLE, &perm ) )
+    return !perm;
+
+  return b->level <= ( a ? a->level : 0 );
+}
+
 static qboolean admin_higher_guid( char *admin_guid, char *victim_guid )
 {
-  int i;
-  int alevel = 0;
-  qboolean perm = qfalse;
-
-  for( i = 0; i < MAX_ADMIN_ADMINS && g_admin_admins[ i ]; i++ )
-  {
-    if( !Q_stricmp( admin_guid, g_admin_admins[ i ]->guid ) )
-    {
-      alevel = g_admin_admins[ i ]->level;
-      break;
-    }
-  }
-
-  for( i = 0; i < MAX_ADMIN_ADMINS && g_admin_admins[ i ]; i++ )
-  {
-    if( !Q_stricmp( victim_guid, g_admin_admins[ i ]->guid ) )
-    {
-      if( alevel < g_admin_admins[ i ]->level )
-        return qfalse;
-
-      return !admin_permission( g_admin_admins[ i ]->flags, ADMF_IMMUTABLE,
-         &perm ) || !perm;
-    }
-  }
-  return qtrue;
+  return admin_higher_admin( G_admin_admin( admin_guid ),
+    G_admin_admin( victim_guid ) );
 }
 
 static qboolean admin_higher( gentity_t *admin, gentity_t *victim )
@@ -364,12 +398,9 @@ static qboolean admin_higher( gentity_t *admin, gentity_t *victim )
   // console always wins
   if( !admin )
     return qtrue;
-  // just in case
-  if( !victim )
-    return qtrue;
 
-  return admin_higher_guid( admin->client->pers.guid,
-    victim->client->pers.guid );
+  return admin_higher_admin( admin->client->pers.admin,
+    victim->client->pers.admin );
 }
 
 static void admin_writeconfig_string( char *s, fileHandle_t f )
@@ -575,29 +606,10 @@ static void admin_default_levels( void )
   admin_level_maxname = 15;
 }
 
-//  return a level for a player entity.
-int G_admin_level( gentity_t *ent )
-{
-  int i;
-
-  if( !ent )
-  {
-    return MAX_ADMIN_LEVELS;
-  }
-
-  for( i = 0; i < MAX_ADMIN_ADMINS && g_admin_admins[ i ]; i++ )
-  {
-    if( !Q_stricmp( g_admin_admins[ i ]->guid, ent->client->pers.guid ) )
-      return g_admin_admins[ i ]->level;
-  }
-
-  return 0;
-}
-
 static void admin_log( gentity_t *admin, char *cmd, int skiparg )
 {
   fileHandle_t f;
-  int len, i, j;
+  int len;
   char string[ MAX_STRING_CHARS ];
   int min, tens, sec;
   g_admin_admin_t *a;
@@ -627,24 +639,14 @@ static void admin_log( gentity_t *admin, char *cmd, int skiparg )
   *flags = '\0';
   if( admin )
   {
-    for( i = 0; i < MAX_ADMIN_ADMINS && g_admin_admins[ i ]; i++ )
-    {
-      if( !Q_stricmp( g_admin_admins[ i ]->guid , admin->client->pers.guid ) )
-      {
+    if( ( a = admin->client->pers.admin ) )
+      Q_strncpyz( flags, a->flags, sizeof( flags ) );
 
-        a = g_admin_admins[ i ];
-        Q_strncpyz( flags, a->flags, sizeof( flags ) );
-        for( j = 0; j < MAX_ADMIN_LEVELS && g_admin_levels[ j ]; j++ )
-        {
-          if( g_admin_levels[ j ]->level == a->level )
-          {
-            l = g_admin_levels[ j ];
-            Q_strcat( flags, sizeof( flags ), l->flags );
-            break;
-          }
-        }
-        break;
-      }
+    if( ( l = G_admin_level( a ? a->level : 0 ) ) && l->flags[ 0 ] )
+    {
+      if( flags[ 0 ] )
+        Q_strcat( flags, sizeof( flags ), " " );
+      Q_strcat( flags, sizeof( flags ), l->flags );
     }
   }
 
@@ -702,6 +704,8 @@ static int admin_listadmins( gentity_t *ent, int start, char *search )
   int i, j;
   gentity_t *vic;
   int colorlen;
+  g_admin_admin_t *a;
+  g_admin_level_t *l;
 
   if( search[ 0 ] )
     start = 0;
@@ -721,14 +725,9 @@ static int admin_listadmins( gentity_t *ent, int start, char *search )
       continue;
 
     lname[ 0 ] = '\0';
-    for( j = 0; j < MAX_ADMIN_LEVELS && g_admin_levels[ j ]; j++ )
-    {
-      if( g_admin_levels[ j ]->level == vic->client->pers.adminLevel )
-      {
-        Q_strncpyz( lname, g_admin_levels[ j ]->name, sizeof( lname ) );
-        break;
-      }
-    }
+    a = vic->client->pers.admin;
+    if( ( l = G_admin_level( a ? a->level : 0 ) ) )
+      Q_strncpyz( lname, l->name, sizeof( l->name ) );
 
     for( colorlen = j = 0; lname[ j ]; j++ )
     {
@@ -738,7 +737,7 @@ static int admin_listadmins( gentity_t *ent, int start, char *search )
 
     ADMBP( va( "%4i %4i %*s^7 (*%s) %s\n",
       i,
-      vic->client->pers.adminLevel,
+      l ? l->level : 0,
       admin_level_maxname + colorlen,
       lname,
       vic->client->pers.guid + 24,
@@ -749,9 +748,11 @@ static int admin_listadmins( gentity_t *ent, int start, char *search )
   for( i = start; i < MAX_ADMIN_ADMINS && g_admin_admins[ i ] &&
     ( search[ 0 ] || i - start < MAX_ADMIN_LISTITEMS ); i++ )
   {
+    a = g_admin_admins[ i ];
+
     if( search[ 0 ] )
     {
-      G_SanitiseString( g_admin_admins[ i ]->name, name, sizeof( name ) );
+      G_SanitiseString( a->name, name, sizeof( name ) );
       if( !strstr( name, search ) )
         continue;
 
@@ -763,8 +764,7 @@ static int admin_listadmins( gentity_t *ent, int start, char *search )
         if( vic->client->pers.connected == CON_DISCONNECTED )
           continue;
         G_SanitiseString( vic->client->pers.netname, name2, sizeof( name2 ) );
-        if( !Q_stricmp( vic->client->pers.guid, g_admin_admins[ i ]->guid ) &&
-          strstr( name2, search ) )
+        if( vic->client->pers.admin == a && strstr( name2, search ) )
         {
           break;
         }
@@ -774,14 +774,8 @@ static int admin_listadmins( gentity_t *ent, int start, char *search )
     }
 
     lname[ 0 ] = '\0';
-    for( j = 0; j < MAX_ADMIN_LEVELS && g_admin_levels[ j ]; j++ )
-    {
-      if( g_admin_levels[ j ]->level == g_admin_admins[ i ]->level )
-      {
-        Q_strncpyz( lname, g_admin_levels[ j ]->name, sizeof( lname ) );
-        break;
-      }
-    }
+    if( ( l = G_admin_level( a->level ) ) )
+      Q_strncpyz( lname, l->name, sizeof( lname ) );
 
     for( colorlen = j = 0; lname[ j ]; j++ )
     {
@@ -791,11 +785,11 @@ static int admin_listadmins( gentity_t *ent, int start, char *search )
 
     ADMBP( va( "%4i %4i %*s^7 (*%s) %s\n",
       ( i + MAX_CLIENTS ),
-      g_admin_admins[ i ]->level,
+      a->level,
       admin_level_maxname + colorlen,
       lname,
-      g_admin_admins[ i ]->guid + 24,
-      g_admin_admins[ i ]->name ) );
+      a->guid + 24,
+      a->name ) );
     drawn++;
   }
   ADMBP_end();
@@ -873,10 +867,11 @@ qboolean G_admin_ban_check( gentity_t *ent, char *reason, int rlen )
 
 qboolean G_admin_cmd_check( gentity_t *ent, qboolean say )
 {
-  int i;
   char command[ MAX_ADMIN_CMD_LEN ];
   char *cmd;
   int skip = 0;
+  g_admin_cmd_t *admincmd;
+  g_admin_command_t *c;
 
   command[ 0 ] = '\0';
   G_SayArgv( 0, command, sizeof( command ) );
@@ -896,43 +891,37 @@ qboolean G_admin_cmd_check( gentity_t *ent, qboolean say )
   else
     return qfalse;
 
-  for( i = 0; i < MAX_ADMIN_COMMANDS && g_admin_commands[ i ]; i++ )
+  if( ( c = G_admin_command( cmd ) ) )
   {
-    if( Q_stricmp( cmd, g_admin_commands[ i ]->command ) )
-      continue;
-
-    if( G_admin_permission( ent, g_admin_commands[ i ]->flag ) )
+    if( G_admin_permission( ent, c->flag ) )
     {
       // flooding say will have already been accounted for in ClientCommand
       if( !say && G_FloodLimited( ent ) )
         return qtrue;
-      trap_SendConsoleCommand( EXEC_APPEND, g_admin_commands[ i ]->exec );
+      trap_SendConsoleCommand( EXEC_APPEND, c->exec );
       admin_log( ent, cmd, skip );
     }
     else
     {
-      ADMP( va( "^3!%s: ^7permission denied\n", g_admin_commands[ i ]->command ) );
+      ADMP( va( "^3!%s: ^7permission denied\n", c->command ) );
       admin_log( ent, "attempted", skip - 1 );
     }
     return qtrue;
   }
 
-  for( i = 0; i < adminNumCmds; i++ )
+  if( ( admincmd = G_admin_cmd( cmd ) ) )
   {
-    if( Q_stricmp( cmd, g_admin_cmds[ i ].keyword ) )
-      continue;
-
-    if( G_admin_permission( ent, g_admin_cmds[ i ].flag ) )
+    if( G_admin_permission( ent, admincmd->flag ) )
     {
       // flooding say will have already been accounted for in ClientCommand
       if( !say && G_FloodLimited( ent ) )
         return qtrue;
-      g_admin_cmds[ i ].handler( ent, skip );
+      admincmd->handler( ent, skip );
       admin_log( ent, cmd, skip );
     }
     else
     {
-      ADMP( va( "^3!%s: ^7permission denied\n", g_admin_cmds[ i ].keyword ) );
+      ADMP( va( "^3!%s: ^7permission denied\n", admincmd->keyword ) );
       admin_log( ent, "attempted", skip - 1 );
     }
     return qtrue;
@@ -1214,7 +1203,8 @@ qboolean G_admin_readconfig( gentity_t *ent, int skiparg )
   for( i = 0; i < level.maxclients; i++ )
   {
     if( level.clients[ i ].pers.connected != CON_DISCONNECTED )
-      level.clients[ i ].pers.adminLevel = G_admin_level( &g_entities[ i ] );
+      level.clients[ i ].pers.admin =
+        G_admin_admin( level.clients[ i ].pers.guid );
   }
 
   return qtrue;
@@ -1234,91 +1224,65 @@ qboolean G_admin_setlevel( gentity_t *ent, int skiparg )
 {
   char name[ MAX_NAME_LENGTH ] = {""};
   char lstr[ 12 ]; // 11 is max strlen() for 32-bit (signed) int
-  char adminname[ MAX_NAME_LENGTH ] = {""};
   char testname[ MAX_NAME_LENGTH ] = {""};
-  char guid[ 33 ];
-  int l, i;
+  int i;
   gentity_t *vic = NULL;
-  qboolean updated = qfalse;
-  g_admin_admin_t *a;
-  qboolean found = qfalse;
-  qboolean numeric = qtrue;
-  int matches = 0;
-  int id = -1;
+  g_admin_admin_t *a = NULL;
+  g_admin_level_t *l;
 
   if( G_SayArgc() < 3 + skiparg )
   {
     ADMP( "^3!setlevel: ^7usage: !setlevel [name|slot#] [level]\n" );
     return qfalse;
   }
+
   G_SayArgv( 1 + skiparg, testname, sizeof( testname ) );
   G_SayArgv( 2 + skiparg, lstr, sizeof( lstr ) );
-  l = atoi( lstr );
-  G_SanitiseString( testname, name, sizeof( name ) );
-  for( i = 0; i < sizeof( name ) && name[ i ]; i++ )
-  {
-    if( !isdigit( name[ i ] ) )
-    {
-      numeric = qfalse;
-      break;
-    }
-  }
-  if( numeric )
-    id = atoi( name );
 
-  if( ent && l > ent->client->pers.adminLevel )
+  if( !( l = G_admin_level( atoi( lstr ) ) ) )
+  {
+    ADMP( "^3!setlevel: ^7level is not defined\n" );
+    return qfalse;
+  }
+
+  if( ent && l->level >
+    ( ent->client->pers.admin ? ent->client->pers.admin->level : 0 ) )
   {
     ADMP( "^3!setlevel: ^7you may not use !setlevel to set a level higher "
       "than your current level\n" );
     return qfalse;
   }
 
-  // if admin is activated for the first time on a running server, we need
-  // to ensure at least the default levels get created
-  if( !ent && !g_admin_levels[ 0 ] )
-    G_admin_readconfig(NULL, 0);
-
-  for( i = 0; i < MAX_ADMIN_LEVELS && g_admin_levels[ i ]; i++ )
+  for( i = 0; testname[ i ] && isdigit( testname[ i ] ); i++ );
+  if( !testname[ i ] )
   {
-    if( g_admin_levels[ i ]->level == l )
+    int id = atoi( testname );
+    if( id < MAX_CLIENTS )
+      vic = &g_entities[ id ];
+    else if( id < MAX_CLIENTS + MAX_ADMIN_ADMINS &&
+      g_admin_admins[ id - MAX_CLIENTS ] )
+      a = g_admin_admins[ id - MAX_CLIENTS ];
+    else
     {
-      found = qtrue;
-      break;
+      ADMP( va( "^3!setlevel: ^7%s not in range 1-%d\n", testname,
+        MAX_CLIENTS + MAX_ADMIN_ADMINS ) );
+      return qfalse;
     }
   }
-  if( !found )
-  {
-    ADMP( "^3!setlevel: ^7level is not defined\n" );
-    return qfalse;
-  }
-
-  if( numeric && id >= 0 && id < level.maxclients )
-    vic = &g_entities[ id ];
+  else
+    G_SanitiseString( testname, name, sizeof( name ) );
 
   if( vic && vic->client && vic->client->pers.connected != CON_DISCONNECTED )
+    a = vic->client->pers.admin;
+  else if( !a )
   {
-    Q_strncpyz( adminname, vic->client->pers.netname, sizeof( adminname ) );
-    Q_strncpyz( guid, vic->client->pers.guid, sizeof( guid ) );
-    matches = 1;
-  }
-  else if( numeric && id >= MAX_CLIENTS && id < MAX_CLIENTS + MAX_ADMIN_ADMINS
-    && g_admin_admins[ id - MAX_CLIENTS ] )
-  {
-    Q_strncpyz( adminname, g_admin_admins[ id - MAX_CLIENTS ]->name,
-      sizeof( adminname ) );
-    Q_strncpyz( guid, g_admin_admins[ id - MAX_CLIENTS ]->guid,
-      sizeof( guid ) );
-    matches = 1;
-  }
-  else
-  {
+    int matches = 0;
     for( i = 0; i < MAX_ADMIN_ADMINS && g_admin_admins[ i ] && matches < 2; i++ )
     {
       G_SanitiseString( g_admin_admins[ i ]->name, testname, sizeof( testname ) );
       if( strstr( testname, name ) )
       {
-        Q_strncpyz( adminname, g_admin_admins[ i ]->name, sizeof( adminname ) );
-        Q_strncpyz( guid, g_admin_admins[ i ]->guid, sizeof( guid ) );
+        a = g_admin_admins[ i ];
         matches++;
       }
     }
@@ -1327,82 +1291,72 @@ qboolean G_admin_setlevel( gentity_t *ent, int skiparg )
     {
       if( level.clients[ i ].pers.connected == CON_DISCONNECTED )
         continue;
-      if( matches && !Q_stricmp( level.clients[ i ].pers.guid, guid ) )
+
+      if( matches && level.clients[ i ].pers.admin == a )
       {
         vic = &g_entities[ i ];
         continue;
-
       }
+
       G_SanitiseString( level.clients[ i ].pers.netname, testname,
         sizeof( testname ) );
       if( strstr( testname, name ) )
       {
         vic = &g_entities[ i ];
+        a = vic->client->pers.admin;
         matches++;
-        Q_strncpyz( guid, vic->client->pers.guid, sizeof( guid ) );
       }
     }
-    if( vic )
-      Q_strncpyz( adminname, vic->client->pers.netname, sizeof( adminname ) );
+
+    if( matches == 0 )
+    {
+      ADMP( "^3!setlevel:^7 no match.  use !listplayers or !listadmins to "
+        "find an appropriate number to use instead of name.\n" );
+      return qfalse;
+    }
+    if( matches > 1 )
+    {
+      ADMP( "^3!setlevel:^7 more than one match.  Use the admin number "
+        "instead:\n" );
+      admin_listadmins( ent, 0, name );
+      return qfalse;
+    }
   }
 
-  if( matches == 0 )
-  {
-    ADMP( "^3!setlevel:^7 no match.  use !listplayers or !listadmins to "
-      "find an appropriate number to use instead of name.\n" );
-    return qfalse;
-  }
-  else if( matches > 1 )
-  {
-    ADMP( "^3!setlevel:^7 more than one match.  Use the admin number "
-      "instead:\n" );
-    admin_listadmins( ent, 0, name );
-    return qfalse;
-  }
-
-  if( ent && !admin_higher_guid( ent->client->pers.guid, guid ) )
+  if( ent && !admin_higher_admin( ent->client->pers.admin, a ) )
   {
     ADMP( "^3!setlevel: ^7sorry, but your intended victim has a higher"
         " admin level than you\n" );
     return qfalse;
   }
 
-  for( i = 0; i < MAX_ADMIN_ADMINS && g_admin_admins[ i ];i++ )
+  if( !a && vic )
   {
-    if( !Q_stricmp( g_admin_admins[ i ]->guid, guid ) )
+    for( i = 0; i < MAX_ADMIN_ADMINS && g_admin_admins[ i ]; i++ )
     {
-      g_admin_admins[ i ]->level = l;
-      Q_strncpyz( g_admin_admins[ i ]->name, adminname,
-                  sizeof( g_admin_admins[ i ]->name ) );
-      updated = qtrue;
+      if( g_admin_admins[ i ]->level == 0 )
+        break;
     }
-  }
-  if( !updated )
-  {
     if( i == MAX_ADMIN_ADMINS )
     {
       ADMP( "^3!setlevel: ^7too many admins\n" );
       return qfalse;
     }
     a = BG_Alloc( sizeof( g_admin_admin_t ) );
-    a->level = l;
-    Q_strncpyz( a->name, adminname, sizeof( a->name ) );
-    Q_strncpyz( a->guid, guid, sizeof( a->guid ) );
-    *a->flags = '\0';
     g_admin_admins[ i ] = a;
+    vic->client->pers.admin = a;
+    Q_strncpyz( a->guid, vic->client->pers.guid, sizeof( a->guid ) );
   }
+
+  a->level = l->level;
+  if( vic )
+    Q_strncpyz( a->name, vic->client->pers.netname, sizeof( a->name ) );
 
   AP( va(
     "print \"^3!setlevel: ^7%s^7 was given level %d admin rights by %s\n\"",
-    adminname, l, ( ent ) ? ent->client->pers.netname : "console" ) );
-  if( vic )
-    vic->client->pers.adminLevel = l;
+    a->name, a->level, ( ent ) ? ent->client->pers.netname : "console" ) );
 
-  if( !g_admin.string[ 0 ] )
-    ADMP( "^3!setlevel: ^7WARNING g_admin not set, not saving admin record "
-      "to a file\n" );
-  else
-    admin_writeconfig();
+  admin_writeconfig();
   return qtrue;
 }
 
@@ -2206,8 +2160,8 @@ qboolean G_admin_listplayers( gentity_t *ent, int skiparg )
   char n3[ MAX_NAME_LENGTH ] = {""};
   char lname[ MAX_NAME_LENGTH ];
   char muted, denied;
-  int l;
   int colorlen;
+  g_admin_level_t *l, *d = G_admin_level( 0 );
 
   ADMBP_begin();
   ADMBP( va( "^3!listplayers: ^7%d players connected:\n",
@@ -2236,36 +2190,22 @@ qboolean G_admin_listplayers( gentity_t *ent, int skiparg )
     muted = p->pers.muted ? 'M' : ' ';
     denied = p->pers.denyBuild ? 'B' : ' ';
 
-    l = 0;
+    l = d;
     G_SanitiseString( p->pers.netname, n2, sizeof( n2 ) );
     n[ 0 ] = '\0';
-    for( j = 0; j < MAX_ADMIN_ADMINS && g_admin_admins[ j ]; j++ )
+    if( p->pers.admin )
     {
-      if( !Q_stricmp( g_admin_admins[ j ]->guid, p->pers.guid ) )
+      if( ent && !G_admin_permission( &g_entities[ i ], ADMF_INCOGNITO ) )
       {
-        // don't gather aka or level info if the admin is incognito
-        if( ent && G_admin_permission( &g_entities[ i ], ADMF_INCOGNITO ) )
-        {
-          break;
-        }
-        l = g_admin_admins[ j ]->level;
-        G_SanitiseString( g_admin_admins[ j ]->name, n3, sizeof( n3 ) );
-        if( Q_stricmp( n2, n3 ) )
-        {
-          Q_strncpyz( n, g_admin_admins[ j ]->name, sizeof( n ) );
-        }
-        break;
+        l = G_admin_level( p->pers.admin->level );
+        G_SanitiseString( p->pers.admin->name, n3, sizeof( n3 ) );
+        if( strcmp( n2, n3 ) )
+          Q_strncpyz( n, p->pers.admin->name, sizeof( n ) );
       }
     }
     lname[ 0 ] = '\0';
-    for( j = 0; j < MAX_ADMIN_LEVELS && g_admin_levels[ j ]; j++ )
-    {
-      if( g_admin_levels[ j ]->level == l )
-      {
-        Q_strncpyz( lname, g_admin_levels[ j ]->name, sizeof( lname ) );
-        break;
-      }
-    }
+    if( l )
+      Q_strncpyz( lname, l->name, sizeof( lname ) );
 
     for( colorlen = j = 0; lname[ j ]; j++ )
     {
@@ -2277,7 +2217,7 @@ qboolean G_admin_listplayers( gentity_t *ent, int skiparg )
               i,
               c,
               t,
-              l,
+              l ? l->level : 0,
               admin_level_maxname + colorlen,
               lname,
               p->pers.guid + 24,
@@ -2485,10 +2425,9 @@ qboolean G_admin_showbans( gentity_t *ent, int skiparg )
 
 qboolean G_admin_help( gentity_t *ent, int skiparg )
 {
-  int i;
-
   if( G_SayArgc() < 2 + skiparg )
   {
+    int i;
     int count = 0;
 
     ADMBP_begin();
@@ -2526,96 +2465,66 @@ qboolean G_admin_help( gentity_t *ent, int skiparg )
     //!help param
     char param[ MAX_ADMIN_CMD_LEN ];
     char *cmd;
+    g_admin_cmd_t *admincmd;
+    g_admin_command_t *c;
+    qboolean denied = qfalse;
 
     G_SayArgv( 1 + skiparg, param, sizeof( param ) );
     cmd = ( param[0] == '!' ) ? &param[1] : &param[0];
     ADMBP_begin();
-    for( i = 0; i < adminNumCmds; i++ )
+    if( ( c = G_admin_command( cmd ) ) )
     {
-      if( !Q_stricmp( cmd, g_admin_cmds[ i ].keyword ) )
+      if( !G_admin_permission( ent, c->flag ) )
       {
-        if( !G_admin_permission( ent, g_admin_cmds[ i ].flag ) )
-        {
-          ADMBP( va( "^3!help: ^7you do not have permission to use '%s'\n",
-                   g_admin_cmds[ i ].keyword ) );
-          ADMBP_end();
-          return qfalse;
-        }
-        ADMBP( va( "^3!help: ^7help for '!%s':\n",
-          g_admin_cmds[ i ].keyword ) );
-        ADMBP( va( " ^3Function: ^7%s\n", g_admin_cmds[ i ].function ) );
-        ADMBP( va( " ^3Syntax: ^7!%s %s\n", g_admin_cmds[ i ].keyword,
-                 g_admin_cmds[ i ].syntax ) );
-        ADMBP( va( " ^3Flag: ^7'%s'\n", g_admin_cmds[ i ].flag ) );
+        ADMBP( va( "^3!help: ^7help for '!%s':\n", c->command ) );
+        ADMBP( va( " ^3Description: ^7%s\n", c->desc ) );
+        ADMBP( va( " ^3Syntax: ^7!%s\n", c->command ) );
+        ADMBP( va( " ^3Flag: ^7'%s'\n", c->flag ) );
+        ADMBP_end( );
+        return qtrue;
+      }
+      denied = qtrue;
+    }
+    if( ( admincmd = G_admin_cmd( cmd ) ) )
+    {
+      if( G_admin_permission( ent, admincmd->flag ) )
+      {
+        ADMBP( va( "^3!help: ^7help for '!%s':\n", admincmd->keyword ) );
+        ADMBP( va( " ^3Description: ^7%s\n", admincmd->function ) );
+        ADMBP( va( " ^3Syntax: ^7!%s %s\n", admincmd->keyword,
+                 admincmd->syntax ) );
+        ADMBP( va( " ^3Flag: ^7'%s'\n", admincmd->flag ) );
         ADMBP_end();
         return qtrue;
       }
+      denied = qtrue;
     }
-    for( i = 0; i < MAX_ADMIN_COMMANDS && g_admin_commands[ i ]; i++ )
-    {
-      if( !Q_stricmp( cmd, g_admin_commands[ i ]->command ) )
-      {
-        if( !G_admin_permission( ent, g_admin_commands[ i ]->flag ) )
-        {
-          ADMBP( va( "^3!help: ^7you do not have permission to use '%s'\n",
-                   g_admin_commands[ i ]->command ) );
-          ADMBP_end();
-          return qfalse;
-        }
-        ADMBP( va( "^3!help: ^7help for '%s':\n",
-          g_admin_commands[ i ]->command ) );
-        ADMBP( va( " ^3Description: ^7%s\n", g_admin_commands[ i ]->desc ) );
-        ADMBP( va( " ^3Syntax: ^7!%s\n", g_admin_commands[ i ]->command ) );
-        ADMBP_end();
-        return qtrue;
-      }
-    }
-    ADMBP( va( "^3!help: ^7no help found for '%s'\n", cmd ) );
-    ADMBP_end();
+    ADMBP( va( "^3!help: ^7%s '%s'\n",
+      denied ? "you do not have permission to use" : "no help found for",
+      cmd ) );
+    ADMBP_end( );
     return qfalse;
   }
 }
 
 qboolean G_admin_admintest( gentity_t *ent, int skiparg )
 {
-  int i, l = 0;
-  qboolean found = qfalse;
-  qboolean lname = qfalse;
+  g_admin_level_t *l;
 
   if( !ent )
   {
     ADMP( "^3!admintest: ^7you are on the console.\n" );
     return qtrue;
   }
-  for( i = 0; i < MAX_ADMIN_ADMINS && g_admin_admins[ i ]; i++ )
-  {
-    if( !Q_stricmp( g_admin_admins[ i ]->guid, ent->client->pers.guid ) )
-    {
-      found = qtrue;
-      break;
-    }
-  }
 
-  if( found )
-  {
-    l = g_admin_admins[ i ]->level;
-    for( i = 0; i < MAX_ADMIN_LEVELS && g_admin_levels[ i ]; i++ )
-    {
-      if( g_admin_levels[ i ]->level != l )
-        continue;
-      if( *g_admin_levels[ i ]->name )
-      {
-        lname = qtrue;
-        break;
-      }
-    }
-  }
+  l = G_admin_level( ent->client->pers.admin ? ent->client->pers.admin->level : 0 );
+
   AP( va( "print \"^3!admintest: ^7%s^7 is a level %d admin %s%s^7%s\n\"",
           ent->client->pers.netname,
-          l,
-          ( lname ) ? "(" : "",
-          ( lname ) ? g_admin_levels[ i ]->name : "",
-          ( lname ) ? ")" : "" ) );
+          l ? l->level : 0,
+          l ? "(" : "",
+          l ? l->name : "",
+          l ? ")" : "" ) );
   return qtrue;
 }
 
