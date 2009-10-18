@@ -763,7 +763,14 @@ static void Cmd_SayArea_f( gentity_t *ent )
 
   if( ent->client->pers.teamSelection == TEAM_NONE )
   {
-    G_TriggerMenu( ent->client->ps.clientNum, MN_CMD_TEAM );
+    G_TriggerMenu( ent - g_entities, MN_CMD_TEAM );
+    return;
+  }
+
+  if( ent->client->ps.stats[ STAT_HEALTH ] <= 0 ||
+      ent->client->sess.spectatorState != SPECTATOR_NOT )
+  {
+    G_TriggerMenu( ent - g_entities, MN_CMD_LIVING );
     return;
   }
 
@@ -2882,7 +2889,7 @@ commands_t cmds[ ] = {
   // communication commands
   { "callvote", CMD_MESSAGE, Cmd_CallVote_f },
   { "callteamvote", CMD_MESSAGE|CMD_TEAM, Cmd_CallVote_f },
-  { "say_area", CMD_MESSAGE|CMD_TEAM, Cmd_SayArea_f },
+  { "say_area", CMD_MESSAGE|CMD_TEAM|CMD_LIVING, Cmd_SayArea_f },
   // can be used even during intermission
   { "say", CMD_MESSAGE|CMD_INTERMISSION, Cmd_Say_f },
   { "say_team", CMD_MESSAGE|CMD_INTERMISSION, Cmd_Say_f },
