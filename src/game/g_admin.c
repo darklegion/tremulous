@@ -2339,7 +2339,8 @@ qboolean G_admin_showbans( gentity_t *ent, int skiparg )
     }
     else
     {
-      for( i = filter[ 0 ] == '-'; filter[ i ] && isdigit( filter[ i ] ); i++ );
+      i = filter[ 0 ] == '-' && filter[ 1 ] ? 1 : 0;
+      for( ; filter[ i ] && isdigit( filter[ i ] ); i++ );
       if( filter[ i ] )
         G_SanitiseString( filter, name_match, sizeof( name_match ) );
       else
