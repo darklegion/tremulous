@@ -606,93 +606,47 @@ static void admin_default_levels( void )
   admin_level_maxname = 15;
 }
 
+void G_admin_authlog( gentity_t *ent )
+{
+  char            aflags[ MAX_ADMIN_FLAGS * 2 ];
+  g_admin_level_t *level;
+  int             levelNum = 0;
+
+  if( !ent )
+    return;
+
+  if( ent->client->pers.admin )
+    levelNum = ent->client->pers.admin->level;
+
+  level = G_admin_level( levelNum );
+
+  Com_sprintf( aflags, sizeof( aflags ), "%s %s",
+               ent->client->pers.admin->flags,
+               ( level ) ? level->flags : "" );
+
+  G_LogPrintf( "AdminAuth: %i \"%s" S_COLOR_WHITE "\": \"%s" S_COLOR_WHITE 
+               "\" [%d] (%s): %s\n", 
+               ent - g_entities, ent->client->pers.netname, 
+               ent->client->pers.admin->name, ent->client->pers.admin->level,
+               ent->client->pers.guid, aflags );
+}
+
 static void admin_log( gentity_t *admin, char *cmd, int skiparg )
 {
-  fileHandle_t f;
-  int len;
-  char string[ MAX_STRING_CHARS ];
-  int min, tens, sec;
-  g_admin_admin_t *a;
-  g_admin_level_t *l;
-  char flags[ MAX_ADMIN_FLAGS * 2 ];
-  gentity_t *victim = NULL;
-  int pids[ MAX_CLIENTS ];
-  char name[ MAX_NAME_LENGTH ];
+  char *name;
 
-  if( !g_adminLog.string[ 0 ] )
-    return;
+  name = ( admin ) ? admin->client->pers.netname : "console";
 
-
-  len = trap_FS_FOpenFile( g_adminLog.string, &f, FS_APPEND );
-  if( len < 0 )
-  {
-    G_Printf( "admin_log: error could not open %s\n", g_adminLog.string );
-    return;
-  }
-
-  sec = level.time / 1000;
-  min = sec / 60;
-  sec -= min * 60;
-  tens = sec / 10;
-  sec -= tens * 10;
-
-  *flags = '\0';
-  if( admin )
-  {
-    if( ( a = admin->client->pers.admin ) )
-      Q_strncpyz( flags, a->flags, sizeof( flags ) );
-
-    if( ( l = G_admin_level( a ? a->level : 0 ) ) && l->flags[ 0 ] )
-    {
-      if( flags[ 0 ] )
-        Q_strcat( flags, sizeof( flags ), " " );
-      Q_strcat( flags, sizeof( flags ), l->flags );
-    }
-  }
-
-  if( G_SayArgc() > 1 + skiparg )
-  {
-    G_SayArgv( 1 + skiparg, name, sizeof( name ) );
-    if( G_ClientNumbersFromString( name, pids, MAX_CLIENTS ) == 1 )
-    {
-      victim = &g_entities[ pids[ 0 ] ];
-    }
-  }
-
-  if( victim && Q_stricmp( cmd, "attempted" ) )
-  {
-    Com_sprintf( string, sizeof( string ),
-                 "%3i:%i%i: %i: %s: %s: %s: %s: %s: %s: \"%s\"\n",
-                 min,
-                 tens,
-                 sec,
-                 ( admin ) ? admin->s.clientNum : -1,
-                 ( admin ) ? admin->client->pers.guid
-                 : "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-                 ( admin ) ? admin->client->pers.netname : "console",
-                 flags,
-                 cmd,
-                 victim->client->pers.guid,
-                 victim->client->pers.netname,
-                 G_SayConcatArgs( 2 + skiparg ) );
-  }
-  else
-  {
-    Com_sprintf( string, sizeof( string ),
-                 "%3i:%i%i: %i: %s: %s: %s: %s: \"%s\"\n",
-                 min,
-                 tens,
-                 sec,
-                 ( admin ) ? admin->s.clientNum : -1,
-                 ( admin ) ? admin->client->pers.guid
-                 : "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-                 ( admin ) ? admin->client->pers.netname : "console",
-                 flags,
-                 cmd,
-                 G_SayConcatArgs( 1 + skiparg ) );
-  }
-  trap_FS_Write( string, strlen( string ), f );
-  trap_FS_FCloseFile( f );
+  G_LogPrintf( "AdminCmd: %i \"%s" S_COLOR_WHITE "\" "
+                          "(\"%s" S_COLOR_WHITE "\") [%d]: %s %s\n", 
+               ( admin ) ? admin->s.clientNum : -1,
+               name,
+               ( admin && admin->client->pers.admin ) ?
+                          admin->client->pers.admin->name : name,
+               ( admin && admin->client->pers.admin ) ? 
+                          admin->client->pers.admin->level : 0,
+               cmd,
+               G_SayConcatArgs( 1 + skiparg ) );
 }
 
 static int admin_listadmins( gentity_t *ent, int start, char *search )
@@ -904,7 +858,7 @@ qboolean G_admin_cmd_check( gentity_t *ent, qboolean say )
     else
     {
       ADMP( va( "^3!%s: ^7permission denied\n", c->command ) );
-      admin_log( ent, "attempted", skip - 1 );
+      admin_log( ent, S_COLOR_RED "attempted" S_COLOR_WHITE, skip - 1 );
     }
     return qtrue;
   }
@@ -1203,8 +1157,11 @@ qboolean G_admin_readconfig( gentity_t *ent, int skiparg )
   for( i = 0; i < level.maxclients; i++ )
   {
     if( level.clients[ i ].pers.connected != CON_DISCONNECTED )
+    {
       level.clients[ i ].pers.admin =
         G_admin_admin( level.clients[ i ].pers.guid );
+      G_admin_authlog( &g_entities[ i ] );
+    }
   }
 
   return qtrue;
@@ -1357,6 +1314,8 @@ qboolean G_admin_setlevel( gentity_t *ent, int skiparg )
     a->name, a->level, ( ent ) ? ent->client->pers.netname : "console" ) );
 
   admin_writeconfig();
+  if( vic ) 
+    G_admin_authlog( vic );
   return qtrue;
 }
 
@@ -1368,9 +1327,10 @@ static qboolean admin_create_ban( gentity_t *ent,
   char *reason )
 {
   g_admin_ban_t *b = NULL;
-  qtime_t qt;
-  int t;
-  int i;
+  qtime_t       qt;
+  int           t;
+  int           i;
+  char          *name;
 
   t = trap_RealTime( &qt );
 
@@ -1398,15 +1358,18 @@ static qboolean admin_create_ban( gentity_t *ent,
   Q_strncpyz( b->guid, guid, sizeof( b->guid ) );
   Q_strncpyz( b->ip, ip, sizeof( b->ip ) );
 
-  //strftime( b->made, sizeof( b->made ), "%m/%d/%y %H:%M:%S", lt );
   Com_sprintf( b->made, sizeof( b->made ), "%02i/%02i/%02i %02i:%02i:%02i",
     qt.tm_mon + 1, qt.tm_mday, qt.tm_year % 100,
     qt.tm_hour, qt.tm_min, qt.tm_sec );
 
-  if( ent )
-    Q_strncpyz( b->banner, ent->client->pers.netname, sizeof( b->banner ) );
+  if( ent && ent->client->pers.admin )
+    name = ent->client->pers.admin->name;
+  else if( ent )
+    name = ent->client->pers.netname;
   else
-    Q_strncpyz( b->banner, "console", sizeof( b->banner ) );
+    name = "console";
+
+  Q_strncpyz( b->banner, name, sizeof( b->banner ) );
   if( !seconds )
     b->expires = 0;
   else
@@ -2152,15 +2115,15 @@ qboolean G_admin_listlayouts( gentity_t *ent, int skiparg )
 
 qboolean G_admin_listplayers( gentity_t *ent, int skiparg )
 {
-  int i, j;
-  gclient_t *p;
-  char c, t; // color and team letter
-  char n[ MAX_NAME_LENGTH ] = {""};
-  char n2[ MAX_NAME_LENGTH ] = {""};
-  char n3[ MAX_NAME_LENGTH ] = {""};
-  char lname[ MAX_NAME_LENGTH ];
-  char muted, denied;
-  int colorlen;
+  int             i, j;
+  gclient_t       *p;
+  char            c, t; // color and team letter
+  char            *registeredname = NULL;
+  char            lname[ MAX_NAME_LENGTH ];
+  char            muted, denied;
+  int             colorlen;
+  char            namecleaned[ MAX_NAME_LENGTH ];
+  char            name2cleaned[ MAX_NAME_LENGTH ];
   g_admin_level_t *l, *d = G_admin_level( 0 );
 
   ADMBP_begin();
@@ -2191,19 +2154,18 @@ qboolean G_admin_listplayers( gentity_t *ent, int skiparg )
     denied = p->pers.denyBuild ? 'B' : ' ';
 
     l = d;
-    G_SanitiseString( p->pers.netname, n2, sizeof( n2 ) );
-    n[ 0 ] = '\0';
-    if( p->pers.admin )
+    if( ( !ent || !G_admin_permission( &g_entities[ i ], ADMF_INCOGNITO ) ) &&
+        p->pers.admin )
     {
-      if( ent && !G_admin_permission( &g_entities[ i ], ADMF_INCOGNITO ) )
-      {
-        l = G_admin_level( p->pers.admin->level );
-        G_SanitiseString( p->pers.admin->name, n3, sizeof( n3 ) );
-        if( strcmp( n2, n3 ) )
-          Q_strncpyz( n, p->pers.admin->name, sizeof( n ) );
-      }
+      l = G_admin_level( p->pers.admin->level );
+      G_SanitiseString( p->pers.netname,
+                        namecleaned, sizeof( namecleaned ) );
+      G_SanitiseString( p->pers.admin->name,
+                        name2cleaned, sizeof( name2cleaned ) );
+      if( Q_stricmp( namecleaned, name2cleaned ) )
+        registeredname = p->pers.admin->name;
     }
-    lname[ 0 ] = '\0';
+
     if( l )
       Q_strncpyz( lname, l->name, sizeof( lname ) );
 
@@ -2213,7 +2175,7 @@ qboolean G_admin_listplayers( gentity_t *ent, int skiparg )
         colorlen += 2;
     }
 
-    ADMBP( va( "%2i ^%c%c^7 %-2i %*s^7 (*%s) ^1%c%c^7 %s^7 %s%s^7%s\n",
+    ADMBP( va( "%2i ^%c%c^7 %-2i %*s^7 (*%s) ^1%c%c^7 %s^7 %s%s%s\n",
               i,
               c,
               t,
@@ -2224,9 +2186,10 @@ qboolean G_admin_listplayers( gentity_t *ent, int skiparg )
               muted,
               denied,
               p->pers.netname,
-              ( *n ) ? "(a.k.a. " : "",
-              n,
-              ( *n ) ? ")" : "" ) );
+              ( registeredname ) ? "(a.k.a. " : "",
+              ( registeredname ) ? registeredname : "",
+              ( registeredname ) ? S_COLOR_WHITE ")" : "" ) );
+
   }
   ADMBP_end();
   return qtrue;

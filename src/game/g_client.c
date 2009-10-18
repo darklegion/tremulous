@@ -1280,7 +1280,11 @@ char *ClientConnect( int clientNum, qboolean firstTime )
 
   // don't do the "xxx connected" messages if they were caried over from previous level
   if( firstTime )
-    trap_SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE " connected\n\"", client->pers.netname ) );
+    trap_SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE " connected\n\"", 
+                                    client->pers.netname ) );
+
+  if( client->pers.admin )
+    G_admin_authlog( ent );
 
   // count current clients and rank for scoreboard
   CalculateRanks( );

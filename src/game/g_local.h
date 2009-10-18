@@ -1127,7 +1127,6 @@ extern  vmCvar_t  g_layoutAuto;
 extern  vmCvar_t  g_emoticonsAllowedInNames;
 
 extern  vmCvar_t  g_admin;
-extern  vmCvar_t  g_adminLog;
 extern  vmCvar_t  g_adminParseSay;
 extern  vmCvar_t  g_adminTempBan;
 extern  vmCvar_t  g_adminMaxBan;

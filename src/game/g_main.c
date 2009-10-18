@@ -129,7 +129,6 @@ vmCvar_t  g_layoutAuto;
 vmCvar_t  g_emoticonsAllowedInNames;
 
 vmCvar_t  g_admin;
-vmCvar_t  g_adminLog;
 vmCvar_t  g_adminParseSay;
 vmCvar_t  g_adminTempBan;
 vmCvar_t  g_adminMaxBan;
@@ -257,7 +256,6 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_emoticonsAllowedInNames, "g_emoticonsAllowedInNames", "1", CVAR_LATCH|CVAR_ARCHIVE, 0, qfalse  },
 
   { &g_admin, "g_admin", "admin.dat", CVAR_ARCHIVE, 0, qfalse  },
-  { &g_adminLog, "g_adminLog", "admin.log", CVAR_ARCHIVE, 0, qfalse  },
   { &g_adminParseSay, "g_adminParseSay", "1", CVAR_ARCHIVE, 0, qfalse  },
   { &g_adminTempBan, "g_adminTempBan", "2m", CVAR_ARCHIVE, 0, qfalse  },
   { &g_adminMaxBan, "g_adminMaxBan", "2w", CVAR_ARCHIVE, 0, qfalse  },
