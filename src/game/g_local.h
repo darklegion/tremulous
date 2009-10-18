@@ -275,6 +275,7 @@ typedef struct
   int               spectatorTime;    // for determining next-in-line to play
   spectatorState_t  spectatorState;
   int               spectatorClient;  // for chasecam and follow mode
+  team_t            restartTeam; //for !restart keepteams and !restart switchteams
   clientList_t      ignoreList;
 } clientSession_t;
 
@@ -1040,6 +1041,7 @@ extern  vmCvar_t  g_cheats;
 extern  vmCvar_t  g_maxclients;     // allow this many total, including spectators
 extern  vmCvar_t  g_maxGameClients;   // allow this many active
 extern  vmCvar_t  g_restarted;
+extern  vmCvar_t  g_lockTeamsAtStart;
 extern  vmCvar_t  g_minCommandPeriod;
 extern  vmCvar_t  g_minNameChangePeriod;
 extern  vmCvar_t  g_maxNameChanges;

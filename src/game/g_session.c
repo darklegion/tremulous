@@ -46,10 +46,11 @@ void G_WriteClientSessionData( gclient_t *client )
   const char  *s;
   const char  *var;
 
-  s = va( "%i %i %i %s",
+  s = va( "%i %i %i %i %s",
     client->sess.spectatorTime,
     client->sess.spectatorState,
     client->sess.spectatorClient,
+    client->sess.restartTeam,
     Com_ClientListString( &client->sess.ignoreList )
     );
 
@@ -67,22 +68,25 @@ Called on a reconnect
 */
 void G_ReadSessionData( gclient_t *client )
 {
-  char  s[ MAX_STRING_CHARS ];
+  char        s[ MAX_STRING_CHARS ];
   const char  *var;
-  int spectatorState;
-  char ignorelist[ 17 ];
+  int         spectatorState;
+  int         restartTeam;
+  char        ignorelist[ 17 ];
 
   var = va( "session%i", client - level.clients );
   trap_Cvar_VariableStringBuffer( var, s, sizeof(s) );
 
-  sscanf( s, "%i %i %i %16s",
+  sscanf( s, "%i %i %i %i %16s",
     &client->sess.spectatorTime,
     &spectatorState,
     &client->sess.spectatorClient,
+    &restartTeam,
     ignorelist
     );
 
   client->sess.spectatorState = (spectatorState_t)spectatorState;
+  client->sess.restartTeam = (team_t)restartTeam;
   Com_ClientListParse( &client->sess.ignoreList, ignorelist );
 }
 
@@ -117,6 +121,7 @@ void G_InitSessionData( gclient_t *client, char *userinfo )
       sess->spectatorState = SPECTATOR_NOT;
   }
 
+  sess->restartTeam = TEAM_NONE;
   sess->spectatorState = SPECTATOR_FREE;
   sess->spectatorTime = level.time;
   sess->spectatorClient = -1;

@@ -1285,6 +1285,16 @@ char *ClientConnect( int clientNum, qboolean firstTime )
   // count current clients and rank for scoreboard
   CalculateRanks( );
   G_admin_namelog_update( client, qfalse );
+  
+
+  // if this is after !restart keepteams or !restart switchteams, apply said selection
+  if ( client->sess.restartTeam != TEAM_NONE )
+  {
+    G_ChangeTeam( ent, client->sess.restartTeam );
+    client->sess.restartTeam = TEAM_NONE;
+  }
+
+  
   return NULL;
 }
 

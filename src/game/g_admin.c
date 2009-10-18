@@ -151,8 +151,8 @@ g_admin_cmd_t g_admin_cmds[ ] =
     },
 
     {"restart", G_admin_restart, "restart",
-      "restart the current map (optionally using named layout)",
-      "(^5layout^7)"
+      "restart the current map (optionally using named layout or keeping/switching teams)",
+      "(^5layout^7) (^5keepteams|switchteams|keepteamslock|switchteamslock^7)"
     },
 
     {"setlevel", G_admin_setlevel, "setlevel",
@@ -2668,7 +2668,10 @@ qboolean G_admin_rename( gentity_t *ent, int skiparg )
 
 qboolean G_admin_restart( gentity_t *ent, int skiparg )
 {
-  char layout[ MAX_CVAR_VALUE_STRING ] = { "" };
+  char      layout[ MAX_CVAR_VALUE_STRING ] = { "" };
+  char      teampref[ MAX_STRING_CHARS ] = { "" };
+  int       i;
+  gclient_t *cl;
 
   if( G_SayArgc( ) > 1 + skiparg )
   {
@@ -2677,23 +2680,74 @@ qboolean G_admin_restart( gentity_t *ent, int skiparg )
     trap_Cvar_VariableStringBuffer( "mapname", map, sizeof( map ) );
     G_SayArgv( skiparg + 1, layout, sizeof( layout ) );
 
-    if( !Q_stricmp( layout, "*BUILTIN*" ) ||
-      trap_FS_FOpenFile( va( "layouts/%s/%s.dat", map, layout ),
-        NULL, FS_READ ) > 0 )
+    // Figure out which argument is which
+    if( Q_stricmp( layout, "keepteams" ) && 
+        Q_stricmp( layout, "keepteamslock" ) && 
+        Q_stricmp( layout, "switchteams" ) && 
+        Q_stricmp( layout, "switchteamslock" ) )
     {
-      trap_Cvar_Set( "g_layouts", layout );
+      if( !Q_stricmp( layout, "*BUILTIN*" ) ||
+          trap_FS_FOpenFile( va( "layouts/%s/%s.dat", map, layout ),
+                             NULL, FS_READ ) > 0 )
+      {
+        trap_Cvar_Set( "g_layouts", layout );
+      }
+      else
+      {
+        ADMP( va( "^3!restart: ^7layout '%s' does not exist\n", layout ) );
+        return qfalse;
+      }
     }
-    else
+    else 
     {
-      ADMP( va( "^3!restart: ^7layout '%s' does not exist\n", layout ) );
-      return qfalse;
+      layout[ 0 ] = '\0';
+      G_SayArgv( skiparg + 1, teampref, sizeof( teampref ) );    
     }
   }
+  
+  if( G_SayArgc( ) > 2 + skiparg ) 
+    G_SayArgv( skiparg + 2, teampref, sizeof( teampref ) );      
+  
+  if( !Q_stricmpn( teampref, "keepteams", 9 ) )
+  {
+    for( i = 0; i < g_maxclients.integer; i++ )
+    {
+      cl = level.clients + i;
+      if( cl->pers.connected != CON_CONNECTED )
+        continue;
+
+      if( cl->pers.teamSelection == TEAM_NONE )
+        continue;
+
+      cl->sess.restartTeam = cl->pers.teamSelection;
+    }
+  } 
+  else if( !Q_stricmpn( teampref, "switchteams", 11 ) )
+  {
+    for( i = 0; i < g_maxclients.integer; i++ )
+    {
+      cl = level.clients + i;
+
+      if( cl->pers.connected != CON_CONNECTED )
+        continue;
+
+      if( cl->pers.teamSelection == TEAM_HUMANS )
+        cl->sess.restartTeam = TEAM_ALIENS;
+      else if(cl->pers.teamSelection == TEAM_ALIENS )
+	    cl->sess.restartTeam = TEAM_HUMANS;
+    }  	  
+  }
+  
+  if( !Q_stricmp( teampref, "switchteamslock" ) || 
+      !Q_stricmp( teampref, "keepteamslock" ) )
+    trap_Cvar_Set( "g_lockTeamsAtStart", "1" );
 
   trap_SendConsoleCommand( EXEC_APPEND, "map_restart" );
-  AP( va( "print \"^3!restart: ^7map restarted by %s %s\n\"",
+  
+  AP( va( "print \"^3!restart: ^7map restarted by %s %s %s\n\"",
           ( ent ) ? ent->client->pers.netname : "console",
-          ( layout[ 0 ] ) ? va( "(forcing layout '%s')", layout ) : "" ) );
+          ( layout[ 0 ] ) ? va( "^7(forcing layout '%s^7')", layout ) : "",
+          ( teampref[ 0 ] ) ? va( "^7(with teams option: '%s^7')", teampref ) : "" ) );
   return qtrue;
 }
 

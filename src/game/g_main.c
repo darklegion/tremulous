@@ -62,6 +62,7 @@ vmCvar_t  g_synchronousClients;
 vmCvar_t  g_warmup;
 vmCvar_t  g_doWarmup;
 vmCvar_t  g_restarted;
+vmCvar_t  g_lockTeamsAtStart;
 vmCvar_t  g_logFile;
 vmCvar_t  g_logFileSync;
 vmCvar_t  g_blood;
@@ -151,6 +152,7 @@ static cvarTable_t   gameCvarTable[ ] =
   { NULL, "gamename", GAME_VERSION , CVAR_SERVERINFO | CVAR_ROM, 0, qfalse  },
   { NULL, "gamedate", __DATE__ , CVAR_ROM, 0, qfalse  },
   { &g_restarted, "g_restarted", "0", CVAR_ROM, 0, qfalse  },
+  { &g_lockTeamsAtStart, "g_lockTeamsAtStart", "0", CVAR_ROM, 0, qfalse  },
   { NULL, "sv_mapname", "", CVAR_SERVERINFO | CVAR_ROM, 0, qfalse  },
   { NULL, "P", "", CVAR_SERVERINFO | CVAR_ROM, 0, qfalse  },
   { NULL, "ff", "0", CVAR_SERVERINFO | CVAR_ROM, 0, qfalse  },
@@ -641,6 +643,13 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
   G_UpdateTeamConfigStrings( );
 
   G_ResetPTRConnections( );
+  
+  if( g_lockTeamsAtStart.integer )
+  {
+    level.alienTeamLocked = qtrue;
+    level.humanTeamLocked = qtrue;
+    trap_Cvar_Set( "g_lockTeamsAtStart", "0" );
+  }
 }
 
 /*
