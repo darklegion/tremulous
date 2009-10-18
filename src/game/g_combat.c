@@ -41,10 +41,6 @@ void AddScore( gentity_t *ent, int score )
   if( !ent->client )
     return;
 
-  // no scoring during pre-match warmup
-  if( level.warmupTime )
-    return;
-
   // make alien and human scores equivalent 
   if ( ent->client->pers.teamSelection == TEAM_ALIENS )
   {

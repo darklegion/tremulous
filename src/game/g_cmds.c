@@ -560,6 +560,13 @@ void Cmd_Team_f( gentity_t *ent )
   else if( oldteam == TEAM_HUMANS )
     humans--;
 
+  // disallow joining teams during warmup
+  if( g_doWarmup.integer && ( ( level.warmupTime - level.time ) / 1000 ) > 0 )
+  {
+    G_TriggerMenu( ent - g_entities, MN_WARMUP );
+    return;
+  }
+
   trap_Argv( 1, s, sizeof( s ) );
 
   if( !s[ 0 ] )

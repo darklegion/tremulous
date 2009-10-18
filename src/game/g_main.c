@@ -173,8 +173,8 @@ static cvarTable_t   gameCvarTable[ ] =
 
   { &g_teamForceBalance, "g_teamForceBalance", "0", CVAR_ARCHIVE  },
 
-  { &g_warmup, "g_warmup", "20", CVAR_ARCHIVE, 0, qtrue  },
-  { &g_doWarmup, "g_doWarmup", "0", 0, 0, qtrue  },
+  { &g_warmup, "g_warmup", "10", CVAR_ARCHIVE, 0, qtrue  },
+  { &g_doWarmup, "g_doWarmup", "0", CVAR_ARCHIVE, 0, qtrue  },
   { &g_logFile, "g_logFile", "games.log", CVAR_ARCHIVE, 0, qfalse  },
   { &g_logFileSync, "g_logFileSync", "0", CVAR_ARCHIVE, 0, qfalse  },
 
@@ -448,9 +448,6 @@ void G_RegisterCvars( void )
     if( cv->vmCvar )
       cv->modificationCount = cv->vmCvar->modificationCount;
   }
-
-  // check some things
-  level.warmupModificationCount = g_warmup.modificationCount;
 }
 
 /*
@@ -1972,7 +1969,7 @@ void CheckExitRules( void )
     return;
   }
 
-  if( g_timelimit.integer && !level.warmupTime )
+  if( g_timelimit.integer )
   {
     if( level.time - level.startTime >= g_timelimit.integer * 60000 )
     {

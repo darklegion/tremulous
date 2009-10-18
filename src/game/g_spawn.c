@@ -662,19 +662,16 @@ void SP_worldspawn( void )
   g_entities[ ENTITYNUM_WORLD ].s.number = ENTITYNUM_WORLD;
   g_entities[ ENTITYNUM_WORLD ].classname = "worldspawn";
 
-  // see if we want a warmup time
-  trap_SetConfigstring( CS_WARMUP, "" );
   if( g_restarted.integer )
-  {
     trap_Cvar_Set( "g_restarted", "0" );
-    level.warmupTime = 0;
-  }
-  else if( g_doWarmup.integer )
+
+  // see if we want a warmup time
+  trap_SetConfigstring( CS_WARMUP, "-1" );
+  if( g_doWarmup.integer )
   {
-    // Turn it on
-    level.warmupTime = -1;
+    level.warmupTime = level.time - level.startTime + ( g_warmup.integer * 1000 );
     trap_SetConfigstring( CS_WARMUP, va( "%i", level.warmupTime ) );
-    G_LogPrintf( "Warmup:\n" );
+    G_LogPrintf( "Warmup: %i\n", g_warmup.integer );
   }
 
 }

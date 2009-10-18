@@ -137,13 +137,7 @@ static void CG_ParseWarmup( void )
   info = CG_ConfigString( CS_WARMUP );
 
   warmup = atoi( info );
-  cg.warmupCount = -1;
-
-  if( warmup == 0 && cg.warmup )
-  {
-  }
-
-  cg.warmup = warmup;
+  cg.warmupTime = warmup;
 }
 
 /*
@@ -176,7 +170,7 @@ void CG_SetConfigValues( void )
     cgs.humanStage = cgs.humanCredits = cgs.humanNextStageThreshold = 0;
 
   cgs.levelStartTime = atoi( CG_ConfigString( CS_LEVEL_START_TIME ) );
-  cg.warmup = atoi( CG_ConfigString( CS_WARMUP ) );
+  cg.warmupTime = atoi( CG_ConfigString( CS_WARMUP ) );
 }
 
 
@@ -414,10 +408,6 @@ static void CG_MapRestart( void )
 
   // we really should clear more parts of cg here and stop sounds
 
-  // play the "fight" sound if this is a restart without warmup
-  if( cg.warmup == 0 )
-    CG_CenterPrint( "FIGHT!", 120, GIANTCHAR_WIDTH * 2 );
-
   trap_Cvar_Set( "cg_thirdPerson", "0" );
 }
 
@@ -516,6 +506,13 @@ void CG_Menu( int menu, int arg )
       longMsg   = "The maximum number of playing clients has been reached. "
                   "Please wait until slots become available.";
       shortMsg  = "No free player slots";
+      type      = DT_COMMAND;
+      break;
+
+    case MN_WARMUP:
+      longMsg   = "You must wait until the warmup time is finished "
+                  "before joining a team. ";
+      shortMsg  = "You cannot join a team during warmup.";
       type      = DT_COMMAND;
       break;
 
