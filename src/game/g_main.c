@@ -1635,7 +1635,7 @@ void G_AdminMessage( gentity_t *ent, const char *msg )
   char    string[ 1024 ];
   int     i;
 
-  Com_sprintf( string, sizeof( string ), "chat %d %d \"" S_COLOR_MAGENTA "%s\"",
+  Com_sprintf( string, sizeof( string ), "chat %d %d \"%s\"",
     ent ? ent - g_entities : -1, 
     G_admin_permission( ent, ADMF_ADMINCHAT ) ? SAY_ADMINS : SAY_ADMINS_PUBLIC,
     msg );
