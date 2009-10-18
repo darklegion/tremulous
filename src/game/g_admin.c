@@ -852,13 +852,13 @@ qboolean G_admin_cmd_check( gentity_t *ent, qboolean say )
       // flooding say will have already been accounted for in ClientCommand
       if( !say && G_FloodLimited( ent ) )
         return qtrue;
-      trap_SendConsoleCommand( EXEC_APPEND, c->exec );
       admin_log( ent, cmd, skip );
+      trap_SendConsoleCommand( EXEC_APPEND, c->exec );
     }
     else
     {
-      ADMP( va( "^3!%s: ^7permission denied\n", c->command ) );
       admin_log( ent, S_COLOR_RED "attempted" S_COLOR_WHITE, skip - 1 );
+      ADMP( va( "^3!%s: ^7permission denied\n", c->command ) );
     }
     return qtrue;
   }
@@ -870,8 +870,8 @@ qboolean G_admin_cmd_check( gentity_t *ent, qboolean say )
       // flooding say will have already been accounted for in ClientCommand
       if( !say && G_FloodLimited( ent ) )
         return qtrue;
-      admincmd->handler( ent, skip );
       admin_log( ent, cmd, skip );
+      admincmd->handler( ent, skip );
     }
     else
     {
