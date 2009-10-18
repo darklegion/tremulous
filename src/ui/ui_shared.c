@@ -1901,16 +1901,17 @@ qboolean UI_Text_Emoticon( const char *s, qboolean *escaped,
 
 float UI_Text_Width( const char *text, float scale, int limit )
 {
-  int count, len;
-  float out;
+  int         count, len;
+  float       out;
   glyphInfo_t *glyph;
-  float useScale;
-  const char *s = text;
-  fontInfo_t *font = &DC->Assets.textFont;
-  int emoticonLen;
-  qboolean emoticonEscaped;
-  float emoticonW;
-  int emoticons = 0;
+  float       useScale;
+  const char  *s = text;
+  fontInfo_t  *font = &DC->Assets.textFont;
+  int         emoticonLen;
+  qboolean    emoticonEscaped;
+  float       emoticonW;
+  int         emoticonWidth;
+  int         emoticons = 0;
 
   if( scale <= DC->getCVarValue( "ui_smallFont" ) )
     font = &DC->Assets.smallFont;
@@ -1939,16 +1940,17 @@ float UI_Text_Width( const char *text, float scale, int limit )
         s += 2;
         continue;
       }
-      else if ( UI_Text_Emoticon( s, &emoticonEscaped, &emoticonLen, NULL, NULL ) )
+
+      if ( UI_Text_Emoticon( s, &emoticonEscaped, &emoticonLen, 
+                             NULL, &emoticonWidth ) )
       {
         if( emoticonEscaped )
-        {
           s++;
-        }
         else
         {
           s += emoticonLen;
-          emoticons++;
+          count += emoticonLen;
+          emoticons += emoticonWidth;
           continue;
         }
       }
@@ -1963,12 +1965,12 @@ float UI_Text_Width( const char *text, float scale, int limit )
 
 float UI_Text_Height( const char *text, float scale, int limit )
 {
-  int len, count;
-  float max;
+  int         len, count;
+  float       max;
   glyphInfo_t *glyph;
-  float useScale;
-  const char *s = text;
-  fontInfo_t *font = &DC->Assets.textFont;
+  float       useScale;
+  const char  *s = text;
+  fontInfo_t  *font = &DC->Assets.textFont;
 
   if( scale <= DC->getCVarValue( "ui_smallFont" ) )
     font = &DC->Assets.smallFont;
@@ -2036,449 +2038,202 @@ void UI_AdjustFrom640( float *x, float *y, float *w, float *h )
   *h *= DC->yscale;
 }
 
-static void UI_Text_PaintChar( float x, float y, float width, float height,
-                               float scale, float s, float t, float s2, float t2, qhandle_t hShader )
+static void UI_Text_PaintChar( float x, float y, float scale,
+                               glyphInfo_t *glyph, float size )
 {
   float w, h;
-  w = width * scale;
-  h = height * scale;
-  UI_AdjustFrom640( &x, &y, &w, &h );
-  DC->drawStretchPic( x, y, w, h, s, t, s2, t2, hShader );
-}
 
-void UI_Text_Paint_Limit( float *maxX, float x, float y, float scale,
-                          vec4_t color, const char *text, float adjust, int limit )
-{
-  int         len, count;
-  vec4_t      newColor;
-  glyphInfo_t *glyph;
-  int emoticonLen = 0;
-  qhandle_t emoticonHandle = 0;
-  float emoticonH, emoticonW;
-  qboolean emoticonEscaped;
-  int emoticonWidth;
+  w = glyph->imageWidth;
+  h = glyph->imageHeight;
 
-  emoticonH = UI_Text_Height( "[", scale, 0 );
-  emoticonW = emoticonH * DC->aspectScale;
-
-  if( text )
+  if( size > 0.0f )
   {
-    const char *s = text;
-    float max = *maxX;
-    float useScale;
-    fontInfo_t *font = &DC->Assets.textFont;
-
-    memcpy( &newColor[0], &color[0], sizeof( vec4_t ) );
-
-    if( scale <= DC->getCVarValue( "ui_smallFont" ) )
-      font = &DC->Assets.smallFont;
-    else if( scale > DC->getCVarValue( "ui_bigFont" ) )
-      font = &DC->Assets.bigFont;
-
-    useScale = scale * font->glyphScale;
-
-    DC->setColor( color );
-
-    len = strlen( text );
-
-    if( limit > 0 && len > limit )
-      len = limit;
-
-    count = 0;
-
-    while( s && *s && count < len )
-    {
-      float width, height, skip, yadj;
-
-      glyph = &font->glyphs[ ( int )*s ];
-      width = glyph->imageWidth * DC->aspectScale;
-      height = glyph->imageHeight;
-      skip = glyph->xSkip * DC->aspectScale;
-      yadj = useScale * glyph->top;
-
-      if( Q_IsColorString( s ) )
-      {
-        memcpy( newColor, g_color_table[ ColorIndex( *( s+1 ) ) ], sizeof( newColor ) );
-        newColor[ 3 ] = color[ 3 ];
-        DC->setColor( newColor );
-        s += 2;
-        continue;
-      }
-      else if( UI_Text_Emoticon( s, &emoticonEscaped, &emoticonLen,
-               &emoticonHandle, &emoticonWidth ) )
-      {
-        if( emoticonEscaped )
-        {
-          s++;
-        }
-        else
-        {
-          s += emoticonLen;
-          DC->setColor( NULL );
-          DC->drawHandlePic( x, y - yadj, ( emoticonW * emoticonWidth ),
-            emoticonH, emoticonHandle );
-          DC->setColor( newColor );
-          x += ( emoticonW * emoticonWidth );
-          continue;
-        }
-      }
-
-      if( UI_Text_Width( s, useScale, 1 ) + x > max )
-      {
-        *maxX = 0;
-        break;
-      }
-
-      UI_Text_PaintChar( x, y - yadj,
-                         width,
-                         height,
-                         useScale,
-                         glyph->s,
-                         glyph->t,
-                         glyph->s2,
-                         glyph->t2,
-                         glyph->glyph );
-      x += ( skip * useScale ) + adjust;
-      *maxX = x;
-      count++;
-      s++;
-    }
-
-    DC->setColor( NULL );
+    float half = size * 0.5f * scale;
+    x -= half;
+    y -= half;
+    w += size;
+    h += size;
   }
+
+  w *= ( DC->aspectScale * scale );
+  h *= scale;
+  y -= ( glyph->top * scale );
+  UI_AdjustFrom640( &x, &y, &w, &h );
+
+  DC->drawStretchPic( x, y, w, h,
+                      glyph->s,
+                      glyph->t,
+                      glyph->s2,
+                      glyph->t2,
+                      glyph->glyph );
 }
 
-void UI_Text_Paint( float x, float y, float scale, vec4_t color, const char *text,
-                    float adjust, int limit, int style )
+static void UI_Text_Paint_Generic( float x, float y, float scale, float gapAdjust,
+                                   const char *text, vec4_t color, int style,
+                                   int limit, float *maxX,
+                                   int cursorPos, char cursor )
 {
-  int len, count;
-  vec4_t newColor;
+  const char  *s = text;
+  int         len;
+  int         count = 0;
+  vec4_t      newColor;
+  fontInfo_t  *font = &DC->Assets.textFont;
   glyphInfo_t *glyph;
-  float useScale;
-  fontInfo_t *font = &DC->Assets.textFont;
-  int emoticonLen = 0;
-  qhandle_t emoticonHandle = 0;
-  float emoticonH, emoticonW;
-  qboolean emoticonEscaped;
-  int emoticonWidth;
+  float       useScale;
+  qhandle_t   emoticonHandle = 0;
+  float       emoticonH, emoticonW;
+  qboolean    emoticonEscaped;
+  int         emoticonLen = 0;
+  int         emoticonWidth;
+  int         cursorX = -1;
+
+  if( !text )
+    return;
 
   if( scale <= DC->getCVarValue( "ui_smallFont" ) )
     font = &DC->Assets.smallFont;
   else if( scale >= DC->getCVarValue( "ui_bigFont" ) )
     font = &DC->Assets.bigFont;
 
-  emoticonH = UI_Text_Height( "[", scale, 0 );
-  emoticonW = emoticonH * DC->aspectScale;
   useScale = scale * font->glyphScale;
 
-  if( text )
+  emoticonH = font->glyphs[ (int)'[' ].height * useScale;
+  emoticonW = emoticonH * DC->aspectScale;
+
+  len = strlen( text );
+  if( limit > 0 && len > limit )
+    len = limit;
+
+  DC->setColor( color );
+  memcpy( &newColor[0], &color[0], sizeof( vec4_t ) );
+
+  while( s && *s && count < len )
   {
-    const char *s = text;
-    DC->setColor( color );
-    memcpy( &newColor[0], &color[0], sizeof( vec4_t ) );
-    len = strlen( text );
+    glyph = &font->glyphs[ (int)*s ];
 
-    if( limit > 0 && len > limit )
-      len = limit;
-
-    count = 0;
-
-    while( s && *s && count < len )
+    if( maxX && UI_Text_Width( s, scale, 1 ) + x > *maxX )
     {
-      float width, height, skip, yadj;
+      *maxX = 0;
+      break;
+    }
 
-      glyph = &font->glyphs[( int )*s];
-      width = glyph->imageWidth * DC->aspectScale;
-      height = glyph->imageHeight;
-      skip = glyph->xSkip * DC->aspectScale;
-      yadj = useScale * glyph->top;
-
+    if( cursorPos < 0 )
+    {
       if( Q_IsColorString( s ) )
       {
-        memcpy( newColor, g_color_table[ColorIndex( *( s+1 ) )], sizeof( newColor ) );
+        memcpy( newColor, g_color_table[ColorIndex( *( s+1 ) )],
+                sizeof( newColor ) );
         newColor[3] = color[3];
         DC->setColor( newColor );
         s += 2;
         continue;
       }
-      else if( UI_Text_Emoticon( s, &emoticonEscaped, &emoticonLen,
-                                 &emoticonHandle, &emoticonWidth ) )
+
+      if( UI_Text_Emoticon( s, &emoticonEscaped, &emoticonLen,
+                            &emoticonHandle, &emoticonWidth ) )
       {
         if( emoticonEscaped )
-        {
           s++;
-        }
         else
         {
+          float yadj = useScale * glyph->top;
+
           DC->setColor( NULL );
-          DC->drawHandlePic( x, y - yadj, ( emoticonW * emoticonWidth ),
-            emoticonH, emoticonHandle );
+          DC->drawHandlePic( x, y - yadj,
+                             ( emoticonW * emoticonWidth ),
+                             emoticonH,
+                             emoticonHandle );
           DC->setColor( newColor );
-          x += ( emoticonW * emoticonWidth );
+          x += ( emoticonW * emoticonWidth ) + gapAdjust;
           s += emoticonLen;
+          count += emoticonWidth;
           continue;
         }
       }
-
-      if( style == ITEM_TEXTSTYLE_SHADOWED || style == ITEM_TEXTSTYLE_SHADOWEDMORE )
-      {
-        int ofs = style == ITEM_TEXTSTYLE_SHADOWED ? 1 : 2;
-        colorBlack[3] = newColor[3];
-        DC->setColor( colorBlack );
-        UI_Text_PaintChar( x + ofs, y - yadj + ofs,
-                           width,
-                           height,
-                           useScale,
-                           glyph->s,
-                           glyph->t,
-                           glyph->s2,
-                           glyph->t2,
-                           glyph->glyph );
-        DC->setColor( newColor );
-        colorBlack[3] = 1.0;
-      }
-      else if( style == ITEM_TEXTSTYLE_NEON )
-      {
-        vec4_t glow, outer, inner, white;
-
-        glow[ 0 ] = newColor[ 0 ] * 0.5;
-        glow[ 1 ] = newColor[ 1 ] * 0.5;
-        glow[ 2 ] = newColor[ 2 ] * 0.5;
-        glow[ 3 ] = newColor[ 3 ] * 0.2;
-
-        outer[ 0 ] = newColor[ 0 ];
-        outer[ 1 ] = newColor[ 1 ];
-        outer[ 2 ] = newColor[ 2 ];
-        outer[ 3 ] = newColor[ 3 ];
-
-        inner[ 0 ] = newColor[ 0 ] * 1.5 > 1.0f ? 1.0f : newColor[ 0 ] * 1.5;
-        inner[ 1 ] = newColor[ 1 ] * 1.5 > 1.0f ? 1.0f : newColor[ 1 ] * 1.5;
-        inner[ 2 ] = newColor[ 2 ] * 1.5 > 1.0f ? 1.0f : newColor[ 2 ] * 1.5;
-        inner[ 3 ] = newColor[ 3 ];
-
-        white[ 0 ] = white[ 1 ] = white[ 2 ] = white[ 3 ] = 1.0f;
-
-        DC->setColor( glow );
-        UI_Text_PaintChar( x - 1.5, y - yadj - 1.5,
-                           width + 3,
-                           height + 3,
-                           useScale,
-                           glyph->s,
-                           glyph->t,
-                           glyph->s2,
-                           glyph->t2,
-                           glyph->glyph );
-
-        DC->setColor( outer );
-        UI_Text_PaintChar( x - 1, y - yadj - 1,
-                           width + 2,
-                           height + 2,
-                           useScale,
-                           glyph->s,
-                           glyph->t,
-                           glyph->s2,
-                           glyph->t2,
-                           glyph->glyph );
-
-        DC->setColor( inner );
-        UI_Text_PaintChar( x - 0.5, y - yadj - 0.5,
-                           width + 1,
-                           height + 1,
-                           useScale,
-                           glyph->s,
-                           glyph->t,
-                           glyph->s2,
-                           glyph->t2,
-                           glyph->glyph );
-
-        DC->setColor( white );
-      }
-
-      UI_Text_PaintChar( x, y - yadj,
-                         width,
-                         height,
-                         useScale,
-                         glyph->s,
-                         glyph->t,
-                         glyph->s2,
-                         glyph->t2,
-                         glyph->glyph );
-
-      x += ( skip * useScale ) + adjust;
-      s++;
-      count++;
     }
-    DC->setColor( NULL );
+
+    if( style == ITEM_TEXTSTYLE_SHADOWED ||
+       style == ITEM_TEXTSTYLE_SHADOWEDMORE )
+    {
+      int ofs;
+
+      if( style == ITEM_TEXTSTYLE_SHADOWED )
+        ofs = 1;
+      else
+        ofs = 2;
+      colorBlack[3] = newColor[3];
+      DC->setColor( colorBlack );
+      UI_Text_PaintChar( x + ofs, y + ofs, useScale, glyph, 0.0f );
+      DC->setColor( newColor );
+      colorBlack[3] = 1.0f;
+    }
+    else if( style == ITEM_TEXTSTYLE_NEON )
+    {
+      vec4_t glow;
+
+      memcpy( &glow[0], &newColor[0], sizeof( vec4_t ) );
+      glow[ 3 ] *= 0.2f;
+
+      DC->setColor( glow );
+      UI_Text_PaintChar( x, y, useScale, glyph, 6.0f );
+      UI_Text_PaintChar( x, y, useScale, glyph, 4.0f );
+      DC->setColor( newColor );
+      UI_Text_PaintChar( x, y, useScale, glyph, 2.0f );
+
+      DC->setColor( colorWhite );
+    }
+
+    UI_Text_PaintChar( x, y, useScale, glyph, 0.0f );
+
+    if( count == cursorPos )
+      cursorX = x;
+
+    x += ( glyph->xSkip * DC->aspectScale * useScale ) + gapAdjust;
+    s++;
+    count++;
+
+    if( maxX )
+      *maxX = x;
   }
+
+  // paint cursor
+  if( cursorPos >= 0 )
+  {
+    if( cursorPos == len )
+      cursorX = x;
+
+    if( cursorX >= 0 && !( ( DC->realTime / BLINK_DIVISOR ) & 1 ) )
+    {
+      glyph = &font->glyphs[ (int)cursor ];
+      UI_Text_PaintChar( cursorX, y, useScale, glyph, 0.0f );
+    }
+  }
+
+  DC->setColor( NULL );
 }
 
-//FIXME: merge this with Text_Paint, somehow
+void UI_Text_Paint_Limit( float *maxX, float x, float y, float scale,
+                          vec4_t color, const char *text, float adjust, int limit )
+{
+  UI_Text_Paint_Generic( x, y, scale, adjust,
+                         text, color, ITEM_TEXTSTYLE_NORMAL,
+                         limit, maxX, -1, 0 );
+}
+
+void UI_Text_Paint( float x, float y, float scale, vec4_t color, const char *text,
+                    float adjust, int limit, int style )
+{
+  UI_Text_Paint_Generic( x, y, scale, adjust,
+                         text, color, style,
+                         limit, NULL, -1, 0 );
+}
+
 void UI_Text_PaintWithCursor( float x, float y, float scale, vec4_t color, const char *text,
                               int cursorPos, char cursor, int limit, int style )
 {
-  int len, count;
-  vec4_t newColor;
-  glyphInfo_t *glyph, *glyph2;
-  float yadj;
-  float useScale;
-  fontInfo_t *font = &DC->Assets.textFont;
-
-  if( scale <= DC->getCVarValue( "ui_smallFont" ) )
-    font = &DC->Assets.smallFont;
-  else if( scale >= DC->getCVarValue( "ui_bigFont" ) )
-    font = &DC->Assets.bigFont;
-
-  useScale = scale * font->glyphScale;
-
-  if( text )
-  {
-    float width2, height2, skip2;
-    const char *s = text;
-    DC->setColor( color );
-    memcpy( &newColor[0], &color[0], sizeof( vec4_t ) );
-    len = strlen( text );
-
-    if( limit > 0 && len > limit )
-      len = limit;
-
-    count = 0;
-    glyph2 = &font->glyphs[ ( int ) cursor];
-    width2 = glyph2->imageWidth * DC->aspectScale;
-    height2 = glyph2->imageHeight;
-    skip2 = glyph2->xSkip * DC->aspectScale;
-
-    while( s && *s && count < len )
-    {
-      float width, height, skip;
-      glyph = &font->glyphs[( int )*s];
-      width = glyph->imageWidth * DC->aspectScale;
-      height = glyph->imageHeight;
-      skip = glyph->xSkip * DC->aspectScale;
-
-      yadj = useScale * glyph->top;
-
-      if( style == ITEM_TEXTSTYLE_SHADOWED || style == ITEM_TEXTSTYLE_SHADOWEDMORE )
-      {
-        int ofs = style == ITEM_TEXTSTYLE_SHADOWED ? 1 : 2;
-        colorBlack[3] = newColor[3];
-        DC->setColor( colorBlack );
-        UI_Text_PaintChar( x + ofs, y - yadj + ofs,
-                           width,
-                           height,
-                           useScale,
-                           glyph->s,
-                           glyph->t,
-                           glyph->s2,
-                           glyph->t2,
-                           glyph->glyph );
-        colorBlack[3] = 1.0;
-        DC->setColor( newColor );
-      }
-      else if( style == ITEM_TEXTSTYLE_NEON )
-      {
-        vec4_t glow, outer, inner, white;
-
-        glow[ 0 ] = newColor[ 0 ] * 0.5;
-        glow[ 1 ] = newColor[ 1 ] * 0.5;
-        glow[ 2 ] = newColor[ 2 ] * 0.5;
-        glow[ 3 ] = newColor[ 3 ] * 0.2;
-
-        outer[ 0 ] = newColor[ 0 ];
-        outer[ 1 ] = newColor[ 1 ];
-        outer[ 2 ] = newColor[ 2 ];
-        outer[ 3 ] = newColor[ 3 ];
-
-        inner[ 0 ] = newColor[ 0 ] * 1.5 > 1.0f ? 1.0f : newColor[ 0 ] * 1.5;
-        inner[ 1 ] = newColor[ 1 ] * 1.5 > 1.0f ? 1.0f : newColor[ 1 ] * 1.5;
-        inner[ 2 ] = newColor[ 2 ] * 1.5 > 1.0f ? 1.0f : newColor[ 2 ] * 1.5;
-        inner[ 3 ] = newColor[ 3 ];
-
-        white[ 0 ] = white[ 1 ] = white[ 2 ] = white[ 3 ] = 1.0f;
-
-        DC->setColor( glow );
-        UI_Text_PaintChar( x - 1.5, y - yadj - 1.5,
-                           width + 3,
-                           height + 3,
-                           useScale,
-                           glyph->s,
-                           glyph->t,
-                           glyph->s2,
-                           glyph->t2,
-                           glyph->glyph );
-
-        DC->setColor( outer );
-        UI_Text_PaintChar( x - 1, y - yadj - 1,
-                           width + 2,
-                           height + 2,
-                           useScale,
-                           glyph->s,
-                           glyph->t,
-                           glyph->s2,
-                           glyph->t2,
-                           glyph->glyph );
-
-        DC->setColor( inner );
-        UI_Text_PaintChar( x - 0.5, y - yadj - 0.5,
-                           width + 1,
-                           height + 1,
-                           useScale,
-                           glyph->s,
-                           glyph->t,
-                           glyph->s2,
-                           glyph->t2,
-                           glyph->glyph );
-
-        DC->setColor( white );
-      }
-
-      UI_Text_PaintChar( x, y - yadj,
-                         width,
-                         height,
-                         useScale,
-                         glyph->s,
-                         glyph->t,
-                         glyph->s2,
-                         glyph->t2,
-                         glyph->glyph );
-
-      yadj = useScale * glyph2->top;
-
-      if( count == cursorPos && !( ( DC->realTime / BLINK_DIVISOR ) & 1 ) )
-      {
-        UI_Text_PaintChar( x, y - yadj,
-                           width2,
-                           height2,
-                           useScale,
-                           glyph2->s,
-                           glyph2->t,
-                           glyph2->s2,
-                           glyph2->t2,
-                           glyph2->glyph );
-      }
-
-      x += ( skip * useScale );
-      s++;
-      count++;
-    }
-
-    // need to paint cursor at end of text
-    if( cursorPos == len && !( ( DC->realTime / BLINK_DIVISOR ) & 1 ) )
-    {
-      yadj = useScale * glyph2->top;
-      UI_Text_PaintChar( x, y - yadj,
-                         width2,
-                         height2,
-                         useScale,
-                         glyph2->s,
-                         glyph2->t,
-                         glyph2->s2,
-                         glyph2->t2,
-                         glyph2->glyph );
-
-    }
-
-    DC->setColor( NULL );
-  }
+  UI_Text_Paint_Generic( x, y, scale, 0.0,
+                         text, color, style,
+                         limit, NULL, cursorPos, cursor );
 }
 
 commandDef_t commandList[] =
