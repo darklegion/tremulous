@@ -2137,17 +2137,17 @@ qboolean G_admin_listplayers( gentity_t *ent, int skiparg )
     if( p->pers.connected == CON_CONNECTING )
     {
       t = 'C';
-      c = COLOR_CYAN;
+      c = COLOR_YELLOW;
     }
     else
     {
       t = toupper( *( BG_TeamName( p->pers.teamSelection ) ) );
       if( p->pers.teamSelection == TEAM_HUMANS )
-        c = COLOR_BLUE;
+        c = COLOR_CYAN;
       else if( p->pers.teamSelection == TEAM_ALIENS )
         c = COLOR_RED;
       else
-        c = COLOR_YELLOW;
+        c = COLOR_WHITE;
     }
 
     muted = p->pers.muted ? 'M' : ' ';
