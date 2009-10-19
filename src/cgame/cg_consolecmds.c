@@ -185,30 +185,29 @@ static void CG_UIMenu_f( void )
 
 static consoleCommand_t commands[ ] =
 {
-  { "ui_menu", CG_UIMenu_f },
-  { "testgun", CG_TestGun_f },
-  { "testmodel", CG_TestModel_f },
-  { "nextframe", CG_TestModelNextFrame_f },
-  { "prevframe", CG_TestModelPrevFrame_f },
-  { "nextskin", CG_TestModelNextSkin_f },
-  { "prevskin", CG_TestModelPrevSkin_f },
-  { "viewpos", CG_Viewpos_f },
   { "+scores", CG_ScoresDown_f },
   { "-scores", CG_ScoresUp_f },
-  { "scoresUp", CG_scrollScoresUp_f },
-  { "scoresDown", CG_scrollScoresDown_f },
-  { "sizeup", CG_SizeUp_f },
-  { "sizedown", CG_SizeDown_f },
-  { "weapnext", CG_NextWeapon_f },
-  { "weapprev", CG_PrevWeapon_f },
-  { "weapon", CG_Weapon_f },
-  { "testPS", CG_TestPS_f },
-  { "destroyTestPS", CG_DestroyTestPS_f },
-  { "testTS", CG_TestTS_f },
-  { "destroyTestTS", CG_DestroyTestTS_f },
   { "clientlist", CG_ClientList_f },
+  { "destroyTestPS", CG_DestroyTestPS_f },
+  { "destroyTestTS", CG_DestroyTestTS_f },
+  { "nextframe", CG_TestModelNextFrame_f },
+  { "nextskin", CG_TestModelNextSkin_f },
+  { "prevframe", CG_TestModelPrevFrame_f },
+  { "prevskin", CG_TestModelPrevSkin_f },
+  { "scoresDown", CG_scrollScoresDown_f },
+  { "scoresUp", CG_scrollScoresUp_f },
+  { "sizedown", CG_SizeDown_f },
+  { "sizeup", CG_SizeUp_f },
+  { "testgun", CG_TestGun_f },
+  { "testmodel", CG_TestModel_f },
+  { "testPS", CG_TestPS_f },
+  { "testTS", CG_TestTS_f },
+  { "ui_menu", CG_UIMenu_f },
+  { "viewpos", CG_Viewpos_f },
+  { "weapnext", CG_NextWeapon_f },
+  { "weapon", CG_Weapon_f },
+  { "weapprev", CG_PrevWeapon_f }
 };
-
 
 /*
 =================
@@ -220,21 +219,17 @@ Cmd_Argc() / Cmd_Argv()
 */
 qboolean CG_ConsoleCommand( void )
 {
-  const char  *cmd;
-  int         i;
+  consoleCommand_t *cmd;
 
-  cmd = CG_Argv( 0 );
+  cmd = bsearch( CG_Argv( 0 ), commands,
+    sizeof( commands ) / sizeof( commands[ 0 ]), sizeof( commands[ 0 ] ),
+    cmdcmp );
 
-  for( i = 0; i < sizeof( commands ) / sizeof( commands[ 0 ] ); i++ )
-  {
-    if( !Q_stricmp( cmd, commands[ i ].cmd ) )
-    {
-      commands[ i ].function( );
-      return qtrue;
-    }
-  }
+  if( !cmd )
+    return qfalse;
 
-  return qfalse;
+  cmd->function( );
+  return qtrue;
 }
 
 

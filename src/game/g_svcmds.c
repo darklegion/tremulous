@@ -513,34 +513,33 @@ static void Svcmd_SuddenDeath_f( void )
       offset, offset == 1 ? "" : "s" ) );
 }
 
-struct
+struct svcmd
 {
   char     *cmd;
   qboolean dedicated;
   void     ( *function )( void );
 } svcmds[ ] = {
-  { "entityList", qfalse, Svcmd_EntityList_f },
-  { "status", qfalse, Svcmd_Status_f },
-  { "forceTeam", qfalse, Svcmd_ForceTeam_f },
-  { "mapRotation", qfalse, Svcmd_MapRotation_f },
-  { "stopMapRotation", qfalse, G_StopMapRotation },
+  { "a", qtrue, Svcmd_MessageWrapper },
+  { "admitDefeat", qfalse, Svcmd_AdmitDefeat_f },
   { "advanceMapRotation", qfalse, G_AdvanceMapRotation },
   { "alienWin", qfalse, Svcmd_TeamWin_f },
-  { "humanWin", qfalse, Svcmd_TeamWin_f },
-  { "layoutSave", qfalse, Svcmd_LayoutSave_f },
-  { "layoutLoad", qfalse, Svcmd_LayoutLoad_f },
-  { "eject", qfalse, Svcmd_EjectClient_f },
-  { "dumpuser", qfalse, Svcmd_DumpUser_f },
-  { "admitDefeat", qfalse, Svcmd_AdmitDefeat_f },
-  { "evacuation", qfalse, Svcmd_Evacuation_f },
-  { "printqueue", qfalse, Svcmd_PrintQueue_f },
-  // don't handle communication commands unless dedicated
-  { "cp", qtrue, Svcmd_CenterPrint_f },
-  { "say_team", qtrue, Svcmd_TeamMessage_f },
-  { "say", qtrue, Svcmd_MessageWrapper },
   { "chat", qtrue, Svcmd_MessageWrapper },
+  { "cp", qtrue, Svcmd_CenterPrint_f },
+  { "dumpuser", qfalse, Svcmd_DumpUser_f },
+  { "eject", qfalse, Svcmd_EjectClient_f },
+  { "entityList", qfalse, Svcmd_EntityList_f },
+  { "evacuation", qfalse, Svcmd_Evacuation_f },
+  { "forceTeam", qfalse, Svcmd_ForceTeam_f },
+  { "humanWin", qfalse, Svcmd_TeamWin_f },
+  { "layoutLoad", qfalse, Svcmd_LayoutLoad_f },
+  { "layoutSave", qfalse, Svcmd_LayoutSave_f },
   { "m", qtrue, Svcmd_MessageWrapper },
-  { "a", qtrue, Svcmd_MessageWrapper },
+  { "mapRotation", qfalse, Svcmd_MapRotation_f },
+  { "printqueue", qfalse, Svcmd_PrintQueue_f },
+  { "say", qtrue, Svcmd_MessageWrapper },
+  { "say_team", qtrue, Svcmd_TeamMessage_f },
+  { "status", qfalse, Svcmd_Status_f },
+  { "stopMapRotation", qfalse, G_StopMapRotation },
   { "suddendeath", qfalse, Svcmd_SuddenDeath_f }
 };
 
@@ -553,28 +552,29 @@ ConsoleCommand
 qboolean  ConsoleCommand( void )
 {
   char cmd[ MAX_TOKEN_CHARS ];
-  int  i;
+  struct svcmd *command;
 
   trap_Argv( 0, cmd, sizeof( cmd ) );
 
-  for( i = 0; i < sizeof( svcmds ) / sizeof( svcmds[ 0 ] ); i++ )
+  command = bsearch( cmd, svcmds, sizeof( svcmds ) / sizeof( struct svcmd ),
+    sizeof( struct svcmd ), cmdcmp );
+
+  if( !command )
   {
-    if( !Q_stricmp( cmd, svcmds[ i ].cmd ) )
-    {
-      if( svcmds[ i ].dedicated && !g_dedicated.integer )
-        return qfalse;
-      svcmds[ i ].function( );
+    // see if this is an admin command
+    if( G_admin_cmd_check( NULL, qfalse ) )
       return qtrue;
-    }
+
+    if( g_dedicated.integer )
+      G_Printf( "unknown command: %s\n", cmd );
+
+    return qfalse;
   }
 
-  // see if this is an admin command
-  if( G_admin_cmd_check( NULL, qfalse ) )
-    return qtrue;
+  if( command->dedicated && !g_dedicated.integer )
+    return qfalse;
 
-  if( g_dedicated.integer )
-    G_Printf( "unknown command: %s\n", cmd );
-
-  return qfalse;
+  command->function( );
+  return qtrue;
 }
 

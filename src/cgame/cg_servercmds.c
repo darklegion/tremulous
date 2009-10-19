@@ -1278,21 +1278,21 @@ static void CG_PTRConfirm_f( void )
 
 static consoleCommand_t svcommands[ ] =
 {
+  { "chat", CG_Chat_f },
+  { "clientLevelShot", CG_ClientLevelShot_f },
   { "cp", CG_CenterPrint_f },
   { "cs", CG_ConfigStringModified },
-  { "print", CG_Print_f },
-  { "chat", CG_Chat_f },
-  { "scores", CG_ParseScores },
-  { "tinfo", CG_ParseTeamInfo },
   { "map_restart", CG_MapRestart },
-  { "clientLevelShot", CG_ClientLevelShot_f },
-  { "servermenu", CG_ServerMenu_f },
-  { "serverclosemenus", CG_ServerCloseMenus_f },
   { "poisoncloud", CG_PoisonCloud_f },
-  { "voice", CG_ParseVoice },
-  { "ptrcrequest", CG_PTRRequest_f },
+  { "print", CG_Print_f },
+  { "ptrcconfirm", CG_PTRConfirm_f },
   { "ptrcissue", CG_PTRIssue_f },
-  { "ptrcconfirm", CG_PTRConfirm_f }
+  { "ptrcrequest", CG_PTRRequest_f },
+  { "scores", CG_ParseScores },
+  { "serverclosemenus", CG_ServerCloseMenus_f },
+  { "servermenu", CG_ServerMenu_f },
+  { "tinfo", CG_ParseTeamInfo },
+  { "voice", CG_ParseVoice }
 };
 
 /*
@@ -1305,18 +1305,18 @@ Cmd_Argc() / Cmd_Argv()
 */
 static void CG_ServerCommand( void )
 {
-  const char  *cmd;
-  int         i;
+  const char       *cmd;
+  consoleCommand_t *command;
 
   cmd = CG_Argv( 0 );
+  command = bsearch( cmd, svcommands, sizeof( svcommands ) /
+                     sizeof( svcommands[ 0 ]), sizeof( svcommands[ 0 ] ),
+                     cmdcmp );
 
-  for( i = 0; i < sizeof( svcommands ) / sizeof( svcommands[ 0 ] ); i++ )
+  if( command )
   {
-    if( !Q_stricmp( cmd, svcommands[ i ].cmd ) )
-    {
-      svcommands[ i ].function( );
-      return;
-    }
+    command->function( );
+    return;
   }
 
   CG_Printf( "Unknown client game command: %s\n", cmd );

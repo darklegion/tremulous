@@ -116,34 +116,32 @@ typedef struct
 
 field_t fields[ ] =
 {
+  {"acceleration", FOFS(acceleration), F_VECTOR},
+  {"alpha", FOFS(pos1), F_VECTOR},
+  {"angle", FOFS(s.angles), F_ANGLEHACK},
+  {"angles", FOFS(s.angles), F_VECTOR},
+  {"animation", FOFS(animation), F_VECTOR4},
+  {"bounce", FOFS(physicsBounce), F_FLOAT},
   {"classname", FOFS(classname), F_LSTRING},
-  {"origin", FOFS(s.origin), F_VECTOR},
+  {"count", FOFS(count), F_INT},
+  {"dmg", FOFS(damage), F_INT},
+  {"health", FOFS(health), F_INT},
+  {"light", 0, F_IGNORE},
+  {"message", FOFS(message), F_LSTRING},
   {"model", FOFS(model), F_LSTRING},
   {"model2", FOFS(model2), F_LSTRING},
+  {"origin", FOFS(s.origin), F_VECTOR},
+  {"radius", FOFS(pos2), F_VECTOR},
+  {"random", FOFS(random), F_FLOAT},
+  {"rotatorAngle", FOFS(rotatorAngle), F_FLOAT},
   {"spawnflags", FOFS(spawnflags), F_INT},
   {"speed", FOFS(speed), F_FLOAT},
   {"target", FOFS(target), F_LSTRING},
   {"targetname", FOFS(targetname), F_LSTRING},
-  {"message", FOFS(message), F_LSTRING},
-  {"team", FOFS(team), F_LSTRING},
-  {"wait", FOFS(wait), F_FLOAT},
-  {"random", FOFS(random), F_FLOAT},
-  {"count", FOFS(count), F_INT},
-  {"health", FOFS(health), F_INT},
-  {"light", 0, F_IGNORE},
-  {"dmg", FOFS(damage), F_INT},
-  {"angles", FOFS(s.angles), F_VECTOR},
-  {"angle", FOFS(s.angles), F_ANGLEHACK},
-  {"bounce", FOFS(physicsBounce), F_FLOAT},
-  {"alpha", FOFS(pos1), F_VECTOR},
-  {"radius", FOFS(pos2), F_VECTOR},
-  {"acceleration", FOFS(acceleration), F_VECTOR},
-  {"animation", FOFS(animation), F_VECTOR4},
-  {"rotatorAngle", FOFS(rotatorAngle), F_FLOAT},
   {"targetShaderName", FOFS(targetShaderName), F_LSTRING},
   {"targetShaderNewName", FOFS(targetShaderNewName), F_LSTRING},
-
-  {NULL}
+  {"team", FOFS(team), F_LSTRING},
+  {"wait", FOFS(wait), F_FLOAT}
 };
 
 
@@ -228,30 +226,54 @@ void SP_misc_light_flare( gentity_t *ent );
 
 spawn_t spawns[ ] =
 {
-  // info entities don't do anything at all, but provide positional
-  // information for things controlled by other processes
-  { "info_player_start",        SP_info_player_start },
-  { "info_player_deathmatch",   SP_info_player_deathmatch },
-  { "info_player_intermission", SP_info_player_intermission },
-
-  { "info_alien_intermission",  SP_info_alien_intermission },
-  { "info_human_intermission",  SP_info_human_intermission },
-
-  { "info_null",                SP_info_null },
-  { "info_notnull",             SP_info_notnull },    // use target_position instead
-
-  { "func_plat",                SP_func_plat },
+  { "func_bobbing",             SP_func_bobbing },
   { "func_button",              SP_func_button },
   { "func_door",                SP_func_door },
-  { "func_door_rotating",       SP_func_door_rotating },
   { "func_door_model",          SP_func_door_model },
-  { "func_static",              SP_func_static },
-  { "func_rotating",            SP_func_rotating },
-  { "func_bobbing",             SP_func_bobbing },
-  { "func_pendulum",            SP_func_pendulum },
-  { "func_train",               SP_func_train },
+  { "func_door_rotating",       SP_func_door_rotating },
   { "func_group",               SP_info_null },
+  { "func_pendulum",            SP_func_pendulum },
+  { "func_plat",                SP_func_plat },
+  { "func_rotating",            SP_func_rotating },
+  { "func_static",              SP_func_static },
   { "func_timer",               SP_func_timer },      // rename trigger_timer?
+  { "func_train",               SP_func_train },
+
+  // info entities don't do anything at all, but provide positional
+  // information for things controlled by other processes
+  { "info_alien_intermission",  SP_info_alien_intermission },
+  { "info_human_intermission",  SP_info_human_intermission },
+  { "info_notnull",             SP_info_notnull },    // use target_position instead
+  { "info_null",                SP_info_null },
+  { "info_player_deathmatch",   SP_info_player_deathmatch },
+  { "info_player_intermission", SP_info_player_intermission },
+  { "info_player_start",        SP_info_player_start },
+  { "light",                    SP_light },
+  { "misc_anim_model",          SP_misc_anim_model },
+  { "misc_light_flare",         SP_misc_light_flare },
+  { "misc_model",               SP_misc_model },
+  { "misc_particle_system",     SP_misc_particle_system },
+  { "misc_portal_camera",       SP_misc_portal_camera },
+  { "misc_portal_surface",      SP_misc_portal_surface },
+  { "misc_teleporter_dest",     SP_misc_teleporter_dest },
+  { "path_corner",              SP_path_corner },
+
+  // targets perform no action by themselves, but must be triggered
+  // by another entity
+  { "target_alien_win",         SP_target_alien_win },
+  { "target_delay",             SP_target_delay },
+  { "target_human_win",         SP_target_human_win },
+  { "target_hurt",              SP_target_hurt },
+  { "target_kill",              SP_target_kill },
+  { "target_location",          SP_target_location },
+  { "target_position",          SP_target_position },
+  { "target_print",             SP_target_print },
+  { "target_push",              SP_target_push },
+  { "target_relay",             SP_target_relay },
+  { "target_rumble",            SP_target_rumble },
+  { "target_score",             SP_target_score },
+  { "target_speaker",           SP_target_speaker },
+  { "target_teleporter",        SP_target_teleporter },
 
   // Triggers are brush objects that cause an effect when contacted
   // by a living player, usually involving firing targets.
@@ -259,49 +281,18 @@ spawn_t spawns[ ] =
   // a single trigger class and different targets, triggered effects
   // could not be client side predicted (push and teleport).
   { "trigger_always",           SP_trigger_always },
-  { "trigger_multiple",         SP_trigger_multiple },
-  { "trigger_push",             SP_trigger_push },
-  { "trigger_teleport",         SP_trigger_teleport },
-  { "trigger_hurt",             SP_trigger_hurt },
-  { "trigger_stage",            SP_trigger_stage },
-  { "trigger_win",              SP_trigger_win },
+  { "trigger_ammo",             SP_trigger_ammo },
   { "trigger_buildable",        SP_trigger_buildable },
   { "trigger_class",            SP_trigger_class },
   { "trigger_equipment",        SP_trigger_equipment },
   { "trigger_gravity",          SP_trigger_gravity },
   { "trigger_heal",             SP_trigger_heal },
-  { "trigger_ammo",             SP_trigger_ammo },
-
-  // targets perform no action by themselves, but must be triggered
-  // by another entity
-  { "target_delay",             SP_target_delay },
-  { "target_speaker",           SP_target_speaker },
-  { "target_print",             SP_target_print },
-  { "target_score",             SP_target_score },
-  { "target_teleporter",        SP_target_teleporter },
-  { "target_relay",             SP_target_relay },
-  { "target_kill",              SP_target_kill },
-  { "target_position",          SP_target_position },
-  { "target_location",          SP_target_location },
-  { "target_push",              SP_target_push },
-  { "target_rumble",            SP_target_rumble },
-  { "target_alien_win",         SP_target_alien_win },
-  { "target_human_win",         SP_target_human_win },
-  { "target_hurt",              SP_target_hurt },
-
-  { "light",                    SP_light },
-  { "path_corner",              SP_path_corner },
-
-  { "misc_teleporter_dest",     SP_misc_teleporter_dest },
-  { "misc_model",               SP_misc_model },
-  { "misc_portal_surface",      SP_misc_portal_surface },
-  { "misc_portal_camera",       SP_misc_portal_camera },
-
-  { "misc_particle_system",     SP_misc_particle_system },
-  { "misc_anim_model",          SP_misc_anim_model },
-  { "misc_light_flare",         SP_misc_light_flare },
-
-  { NULL, 0 }
+  { "trigger_hurt",             SP_trigger_hurt },
+  { "trigger_multiple",         SP_trigger_multiple },
+  { "trigger_push",             SP_trigger_push },
+  { "trigger_stage",            SP_trigger_stage },
+  { "trigger_teleport",         SP_trigger_teleport },
+  { "trigger_win",              SP_trigger_win }
 };
 
 /*
@@ -342,14 +333,13 @@ qboolean G_CallSpawn( gentity_t *ent )
   }
 
   // check normal spawn functions
-  for( s = spawns; s->name; s++ )
+  s = bsearch( ent->classname, spawns, sizeof( spawns ) / sizeof( spawn_t ),
+    sizeof( spawn_t ), cmdcmp );
+  if( s )
   {
-    if( !strcmp( s->name, ent->classname ) )
-    {
-      // found it
-      s->spawn( ent );
-      return qtrue;
-    }
+    // found it
+    s->spawn( ent );
+    return qtrue;
   }
 
   G_Printf( "%s doesn't have a spawn function\n", ent->classname );
@@ -412,58 +402,53 @@ void G_ParseField( const char *key, const char *value, gentity_t *ent )
   vec3_t  vec;
   vec4_t  vec4;
 
-  for( f = fields; f->name; f++ )
+  f = bsearch( key, fields, sizeof( fields ) / sizeof( field_t ),
+    sizeof( field_t ), cmdcmp );
+  if( !f )
+    return;
+  b = (byte *)ent;
+
+  switch( f->type )
   {
-    if( !Q_stricmp( f->name, key ) )
-    {
-      // found it
-      b = (byte *)ent;
+    case F_LSTRING:
+      *(char **)( b + f->ofs ) = G_NewString( value );
+      break;
 
-      switch( f->type )
-      {
-        case F_LSTRING:
-          *(char **)( b + f->ofs ) = G_NewString( value );
-          break;
+    case F_VECTOR:
+      sscanf( value, "%f %f %f", &vec[ 0 ], &vec[ 1 ], &vec[ 2 ] );
 
-        case F_VECTOR:
-          sscanf( value, "%f %f %f", &vec[ 0 ], &vec[ 1 ], &vec[ 2 ] );
+      ( (float *)( b + f->ofs ) )[ 0 ] = vec[ 0 ];
+      ( (float *)( b + f->ofs ) )[ 1 ] = vec[ 1 ];
+      ( (float *)( b + f->ofs ) )[ 2 ] = vec[ 2 ];
+      break;
 
-          ( (float *)( b + f->ofs ) )[ 0 ] = vec[ 0 ];
-          ( (float *)( b + f->ofs ) )[ 1 ] = vec[ 1 ];
-          ( (float *)( b + f->ofs ) )[ 2 ] = vec[ 2 ];
-          break;
+    case F_VECTOR4:
+       sscanf( value, "%f %f %f %f", &vec4[ 0 ], &vec4[ 1 ], &vec4[ 2 ], &vec4[ 3 ] );
 
-        case F_VECTOR4:
-          sscanf( value, "%f %f %f %f", &vec4[ 0 ], &vec4[ 1 ], &vec4[ 2 ], &vec4[ 3 ] );
+      ( (float *)( b + f->ofs ) )[ 0 ] = vec4[ 0 ];
+      ( (float *)( b + f->ofs ) )[ 1 ] = vec4[ 1 ];
+      ( (float *)( b + f->ofs ) )[ 2 ] = vec4[ 2 ];
+      ( (float *)( b + f->ofs ) )[ 3 ] = vec4[ 3 ];
+      break;
 
-          ( (float *)( b + f->ofs ) )[ 0 ] = vec4[ 0 ];
-          ( (float *)( b + f->ofs ) )[ 1 ] = vec4[ 1 ];
-          ( (float *)( b + f->ofs ) )[ 2 ] = vec4[ 2 ];
-          ( (float *)( b + f->ofs ) )[ 3 ] = vec4[ 3 ];
-          break;
+    case F_INT:
+      *(int *)( b + f->ofs ) = atoi( value );
+      break;
 
-        case F_INT:
-          *(int *)( b + f->ofs ) = atoi( value );
-          break;
+    case F_FLOAT:
+      *(float *)( b + f->ofs ) = atof( value );
+      break;
 
-        case F_FLOAT:
-          *(float *)( b + f->ofs ) = atof( value );
-          break;
+    case F_ANGLEHACK:
+      v = atof( value );
+      ( (float *)( b + f->ofs ) )[ 0 ] = 0;
+      ( (float *)( b + f->ofs ) )[ 1 ] = v;
+      ( (float *)( b + f->ofs ) )[ 2 ] = 0;
+      break;
 
-        case F_ANGLEHACK:
-          v = atof( value );
-          ( (float *)( b + f->ofs ) )[ 0 ] = 0;
-          ( (float *)( b + f->ofs ) )[ 1 ] = v;
-          ( (float *)( b + f->ofs ) )[ 2 ] = 0;
-          break;
-
-        default:
-        case F_IGNORE:
-          break;
-      }
-
-      return;
-    }
+    default:
+    case F_IGNORE:
+      break;
   }
 }
 

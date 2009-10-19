@@ -2450,4 +2450,26 @@ int sscanf( const char *buffer, const char *fmt, ... )
   return count;
 }
 
+void *bsearch( const void *key, const void *base, size_t nmemb, size_t size,
+               cmp_t *compar )
+{
+  size_t low = 0, high = nmemb, mid;
+  int    comp;
+  void   *ptr;
+
+  while( low <= high )
+  {
+    mid = low + (high - low) / 2;
+    ptr = (void *)((char *)base + ( mid * size ));
+    comp = compar (key, ptr);
+    if( comp < 0 )
+      high = mid - 1;
+    else if( comp > 0 )
+      low = mid + 1;
+    else
+      return ptr;
+  }
+  return NULL;
+}
+
 #endif

@@ -2238,37 +2238,41 @@ void UI_Text_PaintWithCursor( float x, float y, float scale, vec4_t color, const
 
 commandDef_t commandList[] =
   {
+    {"close", &Script_Close},                     // menu
+    {"conditionalopen", &Script_ConditionalOpen}, // menu
+    {"exec", &Script_Exec},           // group/name
     {"fadein", &Script_FadeIn},                   // group/name
     {"fadeout", &Script_FadeOut},                 // group/name
-    {"show", &Script_Show},                       // group/name
     {"hide", &Script_Hide},                       // group/name
-    {"setcolor", &Script_SetColor},               // works on this
     {"open", &Script_Open},                       // menu
-    {"conditionalopen", &Script_ConditionalOpen}, // menu
-    {"close", &Script_Close},                     // menu
-    {"setasset", &Script_SetAsset},               // works on this
-    {"setbackground", &Script_SetBackground},     // works on this
-    {"setitemcolor", &Script_SetItemColor},       // group/name
-    {"setfocus", &Script_SetFocus},               // sets this background color to team color
-    {"reset", &Script_Reset},                     // resets the state of the item argument
-    {"setplayermodel", &Script_SetPlayerModel},   // sets this background color to team color
-    {"setplayerhead", &Script_SetPlayerHead},     // sets this background color to team color
-    {"transition", &Script_Transition},           // group/name
-    {"setcvar", &Script_SetCvar},           // group/name
-    {"exec", &Script_Exec},           // group/name
+    {"orbit", &Script_Orbit},                     // group/name
     {"play", &Script_Play},           // group/name
     {"playlooped", &Script_playLooped},           // group/name
-    {"orbit", &Script_Orbit}                      // group/name
+    {"reset", &Script_Reset},                     // resets the state of the item argument
+    {"setasset", &Script_SetAsset},               // works on this
+    {"setbackground", &Script_SetBackground},     // works on this
+    {"setcolor", &Script_SetColor},               // works on this
+    {"setcvar", &Script_SetCvar},           // group/name
+    {"setfocus", &Script_SetFocus},               // sets this background color to team color
+    {"setitemcolor", &Script_SetItemColor},       // group/name
+    {"setplayerhead", &Script_SetPlayerHead},     // sets this background color to team color
+    {"setplayermodel", &Script_SetPlayerModel},   // sets this background color to team color
+    {"show", &Script_Show},                       // group/name
+    {"transition", &Script_Transition},           // group/name
   };
 
-int scriptCommandCount = sizeof( commandList ) / sizeof( commandDef_t );
+static size_t scriptCommandCount = sizeof( commandList ) / sizeof( commandDef_t );
 
+// despite what lcc thinks, we do not get cmdcmp here
+static int commandComp( const void *a, const void *b )
+{
+  return Q_stricmp( (const char *)a, ((commandDef_t *)b)->name );
+}
 
 void Item_RunScript( itemDef_t *item, const char *s )
 {
   char script[1024], *p;
-  int i;
-  qboolean bRan;
+  commandDef_t *cmd;
   memset( script, 0, sizeof( script ) );
 
   if( item && s && s[0] )
@@ -2287,20 +2291,12 @@ void Item_RunScript( itemDef_t *item, const char *s )
       if( command[0] == ';' && command[1] == '\0' )
         continue;
 
-      bRan = qfalse;
-
-      for( i = 0; i < scriptCommandCount; i++ )
-      {
-        if( Q_stricmp( command, commandList[i].name ) == 0 )
-        {
-          ( commandList[i].handler( item, &p ) );
-          bRan = qtrue;
-          break;
-        }
-      }
-
+      cmd = bsearch( command, commandList, scriptCommandCount,
+        sizeof( commandDef_t ), commandComp );
+      if( cmd )
+        cmd->handler( item, &p );
+      else
       // not in our auto list, pass to handler
-      if( !bRan )
         DC->runScript( &p );
     }
   }

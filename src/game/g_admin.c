@@ -225,15 +225,8 @@ static qboolean admin_permission( char *flags, const char *flag, qboolean *perm 
 
 g_admin_cmd_t *G_admin_cmd( const char *cmd )
 {
-  int i;
-
-  for( i = 0; i < adminNumCmds; i++ )
-  {
-    if( !Q_stricmp( g_admin_cmds[ i ].keyword, cmd ) )
-      return &g_admin_cmds[ i ];
-  }
-
-  return NULL;
+  return bsearch( cmd, g_admin_cmds, adminNumCmds, sizeof( g_admin_cmd_t ),
+    cmdcmp );
 }
 
 g_admin_level_t *G_admin_level( const int l )
