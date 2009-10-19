@@ -423,7 +423,7 @@ void G_ParseField( const char *key, const char *value, gentity_t *ent )
       break;
 
     case F_VECTOR4:
-       sscanf( value, "%f %f %f %f", &vec4[ 0 ], &vec4[ 1 ], &vec4[ 2 ], &vec4[ 3 ] );
+      sscanf( value, "%f %f %f %f", &vec4[ 0 ], &vec4[ 1 ], &vec4[ 2 ], &vec4[ 3 ] );
 
       ( (float *)( b + f->ofs ) )[ 0 ] = vec4[ 0 ];
       ( (float *)( b + f->ofs ) )[ 1 ] = vec4[ 1 ];
