@@ -158,17 +158,19 @@ void CG_ClientList_f( void )
     switch( ci->team ) 
     {
       case TEAM_ALIENS:
-        Com_Printf( "%2d ^1A   ^7%s^7\n", i, ci->name );
+        Com_Printf( "%2d " S_COLOR_RED "A   " S_COLOR_WHITE "%s\n", i,
+          ci->name );
         break;
 
       case TEAM_HUMANS:
-        Com_Printf( "%2d ^4H   ^7%s^7\n", i, ci->name );
+        Com_Printf( "%2d " S_COLOR_CYAN "H   " S_COLOR_WHITE "%s\n", i,
+          ci->name );
         break;
 
       default:
       case TEAM_NONE:
       case NUM_TEAMS:
-        Com_Printf( "%2d ^3S   ^7%s^7\n", i, ci->name );
+        Com_Printf( "%2d S   %s\n", i, ci->name );
         break;
     }
 
@@ -187,6 +189,7 @@ static consoleCommand_t commands[ ] =
 {
   { "+scores", CG_ScoresDown_f },
   { "-scores", CG_ScoresUp_f },
+  { "cgame_memory", BG_MemoryInfo },
   { "clientlist", CG_ClientList_f },
   { "destroyTestPS", CG_DestroyTestPS_f },
   { "destroyTestTS", CG_DestroyTestTS_f },

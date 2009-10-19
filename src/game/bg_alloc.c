@@ -202,3 +202,40 @@ void BG_DefragmentMemory( void )
       startfmn = startfmn->next;    // endfmn acts as a 'restart' flag here
   }
 }
+
+void BG_MemoryInfo( void )
+{
+  // Give a breakdown of memory
+
+  freeMemNode_t *fmn = (freeMemNode_t *)memoryPool;
+  int size, chunks;
+  freeMemNode_t *end = (freeMemNode_t *)( memoryPool + POOLSIZE );
+  void *p;
+
+  Com_Printf( "%p-%p: %d out of %d bytes allocated\n",
+    fmn, end, POOLSIZE - freeMem, POOLSIZE );
+
+  while( fmn < end )
+  {
+    size = chunks = 0;
+    p = fmn;
+    while( fmn < end && fmn->cookie == FREEMEMCOOKIE )
+    {
+      size += fmn->size;
+      chunks++;
+      fmn = (freeMemNode_t *)( (char *)fmn + fmn->size );
+    }
+    if( size )
+      Com_Printf( "  %p: %d bytes free (%d chunks)\n", p, size, chunks );
+    size = chunks = 0;
+    p = fmn;
+    while( fmn < end && fmn->cookie != FREEMEMCOOKIE )
+    {
+      size += *(int *)fmn;
+      chunks++;
+      fmn = (freeMemNode_t *)( (size_t)fmn + *(int *)fmn );
+    }
+    if( size )
+      Com_Printf( "  %p: %d bytes allocated (%d chunks)\n", p, size, chunks );
+  }
+}
