@@ -1219,11 +1219,11 @@ void Cmd_CallVote_f( gentity_t *ent )
               va( "print \"callvote: Sudden Death has already begun\n\"") );
         return;
       }
-      if( g_suddenDeathTime.integer > 0 &&
+      if( level.suddenDeathBeginTime > 0 &&
           G_TimeTilSuddenDeath() <= g_suddenDeathVoteDelay.integer * 1000 )
       {
         trap_SendServerCommand( ent - g_entities, 
-              va( "print \"callvote: Sudden Death is already immenent\n\"") );
+              va( "print \"callvote: Sudden Death is imminent\n\"") );
         return;
       }
       level.voteThreshold[ team ] = g_suddenDeathVotePercent.integer;
