@@ -2209,7 +2209,7 @@ qboolean G_admin_showbans( gentity_t *ent, int skiparg )
   char filter[ MAX_NAME_LENGTH ] = {""};
   char date[ 11 ];
   char *made;
-  char n1[ MAX_NAME_LENGTH * 2 ] = {""};
+  char n1[ MAX_NAME_LENGTH ] = {""};
   qboolean ipmatch = qfalse;
   addr_t ipa, ipb;
   int neta, netb;
