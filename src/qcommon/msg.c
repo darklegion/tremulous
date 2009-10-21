@@ -1160,6 +1160,7 @@ netField_t	playerStateFields[] =
 { PSF(delta_angles[0]), 16 },
 { PSF(delta_angles[2]), 16 },
 { PSF(torsoTimer), 12 },
+{ PSF(tauntTimer), 12 },
 { PSF(eventParms[0]), 8 },
 { PSF(eventParms[1]), 8 },
 { PSF(clientNum), 8 },
