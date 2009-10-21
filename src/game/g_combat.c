@@ -1375,14 +1375,14 @@ void G_LogDestruction( gentity_t *self, gentity_t *actor, int mod )
   }
 
   if( mod == MOD_DECONSTRUCT || mod == MOD_REPLACE )
-    G_LogPrintf( "Decon: %d %d %d: %s^7 deconstructed %s\n",
+    G_LogPrintf( "Decon: %d %d %d: %s ^3deconstructed^7 %s\n",
       actor->client->ps.clientNum,
       self->s.modelindex,
       mod,
       actor->client->pers.netname,
       BG_Buildable( self->s.modelindex )->name );
   else
-    G_LogPrintf( "Decon: %d %d %d: %s^7 destroyed %s by %s\n",
+    G_LogPrintf( "Decon: %d %d %d: %s ^3destroyed^7 %s by %s\n",
       actor->client->ps.clientNum,
       self->s.modelindex,
       mod,

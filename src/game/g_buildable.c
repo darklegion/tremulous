@@ -3725,9 +3725,9 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable, vec3_t ori
       va( "print \"%s ^2built^7 by %s%s%s\n\"",
         BG_Buildable( built->s.modelindex )->humanName,
         builder->client->pers.netname,
-        ( removed[0] ) ? "^7, replacing " : "",
+        ( removed[0] ) ? "^7, ^3replacing^7 " : "",
         removed ) );
-    G_LogPrintf( "Build: %d %d %d: %s^7 is building %s\n",
+    G_LogPrintf( "Build: %d %d %d: %s^7 is ^2building^7 %s\n",
       builder->client->ps.clientNum,
       built->s.modelindex,
       level.numBuildablesForRemoval,
