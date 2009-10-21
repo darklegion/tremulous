@@ -1116,6 +1116,8 @@ typedef struct playerState_s {
 	int			torsoTimer;		// don't change low priority animations until this runs out
 	int			torsoAnim;		// mask off ANIM_TOGGLEBIT
 
+	int			tauntTimer;		// don't allow another taunt until this runs out
+
 	int			weaponAnim;		// mask off ANIM_TOGGLEBIT
 
 	int			movementDir;	// a number 0 to 7 that represents the reletive angle

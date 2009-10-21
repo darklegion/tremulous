@@ -3406,12 +3406,16 @@ static void PM_Animate( void )
 
   if( pm->cmd.buttons & BUTTON_GESTURE )
   {
+    if( pm->ps->tauntTimer > 0 )
+        return;
+
     if( !( pm->ps->persistant[ PERS_STATE ] & PS_NONSEGMODEL ) )
     {
       if( pm->ps->torsoTimer == 0 )
       {
         PM_StartTorsoAnim( TORSO_GESTURE );
         pm->ps->torsoTimer = TIMER_GESTURE;
+        pm->ps->tauntTimer = TIMER_GESTURE;
 
         PM_AddEvent( EV_TAUNT );
       }
@@ -3422,6 +3426,7 @@ static void PM_Animate( void )
       {
         PM_ForceLegsAnim( NSPA_GESTURE );
         pm->ps->torsoTimer = TIMER_GESTURE;
+        pm->ps->tauntTimer = TIMER_GESTURE;
 
         PM_AddEvent( EV_TAUNT );
       }
@@ -3464,6 +3469,16 @@ static void PM_DropTimers( void )
 
     if( pm->ps->torsoTimer < 0 )
       pm->ps->torsoTimer = 0;
+  }
+
+  if( pm->ps->tauntTimer > 0 )
+  {
+    pm->ps->tauntTimer -= pml.msec;
+
+    if( pm->ps->tauntTimer < 0 )
+    {
+      pm->ps->tauntTimer = 0;
+    }
   }
 }
 
