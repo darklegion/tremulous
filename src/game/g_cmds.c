@@ -1682,7 +1682,7 @@ void Cmd_Destroy_f( gentity_t *ent )
     }
 
     // Cancel deconstruction
-    if( g_markDeconstruct.integer && traceEnt->deconstruct )
+    if( deconstruct && g_markDeconstruct.integer && traceEnt->deconstruct )
     {
       traceEnt->deconstruct = qfalse;
       return;
