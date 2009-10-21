@@ -2085,6 +2085,7 @@ void CheckVote( team_t team )
   qboolean pass = qfalse;
   char     *msg;
   int      i;
+  float    yesPercent;
 
   if( level.voteExecuteTime[ team ] &&
       level.voteExecuteTime[ team ] < level.time )
@@ -2103,16 +2104,16 @@ void CheckVote( team_t team )
   if( !level.voteTime[ team ] )
     return;
 
+  yesPercent = (float)level.voteYes[ team ] / (float)level.numVotingClients[ team ];
+
   if( ( level.time - level.voteTime[ team ] >= VOTE_TIME ) ||
       ( level.voteYes[ team ] + level.voteNo[ team ] == level.numVotingClients[ team ] ) )
   {
-    pass = (float)level.voteYes[ team ] / 100.0f > votePassThreshold ||
-       level.voteNo[ team ] == 0;
+    pass = ( yesPercent > votePassThreshold || level.voteNo[ team ] == 0 );
   }
   else
   {
-    if( (float)level.voteYes[ team ] / 100.0f >
-        (float)level.numVotingClients[ team ] * votePassThreshold )
+    if( yesPercent > (float)level.numVotingClients[ team ] * votePassThreshold )
     {
       pass = qtrue;
     }
