@@ -1647,6 +1647,10 @@ static void CG_DrawTeamOverlay( rectDef_t *rect, float scale, vec4_t color )
   if( !cgs.teaminfoReceievedTime )
     return;
 
+  if( cg.showScores ||
+      cg.predictedPlayerState.pm_type == PM_INTERMISSION )
+    return;
+
   pci = cgs.clientinfo + cg.snap->ps.clientNum;
 
   for( i = 0; i < MAX_CLIENTS; i++ )
