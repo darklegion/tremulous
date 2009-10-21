@@ -3186,6 +3186,14 @@ static void UI_RunMenuScript( char **args )
                               uiInfo.mapList[ui_selectedMap.integer].mapLoadName ) );
       }
     }
+    else if( Q_stricmp( name, "voteNextMap" ) == 0 )
+    {
+      if( ui_selectedMap.integer >= 0 && ui_selectedMap.integer < uiInfo.mapCount )
+      {
+        trap_Cmd_ExecuteText( EXEC_APPEND, va( "callvote nextmap %s\n",
+                              uiInfo.mapList[ui_selectedMap.integer].mapLoadName ) );
+      }
+    }
     else if( Q_stricmp( name, "voteKick" ) == 0 )
     {
       if( uiInfo.playerIndex >= 0 && uiInfo.playerIndex < uiInfo.playerCount )

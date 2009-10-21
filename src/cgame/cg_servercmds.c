@@ -947,7 +947,8 @@ static void CG_Say( int clientNum, saymode_t mode, const char *text )
       centity_t     *locent;
 
       locent = CG_GetPlayerLocation( );
-      locationNum = locent->currentState.generic1;
+      if( locent )
+        locationNum = locent->currentState.generic1;
     }
     else
       locationNum = ci->location;

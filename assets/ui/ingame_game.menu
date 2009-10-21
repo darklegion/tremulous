@@ -4,7 +4,7 @@
   \\ INGAME GAME BOX \\
 
 #define W           320
-#define H           290
+#define H           310
 #define X           10
 #define Y           60
 #define BORDER      10
@@ -17,8 +17,8 @@
 
 #define MAP_X       (SIDEBUTT_W+BORDER)
 #define MAP_Y       ((2*BORDER)+TOPBUTT_H)
-#define MAP_W       100
-#define MAP_H       75
+#define MAP_W       124
+#define MAP_H       93
 #define MAPLIST_X   MAP_X
 #define MAPLIST_Y   ((3*BORDER)+TOPBUTT_H+MAP_H)
 #define MAPLIST_W   (W-((2*BORDER)+SIDEBUTT_W))
@@ -26,7 +26,7 @@
 #define MAPBUTT_X   (MAP_X+MAP_W+BORDER)
 #define MAPBUTT_Y   MAP_Y
 #define MAPBUTT_W   (W-(MAPBUTT_X+BORDER))
-#define MAPBUTT_H   25
+#define MAPBUTT_H   20
 
 #define PBUTT_X     MAP_X
 #define PBUTT_Y     (H-((2*PBUTT_H)+BORDER))
@@ -304,10 +304,30 @@
     {
       name mapvote
       group gameGrp
-      text "Restart Current Map"
+      text "Load Selected Map Next"
       type ITEM_TYPE_BUTTON
       textscale .25
       rect MAPBUTT_X (MAPBUTT_Y+MAPBUTT_H) MAPBUTT_W MAPBUTT_H
+      textalign ALIGN_LEFT
+      textvalign VALIGN_CENTER
+      forecolor 1 1 1 1
+      visible MENU_FALSE
+      action
+      {
+        play "sound/misc/menu1.wav";
+        uiScript voteNextMap;
+        uiScript closeingame
+      }
+    }
+
+    itemDef
+    {
+      name mapvote
+      group gameGrp
+      text "Restart Current Map"
+      type ITEM_TYPE_BUTTON
+      textscale .25
+      rect MAPBUTT_X (MAPBUTT_Y+(2*MAPBUTT_H)) MAPBUTT_W MAPBUTT_H
       textalign ALIGN_LEFT
       textvalign VALIGN_CENTER
       forecolor 1 1 1 1
@@ -324,10 +344,30 @@
     {
       name mapvote
       group gameGrp
+      text "Begin Sudden Death"
+      type ITEM_TYPE_BUTTON
+      textscale .25
+      rect MAPBUTT_X (MAPBUTT_Y+(3*MAPBUTT_H)) MAPBUTT_W MAPBUTT_H
+      textalign ALIGN_LEFT
+      textvalign VALIGN_CENTER
+      forecolor 1 1 1 1
+      visible MENU_FALSE
+      action
+      {
+        play "sound/misc/menu1.wav";
+        exec "cmd callvote sudden_death";
+        uiScript closeingame
+      }
+    }
+
+    itemDef
+    {
+      name mapvote
+      group gameGrp
       text "End Match In Draw"
       type ITEM_TYPE_BUTTON
       textscale .25
-      rect MAPBUTT_X (MAPBUTT_Y+(2*MAPBUTT_H)) MAPBUTT_W MAPBUTT_H
+      rect MAPBUTT_X (MAPBUTT_Y+(4*MAPBUTT_H)) MAPBUTT_W MAPBUTT_H
       textalign ALIGN_LEFT
       textvalign VALIGN_CENTER
       forecolor 1 1 1 1

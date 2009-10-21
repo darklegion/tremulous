@@ -5,9 +5,9 @@
 #define BORDER    10
 
 #define X         BORDER
-#define Y         200
+#define Y         BORDER
 #define W         (600-(2*BORDER))
-#define H         40
+#define H         (480-(2*BORDER))
 
   // Say to All
   menuDef
