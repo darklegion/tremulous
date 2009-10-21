@@ -1091,6 +1091,8 @@ void CL_InitUI( void ) {
 	}
 	uivm = VM_Create( "ui", CL_UISystemCalls, interpret );
 	if ( !uivm ) {
+		Com_Printf( "Failed to find a valid UI vm. The following paths were searched:\n" );
+		Cmd_ExecuteString( "path/\n" );
 		Com_Error( ERR_FATAL, "VM_Create on UI failed" );
 	}
 
@@ -1107,6 +1109,9 @@ void CL_InitUI( void ) {
 	else {
 		// init for this gamestate
 		VM_Call( uivm, UI_INIT, (cls.state >= CA_AUTHORIZING && cls.state < CA_ACTIVE) );
+
+		// show where the ui folder was loaded from
+		Cmd_ExecuteString( "which ui/\n" );
 	}
 
 	// reset any CVAR_CHEAT cvars registered by ui
