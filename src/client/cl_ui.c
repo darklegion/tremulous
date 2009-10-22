@@ -407,6 +407,7 @@ static serverInfo_t *LAN_GetServerPtr( int source, int n ) {
 	return NULL;
 }
 
+#define FEATURED_MAXPING 200
 /*
 ====================
 LAN_CompareServers
@@ -423,14 +424,13 @@ static int LAN_CompareServers( int source, int sortKey, int sortDir, int s1, int
 	}
 
 	// featured servers on top
-	// this is not so that they are more noticeable but that codewise it
-	// makes it much simpler to have them contiguous in the list
-	// so changing this also requires changing the feederID counting and
-	// similar code that depends on them coming first
-	res = Q_stricmpn( server1->label, server2->label, MAX_FEATLABEL_CHARS );
-	if( res )
-		return -res;
-
+	if( ( server1->label[ 0 ] && server1->ping <= FEATURED_MAXPING  ) || 
+		( server2->label[ 0 ] && server2->ping <= FEATURED_MAXPING ) ) {
+		res = Q_stricmpn( server1->label, server2->label, MAX_FEATLABEL_CHARS );
+		if( res )
+			return -res;
+	}
+ 
 	res = 0;
 	switch( sortKey ) {
 		case SORT_HOST:
