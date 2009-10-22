@@ -57,6 +57,10 @@ static void CG_AlignText( rectDef_t *rect, const char *text, float scale,
     case ALIGN_CENTER:
       tx = ( rect->w - w ) / 2.0f;
       break;
+
+    case ALIGN_NONE:
+      tx = 0;
+      break;
   }
 
   switch( valign )
@@ -72,6 +76,10 @@ static void CG_AlignText( rectDef_t *rect, const char *text, float scale,
 
     case VALIGN_CENTER:
       ty = h + ( ( rect->h - h ) / 2.0f );
+      break;
+
+    case VALIGN_NONE:
+      ty = 0;
       break;
   }
 
@@ -2430,7 +2438,7 @@ static void CG_ScanForCrosshairEntity( void )
 
   team = cgs.clientinfo[ trace.entityNum ].team;
 
-  if( cg.snap->ps.persistant[ PERS_SPECSTATE ] == SPECTATOR_NOT )
+  if( cg.snap->ps.stats[ STAT_TEAM ] != TEAM_NONE )
   {
     //only display team names of those on the same team as this player
     if( team != cg.snap->ps.stats[ STAT_TEAM ] )
@@ -2463,13 +2471,13 @@ static void CG_DrawLocation( rectDef_t *rect, float scale, int textalign, vec4_t
   else
     location = CG_ConfigString( CS_LOCATIONS );
 
+  // need to skip horiz. align if it's too long, but valign must be run either way
   if( UI_Text_Width( location, scale, 0 ) < rect->w )
-  {
     CG_AlignText( rect, location, scale, 0.0f, 0.0f, textalign, VALIGN_CENTER, &tx, &ty );
-    UI_Text_Paint( tx, ty, scale, color, location, 0, 0, ITEM_TEXTSTYLE_NORMAL );
-  }
   else
-    UI_Text_Paint_Limit( &maxX, tx, ty, scale, color, location, 0, 0 );
+    CG_AlignText( rect, location, scale, 0.0f, 0.0f, ALIGN_NONE, VALIGN_CENTER, &tx, &ty );
+
+  UI_Text_Paint_Limit( &maxX, tx, ty, scale, color, location, 0, 0 );
 
   trap_R_SetColor( NULL );
 }

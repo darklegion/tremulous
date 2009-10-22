@@ -127,7 +127,7 @@ itemDef
 itemDef
 {
   name "location"
-  rect (STAT_X-60) ((4*BORDER)+(4*STAT_H)) (STAT_W+60) STAT_H
+  rect (STAT_X-75) ((4*BORDER)+(4*STAT_H)) (STAT_W+75) STAT_H
   aspectBias ALIGN_RIGHT
   visible MENU_TRUE
   decoration

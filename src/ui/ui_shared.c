@@ -2192,9 +2192,10 @@ static void UI_Text_Paint_Generic( float x, float y, float scale, float gapAdjus
     s++;
     count++;
 
-    if( maxX )
-      *maxX = x;
   }
+
+  if( maxX )
+      *maxX = x;
 
   // paint cursor
   if( cursorPos >= 0 )
