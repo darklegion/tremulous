@@ -1572,6 +1572,9 @@ void Menus_CloseAll( void )
   // Close all other menus
   for( i = 0; i < menuCount; i++ )
     Menus_Close( &Menus[ i ] );
+
+  g_editingField = qfalse;
+  g_waitingForKey = qfalse;
 }
 
 
