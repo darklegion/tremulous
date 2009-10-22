@@ -38,13 +38,13 @@ static void CG_ParseScores( void )
 {
   int   i;
 
-  cg.numScores = atoi( CG_Argv( 1 ) );
+  cg.numScores = ( trap_Argc( ) - 3 ) / 6;
 
   if( cg.numScores > MAX_CLIENTS )
     cg.numScores = MAX_CLIENTS;
 
-  cg.teamScores[ 0 ] = atoi( CG_Argv( 2 ) );
-  cg.teamScores[ 1 ] = atoi( CG_Argv( 3 ) );
+  cg.teamScores[ 0 ] = atoi( CG_Argv( 1 ) );
+  cg.teamScores[ 1 ] = atoi( CG_Argv( 2 ) );
 
   memset( cg.scores, 0, sizeof( cg.scores ) );
 
@@ -54,12 +54,12 @@ static void CG_ParseScores( void )
   for( i = 0; i < cg.numScores; i++ )
   {
     //
-    cg.scores[ i ].client = atoi( CG_Argv( i * 6 + 4 ) );
-    cg.scores[ i ].score = atoi( CG_Argv( i * 6 + 5 ) );
-    cg.scores[ i ].ping = atoi( CG_Argv( i * 6 + 6 ) );
-    cg.scores[ i ].time = atoi( CG_Argv( i * 6 + 7 ) );
-    cg.scores[ i ].weapon = atoi( CG_Argv( i * 6 + 8 ) );
-    cg.scores[ i ].upgrade = atoi( CG_Argv( i * 6 + 9 ) );
+    cg.scores[ i ].client = atoi( CG_Argv( i * 6 + 3 ) );
+    cg.scores[ i ].score = atoi( CG_Argv( i * 6 + 4 ) );
+    cg.scores[ i ].ping = atoi( CG_Argv( i * 6 + 5 ) );
+    cg.scores[ i ].time = atoi( CG_Argv( i * 6 + 6 ) );
+    cg.scores[ i ].weapon = atoi( CG_Argv( i * 6 + 7 ) );
+    cg.scores[ i ].upgrade = atoi( CG_Argv( i * 6 + 8 ) );
 
     if( cg.scores[ i ].client < 0 || cg.scores[ i ].client >= MAX_CLIENTS )
       cg.scores[ i ].client = 0;
@@ -82,23 +82,23 @@ static void CG_ParseTeamInfo( void )
   int   count;
   int   client;
 
-  count = atoi( CG_Argv( 1 ) );
+  count = ( trap_Argc( ) - 1 ) / 5;
 
   cgs.teaminfoReceievedTime = cg.time;
 
   for( i = 0; i < count; i++ )
   {
-    client = atoi( CG_Argv( i * 5 + 2 ) );
+    client = atoi( CG_Argv( i * 5 + 1 ) );
     if( client < 0 || client >= MAX_CLIENTS )
     {
       CG_Error( "CG_ParseTeamInfo: bad client number: %d", client );
       return;
     }
 
-    cgs.clientinfo[ client ].location = atoi( CG_Argv( i * 5 + 3 ) );
-    cgs.clientinfo[ client ].health = atoi( CG_Argv( i * 5 + 4 ) );
-    cgs.clientinfo[ client ].curWeaponClass = atoi( CG_Argv( i * 5 + 5 ) );
-    cgs.clientinfo[ client ].upgrade = atoi( CG_Argv( i * 5 + 6 ) );
+    cgs.clientinfo[ client ].location = atoi( CG_Argv( i * 5 + 2 ) );
+    cgs.clientinfo[ client ].health = atoi( CG_Argv( i * 5 + 3 ) );
+    cgs.clientinfo[ client ].curWeaponClass = atoi( CG_Argv( i * 5 + 4 ) );
+    cgs.clientinfo[ client ].upgrade = atoi( CG_Argv( i * 5 + 5 ) );
   }
 }
 

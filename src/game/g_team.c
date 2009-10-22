@@ -384,7 +384,7 @@ void TeamplayInfoMessage( gentity_t *ent )
   if( !sent )
     return; 
 
-  trap_SendServerCommand( ent - g_entities, va( "tinfo %i%s", sent, string ) );
+  trap_SendServerCommand( ent - g_entities, va( "tinfo%s", string ) );
 }
 
 void CheckTeamStatus( void )
