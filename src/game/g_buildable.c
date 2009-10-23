@@ -1251,6 +1251,8 @@ Think function for Alien Hive
 */
 void AHive_Think( gentity_t *self )
 {
+  int       start;
+
   AGeneric_Think( self );
 
   // Hive missile hasn't returned in HIVE_REPEAT seconds, forget about it
@@ -1266,11 +1268,12 @@ void AHive_Think( gentity_t *self )
 
     VectorAdd( self->s.origin, range, maxs );
     VectorSubtract( self->s.origin, range, mins );
+
     num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
-    
-    for( i = 0; i < num; i++ )
+    start = rand( ) % num;
+    for( i = start; i < num + start; i++ )
     {
-      if( AHive_CheckTarget( self, g_entities + entityList[ i ] ) )
+      if( AHive_CheckTarget( self, g_entities + entityList[ i % num ] ) )
         return;
     }
   }
@@ -1653,10 +1656,14 @@ Used by ATrapper_Think to locate enemy gentities
 void ATrapper_FindEnemy( gentity_t *ent, int range )
 {
   gentity_t *target;
+  int       i;
+  int       start;
 
   //iterate through entities
-  for( target = g_entities; target < &g_entities[ level.num_entities ]; target++ )
+  start = rand( ) % level.num_entities;
+  for( i = start; i < level.num_entities + start; i++ )
   {
+    target = g_entities + ( i % level.num_entities );
     //if target is not valid keep searching
     if( !ATrapper_CheckTarget( ent, target, range ) )
       continue;
@@ -2429,6 +2436,7 @@ void HMGTurret_FindEnemy( gentity_t *self )
   vec3_t    mins, maxs;
   int       i, num;
   gentity_t *target;
+  int       start;
 
   if( self->enemy )
     self->enemy->targeted = NULL;
@@ -2440,9 +2448,10 @@ void HMGTurret_FindEnemy( gentity_t *self )
   VectorAdd( self->s.origin, range, maxs );
   VectorSubtract( self->s.origin, range, mins );
   num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
-  for( i = 0; i < num; i++ )
+  start = rand( ) % num;
+  for( i = start; i < num + start ; i++ )
   {
-    target = &g_entities[ entityList[ i ] ];
+    target = &g_entities[ entityList[ i % num ] ];
     if( !HMGTurret_CheckTarget( self, target, qtrue ) )
       continue;
 
