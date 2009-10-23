@@ -2900,6 +2900,7 @@ commands_t cmds[ ] = {
   { "deconstruct", CMD_TEAM|CMD_LIVING, Cmd_Destroy_f },
   { "destroy", CMD_CHEAT|CMD_TEAM|CMD_LIVING, Cmd_Destroy_f },
   { "follow", CMD_SPEC, Cmd_Follow_f },
+  { "follownext", CMD_SPEC, Cmd_FollowCycle_f },
   { "followprev", CMD_SPEC, Cmd_FollowCycle_f },
   { "give", CMD_CHEAT|CMD_TEAM|CMD_LIVING, Cmd_Give_f },
   { "god", CMD_CHEAT|CMD_TEAM|CMD_LIVING, Cmd_God_f },
