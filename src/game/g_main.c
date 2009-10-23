@@ -2074,12 +2074,23 @@ FUNCTIONS CALLED EVERY FRAME
 */
 
 
+void G_ExecuteVote( team_t team )
+{
+  level.voteExecuteTime[ team ] = 0;
+
+  trap_SendConsoleCommand( EXEC_APPEND, va( "%s\n",
+    level.voteString[ team ] ) );
+
+  if( !Q_stricmpn( level.voteString[ team ], "map", 3 ) )
+    level.restarted = qtrue;
+}
+
 /*
 ==================
-CheckVote
+G_CheckVote
 ==================
 */
-void CheckVote( team_t team )
+void G_CheckVote( team_t team )
 {
   float    votePassThreshold = (float)level.voteThreshold[ team ] / 100.0f;
   qboolean pass = qfalse;
@@ -2090,15 +2101,7 @@ void CheckVote( team_t team )
   if( level.voteExecuteTime[ team ] &&
       level.voteExecuteTime[ team ] < level.time )
   {
-    level.voteExecuteTime[ team ] = 0;
-
-    trap_SendConsoleCommand( EXEC_APPEND,
-      va( "%s\n", level.voteString[ team ] ) );
-    if( !Q_stricmp( level.voteString[ team ], "map_restart" ) ||
-        !Q_stricmpn( level.voteString[ team ], "map", 3 ) )
-    {
-      level.restarted = qtrue;
-    }
+    G_ExecuteVote( team );
   }
 
   if( !level.voteTime[ team ] )
@@ -2391,9 +2394,8 @@ void G_RunFrame( int levelTime )
   CheckTeamStatus( );
 
   // cancel vote if timed out
-  CheckVote( TEAM_NONE );
-  CheckVote( TEAM_ALIENS );
-  CheckVote( TEAM_HUMANS );
+  for( i = 0; i < NUM_TEAMS; i++ )
+    G_CheckVote( i );
 
   level.frameMsec = trap_Milliseconds();
 }

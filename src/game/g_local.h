@@ -960,7 +960,8 @@ void SendScoreboardMessageToAllClients( void );
 void QDECL G_Printf( const char *fmt, ... );
 void QDECL G_Error( const char *fmt, ... );
 void G_Vote( gentity_t *ent, team_t team, qboolean voting );
-void CheckVote( team_t teamnum );
+void G_ExecuteVote( team_t team );
+void G_CheckVote( team_t team );
 void LogExit( const char *string );
 int  G_TimeTilSuddenDeath( void );
 

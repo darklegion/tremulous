@@ -2548,7 +2548,7 @@ qboolean G_admin_endvote( gentity_t *ent, int skiparg )
   }
   level.voteNo[ team ] = cancel ? level.numVotingClients[ team ] : 0;
   level.voteYes[ team ] = cancel ? 0 : level.numVotingClients[ team ];
-  CheckVote( team );
+  G_CheckVote( team );
   if( team == TEAM_NONE )
     AP( msg );
   else

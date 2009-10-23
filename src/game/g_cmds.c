@@ -1043,6 +1043,9 @@ void Cmd_CallVote_f( gentity_t *ent )
     return;
   }
 
+  if( level.voteExecuteTime[ team ] )
+    G_ExecuteVote( team );
+
   level.voteThreshold[ team ] = 50;
 
   if( g_voteLimit.integer > 0 &&
