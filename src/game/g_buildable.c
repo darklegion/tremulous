@@ -2542,7 +2542,7 @@ void HMGTurret_Think( gentity_t *self )
   {
     // if power loss drop turret
     if( self->spawned &&
-        HMGTurret_State( self, MGT_STATE_INACTIVE ) );
+        HMGTurret_State( self, MGT_STATE_INACTIVE ) )
       return;
 
     self->nextthink = level.time + POWER_REFRESH_TIME;
