@@ -2121,7 +2121,7 @@ void G_CheckVote( team_t team )
       pass = qtrue;
     }
     else if( (float)level.voteNo[ team ] <=
-             (float)level.numVotingClients[ team ] * 1.0f - votePassThreshold )
+             (float)level.numVotingClients[ team ] * ( 1.0f - votePassThreshold ) )
     {
       return;
     }
