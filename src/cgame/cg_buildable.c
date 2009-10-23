@@ -464,7 +464,10 @@ static void CG_RunBuildableLerpFrame( centity_t *cent )
 
   // animation ended
   if( lf->frameTime == cg.time )
+  {
     cent->buildableAnim = cent->currentState.torsoAnim;
+    cent->buildableIdleAnim = qtrue;
+  }
 }
 
 /*
@@ -478,7 +481,10 @@ static void CG_BuildableAnimation( centity_t *cent, int *old, int *now, float *b
 
   //if no animation is set default to idle anim
   if( cent->buildableAnim == BANIM_NONE )
+  {
     cent->buildableAnim = es->torsoAnim;
+    cent->buildableIdleAnim = qtrue;
+  }
 
   //display the first frame of the construction anim if not yet spawned
   if( !( es->eFlags & EF_B_SPAWNED ) )
@@ -509,9 +515,20 @@ static void CG_BuildableAnimation( centity_t *cent, int *old, int *now, float *b
                    BG_Buildable( es->modelindex )->humanName, es->number );
 
       if( cent->buildableAnim == es->torsoAnim || es->legsAnim & ANIM_FORCEBIT )
+      {
         cent->buildableAnim = cent->oldBuildableAnim = es->legsAnim;
+        cent->buildableIdleAnim = qfalse;
+      }
       else
+      {
         cent->buildableAnim = cent->oldBuildableAnim = es->torsoAnim;
+        cent->buildableIdleAnim = qtrue;
+      }
+    }
+    else if( cent->buildableIdleAnim == qtrue &&
+             cent->buildableAnim != es->torsoAnim )
+    {
+      cent->buildableAnim = es->torsoAnim;
     }
 
     CG_RunBuildableLerpFrame( cent );

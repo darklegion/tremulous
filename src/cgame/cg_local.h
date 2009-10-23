@@ -647,6 +647,7 @@ typedef struct centity_s
 
   buildableAnimNumber_t buildableAnim;    //persistant anim number
   buildableAnimNumber_t oldBuildableAnim; //to detect when new anims are set
+  qboolean              buildableIdleAnim; //to check if new idle anim
   particleSystem_t      *buildablePS;
   buildableStatus_t     buildableStatus;
   buildableCache_t      buildableCache;   // so we don't recalculate things
