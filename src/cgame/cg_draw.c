@@ -1428,10 +1428,10 @@ static void CG_DrawStageReport( rectDef_t *rect, float text_x, float text_y,
     if( cgs.alienNextStageThreshold < 0 )
       Com_sprintf( s, MAX_TOKEN_CHARS, "Stage %d", cgs.alienStage + 1 );
     else if( kills == 1 )
-      Com_sprintf( s, MAX_TOKEN_CHARS, "Stage %d, 1 kill for next stage",
+      Com_sprintf( s, MAX_TOKEN_CHARS, "Stage %d, 1 frag for next stage",
           cgs.alienStage + 1 );
     else
-      Com_sprintf( s, MAX_TOKEN_CHARS, "Stage %d, %d kills for next stage",
+      Com_sprintf( s, MAX_TOKEN_CHARS, "Stage %d, %d frags for next stage",
           cgs.alienStage + 1, kills );
   }
   else if( cg.snap->ps.stats[ STAT_TEAM ] == TEAM_HUMANS )
