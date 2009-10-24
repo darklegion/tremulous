@@ -2489,11 +2489,15 @@ static void CG_DrawLocation( rectDef_t *rect, float scale, int textalign, vec4_t
 
   // need to skip horiz. align if it's too long, but valign must be run either way
   if( UI_Text_Width( location, scale, 0 ) < rect->w )
+  {
     CG_AlignText( rect, location, scale, 0.0f, 0.0f, textalign, VALIGN_CENTER, &tx, &ty );
+    UI_Text_Paint( tx, ty, scale, color, location, 0, 0, ITEM_TEXTSTYLE_NORMAL );
+  }
   else
+  {
     CG_AlignText( rect, location, scale, 0.0f, 0.0f, ALIGN_NONE, VALIGN_CENTER, &tx, &ty );
-
-  UI_Text_Paint_Limit( &maxX, tx, ty, scale, color, location, 0, 0 );
+    UI_Text_Paint_Limit( &maxX, tx, ty, scale, color, location, 0, 0 );
+  }
 
   trap_R_SetColor( NULL );
 }
