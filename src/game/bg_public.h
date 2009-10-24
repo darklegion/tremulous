@@ -128,22 +128,23 @@ typedef enum
 } weaponstate_t;
 
 // pmove->pm_flags
-#define PMF_DUCKED          0x0001
-#define PMF_JUMP_HELD       0x0002
-#define PMF_CROUCH_HELD     0x0004
-#define PMF_BACKWARDS_JUMP  0x0008 // go into backwards land
-#define PMF_BACKWARDS_RUN   0x0010 // coast down to backwards run
-#define PMF_TIME_LAND       0x0020 // pm_time is time before rejump
-#define PMF_TIME_KNOCKBACK  0x0040 // pm_time is an air-accelerate only time
-#define PMF_TIME_WATERJUMP  0x0080 // pm_time is waterjump
-#define PMF_RESPAWNED       0x0100 // clear after attack and jump buttons come up
-#define PMF_USE_ITEM_HELD   0x0200
-#define PMF_WEAPON_RELOAD   0x0400 // force a weapon switch
-#define PMF_FOLLOW          0x0800 // spectate following another player
-#define PMF_QUEUED          0x1000 // player is queued
-#define PMF_TIME_WALLJUMP   0x2000 // for limiting wall jumping
-#define PMF_CHARGE          0x4000 // keep track of pouncing
-#define PMF_WEAPON_SWITCH   0x8000 // force a weapon switch
+#define PMF_DUCKED          0x000001
+#define PMF_JUMP_HELD       0x000002
+#define PMF_CROUCH_HELD     0x000004
+#define PMF_BACKWARDS_JUMP  0x000008 // go into backwards land
+#define PMF_BACKWARDS_RUN   0x000010 // coast down to backwards run
+#define PMF_TIME_LAND       0x000020 // pm_time is time before rejump
+#define PMF_TIME_KNOCKBACK  0x000040 // pm_time is an air-accelerate only time
+#define PMF_TIME_WATERJUMP  0x000080 // pm_time is waterjump
+#define PMF_RESPAWNED       0x000100 // clear after attack and jump buttons come up
+#define PMF_USE_ITEM_HELD   0x000200
+#define PMF_WEAPON_RELOAD   0x000400 // force a weapon switch
+#define PMF_FOLLOW          0x000800 // spectate following another player
+#define PMF_QUEUED          0x001000 // player is queued
+#define PMF_TIME_WALLJUMP   0x002000 // for limiting wall jumping
+#define PMF_CHARGE          0x004000 // keep track of pouncing
+#define PMF_WEAPON_SWITCH   0x008000 // force a weapon switch
+#define PMF_SPRINTHELD      0x010000
 
 
 #define PMF_ALL_TIMES (PMF_TIME_WATERJUMP|PMF_TIME_LAND|PMF_TIME_KNOCKBACK|PMF_TIME_WALLJUMP)
@@ -271,7 +272,7 @@ typedef enum
 #define PS_WALLCLIMBINGFOLLOW   0x00000001
 #define PS_WALLCLIMBINGTOGGLE   0x00000002
 #define PS_NONSEGMODEL          0x00000004
-#define PS_ALWAYSSPRINT         0x00000008
+#define PS_SPRINTTOGGLE         0x00000008
 
 // entityState_t->eFlags
 #define EF_DEAD             0x00000001    // don't draw a foe marker over players with EF_DEAD

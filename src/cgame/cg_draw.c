@@ -423,13 +423,22 @@ static void CG_DrawPlayerStaminaBolt( rectDef_t *rect, vec4_t backColor,
   float         stamina = cg.snap->ps.stats[ STAT_STAMINA ];
   vec4_t        color;
 
-  if( stamina < 0 )
-    Vector4Copy( backColor, color );
-  else if( cg.predictedPlayerState.stats[ STAT_STATE ] & SS_SPEEDBOOST )
-    Vector4Lerp( ( sin( cg.time / 150.0f ) + 1 ) / 2,
-                 backColor, foreColor, color );
+  if( cg.predictedPlayerState.stats[ STAT_STATE ] & SS_SPEEDBOOST )
+  {
+    if( stamina >= 0 )
+      Vector4Lerp( ( sin( cg.time / 150.0f ) + 1 ) / 2,
+                   backColor, foreColor, color );
+    else
+      Vector4Lerp( ( sin( cg.time / 2000.0f ) + 1 ) / 2,
+                   backColor, foreColor, color );
+  }
   else
-    Vector4Copy( foreColor, color );
+  {
+    if( stamina < 0 )
+      Vector4Copy( backColor, color );
+    else
+      Vector4Copy( foreColor, color );
+  }
 
   trap_R_SetColor( color );
   CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
@@ -2220,8 +2229,15 @@ static void CG_DrawSpeedText( rectDef_t *rect, float text_x, float text_y,
 
   VectorCopy( foreColor, color );
   color[ 3 ] = 1;
-
-  if( oldestSpeedSample == 0 )
+  if( cg.predictedPlayerState.clientNum == cg.clientNum )
+  {
+    vec3_t vel;
+    VectorCopy( cg.predictedPlayerState.velocity, vel );
+    if( cg_drawSpeed.integer & SPEEDOMETER_IGNORE_Z )
+      vel[ 2 ] = 0;
+    val = VectorLength( vel );
+  }
+  else if( oldestSpeedSample == 0 )
     val = speedSamples[ SPEEDOMETER_NUM_SAMPLES - 1 ];
   else
     val = speedSamples[ oldestSpeedSample - 1 ];

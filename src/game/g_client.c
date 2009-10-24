@@ -1122,12 +1122,12 @@ void ClientUserinfoChanged( int clientNum )
     client->ps.persistant[ PERS_STATE ] &= ~PS_WALLCLIMBINGTOGGLE;
 
   // always sprint
-  s = Info_ValueForKey( userinfo, "cg_alwaysSprint" );
+  s = Info_ValueForKey( userinfo, "cg_sprintToggle" );
 
   if( atoi( s ) )
-    client->ps.persistant[ PERS_STATE ] |= PS_ALWAYSSPRINT;
+    client->ps.persistant[ PERS_STATE ] |= PS_SPRINTTOGGLE;
   else
-    client->ps.persistant[ PERS_STATE ] &= ~PS_ALWAYSSPRINT;
+    client->ps.persistant[ PERS_STATE ] &= ~PS_SPRINTTOGGLE;
 
   // fly speed
   s = Info_ValueForKey( userinfo, "cg_flySpeed" );

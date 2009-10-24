@@ -383,16 +383,34 @@ static float PM_CmdScale( usercmd_t *cmd )
   
   if( pm->ps->stats[ STAT_TEAM ] == TEAM_HUMANS && pm->ps->pm_type == PM_NORMAL )
   {
-    if( pm->ps->stats[ STAT_STAMINA ] > 0 && cmd->buttons & BUTTON_SPRINT )
+    qboolean wasSprinting;
+    qboolean sprint;
+    wasSprinting = sprint = pm->ps->stats[ STAT_STATE ] & SS_SPEEDBOOST;
+
+    if( pm->ps->persistant[ PERS_STATE ] & PS_SPRINTTOGGLE )
     {
-      modifier *= HUMAN_SPRINT_MODIFIER;
-      pm->ps->stats[ STAT_STATE ] |= SS_SPEEDBOOST;
+      if( cmd->buttons & BUTTON_SPRINT &&
+          !( pm->ps->pm_flags & PMF_SPRINTHELD ) )
+      {
+        sprint = !sprint;
+        pm->ps->pm_flags |= PMF_SPRINTHELD;
+      }
+      else if( pm->ps->pm_flags & PMF_SPRINTHELD &&
+               !( cmd->buttons & BUTTON_SPRINT ) )
+        pm->ps->pm_flags &= ~PMF_SPRINTHELD;
     }
     else
-    {
-      modifier *= HUMAN_JOG_MODIFIER;
+      sprint = cmd->buttons & BUTTON_SPRINT;
+
+    if( sprint )
+      pm->ps->stats[ STAT_STATE ] |= SS_SPEEDBOOST;      
+    else if( wasSprinting && !sprint )
       pm->ps->stats[ STAT_STATE ] &= ~SS_SPEEDBOOST;
-    }
+
+    if( sprint )
+      modifier *= HUMAN_SPRINT_MODIFIER;
+    else
+      modifier *= HUMAN_JOG_MODIFIER;
 
     if( cmd->forwardmove < 0 )
     {
