@@ -911,90 +911,105 @@ CG_Say
 */
 static void CG_Say( int clientNum, saymode_t mode, const char *text )
 {
-  clientInfo_t *ci;
-  char         *name;
-  char         prefix[ 11 ] = "";
-  char         *ignore = "";
-  int          locationNum = 0;
-  char         *location = "";
-  char         tcolor = COLOR_WHITE;
-  char         color;
+  char *name;
+  char prefix[ 11 ] = "";
+  char *ignore = "";
+  char *location = "";
+  char *color;
+  char *maybeColon;
 
   if( clientNum >= 0 && clientNum < MAX_CLIENTS )
-    ci = &cgs.clientinfo[ clientNum ];
-  else
-    ci = NULL;
-
-  if( ci )
   {
-    name = va( "%s" S_COLOR_WHITE, ci->name );
+    clientInfo_t *ci = &cgs.clientinfo[ clientNum ];
+    char         *tcolor = S_COLOR_WHITE;
+
+    name = ci->name;
+
     if( ci->team == TEAM_ALIENS )
-      tcolor = COLOR_RED;
+      tcolor = S_COLOR_RED;
     else if( ci->team == TEAM_HUMANS )
-      tcolor = COLOR_CYAN;
+      tcolor = S_COLOR_CYAN;
+
+    if( cg_chatTeamPrefix.integer )
+      Com_sprintf( prefix, sizeof( prefix ), "[%s%c" S_COLOR_WHITE "] ",
+                   tcolor, toupper( *( BG_TeamName( ci->team ) ) ) );
+
+    if( Com_ClientListContains( &cgs.ignoreList, clientNum ) )
+      ignore = "[skipnotify]";
+
+    if( ( mode == SAY_TEAM || mode == SAY_AREA ) &&
+        cg.snap->ps.pm_type != PM_INTERMISSION )
+    {
+      int locationNum;
+
+      if( clientNum == cg.snap->ps.clientNum )
+      {
+        centity_t     *locent;
+
+        locent = CG_GetPlayerLocation( );
+        if( locent )
+          locationNum = locent->currentState.generic1;
+        else
+          locationNum = 0;
+      }
+      else
+        locationNum = ci->location;
+
+      if( locationNum > 0 && locationNum < MAX_LOCATIONS )
+      {
+        const char *s = CG_ConfigString( CS_LOCATIONS + locationNum );
+
+        if( *s )
+          location = va( " (%s" S_COLOR_WHITE ")", s );
+      }
+    }
   }
   else
     name = "console";
 
-  if( ci && cg_chatTeamPrefix.integer )
-    Com_sprintf( prefix, sizeof( prefix ), "[^%c%c" S_COLOR_WHITE "] " S_COLOR_WHITE, 
-                 tcolor, toupper( *( BG_TeamName( ci->team ) ) ) );
-
-  if( ci && ( mode == SAY_TEAM || mode == SAY_AREA ) && 
-      cg.snap->ps.pm_type != PM_INTERMISSION )
+  // IRC-like /me parsing
+  if( mode != SAY_RAW && Q_stricmpn( text, "/me ", 4 ) == 0 )
   {
-    if( clientNum == cg.snap->ps.clientNum )
-    {
-      centity_t     *locent;
-
-      locent = CG_GetPlayerLocation( );
-      if( locent )
-        locationNum = locent->currentState.generic1;
-    }
-    else
-      locationNum = ci->location;
-
-    if( locationNum > 0 && locationNum < MAX_LOCATIONS )
-    {
-        const char *s = CG_ConfigString( CS_LOCATIONS + locationNum );
-        if( *s )
-          location = va( " (%s" S_COLOR_WHITE ")", s );
-    }
+    text += 4;
+    Q_strcat( prefix, sizeof( prefix ), "* " );
+    maybeColon = "";
   }
-
-  if( ci && Com_ClientListContains( &cgs.ignoreList, clientNum ) )
-    ignore = "[skipnotify]";
+  else
+    maybeColon = ":";
 
   switch( mode )
   {
     case SAY_ALL:
+      // might already be ignored but in that case no harm is done
       if( cg_teamChatsOnly.integer )
-        CG_Printf( "[skipnotify]%s%s: " S_COLOR_GREEN "%s\n",
-                   prefix, name, text );
-      else
-        CG_Printf( "%s%s%s: " S_COLOR_GREEN "%s\n", ignore, prefix, name, text );
+        ignore = "[skipnotify]";
+
+      CG_Printf( "%s%s%s" S_COLOR_WHITE "%s " S_COLOR_GREEN "%s\n",
+                 ignore, prefix, name, maybeColon, text );
       break;
     case SAY_TEAM:
-      CG_Printf( "%s%s(%s)%s: " S_COLOR_CYAN "%s\n",
-                 ignore, prefix, name, location, text );
+      CG_Printf( "%s%s(%s" S_COLOR_WHITE ")%s%s " S_COLOR_CYAN "%s\n",
+                 ignore, prefix, name, location, maybeColon, text );
       break;
     case SAY_ADMINS:
-      CG_Printf( "%s%s[ADMIN]%s: " S_COLOR_MAGENTA "%s\n", ignore, prefix, name, text );
-      break;
     case SAY_ADMINS_PUBLIC:
-      CG_Printf( "%s%s[PLAYER]%s: " S_COLOR_MAGENTA "%s\n", ignore, prefix, name, text );
+      CG_Printf( "%s%s%s%s" S_COLOR_WHITE "%s " S_COLOR_MAGENTA "%s\n",
+                 ignore, prefix,
+                 ( mode == SAY_ADMINS ) ? "[ADMIN]" : "[PLAYER]",
+                 name, maybeColon, text );
       break;
     case SAY_AREA:
-      CG_Printf( "%s%s<%s>%s: " S_COLOR_BLUE "%s\n", ignore, prefix, name, location, text );
+      CG_Printf( "%s%s<%s" S_COLOR_WHITE ">%s%s " S_COLOR_BLUE "%s\n",
+                 ignore, prefix, name, location, maybeColon, text );
       break;
     case SAY_PRIVMSG:
     case SAY_TPRIVMSG:
-      color = ( mode == SAY_TPRIVMSG ) ? COLOR_CYAN : COLOR_GREEN;
-      CG_Printf( "%s%s" S_COLOR_YELLOW " -> " S_COLOR_WHITE "%s" S_COLOR_WHITE ": "
-                 "^%c%s\n", ignore, name, cgs.clientinfo[ cg.clientNum ].name, color,
-                 text );
-      if( ignore[0] )
-        CG_CenterPrint( va( "^%cPrivate message from: " S_COLOR_WHITE "%s", 
+      color = ( mode == SAY_TPRIVMSG ) ? S_COLOR_CYAN : S_COLOR_GREEN;
+      CG_Printf( "%s%s[%s" S_COLOR_WHITE " -> %s" S_COLOR_WHITE "]%s %s%s\n",
+                 ignore, prefix, name, cgs.clientinfo[ cg.clientNum ].name,
+                 maybeColon, color, text );
+      if( !ignore[0] )
+        CG_CenterPrint( va( "%sPrivate message from: " S_COLOR_WHITE "%s", 
                             color, name ), 200, GIANTCHAR_WIDTH * 4 );
       break;
     case SAY_RAW:

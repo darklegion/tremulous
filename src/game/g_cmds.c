@@ -758,6 +758,27 @@ void G_Say( gentity_t *ent, saymode_t mode, const char *chatText )
   }
 }
 
+/*
+==================
+Cmd_ActionMessage_f
+
+This is just a wrapper for convenience when speaking from the console
+==================
+*/
+static void Cmd_ActionMessage_f( gentity_t *ent )
+{
+  char text[ MAX_SAY_TEXT ];
+
+  Com_sprintf( text, sizeof( text ), "/me %s", ConcatArgs( 1 ) );
+
+  G_Say( ent, SAY_ALL, text );
+}
+
+/*
+==================
+Cmd_SayArea_f
+==================
+*/
 static void Cmd_SayArea_f( gentity_t *ent )
 {
   int    entityList[ MAX_GENTITIES ];
@@ -2914,6 +2935,7 @@ commands_t cmds[ ] = {
   { "kill", CMD_TEAM|CMD_LIVING, Cmd_Kill_f },
   { "levelshot", CMD_CHEAT, Cmd_LevelShot_f },
   { "m", CMD_MESSAGE|CMD_INTERMISSION, Cmd_PrivateMessage_f },
+  { "me", CMD_MESSAGE|CMD_INTERMISSION, Cmd_ActionMessage_f },
   { "mt", CMD_MESSAGE|CMD_INTERMISSION, Cmd_PrivateMessage_f },
   { "noclip", CMD_CHEAT_TEAM, Cmd_Noclip_f },
   { "notarget", CMD_CHEAT|CMD_TEAM|CMD_LIVING, Cmd_Notarget_f },
