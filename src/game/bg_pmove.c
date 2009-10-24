@@ -407,7 +407,10 @@ static float PM_CmdScale( usercmd_t *cmd )
     else if( wasSprinting && !sprint )
       pm->ps->stats[ STAT_STATE ] &= ~SS_SPEEDBOOST;
 
-    if( sprint )
+    // Walk overrides sprint. We keep the state that we want to be sprinting
+    //  (above), but don't apply the modifier, and in g_active we skip taking
+    //  the stamina too.
+    if( sprint && !( cmd->buttons & BUTTON_WALKING ) )
       modifier *= HUMAN_SPRINT_MODIFIER;
     else
       modifier *= HUMAN_JOG_MODIFIER;
