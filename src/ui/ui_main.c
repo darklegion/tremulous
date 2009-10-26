@@ -4580,7 +4580,7 @@ void UI_UpdateNews( qboolean begin )
   trap_Cvar_VariableStringBuffer( "cl_newsString", newsString, 
     sizeof( newsString ) );
 
-  wrapped = Item_Text_Wrap( newsString, .25, 300 );
+  wrapped = Item_Text_Wrap( newsString, .25, 325 * uiInfo.uiDC.aspectScale );
 
   for( c = wrapped; *c != '\0'; ++c ) {
     if( linePos == (MAX_NEWS_LINEWIDTH - 1) || *c == '\n' ) {
