@@ -3453,6 +3453,12 @@ qboolean Item_TextField_HandleKey( itemDef_t *item, int key )
 
           if( newItem && ( newItem->type == ITEM_TYPE_EDITFIELD || newItem->type == ITEM_TYPE_NUMERICFIELD ) )
             g_editItem = newItem;
+          else
+          {
+            releaseFocus = qtrue;
+            goto exit;
+          }
+
           break;
 
         case K_ENTER:
@@ -3719,7 +3725,6 @@ qboolean Item_HandleKey( itemDef_t *item, int key, qboolean down )
 
     case ITEM_TYPE_EDITFIELD:
     case ITEM_TYPE_NUMERICFIELD:
-      //return Item_TextField_HandleKey(item, key);
       return qfalse;
       break;
 
