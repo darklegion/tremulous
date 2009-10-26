@@ -959,9 +959,10 @@ static void CG_CalcEntityLerpPositions( centity_t *cent )
     return;
   }
 
-  if( cg_projectileNudge.integer > 0 &&
-    cent->currentState.eType == ET_MISSILE &&
-    !( cg.snap->ps.pm_flags & PMF_FOLLOW ) )
+  if( cg_projectileNudge.integer &&
+      !cg.demoPlayback &&
+      cent->currentState.eType == ET_MISSILE &&
+      !( cg.snap->ps.pm_flags & PMF_FOLLOW ) )
   {
     timeshift = cg.ping;
   }
