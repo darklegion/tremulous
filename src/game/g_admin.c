@@ -2436,7 +2436,7 @@ qboolean G_admin_help( gentity_t *ent, int skiparg )
     ADMBP_begin();
     if( ( c = G_admin_command( cmd ) ) )
     {
-      if( !G_admin_permission( ent, c->flag ) )
+      if( G_admin_permission( ent, c->flag ) )
       {
         ADMBP( va( "^3!help: ^7help for '!%s':\n", c->command ) );
         ADMBP( va( " ^3Description: ^7%s\n", c->desc ) );
