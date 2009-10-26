@@ -2733,13 +2733,7 @@ qboolean G_admin_namelog( gentity_t *ent, int skiparg )
         {
           G_SanitiseString( n->name[ j ], n2, sizeof( n2 ) );
           if( strstr( n2, s2 ) )
-          {
-            G_SanitiseString( n->name[ j ], n2, sizeof( n2 ) );
-            if( strstr( n2, s2 ) )
-            {
-              break;
-            }
-          }
+            break;
         }
         if( j == MAX_ADMIN_NAMELOG_NAMES || !n->name[ j ][ 0 ] )
           continue;
