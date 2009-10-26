@@ -3960,6 +3960,7 @@ void CL_GlobalServers_f( void ) {
 	}
 
 	NET_OutOfBandPrint( NS_SERVER, to, "%s", command );
+	CL_RequestMotd();
 }
 
 
