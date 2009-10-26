@@ -1949,7 +1949,7 @@ void CL_NextDownload(void)
 	int prompt;
 
 	// A download has finished, check whether this matches a referenced checksum
-	if(*clc.downloadName)
+	if(*clc.downloadName && !clc.activeCURLNotGameRelated)
 	{
 		char *zippath = FS_BuildOSPath(Cvar_VariableString("fs_homepath"), clc.downloadName, "");
 		zippath[strlen(zippath)-1] = '\0';
