@@ -31,14 +31,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ADMBP_begin() G_admin_buffer_begin()
 #define ADMBP_end() G_admin_buffer_end(ent)
 
-#define MAX_ADMIN_LEVELS 32 
-#define MAX_ADMIN_ADMINS 1024
-#define MAX_ADMIN_BANS 1024
-#define MAX_ADMIN_NAMELOGS 128
 #define MAX_ADMIN_NAMELOG_NAMES 5
 #define MAX_ADMIN_FLAG_LEN 20
 #define MAX_ADMIN_FLAGS 1024
-#define MAX_ADMIN_COMMANDS 64
 #define MAX_ADMIN_CMD_LEN 20
 #define MAX_ADMIN_BAN_REASON 50
 
@@ -90,6 +85,7 @@ g_admin_cmd_t;
 
 typedef struct g_admin_level
 {
+  struct g_admin_level *next;
   int level;
   char name[ MAX_NAME_LENGTH ];
   char flags[ MAX_ADMIN_FLAGS ];
@@ -98,6 +94,7 @@ g_admin_level_t;
 
 typedef struct g_admin_admin
 {
+  struct g_admin_admin *next;
   char guid[ 33 ];
   char name[ MAX_NAME_LENGTH ];
   int level;
@@ -107,6 +104,7 @@ g_admin_admin_t;
 
 typedef struct g_admin_ban
 {
+  struct g_admin_ban *next;
   char name[ MAX_NAME_LENGTH ];
   char guid[ 33 ];
   char ip[ 44 ]; // big enough for IPv6 CIDR notation (without brackets)
@@ -119,6 +117,7 @@ g_admin_ban_t;
 
 typedef struct g_admin_command
 {
+  struct g_admin_command *next;
   char command[ MAX_ADMIN_CMD_LEN ];
   char exec[ MAX_QPATH ];
   char desc[ 50 ];
@@ -128,6 +127,7 @@ g_admin_command_t;
 
 typedef struct g_admin_namelog
 {
+  struct g_admin_namelog *next;
   char      name[ MAX_ADMIN_NAMELOG_NAMES ][MAX_NAME_LENGTH ];
   char      ip[ 40 ];
   char      guid[ 33 ];
