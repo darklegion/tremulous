@@ -2385,6 +2385,9 @@ static void CG_DrawCrosshair( rectDef_t *rect, vec4_t color )
   if( cg.renderingThirdPerson )
     return;
 
+  if( cg.snap->ps.pm_type == PM_INTERMISSION )
+    return;
+
   wi = &cg_weapons[ weapon ];
 
   w = h = wi->crossHairSize * cg_crosshairSize.value;
