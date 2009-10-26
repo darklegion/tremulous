@@ -137,6 +137,10 @@ ifndef USE_INTERNAL_SPEEX
 USE_INTERNAL_SPEEX=1
 endif
 
+ifndef USE_INTERNAL_ZLIB
+USE_INTERNAL_ZLIB=1
+endif
+
 ifndef USE_LOCAL_HEADERS
 USE_LOCAL_HEADERS=1
 endif
@@ -162,6 +166,7 @@ NDIR=$(MOUNT_DIR)/null
 UIDIR=$(MOUNT_DIR)/ui
 JPDIR=$(MOUNT_DIR)/jpeg-6b
 SPEEXDIR=$(MOUNT_DIR)/libspeex
+ZDIR=$(MOUNT_DIR)/zlib
 Q3ASMDIR=$(MOUNT_DIR)/tools/asm
 LBURGDIR=$(MOUNT_DIR)/tools/lcc/lburg
 Q3CPPDIR=$(MOUNT_DIR)/tools/lcc/cpp
@@ -848,6 +853,15 @@ ifeq ($(USE_VOIP),1)
   endif
 endif
 
+ifeq ($(USE_INTERNAL_ZLIB),1)
+  BASE_CFLAGS += -DNO_GZIP
+  ifneq ($(USE_LOCAL_HEADERS),1)
+    BASE_CFLAGS += -I$(ZDIR)
+  endif
+else
+  LIBS += -lz
+endif
+
 ifdef DEFAULT_BASEDIR
   BASE_CFLAGS += -DDEFAULT_BASEDIR=\\\"$(DEFAULT_BASEDIR)\\\"
 endif
@@ -1238,6 +1252,7 @@ Q3OBJ = \
   $(B)/client/q_shared.o \
   \
   $(B)/client/unzip.o \
+  $(B)/client/ioapi.o \
   $(B)/client/puff.o \
   $(B)/client/vm.o \
   $(B)/client/vm_interpreted.o \
@@ -1369,6 +1384,15 @@ Q3OBJ += \
 endif
 endif
 
+ifeq ($(USE_INTERNAL_ZLIB),1)
+Q3OBJ += \
+  $(B)/client/adler32.o \
+  $(B)/client/crc32.o \
+  $(B)/client/inffast.o \
+  $(B)/client/inflate.o \
+  $(B)/client/inftrees.o \
+  $(B)/client/zutil.o
+endif
 
 ifeq ($(HAVE_VM_COMPILED),true)
   ifeq ($(ARCH),x86)
@@ -1469,6 +1493,7 @@ Q3DOBJ = \
   $(B)/ded/q_shared.o \
   \
   $(B)/ded/unzip.o \
+  $(B)/ded/ioapi.o \
   $(B)/ded/vm.o \
   $(B)/ded/vm_interpreted.o \
   \
@@ -1484,6 +1509,16 @@ ifeq ($(ARCH),x86)
       $(B)/ded/ftola.o \
       $(B)/ded/snapvectora.o \
       $(B)/ded/matha.o
+endif
+
+ifeq ($(USE_INTERNAL_ZLIB),1)
+Q3DOBJ += \
+  $(B)/ded/adler32.o \
+  $(B)/ded/crc32.o \
+  $(B)/ded/inffast.o \
+  $(B)/ded/inflate.o \
+  $(B)/ded/inftrees.o \
+  $(B)/ded/zutil.o
 endif
 
 ifeq ($(HAVE_VM_COMPILED),true)
@@ -1672,6 +1707,9 @@ $(B)/client/%.o: $(JPDIR)/%.c
 $(B)/client/%.o: $(SPEEXDIR)/%.c
 	$(DO_CC)
 
+$(B)/client/%.o: $(ZDIR)/%.c
+	$(DO_CC)
+
 $(B)/client/%.o: $(RDIR)/%.c
 	$(DO_CC)
 
@@ -1698,6 +1736,9 @@ $(B)/ded/%.o: $(SDIR)/%.c
 	$(DO_DED_CC)
 
 $(B)/ded/%.o: $(CMDIR)/%.c
+	$(DO_DED_CC)
+
+$(B)/ded/%.o: $(ZDIR)/%.c
 	$(DO_DED_CC)
 
 $(B)/ded/%.o: $(SYSDIR)/%.c

@@ -26,13 +26,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #	include <SDL.h>
 #endif
 
-#if !SDL_VERSION_ATLEAST(1, 2, 10)
-#define SDL_GL_ACCELERATED_VISUAL 15
-#define SDL_GL_SWAP_CONTROL 16
-#elif MINSDL_PATCH >= 10
-#error Code block no longer necessary, please remove
-#endif
-
 #ifdef SMP
 #	ifdef USE_LOCAL_HEADERS
 #		include "SDL_thread.h"
@@ -155,16 +148,8 @@ static void GLimp_DetectAvailableModes(void)
 	SDL_Rect **modes;
 	int numModes;
 	int i;
-	SDL_PixelFormat *format = NULL;
 
-#if SDL_VERSION_ATLEAST(1, 2, 10)
-	format = videoInfo->vfmt;
-#	if MINSDL_PATCH >= 10
-#		error Ifdeffery no longer necessary, please remove
-#	endif
-#endif
-
-	modes = SDL_ListModes( format, SDL_OPENGL | SDL_FULLSCREEN );
+	modes = SDL_ListModes( videoInfo->vfmt, SDL_OPENGL | SDL_FULLSCREEN );
 
 	if( !modes )
 	{
@@ -225,12 +210,6 @@ static int GLimp_SetMode( qboolean failSafe, qboolean fullscreen )
 	if ( r_allowResize->integer )
 		flags |= SDL_RESIZABLE;
 
-#if !SDL_VERSION_ATLEAST(1, 2, 10)
-  // 1.2.10 is needed to get the desktop resolution
-  glConfig.displayAspect = 4.0f / 3.0f;
-#elif MINSDL_PATCH >= 10
-#	error Ifdeffery no longer necessary, please remove
-#else
 	if( videoInfo == NULL )
 	{
 		static SDL_VideoInfo sVideoInfo;
@@ -260,7 +239,6 @@ static int GLimp_SetMode( qboolean failSafe, qboolean fullscreen )
 					"Cannot estimate display aspect, assuming 1.333\n" );
 		}
 	}
-#endif
 
 	if( !failSafe )
 	{
@@ -728,7 +706,13 @@ success:
 	// This values force the UI to disable driver selection
 	glConfig.driverType = GLDRV_ICD;
 	glConfig.hardwareType = GLHW_GENERIC;
-	glConfig.deviceSupportsGamma = !!( SDL_SetGamma( 1.0f, 1.0f, 1.0f ) >= 0 );
+	glConfig.deviceSupportsGamma = SDL_SetGamma( 1.0f, 1.0f, 1.0f ) >= 0;
+
+	// Mysteriously, if you use an NVidia graphics card and multiple monitors,
+	// SDL_SetGamma will incorrectly return false... the first time; ask
+	// again and you get the correct answer. This is a suspected driver bug, see
+	// http://bugzilla.icculus.org/show_bug.cgi?id=4316
+	glConfig.deviceSupportsGamma = SDL_SetGamma( 1.0f, 1.0f, 1.0f ) >= 0;
 
 	// get our config strings
 	Q_strncpyz( glConfig.vendor_string, (char *) qglGetString (GL_VENDOR), sizeof( glConfig.vendor_string ) );

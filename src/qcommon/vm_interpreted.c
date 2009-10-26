@@ -170,7 +170,8 @@ VM_PrepareInterpreter
 */
 void VM_PrepareInterpreter( vm_t *vm, vmHeader_t *header ) {
 	int		op;
-	int		pc;
+	int		byte_pc;
+	int		int_pc;
 	byte	*code;
 	int		instruction;
 	int		*codeBase;
@@ -180,22 +181,24 @@ void VM_PrepareInterpreter( vm_t *vm, vmHeader_t *header ) {
 
 	// we don't need to translate the instructions, but we still need
 	// to find each instructions starting point for jumps
-	pc = 0;
+	int_pc = byte_pc = 0;
 	instruction = 0;
 	code = (byte *)header + header->codeOffset;
 	codeBase = (int *)vm->codeBase;
 
+	// Copy and expand instructions to words while building instruction table
 	while ( instruction < header->instructionCount ) {
-		vm->instructionPointers[ instruction ] = pc;
+		vm->instructionPointers[ instruction ] = int_pc;
 		instruction++;
 
-		op = code[ pc ];
-		codeBase[pc] = op;
-		if ( pc > header->codeLength ) {
+		op = (int)code[ byte_pc ];
+		codeBase[int_pc] = op;
+		if ( byte_pc > header->codeLength ) {
 			Com_Error( ERR_FATAL, "VM_PrepareInterpreter: pc > header->codeLength" );
 		}
 
-		pc++;
+		byte_pc++;
+		int_pc++;
 
 		// these are the only opcodes that aren't a single byte
 		switch ( op ) {
@@ -220,32 +223,33 @@ void VM_PrepareInterpreter( vm_t *vm, vmHeader_t *header ) {
 		case OP_GTF:
 		case OP_GEF:
 		case OP_BLOCK_COPY:
-			codeBase[pc+0] = loadWord(&code[pc]);
-			pc += 4;
+			codeBase[int_pc] = loadWord(&code[byte_pc]);
+			byte_pc += 4;
+			int_pc++;
 			break;
 		case OP_ARG:
-			codeBase[pc+0] = code[pc];
-			pc += 1;
+			codeBase[int_pc] = (int)code[byte_pc];
+			byte_pc++;
+			int_pc++;
 			break;
 		default:
 			break;
 		}
 
 	}
-	pc = 0;
+	int_pc = 0;
 	instruction = 0;
 	code = (byte *)header + header->codeOffset;
-	codeBase = (int *)vm->codeBase;
-
+	
+	// Now that the code has been expanded to int-sized opcodes, we'll translate instruction index
+	//into an index into codeBase[], which contains opcodes and operands.
 	while ( instruction < header->instructionCount ) {
-		op = code[ pc ];
+		op = codeBase[ int_pc ];
 		instruction++;
-		pc++;
+		int_pc++;
+		
 		switch ( op ) {
-		case OP_ENTER:
-		case OP_CONST:
-		case OP_LOCAL:
-		case OP_LEAVE:
+		// These ops need to translate addresses in jumps from instruction index to int index
 		case OP_EQ:
 		case OP_NE:
 		case OP_LTI:
@@ -262,34 +266,22 @@ void VM_PrepareInterpreter( vm_t *vm, vmHeader_t *header ) {
 		case OP_LEF:
 		case OP_GTF:
 		case OP_GEF:
+			// codeBase[pc] is the instruction index. Convert that into an offset into
+			//the int-aligned codeBase[] by the lookup table.
+			codeBase[int_pc] = vm->instructionPointers[codeBase[int_pc]];
+			int_pc++;
+			break;
+
+		// These opcodes have an operand that isn't an instruction index
+		case OP_ENTER:
+		case OP_CONST:
+		case OP_LOCAL:
+		case OP_LEAVE:
 		case OP_BLOCK_COPY:
-			switch(op) {
-				case OP_EQ:
-				case OP_NE:
-				case OP_LTI:
-				case OP_LEI:
-				case OP_GTI:
-				case OP_GEI:
-				case OP_LTU:
-				case OP_LEU:
-				case OP_GTU:
-				case OP_GEU:
-				case OP_EQF:
-				case OP_NEF:
-				case OP_LTF:
-				case OP_LEF:
-				case OP_GTF:
-				case OP_GEF:
-				codeBase[pc] = vm->instructionPointers[codeBase[pc]];
-				break;
-			default:
-				break;
-			}
-			pc += 4;
-			break;
 		case OP_ARG:
-			pc += 1;
+			int_pc++;
 			break;
+
 		default:
 			break;
 		}
@@ -433,14 +425,14 @@ nextInstruction2:
 			r1 = r0;
 			r0 = *opStack = r2;
 			
-			programCounter += 4;
+			programCounter += 1;
 			goto nextInstruction2;
 		case OP_LOCAL:
 			opStack++;
 			r1 = r0;
 			r0 = *opStack = r2+programStack;
 
-			programCounter += 4;
+			programCounter += 1;
 			goto nextInstruction2;
 
 		case OP_LOAD4:
@@ -494,7 +486,7 @@ nextInstruction2:
 				dest = (int *)&image[ desti ];
 				
 				memcpy(dest, src, count);
-				programCounter += 4;
+				programCounter += 1;
 				opStack -= 2;
 			}
 			goto nextInstruction;
@@ -579,7 +571,7 @@ nextInstruction2:
 			// get size of stack frame
 			v1 = r2;
 
-			programCounter += 4;
+			programCounter += 1;
 			programStack -= v1;
 #ifdef DEBUG_VM
 			// save old stack frame for debugging traces
@@ -637,7 +629,7 @@ nextInstruction2:
 				programCounter = r2;	//vm->instructionPointers[r2];
 				goto nextInstruction;
 			} else {
-				programCounter += 4;
+				programCounter += 1;
 				goto nextInstruction;
 			}
 
@@ -647,7 +639,7 @@ nextInstruction2:
 				programCounter = r2;	//vm->instructionPointers[r2];
 				goto nextInstruction;
 			} else {
-				programCounter += 4;
+				programCounter += 1;
 				goto nextInstruction;
 			}
 
@@ -657,7 +649,7 @@ nextInstruction2:
 				programCounter = r2;	//vm->instructionPointers[r2];
 				goto nextInstruction;
 			} else {
-				programCounter += 4;
+				programCounter += 1;
 				goto nextInstruction;
 			}
 
@@ -667,7 +659,7 @@ nextInstruction2:
 				programCounter = r2;	//vm->instructionPointers[r2];
 				goto nextInstruction;
 			} else {
-				programCounter += 4;
+				programCounter += 1;
 				goto nextInstruction;
 			}
 
@@ -677,7 +669,7 @@ nextInstruction2:
 				programCounter = r2;	//vm->instructionPointers[r2];
 				goto nextInstruction;
 			} else {
-				programCounter += 4;
+				programCounter += 1;
 				goto nextInstruction;
 			}
 
@@ -687,7 +679,7 @@ nextInstruction2:
 				programCounter = r2;	//vm->instructionPointers[r2];
 				goto nextInstruction;
 			} else {
-				programCounter += 4;
+				programCounter += 1;
 				goto nextInstruction;
 			}
 
@@ -697,7 +689,7 @@ nextInstruction2:
 				programCounter = r2;	//vm->instructionPointers[r2];
 				goto nextInstruction;
 			} else {
-				programCounter += 4;
+				programCounter += 1;
 				goto nextInstruction;
 			}
 
@@ -707,7 +699,7 @@ nextInstruction2:
 				programCounter = r2;	//vm->instructionPointers[r2];
 				goto nextInstruction;
 			} else {
-				programCounter += 4;
+				programCounter += 1;
 				goto nextInstruction;
 			}
 
@@ -717,7 +709,7 @@ nextInstruction2:
 				programCounter = r2;	//vm->instructionPointers[r2];
 				goto nextInstruction;
 			} else {
-				programCounter += 4;
+				programCounter += 1;
 				goto nextInstruction;
 			}
 
@@ -727,7 +719,7 @@ nextInstruction2:
 				programCounter = r2;	//vm->instructionPointers[r2];
 				goto nextInstruction;
 			} else {
-				programCounter += 4;
+				programCounter += 1;
 				goto nextInstruction;
 			}
 
@@ -737,7 +729,7 @@ nextInstruction2:
 				opStack -= 2;
 				goto nextInstruction;
 			} else {
-				programCounter += 4;
+				programCounter += 1;
 				opStack -= 2;
 				goto nextInstruction;
 			}
@@ -748,7 +740,7 @@ nextInstruction2:
 				opStack -= 2;
 				goto nextInstruction;
 			} else {
-				programCounter += 4;
+				programCounter += 1;
 				opStack -= 2;
 				goto nextInstruction;
 			}
@@ -759,7 +751,7 @@ nextInstruction2:
 				opStack -= 2;
 				goto nextInstruction;
 			} else {
-				programCounter += 4;
+				programCounter += 1;
 				opStack -= 2;
 				goto nextInstruction;
 			}
@@ -770,7 +762,7 @@ nextInstruction2:
 				opStack -= 2;
 				goto nextInstruction;
 			} else {
-				programCounter += 4;
+				programCounter += 1;
 				opStack -= 2;
 				goto nextInstruction;
 			}
@@ -781,7 +773,7 @@ nextInstruction2:
 				opStack -= 2;
 				goto nextInstruction;
 			} else {
-				programCounter += 4;
+				programCounter += 1;
 				opStack -= 2;
 				goto nextInstruction;
 			}
@@ -792,7 +784,7 @@ nextInstruction2:
 				opStack -= 2;
 				goto nextInstruction;
 			} else {
-				programCounter += 4;
+				programCounter += 1;
 				opStack -= 2;
 				goto nextInstruction;
 			}

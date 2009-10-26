@@ -1941,11 +1941,25 @@ CL_NextDownload
 A download completed or failed
 =================
 */
-void CL_NextDownload(void) {
+void CL_NextDownload(void)
+{
 	char *s;
 	char *remoteName, *localName;
 	qboolean useCURL = qfalse;
 	int prompt;
+
+	// A download has finished, check whether this matches a referenced checksum
+	if(*clc.downloadName)
+	{
+		char *zippath = FS_BuildOSPath(Cvar_VariableString("fs_homepath"), clc.downloadName, "");
+		zippath[strlen(zippath)-1] = '\0';
+
+		if(!FS_CompareZipChecksum(zippath))
+			Com_Error(ERR_DROP, "Incorrect checksum for file: %s", clc.downloadName);
+	}
+
+	*clc.downloadTempName = *clc.downloadName = 0;
+	Cvar_Set("cl_downloadName", "");
 
 	// We are looking to start a download here
 	if (*clc.downloadList) {
@@ -2135,6 +2149,10 @@ void CL_InitDownloads(void) {
 		Cvar_Set( "com_downloadPrompt", "0" );
 		if ( *clc.downloadList ) {
 			cls.state = CA_CONNECTED;
+
+			*clc.downloadTempName = *clc.downloadName = 0;
+			Cvar_Set( "cl_downloadName", "" );
+
 			CL_NextDownload();
 			return;
 		}
