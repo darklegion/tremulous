@@ -1968,8 +1968,9 @@ void CL_NextDownload(void)
 		prompt = com_downloadPrompt->integer;
 		if( !( prompt & DLP_TYPE_MASK ) &&
 		    !( cl_allowDownload->integer & DLF_ENABLE ) ) {
-			char files[ MAX_INFO_STRING ], *name, *head, *pure_msg,
-			*url_msg = "";
+			char files[ MAX_INFO_STRING ] = "";
+			char *name, *head, *pure_msg;
+			char *url_msg = "";
 			int i = 0, others = 0, swap = 0, max_list = 12;
 
 			// Set the download URL message
@@ -1995,8 +1996,9 @@ void CL_NextDownload(void)
 				*head = 0;
 
 				if( i++ < max_list ) {
-					Com_sprintf( files, sizeof( files ), "%s%s%s",
-					             files, i > 1 ? ", " : "", name );
+					if( i > 1 )
+						Q_strcat( files, sizeof( files ), ", " );
+					Q_strcat( files, sizeof( files ), name );
 				} else {
 					others++;
 				}
@@ -2014,9 +2016,8 @@ void CL_NextDownload(void)
 			} while( *head );
 
 			if( others ) {
-				Com_sprintf( files, sizeof( files ),
-				             "%s (%d other file%s)\n", files, others,
-				              others > 1 ? "s" : "" );
+				Q_strcat( files, sizeof( files ), va( "(%d other file%s)\n", 
+						  others, others > 1 ? "s" : "" ) );
 			}
 
 			// Set the pure message
