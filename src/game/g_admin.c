@@ -1191,28 +1191,39 @@ qboolean G_admin_setlevel( gentity_t *ent, int skiparg )
   {
     int id = atoi( testname );
     if( id < MAX_CLIENTS )
+    {
       vic = &g_entities[ id ];
-    else if( id < na )
-      for( i = 0, a = g_admin_admins; i < na; a = a->next );
+      if( !vic || !vic->client || vic->client->pers.connected == CON_DISCONNECTED )
+      {
+        ADMP( va( "^3!setlevel: ^7no player connected in slot %d\n", id ) );
+        return qfalse;
+      }
+    }
+    else if( id < na + MAX_CLIENTS )
+      for( i = 0, a = g_admin_admins; i < id - MAX_CLIENTS; i++, a = a->next );
     else
     {
-      ADMP( va( "^3!setlevel: ^7%s not in range 1-%d\n", testname, na ) );
+      ADMP( va( "^3!setlevel: ^7%s not in range 1-%d\n",
+                testname, na + MAX_CLIENTS - 1 ) );
       return qfalse;
     }
   }
   else
     G_SanitiseString( testname, name, sizeof( name ) );
 
-  if( vic && vic->client && vic->client->pers.connected != CON_DISCONNECTED )
+  if( vic )
     a = vic->client->pers.admin;
   else if( !a )
   {
-    int matches = 0;
-    for( a = g_admin_admins; a && matches < 2; a = a->next )
+    g_admin_admin_t *wa;
+    int             matches = 0;
+
+    for( wa = g_admin_admins; wa && matches < 2; wa = wa->next )
     {
-      G_SanitiseString( a->name, testname, sizeof( testname ) );
+      G_SanitiseString( wa->name, testname, sizeof( testname ) );
       if( strstr( testname, name ) )
       {
+        a = wa;
         matches++;
       }
     }
