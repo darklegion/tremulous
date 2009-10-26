@@ -371,6 +371,7 @@
     itemDef
     {
       name winner
+      type ITEM_TYPE_TEXT
       rect (W/2) (H+BAR_H) 0 0
       style WINDOW_STYLE_EMPTY
       forecolor 1 1 1 1
