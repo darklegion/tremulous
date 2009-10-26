@@ -639,6 +639,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define STAMINA_JUMP_TAKE           250
 #define STAMINA_DODGE_TAKE          250
 #define STAMINA_BREATHING_LEVEL     0
+#define STAMINA_SLOW_LEVEL          -500
+#define STAMINA_BLACKOUT_LEVEL      -800
 
 #define HUMAN_SPAWN_REPEAT_TIME     10000
 #define HUMAN_REGEN_DAMAGE_TIME     2000 //msec since damage before dcc repairs

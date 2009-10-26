@@ -715,12 +715,18 @@ static void CG_DrawUsableBuildable( rectDef_t *rect, qhandle_t shader, vec4_t co
     if( ( es->modelindex == BA_H_REACTOR || es->modelindex == BA_H_REPEATER ) &&
         ( !BG_Weapon( cg.snap->ps.weapon )->usesEnergy ||
           BG_Weapon( cg.snap->ps.weapon )->infiniteAmmo ) )
+    {
+      cg.nearUsableBuildable = qfalse;
       return;
+    }
 
     trap_R_SetColor( color );
     CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
     trap_R_SetColor( NULL );
+    cg.nearUsableBuildable = qtrue;
   }
+  else
+    cg.nearUsableBuildable = qfalse;
 }
 
 
@@ -2903,7 +2909,7 @@ static void CG_DrawLighting( void )
   cent = &cg_entities[ cg.snap->ps.clientNum ];
 
   //fade to black if stamina is low
-  if( ( cg.snap->ps.stats[ STAT_STAMINA ] < -800 ) &&
+  if( ( cg.snap->ps.stats[ STAT_STAMINA ] < STAMINA_BLACKOUT_LEVEL ) &&
       ( cg.snap->ps.stats[ STAT_TEAM ] == TEAM_HUMANS ) )
   {
     vec4_t black = { 0, 0, 0, 0 };

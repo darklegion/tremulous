@@ -524,16 +524,30 @@ static void CG_HumanText( char *text, playerState_t *ps )
           BG_Upgrade( UP_MEDKIT )->humanName ) );
   }
 
-  Q_strcat( text, MAX_TUTORIAL_TEXT,
-      va( "Press %s to use a structure\n",
-        CG_KeyNameForCommand( "+button7" ) ) );
+  if( ps->stats[ STAT_STAMINA ] <= STAMINA_BLACKOUT_LEVEL )
+  {
+    Q_strcat( text, MAX_TUTORIAL_TEXT,
+        "You are blacking out. Stop sprinting to recover stamina.\n" );
+  }
+  else if( ps->stats[ STAT_STAMINA ] <= STAMINA_SLOW_LEVEL )
+  {
+    Q_strcat( text, MAX_TUTORIAL_TEXT,
+        "Your stamina is low. Stop sprinting to recover.\n" );
+  }
+
+  if( cg.nearUsableBuildable )
+  {
+    Q_strcat( text, MAX_TUTORIAL_TEXT,
+        va( "Press %s to use this structure\n",
+          CG_KeyNameForCommand( "+button7" ) ) );
+  }
 
   Q_strcat( text, MAX_TUTORIAL_TEXT,
       va( "Press %s and any direction to sprint\n",
         CG_KeyNameForCommand( "+button8" ) ) );
 
   Q_strcat( text, MAX_TUTORIAL_TEXT,
-      va( "Press %s and back, left-strafe, or right-strafe to dodge\n",
+      va( "Press %s and back or strafe to dodge\n",
         CG_KeyNameForCommand( "+button6" ) ) );
 }
 
