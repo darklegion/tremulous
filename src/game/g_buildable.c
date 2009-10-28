@@ -2963,7 +2963,7 @@ static gentity_t *G_FindBuildable( buildable_t buildable )
     if( ent->s.eType != ET_BUILDABLE )
       continue;
 
-    if( ent->s.modelindex == buildable && !(ent->s.eFlags & EF_DEAD) )
+    if( ent->s.modelindex == buildable && !( ent->s.eFlags & EF_DEAD ) )
       return ent;
   }
 
