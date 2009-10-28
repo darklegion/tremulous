@@ -6386,6 +6386,7 @@ itemDataType_t Item_DataType( itemDef_t *item )
 
     case ITEM_TYPE_EDITFIELD:
     case ITEM_TYPE_NUMERICFIELD:
+    case ITEM_TYPE_SAYFIELD:
     case ITEM_TYPE_YESNO:
     case ITEM_TYPE_BIND:
     case ITEM_TYPE_SLIDER:
