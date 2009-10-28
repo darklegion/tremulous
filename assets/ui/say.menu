@@ -27,7 +27,7 @@
     itemDef
     {
       name say_field
-      type ITEM_TYPE_EDITFIELD
+      type ITEM_TYPE_SAYFIELD
       style WINDOW_STYLE_EMPTY
       text "Say:"
       cvar "ui_sayBuffer"
@@ -65,7 +65,7 @@
     itemDef
     {
       name say_field
-      type ITEM_TYPE_EDITFIELD
+      type ITEM_TYPE_SAYFIELD
       style WINDOW_STYLE_EMPTY
       text "Say to team:"
       cvar "ui_sayBuffer"

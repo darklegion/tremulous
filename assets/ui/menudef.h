@@ -10,6 +10,7 @@ enum
   ITEM_TYPE_RADIOBUTTON,  // toggle button, may be grouped
   ITEM_TYPE_CHECKBOX,     // check box
   ITEM_TYPE_EDITFIELD,    // editable text, associated with a cvar
+  ITEM_TYPE_SAYFIELD,     // the chat field
   ITEM_TYPE_COMBO,        // drop down list
   ITEM_TYPE_LISTBOX,      // scrollable list
   ITEM_TYPE_MODEL,        // model

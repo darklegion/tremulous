@@ -78,6 +78,7 @@ static int lastListBoxClickTime = 0;
 
 void Item_RunScript( itemDef_t *item, const char *s );
 void Item_SetupKeywordHash( void );
+static ID_INLINE qboolean Item_IsEditField( itemDef_t *item );
 void Menu_SetupKeywordHash( void );
 int BindingIDFromName( const char *name );
 qboolean Item_Bind_HandleKey( itemDef_t *item, int key, qboolean down );
@@ -1751,7 +1752,7 @@ void Script_SetFocus( itemDef_t *item, char **args )
         Item_RunScript( focusItem, focusItem->onFocus );
 
       // Edit fields get activated too
-      if( focusItem->type == ITEM_TYPE_EDITFIELD || focusItem->type == ITEM_TYPE_NUMERICFIELD )
+      if( Item_IsEditField( focusItem ) )
       {
         g_editingField = qtrue;
         g_editItem = focusItem;
@@ -3449,21 +3450,35 @@ qboolean Item_TextField_HandleKey( itemDef_t *item, int key )
         case K_KP_DOWNARROW:
         case K_UPARROW:
         case K_KP_UPARROW:
+          // Ignore these keys from the say field
+          if( item->type == ITEM_TYPE_SAYFIELD )
+            break;
+
           newItem = Menu_SetNextCursorItem( item->parent );
 
-          if( newItem && ( newItem->type == ITEM_TYPE_EDITFIELD || 
-                           newItem->type == ITEM_TYPE_NUMERICFIELD ) )
-            g_editItem = newItem;
-          else if( newItem ) // restore mouse if not using an editfield anymore
+          if( newItem && Item_IsEditField( newItem ) )
           {
-            g_editingField = qfalse;
-            g_waitingForKey = qfalse;
+            g_editItem = newItem;
+          }
+          else
+          {
+            releaseFocus = qtrue;
+            goto exit;
           }
 
           break;
 
+        case K_MOUSE1:
+        case K_MOUSE2:
+        case K_MOUSE3:
+        case K_MOUSE4:
+          // Ignore these buttons from the say field
+          if( item->type == ITEM_TYPE_SAYFIELD )
+            break;
+          // FALLTHROUGH
         case K_ENTER:
         case K_KP_ENTER:
+        case K_ESCAPE:
           releaseFocus = qtrue;
           goto exit;
 
@@ -3603,6 +3618,7 @@ void Item_StartCapture( itemDef_t *item, int key )
   switch( item->type )
   {
     case ITEM_TYPE_EDITFIELD:
+    case ITEM_TYPE_SAYFIELD:
     case ITEM_TYPE_NUMERICFIELD:
     case ITEM_TYPE_LISTBOX:
     {
@@ -3710,62 +3726,45 @@ qboolean Item_HandleKey( itemDef_t *item, int key, qboolean down )
   if( !down )
     return qfalse;
 
+  // Edit fields are handled specially
+  if( Item_IsEditField( item ) )
+    return qfalse;
+
   switch( item->type )
   {
     case ITEM_TYPE_BUTTON:
       return qfalse;
-      break;
 
     case ITEM_TYPE_RADIOBUTTON:
       return qfalse;
-      break;
 
     case ITEM_TYPE_CHECKBOX:
       return qfalse;
-      break;
-
-    case ITEM_TYPE_EDITFIELD:
-    case ITEM_TYPE_NUMERICFIELD:
-      return qfalse;
-      break;
 
     case ITEM_TYPE_COMBO:
       return Item_Combobox_HandleKey( item, key );
-      break;
 
     case ITEM_TYPE_LISTBOX:
       return Item_ListBox_HandleKey( item, key, down, qfalse );
-      break;
 
     case ITEM_TYPE_YESNO:
       return Item_YesNo_HandleKey( item, key );
-      break;
 
     case ITEM_TYPE_MULTI:
       return Item_Multi_HandleKey( item, key );
-      break;
 
     case ITEM_TYPE_OWNERDRAW:
       return Item_OwnerDraw_HandleKey( item, key );
-      break;
 
     case ITEM_TYPE_BIND:
       return Item_Bind_HandleKey( item, key, down );
-      break;
 
     case ITEM_TYPE_SLIDER:
       return Item_Slider_HandleKey( item, key, down );
-      break;
-      //case ITEM_TYPE_IMAGE:
-      //  Item_Image_Paint(item);
-      //  break;
 
     default:
       return qfalse;
-      break;
   }
-
-  //return qfalse;
 }
 
 void Item_Action( itemDef_t *item )
@@ -4013,14 +4012,6 @@ void Menu_HandleKey( menuDef_t *menu, int key, qboolean down )
       inHandler = qfalse;
       return;
     }
-    else if( key == K_MOUSE1 || key == K_MOUSE2 || key == K_MOUSE3 )
-    {
-      g_editingField = qfalse;
-      g_editItem = NULL;
-      Display_MouseMove( NULL, DC->cursorx, DC->cursory );
-    }
-    else if( key == K_TAB || key == K_UPARROW || key == K_DOWNARROW )
-      return;
   }
 
   if( menu == NULL )
@@ -4107,7 +4098,7 @@ void Menu_HandleKey( menuDef_t *menu, int key, qboolean down )
           if( Rect_ContainsPoint( Item_CorrectedTextRect( item ), DC->cursorx, DC->cursory ) )
             Item_Action( item );
         }
-        else if( item->type == ITEM_TYPE_EDITFIELD || item->type == ITEM_TYPE_NUMERICFIELD )
+        else if( Item_IsEditField( item ) )
         {
           if( Rect_ContainsPoint( &item->window.rect, DC->cursorx, DC->cursory ) )
           {
@@ -4160,7 +4151,7 @@ void Menu_HandleKey( menuDef_t *menu, int key, qboolean down )
     case K_ENTER:
       if( item )
       {
-        if( item->type == ITEM_TYPE_EDITFIELD || item->type == ITEM_TYPE_NUMERICFIELD )
+        if( Item_IsEditField( item ) )
         {
           char buffer[ MAX_STRING_CHARS ] = { 0 };
 
@@ -6002,11 +5993,6 @@ void Item_Paint( itemDef_t *item )
     case ITEM_TYPE_CHECKBOX:
       break;
 
-    case ITEM_TYPE_EDITFIELD:
-    case ITEM_TYPE_NUMERICFIELD:
-      Item_TextField_Paint( item );
-      break;
-
     case ITEM_TYPE_COMBO:
       Item_Combobox_Paint( item );
       break;
@@ -6040,6 +6026,9 @@ void Item_Paint( itemDef_t *item )
       break;
 
     default:
+      if( Item_IsEditField( item ) )
+        Item_TextField_Paint( item );
+
       break;
   }
 
@@ -6413,6 +6402,25 @@ itemDataType_t Item_DataType( itemDef_t *item )
 
 /*
 ===============
+Item_IsEditField
+===============
+*/
+static ID_INLINE qboolean Item_IsEditField( itemDef_t *item )
+{
+  switch( item->type )
+  {
+    case ITEM_TYPE_EDITFIELD:
+    case ITEM_TYPE_NUMERICFIELD:
+    case ITEM_TYPE_SAYFIELD:
+      return qtrue;
+
+    default:
+      return qfalse;
+  }
+}
+
+/*
+===============
 Item Keyword Parse functions
 ===============
 */
@@ -6609,6 +6617,7 @@ qboolean ItemParse_type( itemDef_t *item, int handle )
       break;
 
     case ITEM_TYPE_EDITFIELD:
+    case ITEM_TYPE_SAYFIELD:
     case ITEM_TYPE_NUMERICFIELD:
     case ITEM_TYPE_YESNO:
     case ITEM_TYPE_BIND:
@@ -6617,7 +6626,7 @@ qboolean ItemParse_type( itemDef_t *item, int handle )
       item->typeData.edit = UI_Alloc( sizeof( editFieldDef_t ) );
       memset( item->typeData.edit, 0, sizeof( editFieldDef_t ) );
 
-      if( item->type == ITEM_TYPE_EDITFIELD )
+      if( item->type == ITEM_TYPE_EDITFIELD || item->type == ITEM_TYPE_SAYFIELD )
         item->typeData.edit->maxPaintChars = MAX_EDITFIELD;
       break;
 
