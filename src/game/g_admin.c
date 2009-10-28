@@ -1200,7 +1200,7 @@ qboolean G_admin_setlevel( gentity_t *ent )
 
   if( trap_Argc() < 3 )
   {
-    ADMP( "^3setlevel: ^7usage: !setlevel [name|slot#] [level]\n" );
+    ADMP( "^3setlevel: ^7usage: setlevel [name|slot#] [level]\n" );
     return qfalse;
   }
 
@@ -1216,7 +1216,7 @@ qboolean G_admin_setlevel( gentity_t *ent )
   if( ent && l->level >
     ( ent->client->pers.admin ? ent->client->pers.admin->level : 0 ) )
   {
-    ADMP( "^3setlevel: ^7you may not use !setlevel to set a level higher "
+    ADMP( "^3setlevel: ^7you may not use setlevel to set a level higher "
       "than your current level\n" );
     return qfalse;
   }
@@ -1288,7 +1288,7 @@ qboolean G_admin_setlevel( gentity_t *ent )
 
     if( matches == 0 )
     {
-      ADMP( "^3setlevel:^7 no match.  use !listplayers or !listadmins to "
+      ADMP( "^3setlevel:^7 no match.  use listplayers or listadmins to "
         "find an appropriate number to use instead of name.\n" );
       return qfalse;
     }
@@ -2634,7 +2634,7 @@ qboolean G_admin_rename( gentity_t *ent )
 
   if( trap_Argc() < 3 )
   {
-    ADMP( "^3rename: ^7usage: !rename [name] [newname]\n" );
+    ADMP( "^3rename: ^7usage: rename [name] [newname]\n" );
     return qfalse;
   }
   trap_Argv( 1, name, sizeof( name ) );
