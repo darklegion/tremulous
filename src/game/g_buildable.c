@@ -2963,7 +2963,7 @@ static gentity_t *G_FindBuildable( buildable_t buildable )
     if( ent->s.eType != ET_BUILDABLE )
       continue;
 
-    if( ent->s.modelindex == buildable )
+    if( ent->s.modelindex == buildable && !(ent->s.eFlags & EF_DEAD) )
       return ent;
   }
 
@@ -3544,7 +3544,7 @@ itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance
   if( BG_Buildable( buildable )->uniqueTest )
   {
     tempent = G_FindBuildable( buildable );
-    if( tempent && !tempent->deconstruct && !( tempent->s.eFlags & EF_DEAD ) )
+    if( tempent && !tempent->deconstruct )
     {
       switch( buildable )
       {
