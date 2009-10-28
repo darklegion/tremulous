@@ -3051,7 +3051,7 @@ static void UI_RunMenuScript( char **args )
       else if( ui_chatCommands.integer && ( buffer[ 0 ] == '/' ||
         buffer[ 0 ] == '\\' ) )
       {
-        trap_Cmd_ExecuteText( EXEC_APPEND, buffer + 1 );
+        trap_Cmd_ExecuteText( EXEC_APPEND, va( "%s\n", buffer + 1 ) );
       }
       else if( uiInfo.chatTeam )
         trap_Cmd_ExecuteText( EXEC_APPEND, va( "say_team \"%s\"\n", buffer ) );
