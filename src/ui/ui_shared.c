@@ -3451,12 +3451,13 @@ qboolean Item_TextField_HandleKey( itemDef_t *item, int key )
         case K_KP_UPARROW:
           newItem = Menu_SetNextCursorItem( item->parent );
 
-          if( newItem && ( newItem->type == ITEM_TYPE_EDITFIELD || newItem->type == ITEM_TYPE_NUMERICFIELD ) )
+          if( newItem && ( newItem->type == ITEM_TYPE_EDITFIELD || 
+                           newItem->type == ITEM_TYPE_NUMERICFIELD ) )
             g_editItem = newItem;
-          else
+          else if( newItem ) // restore mouse if not using an editfield anymore
           {
-            releaseFocus = qtrue;
-            goto exit;
+            g_editingField = qfalse;
+            g_waitingForKey = qfalse;
           }
 
           break;
