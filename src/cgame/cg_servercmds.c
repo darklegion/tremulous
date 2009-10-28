@@ -1293,10 +1293,26 @@ static void CG_PTRConfirm_f( void )
   trap_SendConsoleCommand( "menu ptrc_popmenu\n" );
 }
 
+static void CG_GameCmds_f( void )
+{
+  int i;
+  int c = trap_Argc( );
+
+  /*
+  There is no corresponding trap_RemoveCommand because a server could send
+  something like
+    cmds quit
+  which would result in trap_RemoveCommand( "quit" ), which would be really bad
+  */
+  for( i = 1; i < c; i++ )
+    trap_AddCommand( CG_Argv( i ) );
+}
+
 static consoleCommand_t svcommands[ ] =
 {
   { "chat", CG_Chat_f },
   { "clientLevelShot", CG_ClientLevelShot_f },
+  { "cmds", CG_GameCmds_f },
   { "cp", CG_CenterPrint_f },
   { "cs", CG_ConfigStringModified },
   { "map_restart", CG_MapRestart },

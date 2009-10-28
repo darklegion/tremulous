@@ -52,6 +52,8 @@ equ trap_Parse_SourceFileAndLine      -48
 
 equ trap_SendGameStat                 -49
 
+equ trap_AddCommand                   -50
+equ trap_RemoveCommand                -51
 
 equ memset                            -101
 equ memcpy                            -102

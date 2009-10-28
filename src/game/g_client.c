@@ -1357,6 +1357,9 @@ void ClientBegin( int clientNum )
 
   // count current clients and rank for scoreboard
   CalculateRanks( );
+
+  // send the client a list of commands that can be used
+  G_ListCommands( ent );
 }
 
 /*

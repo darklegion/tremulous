@@ -679,16 +679,15 @@ void      G_ToggleFollow( gentity_t *ent );
 void      G_MatchOnePlayer( int *plist, int num, char *err, int len );
 int       G_ClientNumberFromString( char *s );
 int       G_ClientNumbersFromString( char *s, int *plist, int max );
+char      *ConcatArgs( int start );
 void      G_Say( gentity_t *ent, saymode_t mode, const char *chatText );
-int       G_SayArgc( void );
-qboolean  G_SayArgv( int n, char *buffer, int bufferLength );
-char      *G_SayConcatArgs( int start );
 void      G_DecolorString( char *in, char *out, int len );
 void      G_SanitiseString( char *in, char *out, int len );
 void      Cmd_PrivateMessage_f( gentity_t *ent );
 void      Cmd_Test_f( gentity_t *ent );
 void      Cmd_AdminMessage_f( gentity_t *ent );
 int       G_FloodLimited( gentity_t *ent );
+void      G_ListCommands( gentity_t *ent );
 
 //
 // g_physics.c
@@ -937,6 +936,8 @@ qboolean  SpotWouldTelefrag( gentity_t *spot );
 // g_svcmds.c
 //
 qboolean  ConsoleCommand( void );
+void      G_RegisterCommands( void );
+void      G_UnregisterCommands( void );
 
 //
 // g_weapon.c
@@ -1128,7 +1129,6 @@ extern  vmCvar_t  g_layoutAuto;
 extern  vmCvar_t  g_emoticonsAllowedInNames;
 
 extern  vmCvar_t  g_admin;
-extern  vmCvar_t  g_adminParseSay;
 extern  vmCvar_t  g_adminTempBan;
 extern  vmCvar_t  g_adminMaxBan;
 
@@ -1187,3 +1187,6 @@ qboolean  trap_GetEntityToken( char *buffer, int bufferSize );
 
 void      trap_SnapVector( float *v );
 void      trap_SendGameStat( const char *data );
+
+void      trap_AddCommand( const char *cmdName );
+void      trap_RemoveCommand( const char *cmdName );

@@ -443,6 +443,13 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 	case G_PARSE_SOURCE_FILE_AND_LINE:
 		return Parse_SourceFileAndLine( args[1], VMA(2), VMA(3) );
 
+	case G_ADDCOMMAND:
+		Cmd_AddCommand( VMA(1), NULL );
+		return 0;
+	case G_REMOVECOMMAND:
+		Cmd_RemoveCommand( VMA(1) );
+		return 0;
+
 	case TRAP_MEMSET:
 		Com_Memset( VMA(1), args[2], args[3] );
 		return 0;

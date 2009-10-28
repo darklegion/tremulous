@@ -96,9 +96,9 @@ vmCvar_t  ui_serverStatusTimeOut;
 vmCvar_t  ui_textWrapCache;
 vmCvar_t  ui_developer;
 
-vmCvar_t  ui_winner;
-
 vmCvar_t  ui_emoticons;
+vmCvar_t  ui_winner;
+vmCvar_t  ui_chatCommands;
 
 static cvarTable_t    cvarTable[ ] =
 {
@@ -123,7 +123,8 @@ static cvarTable_t    cvarTable[ ] =
   { &ui_textWrapCache, "ui_textWrapCache", "1", CVAR_ARCHIVE },
   { &ui_developer, "ui_developer", "0", CVAR_ARCHIVE | CVAR_CHEAT },
   { &ui_emoticons, "cg_emoticons", "1", CVAR_LATCH | CVAR_ARCHIVE },
-  { &ui_winner, "ui_winner", "", CVAR_ROM }
+  { &ui_winner, "ui_winner", "", CVAR_ROM },
+  { &ui_chatCommands, "ui_chatCommands", "1", CVAR_ARCHIVE }
 };
 
 static int    cvarTableSize = sizeof( cvarTable ) / sizeof( cvarTable[0] );
@@ -3045,13 +3046,17 @@ static void UI_RunMenuScript( char **args )
       char buffer[ MAX_CVAR_VALUE_STRING ];
       trap_Cvar_VariableStringBuffer( "ui_sayBuffer", buffer, sizeof( buffer ) );
 
-      if( buffer[ 0 ] )
+      if( !buffer[ 0 ] )
+        ;
+      else if( ui_chatCommands.integer && ( buffer[ 0 ] == '/' ||
+        buffer[ 0 ] == '\\' ) )
       {
-        if( uiInfo.chatTeam )
-          trap_Cmd_ExecuteText( EXEC_APPEND, va( "say_team \"%s\"\n", buffer ) );
-        else
-          trap_Cmd_ExecuteText( EXEC_APPEND, va( "say \"%s\"\n", buffer ) );
+        trap_Cmd_ExecuteText( EXEC_APPEND, buffer + 1 );
       }
+      else if( uiInfo.chatTeam )
+        trap_Cmd_ExecuteText( EXEC_APPEND, va( "say_team \"%s\"\n", buffer ) );
+      else
+        trap_Cmd_ExecuteText( EXEC_APPEND, va( "say \"%s\"\n", buffer ) );
     }
     else if( Q_stricmp( name, "playMovie" ) == 0 )
     {

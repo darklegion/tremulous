@@ -563,7 +563,7 @@ qboolean  ConsoleCommand( void )
   if( !command )
   {
     // see if this is an admin command
-    if( G_admin_cmd_check( NULL, qfalse ) )
+    if( G_admin_cmd_check( NULL ) )
       return qtrue;
 
     if( g_dedicated.integer )
@@ -579,3 +579,30 @@ qboolean  ConsoleCommand( void )
   return qtrue;
 }
 
+void G_RegisterCommands( void )
+{
+  int i;
+
+  for( i = 0; i < sizeof( svcmds ) / sizeof( svcmds[ 0 ] ); i++ )
+  {
+    if( svcmds[ i ].dedicated && !g_dedicated.integer )
+      continue;
+    trap_AddCommand( svcmds[ i ].cmd );
+  }
+
+  G_admin_register_cmds( );
+}
+
+void G_UnregisterCommands( void )
+{
+  int i;
+
+  for( i = 0; i < sizeof( svcmds ) / sizeof( svcmds[ 0 ] ); i++ )
+  {
+    if( svcmds[ i ].dedicated && !g_dedicated.integer )
+      continue;
+    trap_RemoveCommand( svcmds[ i ].cmd );
+  }
+
+  G_admin_unregister_cmds( );
+}

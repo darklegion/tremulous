@@ -129,7 +129,6 @@ vmCvar_t  g_layoutAuto;
 vmCvar_t  g_emoticonsAllowedInNames;
 
 vmCvar_t  g_admin;
-vmCvar_t  g_adminParseSay;
 vmCvar_t  g_adminTempBan;
 vmCvar_t  g_adminMaxBan;
 
@@ -256,7 +255,6 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_emoticonsAllowedInNames, "g_emoticonsAllowedInNames", "1", CVAR_LATCH|CVAR_ARCHIVE, 0, qfalse  },
 
   { &g_admin, "g_admin", "admin.dat", CVAR_ARCHIVE, 0, qfalse  },
-  { &g_adminParseSay, "g_adminParseSay", "1", CVAR_ARCHIVE, 0, qfalse  },
   { &g_adminTempBan, "g_adminTempBan", "2m", CVAR_ARCHIVE, 0, qfalse  },
   { &g_adminMaxBan, "g_adminMaxBan", "2w", CVAR_ARCHIVE, 0, qfalse  },
 
@@ -570,7 +568,8 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
   // we're done with g_mapConfigs, so reset this for the next map
   trap_Cvar_Set( "g_mapConfigsLoaded", "0" );
 
-  G_admin_readconfig( NULL, 0 );
+  G_RegisterCommands( );
+  G_admin_readconfig( NULL );
 
   // initialize all entities for this game
   memset( g_entities, 0, MAX_GENTITIES * sizeof( g_entities[ 0 ] ) );
@@ -692,6 +691,7 @@ void G_ShutdownGame( int restart )
 
   G_admin_cleanup( );
   G_admin_namelog_cleanup( );
+  G_UnregisterCommands( );
 
   G_ShutdownMapRotations( );
 
