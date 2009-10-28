@@ -47,6 +47,11 @@ g_admin_cmd_t g_admin_cmds[ ] =
       "[^3ban#^7] (^5/mask^7) (^5duration^7) (^5reason^7)"
     },
 
+    {"adminhelp", G_admin_adminhelp, "adminhelp",
+      "display admin commands available to you or help on a specific command",
+      "(^5command^7)"
+    },
+
     {"admintest", G_admin_admintest, "admintest",
       "display your current admin level",
       ""
@@ -75,14 +80,14 @@ g_admin_cmd_t g_admin_cmds[ ] =
       "(^5a|h^7)"
     },
 
+    {"changemap", G_admin_changemap, "changemap",
+      "load a map (and optionally force layout)",
+      "[^3mapname^7] (^5layout^7)"
+    },
+
     {"denybuild", G_admin_denybuild, "denybuild",
       "take away a player's ability to build",
       "[^3name|slot#^7]"
-    },
-
-    {"help", G_admin_help, "help",
-      "display commands available to you or help on a specific command",
-      "(^5command^7)"
     },
 
     {"kick", G_admin_kick, "kick",
@@ -108,11 +113,6 @@ g_admin_cmd_t g_admin_cmds[ ] =
     {"lock", G_admin_lock, "lock",
       "lock a team to prevent anyone from joining it",
       "[^3a|h^7]"
-    },
-
-    {"changemap", G_admin_map, "map",
-      "load a map (and optionally force layout)",
-      "[^3mapname^7] (^5layout^7)"
     },
 
     {"mute", G_admin_mute, "mute",
@@ -595,31 +595,31 @@ static void admin_default_levels( void )
   g_admin_level_t *l = g_admin_levels = BG_Alloc( sizeof( g_admin_level_t ) );
   Q_strncpyz( l->name, "^4Unknown Player", sizeof( l->name ) );
   Q_strncpyz( l->flags,
-    "listplayers admintest help time",
+    "listplayers admintest adminhelp time",
     sizeof( l->flags ) );
 
   l->next = BG_Alloc( sizeof( g_admin_level_t ) );
   Q_strncpyz( l->name, "^5Server Regular", sizeof( l->name ) );
   Q_strncpyz( l->flags,
-    "listplayers admintest help time",
+    "listplayers admintest adminhelp time",
     sizeof( l->flags ) );
 
   l = l->next = BG_Alloc( sizeof( g_admin_level_t ) );
   Q_strncpyz( l->name, "^6Team Manager", sizeof( l->name ) );
   Q_strncpyz( l->flags,
-    "listplayers admintest help time putteam spec999",
+    "listplayers admintest adminhelp time putteam spec999",
     sizeof( l->flags ) );
 
   l = l->next = BG_Alloc( sizeof( g_admin_level_t ) );
   Q_strncpyz( l->name, "^2Junior Admin", sizeof( l->name ) );
   Q_strncpyz( l->flags,
-    "listplayers admintest help time putteam spec999 kick mute ADMINCHAT",
+    "listplayers admintest adminhelp time putteam spec999 kick mute ADMINCHAT",
     sizeof( l->flags ) );
 
   l = l->next = BG_Alloc( sizeof( g_admin_level_t ) );
   Q_strncpyz( l->name, "^3Senior Admin", sizeof( l->name ) );
   Q_strncpyz( l->flags,
-    "listplayers admintest help time putteam spec99 kick mute showbans ban "
+    "listplayers admintest adminhelp time putteam spec99 kick mute showbans ban "
     "namelog ADMINCHAT",
     sizeof( l->flags ) );
 
@@ -1892,7 +1892,7 @@ qboolean G_admin_putteam( gentity_t *ent )
   return qtrue;
 }
 
-qboolean G_admin_map( gentity_t *ent )
+qboolean G_admin_changemap( gentity_t *ent )
 {
   char map[ MAX_QPATH ];
   char layout[ MAX_QPATH ] = { "" };
@@ -2432,7 +2432,7 @@ qboolean G_admin_showbans( gentity_t *ent )
   return qtrue;
 }
 
-qboolean G_admin_help( gentity_t *ent )
+qboolean G_admin_adminhelp( gentity_t *ent )
 {
   g_admin_command_t *c;
   if( trap_Argc() < 2 )
@@ -2464,15 +2464,15 @@ qboolean G_admin_help( gentity_t *ent )
     }
     if( count % 6 )
       ADMBP( "\n" );
-    ADMBP( va( "^3help: ^7%i available commands\n", count ) );
-    ADMBP( "run help [^3command^7] for help with a specific command.\n" );
+    ADMBP( va( "^3adminhelp: ^7%i available commands\n", count ) );
+    ADMBP( "run adminhelp [^3command^7] for adminhelp with a specific command.\n" );
     ADMBP_end();
 
     return qtrue;
   }
   else
   {
-    //!help param
+    //!adminhelp param
     char param[ MAX_ADMIN_CMD_LEN ];
     g_admin_cmd_t *admincmd;
     qboolean denied = qfalse;
@@ -2483,7 +2483,7 @@ qboolean G_admin_help( gentity_t *ent )
     {
       if( G_admin_permission( ent, c->flag ) )
       {
-        ADMBP( va( "^3help: ^7help for '%s':\n", c->command ) );
+        ADMBP( va( "^3adminhelp: ^7help for '%s':\n", c->command ) );
         ADMBP( va( " ^3Description: ^7%s\n", c->desc ) );
         ADMBP( va( " ^3Syntax: ^7%s\n", c->command ) );
         ADMBP( va( " ^3Flag: ^7'%s'\n", c->flag ) );
@@ -2496,7 +2496,7 @@ qboolean G_admin_help( gentity_t *ent )
     {
       if( G_admin_permission( ent, admincmd->flag ) )
       {
-        ADMBP( va( "^3help: ^7help for '%s':\n", admincmd->keyword ) );
+        ADMBP( va( "^3adminhelp: ^7help for '%s':\n", admincmd->keyword ) );
         ADMBP( va( " ^3Description: ^7%s\n", admincmd->function ) );
         ADMBP( va( " ^3Syntax: ^7%s %s\n", admincmd->keyword,
                  admincmd->syntax ) );
@@ -2506,7 +2506,7 @@ qboolean G_admin_help( gentity_t *ent )
       }
       denied = qtrue;
     }
-    ADMBP( va( "^3help: ^7%s '%s'\n",
+    ADMBP( va( "^3adminhelp: ^7%s '%s'\n",
       denied ? "you do not have permission to use" : "no help found for",
       param ) );
     ADMBP_end( );
