@@ -2791,6 +2791,108 @@ static void Cmd_Ignore_f( gentity_t *ent )
 
 /*
 =================
+Cmd_ListMaps_f
+
+List all maps on the server
+=================
+*/
+
+static int SortMaps( const void *a, const void *b )
+{
+  return strcmp( *(char **)a, *(char **)b );
+}
+
+#define MAX_MAPLIST_MAPS 256
+#define MAX_MAPLIST_ROWS 9
+void Cmd_ListMaps_f( gentity_t *ent )
+{
+  char search[ 16 ] = {""};
+  char fileList[ 4096 ] = {""};
+  char *fileSort[ MAX_MAPLIST_MAPS ];
+  char *filePtr, *p;
+  int  numFiles;
+  int  fileLen = 0;
+  int  shown = 0;
+  int  count = 0;
+  int  page = 0;
+  int  pages;
+  int  row, rows;
+  int  start, i, j;
+
+  if( trap_Argc( ) > 1 )
+  {
+    trap_Argv( 1, search, sizeof( search ) );
+    for( p = search; ( *p ) && isdigit( *p ); p++ );
+    if( !( *p ) )
+    {
+      page = atoi( search );
+      search[ 0 ] = '\0';
+    }
+    else if( trap_Argc( ) > 2 )
+    {
+      char lp[ 8 ];
+      trap_Argv( 2, lp, sizeof( lp ) );
+      page = atoi( lp );
+    }
+    if( page > 0 )
+      page--;
+  }
+
+  numFiles = trap_FS_GetFileList( "maps/", ".bsp",
+                                  fileList, sizeof( fileList ) );
+  filePtr = fileList;
+  for( i = 0; i < numFiles && count < MAX_MAPLIST_MAPS; i++, filePtr += fileLen + 1 )
+  {
+    fileLen = strlen( filePtr );
+    if ( fileLen < 5 )
+      continue;
+
+    filePtr[ fileLen - 4 ] = '\0';
+
+    if( search[ 0 ] && !strstr( filePtr, search ) )
+      continue;
+
+    fileSort[ count ] = filePtr;
+    count++;
+  }
+  qsort( fileSort, count, sizeof( fileSort[ 0 ] ), SortMaps );
+
+  rows = ( count + 2 ) / 3;
+  pages = ( rows + MAX_MAPLIST_ROWS - 1 ) / MAX_MAPLIST_ROWS;
+  if( page >= pages )
+    page = pages - 1;
+
+  start = page * MAX_MAPLIST_ROWS * 3;
+  if( count < start + ( 3 * MAX_MAPLIST_ROWS ) )
+    rows = ( count - start + 2 ) / 3;
+  else
+    rows = MAX_MAPLIST_ROWS;
+
+  ADMBP_begin( );
+  for( row = 0; row < rows; row++ )
+  {
+    for( i = start + row, j = 0; i < count && j < 3; i += rows, j++ )
+    {
+      ADMBP( va( "^7 %-20s", fileSort[ i ] ) );
+      shown++;
+    }
+    ADMBP( "\n" );
+  }
+  if ( search[ 0 ] )
+    ADMBP( va( "^3listmaps: ^7found %d maps matching '%s^7'", count, search ) );
+  else
+    ADMBP( va( "^3listmaps: ^7listing %d of %d maps", shown, count ) );
+  if( pages > 1 )
+    ADMBP( va( ", page %d of %d", page + 1, pages ) );
+  if( page + 1 < pages )
+    ADMBP( va( ", use 'listmaps %s%s%d' to see more",
+               search, ( search[ 0 ] ) ? " ": "", page + 2 ) );
+  ADMBP( ".\n" );
+  ADMBP_end( );
+}
+
+/*
+=================
 Cmd_Test_f
 =================
 */
@@ -2894,6 +2996,7 @@ commands_t cmds[ ] = {
   { "itemtoggle", CMD_HUMAN|CMD_LIVING, Cmd_ToggleItem_f },
   { "kill", CMD_TEAM|CMD_LIVING, Cmd_Kill_f },
   { "levelshot", CMD_CHEAT, Cmd_LevelShot_f },
+  { "listmaps", CMD_MESSAGE|CMD_INTERMISSION, Cmd_ListMaps_f },
   { "m", CMD_MESSAGE|CMD_INTERMISSION, Cmd_PrivateMessage_f },
   { "me", CMD_MESSAGE|CMD_INTERMISSION, Cmd_ActionMessage_f },
   { "mt", CMD_MESSAGE|CMD_INTERMISSION, Cmd_PrivateMessage_f },

@@ -500,6 +500,11 @@ static void Svcmd_MessageWrapper( void )
     G_Say( NULL, SAY_RAW, ConcatArgs( 1 ) );
 }
 
+static void Svcmd_ListMapsWrapper( void )
+{
+  Cmd_ListMaps_f( NULL );
+}
+
 static void Svcmd_SuddenDeath_f( void )
 {
   char secs[ 5 ];
@@ -534,6 +539,7 @@ struct svcmd
   { "humanWin", qfalse, Svcmd_TeamWin_f },
   { "layoutLoad", qfalse, Svcmd_LayoutLoad_f },
   { "layoutSave", qfalse, Svcmd_LayoutSave_f },
+  { "listmaps", qtrue, Svcmd_ListMapsWrapper },
   { "m", qtrue, Svcmd_MessageWrapper },
   { "mapRotation", qfalse, Svcmd_MapRotation_f },
   { "printqueue", qfalse, Svcmd_PrintQueue_f },
