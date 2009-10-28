@@ -2762,7 +2762,6 @@ qboolean G_admin_namelog( gentity_t *ent, int skiparg )
   {
     G_SayArgv( 1 + skiparg, search, sizeof( search ) );
     ipmatch = G_AddressParse( search, &a, &mask );
-G_Printf( "%s is %san IP address%s\n", search, ipmatch ? "" : "NOT ", ipmatch ? va( " with mask %d", mask ) : "" );
     if( !ipmatch )
       G_SanitiseString( search, s2, sizeof( s2 ) );
   }
@@ -2792,7 +2791,7 @@ G_Printf( "%s is %san IP address%s\n", search, ipmatch ? "" : "NOT ", ipmatch ? 
         continue;
     }
     printed++;
-    ADMBP( va( "%s ^7", ( n->slot > -1 ) ? va( "^3%-2d", n->slot ) : "- " ) );
+    ADMBP( ( n->slot > -1 ) ? va( "^3%-2d", n->slot ) : "- " );
     for( i = 0; i < MAX_ADMIN_NAMELOG_ADDRS && n->ip[ i ][ 0 ]; i++ )
       ADMBP( va( " %s", n->ip[ i ] ) );
     for( i = 0; i < MAX_ADMIN_NAMELOG_NAMES && n->name[ i ][ 0 ]; i++ )
