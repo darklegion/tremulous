@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ADMBP_end() G_admin_buffer_end(ent)
 
 #define MAX_ADMIN_NAMELOG_NAMES 5
+#define MAX_ADMIN_NAMELOG_ADDRS 5
 #define MAX_ADMIN_FLAG_LEN 20
 #define MAX_ADMIN_FLAGS 1024
 #define MAX_ADMIN_CMD_LEN 20
@@ -128,8 +129,8 @@ g_admin_command_t;
 typedef struct g_admin_namelog
 {
   struct g_admin_namelog *next;
-  char      name[ MAX_ADMIN_NAMELOG_NAMES ][MAX_NAME_LENGTH ];
-  char      ip[ 40 ];
+  char      name[ MAX_ADMIN_NAMELOG_NAMES ][ MAX_NAME_LENGTH ];
+  char      ip[ MAX_ADMIN_NAMELOG_ADDRS ][ 40 ];
   char      guid[ 33 ];
   int       slot;
   qboolean  banned;
