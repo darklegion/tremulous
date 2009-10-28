@@ -127,7 +127,7 @@ itemDef
 itemDef
 {
   name "location"
-  rect (STAT_X-75) ((4*BORDER)+(4*STAT_H)) (STAT_W+75) STAT_H
+  rect (STAT_X-75) ((5*BORDER)+(4*STAT_H)) (STAT_W+75) STAT_H
   aspectBias ALIGN_RIGHT
   visible MENU_TRUE
   decoration
@@ -141,7 +141,7 @@ itemDef
 itemDef
 {
   name "demoRecording"
-  rect (STAT_X+(STAT_W-32)) ((7*BORDER)+(4*STAT_H)) 32 32
+  rect (STAT_X+(STAT_W-32)) ((8*BORDER)+(4*STAT_H)) 32 32
   aspectBias ALIGN_RIGHT
   style WINDOW_STYLE_EMPTY
   visible MENU_TRUE
@@ -154,7 +154,7 @@ itemDef
 itemDef
 {
   name "demoPlayback"
-  rect (STAT_X+(STAT_W-32)) ((7*BORDER)+(4*STAT_H)) 32 32
+  rect (STAT_X+(STAT_W-32)) ((8*BORDER)+(4*STAT_H)) 32 32
   aspectBias ALIGN_RIGHT
   style WINDOW_STYLE_EMPTY
   visible MENU_TRUE
