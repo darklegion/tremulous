@@ -3209,24 +3209,21 @@ static void CG_DrawWarmup( void )
   int    w;
   int    h;
   float  size = 0.5f;
-  char   text[ MAX_STRING_CHARS ] = S_COLOR_RED "Warmup Time:";
+  char   text[ MAX_STRING_CHARS ] = "Warmup Time:";
 
   if( !cg.warmupTime )
     return;
-  
+
   sec = ( cg.warmupTime - cg.time ) / 1000;
 
   if( sec < 0 )
     return;
 
-
   w = UI_Text_Width( text, size, 0 );
   h = UI_Text_Height( text, size, 0 );
   UI_Text_Paint( 320 - w / 2, 200, size, colorWhite, text, 0, 0, ITEM_TEXTSTYLE_SHADOWED );
 
-  Com_sprintf( text, sizeof( text ), 
-               "----- %s" S_COLOR_WHITE " -----",
-               ( sec ) ? va( "^%d%d", sec % 7, sec ) : S_COLOR_GREEN "FIGHT!" );
+  Com_sprintf( text, sizeof( text ), "%s", sec ? va( "%d", sec ) : "FIGHT!" );
 
   w = UI_Text_Width( text, size, 0 );
   UI_Text_Paint( 320 - w / 2, 200 + 1.5f * h, size, colorWhite, text, 0, 0, ITEM_TEXTSTYLE_SHADOWED );
