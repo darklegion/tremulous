@@ -2498,7 +2498,7 @@ qboolean G_admin_help( gentity_t *ent )
       {
         ADMBP( va( "^3help: ^7help for '%s':\n", admincmd->keyword ) );
         ADMBP( va( " ^3Description: ^7%s\n", admincmd->function ) );
-        ADMBP( va( " ^3Syntax: ^7!%s %s\n", admincmd->keyword,
+        ADMBP( va( " ^3Syntax: ^7%s %s\n", admincmd->keyword,
                  admincmd->syntax ) );
         ADMBP( va( " ^3Flag: ^7'%s'\n", admincmd->flag ) );
         ADMBP_end();
