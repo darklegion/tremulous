@@ -221,25 +221,9 @@ void G_ChangeTeam( gentity_t *ent, team_t newTeam )
 
   G_UpdateTeamConfigStrings( );
 
-  if( oldTeam != TEAM_NONE && newTeam != TEAM_NONE )
-  {
-    G_LogPrintf(
-      "team: %i %i %i: %s" S_COLOR_WHITE " left the %ss and joined the %ss\n",
-       ent->s.number, newTeam, oldTeam, ent->client->pers.netname,
-       BG_TeamName( oldTeam ), BG_TeamName( newTeam ) );
-  }
-  else if( newTeam == TEAM_NONE )
-  {
-    G_LogPrintf( "team: %i %i %i: %s" S_COLOR_WHITE " left the %ss\n",
-      ent->s.number, newTeam, oldTeam, ent->client->pers.netname,
-      BG_TeamName( oldTeam ) );
-  }
-  else
-  {
-    G_LogPrintf( "team: %i %i %i: %s" S_COLOR_WHITE " joined the %ss\n",
-      ent->s.number, newTeam, oldTeam, ent->client->pers.netname,
-      BG_TeamName( newTeam ) );
-  }
+  G_LogPrintf( "ChangeTeam: %d %s: %s" S_COLOR_WHITE " switched teams\n",
+    ent - g_entities, BG_TeamName( newTeam ), ent->client->pers.netname );
+
   TeamplayInfoMessage( ent );
 }
 

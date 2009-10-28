@@ -123,7 +123,6 @@ char *modNames[ ] =
   "MOD_ATUBE",
   "MOD_OVERMIND",
   "MOD_DECONSTRUCT",
-  "MOD_REPLACE",
   "MOD_NOCREEP"
 };
 
@@ -249,13 +248,17 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   }
 
   if( meansOfDeath < 0 || meansOfDeath >= sizeof( modNames ) / sizeof( modNames[0] ) )
-    obit = "<bad obituary>";
+    // fall back on the number
+    obit = va( "%d", meansOfDeath );
   else
     obit = modNames[ meansOfDeath ];
 
-  G_LogPrintf("Kill: %i %i %i: %s^7 killed %s^7 by %s\n",
-    killer, self->s.number, meansOfDeath, killerName,
-    self->client->pers.netname, obit );
+  G_LogPrintf( "Die: %d %d %s: %s" S_COLOR_WHITE " killed %s\n",
+    killer,
+    self - g_entities,
+    obit,
+    killerName,
+    self->client->pers.netname );
 
   // deactivate all upgrades
   for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
@@ -1023,13 +1026,13 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
     }
 
     if( targ->s.eType == ET_BUILDABLE && attacker->client &&
-        mod != MOD_DECONSTRUCT && mod != MOD_REPLACE )
+        mod != MOD_DECONSTRUCT )
     {
-      if( targ->buildableTeam == attacker->client->pers.teamSelection )
+      if( targ->buildableTeam == attacker->client->pers.teamSelection &&
+        !g_friendlyBuildableFire.integer && mod != MOD_DECONSTRUCT &&
+        mod != MOD_SUICIDE )
       {
-        if( !g_friendlyBuildableFire.integer && mod != MOD_DECONSTRUCT
-            && mod != MOD_SUICIDE )
-          return;
+        return;
       }
 
       // base is under attack warning if DCC'd
@@ -1363,8 +1366,7 @@ void G_LogDestruction( gentity_t *self, gentity_t *actor, int mod )
   if( !actor || !actor->client )
     return;
 
-  if( mod != MOD_REPLACE &&
-    actor->client->ps.stats[ STAT_TEAM ] ==
+  if( actor->client->pers.teamSelection ==
     BG_Buildable( self->s.modelindex )->team )
   {
     G_TeamCommand( actor->client->ps.stats[ STAT_TEAM ],
@@ -1374,19 +1376,12 @@ void G_LogDestruction( gentity_t *self, gentity_t *actor, int mod )
         actor->client->pers.netname ) );
   }
 
-  if( mod == MOD_DECONSTRUCT || mod == MOD_REPLACE )
-    G_LogPrintf( "Decon: %d %d %d: %s ^3deconstructed^7 %s\n",
-      actor->client->ps.clientNum,
-      self->s.modelindex,
-      mod,
-      actor->client->pers.netname,
-      BG_Buildable( self->s.modelindex )->name );
-  else
-    G_LogPrintf( "Decon: %d %d %d: %s ^3destroyed^7 %s by %s\n",
-      actor->client->ps.clientNum,
-      self->s.modelindex,
-      mod,
-      actor->client->pers.netname,
-      BG_Buildable( self->s.modelindex )->name,
-      modNames[ mod ] );
+  G_LogPrintf( S_COLOR_YELLOW "Deconstruct: %d %d %s %s: %s %s by %s\n",
+    actor - g_entities,
+    self - g_entities,
+    BG_Buildable( self->s.modelindex )->name,
+    modNames[ mod ],
+    BG_Buildable( self->s.modelindex )->humanName,
+    mod == MOD_DECONSTRUCT ? "deconstructed" : "destroyed",
+    actor->client->pers.netname );
 }

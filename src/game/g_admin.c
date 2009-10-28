@@ -606,7 +606,7 @@ void G_admin_authlog( gentity_t *ent )
                ent->client->pers.admin->flags,
                ( level ) ? level->flags : "" );
 
-  G_LogPrintf( "AdminAuth: %i \"%s" S_COLOR_WHITE "\": \"%s" S_COLOR_WHITE 
+  G_LogPrintf( "AdminAuth: %i \"%s" S_COLOR_WHITE "\" \"%s" S_COLOR_WHITE 
                "\" [%d] (%s): %s\n", 
                ent - g_entities, ent->client->pers.netname, 
                ent->client->pers.admin->name, ent->client->pers.admin->level,

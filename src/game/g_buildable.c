@@ -3115,17 +3115,20 @@ G_FreeMarkedBuildables
 Free up build points for a team by deconstructing marked buildables
 ===============
 */
-void G_FreeMarkedBuildables( gentity_t *deconner, char *buffer, int size )
+void G_FreeMarkedBuildables( gentity_t *deconner, char *readable, int rsize,
+  char *nums, int nsize )
 {
   int       i;
-  int bNum;
-  int listItems = 0;
-  int totalListItems = 0;
+  int       bNum;
+  int       listItems = 0;
+  int       totalListItems = 0;
   gentity_t *ent;
-  int removalCounts[ BA_NUM_BUILDABLES ] = {0};
+  int       removalCounts[ BA_NUM_BUILDABLES ] = {0};
 
-  if( buffer )
-    buffer[0] = '\0';
+  if( readable && rsize )
+    readable[ 0 ] = '\0';
+  if( nums && nsize )
+    nums[ 0 ] = '\0';
 
   if( !g_markDeconstruct.integer )
     return; // Not enabled, can't deconstruct anything
@@ -3136,28 +3139,36 @@ void G_FreeMarkedBuildables( gentity_t *deconner, char *buffer, int size )
     bNum = BG_Buildable( ent->s.modelindex )->number;
 
     if( removalCounts[ bNum ] == 0 )
-        totalListItems++;
+      totalListItems++;
+
+    G_Damage( ent, NULL, NULL, NULL, NULL, ent->health, 0, MOD_DECONSTRUCT );
 
     removalCounts[ bNum ]++;
 
-    G_Damage( ent, NULL, deconner, NULL, NULL, ent->health, 0, MOD_REPLACE );      
+    if( nums )
+      Q_strcat( nums, nsize, va( " %d", ent - g_entities ) );
+
     G_FreeEntity( ent );
   }
 
+  if( !readable )
+    return;
+
   for( i = 0; i < BA_NUM_BUILDABLES; i++ )
   {
-    if( buffer && removalCounts[ i ] )
+    if( removalCounts[ i ] )
     {
       if( listItems )
       {
         if( listItems == ( totalListItems - 1 ) )
-          Q_strcat( buffer, size,  va( "%s and ", ( totalListItems > 2 ) ? "," : "" ) );
+          Q_strcat( readable, rsize,  va( "%s and ",
+            ( totalListItems > 2 ) ? "," : "" ) );
         else
-          Q_strcat( buffer, size, ", " );
+          Q_strcat( readable, rsize, ", " );
       }
-      Q_strcat( buffer, size, va( "%s", BG_Buildable( i )->humanName ) );
+      Q_strcat( readable, rsize, va( "%s", BG_Buildable( i )->humanName ) );
       if( removalCounts[ i ] > 1 )
-        Q_strcat( buffer, size, va( " x%d", removalCounts[ i ] ) );
+        Q_strcat( readable, rsize, va( " (%dx)", removalCounts[ i ] ) );
       listItems++;
     }
   }
@@ -3601,10 +3612,12 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable, vec3_t ori
 {
   gentity_t *built;
   vec3_t    normal;
-  char removed[ MAX_STRING_CHARS ];
+  char      readable[ MAX_STRING_CHARS ];
+  char      buildnums[ MAX_STRING_CHARS ];
 
   // Free existing buildables
-  G_FreeMarkedBuildables( builder, removed, sizeof( removed ) );
+  G_FreeMarkedBuildables( builder, readable, sizeof( readable ),
+    buildnums, sizeof( buildnums ) );
 
   // Spawn the buildable
   built = G_Spawn();
@@ -3825,14 +3838,18 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable, vec3_t ori
       va( "print \"%s ^2built^7 by %s%s%s\n\"",
         BG_Buildable( built->s.modelindex )->humanName,
         builder->client->pers.netname,
-        ( removed[0] ) ? "^7, ^3replacing^7 " : "",
-        removed ) );
-    G_LogPrintf( "Build: %d %d %d: %s^7 is ^2building^7 %s\n",
-      builder->client->ps.clientNum,
-      built->s.modelindex,
-      level.numBuildablesForRemoval,
+        ( readable[ 0 ] ) ? "^7, ^3replacing^7 " : "",
+        readable ) );
+    G_LogPrintf( "Construct: %d %d %s%s: %s" S_COLOR_WHITE " is building "
+      "%s%s%s\n",
+      builder - g_entities,
+      built - g_entities,
+      BG_Buildable( built->s.modelindex )->name,
+      buildnums,
       builder->client->pers.netname,
-      BG_Buildable( built->s.modelindex )->name );
+      BG_Buildable( built->s.modelindex )->humanName,
+      readable[ 0 ] ? ", replacing " : "",
+      readable );
   }
 
   return built;
