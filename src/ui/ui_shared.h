@@ -520,7 +520,7 @@ float UI_Text_Width( const char *text, float scale, int limit );
 float UI_Text_Height( const char *text, float scale, int limit );
 float UI_Text_EmWidth( float scale );
 float UI_Text_EmHeight( float scale );
-qboolean UI_Text_Emoticon( const char *s, qboolean *escaped, int *length, qhandle_t *h, int *width );
+qboolean UI_Text_IsEmoticon( const char *s, qboolean *escaped, int *length, qhandle_t *h, int *width );
 void UI_EscapeEmoticons( char *dest, const char *src, int destsize );
 
 int      trap_Parse_AddGlobalDefine( char *define );

@@ -1841,20 +1841,23 @@ void UI_EscapeEmoticons( char *dest, const char *src, int destsize )
 {
   int len;
   qboolean escaped;
+
   for( ; *src && destsize > 1; src++, destsize-- )
   {
-    if ( UI_Text_Emoticon( src, &escaped, &len, NULL, NULL ) && !escaped )
+    if( UI_Text_IsEmoticon( src, &escaped, &len, NULL, NULL ) && !escaped )
     {
       *dest++ = '[';
       destsize--;
     }
+
     *dest++ = *src;
   }
+
   *dest++ = '\0';
 }
 
-qboolean UI_Text_Emoticon( const char *s, qboolean *escaped,
-                           int *length, qhandle_t *h, int *width )
+qboolean UI_Text_IsEmoticon( const char *s, qboolean *escaped,
+                             int *length, qhandle_t *h, int *width )
 {
   char name[ MAX_EMOTICON_NAME_LEN ] = {""};
   const char *p = s;
@@ -1945,8 +1948,8 @@ float UI_Text_Width( const char *text, float scale, int limit )
         continue;
       }
 
-      if ( UI_Text_Emoticon( s, &emoticonEscaped, &emoticonLen, 
-                             NULL, &emoticonWidth ) )
+      if( UI_Text_IsEmoticon( s, &emoticonEscaped, &emoticonLen,
+                            NULL, &emoticonWidth ) )
       {
         if( emoticonEscaped )
           s++;
@@ -2133,7 +2136,7 @@ static void UI_Text_Paint_Generic( float x, float y, float scale, float gapAdjus
         continue;
       }
 
-      if( UI_Text_Emoticon( s, &emoticonEscaped, &emoticonLen,
+      if( UI_Text_IsEmoticon( s, &emoticonEscaped, &emoticonLen,
                             &emoticonHandle, &emoticonWidth ) )
       {
         if( emoticonEscaped )
@@ -4283,18 +4286,53 @@ void Item_TextColor( itemDef_t *item, vec4_t *newColor )
   }
 }
 
+static void SkipColorCodes( const char **text, char *lastColor )
+{
+  while( Q_IsColorString( *text ) )
+  {
+    lastColor[ 0 ] = (*text)[ 0 ];
+    lastColor[ 1 ] = (*text)[ 1 ];
+    (*text) += 2;
+  }
+}
+
+static void SkipWhiteSpace( const char **text, char *lastColor )
+{
+  while( **text )
+  {
+    SkipColorCodes( text, lastColor );
+
+    if( **text != '\n' && isspace( **text ) )
+      (*text)++;
+    else
+      break;
+  }
+}
+
+static void SkipEmoticons( const char **text )
+{
+  int      emoticonLen;
+  qboolean emoticonEscaped;
+
+  while( UI_Text_IsEmoticon( *text, &emoticonEscaped, &emoticonLen, NULL, NULL ) )
+  {
+    if( emoticonEscaped )
+      (*text)++;
+    else
+      (*text) += emoticonLen;
+  }
+}
+
 const char *Item_Text_Wrap( const char *text, float scale, float width )
 {
   static char   out[ 8192 ] = "";
   char          *paint = out;
-  char          c[ 3 ] = "^7";
+  char          c[ 3 ] = "";
   const char    *p = text;
   const char    *eol;
   const char    *q = NULL, *qMinus1 = NULL;
   unsigned int  testLength;
   unsigned int  i;
-  int           emoticonLen;
-  qboolean      emoticonEscaped;
 
   if( strlen( text ) >= sizeof( out ) )
     return NULL;
@@ -4303,42 +4341,15 @@ const char *Item_Text_Wrap( const char *text, float scale, float width )
 
   while( *p )
   {
-    // Skip leading whitespace
-
-    while( *p )
-    {
-      if( Q_IsColorString( p ) )
-      {
-        c[ 0 ] = p[ 0 ];
-        c[ 1 ] = p[ 1 ];
-        p += 2;
-      }
-      else if( *p != '\n' && isspace( *p ) )
-        p++;
-      else
-        break;
-    }
-
-    if( !*p )
-      break;
-
-    Q_strcat( paint, out + sizeof( out ) - paint, c );
-
     testLength = 1;
-
     eol = p;
-
     q = p + 1;
 
-    while( Q_IsColorString( q ) )
-    {
-      c[ 0 ] = q[ 0 ];
-      c[ 1 ] = q[ 1 ];
-      q += 2;
-    }
+    SkipColorCodes( &q, c );
 
     while( UI_Text_Width( p, scale, testLength ) < width )
     {
+      // Remaining string is too short to wrap
       if( testLength >= strlen( p ) )
       {
         eol = p + strlen( p );
@@ -4346,44 +4357,18 @@ const char *Item_Text_Wrap( const char *text, float scale, float width )
       }
 
       // Point q at the end of the current testLength
-      q = p;
-
-      for( i = 0; i < testLength; )
+      for( q = p, i = 0; i < testLength; i++ )
       {
-        // Skip color escapes
-        while( Q_IsColorString( q ) )
-        {
-          c[ 0 ] = q[ 0 ];
-          c[ 1 ] = q[ 1 ];
-          q += 2;
-        }
-        while( UI_Text_Emoticon( q, &emoticonEscaped, &emoticonLen, NULL, NULL ) )
-        {
-          if( emoticonEscaped )
-            q++;
-          else
-            q += emoticonLen;
-        }
+        SkipColorCodes( &q, c );
+        SkipEmoticons( &q );
 
         qMinus1 = q;
         q++;
-        i++;
       }
 
       // Some color escapes might still be present
-      while( Q_IsColorString( q ) )
-      {
-        c[ 0 ] = q[ 0 ];
-        c[ 1 ] = q[ 1 ];
-        q += 2;
-      }
-      while( UI_Text_Emoticon( q, &emoticonEscaped, &emoticonLen, NULL, NULL ) )
-      {
-        if( emoticonEscaped )
-          q++;
-        else
-          q += emoticonLen;
-      }
+      SkipColorCodes( &q, c );
+      SkipEmoticons( &q );
 
       // Manual line break
       if( *q == '\n' )
@@ -4408,19 +4393,26 @@ const char *Item_Text_Wrap( const char *text, float scale, float width )
     strncpy( paint, p, eol - p );
 
     paint[ eol - p ] = '\0';
+    p = eol;
 
-    // Add a \n if it's not there already
-    if( out[ strlen( out ) - 1 ] != '\n' )
+    // Skip leading whitespace on next line and save the
+    // last color code
+    SkipWhiteSpace( &p, c );
+
+    if( out[ strlen( out ) - 1 ] == '\n' )
     {
-      Q_strcat( out, sizeof( out ), "\n " );
-      Q_strcat( out, sizeof( out ), c );
+      // The line is deliberately broken, clear the color
+      c[ 0 ] = '\0';
     }
     else
-      c[ 0 ] = '\0';
+    {
+      // Add a \n if it's not there already
+      Q_strcat( out, sizeof( out ), "\n" );
+    }
+
+    Q_strcat( out, sizeof( out ), c );
 
     paint = out + strlen( out );
-
-    p = eol;
   }
 
   return out;
