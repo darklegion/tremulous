@@ -27,7 +27,7 @@
     onOpen { uiScript getNews }
     onESC
     {
-      close news
+      close news_menu
     }
 
     itemDef
