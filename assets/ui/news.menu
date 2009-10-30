@@ -7,11 +7,9 @@
 #define H       400
 #define BUTT_W  45
 #define BUTT_H  35
+#define TITLE_H 35
 #define BORDER  10
 #define LIST_W  (W-(2*BORDER))
-#define LIST_DW (LIST_W-40)
-#define LEFT_C  0.13
-#define RIGHT_C 0.61
 
   menuDef
   {
@@ -48,11 +46,11 @@
     {
       name title
       type ITEM_TYPE_TEXT
-      text "Tremulous News:"
+      text "Tremulous News"
       style WINDOW_STYLE_EMPTY
       textscale .5
       textstyle ITEM_TEXTSTYLE_NORMAL
-      rect BORDER BORDER LIST_W (BORDER+BUTT_H)
+      rect BORDER BORDER LIST_W TITLE_H
       textalign ALIGN_CENTER
       textvalign VALIGN_CENTER
       decoration
@@ -63,7 +61,7 @@
     itemDef
     {
       name newslistbox
-      rect BORDER (BORDER+BUTT_H) LIST_W (H-((2*BUTT_H)+BORDER))
+      rect BORDER ((2*BORDER)+TITLE_H) LIST_W (H-((TITLE_H+BUTT_H)+(2*BORDER)))
       type ITEM_TYPE_LISTBOX
       style WINDOW_STYLE_EMPTY
       elementwidth 120
