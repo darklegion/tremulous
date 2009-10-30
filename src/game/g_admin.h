@@ -47,7 +47,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  * NOVOTELIMIT - can call a vote at any time (regardless of a vote being
  * disabled or voting limitations)
  * CANPERMBAN - does not need to specify a duration for a ban
- * TEAMCHATCMD - can run commands from team chat
  * ACTIVITY - inactivity rules do not apply to them
  * IMMUTABLE - admin commands cannot be used on them
  * INCOGNITO - does not show up as an admin in !listplayers
@@ -61,7 +60,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ADMF_UNACCOUNTABLE   "UNACCOUNTABLE"
 #define ADMF_NO_VOTE_LIMIT   "NOVOTELIMIT"
 #define ADMF_CAN_PERM_BAN    "CANPERMBAN"
-#define ADMF_TEAMCHAT_CMD    "TEAMCHATCMD"
 #define ADMF_ACTIVITY        "ACTIVITY"
 
 #define ADMF_IMMUTABLE       "IMMUTABLE"
