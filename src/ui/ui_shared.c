@@ -4961,6 +4961,7 @@ static bind_t g_bindings[] =
     { "teamvote no",  K_F4,          -1, -1, -1 },
     { "scoresUp",      K_KP_PGUP,    -1, -1, -1 },
     { "scoresDown",    K_KP_PGDN,    -1, -1, -1 },
+    { "screenshotJPEG",-1,           -1, -1, -1 },
     { "messagemode",  -1,            -1, -1, -1 },
     { "messagemode2", -1,            -1, -1, -1 }
   };

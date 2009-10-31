@@ -38,9 +38,10 @@
     onopen
     {
       hide optionsGrp;
-      show game;
+      show player;
 
-      setitemcolor gameBtn      forecolor 0.2 0.2 0.2 1.0;
+      setitemcolor playerBtn    forecolor 0.2 0.2 0.2 1.0;
+      setitemcolor hudBtn       forecolor 1.0 1.0 1.0 1.0;
       setitemcolor controlsBtn  forecolor 1.0 1.0 1.0 1.0;
       setitemcolor systemBtn    forecolor 1.0 1.0 1.0 1.0
     }
@@ -62,8 +63,33 @@
     //Section menus
     itemDef
     {
-      name GameBtn
-      text "Game"
+      name PlayerBtn
+      text "Player"
+      group menuGrp
+      style WINDOW_STYLE_EMPTY
+      rect (W-((4*TOPBUTT_W)+BORDER)) BORDER TOPBUTT_W TOPBUTT_H
+      type ITEM_TYPE_BUTTON
+      textalign ALIGN_CENTER
+      textvalign VALIGN_CENTER
+      textscale .35
+      forecolor 1 1 1 1
+      visible MENU_TRUE
+      action
+      {
+        play "sound/misc/menu1.wav";
+        hide optionsGrp;
+        show player;
+
+        setitemcolor playerBtn    forecolor 0.2 0.2 0.2 1.0;
+        setitemcolor hudBtn       forecolor 1.0 1.0 1.0 1.0;
+        setitemcolor controlsBtn  forecolor 1.0 1.0 1.0 1.0;
+        setitemcolor systemBtn    forecolor 1.0 1.0 1.0 1.0
+      }
+    }
+    itemDef
+    {
+      name hudBtn
+      text "HUD"
       group menuGrp
       style WINDOW_STYLE_EMPTY
       rect (W-((3*TOPBUTT_W)+BORDER)) BORDER TOPBUTT_W TOPBUTT_H
@@ -77,9 +103,10 @@
       {
         play "sound/misc/menu1.wav";
         hide optionsGrp;
-        show game;
+        show hud;
 
-        setitemcolor gameBtn      forecolor 0.2 0.2 0.2 1.0;
+        setitemcolor playerBtn    forecolor 1.0 1.0 1.0 1.0;
+        setitemcolor hudBtn       forecolor 0.2 0.2 0.2 1.0;
         setitemcolor controlsBtn  forecolor 1.0 1.0 1.0 1.0;
         setitemcolor systemBtn    forecolor 1.0 1.0 1.0 1.0
       }
@@ -105,7 +132,8 @@
         show controls;
         show look;
 
-        setitemcolor gameBtn      forecolor 1.0 1.0 1.0 1.0;
+        setitemcolor playerBtn    forecolor 1.0 1.0 1.0 1.0;
+        setitemcolor hudBtn       forecolor 1.0 1.0 1.0 1.0;
         setitemcolor controlsBtn  forecolor 0.2 0.2 0.2 1.0;
         setitemcolor systemBtn    forecolor 1.0 1.0 1.0 1.0
       }
@@ -131,17 +159,18 @@
         show system;
         show ghardware;
 
-        setitemcolor gameBtn      forecolor 1.0 1.0 1.0 1.0;
+        setitemcolor playerBtn    forecolor 1.0 1.0 1.0 1.0;
+        setitemcolor hudBtn       forecolor 1.0 1.0 1.0 1.0;
         setitemcolor controlsBtn  forecolor 1.0 1.0 1.0 1.0;
         setitemcolor systemBtn    forecolor 0.2 0.2 0.2 1.0
       }
     }
 
-//////// GAME
+//////// PLAYER
 
     itemDef
     {
-      name game
+      name player
       group optionsGrp
       type ITEM_TYPE_EDITFIELD
       style WINDOW_STYLE_EMPTY
@@ -159,11 +188,11 @@
 
     itemDef
     {
-      name game
+      name player
       group optionsGrp
       type ITEM_TYPE_YESNO
-      text "Auto Download:"
-      cvar "cl_allowDownload"
+      text "Taunts Sounds Off:"
+      cvar "cg_noTaunt"
       rect CONTENT_X (CONTENT_Y+(1*ELEM_H)) CONTENT_W ELEM_H
       textalign ALIGN_RIGHT
       textvalign VALIGN_CENTER
@@ -179,11 +208,11 @@
 
     itemDef
     {
-      name game
+      name player
       group optionsGrp
       type ITEM_TYPE_YESNO
-      text "Taunts Sounds Off:"
-      cvar "cg_noTaunt"
+      text "Team Chats Only:"
+      cvar "cg_teamChatsOnly"
       rect CONTENT_X (CONTENT_Y+(2*ELEM_H)) CONTENT_W ELEM_H
       textalign ALIGN_RIGHT
       textvalign VALIGN_CENTER
@@ -199,11 +228,11 @@
 
     itemDef
     {
-      name game
+      name player
       group optionsGrp
       type ITEM_TYPE_YESNO
-      text "Team Chats Only:"
-      cvar "cg_teamChatsOnly"
+      text "Sticky Spectate:"
+      cvar "cg_stickySpec"
       rect CONTENT_X (CONTENT_Y+(3*ELEM_H)) CONTENT_W ELEM_H
       textalign ALIGN_RIGHT
       textvalign VALIGN_CENTER
@@ -219,11 +248,11 @@
 
     itemDef
     {
-      name game
+      name player
       group optionsGrp
       type ITEM_TYPE_YESNO
-      text "Auto Wallwalk Pitching:"
-      cvar "cg_wwFollow"
+      text "Tutorial Mode:"
+      cvar "cg_tutorial"
       rect CONTENT_X (CONTENT_Y+(4*ELEM_H)) CONTENT_W ELEM_H
       textalign ALIGN_RIGHT
       textvalign VALIGN_CENTER
@@ -239,12 +268,137 @@
 
     itemDef
     {
-      name game
+      name player
       group optionsGrp
       type ITEM_TYPE_MULTI
-      text "Wallwalking Speed:"
-      cvar "cg_wwSmoothTime"
-      cvarFloatList { "Medium" 300 "Fast" 150 "Instant" 0 "Slow" 600 }
+      text "Disable Warning Dialogs:"
+      cvar "cg_disableWarningDialogs"
+      cvarFloatList { "No" 0 "Print to Console" 1 "Yes" 2 }
+      rect CONTENT_X (CONTENT_Y+(5*ELEM_H)) CONTENT_W ELEM_H
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textalignx CONTENT_OFF
+      textscale .25
+      forecolor 1 1 1 1
+      visible MENU_FALSE
+      action
+      {
+        play "sound/misc/menu1.wav";
+      }
+    }
+
+//////// HUD
+
+    itemDef
+    {
+      name hud
+      group optionsGrp
+      type ITEM_TYPE_MULTI
+      text "Show Clock:"
+      cvar "cg_drawClock"
+      cvarFloatList { "No" 0 "12 Hour" 1 "24 Hour" 2 }
+      rect CONTENT_X (CONTENT_Y+(0*ELEM_H)) CONTENT_W ELEM_H
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textalignx CONTENT_OFF
+      textscale .25
+      forecolor 1 1 1 1
+      visible MENU_FALSE
+      action
+      {
+        play "sound/misc/menu1.wav";
+      }
+    }
+
+    itemDef
+    {
+      name hud
+      group optionsGrp
+      type ITEM_TYPE_MULTI
+      text "Show Crosshair:"
+      cvar "cg_drawCrosshair"
+      cvarFloatList { "Never" 0 "Ranged Weapons Only" 1 "Always" 2 }
+      rect CONTENT_X (CONTENT_Y+(1*ELEM_H)) CONTENT_W ELEM_H
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textalignx CONTENT_OFF
+      textscale .25
+      forecolor 1 1 1 1
+      visible MENU_FALSE
+      action
+      {
+        play "sound/misc/menu1.wav";
+      }
+    }
+
+    itemDef
+    {
+      name hud
+      group optionsGrp
+      type ITEM_TYPE_MULTI
+      text "Crosshair Size:"
+      cvar "cg_crosshairSize"
+      cvarFloatList { "Normal" 1 "Small" 0.75 "Tiny" 0.5 "Huge" 1.25 }
+      rect CONTENT_X (CONTENT_Y+(2*ELEM_H)) CONTENT_W ELEM_H
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textalignx CONTENT_OFF
+      textscale .25
+      forecolor 1 1 1 1
+      visible MENU_FALSE
+      action
+      {
+        play "sound/misc/menu1.wav";
+      }
+    }
+
+    itemDef
+    {
+      name hud
+      group optionsGrp
+      type ITEM_TYPE_YESNO
+      text "Show Charge Bar:"
+      cvar "cg_drawChargeBar"
+      rect CONTENT_X (CONTENT_Y+(3*ELEM_H)) CONTENT_W ELEM_H
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textalignx CONTENT_OFF
+      textscale .25
+      forecolor 1 1 1 1
+      visible MENU_FALSE
+      action
+      {
+        play "sound/misc/menu1.wav";
+      }
+    }
+
+    itemDef
+    {
+      name hud
+      group optionsGrp
+      type ITEM_TYPE_YESNO
+      text "Show Lag-o-meter:"
+      cvar "cg_lagometer"
+      rect CONTENT_X (CONTENT_Y+(4*ELEM_H)) CONTENT_W ELEM_H
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textalignx CONTENT_OFF
+      textscale .25
+      forecolor 1 1 1 1
+      visible MENU_FALSE
+      action
+      {
+        play "sound/misc/menu1.wav";
+      }
+    }
+
+    itemDef
+    {
+      name hud
+      group optionsGrp
+      type ITEM_TYPE_YESNO
+      text "Show Team Overlay:"
+      cvar "cg_drawTeamOverlay"
       rect CONTENT_X (CONTENT_Y+(5*ELEM_H)) CONTENT_W ELEM_H
       textalign ALIGN_RIGHT
       textvalign VALIGN_CENTER
@@ -260,11 +414,11 @@
 
     itemDef
     {
-      name game
+      name hud
       group optionsGrp
       type ITEM_TYPE_YESNO
-      text "Wallwalk Control Toggles:"
-      cvar "cg_wwToggle"
+      text "Show Gun:"
+      cvar "cg_drawGun"
       rect CONTENT_X (CONTENT_Y+(6*ELEM_H)) CONTENT_W ELEM_H
       textalign ALIGN_RIGHT
       textvalign VALIGN_CENTER
@@ -280,12 +434,12 @@
 
     itemDef
     {
-      name game
+      name hud
       group optionsGrp
       type ITEM_TYPE_MULTI
-      text "Disable Warning Dialogs:"
-      cvar "cg_disableWarningDialogs"
-      cvarFloatList { "No" 0 "Print to Console" 1 "Yes" 2 }
+      text "Show Speed:"
+      cvar "cg_drawspeed"
+      cvarFloatList { "No" 0 "Text" 1 "Graph" 2 "Text + Graph" 3 "Text No-Z" 5 "Graph No-Z" 6 "Text + Graph No-Z" 7 }
       rect CONTENT_X (CONTENT_Y+(7*ELEM_H)) CONTENT_W ELEM_H
       textalign ALIGN_RIGHT
       textvalign VALIGN_CENTER
@@ -301,11 +455,11 @@
 
     itemDef
     {
-      name game
+      name hud
       group optionsGrp
       type ITEM_TYPE_YESNO
-      text "Tutorial Mode:"
-      cvar "cg_tutorial"
+      text "Show FPS:"
+      cvar "cg_drawFPS"
       rect CONTENT_X (CONTENT_Y+(8*ELEM_H)) CONTENT_W ELEM_H
       textalign ALIGN_RIGHT
       textvalign VALIGN_CENTER
@@ -321,12 +475,11 @@
 
     itemDef
     {
-      name game
+      name hud
       group optionsGrp
-      type ITEM_TYPE_MULTI
-      text "Show Clock:"
-      cvar "cg_drawClock"
-      cvarFloatList { "No" 0 "12 Hour" 1 "24 Hour" 2 }
+      type ITEM_TYPE_YESNO
+      text "Show Timer:"
+      cvar "cg_drawTimer"
       rect CONTENT_X (CONTENT_Y+(9*ELEM_H)) CONTENT_W ELEM_H
       textalign ALIGN_RIGHT
       textvalign VALIGN_CENTER
@@ -342,74 +495,12 @@
 
     itemDef
     {
-      name game
+      name hud
       group optionsGrp
-      type ITEM_TYPE_MULTI
-      text "Draw Crosshair:"
-      cvar "cg_drawCrosshair"
-      cvarFloatList { "Never" 0 "Ranged Weapons Only" 1 "Always" 2 }
+      type ITEM_TYPE_YESNO
+      text "Show Demo State:"
+      cvar "cg_drawDemoState"
       rect CONTENT_X (CONTENT_Y+(10*ELEM_H)) CONTENT_W ELEM_H
-      textalign ALIGN_RIGHT
-      textvalign VALIGN_CENTER
-      textalignx CONTENT_OFF
-      textscale .25
-      forecolor 1 1 1 1
-      visible MENU_FALSE
-      action
-      {
-        play "sound/misc/menu1.wav";
-      }
-    }
-
-    itemDef
-    {
-      name game
-      group optionsGrp
-      type ITEM_TYPE_MULTI
-      text "Crosshair Size:"
-      cvar "cg_crosshairSize"
-      cvarFloatList { "Normal" 1 "Small" 0.75 "Tiny" 0.5 "Huge" 1.25 }
-      rect CONTENT_X (CONTENT_Y+(11*ELEM_H)) CONTENT_W ELEM_H
-      textalign ALIGN_RIGHT
-      textvalign VALIGN_CENTER
-      textalignx CONTENT_OFF
-      textscale .25
-      forecolor 1 1 1 1
-      visible MENU_FALSE
-      action
-      {
-        play "sound/misc/menu1.wav";
-      }
-    }
-
-    itemDef
-    {
-      name game
-      group optionsGrp
-      type ITEM_TYPE_YESNO
-      text "Sticky Spectate:"
-      cvar "cg_stickySpec"
-      rect CONTENT_X (CONTENT_Y+(12*ELEM_H)) CONTENT_W ELEM_H
-      textalign ALIGN_RIGHT
-      textvalign VALIGN_CENTER
-      textalignx CONTENT_OFF
-      textscale .25
-      forecolor 1 1 1 1
-      visible MENU_FALSE
-      action
-      {
-        play "sound/misc/menu1.wav";
-      }
-    }
-
-    itemDef
-    {
-      name game
-      group optionsGrp
-      type ITEM_TYPE_YESNO
-      text "Show Charge Bar:"
-      cvar "cg_drawChargeBar"
-      rect CONTENT_X (CONTENT_Y+(13*ELEM_H)) CONTENT_W ELEM_H
       textalign ALIGN_RIGHT
       textvalign VALIGN_CENTER
       textalignx CONTENT_OFF
@@ -606,6 +697,26 @@
       }
     }
 
+    itemDef
+    {
+      name look
+      group optionsGrp
+      type ITEM_TYPE_YESNO
+      text "Auto Wallwalk Pitching:"
+      cvar "cg_wwFollow"
+      rect SCONTENT_X (SCONTENT_Y+(8*ELEM_H)) SCONTENT_W ELEM_H
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
+      forecolor 1 1 1 1
+      visible MENU_FALSE
+      action
+      {
+        play "sound/misc/menu1.wav";
+      }
+    }
+
 //////// MOVE
 
     itemDef
@@ -635,9 +746,50 @@
       name move
       group optionsGrp
       type ITEM_TYPE_YESNO
-      text "Always Run:"
-      cvar "cl_run"
+      text "Sprint Toggles:"
+      cvar "cg_sprintToggle"
       rect SCONTENT_X (SCONTENT_Y+(0*ELEM_H)) SCONTENT_W ELEM_H
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
+      forecolor 1 1 1 1
+      visible MENU_FALSE
+      action
+      {
+        play "sound/misc/menu1.wav";
+      }
+    }
+
+    itemDef
+    {
+      name move
+      group optionsGrp
+      type ITEM_TYPE_YESNO
+      text "Wallwalk Control Toggles:"
+      cvar "cg_wwToggle"
+      rect SCONTENT_X (SCONTENT_Y+(1*ELEM_H)) SCONTENT_W ELEM_H
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
+      forecolor 1 1 1 1
+      visible MENU_FALSE
+      action
+      {
+        play "sound/misc/menu1.wav";
+      }
+    }
+
+    itemDef
+    {
+      name move
+      group optionsGrp
+      type ITEM_TYPE_MULTI
+      text "Wallwalking Speed:"
+      cvar "cg_wwSmoothTime"
+      cvarFloatList { "Medium" 300 "Fast" 150 "Instant" 0 "Slow" 600 }
+      rect SCONTENT_X (SCONTENT_Y+(2*ELEM_H)) SCONTENT_W ELEM_H
       textalign ALIGN_RIGHT
       textvalign VALIGN_CENTER
       textalignx SCONTENT_OFF
@@ -657,7 +809,7 @@
       type ITEM_TYPE_BIND
       text "Run / Walk:"
       cvar "+speed"
-      rect SCONTENT_X (SCONTENT_Y+(1*ELEM_H)) SCONTENT_W ELEM_H
+      rect SCONTENT_X (SCONTENT_Y+(3*ELEM_H)) SCONTENT_W ELEM_H
       textalign ALIGN_RIGHT
       textvalign VALIGN_CENTER
       textalignx SCONTENT_OFF
@@ -677,7 +829,7 @@
       type ITEM_TYPE_BIND
       text "Dodge:"
       cvar "+button6"
-      rect SCONTENT_X (SCONTENT_Y+(2*ELEM_H)) SCONTENT_W ELEM_H
+      rect SCONTENT_X (SCONTENT_Y+(4*ELEM_H)) SCONTENT_W ELEM_H
       textalign ALIGN_RIGHT
       textvalign VALIGN_CENTER
       textalignx SCONTENT_OFF
@@ -697,7 +849,7 @@
       type ITEM_TYPE_BIND
       text "Sprint:"
       cvar "+button8"
-      rect SCONTENT_X (SCONTENT_Y+(3*ELEM_H)) SCONTENT_W ELEM_H
+      rect SCONTENT_X (SCONTENT_Y+(5*ELEM_H)) SCONTENT_W ELEM_H
       textalign ALIGN_RIGHT
       textvalign VALIGN_CENTER
       textalignx SCONTENT_OFF
@@ -717,7 +869,7 @@
       type ITEM_TYPE_BIND
       text "Forward:"
       cvar "+forward"
-      rect SCONTENT_X (SCONTENT_Y+(4*ELEM_H)) SCONTENT_W ELEM_H
+      rect SCONTENT_X (SCONTENT_Y+(6*ELEM_H)) SCONTENT_W ELEM_H
       textalign ALIGN_RIGHT
       textvalign VALIGN_CENTER
       textalignx SCONTENT_OFF
@@ -737,7 +889,7 @@
       type ITEM_TYPE_BIND
       text "Backpedal:"
       cvar "+back"
-      rect SCONTENT_X (SCONTENT_Y+(5*ELEM_H)) SCONTENT_W ELEM_H
+      rect SCONTENT_X (SCONTENT_Y+(7*ELEM_H)) SCONTENT_W ELEM_H
       textalign ALIGN_RIGHT
       textvalign VALIGN_CENTER
       textalignx SCONTENT_OFF
@@ -757,7 +909,7 @@
       type ITEM_TYPE_BIND
       text "Move Left:"
       cvar "+moveleft"
-      rect SCONTENT_X (SCONTENT_Y+(6*ELEM_H)) SCONTENT_W ELEM_H
+      rect SCONTENT_X (SCONTENT_Y+(8*ELEM_H)) SCONTENT_W ELEM_H
       textalign ALIGN_RIGHT
       textvalign VALIGN_CENTER
       textalignx SCONTENT_OFF
@@ -777,7 +929,7 @@
       type ITEM_TYPE_BIND
       text "Move Right:"
       cvar "+moveright"
-      rect SCONTENT_X (SCONTENT_Y+(7*ELEM_H)) SCONTENT_W ELEM_H
+      rect SCONTENT_X (SCONTENT_Y+(9*ELEM_H)) SCONTENT_W ELEM_H
       textalign ALIGN_RIGHT
       textvalign VALIGN_CENTER
       textalignx SCONTENT_OFF
@@ -797,7 +949,7 @@
       type ITEM_TYPE_BIND
       text "Jump:"
       cvar "+moveup"
-      rect SCONTENT_X (SCONTENT_Y+(8*ELEM_H)) SCONTENT_W ELEM_H
+      rect SCONTENT_X (SCONTENT_Y+(10*ELEM_H)) SCONTENT_W ELEM_H
       textalign ALIGN_RIGHT
       textvalign VALIGN_CENTER
       textalignx SCONTENT_OFF
@@ -817,7 +969,7 @@
       type ITEM_TYPE_BIND
       text "Crouch:"
       cvar "+movedown"
-      rect SCONTENT_X (SCONTENT_Y+(9*ELEM_H)) SCONTENT_W ELEM_H
+      rect SCONTENT_X (SCONTENT_Y+(11*ELEM_H)) SCONTENT_W ELEM_H
       textalign ALIGN_RIGHT
       textvalign VALIGN_CENTER
       textalignx SCONTENT_OFF
@@ -837,7 +989,7 @@
       type ITEM_TYPE_BIND
       text "Turn Left:"
       cvar "+left"
-      rect SCONTENT_X (SCONTENT_Y+(10*ELEM_H)) SCONTENT_W ELEM_H
+      rect SCONTENT_X (SCONTENT_Y+(12*ELEM_H)) SCONTENT_W ELEM_H
       textalign ALIGN_RIGHT
       textvalign VALIGN_CENTER
       textalignx SCONTENT_OFF
@@ -857,7 +1009,7 @@
       type ITEM_TYPE_BIND
       text "Turn Right:"
       cvar "+right"
-      rect SCONTENT_X (SCONTENT_Y+(11*ELEM_H)) SCONTENT_W ELEM_H
+      rect SCONTENT_X (SCONTENT_Y+(13*ELEM_H)) SCONTENT_W ELEM_H
       textalign ALIGN_RIGHT
       textvalign VALIGN_CENTER
       textalignx SCONTENT_OFF
@@ -877,7 +1029,7 @@
       type ITEM_TYPE_BIND
       text "Strafe:"
       cvar "+strafe"
-      rect SCONTENT_X (SCONTENT_Y+(12*ELEM_H)) SCONTENT_W ELEM_H
+      rect SCONTENT_X (SCONTENT_Y+(14*ELEM_H)) SCONTENT_W ELEM_H
       textalign ALIGN_RIGHT
       textvalign VALIGN_CENTER
       textalignx SCONTENT_OFF
@@ -1340,6 +1492,25 @@
       }
     }
 
+    itemDef
+    {
+      name misc
+      group optionsGrp
+      type ITEM_TYPE_BIND
+      text "Screenshot:"
+      cvar "screenshotJPEG"
+      rect SCONTENT_X (SCONTENT_Y+(12*ELEM_H)) SCONTENT_W ELEM_H
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
+      forecolor 1 1 1 1
+      visible MENU_FALSE
+      action
+      {
+        play "sound/misc/menu1.wav";
+      }
+    }
 //////// SYSTEM
 
     //System menu
