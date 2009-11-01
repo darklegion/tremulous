@@ -1949,7 +1949,7 @@ float UI_Text_Width( const char *text, float scale, int limit )
       }
 
       if( UI_Text_IsEmoticon( s, &emoticonEscaped, &emoticonLen,
-                            NULL, &emoticonWidth ) )
+                              NULL, &emoticonWidth ) )
       {
         if( emoticonEscaped )
           s++;
@@ -2137,7 +2137,7 @@ static void UI_Text_Paint_Generic( float x, float y, float scale, float gapAdjus
       }
 
       if( UI_Text_IsEmoticon( s, &emoticonEscaped, &emoticonLen,
-                            &emoticonHandle, &emoticonWidth ) )
+                              &emoticonHandle, &emoticonWidth ) )
       {
         if( emoticonEscaped )
           s++;
