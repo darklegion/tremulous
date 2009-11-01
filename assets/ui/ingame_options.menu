@@ -9,7 +9,7 @@
 #define Y             60
 #define BORDER        10
 
-#define TOPBUTT_W     80
+#define TOPBUTT_W     ((W-(2*BORDER))/4)
 #define TOPBUTT_H     30
 
 #define CONTENT_X     BORDER

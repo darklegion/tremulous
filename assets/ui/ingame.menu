@@ -1,11 +1,11 @@
 #include "ui/menudef.h"
 {
 
-#define BUTT_BAR_X  50
+#define BUTT_BAR_X  25
 #define BUTT_BAR_Y  0
-#define BUTT_BAR_W  150
+#define BUTT_BAR_W  250
 #define BUTT_BAR_H  56
-#define BUTT_W      (BUTT_BAR_W/3)
+#define BUTT_W      (BUTT_BAR_W/4)
 #define BUTT_H      BUTT_BAR_H
 #define BUTT_TEXT_S 20
 
@@ -70,7 +70,6 @@
       style WINDOW_STYLE_EMPTY
       textalign ALIGN_CENTER
       textvalign VALIGN_CENTER
-      textalignx -BUTT_TEXT_S
       textscale .4
       forecolor 1 1 1 1
       visible MENU_TRUE
@@ -109,7 +108,6 @@
       rect (BUTT_BAR_X+(2*BUTT_W)) BUTT_BAR_Y BUTT_W BUTT_H
       textalign ALIGN_CENTER
       textvalign VALIGN_CENTER
-      textalignx BUTT_TEXT_S
       textscale .4
       forecolor 1 1 1 1
       visible MENU_TRUE
@@ -129,7 +127,6 @@
       rect (BUTT_BAR_X+(3*BUTT_W)) BUTT_BAR_Y BUTT_W BUTT_H
       textalign ALIGN_CENTER
       textvalign VALIGN_CENTER
-      textalignx BUTT_TEXT_S
       textscale .4
       forecolor 1 1 1 1
       visible MENU_TRUE
