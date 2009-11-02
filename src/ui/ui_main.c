@@ -3058,6 +3058,26 @@ static void UI_RunMenuScript( char **args )
       else
         trap_Cmd_ExecuteText( EXEC_APPEND, va( "say \"%s\"\n", buffer ) );
     }
+    else if( Q_stricmp( name, "SayKeydown" ) == 0 )
+    {
+      if( ui_chatCommands.integer )
+      {
+        char buffer[ MAX_CVAR_VALUE_STRING ];
+        trap_Cvar_VariableStringBuffer( "ui_sayBuffer", buffer, sizeof( buffer ) );
+
+        if( buffer[ 0 ] == '/' || buffer[ 0 ] == '\\' )
+        {
+            Menus_ReplaceActiveByName( "say_command" );
+        }
+        else
+        {
+            if( !uiInfo.chatTeam )
+            Menus_ReplaceActiveByName( "say" );
+            else
+            Menus_ReplaceActiveByName( "say_team" );
+        }
+      }
+    }
     else if( Q_stricmp( name, "playMovie" ) == 0 )
     {
       if( uiInfo.previewMovie >= 0 )

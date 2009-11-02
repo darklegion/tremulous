@@ -284,6 +284,7 @@ typedef struct itemDef_s
   const char *onFocus;           // select script
   const char *leaveFocus;        // select script
   const char *onTextEntry;       // called when text entered
+  const char *onCharEntry;       // called when text entered
   const char *cvar;              // associated cvar
   const char *cvarTest;          // associated cvar for enable actions
   const char *enableCvar;         // enable, disable, show, or hide based on value, this can contain a list
@@ -476,9 +477,11 @@ int Menu_Count( void );
 void Menu_New( int handle );
 void Menu_PaintAll( void );
 menuDef_t *Menus_ActivateByName( const char *p );
+menuDef_t *Menus_ReplaceActiveByName( const char *p );
 void Menu_Reset( void );
 qboolean Menus_AnyFullScreenVisible( void );
 void  Menus_Activate( menuDef_t *menu );
+qboolean  Menus_ReplaceActive( menuDef_t *menu );
 
 displayContextDef_t *Display_GetContext( void );
 void *Display_CaptureItem( int x, int y );
