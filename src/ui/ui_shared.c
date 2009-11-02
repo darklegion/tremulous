@@ -4395,10 +4395,6 @@ const char *Item_Text_Wrap( const char *text, float scale, float width )
     paint[ eol - p ] = '\0';
     p = eol;
 
-    // Skip leading whitespace on next line and save the
-    // last color code
-    SkipWhiteSpace( &p, c );
-
     if( out[ strlen( out ) - 1 ] == '\n' )
     {
       // The line is deliberately broken, clear the color
@@ -4408,6 +4404,10 @@ const char *Item_Text_Wrap( const char *text, float scale, float width )
     {
       // Add a \n if it's not there already
       Q_strcat( out, sizeof( out ), "\n" );
+
+      // Skip leading whitespace on next line and save the
+      // last color code
+      SkipWhiteSpace( &p, c );
     }
 
     Q_strcat( out, sizeof( out ), c );
