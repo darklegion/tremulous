@@ -234,7 +234,7 @@
       text "Server Name"
       type ITEM_TYPE_BUTTON
       textscale .33
-      style WINDOW_STYLE_EMPTY
+      style WINDOW_STYLE_FILLED
       rect LIST_X LIST_Y (SERVER_C*LIST_W) HEADFOOT_H
       textalign ALIGN_LEFT
       textvalign VALIGN_CENTER
@@ -242,7 +242,7 @@
       border WINDOW_BORDER_FULL
       bordercolor   0.5 0.5 0.5 1
       forecolor     1   1   1   1
-      backcolor     0.2 0.2 0.2 1
+      backcolor     0   0   0   0
       outlinecolor  0.1 0.1 0.1 0.5
       visible MENU_TRUE
       action
@@ -251,7 +251,9 @@
         uiScript ServerSort 0;
 
         setitemcolor grpColumn backcolor 0 0 0 0;
-        setitemcolor serverColumn backcolor 0.3 1 1 0.5
+        setitemcolor grpTabs backcolor 0 0 0 0;
+        setitemcolor server backcolor 0.3 1 1 0.3;
+        setitemcolor serverColumn backcolor 0.2 0.6 0.6 0.1;
       }
     }
 
@@ -276,7 +278,7 @@
       type ITEM_TYPE_BUTTON
       text "Map Name"
       textscale .33
-      style WINDOW_STYLE_EMPTY
+      style WINDOW_STYLE_FILLED
       rect (LIST_X+(SERVER_C*LIST_W)) LIST_Y (MAP_C*LIST_W) HEADFOOT_H
       textalign ALIGN_LEFT
       textvalign VALIGN_CENTER
@@ -284,7 +286,7 @@
       border WINDOW_BORDER_FULL
       bordercolor   0.5 0.5 0.5 1
       forecolor     1   1   1   1
-      backcolor     0.2 0.2 0.2 1
+      backcolor     0   0   0   0
       outlinecolor  0.1 0.1 0.1 0.5
       visible MENU_TRUE
       action
@@ -293,7 +295,9 @@
         uiScript ServerSort 1;
 
         setitemcolor grpColumn backcolor 0 0 0 0;
-        setitemcolor mapColumn backcolor 0.3 1 1 0.5
+        setitemcolor grpTabs backcolor 0 0 0 0;
+        setitemcolor map backcolor 0.3 1 1 0.3;
+        setitemcolor mapColumn backcolor 0.2 0.6 0.6 0.1;
       }
     }
 
@@ -313,12 +317,12 @@
 
     itemDef
     {
-      name Players
+      name players
       group grpTabs
       text "Players"
       type ITEM_TYPE_BUTTON
       textscale .33
-      style WINDOW_STYLE_EMPTY
+      style WINDOW_STYLE_FILLED
       rect (LIST_X+((SERVER_C+MAP_C)*LIST_W)) LIST_Y (PLAYERS_C*LIST_W) HEADFOOT_H
       textalign ALIGN_LEFT
       textvalign VALIGN_CENTER
@@ -326,7 +330,7 @@
       border WINDOW_BORDER_FULL
       bordercolor   0.5 0.5 0.5 1
       forecolor     1   1   1   1
-      backcolor     0.2 0.2 0.2 1
+      backcolor     0   0   0   0
       outlinecolor  0.1 0.1 0.1 0.5
       visible MENU_TRUE
       action
@@ -335,7 +339,9 @@
         uiScript ServerSort 2;
 
         setitemcolor grpColumn backcolor 0 0 0 0;
-        setitemcolor playerColumn backcolor 0.3 1 1 0.5
+        setitemcolor grpTabs backcolor 0 0 0 0;
+        setitemcolor players backcolor 0.3 1 1 0.3;
+        setitemcolor playerColumn backcolor 0.2 0.6 0.6 0.1;
       }
     }
 
@@ -360,7 +366,7 @@
       text "Ping"
       type ITEM_TYPE_BUTTON
       textscale .33
-      style WINDOW_STYLE_EMPTY
+      style WINDOW_STYLE_FILLED
       rect (LIST_X+((SERVER_C+MAP_C+PLAYERS_C)*LIST_W)) LIST_Y (PING_C*LIST_W) HEADFOOT_H
       textalign ALIGN_LEFT
       textvalign VALIGN_CENTER
@@ -368,7 +374,7 @@
       border WINDOW_BORDER_FULL
       bordercolor   0.5 0.5 0.5 1
       forecolor     1   1   1   1
-      backcolor     0.2 0.2 0.2 1
+      backcolor     0.3 1   1   0.3
       outlinecolor  0.1 0.1 0.1 0.5
       visible MENU_TRUE
       action
@@ -377,7 +383,9 @@
         uiScript ServerSort 3;
 
         setitemcolor grpColumn backcolor 0 0 0 0;
-        setitemcolor pingColumn backcolor 0.3 1 1 0.5
+        setitemcolor grpTabs backcolor 0 0 0 0;
+        setitemcolor ping backcolor 0.3 1 1 0.3;
+        setitemcolor pingColumn backcolor 0.2 0.6 0.6 0.1;
       }
     }
 
@@ -388,7 +396,7 @@
       rect (LIST_X+((SERVER_C+MAP_C+PLAYERS_C)*LIST_W)) (LIST_Y+HEADFOOT_H) (PING_C*LIST_W) (LIST_H-(2*HEADFOOT_H))
       style WINDOW_STYLE_FILLED
       border WINDOW_BORDER_FULL
-      backcolor 0 0 0 0
+      backcolor 0.2 0.6 0.6 0.1
       bordersize 1
       bordercolor .5 .5 .5 1
       visible MENU_TRUE
@@ -412,7 +420,7 @@
       bordercolor   0.5 0.5 0.5 1
       forecolor     1   1   1   1
       backcolor     0.2 0.2 0.2 1
-      outlinecolor  0.1 0.1 0.1 0.5
+      outlinecolor  0.1 0.3 0.3 0.4
       visible MENU_TRUE
       columns 4
         LIST_TOFF                                       ((SERVER_C*LIST_W)-(3*LIST_TOFF))   ALIGN_LEFT
