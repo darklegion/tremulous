@@ -361,6 +361,8 @@ void CL_ConsolePrint( char *txt ) {
 
 		switch (c)
 		{
+		case INDENT_MARKER:
+			break;
 		case '\n':
 			Con_Linefeed (skipnotify);
 			break;

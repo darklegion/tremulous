@@ -984,30 +984,30 @@ static void CG_Say( int clientNum, saymode_t mode, const char *text )
       if( cg_teamChatsOnly.integer )
         ignore = "[skipnotify]";
 
-      CG_Printf( "%s%s%s" S_COLOR_WHITE "%s " S_COLOR_GREEN "%s\n",
-                 ignore, prefix, name, maybeColon, text );
+      CG_Printf( "%s%s%s" S_COLOR_WHITE "%s %c" S_COLOR_GREEN "%s\n",
+                 ignore, prefix, name, maybeColon, INDENT_MARKER, text );
       break;
     case SAY_TEAM:
-      CG_Printf( "%s%s(%s" S_COLOR_WHITE ")%s%s " S_COLOR_CYAN "%s\n",
-                 ignore, prefix, name, location, maybeColon, text );
+      CG_Printf( "%s%s(%s" S_COLOR_WHITE ")%s%s %c" S_COLOR_CYAN "%s\n",
+                 ignore, prefix, name, location, maybeColon, INDENT_MARKER, text );
       break;
     case SAY_ADMINS:
     case SAY_ADMINS_PUBLIC:
-      CG_Printf( "%s%s%s%s" S_COLOR_WHITE "%s " S_COLOR_MAGENTA "%s\n",
+      CG_Printf( "%s%s%s%s" S_COLOR_WHITE "%s %c" S_COLOR_MAGENTA "%s\n",
                  ignore, prefix,
                  ( mode == SAY_ADMINS ) ? "[ADMIN]" : "[PLAYER]",
-                 name, maybeColon, text );
+                 name, maybeColon, INDENT_MARKER, text );
       break;
     case SAY_AREA:
-      CG_Printf( "%s%s<%s" S_COLOR_WHITE ">%s%s " S_COLOR_BLUE "%s\n",
-                 ignore, prefix, name, location, maybeColon, text );
+      CG_Printf( "%s%s<%s" S_COLOR_WHITE ">%s%s %c" S_COLOR_BLUE "%s\n",
+                 ignore, prefix, name, location, maybeColon, INDENT_MARKER, text );
       break;
     case SAY_PRIVMSG:
     case SAY_TPRIVMSG:
       color = ( mode == SAY_TPRIVMSG ) ? S_COLOR_CYAN : S_COLOR_GREEN;
-      CG_Printf( "%s%s[%s" S_COLOR_WHITE " -> %s" S_COLOR_WHITE "]%s %s%s\n",
+      CG_Printf( "%s%s[%s" S_COLOR_WHITE " -> %s" S_COLOR_WHITE "]%s %c%s%s\n",
                  ignore, prefix, name, cgs.clientinfo[ cg.clientNum ].name,
-                 maybeColon, color, text );
+                 maybeColon, INDENT_MARKER, color, text );
       if( !ignore[0] )
         CG_CenterPrint( va( "%sPrivate message from: " S_COLOR_WHITE "%s", 
                             color, name ), 200, GIANTCHAR_WIDTH * 4 );
