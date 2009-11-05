@@ -656,10 +656,6 @@ void SV_Init (void) {
 	sv_zombietime = Cvar_Get ("sv_zombietime", "2", CVAR_TEMP );
 
 	sv_allowDownload = Cvar_Get ("sv_allowDownload", "0", CVAR_SERVERINFO);
-	sv_wwwDownload = Cvar_Get ("sv_wwwDownload", "1",
-		CVAR_SYSTEMINFO|CVAR_ARCHIVE);
-	sv_wwwBaseURL = Cvar_Get ("sv_wwwBaseURL", "",
-		CVAR_SYSTEMINFO|CVAR_ARCHIVE);
 	Cvar_Get ("sv_dlURL", "http://downloads.tremulous.net", CVAR_SERVERINFO | CVAR_ARCHIVE);
 	sv_master[0] = Cvar_Get ("sv_master1", MASTER_SERVER_NAME, 0 );
 	sv_master[1] = Cvar_Get ("sv_master2", "", CVAR_ARCHIVE );
