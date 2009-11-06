@@ -1270,6 +1270,10 @@ void AHive_Think( gentity_t *self )
     VectorSubtract( self->s.origin, range, mins );
 
     num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
+
+    if( num == 0 )
+      return;
+
     start = rand( ) % num;
     for( i = start; i < num + start; i++ )
     {
@@ -1659,7 +1663,8 @@ void ATrapper_FindEnemy( gentity_t *ent, int range )
   int       i;
   int       start;
 
-  //iterate through entities
+  // iterate through entities
+  // note that if we exist then level.num_entities != 0
   start = rand( ) % level.num_entities;
   for( i = start; i < level.num_entities + start; i++ )
   {
@@ -2448,6 +2453,10 @@ void HMGTurret_FindEnemy( gentity_t *self )
   VectorAdd( self->s.origin, range, maxs );
   VectorSubtract( self->s.origin, range, mins );
   num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
+
+  if( num == 0 )
+    return;
+
   start = rand( ) % num;
   for( i = start; i < num + start ; i++ )
   {
