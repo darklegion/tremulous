@@ -286,8 +286,7 @@ void G_RunMissile( gentity_t *ent )
       }
       else
       {
-        if( tr.contents & CONTENTS_BODY ||
-            ( tr.entityNum >= 0 && tr.entityNum != ENTITYNUM_WORLD ) )
+        if( tr.contents & CONTENTS_BODY )
         {
           // Hit an entity
           impact = qtrue;
