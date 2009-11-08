@@ -1270,7 +1270,8 @@ qboolean G_admin_setlevel( gentity_t *ent )
       if( level.clients[ i ].pers.connected == CON_DISCONNECTED )
         continue;
 
-      if( matches && level.clients[ i ].pers.admin == a )
+      if( matches && level.clients[ i ].pers.admin && 
+          level.clients[ i ].pers.admin == a )
       {
         vic = &g_entities[ i ];
         continue;
