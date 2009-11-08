@@ -241,11 +241,6 @@ struct gentity_s
   int               lastDamageTime;
   int               nextRegenTime;
 
-  qboolean          zapping;                        // adv maurader is zapping
-  qboolean          wasZapping;                     // adv maurader was zapping
-  int               zapTargets[ LEVEL2_AREAZAP_MAX_TARGETS ];
-  float             zapDmg;                         // keep track of damage
-
   qboolean          ownerClear;                     // used for missle tracking
 
   qboolean          pointAgainstWorld;              // don't use the bbox for map collisions

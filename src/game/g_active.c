@@ -1209,37 +1209,6 @@ static void G_UnlaggedDetectCollisions( gentity_t *ent )
 
 /*
 ==============
-G_CheckZap
-==============
-*/
-static void G_CheckZap( gentity_t *ent )
-{
-  int i;
-
-  if( !ent->zapping )
-  {
-    // clear out established targets
-    for( i = 0; i < LEVEL2_AREAZAP_MAX_TARGETS; i++ )
-    {
-      ent->zapTargets[ i ] = -1;
-    }
-    ent->zapDmg = 0.0f;
-  }
-  ent->wasZapping = ent->zapping;
-  ent->zapping = qfalse;
-
-  if( ent->client->ps.weapon == WP_ALEVEL2_UPG &&
-    ( ent->client->pers.cmd.buttons & BUTTON_ATTACK2 ) )
-  {
-    ent->zapping = qtrue;
-  }
-
-  if( ent->wasZapping && !ent->zapping )
-    ent->client->ps.weaponTime = LEVEL2_AREAZAP_REPEAT;
-}
-
-/*
-==============
 ClientThink
 
 This will be called once for each client frame, which will
@@ -1638,8 +1607,6 @@ void ClientThink_real( gentity_t *ent )
 
   // touch other objects
   ClientImpacts( ent, &pm );
-
-  G_CheckZap( ent );
 
   // execute client events
   ClientEvents( ent, oldEventSequence );
