@@ -2834,8 +2834,11 @@ void Cmd_ListMaps_f( gentity_t *ent )
       trap_Argv( 2, lp, sizeof( lp ) );
       page = atoi( lp );
     }
+
     if( page > 0 )
       page--;
+    else if( page < 0 )
+      page = 0;
   }
 
   numFiles = trap_FS_GetFileList( "maps/", ".bsp",
