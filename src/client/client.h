@@ -285,7 +285,7 @@ typedef struct {
 	char		info[MAX_INFO_STRING];
 } ping_t;
 
-#define MAX_FEATLABEL_CHARS  1024
+#define MAX_FEATLABEL_CHARS  32
 typedef struct {
 	netadr_t	adr;
 	char	  	hostName[MAX_HOSTNAME_LENGTH];
