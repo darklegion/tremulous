@@ -35,7 +35,7 @@
     visible MENU_FALSE
     fullScreen 0
     outOfBoundsClick      // this closes the window if it gets a click out of the rectangle
-    rect 0 0 640 48
+    rect 0 0 1280 56
     focusColor 1 .75 0 1
     disableColor .5 .5 .5 1
     backColor 0 0 0 1

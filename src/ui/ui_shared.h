@@ -42,34 +42,34 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MAX_OPEN_MENUS 16
 
 #define WINDOW_MOUSEOVER      0x00000001  // mouse is over it, non exclusive
-#define WINDOW_HASFOCUS        0x00000002  // has cursor focus, exclusive
+#define WINDOW_HASFOCUS       0x00000002  // has cursor focus, exclusive
 #define WINDOW_VISIBLE        0x00000004  // is visible
-#define WINDOW_GREY            0x00000008  // is visible but grey ( non-active )
-#define WINDOW_DECORATION      0x00000010  // for decoration only, no mouse, keyboard, etc..
+#define WINDOW_GREY           0x00000008  // is visible but grey ( non-active )
+#define WINDOW_DECORATION     0x00000010  // for decoration only, no mouse, keyboard, etc..
 #define WINDOW_FADINGOUT      0x00000020  // fading out, non-active
-#define WINDOW_FADINGIN        0x00000040  // fading in
+#define WINDOW_FADINGIN       0x00000040  // fading in
 #define WINDOW_MOUSEOVERTEXT  0x00000080  // mouse is over it, non exclusive
-#define WINDOW_INTRANSITION    0x00000100  // window is in transition
-#define WINDOW_FORECOLORSET    0x00000200  // forecolor was explicitly set ( used to color alpha images or not )
-#define WINDOW_HORIZONTAL      0x00000400  // for list boxes and sliders, vertical is default this is set of horizontal
-#define WINDOW_LB_LEFTARROW    0x00000800  // mouse is over left/up arrow
-#define WINDOW_LB_RIGHTARROW  0x00001000  // mouse is over right/down arrow
-#define WINDOW_LB_THUMB        0x00002000  // mouse is over thumb
+#define WINDOW_INTRANSITION   0x00000100  // window is in transition
+#define WINDOW_FORECOLORSET   0x00000200  // forecolor was explicitly set ( used to color alpha images or not )
+#define WINDOW_HORIZONTAL     0x00000400  // for list boxes and sliders, vertical is default this is set of horizontal
+#define WINDOW_LB_UPARROW     0x00000800  // mouse is over up arrow
+#define WINDOW_LB_DOWNARROW   0x00001000  // mouse is over down arrow
+#define WINDOW_LB_THUMB       0x00002000  // mouse is over thumb
 #define WINDOW_LB_PGUP        0x00004000  // mouse is over page up
 #define WINDOW_LB_PGDN        0x00008000  // mouse is over page down
-#define WINDOW_ORBITING        0x00010000  // item is in orbit
+#define WINDOW_ORBITING       0x00010000  // item is in orbit
 #define WINDOW_OOB_CLICK      0x00020000  // close on out of bounds click
 #define WINDOW_WRAPPED        0x00080000  // wrap text
-#define WINDOW_FORCED          0x00100000  // forced open
+#define WINDOW_FORCED         0x00100000  // forced open
 #define WINDOW_POPUP          0x00200000  // popup
-#define WINDOW_BACKCOLORSET    0x00400000  // backcolor was explicitly set
-#define WINDOW_TIMEDVISIBLE    0x00800000  // visibility timing ( NOT implemented )
+#define WINDOW_BACKCOLORSET   0x00400000  // backcolor was explicitly set
+#define WINDOW_TIMEDVISIBLE   0x00800000  // visibility timing ( NOT implemented )
 
 
 // CGAME cursor type bits
-#define CURSOR_NONE          0x00000001
-#define CURSOR_ARROW        0x00000002
-#define CURSOR_SIZER        0x00000004
+#define CURSOR_NONE           0x00000001
+#define CURSOR_ARROW          0x00000002
+#define CURSOR_SIZER          0x00000004
 
 #ifdef CGAME
 #define STRING_POOL_SIZE 128*1024
@@ -82,16 +82,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MAX_EDITFIELD 256
 #define ITEM_VALUE_OFFSET 8
 
-#define ART_FX_BASE      "menu/art/fx_base"
-#define ART_FX_BLUE      "menu/art/fx_blue"
-#define ART_FX_CYAN      "menu/art/fx_cyan"
-#define ART_FX_GREEN    "menu/art/fx_grn"
-#define ART_FX_RED      "menu/art/fx_red"
-#define ART_FX_TEAL      "menu/art/fx_teal"
-#define ART_FX_WHITE    "menu/art/fx_white"
-#define ART_FX_YELLOW    "menu/art/fx_yel"
+#define ART_FX_BASE       "menu/art/fx_base"
+#define ART_FX_BLUE       "menu/art/fx_blue"
+#define ART_FX_CYAN       "menu/art/fx_cyan"
+#define ART_FX_GREEN      "menu/art/fx_grn"
+#define ART_FX_RED        "menu/art/fx_red"
+#define ART_FX_TEAL       "menu/art/fx_teal"
+#define ART_FX_WHITE      "menu/art/fx_white"
+#define ART_FX_YELLOW     "menu/art/fx_yel"
 
-#define ASSET_GRADIENTBAR "ui/assets/gradientbar2.tga"
+#define ASSET_GRADIENTBAR           "ui/assets/gradientbar2.tga"
 #define ASSET_SCROLLBAR             "ui/assets/scrollbar.tga"
 #define ASSET_SCROLLBAR_ARROWDOWN   "ui/assets/scrollbar_arrow_dwn_a.tga"
 #define ASSET_SCROLLBAR_ARROWUP     "ui/assets/scrollbar_arrow_up_a.tga"
@@ -100,9 +100,19 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ASSET_SCROLL_THUMB          "ui/assets/scrollbar_thumb.tga"
 #define ASSET_SLIDER_BAR            "ui/assets/slider2.tga"
 #define ASSET_SLIDER_THUMB          "ui/assets/sliderbutt_1.tga"
-#define SCROLLBAR_SIZE 16.0f
-#define SCROLLBAR_WIDTH (SCROLLBAR_SIZE*DC->aspectScale)
-#define SCROLLBAR_HEIGHT SCROLLBAR_SIZE
+
+#define SCROLLBAR_ARROW_SIZE 16.0f
+#define SCROLLBAR_ARROW_WIDTH (SCROLLBAR_ARROW_SIZE*DC->aspectScale)
+#define SCROLLBAR_ARROW_HEIGHT SCROLLBAR_ARROW_SIZE
+#define SCROLLBAR_SLIDER_X(_item)       (_item->window.rect.x+_item->window.rect.w- \
+                                         SCROLLBAR_ARROW_WIDTH-DC->aspectScale)
+#define SCROLLBAR_SLIDER_Y(_item)       (SCROLLBAR_Y(_item)+SCROLLBAR_ARROW_HEIGHT)
+#define SCROLLBAR_SLIDER_HEIGHT(_item)  (_item->window.rect.h-(SCROLLBAR_ARROW_HEIGHT*2.0f)-2.0f)
+#define SCROLLBAR_X(_item)              (_item->window.rect.x+DC->aspectScale)
+#define SCROLLBAR_Y(_item)              (_item->window.rect.y+1.0f)
+#define SCROLLBAR_W(_item)              (SCROLLBAR_SLIDER_X(_item)-SCROLLBAR_X(_item))
+#define SCROLLBAR_H(_item)              (_item->window.rect.h-2.0f)
+
 #define SLIDER_WIDTH (96.0f*DC->aspectScale)
 #define SLIDER_HEIGHT 16.0f
 #define SLIDER_THUMB_WIDTH (12.0f*DC->aspectScale)
@@ -191,24 +201,31 @@ typedef struct listBoxDef_s
 {
   int startPos;
   int endPos;
-  int drawPadding;
   int cursorPos;
+
   float elementWidth;
   float elementHeight;
   int elementStyle;
+  int dropItems;
+
   int numColumns;
   columnInfo_t columnInfo[MAX_LB_COLUMNS];
+
   const char *doubleClick;
+
   qboolean notselectable;
   qboolean noscrollbar;
+
+  qboolean resetonfeederchange;
+  int lastFeederCount;
 }
 listBoxDef_t;
 
-typedef struct comboBoxDef_s
+typedef struct cycleDef_s
 {
   int cursorPos;
 }
-comboBoxDef_t;
+cycleDef_t;
 
 typedef struct editFieldDef_s
 {
@@ -300,7 +317,7 @@ typedef struct itemDef_s
     listBoxDef_t   *list;
     editFieldDef_t *edit;
     multiDef_t     *multi;
-    comboBoxDef_t  *combo;
+    cycleDef_t     *cycle;
     modelDef_t     *model;
   } typeData;                    // type specific data pointers
 }
@@ -407,11 +424,11 @@ typedef struct
   qboolean ( *getOverstrikeMode )( void );
   void ( *startLocalSound )( sfxHandle_t sfx, int channelNum );
   qboolean ( *ownerDrawHandleKey )( int ownerDraw, int key );
-  int ( *feederCount )( float feederID );
-  const char *( *feederItemText )( float feederID, int index, int column, qhandle_t *handle );
-  qhandle_t ( *feederItemImage )( float feederID, int index );
-  void ( *feederSelection )( float feederID, int index );
-  int ( *feederInitialise )( float feederID );
+  int ( *feederCount )( int feederID );
+  const char *( *feederItemText )( int feederID, int index, int column, qhandle_t *handle );
+  qhandle_t ( *feederItemImage )( int feederID, int index );
+  void ( *feederSelection )( int feederID, int index );
+  int ( *feederInitialise )( int feederID );
   void ( *keynumToStringBuf )( int keynum, char *buf, int buflen );
   void ( *getBindingBuf )( int keynum, char *buf, int buflen );
   void ( *setBinding )( int keynum, const char *binding );
@@ -475,6 +492,7 @@ qboolean PC_String_Parse( int handle, const char **out );
 qboolean PC_Script_Parse( int handle, const char **out );
 int Menu_Count( void );
 void Menu_New( int handle );
+void Menu_UpdateAll( void );
 void Menu_PaintAll( void );
 menuDef_t *Menus_ActivateByName( const char *p );
 menuDef_t *Menus_ReplaceActiveByName( const char *p );
@@ -509,6 +527,8 @@ qboolean UI_OutOfMemory( void );
 void Controls_GetConfig( void );
 void Controls_SetConfig( qboolean restart );
 void Controls_SetDefaults( void );
+
+void trap_R_SetClipRegion( const float *region );
 
 //for cg_draw.c
 void Item_Text_Wrapped_Paint( itemDef_t *item );

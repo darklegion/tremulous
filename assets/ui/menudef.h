@@ -11,8 +11,9 @@ enum
   ITEM_TYPE_CHECKBOX,     // check box
   ITEM_TYPE_EDITFIELD,    // editable text, associated with a cvar
   ITEM_TYPE_SAYFIELD,     // the chat field
-  ITEM_TYPE_COMBO,        // drop down list
+  ITEM_TYPE_CYCLE,        // cycling list
   ITEM_TYPE_LISTBOX,      // scrollable list
+  ITEM_TYPE_COMBOBOX,     // drop down scrollable list
   ITEM_TYPE_MODEL,        // model
   ITEM_TYPE_OWNERDRAW,    // owner draw, has an associated ownerdraw number
   ITEM_TYPE_NUMERICFIELD, // editable text, associated with a cvar

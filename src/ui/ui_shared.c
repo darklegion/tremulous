@@ -66,6 +66,7 @@ static qboolean g_editingField = qfalse;
 
 static itemDef_t *g_bindItem = NULL;
 static itemDef_t *g_editItem = NULL;
+static itemDef_t *g_comboBoxItem = NULL;
 
 menuDef_t Menus[MAX_MENUS];      // defined menus
 int menuCount = 0;               // how many
@@ -79,6 +80,8 @@ static int lastListBoxClickTime = 0;
 void Item_RunScript( itemDef_t *item, const char *s );
 void Item_SetupKeywordHash( void );
 static ID_INLINE qboolean Item_IsEditField( itemDef_t *item );
+static ID_INLINE qboolean Item_IsListBox( itemDef_t *item );
+static void Item_ListBox_SetStartPos( itemDef_t *item, int startPos );
 void Menu_SetupKeywordHash( void );
 int BindingIDFromName( const char *name );
 qboolean Item_Bind_HandleKey( itemDef_t *item, int key, qboolean down );
@@ -430,7 +433,7 @@ exprList_t;
 /*
 =================
 OpPrec
- 
+
 Return a value reflecting operator precedence
 =================
 */
@@ -964,9 +967,8 @@ void GradientBar_Paint( rectDef_t *rect, vec4_t color )
 /*
 ==================
 Window_Init
- 
+
 Initializes a window structure ( windowDef_t ) with defaults
- 
 ==================
 */
 void Window_Init( Window *w )
@@ -1236,6 +1238,23 @@ void Menu_AspectCompensate( menuDef_t *menu )
   }
 }
 
+static int Menu_CompareItemTypes( const void *a, const void *b )
+{
+  itemDef_t *itemA = *(itemDef_t **)a;
+  itemDef_t *itemB = *(itemDef_t **)b;
+  qboolean  itemAIsList = Item_IsListBox( itemA );
+  qboolean  itemBIsList = Item_IsListBox( itemB );
+
+  if( itemAIsList && itemBIsList )
+    return 0;
+  else if( itemAIsList )
+    return 1;
+  else if( itemBIsList )
+    return -1;
+  else
+    return 0;
+}
+
 void Menu_PostParse( menuDef_t *menu )
 {
   if( menu == NULL )
@@ -1251,6 +1270,11 @@ void Menu_PostParse( menuDef_t *menu )
 
   Menu_AspectCompensate( menu );
   Menu_UpdatePosition( menu );
+
+  // Sort lists to the end of the array as they can potentially be drawn on top
+  // of other elements
+  if( menu->itemCount > 1 )
+    qsort( menu->items, menu->itemCount, sizeof( itemDef_t* ), Menu_CompareItemTypes );
 }
 
 itemDef_t *Menu_ClearFocus( menuDef_t *menu )
@@ -1576,6 +1600,7 @@ void Menus_CloseAll( void )
 
   g_editingField = qfalse;
   g_waitingForKey = qfalse;
+  g_comboBoxItem = NULL;
 }
 
 
@@ -1775,11 +1800,11 @@ void Script_Reset( itemDef_t *item, char **args )
 
     if( resetItem )
     {
-      if( resetItem->type == ITEM_TYPE_LISTBOX )
+      if( Item_IsListBox( resetItem ) )
       {
-        resetItem->cursorPos = 0;
-        resetItem->typeData.list->startPos = 0;
-        DC->feederSelection( resetItem->feederID, 0 );
+        resetItem->cursorPos = DC->feederInitialise( resetItem->feederID );
+        Item_ListBox_SetStartPos( resetItem, 0 );
+        DC->feederSelection( resetItem->feederID, resetItem->cursorPos );
       }
     }
   }
@@ -2067,7 +2092,7 @@ float UI_Text_EmHeight( float scale )
 /*
 ================
 UI_AdjustFrom640
- 
+
 Adjusted for resolution and screen aspect ratio
 ================
 */
@@ -2077,6 +2102,35 @@ void UI_AdjustFrom640( float *x, float *y, float *w, float *h )
   *y *= DC->yscale;
   *w *= DC->xscale;
   *h *= DC->yscale;
+}
+
+/*
+================
+UI_SetClipRegion
+=================
+*/
+void UI_SetClipRegion( float x, float y, float w, float h )
+{
+  vec4_t clip;
+
+  UI_AdjustFrom640( &x, &y, &w, &h );
+
+  clip[ 0 ] = x;
+  clip[ 1 ] = y;
+  clip[ 2 ] = x + w;
+  clip[ 3 ] = y + h;
+
+  trap_R_SetClipRegion( clip );
+}
+
+/*
+================
+UI_ClearClipRegion
+=================
+*/
+void UI_ClearClipRegion( void )
+{
+  trap_R_SetClipRegion( NULL );
 }
 
 static void UI_Text_PaintChar( float x, float y, float scale,
@@ -2290,19 +2344,19 @@ commandDef_t commandList[] =
   {
     {"close", &Script_Close},                     // menu
     {"conditionalopen", &Script_ConditionalOpen}, // menu
-    {"exec", &Script_Exec},           // group/name
+    {"exec", &Script_Exec},                       // group/name
     {"fadein", &Script_FadeIn},                   // group/name
     {"fadeout", &Script_FadeOut},                 // group/name
     {"hide", &Script_Hide},                       // group/name
     {"open", &Script_Open},                       // menu
     {"orbit", &Script_Orbit},                     // group/name
-    {"play", &Script_Play},           // group/name
+    {"play", &Script_Play},                       // group/name
     {"playlooped", &Script_playLooped},           // group/name
     {"reset", &Script_Reset},                     // resets the state of the item argument
     {"setasset", &Script_SetAsset},               // works on this
     {"setbackground", &Script_SetBackground},     // works on this
     {"setcolor", &Script_SetColor},               // works on this
-    {"setcvar", &Script_SetCvar},           // group/name
+    {"setcvar", &Script_SetCvar},                 // group/name
     {"setfocus", &Script_SetFocus},               // sets this background color to team color
     {"setitemcolor", &Script_SetItemColor},       // group/name
     {"setplayerhead", &Script_SetPlayerHead},     // sets this background color to team color
@@ -2482,16 +2536,27 @@ qboolean Item_SetFocus( itemDef_t *item, float x, float y )
   return qtrue;
 }
 
-int Item_ListBox_MaxScroll( itemDef_t *item )
+static float Item_ListBox_HeightForNumItems( itemDef_t *item, int numItems )
 {
   listBoxDef_t *listPtr = item->typeData.list;
-  int count = DC->feederCount( item->feederID );
-  int max;
 
-  if( item->window.flags & WINDOW_HORIZONTAL )
-    max = count - ( item->window.rect.w / listPtr->elementWidth ) + 1;
+  return ( listPtr->elementHeight * numItems ) + 2.0f;
+}
+
+static int Item_ListBox_NumItemsForItemHeight( itemDef_t *item )
+{
+  listBoxDef_t *listPtr = item->typeData.list;
+
+  if( item->type == ITEM_TYPE_COMBOBOX )
+    return listPtr->dropItems;
   else
-    max = count - ( item->window.rect.h / listPtr->elementHeight ) + 1;
+    return ( ( item->window.rect.h - 2.0f ) / listPtr->elementHeight );
+}
+
+int Item_ListBox_MaxScroll( itemDef_t *item )
+{
+  int total = DC->feederCount( item->feederID );
+  int max = total - Item_ListBox_NumItemsForItemHeight( item );
 
   if( max < 0 )
     return 0;
@@ -2499,68 +2564,86 @@ int Item_ListBox_MaxScroll( itemDef_t *item )
   return max;
 }
 
-int Item_ListBox_ThumbPosition( itemDef_t *item )
+static float oldComboBoxY;
+static float oldComboBoxH;
+
+static qboolean Item_ComboBox_MaybeCastToListBox( itemDef_t *item )
 {
-  float max, pos, size;
-  int startPos = item->typeData.list->startPos;
+  listBoxDef_t *listPtr = item->typeData.list;
+  qboolean cast = g_comboBoxItem != NULL &&
+    ( item->type == ITEM_TYPE_COMBOBOX );
 
-  max = Item_ListBox_MaxScroll( item );
-
-  if( item->window.flags & WINDOW_HORIZONTAL )
+  if( cast )
   {
-    size = item->window.rect.w - ( SCROLLBAR_WIDTH * 2 ) - 2;
+    oldComboBoxY = item->window.rect.y;
+    oldComboBoxH = item->window.rect.h;
 
-    if( max > 0 )
-      pos = ( size - SCROLLBAR_WIDTH ) / ( float ) max;
-    else
-      pos = 0;
-
-    pos *= startPos;
-    return item->window.rect.x + 1 + SCROLLBAR_WIDTH + pos;
+    item->window.rect.y += item->window.rect.h;
+    item->window.rect.h = Item_ListBox_HeightForNumItems( item, listPtr->dropItems );
+    item->type = ITEM_TYPE_LISTBOX;
   }
-  else
+
+  return cast;
+}
+
+static void Item_ComboBox_MaybeUnCastFromListBox( itemDef_t *item, qboolean unCast )
+{
+  if( unCast )
   {
-    size = item->window.rect.h - ( SCROLLBAR_HEIGHT * 2 ) - 2;
-
-    if( max > 0 )
-      pos = ( size - SCROLLBAR_HEIGHT ) / ( float ) max;
-    else
-      pos = 0;
-
-    pos *= startPos;
-    return item->window.rect.y + 1 + SCROLLBAR_HEIGHT + pos;
+    item->window.rect.y = oldComboBoxY;
+    item->window.rect.h = oldComboBoxH;
+    item->type = ITEM_TYPE_COMBOBOX;
   }
 }
 
-int Item_ListBox_ThumbDrawPosition( itemDef_t *item )
+static void Item_ListBox_SetStartPos( itemDef_t *item, int startPos )
 {
-  int min, max;
+  listBoxDef_t  *listPtr = item->typeData.list;
+  int           total = DC->feederCount( item->feederID );
+  int           max = Item_ListBox_MaxScroll( item );
 
+  if( startPos < 0 )
+    listPtr->startPos = 0;
+  else if( startPos > max )
+    listPtr->startPos = max;
+  else
+    listPtr->startPos = startPos;
+
+  listPtr->endPos = listPtr->startPos + MIN( ( total - listPtr->startPos ),
+    Item_ListBox_NumItemsForItemHeight( item ) );
+}
+
+float Item_ListBox_ThumbPosition( itemDef_t *item )
+{
+  float max, pos, size;
+  float startPos = (float)item->typeData.list->startPos;
+
+  max = Item_ListBox_MaxScroll( item );
+  size = SCROLLBAR_SLIDER_HEIGHT( item );
+
+  if( max > 0.0f )
+    pos = ( size - SCROLLBAR_ARROW_HEIGHT ) / max;
+  else
+    pos = 0.0f;
+
+  pos *= startPos;
+
+  return SCROLLBAR_SLIDER_Y( item ) + pos;
+}
+
+float Item_ListBox_ThumbDrawPosition( itemDef_t *item )
+{
   if( itemCapture == item )
   {
-    if( item->window.flags & WINDOW_HORIZONTAL )
-    {
-      min = item->window.rect.x + SCROLLBAR_WIDTH + 1;
-      max = item->window.rect.x + item->window.rect.w - 2 * SCROLLBAR_WIDTH - 1;
+    float min = SCROLLBAR_SLIDER_Y( item );
+    float max = min + SCROLLBAR_SLIDER_HEIGHT( item ) - SCROLLBAR_ARROW_HEIGHT;
+    float halfThumbSize = SCROLLBAR_ARROW_HEIGHT / 2.0f;
 
-      if( DC->cursorx >= min + SCROLLBAR_WIDTH / 2 && DC->cursorx <= max + SCROLLBAR_WIDTH / 2 )
-        return DC->cursorx - SCROLLBAR_WIDTH / 2;
-      else
-        return Item_ListBox_ThumbPosition( item );
-    }
-    else
-    {
-      min = item->window.rect.y + SCROLLBAR_HEIGHT + 1;
-      max = item->window.rect.y + item->window.rect.h - 2 * SCROLLBAR_HEIGHT - 1;
-
-      if( DC->cursory >= min + SCROLLBAR_HEIGHT / 2 && DC->cursory <= max + SCROLLBAR_HEIGHT / 2 )
-        return DC->cursory - SCROLLBAR_HEIGHT / 2;
-      else
-        return Item_ListBox_ThumbPosition( item );
-    }
+    if( DC->cursory >= min + halfThumbSize && DC->cursory <= max + halfThumbSize )
+      return DC->cursory - halfThumbSize;
   }
-  else
-    return Item_ListBox_ThumbPosition( item );
+
+  return Item_ListBox_ThumbPosition( item );
 }
 
 float Item_Slider_ThumbPosition( itemDef_t *item )
@@ -2625,76 +2708,36 @@ int Item_ListBox_OverLB( itemDef_t *item, float x, float y )
 
   count = DC->feederCount( item->feederID );
 
-  if( item->window.flags & WINDOW_HORIZONTAL )
-  {
-    // check if on left arrow
-    r.x = item->window.rect.x;
-    r.y = item->window.rect.y + item->window.rect.h - SCROLLBAR_HEIGHT;
-    r.w = SCROLLBAR_WIDTH;
-    r.h = SCROLLBAR_HEIGHT;
+  r.x = SCROLLBAR_SLIDER_X( item );
+  r.y = SCROLLBAR_Y( item );
+  r.w = SCROLLBAR_ARROW_WIDTH;
+  r.h = SCROLLBAR_ARROW_HEIGHT;
 
-    if( Rect_ContainsPoint( &r, x, y ) )
-      return WINDOW_LB_LEFTARROW;
+  if( Rect_ContainsPoint( &r, x, y ) )
+    return WINDOW_LB_UPARROW;
 
-    // check if on right arrow
-    r.x = item->window.rect.x + item->window.rect.w - SCROLLBAR_WIDTH;
+  r.y = SCROLLBAR_SLIDER_Y( item ) + SCROLLBAR_SLIDER_HEIGHT( item );
 
-    if( Rect_ContainsPoint( &r, x, y ) )
-      return WINDOW_LB_RIGHTARROW;
+  if( Rect_ContainsPoint( &r, x, y ) )
+    return WINDOW_LB_DOWNARROW;
 
-    // check if on thumb
-    thumbstart = Item_ListBox_ThumbPosition( item );
+  thumbstart = Item_ListBox_ThumbPosition( item );
+  r.y = thumbstart;
 
-    r.x = thumbstart;
+  if( Rect_ContainsPoint( &r, x, y ) )
+    return WINDOW_LB_THUMB;
 
-    if( Rect_ContainsPoint( &r, x, y ) )
-      return WINDOW_LB_THUMB;
+  r.y = SCROLLBAR_SLIDER_Y( item );
+  r.h = thumbstart - r.y;
 
-    r.x = item->window.rect.x + SCROLLBAR_WIDTH;
-    r.w = thumbstart - r.x;
+  if( Rect_ContainsPoint( &r, x, y ) )
+    return WINDOW_LB_PGUP;
 
-    if( Rect_ContainsPoint( &r, x, y ) )
-      return WINDOW_LB_PGUP;
+  r.y = thumbstart + SCROLLBAR_ARROW_HEIGHT;
+  r.h = ( SCROLLBAR_SLIDER_Y( item ) + SCROLLBAR_SLIDER_HEIGHT( item ) ) - r.y;
 
-    r.x = thumbstart + SCROLLBAR_WIDTH;
-    r.w = item->window.rect.x + item->window.rect.w - SCROLLBAR_WIDTH;
-
-    if( Rect_ContainsPoint( &r, x, y ) )
-      return WINDOW_LB_PGDN;
-  }
-  else
-  {
-    r.x = item->window.rect.x + item->window.rect.w - SCROLLBAR_WIDTH;
-    r.y = item->window.rect.y;
-    r.w = SCROLLBAR_WIDTH;
-    r.h = SCROLLBAR_HEIGHT;
-
-    if( Rect_ContainsPoint( &r, x, y ) )
-      return WINDOW_LB_LEFTARROW;
-
-    r.y = item->window.rect.y + item->window.rect.h - SCROLLBAR_HEIGHT;
-
-    if( Rect_ContainsPoint( &r, x, y ) )
-      return WINDOW_LB_RIGHTARROW;
-
-    thumbstart = Item_ListBox_ThumbPosition( item );
-    r.y = thumbstart;
-
-    if( Rect_ContainsPoint( &r, x, y ) )
-      return WINDOW_LB_THUMB;
-
-    r.y = item->window.rect.y + SCROLLBAR_HEIGHT;
-    r.h = thumbstart - r.y;
-
-    if( Rect_ContainsPoint( &r, x, y ) )
-      return WINDOW_LB_PGUP;
-
-    r.y = thumbstart + SCROLLBAR_HEIGHT;
-    r.h = item->window.rect.y + item->window.rect.h - SCROLLBAR_HEIGHT;
-
-    if( Rect_ContainsPoint( &r, x, y ) )
-      return WINDOW_LB_PGDN;
-  }
+  if( Rect_ContainsPoint( &r, x, y ) )
+    return WINDOW_LB_PGDN;
 
   return 0;
 }
@@ -2702,52 +2745,32 @@ int Item_ListBox_OverLB( itemDef_t *item, float x, float y )
 
 void Item_ListBox_MouseEnter( itemDef_t *item, float x, float y )
 {
-  rectDef_t r;
-  listBoxDef_t *listPtr = item->typeData.list;
+  rectDef_t     r;
+  listBoxDef_t  *listPtr = item->typeData.list;
+  int           listBoxFlags = ( WINDOW_LB_UPARROW | WINDOW_LB_DOWNARROW | WINDOW_LB_THUMB |
+                                 WINDOW_LB_PGUP | WINDOW_LB_PGDN );
+  int           total = DC->feederCount( item->feederID );
 
-  item->window.flags &= ~( WINDOW_LB_LEFTARROW | WINDOW_LB_RIGHTARROW | WINDOW_LB_THUMB |
-                           WINDOW_LB_PGUP | WINDOW_LB_PGDN );
+  item->window.flags &= ~listBoxFlags;
   item->window.flags |= Item_ListBox_OverLB( item, x, y );
 
-  if( item->window.flags & WINDOW_HORIZONTAL )
+  if( !( item->window.flags & listBoxFlags ) )
   {
-    if( !( item->window.flags & ( WINDOW_LB_LEFTARROW | WINDOW_LB_RIGHTARROW | WINDOW_LB_THUMB |
-                                  WINDOW_LB_PGUP | WINDOW_LB_PGDN ) ) )
-    {
-      // check for selection hit as we have exausted buttons and thumb
-
-      if( listPtr->elementStyle == LISTBOX_IMAGE )
-      {
-        r.x = item->window.rect.x;
-        r.y = item->window.rect.y;
-        r.h = item->window.rect.h - SCROLLBAR_HEIGHT;
-        r.w = item->window.rect.w - listPtr->drawPadding;
-
-        if( Rect_ContainsPoint( &r, x, y ) )
-        {
-          listPtr->cursorPos =  ( int )( ( x - r.x ) / listPtr->elementWidth )  + listPtr->startPos;
-
-          if( listPtr->cursorPos >= listPtr->endPos )
-            listPtr->cursorPos = listPtr->endPos;
-        }
-      }
-    }
-  }
-  else if( !( item->window.flags & ( WINDOW_LB_LEFTARROW | WINDOW_LB_RIGHTARROW |
-                                     WINDOW_LB_THUMB | WINDOW_LB_PGUP | WINDOW_LB_PGDN ) ) )
-  {
-    r.x = item->window.rect.x;
-    r.y = item->window.rect.y;
-    r.w = item->window.rect.w - SCROLLBAR_WIDTH;
-    r.h = item->window.rect.h - listPtr->drawPadding;
+    r.x = SCROLLBAR_X( item );
+    r.y = SCROLLBAR_Y( item );
+    r.w = SCROLLBAR_W( item );
+    r.h = listPtr->elementHeight *
+      MIN( Item_ListBox_NumItemsForItemHeight( item ), total );
 
     if( Rect_ContainsPoint( &r, x, y ) )
     {
-      listPtr->cursorPos =  ( int )( ( y - 2 - r.y ) / listPtr->elementHeight )  + listPtr->startPos;
+      listPtr->cursorPos = (int)( ( y - r.y ) / listPtr->elementHeight ) + listPtr->startPos;
 
-      if( listPtr->cursorPos > listPtr->endPos )
-        listPtr->cursorPos = listPtr->endPos;
+      if( listPtr->cursorPos >= listPtr->endPos )
+        listPtr->cursorPos = listPtr->endPos - 1;
     }
+    else
+      listPtr->cursorPos = -1;
   }
 }
 
@@ -2818,7 +2841,7 @@ void Item_MouseLeave( itemDef_t *item )
     }
 
     Item_RunScript( item, item->mouseExit );
-    item->window.flags &= ~( WINDOW_LB_RIGHTARROW | WINDOW_LB_LEFTARROW );
+    item->window.flags &= ~( WINDOW_LB_DOWNARROW | WINDOW_LB_UPARROW );
   }
 }
 
@@ -2859,299 +2882,158 @@ qboolean Item_ListBox_HandleKey( itemDef_t *item, int key, qboolean down, qboole
 {
   listBoxDef_t *listPtr = item->typeData.list;
   int count = DC->feederCount( item->feederID );
-  int max, viewmax;
+  int viewmax;
 
   if( force || ( Rect_ContainsPoint( &item->window.rect, DC->cursorx, DC->cursory ) &&
       item->window.flags & WINDOW_HASFOCUS ) )
   {
-    max = Item_ListBox_MaxScroll( item );
+    viewmax = Item_ListBox_NumItemsForItemHeight( item );
 
-    if( item->window.flags & WINDOW_HORIZONTAL )
+    switch( key )
     {
-      viewmax = ( item->window.rect.w / listPtr->elementWidth );
-
-      if( key == K_LEFTARROW || key == K_KP_LEFTARROW )
-      {
-        if( !listPtr->notselectable )
+      case K_MOUSE1:
+      case K_MOUSE2:
+        if( item->window.flags & WINDOW_LB_UPARROW )
+          Item_ListBox_SetStartPos( item, listPtr->startPos - 1 );
+        else if( item->window.flags & WINDOW_LB_DOWNARROW )
+          Item_ListBox_SetStartPos( item, listPtr->startPos + 1 );
+        else if( item->window.flags & WINDOW_LB_PGUP )
+          Item_ListBox_SetStartPos( item, listPtr->startPos - viewmax );
+        else if( item->window.flags & WINDOW_LB_PGDN )
+          Item_ListBox_SetStartPos( item, listPtr->startPos + viewmax );
+        else if( item->window.flags & WINDOW_LB_THUMB )
+          break; // Handled by capture function
+        else
         {
-          listPtr->cursorPos--;
+          // Select an item
+          qboolean runDoubleClick = qfalse;
 
+          // Mouse isn't over an item
           if( listPtr->cursorPos < 0 )
-            listPtr->cursorPos = 0;
+            break;
 
-          if( listPtr->cursorPos < listPtr->startPos )
-            listPtr->startPos = listPtr->cursorPos;
+          if( item->cursorPos != listPtr->cursorPos )
+          {
+            item->cursorPos = listPtr->cursorPos;
+            DC->feederSelection( item->feederID, item->cursorPos );
+          }
 
-          if( listPtr->cursorPos >= listPtr->startPos + viewmax )
-            listPtr->startPos = listPtr->cursorPos - viewmax + 1;
+          runDoubleClick = DC->realTime < lastListBoxClickTime && listPtr->doubleClick;
+          lastListBoxClickTime = DC->realTime + DOUBLE_CLICK_DELAY;
 
-          item->cursorPos = listPtr->cursorPos;
-          DC->feederSelection( item->feederID, item->cursorPos );
-        }
-        else
-        {
-          listPtr->startPos--;
+          // Made a selection, so close combobox
+          if( g_comboBoxItem != NULL )
+          {
+            if( listPtr->doubleClick )
+              runDoubleClick = qtrue;
 
-          if( listPtr->startPos < 0 )
-            listPtr->startPos = 0;
-        }
+            g_comboBoxItem = NULL;
+          }
 
-        return qtrue;
-      }
-
-      if( key == K_RIGHTARROW || key == K_KP_RIGHTARROW )
-      {
-        if( !listPtr->notselectable )
-        {
-          listPtr->cursorPos++;
-
-          if( listPtr->cursorPos < listPtr->startPos )
-            listPtr->startPos = listPtr->cursorPos;
-
-          if( listPtr->cursorPos >= count )
-            listPtr->cursorPos = count - 1;
-
-          if( listPtr->cursorPos >= listPtr->startPos + viewmax )
-            listPtr->startPos = listPtr->cursorPos - viewmax + 1;
-
-          item->cursorPos = listPtr->cursorPos;
-          DC->feederSelection( item->feederID, item->cursorPos );
-        }
-        else
-        {
-          listPtr->startPos++;
-
-          if( listPtr->startPos >= count )
-            listPtr->startPos = count - 1;
+          if( runDoubleClick )
+            Item_RunScript( item, listPtr->doubleClick );
         }
 
-        return qtrue;
-      }
-    }
-    else
-    {
-      viewmax = ( item->window.rect.h / listPtr->elementHeight );
+        break;
 
-      if( key == K_UPARROW || key == K_KP_UPARROW )
-      {
-        if( !listPtr->notselectable )
-        {
-          listPtr->cursorPos--;
+      case K_MWHEELUP:
+        Item_ListBox_SetStartPos( item, listPtr->startPos - 1 );
+        break;
 
-          if( listPtr->cursorPos < 0 )
-            listPtr->cursorPos = 0;
+      case K_MWHEELDOWN:
+        Item_ListBox_SetStartPos( item, listPtr->startPos + 1 );
+        break;
 
-          if( listPtr->cursorPos < listPtr->startPos )
-            listPtr->startPos = listPtr->cursorPos;
-
-          if( listPtr->cursorPos >= listPtr->startPos + viewmax )
-            listPtr->startPos = listPtr->cursorPos - viewmax + 1;
-
-          item->cursorPos = listPtr->cursorPos;
-          DC->feederSelection( item->feederID, item->cursorPos );
-        }
-        else
-        {
-          listPtr->startPos--;
-
-          if( listPtr->startPos < 0 )
-            listPtr->startPos = 0;
-        }
-
-        return qtrue;
-      }
-
-      if( key == K_DOWNARROW || key == K_KP_DOWNARROW )
-      {
-        if( !listPtr->notselectable )
-        {
-          listPtr->cursorPos++;
-
-          if( listPtr->cursorPos < listPtr->startPos )
-            listPtr->startPos = listPtr->cursorPos;
-
-          if( listPtr->cursorPos >= count )
-            listPtr->cursorPos = count - 1;
-
-          if( listPtr->cursorPos >= listPtr->startPos + viewmax )
-            listPtr->startPos = listPtr->cursorPos - viewmax + 1;
-
-          item->cursorPos = listPtr->cursorPos;
-          DC->feederSelection( item->feederID, item->cursorPos );
-        }
-        else
-        {
-          listPtr->startPos++;
-
-          if( listPtr->startPos > max )
-            listPtr->startPos = max;
-        }
-
-        return qtrue;
-      }
-    }
-
-    // mouse hit
-    if( key == K_MOUSE1 || key == K_MOUSE2 )
-    {
-      if( item->window.flags & WINDOW_LB_LEFTARROW )
-      {
-        listPtr->startPos--;
-
-        if( listPtr->startPos < 0 )
-          listPtr->startPos = 0;
-      }
-      else if( item->window.flags & WINDOW_LB_RIGHTARROW )
-      {
-        // one down
-        listPtr->startPos++;
-
-        if( listPtr->startPos > max )
-          listPtr->startPos = max;
-      }
-      else if( item->window.flags & WINDOW_LB_PGUP )
-      {
-        // page up
-        listPtr->startPos -= viewmax;
-
-        if( listPtr->startPos < 0 )
-          listPtr->startPos = 0;
-      }
-      else if( item->window.flags & WINDOW_LB_PGDN )
-      {
-        // page down
-        listPtr->startPos += viewmax;
-
-        if( listPtr->startPos > max )
-          listPtr->startPos = max;
-      }
-      else if( item->window.flags & WINDOW_LB_THUMB )
-      {
-        // Display_SetCaptureItem(item);
-      }
-      else
-      {
-        // select an item
-
-        if( item->cursorPos != listPtr->cursorPos )
-        {
-          item->cursorPos = listPtr->cursorPos;
-          DC->feederSelection( item->feederID, item->cursorPos );
-        }
-
-        if( DC->realTime < lastListBoxClickTime && listPtr->doubleClick )
+      case K_ENTER:
+        // Invoke the doubleClick handler when enter is pressed
+        if( listPtr->doubleClick )
           Item_RunScript( item, listPtr->doubleClick );
 
-        lastListBoxClickTime = DC->realTime + DOUBLE_CLICK_DELAY;
-      }
+        break;
 
-      return qtrue;
+      case K_PGUP:
+      case K_KP_PGUP:
+        if( !listPtr->notselectable )
+        {
+          listPtr->cursorPos -= viewmax;
+
+          if( listPtr->cursorPos < 0 )
+            listPtr->cursorPos = 0;
+
+          if( listPtr->cursorPos < listPtr->startPos )
+            Item_ListBox_SetStartPos( item, listPtr->cursorPos );
+
+          if( listPtr->cursorPos >= listPtr->startPos + viewmax )
+            Item_ListBox_SetStartPos( item, listPtr->cursorPos - viewmax + 1 );
+
+          item->cursorPos = listPtr->cursorPos;
+          DC->feederSelection( item->feederID, item->cursorPos );
+        }
+        else
+          Item_ListBox_SetStartPos( item, listPtr->startPos - viewmax );
+
+        break;
+
+      case K_PGDN:
+      case K_KP_PGDN:
+        if( !listPtr->notselectable )
+        {
+          listPtr->cursorPos += viewmax;
+
+          if( listPtr->cursorPos < listPtr->startPos )
+            Item_ListBox_SetStartPos( item, listPtr->cursorPos );
+
+          if( listPtr->cursorPos >= count )
+            listPtr->cursorPos = count - 1;
+
+          if( listPtr->cursorPos >= listPtr->startPos + viewmax )
+            Item_ListBox_SetStartPos( item, listPtr->cursorPos - viewmax + 1 );
+
+          item->cursorPos = listPtr->cursorPos;
+          DC->feederSelection( item->feederID, item->cursorPos );
+        }
+        else
+          Item_ListBox_SetStartPos( item, listPtr->startPos + viewmax );
+
+        break;
+
+      default:
+        // Not handled
+        return qfalse;
     }
 
-    // Scroll wheel
-    if( key == K_MWHEELUP )
+    return qtrue;
+  }
+
+  return qfalse;
+}
+
+qboolean Item_ComboBox_HandleKey( itemDef_t *item, int key, qboolean down, qboolean force )
+{
+  if( g_comboBoxItem != NULL )
+  {
+    qboolean result;
+
+    qboolean cast = Item_ComboBox_MaybeCastToListBox( item );
+    result = Item_ListBox_HandleKey( item, key, down, force );
+    Item_ComboBox_MaybeUnCastFromListBox( item, cast );
+
+    if( !result )
+      g_comboBoxItem = NULL;
+
+    return result;
+  }
+  else
+  {
+    if( force || ( Rect_ContainsPoint( &item->window.rect, DC->cursorx, DC->cursory ) &&
+        item->window.flags & WINDOW_HASFOCUS ) )
     {
-      listPtr->startPos--;
-
-      if( listPtr->startPos < 0 )
-        listPtr->startPos = 0;
-
-      return qtrue;
-    }
-
-    if( key == K_MWHEELDOWN )
-    {
-      listPtr->startPos++;
-
-      if( listPtr->startPos > max )
-        listPtr->startPos = max;
-
-      return qtrue;
-    }
-
-    // Invoke the doubleClick handler when enter is pressed
-    if( key == K_ENTER )
-    {
-      if( listPtr->doubleClick )
-        Item_RunScript( item, listPtr->doubleClick );
-
-      return qtrue;
-    }
-
-    if( key == K_HOME || key == K_KP_HOME )
-    {
-      // home
-      listPtr->startPos = 0;
-      return qtrue;
-    }
-
-    if( key == K_END || key == K_KP_END )
-    {
-      // end
-      listPtr->startPos = max;
-      return qtrue;
-    }
-
-    if( key == K_PGUP || key == K_KP_PGUP )
-    {
-      // page up
-
-      if( !listPtr->notselectable )
+      if( key == K_MOUSE1 || key == K_MOUSE2 )
       {
-        listPtr->cursorPos -= viewmax;
+        g_comboBoxItem = item;
 
-        if( listPtr->cursorPos < 0 )
-          listPtr->cursorPos = 0;
-
-        if( listPtr->cursorPos < listPtr->startPos )
-          listPtr->startPos = listPtr->cursorPos;
-
-        if( listPtr->cursorPos >= listPtr->startPos + viewmax )
-          listPtr->startPos = listPtr->cursorPos - viewmax + 1;
-
-        item->cursorPos = listPtr->cursorPos;
-        DC->feederSelection( item->feederID, item->cursorPos );
+        return qtrue;
       }
-      else
-      {
-        listPtr->startPos -= viewmax;
-
-        if( listPtr->startPos < 0 )
-          listPtr->startPos = 0;
-      }
-
-      return qtrue;
-    }
-
-    if( key == K_PGDN || key == K_KP_PGDN )
-    {
-      // page down
-
-      if( !listPtr->notselectable )
-      {
-        listPtr->cursorPos += viewmax;
-
-        if( listPtr->cursorPos < listPtr->startPos )
-          listPtr->startPos = listPtr->cursorPos;
-
-        if( listPtr->cursorPos >= count )
-          listPtr->cursorPos = count - 1;
-
-        if( listPtr->cursorPos >= listPtr->startPos + viewmax )
-          listPtr->startPos = listPtr->cursorPos - viewmax + 1;
-
-        item->cursorPos = listPtr->cursorPos;
-        DC->feederSelection( item->feederID, item->cursorPos );
-      }
-      else
-      {
-        listPtr->startPos += viewmax;
-
-        if( listPtr->startPos > max )
-          listPtr->startPos = max;
-      }
-
-      return qtrue;
     }
   }
 
@@ -3246,13 +3128,13 @@ const char *Item_Multi_Setting( itemDef_t *item )
   return "";
 }
 
-qboolean Item_Combobox_HandleKey( itemDef_t *item, int key )
+qboolean Item_Cycle_HandleKey( itemDef_t *item, int key )
 {
-  comboBoxDef_t *comboPtr = item->typeData.combo;
+  cycleDef_t *cyclePtr = item->typeData.cycle;
   qboolean mouseOver = Rect_ContainsPoint( &item->window.rect, DC->cursorx, DC->cursory );
   int count = DC->feederCount( item->feederID );
 
-  if( comboPtr )
+  if( cyclePtr )
   {
     if( item->window.flags & WINDOW_HASFOCUS )
     {
@@ -3260,9 +3142,9 @@ qboolean Item_Combobox_HandleKey( itemDef_t *item, int key )
           key == K_ENTER || key == K_RIGHTARROW || key == K_DOWNARROW )
       {
         if( count > 0 )
-          comboPtr->cursorPos = ( comboPtr->cursorPos + 1 ) % count;
+          cyclePtr->cursorPos = ( cyclePtr->cursorPos + 1 ) % count;
 
-        DC->feederSelection( item->feederID, comboPtr->cursorPos );
+        DC->feederSelection( item->feederID, cyclePtr->cursorPos );
 
         return qtrue;
       }
@@ -3270,9 +3152,9 @@ qboolean Item_Combobox_HandleKey( itemDef_t *item, int key )
                key == K_LEFTARROW || key == K_UPARROW )
       {
         if( count > 0 )
-          comboPtr->cursorPos = ( count + comboPtr->cursorPos - 1 ) % count;
+          cyclePtr->cursorPos = ( count + cyclePtr->cursorPos - 1 ) % count;
 
-        DC->feederSelection( item->feederID, comboPtr->cursorPos );
+        DC->feederSelection( item->feederID, cyclePtr->cursorPos );
 
         return qtrue;
       }
@@ -3541,9 +3423,59 @@ exit:
   return !releaseFocus;
 }
 
+static void _Scroll_ListBox_AutoFunc( scrollInfo_t *si )
+{
+  if( DC->realTime > si->nextScrollTime )
+  {
+    // need to scroll which is done by simulating a click to the item
+    // this is done a bit sideways as the autoscroll "knows" that the item is a listbox
+    // so it calls it directly
+    Item_ListBox_HandleKey( si->item, si->scrollKey, qtrue, qfalse );
+
+    si->nextScrollTime = DC->realTime + si->adjustValue;
+  }
+
+  if( DC->realTime > si->nextAdjustTime )
+  {
+    si->nextAdjustTime = DC->realTime + SCROLL_TIME_ADJUST;
+
+    if( si->adjustValue > SCROLL_TIME_FLOOR )
+      si->adjustValue -= SCROLL_TIME_ADJUSTOFFSET;
+  }
+}
+
 static void Scroll_ListBox_AutoFunc( void *p )
 {
   scrollInfo_t *si = ( scrollInfo_t* )p;
+
+  qboolean cast = Item_ComboBox_MaybeCastToListBox( si->item );
+  _Scroll_ListBox_AutoFunc( si );
+  Item_ComboBox_MaybeUnCastFromListBox( si->item, cast );
+}
+
+static void _Scroll_ListBox_ThumbFunc( scrollInfo_t *si )
+{
+  rectDef_t r;
+  int pos, max;
+
+  if( DC->cursory != si->yStart )
+  {
+    r.x = si->item->window.rect.x + si->item->window.rect.w - SCROLLBAR_ARROW_WIDTH - 1;
+    r.y = si->item->window.rect.y + SCROLLBAR_ARROW_HEIGHT + 1;
+    r.w = SCROLLBAR_ARROW_WIDTH;
+    r.h = si->item->window.rect.h - ( SCROLLBAR_ARROW_HEIGHT * 2 ) - 2;
+    max = Item_ListBox_MaxScroll( si->item );
+    //
+    pos = ( DC->cursory - r.y - SCROLLBAR_ARROW_HEIGHT / 2 ) * max / ( r.h - SCROLLBAR_ARROW_HEIGHT );
+
+    if( pos < 0 )
+      pos = 0;
+    else if( pos > max )
+      pos = max;
+
+    Item_ListBox_SetStartPos( si->item, pos );
+    si->yStart = DC->cursory;
+  }
 
   if( DC->realTime > si->nextScrollTime )
   {
@@ -3551,6 +3483,7 @@ static void Scroll_ListBox_AutoFunc( void *p )
     // this is done a bit sideways as the autoscroll "knows" that the item is a listbox
     // so it calls it directly
     Item_ListBox_HandleKey( si->item, si->scrollKey, qtrue, qfalse );
+
     si->nextScrollTime = DC->realTime + si->adjustValue;
   }
 
@@ -3566,65 +3499,10 @@ static void Scroll_ListBox_AutoFunc( void *p )
 static void Scroll_ListBox_ThumbFunc( void *p )
 {
   scrollInfo_t *si = ( scrollInfo_t* )p;
-  rectDef_t r;
-  int pos, max;
 
-  if( si->item->window.flags & WINDOW_HORIZONTAL )
-  {
-    if( DC->cursorx == si->xStart )
-      return;
-
-    r.x = si->item->window.rect.x + SCROLLBAR_WIDTH + 1;
-    r.y = si->item->window.rect.y + si->item->window.rect.h - SCROLLBAR_HEIGHT - 1;
-    r.w = si->item->window.rect.w - ( SCROLLBAR_WIDTH * 2 ) - 2;
-    r.h = SCROLLBAR_HEIGHT;
-    max = Item_ListBox_MaxScroll( si->item );
-    //
-    pos = ( DC->cursorx - r.x - SCROLLBAR_WIDTH / 2 ) * max / ( r.w - SCROLLBAR_WIDTH );
-
-    if( pos < 0 )
-      pos = 0;
-    else if( pos > max )
-      pos = max;
-
-    si->item->typeData.list->startPos = pos;
-    si->xStart = DC->cursorx;
-  }
-  else if( DC->cursory != si->yStart )
-  {
-    r.x = si->item->window.rect.x + si->item->window.rect.w - SCROLLBAR_WIDTH - 1;
-    r.y = si->item->window.rect.y + SCROLLBAR_HEIGHT + 1;
-    r.w = SCROLLBAR_WIDTH;
-    r.h = si->item->window.rect.h - ( SCROLLBAR_HEIGHT * 2 ) - 2;
-    max = Item_ListBox_MaxScroll( si->item );
-    //
-    pos = ( DC->cursory - r.y - SCROLLBAR_HEIGHT / 2 ) * max / ( r.h - SCROLLBAR_HEIGHT );
-
-    if( pos < 0 )
-      pos = 0;
-    else if( pos > max )
-      pos = max;
-
-    si->item->typeData.list->startPos = pos;
-    si->yStart = DC->cursory;
-  }
-
-  if( DC->realTime > si->nextScrollTime )
-  {
-    // need to scroll which is done by simulating a click to the item
-    // this is done a bit sideways as the autoscroll "knows" that the item is a listbox
-    // so it calls it directly
-    Item_ListBox_HandleKey( si->item, si->scrollKey, qtrue, qfalse );
-    si->nextScrollTime = DC->realTime + si->adjustValue;
-  }
-
-  if( DC->realTime > si->nextAdjustTime )
-  {
-    si->nextAdjustTime = DC->realTime + SCROLL_TIME_ADJUST;
-
-    if( si->adjustValue > SCROLL_TIME_FLOOR )
-      si->adjustValue -= SCROLL_TIME_ADJUSTOFFSET;
-  }
+  qboolean cast = Item_ComboBox_MaybeCastToListBox( si->item );
+  _Scroll_ListBox_ThumbFunc( si );
+  Item_ComboBox_MaybeUnCastFromListBox( si->item, cast );
 }
 
 static void Scroll_Slider_ThumbFunc( void *p )
@@ -3662,20 +3540,20 @@ void Item_StartCapture( itemDef_t *item, int key )
 
   switch( item->type )
   {
-    case ITEM_TYPE_EDITFIELD:
-    case ITEM_TYPE_SAYFIELD:
-    case ITEM_TYPE_NUMERICFIELD:
     case ITEM_TYPE_LISTBOX:
+    case ITEM_TYPE_COMBOBOX:
     {
+      qboolean cast = Item_ComboBox_MaybeCastToListBox( item );
       flags = Item_ListBox_OverLB( item, DC->cursorx, DC->cursory );
+      Item_ComboBox_MaybeUnCastFromListBox( item, cast );
 
-      if( flags & ( WINDOW_LB_LEFTARROW | WINDOW_LB_RIGHTARROW ) )
+      if( flags & ( WINDOW_LB_UPARROW | WINDOW_LB_DOWNARROW ) )
       {
         scrollInfo.nextScrollTime = DC->realTime + SCROLL_TIME_START;
         scrollInfo.nextAdjustTime = DC->realTime + SCROLL_TIME_ADJUST;
         scrollInfo.adjustValue = SCROLL_TIME_START;
         scrollInfo.scrollKey = key;
-        scrollInfo.scrollDir = ( flags & WINDOW_LB_LEFTARROW ) ? qtrue : qfalse;
+        scrollInfo.scrollDir = ( flags & WINDOW_LB_UPARROW ) ? qtrue : qfalse;
         scrollInfo.item = item;
         UI_InstallCaptureFunc( Scroll_ListBox_AutoFunc, &scrollInfo, 0 );
         itemCapture = item;
@@ -3786,11 +3664,14 @@ qboolean Item_HandleKey( itemDef_t *item, int key, qboolean down )
     case ITEM_TYPE_CHECKBOX:
       return qfalse;
 
-    case ITEM_TYPE_COMBO:
-      return Item_Combobox_HandleKey( item, key );
+    case ITEM_TYPE_CYCLE:
+      return Item_Cycle_HandleKey( item, key );
 
     case ITEM_TYPE_LISTBOX:
       return Item_ListBox_HandleKey( item, key, down, qfalse );
+
+    case ITEM_TYPE_COMBOBOX:
+      return Item_ComboBox_HandleKey( item, key, down, qfalse );
 
     case ITEM_TYPE_YESNO:
       return Item_YesNo_HandleKey( item, key );
@@ -3921,7 +3802,7 @@ static void Display_CloseCinematics( void )
     Menu_CloseCinematics( &Menus[i] );
 }
 
-void  Menus_Activate( menuDef_t *menu )
+void Menus_Activate( menuDef_t *menu )
 {
   int i;
   qboolean onTopOfMenuStack = qfalse;
@@ -3950,15 +3831,15 @@ void  Menus_Activate( menuDef_t *menu )
 
     for( i = 0; i < menu->itemCount; i++ ) // reset selection in listboxes when opened
     {
-      if( menu->items[ i ]->type == ITEM_TYPE_LISTBOX )
+      if( Item_IsListBox( menu->items[ i ] ) )
       {
-        menu->items[ i ]->cursorPos = 0;
-        menu->items[ i ]->typeData.list->startPos = 0;
-        DC->feederSelection( menu->items[ i ]->feederID, 0 );
+        menu->items[ i ]->cursorPos = DC->feederInitialise( menu->items[ i ]->feederID );
+        Item_ListBox_SetStartPos( menu->items[ i ], 0 );
+        DC->feederSelection( menu->items[ i ]->feederID, menu->items[ i ]->cursorPos );
       }
-      else if( menu->items[ i ]->type == ITEM_TYPE_COMBO )
+      else if( menu->items[ i ]->type == ITEM_TYPE_CYCLE )
       {
-        menu->items[ i ]->typeData.combo->cursorPos =
+        menu->items[ i ]->typeData.cycle->cursorPos =
           DC->feederInitialise( menu->items[ i ]->feederID );
       }
 
@@ -3977,10 +3858,10 @@ qboolean Menus_ReplaceActive( menuDef_t *menu )
   if( openMenuCount < 1 )
     return qfalse;
 
-  active = menuStack[ openMenuCount - 1]; 
+  active = menuStack[ openMenuCount - 1 ];
 
-  if( !( active->window.flags & WINDOW_HASFOCUS )  ||
-     !( active->window.flags & WINDOW_VISIBLE ) )
+  if( !( active->window.flags & WINDOW_HASFOCUS ) ||
+      !( active->window.flags & WINDOW_VISIBLE ) )
   {
     return qfalse;
   }
@@ -3990,8 +3871,8 @@ qboolean Menus_ReplaceActive( menuDef_t *menu )
 
   if( menu->itemCount != active->itemCount )
     return qfalse;
-  
-  for( i = 0; i < menu->itemCount; i++ ) 
+
+  for( i = 0; i < menu->itemCount; i++ )
   {
     if( menu->items[ i ]->type != active->items[ i ]->type )
       return qfalse;
@@ -4007,14 +3888,7 @@ qboolean Menus_ReplaceActive( menuDef_t *menu )
     item.parent = menu;
     Item_RunScript( &item, menu->onOpen );
   }
-  
-  for( i = 0; i < menu->itemCount; i++ ) 
-  {
-      menu->items[ i ]->cursorPos = active->items[ i ]->cursorPos;
-      menu->items[ i ]->typeData.list->startPos = active->items[ i ]->typeData.list->startPos;
-      menu->items[ i ]->feederID = active->items[ i ]->feederID;
-      menu->items[ i ]->typeData.combo->cursorPos = active->items[ i ]->typeData.combo->cursorPos;
-  }
+
   return qtrue;
 }
 
@@ -4134,12 +4008,17 @@ void Menu_HandleKey( menuDef_t *menu, int key, qboolean down )
     }
   }
 
-  // get the item with focus
-  for( i = 0; i < menu->itemCount; i++ )
+  if( g_comboBoxItem == NULL )
   {
-    if( menu->items[i]->window.flags & WINDOW_HASFOCUS )
-      item = menu->items[i];
+    // get the item with focus
+    for( i = 0; i < menu->itemCount; i++ )
+    {
+      if( menu->items[i]->window.flags & WINDOW_HASFOCUS )
+        item = menu->items[i];
+    }
   }
+  else
+    item = g_comboBoxItem;
 
   if( item != NULL )
   {
@@ -4973,7 +4852,7 @@ void Item_Multi_Paint( itemDef_t *item )
     UI_Text_Paint( item->textRect.x, item->textRect.y, item->textscale, newColor, text, 0, 0, item->textStyle );
 }
 
-void Item_Combobox_Paint( itemDef_t *item )
+void Item_Cycle_Paint( itemDef_t *item )
 {
   vec4_t newColor;
   const char *text = "";
@@ -4984,8 +4863,8 @@ void Item_Combobox_Paint( itemDef_t *item )
   else
     memcpy( &newColor, &item->window.foreColor, sizeof( vec4_t ) );
 
-  if( item->typeData.combo )
-    text = DC->feederItemText( item->feederID, item->typeData.combo->cursorPos,
+  if( item->typeData.cycle )
+    text = DC->feederItemText( item->feederID, item->typeData.cycle->cursorPos,
                                0, NULL );
 
   if( item->text )
@@ -5422,16 +5301,6 @@ qboolean Item_Bind_HandleKey( itemDef_t *item, int key, qboolean down )
 }
 
 
-
-void AdjustFrom640( float *x, float *y, float *w, float *h )
-{
-  //*x = *x * DC->scale + DC->bias;
-  *x *= DC->xscale;
-  *y *= DC->yscale;
-  *w *= DC->xscale;
-  *h *= DC->yscale;
-}
-
 void Item_Model_Paint( itemDef_t *item )
 {
   float x, y, w, h;
@@ -5456,7 +5325,7 @@ void Item_Model_Paint( itemDef_t *item )
   w = item->window.rect.w - 2;
   h = item->window.rect.h - 2;
 
-  AdjustFrom640( &x, &y, &w, &h );
+  UI_AdjustFrom640( &x, &y, &w, &h );
 
   refdef.x = x;
   refdef.y = y;
@@ -5524,294 +5393,222 @@ void Item_Model_Paint( itemDef_t *item )
 }
 
 
-void Item_Image_Paint( itemDef_t *item )
+void Item_ListBoxRow_Paint( itemDef_t *item, int row, int renderPos, qboolean highlight, qboolean scrollbar )
 {
-  if( item == NULL )
-    return;
+  float         x, y, w;
+  listBoxDef_t  *listPtr = item->typeData.list;
+  menuDef_t     *menu = ( menuDef_t * )item->parent;
+  float         one, two;
 
-  DC->drawHandlePic( item->window.rect.x + 1, item->window.rect.y + 1,
-                     item->window.rect.w - 2, item->window.rect.h - 2, item->asset );
-}
+  one = 1.0f * DC->aspectScale;
+  two = 2.0f * DC->aspectScale;
 
-void Item_ListBox_Paint( itemDef_t *item )
-{
-  float x, y, size, thumb;
-  int i, count;
-  qhandle_t image;
-  qhandle_t optionalImage;
-  listBoxDef_t *listPtr = item->typeData.list;
-  menuDef_t *menu = ( menuDef_t * )item->parent;
-  float one, two;
+  x = SCROLLBAR_X( item );
+  y = SCROLLBAR_Y( item ) + ( listPtr->elementHeight * renderPos );
+  w = item->window.rect.w - ( two * item->window.borderSize );
 
-  if( menu->window.aspectBias != ASPECT_NONE || item->window.aspectBias != ASPECT_NONE )
+  if( scrollbar )
+    w -= SCROLLBAR_ARROW_WIDTH;
+
+  if( listPtr->elementStyle == LISTBOX_IMAGE )
   {
-    one = 1.0f * DC->aspectScale;
-    two = 2.0f * DC->aspectScale;
+    qhandle_t image = DC->feederItemImage( item->feederID, row );
+
+    UI_SetClipRegion( x, y, listPtr->elementWidth, listPtr->elementHeight );
+
+    if( image )
+      DC->drawHandlePic( x + one, y + 1.0f, listPtr->elementWidth - two, listPtr->elementHeight - 2.0f, image );
+
+    if( highlight && row == item->cursorPos )
+    {
+      DC->drawRect( x, y, listPtr->elementWidth, listPtr->elementHeight,
+          item->window.borderSize, item->window.borderColor );
+    }
+
+    UI_ClearClipRegion( );
   }
   else
   {
-    one = 1.0f;
-    two = 2.0f;
-  }
+    const float m = UI_Text_EmHeight( item->textscale );
+    char        text[ MAX_STRING_CHARS ];
+    qhandle_t   optionalImage;
 
-  // the listbox is horizontal or vertical and has a fixed size scroll bar going either direction
-  // elements are enumerated from the DC and either text or image handles are acquired from the DC as well
-  // textscale is used to size the text, textalignx and textaligny are used to size image elements
-  // there is no clipping available so only the last completely visible item is painted
-  count = DC->feederCount( item->feederID );
-
-  // default is vertical if horizontal flag is not here
-  if( item->window.flags & WINDOW_HORIZONTAL )
-  {
-    //FIXME: unmaintained cruft?
-
-    if( !listPtr->noscrollbar )
+    if( listPtr->numColumns > 0 )
     {
-      // draw scrollbar in bottom of the window
-      // bar
-      x = item->window.rect.x + 1;
-      y = item->window.rect.y + item->window.rect.h - SCROLLBAR_HEIGHT - 1;
-      DC->drawHandlePic( x, y, SCROLLBAR_WIDTH, SCROLLBAR_HEIGHT, DC->Assets.scrollBarArrowLeft );
-      x += SCROLLBAR_WIDTH - 1;
-      size = item->window.rect.w - ( SCROLLBAR_WIDTH * 2 );
-      DC->drawHandlePic( x, y, size + 1, SCROLLBAR_HEIGHT, DC->Assets.scrollBar );
-      x += size - 1;
-      DC->drawHandlePic( x, y, SCROLLBAR_WIDTH, SCROLLBAR_HEIGHT, DC->Assets.scrollBarArrowRight );
-      // thumb
-      thumb = Item_ListBox_ThumbDrawPosition( item );//Item_ListBox_ThumbPosition(item);
+      int   j;
 
-      if( thumb > x - SCROLLBAR_WIDTH - 1 )
-        thumb = x - SCROLLBAR_WIDTH - 1;
-
-      DC->drawHandlePic( thumb, y, SCROLLBAR_WIDTH, SCROLLBAR_HEIGHT, DC->Assets.scrollBarThumb );
-      //
-      listPtr->endPos = listPtr->startPos;
-    }
-
-    size = item->window.rect.w - 2;
-    // items
-    // size contains max available space
-
-    if( listPtr->elementStyle == LISTBOX_IMAGE )
-    {
-      // fit = 0;
-      x = item->window.rect.x + 1;
-      y = item->window.rect.y + 1;
-
-      for( i = listPtr->startPos; i < count; i++ )
+      for( j = 0; j < listPtr->numColumns; j++ )
       {
-        // always draw at least one
-        // which may overdraw the box if it is too small for the element
-        image = DC->feederItemImage( item->feederID, i );
+        float columnPos;
+        float width, height, yOffset;
 
-        if( image )
-          DC->drawHandlePic( x + 1, y + 1, listPtr->elementWidth - 2, listPtr->elementHeight - 2, image );
-
-        if( i == item->cursorPos )
+        if( menu->window.aspectBias != ASPECT_NONE || item->window.aspectBias != ASPECT_NONE )
         {
-          DC->drawRect( x, y, listPtr->elementWidth - 1, listPtr->elementHeight - 1,
-                        item->window.borderSize, item->window.borderColor );
+          columnPos = ( listPtr->columnInfo[ j ].pos + 4.0f ) * DC->aspectScale;
+          width = listPtr->columnInfo[ j ].width * DC->aspectScale;
+        }
+        else
+        {
+          columnPos = ( listPtr->columnInfo[ j ].pos + 4.0f );
+          width = listPtr->columnInfo[ j ].width;
         }
 
-        listPtr->endPos++;
-        size -= listPtr->elementWidth;
+        height = listPtr->columnInfo[ j ].width;
+        yOffset = y + ( ( listPtr->elementHeight - height ) / 2.0f );
 
-        if( size < listPtr->elementWidth )
+        Q_strncpyz( text, DC->feederItemText( item->feederID, row, j, &optionalImage ), sizeof( text ) );
+
+        UI_SetClipRegion( x + columnPos, yOffset, width, height );
+
+        if( optionalImage >= 0 )
+          DC->drawHandlePic( x + columnPos, yOffset, width, height, optionalImage );
+        else if( text[ 0 ] )
         {
-          listPtr->drawPadding = size; //listPtr->elementWidth - size;
-          break;
+          float alignOffset = 0.0f, tw;
+
+          tw = UI_Text_Width( text, item->textscale, 0 );
+
+          switch( listPtr->columnInfo[ j ].align )
+          {
+            case ALIGN_LEFT:
+              alignOffset = 0.0f;
+              break;
+
+            case ALIGN_RIGHT:
+              alignOffset = width - tw;
+              break;
+
+            case ALIGN_CENTER:
+              alignOffset = ( width / 2.0f ) - ( tw / 2.0f );
+              break;
+
+            default:
+              alignOffset = 0.0f;
+          }
+
+          UI_Text_Paint( x + columnPos + alignOffset,
+              y + m + ( ( listPtr->elementHeight - m ) / 2.0f ),
+              item->textscale, item->window.foreColor, text, 0,
+              0, item->textStyle );
         }
 
-        x += listPtr->elementWidth;
-        // fit++;
-      }
-    }
-  }
-  else
-  {
-    if( !listPtr->noscrollbar )
-    {
-      // draw scrollbar to right side of the window
-      x = item->window.rect.x + item->window.rect.w - SCROLLBAR_WIDTH - one;
-      y = item->window.rect.y + 1;
-      DC->drawHandlePic( x, y, SCROLLBAR_WIDTH, SCROLLBAR_HEIGHT, DC->Assets.scrollBarArrowUp );
-      y += SCROLLBAR_HEIGHT - 1;
-
-      listPtr->endPos = listPtr->startPos;
-      size = item->window.rect.h - ( SCROLLBAR_HEIGHT * 2 );
-      DC->drawHandlePic( x, y, SCROLLBAR_WIDTH, size + 1, DC->Assets.scrollBar );
-      y += size - 1;
-      DC->drawHandlePic( x, y, SCROLLBAR_WIDTH, SCROLLBAR_HEIGHT, DC->Assets.scrollBarArrowDown );
-      // thumb
-      thumb = Item_ListBox_ThumbDrawPosition( item );//Item_ListBox_ThumbPosition(item);
-
-      if( thumb > y - SCROLLBAR_HEIGHT - 1 )
-        thumb = y - SCROLLBAR_HEIGHT - 1;
-
-      DC->drawHandlePic( x, thumb, SCROLLBAR_WIDTH, SCROLLBAR_HEIGHT, DC->Assets.scrollBarThumb );
-    }
-
-    // adjust size for item painting
-    size = item->window.rect.h - 2;
-
-    if( listPtr->elementStyle == LISTBOX_IMAGE )
-    {
-      // fit = 0;
-      x = item->window.rect.x + one;
-      y = item->window.rect.y + 1;
-
-      for( i = listPtr->startPos; i < count; i++ )
-      {
-        // always draw at least one
-        // which may overdraw the box if it is too small for the element
-        image = DC->feederItemImage( item->feederID, i );
-
-        if( image )
-          DC->drawHandlePic( x + one, y + 1, listPtr->elementWidth - two, listPtr->elementHeight - 2, image );
-
-        if( i == item->cursorPos )
-        {
-          DC->drawRect( x, y, listPtr->elementWidth - one, listPtr->elementHeight - 1,
-              item->window.borderSize, item->window.borderColor );
-        }
-
-        listPtr->endPos++;
-        size -= listPtr->elementWidth;
-
-        if( size < listPtr->elementHeight )
-        {
-          listPtr->drawPadding = listPtr->elementHeight - size;
-          break;
-        }
-
-        y += listPtr->elementHeight;
-        // fit++;
+        UI_ClearClipRegion( );
       }
     }
     else
     {
-      float m = UI_Text_EmHeight( item->textscale );
-      x = item->window.rect.x + one;
-      y = item->window.rect.y + 1;
+      float offset;
 
-      for( i = listPtr->startPos; i < count; i++ )
+      if( menu->window.aspectBias != ASPECT_NONE || item->window.aspectBias != ASPECT_NONE )
+        offset = 4.0f * DC->aspectScale;
+      else
+        offset = 4.0f;
+
+      Q_strncpyz( text, DC->feederItemText( item->feederID, row, 0, &optionalImage ), sizeof( text ) );
+
+      UI_SetClipRegion( x, y, w, listPtr->elementHeight );
+
+      if( optionalImage >= 0 )
+        DC->drawHandlePic( x + offset, y, listPtr->elementHeight, listPtr->elementHeight, optionalImage );
+      else if( text[ 0 ] )
       {
-        char text[ MAX_STRING_CHARS ];
-        // always draw at least one
-        // which may overdraw the box if it is too small for the element
-
-        if( listPtr->numColumns > 0 )
-        {
-          int j;
-
-          for( j = 0; j < listPtr->numColumns; j++ )
-          {
-            float columnPos;
-            float width, height;
-
-            if( menu->window.aspectBias != ASPECT_NONE || item->window.aspectBias != ASPECT_NONE )
-            {
-              columnPos = ( listPtr->columnInfo[ j ].pos + 4.0f ) * DC->aspectScale;
-              width = listPtr->columnInfo[ j ].width * DC->aspectScale;
-            }
-            else
-            {
-              columnPos = ( listPtr->columnInfo[ j ].pos + 4.0f );
-              width = listPtr->columnInfo[ j ].width;
-            }
-
-            height = listPtr->columnInfo[ j ].width;
-
-            Q_strncpyz( text, DC->feederItemText( item->feederID, i, j, &optionalImage ), sizeof( text ) );
-
-            if( optionalImage >= 0 )
-            {
-              DC->drawHandlePic( x + columnPos, y + ( ( listPtr->elementHeight - height ) / 2.0f ),
-                  width, height, optionalImage );
-            }
-            else if( text[ 0 ] )
-            {
-              int alignOffset = 0.0f, tw;
-
-              tw = UI_Text_Width( text, item->textscale, 0 );
-
-              // Shorten the string if it's too long
-
-              while( tw > width && strlen( text ) > 0 )
-              {
-                text[ strlen( text ) - 1 ] = '\0';
-                tw = UI_Text_Width( text, item->textscale, 0 );
-              }
-
-              switch( listPtr->columnInfo[ j ].align )
-              {
-                case ALIGN_LEFT:
-                  alignOffset = 0.0f;
-                  break;
-
-                case ALIGN_RIGHT:
-                  alignOffset = width - tw;
-                  break;
-
-                case ALIGN_CENTER:
-                  alignOffset = ( width / 2.0f ) - ( tw / 2.0f );
-                  break;
-
-                default:
-                  alignOffset = 0.0f;
-              }
-
-              UI_Text_Paint( x + columnPos + alignOffset,
-                  y + m + ( ( listPtr->elementHeight - m ) / 2.0f ),
-                  item->textscale, item->window.foreColor, text, 0,
-                  0, item->textStyle );
-            }
-          }
-        }
-        else
-        {
-          float offset;
-
-          if( menu->window.aspectBias != ASPECT_NONE || item->window.aspectBias != ASPECT_NONE )
-            offset = 4.0f * DC->aspectScale;
-          else
-            offset = 4.0f;
-
-          Q_strncpyz( text, DC->feederItemText( item->feederID, i, 0, &optionalImage ), sizeof( text ) );
-
-          if( optionalImage >= 0 )
-            DC->drawHandlePic( x + offset, y, listPtr->elementHeight, listPtr->elementHeight, optionalImage );
-          else if( text[ 0 ] )
-          {
-            UI_Text_Paint( x + offset, y + m + ( ( listPtr->elementHeight - m ) / 2.0f ),
-                item->textscale, item->window.foreColor, text, 0,
-                0, item->textStyle );
-          }
-        }
-
-        if( i == item->cursorPos )
-        {
-          DC->fillRect( x, y, item->window.rect.w - SCROLLBAR_WIDTH - ( two * item->window.borderSize ),
-              listPtr->elementHeight, item->window.outlineColor );
-        }
-
-        listPtr->endPos++;
-        size -= listPtr->elementHeight;
-
-        if( size < listPtr->elementHeight )
-        {
-          listPtr->drawPadding = listPtr->elementHeight - size;
-          break;
-        }
-
-        y += listPtr->elementHeight;
-        // fit++;
+        UI_Text_Paint( x + offset, y + m + ( ( listPtr->elementHeight - m ) / 2.0f ),
+            item->textscale, item->window.foreColor, text, 0,
+            0, item->textStyle );
       }
+
+      UI_ClearClipRegion( );
+    }
+
+    if( highlight && row == item->cursorPos )
+      DC->fillRect( x, y, w, listPtr->elementHeight, item->window.outlineColor );
+  }
+}
+
+void Item_ListBox_Paint( itemDef_t *item )
+{
+  float         size;
+  int           i;
+  listBoxDef_t  *listPtr = item->typeData.list;
+  int           count = DC->feederCount( item->feederID );
+  qboolean      scrollbar = !listPtr->noscrollbar &&
+                            count > Item_ListBox_NumItemsForItemHeight( item );
+
+  if( scrollbar )
+  {
+    float x = SCROLLBAR_SLIDER_X( item );
+    float y = SCROLLBAR_Y( item );
+    float thumbY = Item_ListBox_ThumbDrawPosition( item );
+
+    // Up arrow
+    DC->drawHandlePic( x, y, SCROLLBAR_ARROW_WIDTH, SCROLLBAR_ARROW_HEIGHT, DC->Assets.scrollBarArrowUp );
+    y = SCROLLBAR_SLIDER_Y( item );
+
+    // Scroll bar
+    size = SCROLLBAR_SLIDER_HEIGHT( item );
+    DC->drawHandlePic( x, y, SCROLLBAR_ARROW_WIDTH, size, DC->Assets.scrollBar );
+    y = SCROLLBAR_SLIDER_Y( item ) + size;
+
+    // Down arrow
+    DC->drawHandlePic( x, y, SCROLLBAR_ARROW_WIDTH, SCROLLBAR_ARROW_HEIGHT, DC->Assets.scrollBarArrowDown );
+
+    // Thumb
+    DC->drawHandlePic( x, thumbY, SCROLLBAR_ARROW_WIDTH, SCROLLBAR_ARROW_HEIGHT, DC->Assets.scrollBarThumb );
+  }
+
+  // Paint rows
+  for( i = listPtr->startPos; i < listPtr->endPos; i++ )
+    Item_ListBoxRow_Paint( item, i, i - listPtr->startPos, qtrue, scrollbar );
+}
+
+void Item_Paint( itemDef_t *item );
+
+void Item_ComboBox_Paint( itemDef_t *item )
+{
+  float x, y, h;
+
+  x = SCROLLBAR_SLIDER_X( item );
+  y = SCROLLBAR_Y( item );
+  h = item->window.rect.h - 2.0f;
+
+  // Down arrow
+  DC->drawHandlePic( x, y, SCROLLBAR_ARROW_WIDTH, h, DC->Assets.scrollBarArrowDown );
+
+  Item_ListBoxRow_Paint( item, item->cursorPos, 0, qfalse, qtrue );
+
+  if( g_comboBoxItem != NULL )
+  {
+    qboolean cast = Item_ComboBox_MaybeCastToListBox( item );
+    Item_Paint( item );
+    Item_ComboBox_MaybeUnCastFromListBox( item, cast );
+  }
+}
+
+void Item_ListBox_Update( itemDef_t *item )
+{
+  listBoxDef_t  *listPtr = item->typeData.list;
+  int           feederCount = DC->feederCount( item->feederID );
+
+  if( listPtr->lastFeederCount != feederCount )
+  {
+    if( listPtr->resetonfeederchange )
+    {
+      item->cursorPos = DC->feederInitialise( item->feederID );
+      Item_ListBox_SetStartPos( item, 0 );
+      DC->feederSelection( item->feederID, item->cursorPos );
+    }
+    else
+    {
+      // Make sure endPos is up-to-date
+      Item_ListBox_SetStartPos( item, listPtr->startPos );
+
+      // If the selection is off the end now, select the last element
+      if( item->cursorPos >= feederCount )
+        item->cursorPos = feederCount - 1;
     }
   }
 
-  // FIXME: hacky fix to off-by-one bug
-  listPtr->endPos--;
+  listPtr->lastFeederCount = feederCount;
 }
 
 void Item_OwnerDraw_Paint( itemDef_t *item )
@@ -5892,6 +5689,15 @@ void Item_OwnerDraw_Paint( itemDef_t *item )
   }
 }
 
+
+void Item_Update( itemDef_t *item )
+{
+  if( item == NULL )
+    return;
+
+  if( Item_IsListBox( item ) )
+    Item_ListBox_Update( item );
+}
 
 void Item_Paint( itemDef_t *item )
 {
@@ -6067,7 +5873,7 @@ void Item_Paint( itemDef_t *item )
   if( !( item->window.flags & WINDOW_VISIBLE ) )
     return;
 
-  Window_Paint( &item->window, parent->fadeAmount , parent->fadeClamp, parent->fadeCycle );
+  Window_Paint( &item->window, parent->fadeAmount, parent->fadeClamp, parent->fadeCycle );
 
   if( DC->getCVarValue( "ui_developer" ) )
   {
@@ -6095,17 +5901,17 @@ void Item_Paint( itemDef_t *item )
     case ITEM_TYPE_CHECKBOX:
       break;
 
-    case ITEM_TYPE_COMBO:
-      Item_Combobox_Paint( item );
+    case ITEM_TYPE_CYCLE:
+      Item_Cycle_Paint( item );
       break;
 
     case ITEM_TYPE_LISTBOX:
       Item_ListBox_Paint( item );
       break;
 
-    //case ITEM_TYPE_IMAGE:
-    //  Item_Image_Paint(item);
-    //  break;
+    case ITEM_TYPE_COMBOBOX:
+      Item_ComboBox_Paint( item );
+      break;
 
     case ITEM_TYPE_MODEL:
       Item_Model_Paint( item );
@@ -6185,9 +5991,14 @@ void Menu_ScrollFeeder( menuDef_t *menu, int feeder, qboolean down )
 
     for( i = 0; i < menu->itemCount; i++ )
     {
-      if( menu->items[i]->feederID == feeder )
+      itemDef_t *item = menu->items[ i ];
+
+      if( item->feederID == feeder )
       {
-        Item_ListBox_HandleKey( menu->items[i], ( down ) ? K_DOWNARROW : K_UPARROW, qtrue, qtrue );
+        qboolean cast = Item_ComboBox_MaybeCastToListBox( item );
+        Item_ListBox_HandleKey( item, down ? K_DOWNARROW : K_UPARROW, qtrue, qtrue );
+        Item_ComboBox_MaybeUnCastFromListBox( item, cast );
+
         return;
       }
     }
@@ -6214,10 +6025,10 @@ void Menu_SetFeederSelection( menuDef_t *menu, int feeder, int index, const char
     {
       if( menu->items[i]->feederID == feeder )
       {
-        if( menu->items[i]->type == ITEM_TYPE_LISTBOX && index == 0 )
+        if( Item_IsListBox( menu->items[i] ) && index == 0 )
         {
           menu->items[ i ]->typeData.list->cursorPos = 0;
-          menu->items[ i ]->typeData.list->startPos = 0;
+          Item_ListBox_SetStartPos( menu->items[ i ], 0 );
         }
 
         menu->items[i]->cursorPos = index;
@@ -6297,12 +6108,41 @@ void Item_Init( itemDef_t *item )
   item->window.aspectBias = ASPECT_NONE;
 }
 
+static qboolean Item_HandleMouseMove( itemDef_t *item, float x, float y, int pass, qboolean focusSet )
+{
+  if( Rect_ContainsPoint( &item->window.rect, x, y ) )
+  {
+    if( pass == 1 )
+    {
+      if( item->type == ITEM_TYPE_TEXT && item->text )
+      {
+        if( !Rect_ContainsPoint( Item_CorrectedTextRect( item ), x, y ) )
+          return qtrue;
+      }
+
+      // if we are over an item
+      if( IsVisible( item->window.flags ) )
+      {
+        // different one
+        Item_MouseEnter( item, x, y );
+
+        if( !focusSet )
+          focusSet = Item_SetFocus( item, x, y );
+      }
+    }
+
+    return qtrue;
+  }
+
+  return qfalse;
+}
+
 void Menu_HandleMouseMove( menuDef_t *menu, float x, float y )
 {
   int i, pass;
   qboolean focusSet = qfalse;
-
-  itemDef_t *overItem;
+  qboolean result;
+  qboolean cast;
 
   if( menu == NULL )
     return;
@@ -6319,63 +6159,58 @@ void Menu_HandleMouseMove( menuDef_t *menu, float x, float y )
   if( g_waitingForKey || g_editingField )
     return;
 
+  if( g_comboBoxItem != NULL )
+  {
+    Item_SetFocus( g_comboBoxItem, x, y );
+    focusSet = qtrue;
+  }
+
   // FIXME: this is the whole issue of focus vs. mouse over..
   // need a better overall solution as i don't like going through everything twice
   for( pass = 0; pass < 2; pass++ )
   {
     for( i = 0; i < menu->itemCount; i++ )
     {
+      itemDef_t *item = menu->items[ i ];
+
       // turn off focus each item
       // menu->items[i].window.flags &= ~WINDOW_HASFOCUS;
 
-      if( !( menu->items[i]->window.flags & ( WINDOW_VISIBLE | WINDOW_FORCED ) ) )
+      if( !( item->window.flags & ( WINDOW_VISIBLE | WINDOW_FORCED ) ) )
         continue;
 
       // items can be enabled and disabled based on cvars
-      if( menu->items[i]->cvarFlags & ( CVAR_ENABLE | CVAR_DISABLE ) &&
-          !Item_EnableShowViaCvar( menu->items[i], CVAR_ENABLE ) )
+      if( item->cvarFlags & ( CVAR_ENABLE | CVAR_DISABLE ) &&
+          !Item_EnableShowViaCvar( item, CVAR_ENABLE ) )
         continue;
 
-      if( menu->items[i]->cvarFlags & ( CVAR_SHOW | CVAR_HIDE ) &&
-          !Item_EnableShowViaCvar( menu->items[i], CVAR_SHOW ) )
+      if( item->cvarFlags & ( CVAR_SHOW | CVAR_HIDE ) &&
+          !Item_EnableShowViaCvar( item, CVAR_SHOW ) )
         continue;
 
+      cast = Item_ComboBox_MaybeCastToListBox( item );
+      result = Item_HandleMouseMove( item, x, y, pass, focusSet );
+      Item_ComboBox_MaybeUnCastFromListBox( item, cast );
 
-
-      if( Rect_ContainsPoint( &menu->items[i]->window.rect, x, y ) )
+      if( !result && item->window.flags & WINDOW_MOUSEOVER )
       {
-        if( pass == 1 )
-        {
-          overItem = menu->items[i];
-
-          if( overItem->type == ITEM_TYPE_TEXT && overItem->text )
-          {
-            if( !Rect_ContainsPoint( Item_CorrectedTextRect( overItem ), x, y ) )
-              continue;
-          }
-
-          // if we are over an item
-          if( IsVisible( overItem->window.flags ) )
-          {
-            // different one
-            Item_MouseEnter( overItem, x, y );
-            // Item_SetMouseOver(overItem, qtrue);
-
-            // if item is not a decoration see if it can take focus
-
-            if( !focusSet )
-              focusSet = Item_SetFocus( overItem, x, y );
-          }
-        }
-      }
-      else if( menu->items[i]->window.flags & WINDOW_MOUSEOVER )
-      {
-        Item_MouseLeave( menu->items[i] );
-        Item_SetMouseOver( menu->items[i], qfalse );
+        Item_MouseLeave( item );
+        Item_SetMouseOver( item, qfalse );
       }
     }
   }
 
+}
+
+void Menu_Update( menuDef_t *menu )
+{
+  int i;
+
+  if( menu == NULL )
+    return;
+
+  for( i = 0; i < menu->itemCount; i++ )
+    Item_Update( menu->items[ i ] );
 }
 
 void Menu_Paint( menuDef_t *menu, qboolean forcePaint )
@@ -6385,7 +6220,7 @@ void Menu_Paint( menuDef_t *menu, qboolean forcePaint )
   if( menu == NULL )
     return;
 
-  if( !( menu->window.flags & WINDOW_VISIBLE ) &&  !forcePaint )
+  if( !( menu->window.flags & WINDOW_VISIBLE ) && !forcePaint )
     return;
 
   if( menu->window.ownerDrawFlags && DC->ownerDrawVisible && !DC->ownerDrawVisible( menu->window.ownerDrawFlags ) )
@@ -6501,9 +6336,10 @@ itemDataType_t Item_DataType( itemDef_t *item )
       return TYPE_NONE;
 
     case ITEM_TYPE_LISTBOX:
+    case ITEM_TYPE_COMBOBOX:
       return TYPE_LIST;
 
-    case ITEM_TYPE_COMBO:
+    case ITEM_TYPE_CYCLE:
       return TYPE_COMBO;
 
     case ITEM_TYPE_EDITFIELD:
@@ -6535,6 +6371,24 @@ static ID_INLINE qboolean Item_IsEditField( itemDef_t *item )
     case ITEM_TYPE_EDITFIELD:
     case ITEM_TYPE_NUMERICFIELD:
     case ITEM_TYPE_SAYFIELD:
+      return qtrue;
+
+    default:
+      return qfalse;
+  }
+}
+
+/*
+===============
+Item_IsListBox
+===============
+*/
+static ID_INLINE qboolean Item_IsListBox( itemDef_t *item )
+{
+  switch( item->type )
+  {
+    case ITEM_TYPE_LISTBOX:
+    case ITEM_TYPE_COMBOBOX:
       return qtrue;
 
     default:
@@ -6693,6 +6547,13 @@ qboolean ItemParse_noscrollbar( itemDef_t *item, int handle )
   return qtrue;
 }
 
+// resetonfeederchange
+qboolean ItemParse_resetonfeederchange( itemDef_t *item, int handle )
+{
+  item->typeData.list->resetonfeederchange = qtrue;
+  return qtrue;
+}
+
 // auto wrapped
 qboolean ItemParse_wrapped( itemDef_t *item, int handle )
 {
@@ -6700,13 +6561,6 @@ qboolean ItemParse_wrapped( itemDef_t *item, int handle )
   return qtrue;
 }
 
-
-// horizontalscroll
-qboolean ItemParse_horizontalscroll( itemDef_t *item, int handle )
-{
-  item->window.flags |= WINDOW_HORIZONTAL;
-  return qtrue;
-}
 
 // type <integer>
 qboolean ItemParse_type( itemDef_t *item, int handle )
@@ -6730,13 +6584,14 @@ qboolean ItemParse_type( itemDef_t *item, int handle )
   switch( item->type )
   {
     case ITEM_TYPE_LISTBOX:
+    case ITEM_TYPE_COMBOBOX:
       item->typeData.list = UI_Alloc( sizeof( listBoxDef_t ) );
       memset( item->typeData.list, 0, sizeof( listBoxDef_t ) );
       break;
 
-    case ITEM_TYPE_COMBO:
-      item->typeData.combo = UI_Alloc( sizeof( comboBoxDef_t ) );
-      memset( item->typeData.combo, 0, sizeof( comboBoxDef_t ) );
+    case ITEM_TYPE_CYCLE:
+      item->typeData.cycle = UI_Alloc( sizeof( cycleDef_t ) );
+      memset( item->typeData.cycle, 0, sizeof( cycleDef_t ) );
       break;
 
     case ITEM_TYPE_EDITFIELD:
@@ -6771,17 +6626,21 @@ qboolean ItemParse_type( itemDef_t *item, int handle )
 }
 
 // elementwidth, used for listbox image elements
-// uses textalignx for storage
 qboolean ItemParse_elementwidth( itemDef_t *item, int handle )
 {
   return PC_Float_Parse( handle, &item->typeData.list->elementWidth );
 }
 
 // elementheight, used for listbox image elements
-// uses textaligny for storage
 qboolean ItemParse_elementheight( itemDef_t *item, int handle )
 {
   return PC_Float_Parse( handle, &item->typeData.list->elementHeight );
+}
+
+// dropitems, number of items to drop from a combobox
+qboolean ItemParse_dropitems( itemDef_t *item, int handle )
+{
+  return PC_Int_Parse( handle, &item->typeData.list->dropItems );
 }
 
 // feeder <int>
@@ -7353,10 +7212,11 @@ keywordHash_t itemParseKeywords[] = {
   {"decoration", ItemParse_decoration, TYPE_ANY},
   {"notselectable", ItemParse_notselectable, TYPE_LIST},
   {"noscrollbar", ItemParse_noscrollbar, TYPE_LIST},
+  {"resetonfeederchange", ItemParse_resetonfeederchange, TYPE_LIST},
   {"wrapped", ItemParse_wrapped, TYPE_ANY},
-  {"horizontalscroll", ItemParse_horizontalscroll, TYPE_ANY},
   {"elementwidth", ItemParse_elementwidth, TYPE_LIST},
   {"elementheight", ItemParse_elementheight, TYPE_LIST},
+  {"dropitems", ItemParse_dropitems, TYPE_LIST},
   {"feeder", ItemParse_feeder, TYPE_ANY},
   {"elementtype", ItemParse_elementtype, TYPE_LIST},
   {"columns", ItemParse_columns, TYPE_LIST},
@@ -7493,15 +7353,14 @@ void Item_InitControls( itemDef_t *item )
   if( item == NULL )
     return;
 
-  if( item->type == ITEM_TYPE_LISTBOX )
+  if( Item_IsListBox( item ) )
   {
     item->cursorPos = 0;
 
     if( item->typeData.list )
     {
       item->typeData.list->cursorPos = 0;
-      item->typeData.list->startPos = 0;
-      item->typeData.list->endPos = 0;
+      Item_ListBox_SetStartPos( item, 0 );
       item->typeData.list->cursorPos = 0;
     }
   }
@@ -7994,6 +7853,14 @@ int Menu_Count( void )
   return menuCount;
 }
 
+void Menu_UpdateAll( void )
+{
+  int i;
+
+  for( i = 0; i < openMenuCount; i++ )
+    Menu_Update( menuStack[ i ] );
+}
+
 void Menu_PaintAll( void )
 {
   int i;
@@ -8012,7 +7879,7 @@ void Menu_PaintAll( void )
   }
 
   for( i = 0; i < openMenuCount; i++ )
-    Menu_Paint( menuStack[i], qfalse );
+    Menu_Paint( menuStack[ i ], qfalse );
 
   if( DC->getCVarValue( "ui_developer" ) )
   {

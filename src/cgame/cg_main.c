@@ -1349,7 +1349,7 @@ static qboolean CG_OwnerDrawHandleKey( int ownerDraw, int key )
 }
 
 
-static int CG_FeederCount( float feederID )
+static int CG_FeederCount( int feederID )
 {
   int i, count = 0;
 
@@ -1442,7 +1442,7 @@ static qboolean CG_ClientIsReady( int clientNum )
   return Com_ClientListContains( &ready, clientNum );
 }
 
-static const char *CG_FeederItemText( float feederID, int index, int column, qhandle_t *handle )
+static const char *CG_FeederItemText( int feederID, int index, int column, qhandle_t *handle )
 {
   int           scoreIndex = 0;
   clientInfo_t  *info = NULL;
@@ -1530,12 +1530,12 @@ static const char *CG_FeederItemText( float feederID, int index, int column, qha
   return "";
 }
 
-static qhandle_t CG_FeederItemImage( float feederID, int index )
+static qhandle_t CG_FeederItemImage( int feederID, int index )
 {
   return 0;
 }
 
-static void CG_FeederSelection( float feederID, int index )
+static void CG_FeederSelection( int feederID, int index )
 {
   int i, count;
   int team = ( feederID == FEEDER_ALIENTEAM_LIST ) ? TEAM_ALIENS : TEAM_HUMANS;

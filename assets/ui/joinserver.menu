@@ -206,7 +206,8 @@
       rect (TOP_X+(2*TOPBUTT_W)) (TOP_Y+TOPBUTT_H) (TOPBUTT_W) (TOPBUTT_H)
       textalign ALIGN_LEFT
       textvalign VALIGN_CENTER
-      forecolor     1   1   1   1
+      textalignx TOP_TOFF_X
+      forecolor 1 1 1 1
       visible MENU_TRUE
       decoration
     }

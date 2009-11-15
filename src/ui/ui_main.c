@@ -235,10 +235,14 @@ void AssetCache( void )
 
 void UI_DrawSides( float x, float y, float w, float h, float size )
 {
+  float sizeY;
+
   UI_AdjustFrom640( &x, &y, &w, &h );
+  sizeY = size * uiInfo.uiDC.yscale;
   size *= uiInfo.uiDC.xscale;
-  trap_R_DrawStretchPic( x, y, size, h, 0, 0, 0, 0, uiInfo.uiDC.whiteShader );
-  trap_R_DrawStretchPic( x + w - size, y, size, h, 0, 0, 0, 0, uiInfo.uiDC.whiteShader );
+
+  trap_R_DrawStretchPic( x, y + sizeY, size, h - ( sizeY * 2.0f ), 0, 0, 0, 0, uiInfo.uiDC.whiteShader );
+  trap_R_DrawStretchPic( x + w - size, y + sizeY, size, h - ( sizeY * 2.0f ), 0, 0, 0, 0, uiInfo.uiDC.whiteShader );
 }
 
 void UI_DrawTopBottom( float x, float y, float w, float h, float size )
@@ -633,7 +637,7 @@ static char *stristr( char *str, char *charset )
 UI_BuildFindPlayerList
 ==================
 */
-static void UI_FeederSelection( float feederID, int index );
+static void UI_FeederSelection( int feederID, int index );
 
 static void UI_BuildFindPlayerList( qboolean force )
 {
@@ -1172,15 +1176,11 @@ void UI_Refresh( int realtime )
 
   if( Menu_Count() > 0 )
   {
-    // paint all the menus
-    Menu_PaintAll();
-    // refresh server browser list
-    UI_DoServerRefresh();
-    // refresh server status
+    Menu_UpdateAll( );
+    Menu_PaintAll( );
+    UI_DoServerRefresh( );
     UI_BuildServerStatus( qfalse );
-    // refresh find player list
     UI_BuildFindPlayerList( qfalse );
-    // refresh news
     UI_UpdateNews( qfalse );
   }
 
@@ -3416,12 +3416,14 @@ static void UI_RunMenuScript( char **args )
   }
 }
 
+static int UI_FeederInitialise( int feederID );
+
 /*
 ==================
 UI_FeederCount
 ==================
 */
-static int UI_FeederCount( float feederID )
+static int UI_FeederCount( int feederID )
 {
   if( feederID == FEEDER_CINEMATICS )
     return uiInfo.movieCount;
@@ -3480,7 +3482,12 @@ static int UI_FeederCount( float feederID )
   else if( feederID == FEEDER_TREMHUMANBUILD )
     return uiInfo.humanBuildCount;
   else if( feederID == FEEDER_RESOLUTIONS )
-    return uiInfo.numResolutions;
+  {
+    if( UI_FeederInitialise( feederID ) == uiInfo.numResolutions )
+      return uiInfo.numResolutions + 1;
+    else
+      return uiInfo.numResolutions;
+  }
 
   return 0;
 }
@@ -3505,16 +3512,39 @@ static const char *UI_SelectedMap( int index, int *actual )
   return "";
 }
 
-static const char *UI_FeederItemText( float feederID, int index, int column, qhandle_t *handle )
+static int GCD( int a, int b )
 {
-  static char info[MAX_STRING_CHARS];
-  static char hostname[1024];
-  static char cleaned[1024];
-  static char clientBuff[32];
-  static char resolution[MAX_STRING_CHARS];
-  static int lastColumn = -1;
-  static int lastTime = 0;
+  int c;
 
+  while( b != 0 )
+  {
+    c = a % b;
+    a = b;
+    b = c;
+  }
+
+  return a;
+}
+
+static const char *UI_DisplayAspectString( int w, int h )
+{
+  int gcd = GCD( w, h );
+
+  w /= gcd;
+  h /= gcd;
+
+  // For some reason 8:5 is usually referred to as 16:10
+  if( w == 8 && h == 5 )
+  {
+    w = 16;
+    h = 10;
+  }
+
+  return va( "%d:%d", w, h );
+}
+
+static const char *UI_FeederItemText( int feederID, int index, int column, qhandle_t *handle )
+{
   if( handle )
     *handle = -1;
 
@@ -3527,7 +3557,12 @@ static const char *UI_FeederItemText( float feederID, int index, int column, qha
   {
     if( index >= 0 && index < UI_FeederCount( feederID ) )
     {
-      int ping;
+      static char info[MAX_STRING_CHARS];
+      static char clientBuff[ 32 ];
+      static char cleaned[ MAX_STRING_CHARS ];
+      static int  lastColumn = -1;
+      static int  lastTime = 0;
+      int         ping;
 
       if( lastColumn != column || lastTime > uiInfo.uiDC.realTime + 5000 )
       {
@@ -3539,12 +3574,6 @@ static const char *UI_FeederItemText( float feederID, int index, int column, qha
 
       ping = atoi( Info_ValueForKey( info, "ping" ) );
 
-      if( ping == -1 )
-      {
-        // if we ever see a ping that is out of date, do a server refresh
-        // UI_UpdatePendingPings();
-      }
-
       UI_EscapeEmoticons( cleaned, Info_ValueForKey( info, "hostname" ), sizeof( cleaned ) );
 
       switch( column )
@@ -3554,10 +3583,11 @@ static const char *UI_FeederItemText( float feederID, int index, int column, qha
             return Info_ValueForKey( info, "addr" );
           else
           {
+            static char hostname[1024];
+
             if( ui_netSource.integer == AS_LOCAL )
             {
-              Com_sprintf( hostname, sizeof( hostname ), "%s [%s]",
-                           cleaned, 
+              Com_sprintf( hostname, sizeof( hostname ), "%s [%s]", cleaned, 
                            netnames[atoi( Info_ValueForKey( info, "nettype" ) )] );
               return hostname;
             }
@@ -3573,13 +3603,12 @@ static const char *UI_FeederItemText( float feederID, int index, int column, qha
                 label+= 1;
 
                 Com_sprintf( hostname, sizeof( hostname ), "%s %s", 
-                            label,
-                            cleaned );
+                             label, cleaned );
               }
               else
               {
                 Com_sprintf( hostname, sizeof( hostname ), "%s", 
-                            cleaned );
+                             cleaned );
               }
 
               // Strip leading whitespace
@@ -3619,17 +3648,12 @@ static const char *UI_FeederItemText( float feederID, int index, int column, qha
   else if( feederID == FEEDER_NEWS )
   {
     if( index >= 0 && index < uiInfo.newsInfo.numLines )
-    {
       return uiInfo.newsInfo.text[index];
-    }
   }
   else if( feederID == FEEDER_FINDPLAYER )
   {
     if( index >= 0 && index < uiInfo.numFoundPlayerServers )
-    {
-      //return uiInfo.foundPlayerServerAddresses[index];
       return uiInfo.foundPlayerServerNames[index];
-    }
   }
   else if( feederID == FEEDER_PLAYER_LIST )
   {
@@ -3649,13 +3673,13 @@ static const char *UI_FeederItemText( float feederID, int index, int column, qha
       {
         case 1:
           // am I ignoring him
-          return ( Com_ClientListContains( &uiInfo.ignoreList[ uiInfo.myPlayerIndex ],
-                                      uiInfo.clientNums[ index ] ) ) ? "X" : "";
+          return Com_ClientListContains( &uiInfo.ignoreList[ uiInfo.myPlayerIndex ],
+                                         uiInfo.clientNums[ index ] ) ? "X" : "";
 
         case 2:
           // is he ignoring me
-          return ( Com_ClientListContains( &uiInfo.ignoreList[ index ],
-                                      uiInfo.playerNumber ) ) ? "X" : "";
+          return Com_ClientListContains( &uiInfo.ignoreList[ index ],
+                                         uiInfo.playerNumber ) ? "X" : "";
 
         default:
           return uiInfo.playerNames[index];
@@ -3729,20 +3753,24 @@ static const char *UI_FeederItemText( float feederID, int index, int column, qha
   }
   else if( feederID == FEEDER_RESOLUTIONS )
   {
-    int i;
-    int w = trap_Cvar_VariableValue( "r_width" );
-    int h = trap_Cvar_VariableValue( "r_height" );
+    static char resolution[MAX_STRING_CHARS];
+    int w, h;
 
-    for( i = 0; i < uiInfo.numResolutions; i++ )
+    if( index >= 0 && index < uiInfo.numResolutions )
     {
-      if( w == uiInfo.resolutions[ i ].w && h == uiInfo.resolutions[ i ].h )
-      {
-        Com_sprintf( resolution, sizeof( resolution ), "%dx%d", w, h );
-        return resolution;
-      }
+      w = uiInfo.resolutions[ index ].w;
+      h = uiInfo.resolutions[ index ].h;
+
+      Com_sprintf( resolution, sizeof( resolution ), "%dx%d (%s)", w, h,
+          UI_DisplayAspectString( w, h ) );
+
+      return resolution;
     }
 
+    w = (int)trap_Cvar_VariableValue( "r_width" );
+    h = (int)trap_Cvar_VariableValue( "r_height" );
     Com_sprintf( resolution, sizeof( resolution ), "Custom (%dx%d)", w, h );
+
     return resolution;
   }
 
@@ -3750,7 +3778,7 @@ static const char *UI_FeederItemText( float feederID, int index, int column, qha
 }
 
 
-static qhandle_t UI_FeederItemImage( float feederID, int index )
+static qhandle_t UI_FeederItemImage( int feederID, int index )
 {
   if( feederID == FEEDER_MAPS )
   {
@@ -3770,7 +3798,7 @@ static qhandle_t UI_FeederItemImage( float feederID, int index )
   return 0;
 }
 
-static void UI_FeederSelection( float feederID, int index )
+static void UI_FeederSelection( int feederID, int index )
 {
   static char info[MAX_STRING_CHARS];
 
@@ -3874,12 +3902,17 @@ static void UI_FeederSelection( float feederID, int index )
     uiInfo.humanBuildIndex = index;
   else if( feederID == FEEDER_RESOLUTIONS )
   {
-    trap_Cvar_Set( "r_width", va( "%d", uiInfo.resolutions[ index ].w ) );
-    trap_Cvar_Set( "r_height", va( "%d", uiInfo.resolutions[ index ].h ) );
+    if( index >= 0 && index < uiInfo.numResolutions )
+    {
+      trap_Cvar_Set( "r_width", va( "%d", uiInfo.resolutions[ index ].w ) );
+      trap_Cvar_Set( "r_height", va( "%d", uiInfo.resolutions[ index ].h ) );
+    }
+
+    uiInfo.resolutionIndex = index;
   }
 }
 
-static int UI_FeederInitialise( float feederID )
+static int UI_FeederInitialise( int feederID )
 {
   if( feederID == FEEDER_RESOLUTIONS )
   {
@@ -3892,6 +3925,8 @@ static int UI_FeederInitialise( float feederID )
       if( w == uiInfo.resolutions[ i ].w && h == uiInfo.resolutions[ i ].h )
         return i;
     }
+
+    return uiInfo.numResolutions;
   }
 
   return 0;
@@ -4605,7 +4640,8 @@ void UI_UpdateNews( qboolean begin )
   trap_Cvar_VariableStringBuffer( "cl_newsString", newsString, 
     sizeof( newsString ) );
 
-  wrapped = Item_Text_Wrap( newsString, .25, 325 * uiInfo.uiDC.aspectScale );
+  // FIXME remove magic width constant
+  wrapped = Item_Text_Wrap( newsString, 0.25f, 325 * uiInfo.uiDC.aspectScale );
 
   for( c = wrapped; *c != '\0'; ++c ) {
     if( linePos == (MAX_NEWS_LINEWIDTH - 1) || *c == '\n' ) {
@@ -4632,6 +4668,5 @@ void UI_UpdateNews( qboolean begin )
 
   if( finished )
     uiInfo.newsInfo.refreshActive = qfalse;
-
 }
 

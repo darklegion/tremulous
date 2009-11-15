@@ -72,12 +72,11 @@
       backcolor     0.2 0.2 0.2 1
       outlinecolor  0.1 0.1 0.1 0.5
       visible MENU_TRUE
+      resetonfeederchange
       doubleclick
       {
         play "sound/misc/menu1.wav";
         uiScript BuyFromArmoury;
-        reset selllist;
-        reset buylist;
       }
     }
 
@@ -98,12 +97,11 @@
       backcolor     0.2 0.2 0.2 1
       outlinecolor  0.1 0.1 0.1 0.5
       visible MENU_TRUE
+      resetonfeederchange
       doubleclick
       {
         play "sound/misc/menu1.wav";
         uiScript SellToArmoury;
-        reset selllist;
-        reset buylist;
       }
     }
 
@@ -145,8 +143,6 @@
       {
         play "sound/misc/menu1.wav";
         uiScript BuyFromArmoury;
-        reset selllist;
-        reset buylist;
       }
     }
 
@@ -187,8 +183,6 @@
       {
         play "sound/misc/menu1.wav";
         uiScript SellToArmoury;
-        reset selllist;
-        reset buylist;
       }
     }
   }
