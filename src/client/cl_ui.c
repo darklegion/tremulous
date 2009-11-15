@@ -119,13 +119,13 @@ qboolean GetNews( qboolean begin )
 	}
 	if( !finished ) 
 		strcpy( clc.newsString, "Retrieving..." );
+	Cvar_Set( "cl_newsString", clc.newsString );
+	return finished;
 #else
 	Cvar_Set( "cl_newsString", 
 		"^1You must compile your client with CURL support to use this feature" );
 	return qtrue;
 #endif
-	Cvar_Set( "cl_newsString", clc.newsString );
-	return finished;
 }
 
 /*
