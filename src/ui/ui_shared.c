@@ -1238,25 +1238,10 @@ void Menu_AspectCompensate( menuDef_t *menu )
   }
 }
 
-static int Menu_CompareItemTypes( const void *a, const void *b )
-{
-  itemDef_t *itemA = *(itemDef_t **)a;
-  itemDef_t *itemB = *(itemDef_t **)b;
-  qboolean  itemAIsList = Item_IsListBox( itemA );
-  qboolean  itemBIsList = Item_IsListBox( itemB );
-
-  if( itemAIsList && itemBIsList )
-    return 0;
-  else if( itemAIsList )
-    return 1;
-  else if( itemBIsList )
-    return -1;
-  else
-    return 0;
-}
-
 void Menu_PostParse( menuDef_t *menu )
 {
+  int i, j;
+
   if( menu == NULL )
     return;
 
@@ -1271,10 +1256,20 @@ void Menu_PostParse( menuDef_t *menu )
   Menu_AspectCompensate( menu );
   Menu_UpdatePosition( menu );
 
-  // Sort lists to the end of the array as they can potentially be drawn on top
+  // Push lists to the end of the array as they can potentially be drawn on top
   // of other elements
-  if( menu->itemCount > 1 )
-    qsort( menu->items, menu->itemCount, sizeof( itemDef_t* ), Menu_CompareItemTypes );
+  for( i = 0; i < menu->itemCount; i++ )
+  {
+    itemDef_t *item = menu->items[ i ];
+
+    if( Item_IsListBox( item ) )
+    {
+      for( j = i; j < menu->itemCount - 1; j++ )
+        menu->items[ j ] = menu->items[ j + 1 ];
+
+      menu->items[ j ] = item;
+    }
+  }
 }
 
 itemDef_t *Menu_ClearFocus( menuDef_t *menu )
