@@ -23,6 +23,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "q_shared.h"
 #include "qcommon.h"
 
+#define	OPSTACK_SIZE	256
+#define	OPSTACK_MASK	(OPSTACK_SIZE-1)
+
+// don't change
+// Hardcoded in q3asm an reserved at end of bss
+#define	PROGRAM_STACK_SIZE	0x10000
+#define	PROGRAM_STACK_MASK	(PROGRAM_STACK_SIZE-1)
+
 typedef enum {
 	OP_UNDEF, 
 
@@ -147,7 +155,7 @@ struct vm_s {
 	int			codeLength;
 
 	int			*instructionPointers;
-	int			instructionPointersLength;
+	int			instructionCount;
 
 	byte		*dataBase;
 	int			dataMask;
@@ -181,4 +189,3 @@ vmSymbol_t *VM_ValueToFunctionSymbol( vm_t *vm, int value );
 int VM_SymbolToValue( vm_t *vm, const char *symbol );
 const char *VM_ValueToSymbol( vm_t *vm, int value );
 void VM_LogSyscalls( int *args );
-

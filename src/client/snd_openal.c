@@ -581,6 +581,21 @@ static void _S_AL_SanitiseVector( vec3_t v, int line )
 
 /*
 =================
+S_AL_Gain
+Set gain to 0 if muted, otherwise set it to given value.
+=================
+*/
+
+static void S_AL_Gain(ALuint source, float gainval)
+{
+	if(s_muted->integer)
+		qalSourcef(source, AL_GAIN, 0.0f);
+	else
+		qalSourcef(source, AL_GAIN, gainval);
+}
+
+/*
+=================
 S_AL_ScaleGain
 Adapt the gain if necessary to get a quicker fadeout when the source is too far away.
 =================
@@ -609,13 +624,13 @@ static void S_AL_ScaleGain(src_t *chksrc, vec3_t origin)
 		if(chksrc->scaleGain != scaleFactor);
 		{
 			chksrc->scaleGain = scaleFactor;
-			qalSourcef(chksrc->alSource, AL_GAIN, chksrc->scaleGain);
+			S_AL_Gain(chksrc->alSource, chksrc->scaleGain);
 		}
 	}
 	else if(chksrc->scaleGain != chksrc->curGain)
 	{
 		chksrc->scaleGain = chksrc->curGain;
-		qalSourcef(chksrc->alSource, AL_GAIN, chksrc->scaleGain);
+		S_AL_Gain(chksrc->alSource, chksrc->scaleGain);
 	}
 }
 
@@ -757,7 +772,7 @@ static void S_AL_SrcSetup(srcHandle_t src, sfxHandle_t sfx, alSrcPriority_t prio
 	// Set up OpenAL source
 	qalSourcei(curSource->alSource, AL_BUFFER, buffer);
 	qalSourcef(curSource->alSource, AL_PITCH, 1.0f);
-	qalSourcef(curSource->alSource, AL_GAIN, curSource->curGain);
+	S_AL_Gain(curSource->alSource, curSource->curGain);
 	qalSourcefv(curSource->alSource, AL_POSITION, vec3_origin);
 	qalSourcefv(curSource->alSource, AL_VELOCITY, vec3_origin);
 	qalSourcei(curSource->alSource, AL_LOOPING, AL_FALSE);
@@ -1615,6 +1630,10 @@ static void S_AL_AllocateStreamChannel( int stream )
 	S_AL_SrcLock(streamSourceHandles[stream]);
 	streamSources[stream] = S_AL_SrcGet(streamSourceHandles[stream]);
 
+	// make sure that after unmuting the S_AL_Gain in S_Update() does not turn
+	// volume up prematurely for this source
+	srcList[streamSourceHandles[stream]].scaleGain = 0.0f;
+
 	// Set some streamSource parameters
 	qalSourcei (streamSources[stream], AL_BUFFER,          0            );
 	qalSourcei (streamSources[stream], AL_LOOPING,         AL_FALSE     );
@@ -1678,7 +1697,7 @@ void S_AL_RawSamples(int stream, int samples, int rate, int width, int channels,
 	qalSourceQueueBuffers(streamSources[stream], 1, &buffer);
 
 	// Volume
-	qalSourcef (streamSources[stream], AL_GAIN, volume * s_volume->value * s_alGain->value);
+	S_AL_Gain (streamSources[stream], volume * s_volume->value * s_alGain->value);
 }
 
 /*
@@ -1791,6 +1810,10 @@ static void S_AL_MusicSourceGet( void )
 	// Lock the musicSource so nobody else can use it, and get the raw musicSource
 	S_AL_SrcLock(musicSourceHandle);
 	musicSource = S_AL_SrcGet(musicSourceHandle);
+
+	// make sure that after unmuting the S_AL_Gain in S_Update() does not turn
+	// volume up prematurely for this source
+	srcList[musicSourceHandle].scaleGain = 0.0f;
 
 	// Set some musicSource parameters
 	qalSource3f(musicSource, AL_POSITION,        0.0, 0.0, 0.0);
@@ -1995,7 +2018,7 @@ void S_AL_StartBackgroundTrack( const char *intro, const char *loop )
 	qalSourceQueueBuffers(musicSource, NUM_MUSIC_BUFFERS, musicBuffers);
 
 	// Set the initial gain property
-	qalSourcef(musicSource, AL_GAIN, s_alGain->value * s_musicVolume->value);
+	S_AL_Gain(musicSource, s_alGain->value * s_musicVolume->value);
 	
 	// Start playing
 	qalSourcePlay(musicSource);
@@ -2038,7 +2061,7 @@ void S_AL_MusicUpdate( void )
 	}
 
 	// Set the gain property
-	qalSourcef(musicSource, AL_GAIN, s_alGain->value * s_musicVolume->value);
+	S_AL_Gain(musicSource, s_alGain->value * s_musicVolume->value);
 }
 
 
@@ -2116,6 +2139,18 @@ static
 void S_AL_Update( void )
 {
 	int i;
+
+	if(s_muted->modified)
+	{
+		// muted state changed. Let S_AL_Gain turn up all sources again.
+		for(i = 0; i < srcCount; i++)
+		{
+			if(srcList[i].isActive)
+				S_AL_Gain(srcList[i].alSource, srcList[i].scaleGain);
+		}
+		
+		s_muted->modified = qfalse;
+	}
 
 	// Update SFX channels
 	S_AL_SrcUpdate();

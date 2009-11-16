@@ -312,13 +312,11 @@ an OP_ENTER instruction, which will subtract space for
 locals from sp
 ==============
 */
-#define	MAX_STACK	256
-#define	STACK_MASK	(MAX_STACK-1)
 
 #define	DEBUGSTR va("%s%i", VM_Indent(vm), opStack-stack )
 
 int	VM_CallInterpreted( vm_t *vm, int *args ) {
-	int		stack[MAX_STACK];
+	int		stack[OPSTACK_SIZE];
 	int		*opStack;
 	int		programCounter;
 	int		programStack;
@@ -393,7 +391,7 @@ nextInstruction2:
 		if ( opStack < stack ) {
 			Com_Error( ERR_DROP, "VM opStack underflow" );
 		}
-		if ( opStack >= stack+MAX_STACK ) {
+		if ( opStack >= stack+OPSTACK_SIZE ) {
 			Com_Error( ERR_DROP, "VM opStack overflow" );
 		}
 
@@ -441,10 +439,10 @@ nextInstruction2:
 				Com_Error( ERR_DROP, "OP_LOAD4 misaligned" );
 			}
 #endif
-			r0 = *opStack = *(int *)&image[ r0&dataMask ];
+			r0 = *opStack = *(int *)&image[ r0&dataMask&~3 ];
 			goto nextInstruction2;
 		case OP_LOAD2:
-			r0 = *opStack = *(unsigned short *)&image[ r0&dataMask ];
+			r0 = *opStack = *(unsigned short *)&image[ r0&dataMask&~1 ];
 			goto nextInstruction2;
 		case OP_LOAD1:
 			r0 = *opStack = image[ r0&dataMask ];
@@ -465,7 +463,7 @@ nextInstruction2:
 
 		case OP_ARG:
 			// single byte offset from programStack
-			*(int *)&image[ codeImage[programCounter] + programStack ] = r0;
+			*(int *)&image[ (codeImage[programCounter] + programStack)&dataMask&~3 ] = r0;
 			opStack--;
 			programCounter += 1;
 			goto nextInstruction;
@@ -549,7 +547,7 @@ nextInstruction2:
 					Com_Printf( "%s<--- %s\n", DEBUGSTR, VM_ValueToSymbol( vm, programCounter ) );
 				}
 #endif
-			} else if ( (unsigned)programCounter >= vm->codeLength ) {
+			} else if ( (unsigned)programCounter >= vm->instructionCount ) {
 				Com_Error( ERR_DROP, "VM program counter out of range in OP_CALL" );
 			} else {
 				programCounter = vm->instructionPointers[ programCounter ];
@@ -618,8 +616,11 @@ nextInstruction2:
 		*/
 
 		case OP_JUMP:
-			programCounter = r0;
-			programCounter = vm->instructionPointers[ programCounter ];
+			if ( (unsigned)r0 >= vm->instructionCount )
+				Com_Error( ERR_DROP, "VM program counter out of range in OP_JUMP" );
+
+			programCounter = vm->instructionPointers[ r0 ];
+
 			opStack--;
 			goto nextInstruction;
 

@@ -73,6 +73,7 @@ static const SDL_VideoInfo *videoInfo = NULL;
 
 cvar_t *r_allowSoftwareGL; // Don't abort out if a hardware visual can't be obtained
 cvar_t *r_allowResize; // make window resizable
+cvar_t *r_centerWindow;
 cvar_t *r_sdlDriver;
 
 void (APIENTRYP qglActiveTextureARB) (GLenum texture);
@@ -133,8 +134,9 @@ static int GLimp_CompareModes( const void *a, const void *b )
 	else if( aspectDiffsDiff < -ASPECT_EPSILON )
 		return -1;
 	else
-    return areaA - areaB;
+		return areaA - areaB;
 }
+
 
 /*
 ===============
@@ -193,7 +195,7 @@ static void GLimp_DetectAvailableModes(void)
 GLimp_SetMode
 ===============
 */
-static int GLimp_SetMode( qboolean failSafe, qboolean fullscreen )
+static int GLimp_SetMode( qboolean failSafe, qboolean fullscreen, qboolean noborder )
 {
 	const char*   glstring;
 	int sdlcolorbits;
@@ -267,7 +269,12 @@ static int GLimp_SetMode( qboolean failSafe, qboolean fullscreen )
 		glConfig.isFullscreen = qtrue;
 	}
 	else
+	{
+		if (noborder)
+			flags |= SDL_NOFRAME;
+
 		glConfig.isFullscreen = qfalse;
+	}
 
 	colorbits = r_colorbits->value;
 	if ((!colorbits) || (colorbits >= 32))
@@ -446,7 +453,7 @@ static int GLimp_SetMode( qboolean failSafe, qboolean fullscreen )
 GLimp_StartDriverAndSetMode
 ===============
 */
-static qboolean GLimp_StartDriverAndSetMode( qboolean failSafe, qboolean fullscreen )
+static qboolean GLimp_StartDriverAndSetMode( qboolean failSafe, qboolean fullscreen, qboolean noborder )
 {
 	rserr_t err;
 
@@ -474,7 +481,7 @@ static qboolean GLimp_StartDriverAndSetMode( qboolean failSafe, qboolean fullscr
 		fullscreen = qfalse;
 	}
 
-	err = GLimp_SetMode( failSafe, fullscreen );
+	err = GLimp_SetMode( failSafe, fullscreen, noborder );
 
 	switch ( err )
 	{
@@ -681,21 +688,24 @@ void GLimp_Init( void )
 	r_allowSoftwareGL = ri.Cvar_Get( "r_allowSoftwareGL", "0", CVAR_LATCH );
 	r_sdlDriver = ri.Cvar_Get( "r_sdlDriver", "", CVAR_ROM );
 	r_allowResize = ri.Cvar_Get( "r_allowResize", "0", CVAR_ARCHIVE );
+	r_centerWindow = ri.Cvar_Get( "r_centerWindow", "0", CVAR_ARCHIVE );
+
+	Sys_SetEnv( "SDL_VIDEO_CENTERED", r_centerWindow->integer ? "1" : "" );
 
 	Sys_GLimpInit( );
 
 	// Create the window and set up the context
-	if( GLimp_StartDriverAndSetMode( qfalse, r_fullscreen->integer ) )
+	if( GLimp_StartDriverAndSetMode( qfalse, r_fullscreen->integer, r_noborder->integer ) )
 		goto success;
 
 	// Try again, this time in a platform specific "safe mode"
 	Sys_GLimpSafeInit( );
 
-	if( GLimp_StartDriverAndSetMode( qfalse, r_fullscreen->integer ) )
+	if( GLimp_StartDriverAndSetMode( qfalse, r_fullscreen->integer, qfalse ) )
 		goto success;
 
 	// Finally, try the default screen resolution
-	if( GLimp_StartDriverAndSetMode( qtrue, r_fullscreen->integer ) )
+	if( GLimp_StartDriverAndSetMode( qtrue, r_fullscreen->integer, qfalse ) )
 		goto success;
 
 	// Nothing worked, give up

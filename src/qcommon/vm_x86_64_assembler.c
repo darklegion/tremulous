@@ -68,10 +68,15 @@ static void _crap(const char* func, const char* fmt, ...)
 
 static void emit1(unsigned char v)
 {
+	int writecnt;
+	
 	if(assembler_pass)
 	{
 		out[compiledOfs++] = v;
-		if(fout) fwrite(&v, 1, 1, fout);
+
+		if(fout)
+			writecnt = fwrite(&v, 1, 1, fout);
+			
 		debug("%02hhx ", v);
 	}
 	else
@@ -811,24 +816,34 @@ static void emit_call(const char* mnemonic, arg_t arg1, arg_t arg2, void* data)
 {
 	u8 rex, modrm, sib;
 
-	if(arg1.type != T_REGISTER || arg2.type != T_NONE)
+	if((arg1.type != T_REGISTER && arg1.type != T_IMMEDIATE) || arg2.type != T_NONE)
 		CRAP_INVALID_ARGS;
 
-	if(!arg1.absolute)
-		crap("call must be absolute");
+	if(arg1.type == T_REGISTER)
+	{
+		if(!arg1.absolute)
+			crap("call must be absolute");
 
-	if((arg1.v.reg & R_64) != R_64)
-		crap("register must be 64bit");
+		if((arg1.v.reg & R_64) != R_64)
+			crap("register must be 64bit");
 
-	arg1.v.reg ^= R_64; // no rex required for call
+		arg1.v.reg ^= R_64; // no rex required for call
 
-	compute_rexmodrmsib(&rex, &modrm, &sib, &arg2, &arg1);
+		compute_rexmodrmsib(&rex, &modrm, &sib, &arg2, &arg1);
 
-	modrm |= 0x2 << 3;
+		modrm |= 0x2 << 3;
 
-	if(rex) emit1(rex);
-	emit1(0xff);
-	emit1(modrm);
+		if(rex) emit1(rex);
+		emit1(0xff);
+		emit1(modrm);
+	}
+	else 
+	{
+		if(!isu32(arg1.v.imm))
+			crap("must be 32bit argument");
+		emit1(0xe8);
+		emit4(arg1.v.imm);
+	}
 }
 
 
@@ -875,7 +890,7 @@ static opparam_t params_or = { subcode: 1, rmcode: 0x09, };
 static opparam_t params_and = { subcode: 4, rmcode: 0x21, };
 static opparam_t params_sub = { subcode: 5, rmcode: 0x29, };
 static opparam_t params_xor = { subcode: 6, rmcode: 0x31, };
-static opparam_t params_cmp = { subcode: 6, rmcode: 0x39, mrcode: 0x3b, };
+static opparam_t params_cmp = { subcode: 7, rmcode: 0x39, mrcode: 0x3b, };
 static opparam_t params_dec = { subcode: 1, rcode: 0xff, rcode8: 0xfe, };
 static opparam_t params_sar = { subcode: 7, rcode: 0xd3, rcode8: 0xd2, };
 static opparam_t params_shl = { subcode: 4, rcode: 0xd3, rcode8: 0xd2, };
