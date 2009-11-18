@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
-Copyright (C) 2000-2006 Tim Angus
+Copyright (C) 2000-2009 Darklegion Development
 Copyright (C) 2005 Ludwig Nussel <ludwig.nussel@web.de>
 
 This file is part of Tremulous.

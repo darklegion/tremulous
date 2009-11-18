@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2000-2006 Tim Angus
+Copyright (C) 2000-2009 Darklegion Development
 
 This file is part of Tremulous.
 

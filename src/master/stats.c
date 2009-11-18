@@ -3,7 +3,7 @@ stats.c
 
 Statistics for tremmaster
 
-Copyright (C) 2006 Tim Angus
+Copyright (C) 2009 Darklegion Development
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

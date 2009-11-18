@@ -2,6 +2,8 @@
 ===========================================================================
 vm_x86_64_assembler.c -- assembler for x86-64
 
+Copyright (C) 1999-2005 Id Software, Inc.
+Copyright (C) 2000-2009 Darklegion Development
 Copyright (C) 2007 Ludwig Nussel <ludwig.nussel@suse.de>, Novell inc.
 
 Tremulous is free software; you can redistribute it
