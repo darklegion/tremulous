@@ -511,6 +511,7 @@ void Menus_CloseByName( const char *p );
 void Display_HandleKey( int key, qboolean down, int x, int y );
 void LerpColor( vec4_t a, vec4_t b, vec4_t c, float t );
 void Menus_CloseAll( void );
+void Menu_Update( menuDef_t *menu );
 void Menu_Paint( menuDef_t *menu, qboolean forcePaint );
 void Menu_SetFeederSelection( menuDef_t *menu, int feeder, int index, const char *name );
 void Display_CacheAll( void );

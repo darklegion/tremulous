@@ -1231,7 +1231,10 @@ Draw all the status / pacifier stuff during level loading
 */
 void CG_DrawLoadingScreen( void )
 {
-  Menu_Paint( Menus_FindByName( "Loading" ), qtrue );
+  menuDef_t *menu = Menus_FindByName( "Loading" );
+
+  Menu_Update( menu );
+  Menu_Paint( menu, qtrue );
 }
 
 float CG_GetValue( int ownerDraw )
@@ -3116,6 +3119,7 @@ static qboolean CG_DrawScoreboard( void )
       firstTime = qfalse;
     }
 
+    Menu_Update( menuScoreboard );
     Menu_Paint( menuScoreboard, qtrue );
   }
 
@@ -3129,7 +3133,10 @@ CG_DrawIntermission
 */
 static void CG_DrawIntermission( void )
 {
-  Menu_Paint( Menus_FindByName( "default_hud" ), qtrue );
+  menuDef_t *menu = Menus_FindByName( "default_hud" );
+
+  Menu_Update( menu );
+  Menu_Paint( menu, qtrue );
 
   cg.scoreFadeTime = cg.time;
   cg.scoreBoardShowing = CG_DrawScoreboard( );
@@ -3275,6 +3282,7 @@ static void CG_Draw2D( void )
       CG_Error( "Default HUD could not be found" );
   }
 
+  Menu_Update( menu );
   Menu_Paint( menu, qtrue );
 
   CG_DrawVote( TEAM_NONE );
