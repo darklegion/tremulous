@@ -1262,11 +1262,14 @@ static trailBeam_t *CG_SpawnNewTrailBeam( baseTrailBeam_t *btb,
       if( cg_debugTrails.integer >= 1 )
         CG_Printf( "TB %s created\n", ts->class->name );
 
-      break;
+      return tb;
     }
   }
 
-  return tb;
+  if( cg_debugTrails.integer >= 1 )
+    CG_Printf( "MAX_TRAIL_BEAMS\n" );
+
+  return NULL;
 }
 
 
@@ -1310,11 +1313,14 @@ trailSystem_t *CG_SpawnNewTrailSystem( qhandle_t psHandle )
       if( cg_debugTrails.integer >= 1 )
         CG_Printf( "TS %s created\n", bts->name );
 
-      break;
+      return ts;
     }
   }
 
-  return ts;
+  if( cg_debugTrails.integer >= 1 )
+    CG_Printf( "MAX_TRAIL_SYSTEMS\n" );
+
+  return NULL;
 }
 
 /*
