@@ -166,5 +166,5 @@ echo "
 lipo -create -o $DESTDIR/$APPBUNDLE/Contents/MacOS/$BINARY $BIN_OBJ
 lipo -create -o $DESTDIR/$APPBUNDLE/Contents/MacOS/$DEDBIN $BIN_DEDOBJ
 cp $BASE_OBJ $DESTDIR/$APPBUNDLE/Contents/MacOS/$BASEDIR/
-cp code/libs/macosx/*.dylib $DESTDIR/$APPBUNDLE/Contents/MacOS/
+cp src/libs/macosx/*.dylib $DESTDIR/$APPBUNDLE/Contents/MacOS/
 
