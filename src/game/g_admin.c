@@ -592,31 +592,39 @@ static void admin_readconfig_int( char **cnf, int *v )
 // ones to make new installs easier for admins
 static void admin_default_levels( void )
 {
-  g_admin_level_t *l = g_admin_levels = BG_Alloc( sizeof( g_admin_level_t ) );
+  g_admin_level_t *l;
+  int             level = 0;
+
+  l = g_admin_levels = BG_Alloc( sizeof( g_admin_level_t ) );
+  l->level = level++;
   Q_strncpyz( l->name, "^4Unknown Player", sizeof( l->name ) );
   Q_strncpyz( l->flags,
     "listplayers admintest adminhelp time",
     sizeof( l->flags ) );
 
-  l->next = BG_Alloc( sizeof( g_admin_level_t ) );
+  l = l->next = BG_Alloc( sizeof( g_admin_level_t ) );
+  l->level = level++;
   Q_strncpyz( l->name, "^5Server Regular", sizeof( l->name ) );
   Q_strncpyz( l->flags,
     "listplayers admintest adminhelp time",
     sizeof( l->flags ) );
 
   l = l->next = BG_Alloc( sizeof( g_admin_level_t ) );
+  l->level = level++;
   Q_strncpyz( l->name, "^6Team Manager", sizeof( l->name ) );
   Q_strncpyz( l->flags,
     "listplayers admintest adminhelp time putteam spec999",
     sizeof( l->flags ) );
 
   l = l->next = BG_Alloc( sizeof( g_admin_level_t ) );
+  l->level = level++;
   Q_strncpyz( l->name, "^2Junior Admin", sizeof( l->name ) );
   Q_strncpyz( l->flags,
     "listplayers admintest adminhelp time putteam spec999 kick mute ADMINCHAT",
     sizeof( l->flags ) );
 
   l = l->next = BG_Alloc( sizeof( g_admin_level_t ) );
+  l->level = level++;
   Q_strncpyz( l->name, "^3Senior Admin", sizeof( l->name ) );
   Q_strncpyz( l->flags,
     "listplayers admintest adminhelp time putteam spec99 kick mute showbans ban "
@@ -624,6 +632,7 @@ static void admin_default_levels( void )
     sizeof( l->flags ) );
 
   l = l->next = BG_Alloc( sizeof( g_admin_level_t ) );
+  l->level = level++;
   Q_strncpyz( l->name, "^1Server Operator", sizeof( l->name ) );
   Q_strncpyz( l->flags,
     "ALLFLAGS -IMMUTABLE -INCOGNITO",
