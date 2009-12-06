@@ -128,8 +128,6 @@ vmCvar_t  g_admin;
 vmCvar_t  g_adminTempBan;
 vmCvar_t  g_adminMaxBan;
 
-vmCvar_t  g_dretchPunt;
-
 vmCvar_t  g_privateMessages;
 vmCvar_t  g_specChat;
 vmCvar_t  g_publicAdminMessages;
@@ -164,7 +162,7 @@ static cvarTable_t   gameCvarTable[ ] =
 
   { &g_friendlyFire, "g_friendlyFire", "0", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qtrue  },
   { &g_friendlyBuildableFire, "g_friendlyBuildableFire", "0", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qtrue  },
-  { &g_dretchPunt, "g_dretchPunt", "0", CVAR_ARCHIVE, 0, qtrue  },
+  { &g_dretchPunt, "g_dretchPunt", "1", CVAR_ARCHIVE, 0, qtrue  },
 
   { &g_teamForceBalance, "g_teamForceBalance", "0", CVAR_ARCHIVE  },
 
@@ -251,8 +249,6 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_adminTempBan, "g_adminTempBan", "2m", CVAR_ARCHIVE, 0, qfalse  },
   { &g_adminMaxBan, "g_adminMaxBan", "2w", CVAR_ARCHIVE, 0, qfalse  },
 
-  { &g_dretchPunt, "g_dretchPunt", "0", CVAR_ARCHIVE, 0, qfalse  },
-  
   { &g_privateMessages, "g_privateMessages", "1", CVAR_ARCHIVE, 0, qfalse  },
   { &g_specChat, "g_specChat", "1", CVAR_ARCHIVE, 0, qfalse  },
   { &g_publicAdminMessages, "g_publicAdminMessages", "1", CVAR_ARCHIVE, 0, qfalse  },
@@ -2093,7 +2089,6 @@ void G_CheckVote( team_t team )
   qboolean pass = qfalse;
   char     *msg;
   int      i;
-  float    yesPercent;
 
   if( level.voteExecuteTime[ team ] &&
       level.voteExecuteTime[ team ] < level.time )
@@ -2104,16 +2099,16 @@ void G_CheckVote( team_t team )
   if( !level.voteTime[ team ] )
     return;
 
-  yesPercent = (float)level.voteYes[ team ] / (float)level.numVotingClients[ team ];
-
   if( ( level.time - level.voteTime[ team ] >= VOTE_TIME ) ||
       ( level.voteYes[ team ] + level.voteNo[ team ] == level.numVotingClients[ team ] ) )
   {
-    pass = ( yesPercent > votePassThreshold || level.voteNo[ team ] == 0 );
+    pass = ( level.voteYes[ team ] &&
+             (float)level.voteYes[ team ] / ( (float)level.voteYes[ team ] + (float)level.voteNo[ team ] ) > votePassThreshold );
   }
   else
   {
-    if( yesPercent > (float)level.numVotingClients[ team ] * votePassThreshold )
+    if( (float)level.voteYes[ team ] >
+        (float)level.numVotingClients[ team ] * votePassThreshold )
     {
       pass = qtrue;
     }

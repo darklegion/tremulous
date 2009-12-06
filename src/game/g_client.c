@@ -1224,6 +1224,8 @@ char *ClientConnect( int clientNum, qboolean firstTime )
   value = Info_ValueForKey( userinfo, "ip" );
   Q_strncpyz( client->pers.ip, value, sizeof( client->pers.ip ) );
 
+  client->pers.admin = G_admin_admin( client->pers.guid );
+
   // check for admin ban
   if( G_admin_ban_check( ent, reason, sizeof( reason ) ) )
   {
@@ -1263,7 +1265,6 @@ char *ClientConnect( int clientNum, qboolean firstTime )
   // check for local client
   if( !strcmp( client->pers.ip, "localhost" ) )
     client->pers.localClient = qtrue;
-  client->pers.admin = G_admin_admin( client->pers.guid );
 
   client->pers.connected = CON_CONNECTING;
 

@@ -512,8 +512,10 @@ ClientInactivityTimer
 Returns qfalse if the client is dropped
 =================
 */
-qboolean ClientInactivityTimer( gclient_t *client )
+qboolean ClientInactivityTimer( gentity_t *ent )
 {
+  gclient_t *client = ent->client;
+
   if( ! g_inactivity.integer )
   {
     // give everyone some time, so if the operator sets g_inactivity during
@@ -531,13 +533,16 @@ qboolean ClientInactivityTimer( gclient_t *client )
   }
   else if( !client->pers.localClient )
   {
-    if( level.time > client->inactivityTime )
+    if( level.time > client->inactivityTime &&
+        !G_admin_permission( ent, ADMF_ACTIVITY ) )
     {
       trap_DropClient( client - level.clients, "Dropped due to inactivity" );
       return qfalse;
     }
 
-    if( level.time > client->inactivityTime - 10000 && !client->inactivityWarning )
+    if( level.time > client->inactivityTime - 10000 &&
+        !client->inactivityWarning &&
+        !G_admin_permission( ent, ADMF_ACTIVITY ) )
     {
       client->inactivityWarning = qtrue;
       trap_SendServerCommand( client - level.clients, "cp \"Ten seconds until inactivity drop!\n\"" );
@@ -1293,7 +1298,7 @@ void ClientThink_real( gentity_t *ent )
   G_UpdatePTRConnection( client );
 
   // check for inactivity timer, but never drop the local client of a non-dedicated server
-  if( !ClientInactivityTimer( client ) )
+  if( !ClientInactivityTimer( ent ) )
     return;
 
   // calculate where ent is currently seeing all the other active clients

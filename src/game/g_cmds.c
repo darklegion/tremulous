@@ -1087,6 +1087,15 @@ void Cmd_CallVote_f( gentity_t *ent )
           va( "print \"%s: admin is immune\n\"", cmd ) );
         return;
       }
+
+      if( team != TEAM_NONE &&
+          ( ent->client->pers.teamSelection != 
+            level.clients[ clientNum ].pers.teamSelection ) )
+      {
+        trap_SendServerCommand( ent-g_entities,
+          va( "print \"%s: player is not on your team\n\"", cmd ) );
+        return;
+      }
     }
   }
 
