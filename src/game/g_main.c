@@ -1673,7 +1673,10 @@ void QDECL G_LogPrintf( const char *fmt, ... )
   va_end( argptr );
 
   if( g_dedicated.integer )
-    G_Printf( "%s", string + 7 );
+  {
+    G_UnEscapeString( string, decolored, sizeof( decolored ) );
+    G_Printf( "%s", decolored + 7 );
+  }
 
   if( !level.logFile )
     return;
@@ -2121,6 +2124,11 @@ void G_CheckVote( team_t team )
 
   if( pass )
     level.voteExecuteTime[ team ] = level.time + 3000;
+
+  G_LogPrintf( "EndVote: %s %s %d %d %d\n",
+    team == TEAM_NONE ? "global" : BG_TeamName( team ),
+    pass ? "pass" : "fail",
+    level.voteYes[ team ], level.voteNo[ team ], level.numVotingClients[ team ] );
 
   msg = va( "print \"%sote %sed (%d - %d)\n\"",
     team == TEAM_NONE ? "V" : "Team v", pass ? "pass" : "fail",

@@ -666,6 +666,10 @@ char      *G_NewString( const char *string );
 //
 // g_cmds.c
 //
+
+#define DECOLOR_OFF '\16'
+#define DECOLOR_ON  '\17'
+
 void      G_StopFollowing( gentity_t *ent );
 void      G_StopFromFollowing( gentity_t *ent );
 void      G_FollowLockView( gentity_t *ent );
@@ -677,6 +681,7 @@ int       G_ClientNumbersFromString( char *s, int *plist, int max );
 char      *ConcatArgs( int start );
 void      G_Say( gentity_t *ent, saymode_t mode, const char *chatText );
 void      G_DecolorString( char *in, char *out, int len );
+void      G_UnEscapeString( char *in, char *out, int len );
 void      G_SanitiseString( char *in, char *out, int len );
 void      Cmd_PrivateMessage_f( gentity_t *ent );
 void      Cmd_ListMaps_f( gentity_t *ent );

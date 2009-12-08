@@ -3151,15 +3151,39 @@ void G_ListCommands( gentity_t *ent )
 
 void G_DecolorString( char *in, char *out, int len )
 {
+  qboolean decolor = qtrue;
+
   len--;
 
   while( *in && len > 0 ) {
-    if( Q_IsColorString( in ) ) {
+    if( *in == DECOLOR_OFF || *in == DECOLOR_ON )
+    {
+      decolor = ( *in == DECOLOR_ON );
+      in++;
+      continue;
+    }
+    if( Q_IsColorString( in ) && decolor ) {
       in += 2;
       continue;
     }
     *out++ = *in++;
     len--;
+  }
+  *out = '\0';
+}
+
+void G_UnEscapeString( char *in, char *out, int len )
+{
+  len--;
+
+  while( *in && len > 0 )
+  {
+    if( *in >= ' ' || *in == '\n' )
+    {
+      *out++ = *in;
+      len--;
+    }
+    in++;
   }
   *out = '\0';
 }
