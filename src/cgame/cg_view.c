@@ -839,7 +839,7 @@ Fixed fov at intermissions, otherwise account for fov variable and zooms.
 #define WAVE_FREQUENCY  0.4f
 
 #define FOVWARPTIME     400.0f
-#define BASE_FOV_Y      67.5f
+#define BASE_FOV_Y      73.739792f // atan2( 3, 4 / tan( 90 ) )
 #define MAX_FOV_Y       120.0f
 #define MAX_FOV_WARP_Y  127.5f
 
@@ -953,9 +953,9 @@ static int CG_CalcFov( void )
     }
   }
 
-  y = cg.refdef.height / tan( fov_y / 360.0f * M_PI );
+  y = cg.refdef.height / tan( 0.5f * DEG2RAD( fov_y ) );
   fov_x = atan2( cg.refdef.width, y );
-  fov_x = fov_x * 360.0f / M_PI;
+  fov_x = 2.0f * RAD2DEG( fov_x );
 
   // warp if underwater
   contents = CG_PointContents( cg.refdef.vieworg, -1 );
