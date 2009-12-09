@@ -77,6 +77,7 @@ int openMenuCount = 0;
 #define DOUBLE_CLICK_DELAY 300
 static int lastListBoxClickTime = 0;
 
+itemDataType_t Item_DataType( itemDef_t *item );
 void Item_RunScript( itemDef_t *item, const char *s );
 void Item_SetupKeywordHash( void );
 static ID_INLINE qboolean Item_IsEditField( itemDef_t *item );
@@ -3865,12 +3866,21 @@ qboolean Menus_ReplaceActive( menuDef_t *menu )
     return qfalse;
 
   if( menu->itemCount != active->itemCount )
+  {
+    Com_Printf( S_COLOR_YELLOW
+      "WARNING: Menus_ReplaceActive: expecting %i menu items, found %i\n",
+      menu->itemCount, active->itemCount);
     return qfalse;
+  }
 
   for( i = 0; i < menu->itemCount; i++ )
   {
     if( menu->items[ i ]->type != active->items[ i ]->type )
+    {
+      Com_Printf( S_COLOR_YELLOW
+        "WARNING: Menus_ReplaceActive: type mismatch on item %i\n", i + 1 );
       return qfalse;
+    }
   }
 
   active->window.flags &= ~( WINDOW_FADINGOUT | WINDOW_VISIBLE );
@@ -3884,6 +3894,27 @@ qboolean Menus_ReplaceActive( menuDef_t *menu )
     Item_RunScript( &item, menu->onOpen );
   }
 
+  // set the cursor position on the new menu to match the active one
+  for( i = 0; i < menu->itemCount; i++ ) 	 
+  {
+    menu->items[ i ]->cursorPos = active->items[ i ]->cursorPos;
+    menu->items[ i ]->feederID = active->items[ i ]->feederID;
+    switch( Item_DataType( menu->items[ i ] ) )
+    {
+      case TYPE_LIST:
+        menu->items[ i ]->typeData.list->startPos =
+          active->items[ i ]->typeData.list->startPos;
+        menu->items[ i ]->typeData.list->cursorPos =
+          active->items[ i ]->typeData.list->cursorPos;
+        break;
+      case TYPE_COMBO:
+        menu->items[ i ]->typeData.cycle->cursorPos =
+          active->items[ i ]->typeData.cycle->cursorPos;
+        break;
+      default:
+        break;
+    }
+  }
   return qtrue;
 }
 
