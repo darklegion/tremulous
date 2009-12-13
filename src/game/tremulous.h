@@ -45,7 +45,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ABUILDER_BLOB_REPEAT        1000
 #define ABUILDER_BLOB_SPEED         800.0f
 #define ABUILDER_BLOB_SPEED_MOD     0.5f
-#define ABUILDER_BLOB_TIME          5000
+#define ABUILDER_BLOB_TIME          1000
 
 #define LEVEL0_BITE_DMG             ADM(36)
 #define LEVEL0_BITE_RANGE           64.0f
@@ -433,13 +433,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define CHAINGUN_REPEAT             80
 #define CHAINGUN_K_SCALE            1.0f
 #define CHAINGUN_SPREAD             900
-#define CHAINGUN_DMG                HDM(5)
+#define CHAINGUN_DMG                HDM(6)
 
 #define FLAMER_PRICE                400
 #define FLAMER_GAS                  150
 #define FLAMER_REPEAT               200
 #define FLAMER_K_SCALE              1.0f
-#define FLAMER_DMG                  HDM(20)
+#define FLAMER_DMG                  HDM(25)
 #define FLAMER_RADIUS               50       // splash radius
 #define FLAMER_SIZE                 15        // missile bounding box
 #define FLAMER_LIFETIME             700.0f
