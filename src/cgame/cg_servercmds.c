@@ -807,8 +807,8 @@ void CG_Menu( int menu, int arg )
       break;
 
     case MN_A_EVOLVEBUILDTIMER:
-      longMsg   = "You cannot Evolve until your build timer has expired.";
-      shortMsg  = "You cannot Evolve until your build timer expires";
+      longMsg   = "You cannot evolve until your build timer has expired.";
+      shortMsg  = "You cannot evolve until your build timer expires";
       type      = DT_ARMOURYEVOLVE;
       break;
 
