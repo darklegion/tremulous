@@ -1581,7 +1581,7 @@ void ExitLevel( void )
   gclient_t *cl;
 
   if ( G_MapExists( g_nextMap.string ) )
-    trap_SendConsoleCommand( EXEC_APPEND, va("map %s\n", g_nextMap.string ) );
+    trap_SendConsoleCommand( EXEC_APPEND, va("map \"%s\"\n", g_nextMap.string ) );
   else if( G_MapRotationActive( ) )
     G_AdvanceMapRotation( );
   else
