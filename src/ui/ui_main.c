@@ -1187,7 +1187,7 @@ void UI_Refresh( int realtime )
   // draw cursor
   UI_SetColor( NULL );
 
-  if( Menu_Count( ) > 0 && !trap_Cvar_VariableValue( "ui_hideCursor" ) )
+  if( trap_Key_GetCatcher( ) == KEYCATCH_UI && !trap_Cvar_VariableValue( "ui_hideCursor" ) )
   {
     UI_DrawHandlePic( uiInfo.uiDC.cursorx - ( 16.0f * uiInfo.uiDC.aspectScale ), uiInfo.uiDC.cursory - 16.0f,
                       32.0f * uiInfo.uiDC.aspectScale, 32.0f, uiInfo.uiDC.Assets.cursor );

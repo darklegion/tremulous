@@ -535,7 +535,7 @@ static void IN_DeactivateMouse( void )
 	if( !r_fullscreen->integer )
 	{
 		if( ( Key_GetCatcher( ) == KEYCATCH_UI ) &&
-				( SDL_GetAppState( ) & (SDL_APPMOUSEFOCUS|SDL_APPINPUTFOCUS) ) == (SDL_APPMOUSEFOCUS|SDL_APPINPUTFOCUS) )
+				( SDL_GetAppState( ) & SDL_APPMOUSEFOCUS ) )
 			SDL_ShowCursor( 0 );
 		else
 			SDL_ShowCursor( 1 );
