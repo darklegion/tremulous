@@ -2315,7 +2315,11 @@ qboolean G_admin_showbans( gentity_t *ent )
     if( start > 0 )
       start--;
     else if( start < 0 )
+    {
       start = found + start;
+      if( start < 0 )
+        start = 0;
+    }
     else
       ipmatch = G_AddressParse( filter, &ipa, &neta );
   }
