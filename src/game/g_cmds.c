@@ -696,7 +696,7 @@ static qboolean G_SayTo( gentity_t *ent, gentity_t *other, saymode_t mode, const
       return qfalse;
   }
 
-  trap_SendServerCommand( other-g_entities, va( "chat %d %d\"%s\"",
+  trap_SendServerCommand( other-g_entities, va( "chat %d %d \"%s\"",
     ent ? ent-g_entities : -1,
     mode,
     message ) );
