@@ -1563,7 +1563,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   for( i = 0; i < MAX_CLIENTS; i++ )
     ent->credits[ i ] = 0;
 
-  client->ps.stats[ STAT_STAMINA ] = MAX_STAMINA;
+  client->ps.stats[ STAT_STAMINA ] = STAMINA_MAX;
 
   G_SetOrigin( ent, spawn_origin );
   VectorCopy( spawn_origin, client->ps.origin );

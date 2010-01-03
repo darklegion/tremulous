@@ -608,10 +608,10 @@ void ClientTimerActions( gentity_t *ent, int msec )
       client->ps.stats[ STAT_STAMINA ] += STAMINA_WALK_RESTORE;
       
     // Check stamina limits
-    if( client->ps.stats[ STAT_STAMINA ] > MAX_STAMINA )
-      client->ps.stats[ STAT_STAMINA ] = MAX_STAMINA;
-    else if( client->ps.stats[ STAT_STAMINA ] < -MAX_STAMINA )
-      client->ps.stats[ STAT_STAMINA ] = -MAX_STAMINA;
+    if( client->ps.stats[ STAT_STAMINA ] > STAMINA_MAX )
+      client->ps.stats[ STAT_STAMINA ] = STAMINA_MAX;
+    else if( client->ps.stats[ STAT_STAMINA ] < -STAMINA_MAX )
+      client->ps.stats[ STAT_STAMINA ] = -STAMINA_MAX;
 
     if( weapon == WP_ABUILD || weapon == WP_ABUILD2 ||
         BG_InventoryContainsWeapon( WP_HBUILD, client->ps.stats ) )

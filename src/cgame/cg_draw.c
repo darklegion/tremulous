@@ -378,7 +378,7 @@ static void CG_DrawPlayerStamina( int ownerDraw, rectDef_t *rect,
 {
   playerState_t *ps = &cg.snap->ps;
   float         stamina = ps->stats[ STAT_STAMINA ];
-  float         maxStaminaBy3 = (float)MAX_STAMINA / 3.0f;
+  float         maxStaminaBy3 = (float)STAMINA_MAX / 3.0f;
   float         progress;
   vec4_t        color;
 
@@ -394,7 +394,7 @@ static void CG_DrawPlayerStamina( int ownerDraw, rectDef_t *rect,
   progress = stamina / maxStaminaBy3;
       break;
     case CG_PLAYER_STAMINA_4:
-      progress = ( stamina + MAX_STAMINA ) / MAX_STAMINA;
+      progress = ( stamina + STAMINA_MAX ) / STAMINA_MAX;
       break;
     default:
       return;

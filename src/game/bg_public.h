@@ -246,8 +246,6 @@ typedef enum
 
 #define SB_VALID_TOGGLEBIT      0x00004000
 
-#define MAX_STAMINA             1000
-
 // player_state->persistant[] indexes
 // these fields are the only part of player_state that isn't
 // cleared on respawn

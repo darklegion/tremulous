@@ -374,7 +374,7 @@ void Cmd_Give_f( gentity_t *ent )
   }
 
   if( give_all || Q_stricmp( name, "stamina" ) == 0 )
-    ent->client->ps.stats[ STAT_STAMINA ] = MAX_STAMINA;
+    ent->client->ps.stats[ STAT_STAMINA ] = STAMINA_MAX;
 
   if( Q_stricmp( name, "poison" ) == 0 )
   {
