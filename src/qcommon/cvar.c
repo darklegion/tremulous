@@ -383,11 +383,11 @@ cvar_t *Cvar_Get( const char *var_name, const char *var_value, int flags ) {
 			var->latchedString = NULL;	// otherwise cvar_set2 would free it
 			Cvar_Set2( var_name, s, qtrue );
 			Z_Free( s );
-
-			// ZOID--needs to be set so that cvars the game sets as 
-			// SERVERINFO get sent to clients
-			cvar_modifiedFlags |= flags;
 		}
+
+		// ZOID--needs to be set so that cvars the game sets as 
+		// SERVERINFO get sent to clients
+		cvar_modifiedFlags |= flags;
 
 		return var;
 	}
@@ -1164,6 +1164,16 @@ basically a slightly modified Cvar_Get for the interpreted modules
 void Cvar_Register(vmCvar_t *vmCvar, const char *varName, const char *defaultValue, int flags)
 {
 	cvar_t	*cv;
+
+	// There is code in Cvar_Get to prevent CVAR_ROM cvars being changed by the
+	// user. In other words CVAR_ARCHIVE and CVAR_ROM are mutually exclusive
+	// flags. Unfortunately some historical game code (including single player
+	// baseq3) sets both flags. We unset CVAR_ROM for such cvars.
+	if ((flags & (CVAR_ARCHIVE | CVAR_ROM)) == (CVAR_ARCHIVE | CVAR_ROM)) {
+		Com_DPrintf( S_COLOR_YELLOW "WARNING: Unsetting CVAR_ROM cvar '%s', "
+			"since it is also CVAR_ARCHIVE\n", varName );
+		flags &= ~CVAR_ROM;
+	}
 
 	cv = Cvar_Get(varName, defaultValue, flags | CVAR_VM_CREATED);
 

@@ -192,7 +192,6 @@ ifneq ($(BUILD_CLIENT),0)
     CURL_LIBS=$(shell pkg-config --silence-errors --libs libcurl)
     OPENAL_CFLAGS=$(shell pkg-config --silence-errors --cflags openal)
     OPENAL_LIBS=$(shell pkg-config --silence-errors --libs openal)
-    # FIXME: introduce CLIENT_CFLAGS
     SDL_CFLAGS=$(shell pkg-config --silence-errors --cflags sdl|sed 's/-Dmain=SDL_main//')
     SDL_LIBS=$(shell pkg-config --silence-errors --libs sdl)
   endif
@@ -556,7 +555,7 @@ ifeq ($(PLATFORM),freebsd)
     CLIENT_CFLAGS += -DUSE_CODEC_VORBIS
   endif
 
-  OPTIMIZEVM = -DNDEBUG -O3 -funroll-loops -fomit-frame-pointer
+  OPTIMIZEVM = -O3 -funroll-loops -fomit-frame-pointer
 
   ifeq ($(ARCH),axp)
     BASE_CFLAGS += -DNO_VM_COMPILED
@@ -745,7 +744,7 @@ ifeq ($(PLATFORM),sunos)
   CLIENT_CFLAGS = $(SDL_CFLAGS)
   SERVER_CFLAGS =
 
-  OPTIMIZEVM = -O3 -funroll-loops -DNDEBUG
+  OPTIMIZEVM = -O3 -funroll-loops
 
   ifeq ($(ARCH),sparc)
     OPTIMIZEVM += -O3 \
@@ -787,7 +786,7 @@ else # ifeq sunos
 # SETUP AND BUILD -- GENERIC
 #############################################################################
   BASE_CFLAGS=-DNO_VM_COMPILED
-  OPTIMIZE = -DNDEBUG -O3
+  OPTIMIZE = -O3
 
   SHLIBEXT=so
   SHLIBCFLAGS=-fPIC
@@ -845,6 +844,7 @@ endif
 
 ifeq ($(USE_VOIP),1)
   CLIENT_CFLAGS += -DUSE_VOIP
+  SERVER_CFLAGS += -DUSE_VOIP
   ifeq ($(USE_INTERNAL_SPEEX),1)
     CLIENT_CFLAGS += -DFLOATING_POINT -DUSE_ALLOCA -I$(SPEEXDIR)/include
   else
@@ -966,7 +966,7 @@ endif
 
 release:
 	@$(MAKE) targets B=$(BR) CFLAGS="$(CFLAGS) $(BASE_CFLAGS) $(DEPEND_CFLAGS)" \
-	  OPTIMIZE="$(OPTIMIZE)" OPTIMIZEVM="$(OPTIMIZEVM)" \
+	  OPTIMIZE="-DNDEBUG $(OPTIMIZE)" OPTIMIZEVM="-DNDEBUG $(OPTIMIZEVM)" \
 	  CLIENT_CFLAGS="$(CLIENT_CFLAGS)" SERVER_CFLAGS="$(SERVER_CFLAGS)" V=$(V)
 ifeq ($(BUILD_MASTER_SERVER),1)
 	$(MAKE) -C $(MASTERDIR) release
