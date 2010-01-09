@@ -426,13 +426,13 @@ static float PM_CmdScale( usercmd_t *cmd )
       modifier *= HUMAN_SIDE_MODIFIER;
     }
 
-    //must have +ve stamina to jump
-    if( pm->ps->stats[ STAT_STAMINA ] < 0 )
+    //must have have stamina to jump
+    if( pm->ps->stats[ STAT_STAMINA ] < STAMINA_SLOW_LEVEL + STAMINA_JUMP_TAKE )
       cmd->upmove = 0;
 
     //slow down once stamina depletes
     if( pm->ps->stats[ STAT_STAMINA ] <= STAMINA_SLOW_LEVEL )
-      modifier *= (float)( pm->ps->stats[ STAT_STAMINA ] + 1000 ) / 500.0f;
+      modifier *= (float)( pm->ps->stats[ STAT_STAMINA ] + STAMINA_MAX ) / (float)(STAMINA_SLOW_LEVEL + STAMINA_MAX);
 
     if( pm->ps->stats[ STAT_STATE ] & SS_CREEPSLOWED )
     {
@@ -793,7 +793,7 @@ static qboolean PM_CheckJump( void )
     return qfalse;
 
   if( ( pm->ps->stats[ STAT_TEAM ] == TEAM_HUMANS ) &&
-      ( pm->ps->stats[ STAT_STAMINA ] < 0 ) )
+      ( pm->ps->stats[ STAT_STAMINA ] < STAMINA_SLOW_LEVEL + STAMINA_JUMP_TAKE ) )
     return qfalse;
 
   //no bunny hopping off a dodge
@@ -945,7 +945,7 @@ static qboolean PM_CheckDodge( void )
   }
 
   // Reasons why we can't start a dodge or sprint
-  if( pm->ps->pm_type != PM_NORMAL || pm->ps->stats[ STAT_STAMINA ] < 0 ||
+  if( pm->ps->pm_type != PM_NORMAL || pm->ps->stats[ STAT_STAMINA ] < STAMINA_SLOW_LEVEL + STAMINA_DODGE_TAKE ||
       ( pm->ps->pm_flags & PMF_DUCKED ) )
     return qfalse;
 

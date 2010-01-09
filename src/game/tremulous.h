@@ -89,7 +89,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define LEVEL2_WALLJUMP_MAXSPEED    1000.0f
 
 #define LEVEL3_CLAW_DMG             ADM(80)
-#define LEVEL3_CLAW_RANGE           72.0f
+#define LEVEL3_CLAW_RANGE           80.0f
 #define LEVEL3_CLAW_UPG_RANGE       LEVEL3_CLAW_RANGE + 3.0f          
 #define LEVEL3_CLAW_WIDTH           12.0f
 #define LEVEL3_CLAW_REPEAT          900
@@ -97,7 +97,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define LEVEL3_CLAW_U_REPEAT        800
 #define LEVEL3_CLAW_U_K_SCALE       1.0f
 #define LEVEL3_POUNCE_DMG           ADM(100)
-#define LEVEL3_POUNCE_RANGE         54.0f
+#define LEVEL3_POUNCE_RANGE         40.0f
 #define LEVEL3_POUNCE_UPG_RANGE     LEVEL3_POUNCE_RANGE + 3.0f
 #define LEVEL3_POUNCE_WIDTH         14.0f
 #define LEVEL3_POUNCE_TIME          800      // msec for full Dragoon pounce
@@ -440,6 +440,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define FLAMER_REPEAT               200
 #define FLAMER_K_SCALE              1.0f
 #define FLAMER_DMG                  HDM(25)
+#define FLAMER_SPLASHDAMAGE         HDM(12)
 #define FLAMER_RADIUS               50       // splash radius
 #define FLAMER_SIZE                 15        // missile bounding box
 #define FLAMER_LIFETIME             700.0f
@@ -616,7 +617,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define REPEATER_HEALTH             HBHM(250)
 #define REPEATER_SPLASHDAMAGE       50
 #define REPEATER_SPLASHRADIUS       100
-#define REPEATER_VALUE              HBVM(2)
+#define REPEATER_VALUE              HBVM(REPEATER_BP)
 
 /*
  * HUMAN misc
@@ -632,10 +633,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define HUMAN_DODGE_TIMEOUT         500
 #define HUMAN_LAND_FRICTION         3.0f
 
-#define STAMINA_STOP_RESTORE        25
+#define STAMINA_STOP_RESTORE        30
 #define STAMINA_WALK_RESTORE        15
 #define STAMINA_MEDISTAT_RESTORE    30 // stacked on STOP or WALK
-#define STAMINA_SPRINT_TAKE         8
+#define STAMINA_SPRINT_TAKE         6
 #define STAMINA_JUMP_TAKE           250
 #define STAMINA_DODGE_TAKE          250
 #define STAMINA_MAX                 1000

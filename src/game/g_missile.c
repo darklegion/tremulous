@@ -356,7 +356,7 @@ gentity_t *fire_flamer( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->r.ownerNum = self->s.number;
   bolt->parent = self;
   bolt->damage = FLAMER_DMG;
-  bolt->splashDamage = FLAMER_DMG;
+  bolt->splashDamage = FLAMER_SPLASHDAMAGE;
   bolt->splashRadius = FLAMER_RADIUS;
   bolt->methodOfDeath = MOD_FLAMER;
   bolt->splashMethodOfDeath = MOD_FLAMER_SPLASH;
