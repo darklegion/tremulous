@@ -303,8 +303,11 @@ void SP_target_location( gentity_t *self )
   self->s.eType = ET_LOCATION;
   self->r.svFlags = SVF_BROADCAST;
   trap_LinkEntity( self ); // make the server send them to the clients
-  if( !level.locationHead )
-    trap_SetConfigstring( CS_LOCATIONS, "unknown" );
+  if( n == MAX_LOCATIONS )
+  {
+    G_Printf( S_COLOR_YELLOW "too many target_locations\n" );
+    return;
+  }
   if( self->count )
   {
     if( self->count < 0 )
