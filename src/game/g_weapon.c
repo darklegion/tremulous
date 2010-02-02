@@ -1578,11 +1578,11 @@ void FireWeapon( gentity_t *ent )
                    LEVEL3_CLAW_WIDTH, LEVEL3_CLAW_DMG, MOD_LEVEL3_CLAW );
       break;
     case WP_ALEVEL2:
-      meleeAttack( ent, LEVEL2_CLAW_U_RANGE, LEVEL2_CLAW_WIDTH, LEVEL2_CLAW_WIDTH,
+      meleeAttack( ent, LEVEL2_CLAW_RANGE, LEVEL2_CLAW_WIDTH, LEVEL2_CLAW_WIDTH,
                    LEVEL2_CLAW_DMG, MOD_LEVEL2_CLAW );
       break;
     case WP_ALEVEL2_UPG:
-      meleeAttack( ent, LEVEL2_CLAW_RANGE, LEVEL2_CLAW_WIDTH, LEVEL2_CLAW_WIDTH,
+      meleeAttack( ent, LEVEL2_CLAW_U_RANGE, LEVEL2_CLAW_WIDTH, LEVEL2_CLAW_WIDTH,
                    LEVEL2_CLAW_DMG, MOD_LEVEL2_CLAW );
       break;
     case WP_ALEVEL4:
