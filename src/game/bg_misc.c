@@ -1069,7 +1069,7 @@ static const classAttributes_t bg_classList[ ] =
     80,                                             //int     steptime;
     LEVEL2_SPEED,                                   //float   speed;
     10.0f,                                          //float   acceleration;
-    2.0f,                                           //float   airAcceleration;
+    3.0f,                                           //float   airAcceleration;
     6.0f,                                           //float   friction;
     100.0f,                                         //float   stopSpeed;
     380.0f,                                         //float   jumpMagnitude;
@@ -1096,7 +1096,7 @@ static const classAttributes_t bg_classList[ ] =
     80,                                             //int     steptime;
     LEVEL2_UPG_SPEED,                               //float   speed;
     10.0f,                                          //float   acceleration;
-    2.0f,                                           //float   airAcceleration;
+    3.0f,                                           //float   airAcceleration;
     6.0f,                                           //float   friction;
     100.0f,                                         //float   stopSpeed;
     380.0f,                                         //float   jumpMagnitude;
