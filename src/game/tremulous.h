@@ -324,15 +324,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define OVERMIND_ATTACK_REPEAT      1000
 #define OVERMIND_VALUE              ABVM(30)
 
-#define HOVEL_BP                    0
-#define HOVEL_BT                    15000
-#define HOVEL_HEALTH                ABHM(375)
-#define HOVEL_REGEN                 20
-#define HOVEL_SPLASHDAMAGE          20
-#define HOVEL_SPLASHRADIUS          200
-#define HOVEL_CREEPSIZE             120
-#define HOVEL_VALUE                 ABVM(8)
-
 /*
  * ALIEN misc
  *

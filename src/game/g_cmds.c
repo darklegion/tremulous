@@ -490,12 +490,6 @@ Cmd_Kill_f
 */
 void Cmd_Kill_f( gentity_t *ent )
 {
-  if( ent->client->ps.stats[ STAT_STATE ] & SS_HOVELING )
-  {
-    trap_SendServerCommand( ent-g_entities, "print \"Leave the Hovel first (use your destroy key)\n\"" );
-    return;
-  }
-
   if( g_cheats.integer )
   {
     ent->flags &= ~FL_GODMODE;
@@ -1486,8 +1480,7 @@ void Cmd_Class_f( gentity_t *ent )
   if( ent->health <= 0 )
     return;
 
-  if( ent->client->pers.teamSelection == TEAM_ALIENS &&
-      !( ent->client->ps.stats[ STAT_STATE ] & SS_HOVELING ) )
+  if( ent->client->pers.teamSelection == TEAM_ALIENS )
   {
     if( newClass == PCL_NONE )
     {
@@ -1614,9 +1607,6 @@ void Cmd_Destroy_f( gentity_t *ent )
   if( Q_stricmp( cmd, "destroy" ) == 0 )
     deconstruct = qfalse;
 
-  if( ent->client->ps.stats[ STAT_STATE ] & SS_HOVELING )
-    G_Damage( ent->client->hovel, ent, ent, forward, ent->s.origin, 10000, 0, MOD_SUICIDE );
-
   AngleVectors( ent->client->ps.viewangles, forward, NULL, NULL );
   VectorMA( ent->client->ps.origin, 100, forward, end );
 
@@ -1664,10 +1654,6 @@ void Cmd_Destroy_f( gentity_t *ent )
       G_TriggerMenu( ent->client->ps.clientNum, MN_B_LASTSPAWN );
       return;
     }
-
-    // Don't allow destruction of hovel with granger inside
-    if( traceEnt->s.modelindex == BA_A_HOVEL && traceEnt->active )
-      return;
 
     // Don't allow destruction of buildables that cannot be rebuilt
     if( G_TimeTilSuddenDeath( ) <= 0 )
@@ -2208,7 +2194,6 @@ void Cmd_Build_f( gentity_t *ent )
 
   if( buildable != BA_NONE &&
       ( ( 1 << ent->client->ps.weapon ) & BG_Buildable( buildable )->buildWeapon ) &&
-      !( ent->client->ps.stats[ STAT_STATE ] & SS_HOVELING ) &&
       BG_BuildableIsAllowed( buildable ) &&
       ( ( team == TEAM_ALIENS && BG_BuildableAllowedInStage( buildable, g_alienStage.integer ) ) ||
         ( team == TEAM_HUMANS && BG_BuildableAllowedInStage( buildable, g_humanStage.integer ) ) ) )
@@ -2234,7 +2219,6 @@ void Cmd_Build_f( gentity_t *ent )
 
       // can't place yet but maybe soon: start with valid togglebit off
       case IBE_NORMAL:
-      case IBE_HOVELEXIT:
       case IBE_NOCREEP:
       case IBE_NOROOM:
       case IBE_NOOVERMIND:
@@ -2249,10 +2233,6 @@ void Cmd_Build_f( gentity_t *ent )
 
       case IBE_ONEOVERMIND:
         err = MN_A_ONEOVERMIND;
-        break;
-
-      case IBE_ONEHOVEL:
-        err = MN_A_ONEHOVEL;
         break;
 
       case IBE_ONEREACTOR:

@@ -2387,8 +2387,7 @@ static void CG_DrawCrosshair( rectDef_t *rect, vec4_t color )
       !BG_Weapon( weapon )->longRanged )
     return;
 
-  if( ( cg.snap->ps.persistant[ PERS_SPECSTATE ] != SPECTATOR_NOT ) ||
-      ( cg.snap->ps.stats[ STAT_STATE ] & SS_HOVELING ) )
+  if( cg.snap->ps.persistant[ PERS_SPECSTATE ] != SPECTATOR_NOT )
     return;
 
   if( cg.renderingThirdPerson )
@@ -3265,7 +3264,6 @@ static void CG_Draw2D( void )
   }
 
   if( cg.snap->ps.persistant[ PERS_SPECSTATE ] == SPECTATOR_NOT &&
-      !( cg.snap->ps.stats[ STAT_STATE ] & SS_HOVELING ) &&
       cg.snap->ps.stats[ STAT_HEALTH ] > 0 )
   {
     menu = Menus_FindByName( BG_ClassConfig(

@@ -225,8 +225,6 @@ struct gentity_s
 
   vec4_t            animation;          // animated map objects
 
-  gentity_t         *builder;           // occupant of this hovel
-
   qboolean          nonSegModel;        // this entity uses a nonsegmented player model
 
   buildable_t       bTriggers[ BA_NUM_BUILDABLES ]; // which buildables are triggers
@@ -408,8 +406,6 @@ struct gclient_s
 
   char                *areabits;
 
-  gentity_t           *hovel;
-
   int                 lastPoisonTime;
   int                 poisonImmunityTime;
   gentity_t           *lastPoisonClient;
@@ -423,8 +419,6 @@ struct gclient_s
   int                 lastCreepSlowTime;    // time until creep can be removed
 
   qboolean            charging;
-
-  vec3_t              hovelOrigin;          // player origin before entering hovel
 
   int                 lastFlameBall;        // s.number of the last flame ball fired
 
@@ -710,8 +704,6 @@ typedef enum
   IBE_NOALIENBP,
   IBE_SPWNWARN, // not currently used
   IBE_NOCREEP,
-  IBE_ONEHOVEL,
-  IBE_HOVELEXIT,
 
   IBE_ONEREACTOR,
   IBE_NOPOWERHERE,
@@ -729,7 +721,6 @@ typedef enum
   IBE_MAXERRORS
 } itemBuildError_t;
 
-qboolean          AHovel_Blocked( gentity_t *hovel, gentity_t *player, qboolean provideExit );
 gentity_t         *G_CheckSpawnPoint( int spawnNum, vec3_t origin, vec3_t normal,
                     buildable_t spawn, vec3_t spawnOrigin );
 

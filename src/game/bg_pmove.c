@@ -2864,8 +2864,7 @@ static void PM_Weapon( void )
   qboolean      attack3 = pm->cmd.buttons & BUTTON_USE_HOLDABLE;
 
   // Ignore weapons in some cases
-  if( pm->ps->persistant[ PERS_SPECSTATE ] != SPECTATOR_NOT ||
-      ( pm->ps->stats[ STAT_STATE ] & SS_HOVELING ) )
+  if( pm->ps->persistant[ PERS_SPECSTATE ] != SPECTATOR_NOT )
     return;
 
   // Check for dead player

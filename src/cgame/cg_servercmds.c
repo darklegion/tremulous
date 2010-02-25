@@ -771,13 +771,6 @@ void CG_Menu( int menu, int arg )
       type      = DT_BUILD;
       break;
 
-    case MN_A_ONEHOVEL:
-      longMsg   = "There can only be one Hovel. Deconstruct the existing one if you "
-                  "wish to move it.";
-      shortMsg  = "There can only be one Hovel";
-      type      = DT_BUILD;
-      break;
-
     case MN_A_NOBP:
       longMsg   = "The Overmind cannot control any more structures. Deconstruct existing "
                   "structures to build more.";
@@ -810,26 +803,6 @@ void CG_Menu( int menu, int arg )
       longMsg   = "You cannot evolve until your build timer has expired.";
       shortMsg  = "You cannot evolve until your build timer expires";
       type      = DT_ARMOURYEVOLVE;
-      break;
-
-    case MN_A_HOVEL_OCCUPIED:
-      longMsg   = "This Hovel is already occupied by another builder.";
-      shortMsg  = "This Hovel is already occupied by another builder";
-      type      = DT_COMMAND;
-      break;
-
-    case MN_A_HOVEL_BLOCKED:
-      longMsg   = "The exit to this Hovel is currently blocked. Please wait until it "
-                  "becomes clear then try again.";
-      shortMsg  = "The exit to this Hovel is currently blocked";
-      type      = DT_COMMAND;
-      break;
-
-    case MN_A_HOVEL_EXIT:
-      longMsg   = "The exit to this Hovel would always be blocked. Please choose "
-                  "a more suitable location.";
-      shortMsg  = "The exit to this Hovel would always be blocked";
-      type      = DT_BUILD;
       break;
 
     case MN_A_INFEST:

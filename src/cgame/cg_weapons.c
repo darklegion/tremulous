@@ -1218,8 +1218,7 @@ void CG_AddViewWeapon( playerState_t *ps )
   wi = &cg_weapons[ weapon ];
   cent = &cg.predictedPlayerEntity; // &cg_entities[cg.snap->ps.clientNum];
 
-  if( ( ps->persistant[PERS_SPECSTATE] != SPECTATOR_NOT ) ||
-      ( ps->stats[ STAT_STATE ] & SS_HOVELING ) )
+  if( ps->persistant[PERS_SPECSTATE] != SPECTATOR_NOT )
     return;
 
   // no weapon carried - can't draw it

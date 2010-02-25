@@ -1302,225 +1302,6 @@ void AHive_Pain( gentity_t *self, gentity_t *attacker, int damage )
 //==================================================================================
 
 
-
-
-#define HOVEL_TRACE_DEPTH 128.0f
-
-/*
-================
-AHovel_Blocked
-
-Is this hovel entrance blocked?
-================
-*/
-qboolean AHovel_Blocked( gentity_t *hovel, gentity_t *player, qboolean provideExit )
-{
-  vec3_t    forward, normal, origin, start, end, angles, hovelMaxs;
-  vec3_t    mins, maxs;
-  float     displacement;
-  trace_t   tr;
-
-  BG_BuildableBoundingBox( BA_A_HOVEL, NULL, hovelMaxs );
-  BG_ClassBoundingBox( player->client->ps.stats[ STAT_CLASS ],
-                       mins, maxs, NULL, NULL, NULL );
-
-  VectorCopy( hovel->s.origin2, normal );
-  AngleVectors( hovel->s.angles, forward, NULL, NULL );
-  VectorInverse( forward );
-
-  displacement = VectorMaxComponent( maxs ) * M_ROOT3 +
-                 VectorMaxComponent( hovelMaxs ) * M_ROOT3 + 1.0f;
-
-  VectorMA( hovel->s.origin, displacement, forward, origin );
-
-  VectorCopy( hovel->s.origin, start );
-  VectorCopy( origin, end );
-
-  // see if there's something between the hovel and its exit 
-  // (eg built right up against a wall)
-  trap_Trace( &tr, start, NULL, NULL, end, player->s.number, MASK_PLAYERSOLID );
-  if( tr.fraction < 1.0f )
-    return qtrue;
-
-  vectoangles( forward, angles );
-
-  VectorMA( origin, HOVEL_TRACE_DEPTH, normal, start );
-
-  //compute a place up in the air to start the real trace
-  trap_Trace( &tr, origin, mins, maxs, start, player->s.number, MASK_PLAYERSOLID );
-
-  VectorMA( origin, ( HOVEL_TRACE_DEPTH * tr.fraction ) - 1.0f, normal, start );
-  VectorMA( origin, -HOVEL_TRACE_DEPTH, normal, end );
-
-  trap_Trace( &tr, start, mins, maxs, end, player->s.number, MASK_PLAYERSOLID );
-
-  VectorCopy( tr.endpos, origin );
-
-  trap_Trace( &tr, origin, mins, maxs, origin, player->s.number, MASK_PLAYERSOLID );
-
-  if( tr.fraction < 1.0f )
-    return qtrue;
-
-  if( provideExit )
-  {
-    G_SetOrigin( player, origin );
-    VectorCopy( origin, player->client->ps.origin );
-    // nudge
-    VectorMA( normal, 200.0f, forward, player->client->ps.velocity );
-    G_SetClientViewAngle( player, angles );
-  }
-
-  return qfalse;
-}
-
-/*
-================
-APropHovel_Blocked
-
-Wrapper to test a hovel placement for validity
-================
-*/
-static qboolean APropHovel_Blocked( vec3_t origin, vec3_t angles, vec3_t normal,
-                                    gentity_t *player )
-{
-  gentity_t hovel;
-
-  VectorCopy( origin, hovel.s.origin );
-  VectorCopy( angles, hovel.s.angles );
-  VectorCopy( normal, hovel.s.origin2 );
-
-  return AHovel_Blocked( &hovel, player, qfalse );
-}
-
-/*
-================
-AHovel_Use
-
-Called when an alien uses a hovel
-================
-*/
-void AHovel_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
-{
-  vec3_t  hovelOrigin, hovelAngles, inverseNormal;
-
-  if( self->spawned && self->powered )
-  {
-    if( self->active )
-    {
-      //this hovel is in use
-      G_TriggerMenu( activator->client->ps.clientNum, MN_A_HOVEL_OCCUPIED );
-    }
-    else if( ( ( activator->client->ps.stats[ STAT_CLASS ] == PCL_ALIEN_BUILDER0 ) ||
-               ( activator->client->ps.stats[ STAT_CLASS ] == PCL_ALIEN_BUILDER0_UPG ) ) &&
-             activator->health > 0 && self->health > 0 )
-    {
-      if( AHovel_Blocked( self, activator, qfalse ) )
-      {
-        //you can get in, but you can't get out
-        G_TriggerMenu( activator->client->ps.clientNum, MN_A_HOVEL_BLOCKED );
-        return;
-      }
-
-      self->active = qtrue;
-      G_SetBuildableAnim( self, BANIM_ATTACK1, qfalse );
-
-      //prevent lerping
-      activator->client->ps.eFlags ^= EF_TELEPORT_BIT;
-      activator->client->ps.eFlags |= EF_NODRAW;
-      G_UnlaggedClear( activator );
-
-      // Cancel pending suicides
-      activator->suicideTime = 0;
-
-      activator->client->ps.stats[ STAT_STATE ] |= SS_HOVELING;
-      activator->client->hovel = self;
-      self->builder = activator;
-
-      VectorCopy( self->s.pos.trBase, hovelOrigin );
-      VectorMA( hovelOrigin, 128.0f, self->s.origin2, hovelOrigin );
-
-      VectorCopy( self->s.origin2, inverseNormal );
-      VectorInverse( inverseNormal );
-      vectoangles( inverseNormal, hovelAngles );
-
-      VectorCopy( activator->s.pos.trBase, activator->client->hovelOrigin );
-
-      G_SetOrigin( activator, hovelOrigin );
-      VectorCopy( hovelOrigin, activator->client->ps.origin );
-      G_SetClientViewAngle( activator, hovelAngles );
-    }
-  }
-}
-
-
-/*
-================
-AHovel_Think
-
-Think for alien hovel
-================
-*/
-void AHovel_Think( gentity_t *self )
-{
-  AGeneric_Think( self );
-
-  if( self->spawned )
-  {
-    if( self->active )
-      G_SetIdleBuildableAnim( self, BANIM_IDLE2 );
-    else
-      G_SetIdleBuildableAnim( self, BANIM_IDLE1 );
-  }
-}
-
-/*
-================
-AHovel_Die
-
-Die for alien hovel
-================
-*/
-void AHovel_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod )
-{
-  //if the hovel is occupied free the occupant
-  if( self->active )
-  {
-    gentity_t *builder = self->builder;
-    vec3_t    newOrigin;
-    vec3_t    newAngles;
-
-    VectorCopy( self->s.angles, newAngles );
-    newAngles[ ROLL ] = 0;
-
-    VectorCopy( self->s.origin, newOrigin );
-    VectorMA( newOrigin, 1.0f, self->s.origin2, newOrigin );
-
-    //prevent lerping
-    builder->client->ps.eFlags ^= EF_TELEPORT_BIT;
-    builder->client->ps.eFlags &= ~EF_NODRAW;
-    G_UnlaggedClear( builder );
-
-    G_SetOrigin( builder, newOrigin );
-    VectorCopy( newOrigin, builder->client->ps.origin );
-    G_SetClientViewAngle( builder, newAngles );
-
-    //client leaves hovel
-    builder->client->ps.stats[ STAT_STATE ] &= ~SS_HOVELING;
-  }
-  
-  AGeneric_Die( self, inflictor, attacker, damage, mod );
-  self->nextthink = level.time + 100;
-}
-
-
-
-
-
-//==================================================================================
-
-
-
-
 /*
 ================
 ABooster_Touch
@@ -2348,8 +2129,7 @@ qboolean HMGTurret_CheckTarget( gentity_t *self, gentity_t *target,
   vec3_t    dir, end;
 
   if( !target || target->health <= 0 || !target->client ||
-      target->client->pers.teamSelection != TEAM_ALIENS ||
-      ( target->client->ps.stats[ STAT_STATE ] & SS_HOVELING ) )
+      target->client->pers.teamSelection != TEAM_ALIENS )
     return qfalse;
     
   if( !los_check )
@@ -3023,7 +2803,6 @@ static int G_CompareBuildablesForRemoval( const void *a, const void *b )
     BA_A_TRAPPER,
     BA_A_HIVE,
     BA_A_BOOSTER,
-    BA_A_HOVEL,
     BA_A_SPAWN,
     BA_A_OVERMIND,
 
@@ -3311,10 +3090,6 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
     if( ent->buildableTeam != team )
       continue;
 
-    // Don't allow destruction of hovel with granger inside
-    if( ent->s.modelindex == BA_A_HOVEL && ent->active )
-      continue;
-
     // Explicitly disallow replacement of the core buildable with anything
     // other than the core buildable
     if( ent->s.modelindex == core && buildable != core )
@@ -3507,17 +3282,6 @@ itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance
         reason = IBE_NOCREEP;
     }
 
-    if( buildable == BA_A_HOVEL )
-    {
-      vec3_t    builderMins, builderMaxs;
-
-      //this assumes the adv builder is the biggest thing that'll use the hovel
-      BG_ClassBoundingBox( PCL_ALIEN_BUILDER0_UPG, builderMins, builderMaxs, NULL, NULL, NULL );
-
-      if( APropHovel_Blocked( origin, angles, normal, ent ) )
-        reason = IBE_HOVELEXIT;
-    }
-
     // Check permission to build here
     if( tr1.surfaceFlags & SURF_NOALIENBUILD || contents & CONTENTS_NOALIENBUILD )
       reason = IBE_PERMISSION;
@@ -3570,10 +3334,6 @@ itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance
       {
         case BA_A_OVERMIND:
           reason = IBE_ONEOVERMIND;
-          break;
-
-        case BA_A_HOVEL:
-          reason = IBE_ONEHOVEL;
           break;
 
         case BA_H_REACTOR:
@@ -3730,13 +3490,6 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable, vec3_t ori
     case BA_A_OVERMIND:
       built->die = ASpawn_Die;
       built->think = AOvermind_Think;
-      built->pain = AGeneric_Pain;
-      break;
-
-    case BA_A_HOVEL:
-      built->die = AHovel_Die;
-      built->use = AHovel_Use;
-      built->think = AHovel_Think;
       built->pain = AGeneric_Pain;
       break;
 
@@ -3898,14 +3651,6 @@ qboolean G_BuildIfValid( gentity_t *ent, buildable_t buildable )
       G_TriggerMenu( ent->client->ps.clientNum, MN_A_ONEOVERMIND );
       return qfalse;
 
-    case IBE_ONEHOVEL:
-      G_TriggerMenu( ent->client->ps.clientNum, MN_A_ONEHOVEL );
-      return qfalse;
-
-    case IBE_HOVELEXIT:
-      G_TriggerMenu( ent->client->ps.clientNum, MN_A_HOVEL_EXIT );
-      return qfalse;
-
     case IBE_NORMAL:
       G_TriggerMenu( ent->client->ps.clientNum, MN_B_NORMAL );
       return qfalse;
@@ -4055,8 +3800,8 @@ void G_LayoutSave( char *name )
     if( ent->s.eType != ET_BUILDABLE )
       continue;
 
-    s = va( "%i %f %f %f %f %f %f %f %f %f %f %f %f\n",
-      ent->s.modelindex,
+    s = va( "%s %f %f %f %f %f %f %f %f %f %f %f %f\n",
+      BG_Buildable( ent->s.modelindex )->name,
       ent->s.pos.trBase[ 0 ],
       ent->s.pos.trBase[ 1 ],
       ent->s.pos.trBase[ 2 ],
@@ -4239,7 +3984,8 @@ void G_LayoutLoad( void )
   int len;
   char *layout, *layoutHead;
   char map[ MAX_QPATH ];
-  int buildable = BA_NONE;
+  char buildName[ MAX_TOKEN_CHARS ];
+  int buildable;
   vec3_t origin = { 0.0f, 0.0f, 0.0f };
   vec3_t angles = { 0.0f, 0.0f, 0.0f };
   vec3_t origin2 = { 0.0f, 0.0f, 0.0f };
@@ -4275,18 +4021,19 @@ void G_LayoutLoad( void )
     if( *layout == '\n' )
     {
       i = 0;
-      sscanf( line, "%d %f %f %f %f %f %f %f %f %f %f %f %f\n",
-        &buildable,
+      sscanf( line, "%s %f %f %f %f %f %f %f %f %f %f %f %f\n",
+        buildName,
         &origin[ 0 ], &origin[ 1 ], &origin[ 2 ],
         &angles[ 0 ], &angles[ 1 ], &angles[ 2 ],
         &origin2[ 0 ], &origin2[ 1 ], &origin2[ 2 ],
         &angles2[ 0 ], &angles2[ 1 ], &angles2[ 2 ] );
 
-      if( buildable > BA_NONE && buildable < BA_NUM_BUILDABLES )
-        G_LayoutBuildItem( buildable, origin, angles, origin2, angles2 );
+      buildable = BG_BuildableByName( buildName )->number;
+      if( buildable <= BA_NONE || buildable >= BA_NUM_BUILDABLES )
+        G_Printf( S_COLOR_YELLOW "WARNING: bad buildable name (%s) in layout."
+          " skipping\n", buildName );
       else
-        G_Printf( S_COLOR_YELLOW "WARNING: bad buildable number (%d) in "
-          " layout.  skipping\n", buildable );
+        G_LayoutBuildItem( buildable, origin, angles, origin2, angles2 );
     }
     layout++;
   }

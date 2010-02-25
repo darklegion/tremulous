@@ -234,16 +234,15 @@ typedef enum
 #define SS_GRABBED              0x00000008
 #define SS_BLOBLOCKED           0x00000010
 #define SS_POISONED             0x00000020
-#define SS_HOVELING             0x00000040
-#define SS_BOOSTED              0x00000080
-#define SS_BOOSTEDWARNING       0x00000100 // booster poison is running out
-#define SS_SLOWLOCKED           0x00000200
-#define SS_CHARGING             0x00000400
-#define SS_HEALING_ACTIVE       0x00000800 // medistat for humans, creep for aliens
-#define SS_HEALING_2X           0x00001000 // medkit or double healing rate
-#define SS_HEALING_3X           0x00002000 // triple healing rate
+#define SS_BOOSTED              0x00000040
+#define SS_BOOSTEDWARNING       0x00000080 // booster poison is running out
+#define SS_SLOWLOCKED           0x00000100
+#define SS_CHARGING             0x00000200
+#define SS_HEALING_ACTIVE       0x00000400 // medistat for humans, creep for aliens
+#define SS_HEALING_2X           0x00000800 // medkit or double healing rate
+#define SS_HEALING_3X           0x00001000 // triple healing rate
 
-#define SB_VALID_TOGGLEBIT      0x00004000
+#define SB_VALID_TOGGLEBIT      0x00002000
 
 // player_state->persistant[] indexes
 // these fields are the only part of player_state that isn't
@@ -394,8 +393,6 @@ typedef enum
   BA_A_TRAPPER,
   BA_A_BOOSTER,
   BA_A_HIVE,
-
-  BA_A_HOVEL,
 
   BA_H_SPAWN,
 
@@ -560,8 +557,6 @@ typedef enum
   MN_A_CLASS,
   MN_A_BUILD,
   MN_A_INFEST,
-  MN_A_HOVEL_OCCUPIED,
-  MN_A_HOVEL_BLOCKED,
   MN_A_NOEROOM,
   MN_A_TOOCLOSE,
   MN_A_NOOVMND_EVOLVE,
@@ -585,11 +580,9 @@ typedef enum
 
   //alien build
   MN_A_ONEOVERMIND,
-  MN_A_ONEHOVEL,
   MN_A_NOBP,
   MN_A_NOCREEP,
   MN_A_NOOVMND,
-  MN_A_HOVEL_EXIT,
 
   //human stuff
   MN_H_SPAWN,

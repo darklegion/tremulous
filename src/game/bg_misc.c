@@ -281,41 +281,6 @@ static const buildableAttributes_t bg_buildableList[ ] =
     HIVE_VALUE,            //int       value;
   },
   {
-    BA_A_HOVEL,            //int       buildNum;
-    "hovel",               //char      *buildName;
-    "Hovel",               //char      *humanName;
-    "An armoured shell used by the Grangers to hide in, while "
-      "the alien base is under attack. It may be entered or "
-      "exited at any time.",
-    "team_alien_hovel",    //char      *entityName;
-    TR_GRAVITY,            //trType_t  traj;
-    0.0,                   //float     bounce;
-    HOVEL_BP,              //int       buildPoints;
-    0,  //can't build it   //int  stages
-    HOVEL_HEALTH,          //int       health;
-    HOVEL_REGEN,           //int       regenRate;
-    HOVEL_SPLASHDAMAGE,    //int       splashDamage;
-    HOVEL_SPLASHRADIUS,    //int       splashRadius;
-    MOD_ASPAWN,            //int       meansOfDeath;
-    TEAM_ALIENS,            //int       team;
-    ( 1 << WP_ABUILD2 ),   //weapon_t  buildWeapon;
-    BANIM_IDLE1,           //int       idleAnim;
-    150,                   //int       nextthink;
-    HOVEL_BT,              //int       buildTime;
-    qtrue,                 //qboolean  usable;
-    0,                     //int       turretRange;
-    0,                     //int       turretFireSpeed;
-    WP_NONE,               //weapon_t  turretProjType;
-    0.95f,                 //float     minNormal;
-    qfalse,                //qboolean  invertNormal;
-    qtrue,                 //qboolean  creepTest;
-    HOVEL_CREEPSIZE,       //int       creepSize;
-    qfalse,                //qboolean  dccTest;
-    qfalse,                //qboolean  transparentTest;
-    qtrue,                 //qboolean  uniqueTest;
-    HOVEL_VALUE,           //int       value;
-  },
-  {
     BA_H_SPAWN,            //int       buildNum;
     "telenode",            //char      *buildName;
     "Telenode",            //char      *humanName;

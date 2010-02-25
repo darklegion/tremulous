@@ -669,24 +669,7 @@ const char *CG_TutorialText( void )
 
       if( ps->stats[ STAT_TEAM ] == TEAM_ALIENS )
       {
-        entityState_t *es = CG_BuildableInRange( ps, NULL );
-
-        if( ps->stats[ STAT_STATE ] & SS_HOVELING )
-        {
-          Q_strcat( text, MAX_TUTORIAL_TEXT,
-              va( "Press %s to exit the hovel\n",
-                CG_KeyNameForCommand( "+button7" ) ) );
-        }
-        else if( es && es->modelindex == BA_A_HOVEL &&
-                 ( es->eFlags & EF_B_SPAWNED ) &&
-                 ( ps->stats[ STAT_CLASS ] == PCL_ALIEN_BUILDER0 ||
-                   ps->stats[ STAT_CLASS ] == PCL_ALIEN_BUILDER0_UPG ) )
-        {
-          Q_strcat( text, MAX_TUTORIAL_TEXT,
-              va( "Press %s to enter the hovel\n",
-                CG_KeyNameForCommand( "+button7" ) ) );
-        }
-        else if( BG_AlienCanEvolve( ps->stats[ STAT_CLASS ],
+        if( BG_AlienCanEvolve( ps->stats[ STAT_CLASS ],
                                     ps->persistant[ PERS_CREDIT ],
                                     cgs.alienStage ) )
         {
