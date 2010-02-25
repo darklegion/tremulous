@@ -785,7 +785,7 @@ static qboolean G_IsEmoticon( const char *s, qboolean *escaped )
     {
       for( j = 0; j < level.emoticonCount; j++ )
       {
-        if( !Q_stricmp( emoticon, level.emoticons[ j ] ) )
+        if( !Q_stricmp( emoticon, level.emoticons[ j ].name ) )
         {
           *escaped = escape;
           return qtrue;
@@ -1014,16 +1014,16 @@ void ClientUserinfoChanged( int clientNum )
   if( strcmp( oldname, newname ) )
   {
     if( client->pers.nameChangeTime &&
-      ( level.time - client->pers.nameChangeTime )
-      <= ( g_minNameChangePeriod.value * 1000 ) )
+      level.time - client->pers.nameChangeTime <=
+      g_minNameChangePeriod.value * 1000 )
     {
       trap_SendServerCommand( ent - g_entities, va(
         "print \"Name change spam protection (g_minNameChangePeriod = %d)\n\"",
          g_minNameChangePeriod.integer ) );
       revertName = qtrue;
     }
-    else if( g_maxNameChanges.integer > 0
-      && client->pers.nameChanges >= g_maxNameChanges.integer  )
+    else if( g_maxNameChanges.integer > 0 &&
+      client->pers.nameChanges >= g_maxNameChanges.integer  )
     {
       trap_SendServerCommand( ent - g_entities, va(
         "print \"Maximum name changes reached (g_maxNameChanges = %d)\n\"",
@@ -1154,7 +1154,7 @@ void ClientUserinfoChanged( int clientNum )
     client->pers.teamInfo = qtrue;
   else
     client->pers.teamInfo = qfalse;
-  
+
   s = Info_ValueForKey( userinfo, "cg_unlagged" );
   if( !s[0] || atoi( s ) != 0 )
     client->pers.useUnlagged = qtrue;

@@ -631,7 +631,7 @@ typedef struct
 
   voice_t           *voices;
 
-  char              emoticons[ MAX_EMOTICONS ][ MAX_EMOTICON_NAME_LEN ];
+  emoticon_t        emoticons[ MAX_EMOTICONS ];
   int               emoticonCount;
 } level_locals_t;
 
@@ -784,7 +784,6 @@ int         G_ParticleSystemIndex( char *name );
 int         G_ShaderIndex( char *name );
 int         G_ModelIndex( char *name );
 int         G_SoundIndex( char *name );
-void        G_TeamCommand( team_t team, char *cmd );
 void        G_KillBox (gentity_t *ent);
 gentity_t   *G_Find (gentity_t *from, int fieldofs, const char *match);
 gentity_t   *G_PickTarget (char *targetname);
@@ -992,6 +991,7 @@ void G_RunClient( gentity_t *ent );
 // g_team.c
 //
 team_t    G_TeamFromString( char *str );
+void      G_TeamCommand( team_t team, char *cmd );
 qboolean  OnSameTeam( gentity_t *ent1, gentity_t *ent2 );
 void      G_LeaveTeam( gentity_t *self );
 void      G_ChangeTeam( gentity_t *ent, team_t newTeam );

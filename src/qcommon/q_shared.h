@@ -1394,6 +1394,15 @@ typedef enum {
 #define MAX_EMOTICON_NAME_LEN 16
 #define MAX_EMOTICONS 64
 
+typedef struct
+{
+  char      name[ MAX_EMOTICON_NAME_LEN ];
+#ifndef GAME
+  int       width;
+  qhandle_t shader;
+#endif
+} emoticon_t;
+
 // flags for com_downloadPrompt
 #define DLP_TYPE_MASK 0x0f
 #define DLP_IGNORE    0x01 // don't download anything

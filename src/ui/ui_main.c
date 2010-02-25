@@ -219,17 +219,16 @@ void AssetCache( void )
   if( ui_emoticons.integer ) 
   {
     uiInfo.uiDC.Assets.emoticonCount = BG_LoadEmoticons(
-      uiInfo.uiDC.Assets.emoticons,
-      uiInfo.uiDC.Assets.emoticonWidths );
+      uiInfo.uiDC.Assets.emoticons, MAX_EMOTICONS );
   }
   else
     uiInfo.uiDC.Assets.emoticonCount = 0;
 
   for( i = 0; i < uiInfo.uiDC.Assets.emoticonCount; i++ )
   {
-    uiInfo.uiDC.Assets.emoticonShaders[ i ] = trap_R_RegisterShaderNoMip( 
-      va( "emoticons/%s_%dx1.tga", uiInfo.uiDC.Assets.emoticons[ i ],
-          uiInfo.uiDC.Assets.emoticonWidths[ i ] ) );
+    uiInfo.uiDC.Assets.emoticons[ i ].shader = trap_R_RegisterShaderNoMip( 
+      va( "emoticons/%s_%dx1.tga", uiInfo.uiDC.Assets.emoticons[ i ].name,
+          uiInfo.uiDC.Assets.emoticons[ i ].width ) );
   }
 }
 

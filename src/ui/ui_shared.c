@@ -1880,50 +1880,43 @@ void UI_EscapeEmoticons( char *dest, const char *src, int destsize )
 qboolean UI_Text_IsEmoticon( const char *s, qboolean *escaped,
                              int *length, qhandle_t *h, int *width )
 {
-  char name[ MAX_EMOTICON_NAME_LEN ] = {""};
   const char *p = s;
-  int i = 0;
-  int j = 0;
+  int i;
 
   if( *p != '[' )
     return qfalse;
   p++;
 
-  *escaped = qfalse;
   if( *p == '[' )
   {
     *escaped = qtrue;
     p++;
   }
+  else
+    *escaped = qfalse;
 
-  while( *p && i < ( MAX_EMOTICON_NAME_LEN - 1 ) )
-  {
-    if( *p == ']' )
-    {
-      for( j = 0; j < DC->Assets.emoticonCount; j++ )
-      {
-        if( !Q_stricmp( DC->Assets.emoticons[ j ], name ) )
-        {
-          if( *escaped )
-          {
-            *length = 1;
-            return qtrue;
-          }
-          if( h )
-            *h = DC->Assets.emoticonShaders[ j ];
-          if( width )
-            *width = DC->Assets.emoticonWidths[ j ];
-          *length = i + 2;
-          return qtrue;
-        }
-      }
+  for( *length = 0; p[ *length ] != ']'; ( *length )++ )
+    if( !p[ *length ] )
       return qfalse;
-    }
-    name[ i++ ] = *p;
-    name[ i ] = '\0';
-    p++;
-  }
-  return qfalse;
+
+  for( i = 0; i < DC->Assets.emoticonCount; i++ )
+    if( !Q_stricmpn( DC->Assets.emoticons[ i ].name, p, *length ) )
+      break;
+
+  if( i == DC->Assets.emoticonCount )
+    return qfalse;
+
+  if( h )
+    *h = DC->Assets.emoticons[ i ].shader;
+  if( width )
+    *width = DC->Assets.emoticons[ i ].width;
+
+  ( *length ) += 2;
+
+  if( *escaped )
+    ( *length )++;
+
+  return qtrue;
 }
 
 static float UI_Parse_Indent( const char **text )

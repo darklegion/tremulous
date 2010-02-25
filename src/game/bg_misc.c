@@ -3875,17 +3875,14 @@ weapon_t BG_PrimaryWeapon( int stats[ ] )
 BG_LoadEmoticons
 ============
 */
-int BG_LoadEmoticons( char names[ ][ MAX_EMOTICON_NAME_LEN ], int widths[ ] )
+int BG_LoadEmoticons( emoticon_t *emoticons, int num )
 {
   int numFiles;
   char fileList[ MAX_EMOTICONS * ( MAX_EMOTICON_NAME_LEN + 9 ) ] = {""};
   int i;
   char *filePtr;
   int fileLen;
-  char emoticon[ MAX_EMOTICON_NAME_LEN + 9 ] = {""};
-  int loaded = 0;
   int count;
-  int width = 0;
 
   numFiles = trap_FS_GetFileList( "emoticons", "x1.tga", fileList,
     sizeof( fileList ) );
@@ -3896,65 +3893,38 @@ int BG_LoadEmoticons( char names[ ][ MAX_EMOTICON_NAME_LEN ], int widths[ ] )
   filePtr = fileList;
   fileLen = 0;
   count = 0;
-  for( i = 0; i < numFiles; i++, filePtr += fileLen + 1 )
+  for( i = 0; i < numFiles && count < num; i++, filePtr += fileLen + 1 )
   {
-    if( count >= MAX_EMOTICONS )
-    {
-      count++;
-      continue;
-    }
-
     fileLen = strlen( filePtr );
-    if( fileLen > MAX_EMOTICON_NAME_LEN + 8 )
+    if( fileLen < 9 || filePtr[ fileLen - 8 ] != '_' ||
+        filePtr[ fileLen - 7 ] < '1' || filePtr[ fileLen - 7 ] > '9' )
     {
-      Com_Printf( S_COLOR_YELLOW "WARNING: MAX_EMOTICON_NAME_LEN is %d. "
-        "skipping \"%s\", filename too long", MAX_EMOTICON_NAME_LEN, filePtr );
+      Com_Printf( S_COLOR_YELLOW "skipping invalidly named emoticon \"%s\"\n",
+        filePtr );
       continue;
     }
-    if( fileLen < 9 )
+    if( fileLen - 8 > MAX_EMOTICON_NAME_LEN )
     {
-      Com_Printf( S_COLOR_YELLOW "WARNING: skipping \"%s\", filename too short",
-        filePtr );
+      Com_Printf( S_COLOR_YELLOW "emoticon file name \"%s\" too long (>%d)\n",
+        filePtr, MAX_EMOTICON_NAME_LEN + 8 );
       continue;
     }
     if( !trap_FS_FOpenFile( va( "emoticons/%s", filePtr ), NULL, FS_READ ) )
     {
-      Com_Printf( S_COLOR_YELLOW "WARNING: BG_LoadEmoticons(): detected "
-        " an unreadable .tga file name \"emoticons/%s\" in emoticon detection",
-        filePtr );
-      break;
-    }
-
-    Q_strncpyz( emoticon, filePtr, sizeof( emoticon ) );
-
-    if( emoticon[ fileLen - 8 ] != '_' )
-    {
-      Com_Printf( S_COLOR_YELLOW "WARNING: skipping \"%s\", filename invalid",
-        filePtr );
+      Com_Printf( S_COLOR_YELLOW "could not open \"emoticons/%s\"\n", filePtr );
       continue;
     }
 
-    width = emoticon[ fileLen - 7 ] - '0';
-
-    if( width < 1 || width > 9 )
-    {
-      Com_Printf( S_COLOR_YELLOW "WARNING: skipping \"%s\", invalid width",
-        filePtr );
-      continue;
-    }
-
-    emoticon[ fileLen - 8 ] = '\0';
-
-    Q_strncpyz( names[ count ], emoticon, sizeof( names[ count ] ) );
-    if( widths )
-      widths[ count ] = width;
+    Q_strncpyz( emoticons[ count ].name, filePtr, fileLen - 8 + 1 );
+#ifndef GAME
+    emoticons[ count ].width = filePtr[ fileLen - 7 ] - '0';
+#endif
     count++;
-    loaded = count;
   }
 
   Com_Printf( "Loaded %d of %d emoticons (MAX_EMOTICONS is %d)\n",
-    loaded, count, MAX_EMOTICONS );
-  return loaded;
+    count, numFiles, MAX_EMOTICONS );
+  return count;
 }
 
 /*

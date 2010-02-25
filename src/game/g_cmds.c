@@ -32,29 +32,10 @@ Remove color codes and non-alphanumeric characters from a string
 */
 void G_SanitiseString( char *in, char *out, int len )
 {
-  qboolean skip = qtrue;
-  int spaces = 0;
-
   len--;
 
   while( *in && len > 0 )
   {
-    // strip leading white space
-    if( *in == ' ' )
-    {
-      if( skip )
-      {
-        in++;
-        continue;
-      }
-      spaces++;
-    }
-    else
-    {
-      spaces = 0;
-      skip = qfalse;
-    }
-
     if( Q_IsColorString( in ) )
     {
       in += 2;    // skip color code
@@ -68,7 +49,6 @@ void G_SanitiseString( char *in, char *out, int len )
     }
     in++;
   }
-  out -= spaces;
   *out = 0;
 }
 
@@ -551,10 +531,6 @@ void Cmd_Team_f( gentity_t *ent )
   int       aliens = level.numAlienClients;
   int       humans = level.numHumanClients;
 
-  // stop team join spam
-  if( level.time - ent->client->pers.teamChangeTime < 1000 )
-    return;
-
   if( oldteam == TEAM_ALIENS )
     aliens--;
   else if( oldteam == TEAM_HUMANS )
@@ -571,8 +547,8 @@ void Cmd_Team_f( gentity_t *ent )
 
   if( !s[ 0 ] )
   {
-    trap_SendServerCommand( ent-g_entities, va( "print \"team: %i\n\"",
-      oldteam ) );
+    trap_SendServerCommand( ent-g_entities, va( "print \"team: %s\n\"",
+      BG_TeamName( oldteam ) ) );
     return;
   }
 
@@ -781,19 +757,6 @@ static void Cmd_SayArea_f( gentity_t *ent )
   vec3_t range = { 1000.0f, 1000.0f, 1000.0f };
   vec3_t mins, maxs;
   char   *msg;
-
-  if( ent->client->pers.teamSelection == TEAM_NONE )
-  {
-    G_TriggerMenu( ent - g_entities, MN_CMD_TEAM );
-    return;
-  }
-
-  if( ent->client->ps.stats[ STAT_HEALTH ] <= 0 ||
-      ent->client->sess.spectatorState != SPECTATOR_NOT )
-  {
-    G_TriggerMenu( ent - g_entities, MN_CMD_LIVING );
-    return;
-  }
 
   if( trap_Argc( ) < 2 )
   {
@@ -3213,7 +3176,7 @@ void Cmd_PrivateMessage_f( gentity_t *ent )
     return;
   }
 
-  if( !Q_stricmp( cmd, "mt" ) || !Q_stricmp( cmd, "/mt" ) )
+  if( !Q_stricmp( cmd, "mt" ) )
     teamonly = qtrue;
 
   trap_Argv( 1, name, sizeof( name ) );
