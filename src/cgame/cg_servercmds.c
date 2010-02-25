@@ -91,7 +91,7 @@ static void CG_ParseTeamInfo( void )
     client = atoi( CG_Argv( i * 5 + 1 ) );
     if( client < 0 || client >= MAX_CLIENTS )
     {
-      CG_Printf( "[skipnotify]CG_ParseTeamInfo: bad client number: %d", client );
+      CG_Printf( "[skipnotify]CG_ParseTeamInfo: bad client number: %d\n", client );
       return;
     }
 
