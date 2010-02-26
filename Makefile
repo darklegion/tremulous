@@ -1605,7 +1605,6 @@ CGOBJ_ = \
   $(B)/base/cgame/cg_attachment.o \
   $(B)/base/cgame/cg_trails.o \
   $(B)/base/cgame/cg_particles.o \
-  $(B)/base/cgame/cg_ptr.o \
   $(B)/base/cgame/cg_tutorial.o \
   $(B)/base/ui/ui_shared.o \
   \
@@ -1654,9 +1653,9 @@ GOBJ_ = \
   $(B)/base/game/g_trigger.o \
   $(B)/base/game/g_utils.o \
   $(B)/base/game/g_maprotation.o \
-  $(B)/base/game/g_ptr.o \
   $(B)/base/game/g_weapon.o \
   $(B)/base/game/g_admin.o \
+  $(B)/base/game/g_namelog.o \
   \
   $(B)/base/qcommon/q_math.o \
   $(B)/base/qcommon/q_shared.o

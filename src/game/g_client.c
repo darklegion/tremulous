@@ -1013,8 +1013,8 @@ void ClientUserinfoChanged( int clientNum )
 
   if( strcmp( oldname, newname ) )
   {
-    if( client->pers.nameChangeTime &&
-      level.time - client->pers.nameChangeTime <=
+    if( client->pers.namelog->nameChangeTime &&
+      level.time - client->pers.namelog->nameChangeTime <=
       g_minNameChangePeriod.value * 1000 )
     {
       trap_SendServerCommand( ent - g_entities, va(
@@ -1023,14 +1023,14 @@ void ClientUserinfoChanged( int clientNum )
       revertName = qtrue;
     }
     else if( g_maxNameChanges.integer > 0 &&
-      client->pers.nameChanges >= g_maxNameChanges.integer  )
+      client->pers.namelog->nameChanges >= g_maxNameChanges.integer  )
     {
       trap_SendServerCommand( ent - g_entities, va(
         "print \"Maximum name changes reached (g_maxNameChanges = %d)\n\"",
          g_maxNameChanges.integer ) );
       revertName = qtrue;
     }
-    else if( client->pers.muted )
+    else if( client->pers.namelog->muted )
     {
       trap_SendServerCommand( ent - g_entities,
         "print \"You cannot change your name while you are muted\n\"" );
@@ -1053,28 +1053,22 @@ void ClientUserinfoChanged( int clientNum )
     {
       Q_strncpyz( client->pers.netname, newname,
         sizeof( client->pers.netname ) );
+      G_namelog_update_name( client );
       if( client->pers.connected == CON_CONNECTED )
       {
-        client->pers.nameChangeTime = level.time;
-        client->pers.nameChanges++;
+        client->pers.namelog->nameChangeTime = level.time;
+        client->pers.namelog->nameChanges++;
+
       }
-    }
-  }
-
-  if( client->sess.spectatorState == SPECTATOR_SCOREBOARD )
-    Q_strncpyz( client->pers.netname, "scoreboard", sizeof( client->pers.netname ) );
-
-  if( *oldname )
-  {
-    if( strcmp( oldname, client->pers.netname ) )
-    {
-      trap_SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE
-        " renamed to %s" S_COLOR_WHITE "\n\"", oldname, client->pers.netname ) );
-      G_LogPrintf( "ClientRename: %i [%s] (%s) \"%s^7\" -> \"%s^7\" \"%c%s%c^7\"\n",
+      if( *oldname )
+      {
+        trap_SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE
+          " renamed to %s\n\"", oldname, client->pers.netname ) );
+        G_LogPrintf( "ClientRename: %i [%s] (%s) \"%s^7\" -> \"%s^7\" \"%c%s%c^7\"\n",
                    clientNum, client->pers.ip, client->pers.guid,
                    oldname, client->pers.netname,
                    DECOLOR_OFF, client->pers.netname, DECOLOR_ON );
-      G_admin_namelog_update( client, qfalse );
+      }
     }
   }
 
@@ -1277,6 +1271,7 @@ char *ClientConnect( int clientNum, qboolean firstTime )
   G_ReadSessionData( client );
 
   // get and distribute relevent paramters
+  G_namelog_connect( client );
   ClientUserinfoChanged( clientNum );
   G_LogPrintf( "ClientConnect: %i [%s] (%s) \"%s^7\" \"%c%s%c^7\"\n",
                clientNum, client->pers.ip, client->pers.guid,
@@ -1293,7 +1288,6 @@ char *ClientConnect( int clientNum, qboolean firstTime )
 
   // count current clients and rank for scoreboard
   CalculateRanks( );
-  G_admin_namelog_update( client, qfalse );
   
 
   // if this is after !restart keepteams or !restart switchteams, apply said selection
@@ -1352,11 +1346,7 @@ void ClientBegin( int clientNum )
 
   trap_SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE " entered the game\n\"", client->pers.netname ) );
 
-  // name can change between ClientConnect() and ClientBegin()
-  G_admin_namelog_update( client, qfalse );
-
-  // request the clients PTR code
-  trap_SendServerCommand( ent - g_entities, "ptrcrequest" );
+  G_namelog_restore( client );
 
   G_LogPrintf( "ClientBegin: %i\n", clientNum );
 
@@ -1708,7 +1698,7 @@ void ClientDisconnect( int clientNum )
   if( !ent->client )
     return;
 
-  G_admin_namelog_update( ent->client, qtrue );
+  G_namelog_disconnect( ent->client );
   G_LeaveTeam( ent );
   G_Vote( ent, TEAM_NONE, qfalse );
 
@@ -1726,9 +1716,6 @@ void ClientDisconnect( int clientNum )
     tent = G_TempEntity( ent->client->ps.origin, EV_PLAYER_TELEPORT_OUT );
     tent->s.clientNum = ent->s.clientNum;
   }
-
-  if( ent->client->pers.connection )
-    ent->client->pers.connection->clientNum = -1;
 
   G_LogPrintf( "ClientDisconnect: %i [%s] (%s) \"%s^7\"\n", clientNum,
    ent->client->pers.ip, ent->client->pers.guid, ent->client->pers.netname );

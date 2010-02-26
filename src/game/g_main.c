@@ -627,8 +627,6 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
   G_CountSpawns( );
 
   G_UpdateTeamConfigStrings( );
-
-  G_ResetPTRConnections( );
   
   if( g_lockTeamsAtStart.integer )
   {
@@ -679,7 +677,7 @@ void G_ShutdownGame( int restart )
   G_WriteSessionData( );
 
   G_admin_cleanup( );
-  G_admin_namelog_cleanup( );
+  G_namelog_cleanup( );
   G_UnregisterCommands( );
 
   G_ShutdownMapRotations( );

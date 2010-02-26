@@ -1235,37 +1235,6 @@ static void CG_PoisonCloud_f( void )
   }
 }
 
-/*
-=================
-CG_PTRRequest_f
-=================
-*/
-static void CG_PTRRequest_f( void )
-{
-  trap_SendClientCommand( va( "ptrcverify %d", CG_ReadPTRCode( ) ) );
-}
-
-/*
-=================
-CG_PTRIssue_f
-=================
-*/
-static void CG_PTRIssue_f( void )
-{
-  if( trap_Argc( ) == 2 )
-    CG_WritePTRCode( atoi( CG_Argv( 1 ) ) );
-}
-
-/*
-=================
-CG_PTRConfirm_f
-=================
-*/
-static void CG_PTRConfirm_f( void )
-{
-  trap_SendConsoleCommand( "menu ptrc_popmenu\n" );
-}
-
 static void CG_GameCmds_f( void )
 {
   int i;
@@ -1291,9 +1260,6 @@ static consoleCommand_t svcommands[ ] =
   { "map_restart", CG_MapRestart },
   { "poisoncloud", CG_PoisonCloud_f },
   { "print", CG_Print_f },
-  { "ptrcconfirm", CG_PTRConfirm_f },
-  { "ptrcissue", CG_PTRIssue_f },
-  { "ptrcrequest", CG_PTRRequest_f },
   { "scores", CG_ParseScores },
   { "serverclosemenus", CG_ServerCloseMenus_f },
   { "servermenu", CG_ServerMenu_f },

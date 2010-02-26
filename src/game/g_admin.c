@@ -196,7 +196,6 @@ g_admin_level_t *g_admin_levels = NULL;
 g_admin_admin_t *g_admin_admins = NULL;
 g_admin_ban_t *g_admin_bans = NULL;
 g_admin_command_t *g_admin_commands = NULL;
-g_admin_namelog_t *g_admin_namelogs = NULL;
 
 void G_admin_register_cmds( void )
 {
@@ -899,75 +898,6 @@ qboolean G_admin_cmd_check( gentity_t *ent )
   return qfalse;
 }
 
-void G_admin_namelog_cleanup( )
-{
-  g_admin_namelog_t *namelog, *n;
-
-  for( namelog = g_admin_namelogs; namelog; namelog = n )
-  {
-    n = namelog->next;
-    BG_Free( namelog );
-  }
-}
-
-void G_admin_namelog_update( gclient_t *client, qboolean disconnect )
-{
-  int i;
-  g_admin_namelog_t *n, *p = NULL;
-  char n1[ MAX_NAME_LENGTH ];
-  char n2[ MAX_NAME_LENGTH ];
-  int clientNum = ( client - level.clients );
-
-  G_SanitiseString( client->pers.netname, n1, sizeof( n1 ) );
-  for( n = g_admin_namelogs; n; p = n, n = n->next )
-  {
-    if( disconnect && n->slot != clientNum )
-      continue;
-
-    if( !disconnect && n->slot != clientNum && n->slot != -1 )
-      continue;
-
-    if( !Q_stricmp( client->pers.guid, n->guid ) )
-    {
-      for( i = 0; i < MAX_ADMIN_NAMELOG_NAMES && n->name[ i ][ 0 ]; i++ )
-      {
-        G_SanitiseString( n->name[ i ], n2, sizeof( n2 ) );
-        if( !strcmp( n1, n2 ) )
-          break;
-      }
-      if( i == MAX_ADMIN_NAMELOG_NAMES )
-        i = client->pers.nameChanges % MAX_ADMIN_NAMELOG_NAMES;
-      Q_strncpyz( n->name[ i ], client->pers.netname, sizeof( n->name[ i ] ) );
-
-      for( i = 0; i < MAX_ADMIN_NAMELOG_ADDRS && n->ip[ i ][ 0 ]; i++ )
-      {
-        if( !Q_stricmp( client->pers.ip, n->ip[ i ] ) )
-          break;
-      }
-      if( i == MAX_ADMIN_NAMELOG_ADDRS )
-        i--;
-      Q_strncpyz( n->ip[ i ], client->pers.ip, sizeof( n->ip[ i ] ) );
-
-      n->slot = ( disconnect ) ? -1 : clientNum;
-
-      // if this player is connecting, they are no longer banned
-      if( !disconnect )
-        n->banned = qfalse;
-
-      return;
-    }
-  }
-  n = BG_Alloc( sizeof( g_admin_namelog_t ) );
-  Q_strncpyz( n->ip[ 0 ], client->pers.ip, sizeof( n->ip[ 0 ] ) );
-  Q_strncpyz( n->guid, client->pers.guid, sizeof( n->guid ) );
-  Q_strncpyz( n->name[ 0 ], client->pers.netname, sizeof( n->name[ 0 ] ) );
-  n->slot = ( disconnect ) ? -1 : clientNum;
-  if( p )
-    p->next = n;
-  else
-    g_admin_namelogs = n;
-}
-
 qboolean G_admin_readconfig( gentity_t *ent )
 {
   g_admin_level_t *l = NULL;
@@ -1511,7 +1441,7 @@ qboolean G_admin_ban( gentity_t *ent )
   int netmask = -1;
   addr_t ip, cmp;
   qboolean ipmatch = qfalse;
-  g_admin_namelog_t *namelog, *match = NULL;
+  namelog_t *namelog, *match = NULL;
 
   if( trap_Argc() < 2 )
   {
@@ -1557,7 +1487,7 @@ qboolean G_admin_ban( gentity_t *ent )
     {
       logmatches = 1;
       exactmatch = qtrue;
-      for( match = g_admin_namelogs; match->slot != i; match = match->next );
+      for( match = level.namelogs; match->slot != i; match = match->next );
     }
   }
   else if( G_AddressParse( search, &ip, &netmask ) )
@@ -1573,7 +1503,7 @@ qboolean G_admin_ban( gentity_t *ent )
     ipmatch = qtrue;
   }
 
-  for( namelog = g_admin_namelogs; namelog && !exactmatch; namelog = namelog->next )
+  for( namelog = level.namelogs; namelog && !exactmatch; namelog = namelog->next )
   {
     // skip players in the namelog who have already been banned
     if( namelog->banned )
@@ -1581,7 +1511,7 @@ qboolean G_admin_ban( gentity_t *ent )
 
     if( ipmatch )
     {
-      for( i = 0; i < MAX_ADMIN_NAMELOG_ADDRS && namelog->ip[ i ][ 0 ]; i++ )
+      for( i = 0; i < MAX_NAMELOG_ADDRS && namelog->ip[ i ][ 0 ]; i++ )
       {
         if( G_AddressParse( namelog->ip[ i ], &cmp, NULL ) &&
             G_AddressCompare( &ip, &cmp, netmask ) )
@@ -1602,7 +1532,7 @@ qboolean G_admin_ban( gentity_t *ent )
     }
     else
     {
-      for( i = 0; i < MAX_ADMIN_NAMELOG_NAMES && namelog->name[ i ][ 0 ]; i++ )
+      for( i = 0; i < MAX_NAMELOG_NAMES && namelog->name[ i ][ 0 ]; i++ )
       {
         G_SanitiseString( namelog->name[ i ], n2, sizeof( n2 ) );
         if( strstr( n2, s2 ) )
@@ -1624,21 +1554,21 @@ qboolean G_admin_ban( gentity_t *ent )
   {
     ADMBP_begin();
     ADMBP( "^3ban: ^7multiple recent clients match name, use IP or slot#:\n" );
-    for( namelog = g_admin_namelogs; namelog; namelog = namelog->next )
+    for( namelog = level.namelogs; namelog; namelog = namelog->next )
     {
-      for( i = 0; i < MAX_ADMIN_NAMELOG_NAMES && namelog->name[ i ][ 0 ]; i++ )
+      for( i = 0; i < MAX_NAMELOG_NAMES && namelog->name[ i ][ 0 ]; i++ )
       {
         G_SanitiseString( namelog->name[ i ], n2, sizeof( n2 ) );
         if( strstr( n2, s2 ) )
           break;
       }
-      if( i < MAX_ADMIN_NAMELOG_NAMES && namelog->name[ i ][ 0 ] )
+      if( i < MAX_NAMELOG_NAMES && namelog->name[ i ][ 0 ] )
       {
         ADMBP( namelog->slot > -1 ?
           va( S_COLOR_YELLOW "%-2d" S_COLOR_WHITE, namelog->slot ) : "- " );
-        for( i = 0; i < MAX_ADMIN_NAMELOG_NAMES && namelog->name[ i ][ 0 ]; i++ )
+        for( i = 0; i < MAX_NAMELOG_NAMES && namelog->name[ i ][ 0 ]; i++ )
           ADMBP( va( " %s" S_COLOR_WHITE, namelog->name[ i ] ) );
-        for( i = 0; i < MAX_ADMIN_NAMELOG_ADDRS && namelog->ip[ i ][ 0 ]; i++ )
+        for( i = 0; i < MAX_NAMELOG_ADDRS && namelog->ip[ i ][ 0 ]; i++ )
           ADMBP( va( " %s", namelog->ip[ i ] ) );
         ADMBP( "\n" );
       }
@@ -1666,7 +1596,8 @@ qboolean G_admin_ban( gentity_t *ent )
   if( ipmatch )
   {
     admin_create_ban( ent,
-      match->slot == -1 ? match->name[ 0 ] :
+      match->slot == -1 ?
+        match->name[ match->nameChanges % MAX_NAMELOG_NAMES ] :
         level.clients[ match->slot ].pers.netname,
       match->guid,
       search,
@@ -1675,10 +1606,11 @@ qboolean G_admin_ban( gentity_t *ent )
   else
   {
     // ban all IP addresses used by this player
-    for( i = 0; i < MAX_ADMIN_NAMELOG_ADDRS && match->ip[ i ][ 0 ]; i++ )
+    for( i = 0; i < MAX_NAMELOG_ADDRS && match->ip[ i ][ 0 ]; i++ )
     {
       admin_create_ban( ent,
-        match->slot == -1 ? match->name[ 0 ] :
+        match->slot == -1 ?
+          match->name[ match->nameChanges % MAX_NAMELOG_NAMES ] :
           level.clients[ match->slot ].pers.netname,
         match->guid,
         match->ip[ i ],
@@ -1972,14 +1904,14 @@ qboolean G_admin_mute( gentity_t *ent )
     return qfalse;
   }
   vic = &g_entities[ pids[ 0 ] ];
-  if( vic->client->pers.muted == qtrue )
+  if( vic->client->pers.namelog->muted )
   {
     if( !Q_stricmp( command, "mute" ) )
     {
       ADMP( "^3mute: ^7player is already muted\n" );
       return qtrue;
     }
-    vic->client->pers.muted = qfalse;
+    vic->client->pers.namelog->muted = qfalse;
     CPx( pids[ 0 ], "cp \"^1You have been unmuted\"" );
     AP( va( "print \"^3unmute: ^7%s^7 has been unmuted by %s\n\"",
             vic->client->pers.netname,
@@ -1992,7 +1924,7 @@ qboolean G_admin_mute( gentity_t *ent )
       ADMP( "^3unmute: ^7player is not currently muted\n" );
       return qtrue;
     }
-    vic->client->pers.muted = qtrue;
+    vic->client->pers.namelog->muted = qtrue;
     CPx( pids[ 0 ], "cp \"^1You've been muted\"" );
     AP( va( "print \"^3mute: ^7%s^7 has been muted by ^7%s\n\"",
             vic->client->pers.netname,
@@ -2028,14 +1960,14 @@ qboolean G_admin_denybuild( gentity_t *ent )
     return qfalse;
   }
   vic = &g_entities[ pids[ 0 ] ];
-  if( vic->client->pers.denyBuild )
+  if( vic->client->pers.namelog->denyBuild )
   {
     if( !Q_stricmp( command, "denybuild" ) )
     {
       ADMP( "^3denybuild: ^7player already has no building rights\n" );
       return qtrue;
     }
-    vic->client->pers.denyBuild = qfalse;
+    vic->client->pers.namelog->denyBuild = qfalse;
     CPx( pids[ 0 ], "cp \"^1You've regained your building rights\"" );
     AP( va(
       "print \"^3allowbuild: ^7building rights for ^7%s^7 restored by %s\n\"",
@@ -2049,7 +1981,7 @@ qboolean G_admin_denybuild( gentity_t *ent )
       ADMP( "^3allowbuild: ^7player already has building rights\n" );
       return qtrue;
     }
-    vic->client->pers.denyBuild = qtrue;
+    vic->client->pers.namelog->denyBuild = qtrue;
     vic->client->ps.stats[ STAT_BUILDABLE ] = BA_NONE;
     CPx( pids[ 0 ], "cp \"^1You've lost your building rights\"" );
     AP( va(
@@ -2205,8 +2137,8 @@ qboolean G_admin_listplayers( gentity_t *ent )
         c = COLOR_WHITE;
     }
 
-    muted = p->pers.muted ? 'M' : ' ';
-    denied = p->pers.denyBuild ? 'B' : ' ';
+    muted = p->pers.namelog->muted ? 'M' : ' ';
+    denied = p->pers.namelog->denyBuild ? 'B' : ' ';
 
     l = d;
     registeredname = NULL;
@@ -2671,8 +2603,8 @@ qboolean G_admin_rename( gentity_t *ent )
     ADMP( va( "^3rename: ^7%s\n", err ) );
     return qfalse;
   }
-  victim->client->pers.nameChanges--;
-  victim->client->pers.nameChangeTime = 0;
+  victim->client->pers.namelog->nameChanges--;
+  victim->client->pers.namelog->nameChangeTime = 0;
   trap_GetUserinfo( pids[ 0 ], userinfo, sizeof( userinfo ) );
   AP( va( "print \"^3rename: ^7%s^7 has been renamed to %s^7 by %s\n\"",
           victim->client->pers.netname,
@@ -2790,7 +2722,7 @@ qboolean G_admin_namelog( gentity_t *ent )
   addr_t a, b;
   int mask = -1;
   qboolean ipmatch = qfalse;
-  g_admin_namelog_t *n;
+  namelog_t *n;
 
   if( trap_Argc() > 1 )
   {
@@ -2800,35 +2732,35 @@ qboolean G_admin_namelog( gentity_t *ent )
       G_SanitiseString( search, s2, sizeof( s2 ) );
   }
   ADMBP_begin();
-  for( n = g_admin_namelogs; n; n = n->next )
+  for( n = level.namelogs; n; n = n->next )
   {
     if( ipmatch )
     {
-      for( i = 0; i < MAX_ADMIN_NAMELOG_ADDRS && n->ip[ i ][ 0 ]; i++ )
+      for( i = 0; i < MAX_NAMELOG_ADDRS && n->ip[ i ][ 0 ]; i++ )
       {
         if( G_AddressParse( n->ip[ i ], &b, NULL ) &&
             G_AddressCompare( &a, &b, mask ) )
           break;
       }
-      if( i == MAX_ADMIN_NAMELOG_ADDRS || !n->ip[ i ][ 0 ] )
+      if( i == MAX_NAMELOG_ADDRS || !n->ip[ i ][ 0 ] )
         continue;
     }
     else if( search[ 0 ] )
     {
-      for( i = 0; i < MAX_ADMIN_NAMELOG_NAMES && n->name[ i ][ 0 ]; i++ )
+      for( i = 0; i < MAX_NAMELOG_NAMES && n->name[ i ][ 0 ]; i++ )
       {
         G_SanitiseString( n->name[ i ], n2, sizeof( n2 ) );
         if( strstr( n2, s2 ) )
           break;
       }
-      if( i == MAX_ADMIN_NAMELOG_NAMES || !n->name[ i ][ 0 ] )
+      if( i == MAX_NAMELOG_NAMES || !n->name[ i ][ 0 ] )
         continue;
     }
     printed++;
     ADMBP( ( n->slot > -1 ) ? va( "^3%-2d", n->slot ) : "- " );
-    for( i = 0; i < MAX_ADMIN_NAMELOG_ADDRS && n->ip[ i ][ 0 ]; i++ )
+    for( i = 0; i < MAX_NAMELOG_ADDRS && n->ip[ i ][ 0 ]; i++ )
       ADMBP( va( " %s", n->ip[ i ] ) );
-    for( i = 0; i < MAX_ADMIN_NAMELOG_NAMES && n->name[ i ][ 0 ]; i++ )
+    for( i = 0; i < MAX_NAMELOG_NAMES && n->name[ i ][ 0 ]; i++ )
       ADMBP( va( " '%s^7'", n->name[ i ] ) );
     ADMBP( "\n" );
   }
@@ -2914,7 +2846,7 @@ void G_admin_print( gentity_t *ent, char *m )
   }
 }
 
-void G_admin_buffer_begin()
+void G_admin_buffer_begin( void )
 {
   g_bfb[ 0 ] = '\0';
 }
@@ -2936,7 +2868,7 @@ void G_admin_buffer_print( gentity_t *ent, char *m )
 }
 
 
-void G_admin_cleanup()
+void G_admin_cleanup( void )
 {
   g_admin_level_t *l;
   g_admin_admin_t *a;

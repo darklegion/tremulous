@@ -272,15 +272,28 @@ typedef struct
   clientList_t      ignoreList;
 } clientSession_t;
 
-// data to store details of clients that have abnormally disconnected
-typedef struct connectionRecord_s
+// namelog
+#define MAX_NAMELOG_NAMES 5
+#define MAX_NAMELOG_ADDRS 5
+typedef struct namelog_s
 {
-  int       clientNum;
-  team_t    clientTeam;
-  int       clientCredit;
+  struct namelog_s  *next;
+  char              name[ MAX_NAMELOG_NAMES ][ MAX_NAME_LENGTH ];
+  char              ip[ MAX_NAMELOG_ADDRS ][ 40 ];
+  char              guid[ 33 ];
+  int               slot;
+  qboolean          banned;
 
-  int       ptrCode;
-} connectionRecord_t;
+  int               nameChangeTime;
+  int               nameChanges;
+
+  qboolean          muted;
+  qboolean          denyBuild;
+
+  int               score;
+  int               credits;
+  team_t            team;
+} namelog_t;
 
 // client data that stays across multiple respawns, but is cleared
 // on each level change or team change at ClientBegin()
@@ -306,9 +319,7 @@ typedef struct
   weapon_t            humanItemSelection; // humans have a starting item
   team_t              teamSelection;      // player team (copied to ps.stats[ STAT_TEAM ])
 
-  int                 teamChangeTime;     // level.time of last team change
-  qboolean            joinedATeam;        // used to tell when a PTR code is valid
-  connectionRecord_t  *connection;
+  namelog_t           *namelog;
   g_admin_admin_t     *admin;
 
   int                 aliveSeconds;       // time player has been alive in seconds
@@ -329,8 +340,6 @@ typedef struct
   vec3_t              lastDeathLocation;
   char                guid[ 33 ];
   char                ip[ 40 ];
-  qboolean            muted;
-  qboolean            denyBuild;
   char                voice[ MAX_VOICE_NAME_LEN ];
   qboolean            useUnlagged;  
   // keep track of other players' info for tinfo
@@ -627,6 +636,8 @@ typedef struct
 
   emoticon_t        emoticons[ MAX_EMOTICONS ];
   int               emoticonCount;
+
+  namelog_t         *namelogs;
 } level_locals_t;
 
 #define CMD_CHEAT         0x0001
@@ -1012,15 +1023,15 @@ qboolean  G_MapExists( char *name );
 void      G_ClearRotationStack( void );
 
 //
-// g_ptr.c
+// g_namelog.c
 //
-void                G_UpdatePTRConnection( gclient_t *client );
-connectionRecord_t  *G_GenerateNewConnection( gclient_t *client );
-qboolean            G_VerifyPTRC( int code );
-void                G_ResetPTRConnections( void );
-connectionRecord_t  *G_FindConnectionForCode( int code );
-void                G_DeletePTRConnection( connectionRecord_t *connection );
 
+void G_namelog_connect( gclient_t *client );
+void G_namelog_disconnect( gclient_t *client );
+void G_namelog_restore( gclient_t *client );
+void G_namelog_update_score( gclient_t *client );
+void G_namelog_update_name( gclient_t *client );
+void G_namelog_cleanup( void );
 
 //some maxs
 #define MAX_FILEPATH      144

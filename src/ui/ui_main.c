@@ -3018,28 +3018,6 @@ static void UI_RunMenuScript( char **args )
       if( ( cmd = uiInfo.humanBuildList[ uiInfo.humanBuildIndex ].cmd ) )
         trap_Cmd_ExecuteText( EXEC_APPEND, cmd );
     }
-    else if( Q_stricmp( name, "PTRCRestore" ) == 0 )
-    {
-      int           len;
-      char          text[ 16 ];
-      fileHandle_t  f;
-      char          command[ 32 ];
-
-      // load the file
-      len = trap_FS_FOpenFile( "ptrc.cfg", &f, FS_READ );
-
-      if( len > 0 && ( len < sizeof( text ) - 1 ) )
-      {
-        trap_FS_Read( text, len, f );
-        text[ len ] = 0;
-
-        Com_sprintf( command, 32, "ptrcrestore %s", text );
-
-        trap_Cmd_ExecuteText( EXEC_APPEND, command );
-      }
-      if( len > -1 )
-        trap_FS_FCloseFile( f );
-    }
     else if( Q_stricmp( name, "Say" ) == 0 )
     {
       char buffer[ MAX_CVAR_VALUE_STRING ];
