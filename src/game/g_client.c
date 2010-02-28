@@ -1053,13 +1053,12 @@ void ClientUserinfoChanged( int clientNum )
     {
       Q_strncpyz( client->pers.netname, newname,
         sizeof( client->pers.netname ) );
-      G_namelog_update_name( client );
       if( client->pers.connected == CON_CONNECTED )
       {
         client->pers.namelog->nameChangeTime = level.time;
         client->pers.namelog->nameChanges++;
-
       }
+      G_namelog_update_name( client );
       if( *oldname )
       {
         trap_SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE
@@ -1698,8 +1697,8 @@ void ClientDisconnect( int clientNum )
   if( !ent->client )
     return;
 
-  G_namelog_disconnect( ent->client );
   G_LeaveTeam( ent );
+  G_namelog_disconnect( ent->client );
   G_Vote( ent, TEAM_NONE, qfalse );
 
   // stop any following clients
