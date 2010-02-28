@@ -1023,7 +1023,7 @@ void ClientUserinfoChanged( int clientNum )
       revertName = qtrue;
     }
     else if( g_maxNameChanges.integer > 0 &&
-      client->pers.namelog->nameChanges >= g_maxNameChanges.integer  )
+      client->pers.namelog->nameChanges > g_maxNameChanges.integer  )
     {
       trap_SendServerCommand( ent - g_entities, va(
         "print \"Maximum name changes reached (g_maxNameChanges = %d)\n\"",
@@ -1053,12 +1053,9 @@ void ClientUserinfoChanged( int clientNum )
     {
       Q_strncpyz( client->pers.netname, newname,
         sizeof( client->pers.netname ) );
+      client->pers.namelog->nameChanges++;
       if( client->pers.connected == CON_CONNECTED )
-      {
         client->pers.namelog->nameChangeTime = level.time;
-        client->pers.namelog->nameChanges++;
-      }
-      G_namelog_update_name( client );
       if( *oldname )
       {
         trap_SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE
@@ -1069,6 +1066,7 @@ void ClientUserinfoChanged( int clientNum )
                    DECOLOR_OFF, client->pers.netname, DECOLOR_ON );
       }
     }
+    G_namelog_update_name( client );
   }
 
   // set max health
