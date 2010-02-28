@@ -134,7 +134,7 @@ qboolean G_admin_name_check( gentity_t *ent, char *name, char *err, int len );
 g_admin_admin_t *G_admin_admin( const char *guid );
 void G_admin_authlog( gentity_t *ent );
 
-// ! command functions
+// admin command functions
 qboolean G_admin_time( gentity_t *ent );
 qboolean G_admin_setlevel( gentity_t *ent );
 qboolean G_admin_kick( gentity_t *ent );

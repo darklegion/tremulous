@@ -667,8 +667,11 @@ void G_admin_authlog( gentity_t *ent )
 static void admin_log( gentity_t *admin, char *cmd )
 {
   char *name;
+  int args = 1;
 
   name = ( admin ) ? admin->client->pers.netname : "console";
+  if( !strcmp( cmd, "attempted" ) )
+    args--;
 
   G_LogPrintf( "AdminCmd: %i \"%s" S_COLOR_WHITE "\" "
                           "(\"%s" S_COLOR_WHITE "\") [%d]: %s %s\n", 
@@ -679,7 +682,7 @@ static void admin_log( gentity_t *admin, char *cmd )
                ( admin && admin->client->pers.admin ) ? 
                           admin->client->pers.admin->level : 0,
                cmd,
-               ConcatArgs( 1 ) );
+               ConcatArgs( args ) );
 }
 
 static int admin_listadmins( gentity_t *ent, int start, char *search )
@@ -873,7 +876,7 @@ qboolean G_admin_cmd_check( gentity_t *ent )
     }
     else
     {
-      admin_log( ent, S_COLOR_RED "attempted" S_COLOR_WHITE );
+      admin_log( ent, "attempted" );
       ADMP( va( "^3%s: ^7permission denied\n", c->command ) );
     }
     return qtrue;
