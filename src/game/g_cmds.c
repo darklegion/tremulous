@@ -1020,7 +1020,7 @@ void Cmd_CallVote_f( gentity_t *ent )
 
     if( clientNum != -1 )
     {
-      G_SanitiseString( level.clients[ clientNum ].pers.netname, name, sizeof( name ) );
+      G_DecolorString( level.clients[ clientNum ].pers.netname, name, sizeof( name ) );
     }
     else if( matches > 1 )
     {
