@@ -487,35 +487,6 @@ static qboolean CG_RegisterClientModelname( clientInfo_t *ci, const char *modelN
   return qtrue;
 }
 
-/*
-====================
-CG_ColorFromString
-====================
-*/
-static void CG_ColorFromString( const char *v, vec3_t color )
-{
-  int val;
-
-  VectorClear( color );
-
-  val = atoi( v );
-
-  if( val < 1 || val > 7 )
-  {
-    VectorSet( color, 1, 1, 1 );
-    return;
-  }
-
-  if( val & 1 )
-    color[ 2 ] = 1.0f;
-
-  if( val & 2 )
-    color[ 1 ] = 1.0f;
-
-  if( val & 4 )
-    color[ 0 ] = 1.0f;
-}
-
 
 /*
 ===================
@@ -785,17 +756,6 @@ void CG_NewClientInfo( int clientNum )
   // isolate the player's name
   v = Info_ValueForKey( configstring, "n" );
   Q_strncpyz( newInfo.name, v, sizeof( newInfo.name ) );
-
-  // colors
-  v = Info_ValueForKey( configstring, "c1" );
-  CG_ColorFromString( v, newInfo.color1 );
-
-  v = Info_ValueForKey( configstring, "c2" );
-  CG_ColorFromString( v, newInfo.color2 );
-
-  // handicap
-  v = Info_ValueForKey( configstring, "hc" );
-  newInfo.handicap = atoi( v );
 
   // team
   v = Info_ValueForKey( configstring, "t" );

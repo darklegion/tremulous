@@ -986,7 +986,7 @@ void Cmd_CallVote_f( gentity_t *ent )
   level.voteThreshold[ team ] = 50;
 
   if( g_voteLimit.integer > 0 &&
-    ent->client->pers.voteCount >= g_voteLimit.integer &&
+    ent->client->pers.namelog->voteCount >= g_voteLimit.integer &&
     !G_admin_permission( ent, ADMF_NO_VOTE_LIMIT ) )
   {
     trap_SendServerCommand( ent-g_entities, va(
@@ -1257,7 +1257,7 @@ void Cmd_CallVote_f( gentity_t *ent )
   trap_SetConfigstring( CS_VOTE_STRING + team,
     level.voteDisplayString[ team ] );
 
-  ent->client->pers.voteCount++;
+  ent->client->pers.namelog->voteCount++;
   ent->client->pers.vote[ team ] = qtrue;
   G_Vote( ent, team, qtrue );
 }

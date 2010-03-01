@@ -974,7 +974,6 @@ if desired.
 void ClientUserinfoChanged( int clientNum )
 {
   gentity_t *ent;
-  int       health;
   char      *s;
   char      model[ MAX_QPATH ];
   char      buffer[ MAX_QPATH ];
@@ -984,8 +983,6 @@ void ClientUserinfoChanged( int clientNum )
   char      err[ MAX_STRING_CHARS ];
   qboolean  revertName = qfalse;
   gclient_t *client;
-  char      c1[ MAX_INFO_STRING ];
-  char      c2[ MAX_INFO_STRING ];
   char      userinfo[ MAX_INFO_STRING ];
 
   ent = g_entities + clientNum;
@@ -1069,10 +1066,6 @@ void ClientUserinfoChanged( int clientNum )
     G_namelog_update_name( client );
   }
 
-  // set max health
-  health = atoi( Info_ValueForKey( userinfo, "handicap" ) );
-  client->pers.maxHealth = health;
-
   if( client->pers.classSelection == PCL_NONE )
   {
     //This looks hacky and frankly it is. The clientInfo string needs to hold different
@@ -1152,10 +1145,6 @@ void ClientUserinfoChanged( int clientNum )
   else
     client->pers.useUnlagged = qfalse;
 
-  // colors
-  strcpy( c1, Info_ValueForKey( userinfo, "color1" ) );
-  strcpy( c2, Info_ValueForKey( userinfo, "color2" ) );
-
   Q_strncpyz( client->pers.voice, Info_ValueForKey( userinfo, "voice" ),
     sizeof( client->pers.voice ) );
 
@@ -1163,10 +1152,9 @@ void ClientUserinfoChanged( int clientNum )
   // print scoreboards, display models, and play custom sounds
 
   Com_sprintf( userinfo, sizeof( userinfo ),
-    "n\\%s\\t\\%i\\model\\%s\\c1\\%s\\c2\\%s\\"
-    "hc\\%i\\ig\\%16s\\v\\%s",
-    client->pers.netname, client->pers.teamSelection, model, c1, c2,
-    client->pers.maxHealth, Com_ClientListString( &client->sess.ignoreList ),
+    "n\\%s\\t\\%i\\model\\%s\\ig\\%16s\\v\\%s",
+    client->pers.netname, client->pers.teamSelection, model,
+    Com_ClientListString( &client->sess.ignoreList ),
     client->pers.voice );
 
   trap_SetConfigstring( CS_PLAYERS + clientNum, userinfo );
@@ -1503,10 +1491,10 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   BG_ClassBoundingBox( ent->client->pers.classSelection, ent->r.mins, ent->r.maxs, NULL, NULL, NULL );
 
   if( client->sess.spectatorState == SPECTATOR_NOT )
-    client->pers.maxHealth = client->ps.stats[ STAT_MAX_HEALTH ] =
+    client->ps.stats[ STAT_MAX_HEALTH ] =
       BG_Class( ent->client->pers.classSelection )->health;
   else
-    client->pers.maxHealth = client->ps.stats[ STAT_MAX_HEALTH ] = 100;
+    client->ps.stats[ STAT_MAX_HEALTH ] = 100;
 
   // clear entity values
   if( ent->client->pers.classSelection == PCL_HUMAN )

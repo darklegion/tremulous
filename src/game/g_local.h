@@ -286,6 +286,7 @@ typedef struct namelog_s
 
   int               nameChangeTime;
   int               nameChanges;
+  int               voteCount;
 
   qboolean          muted;
   qboolean          denyBuild;
@@ -302,14 +303,11 @@ typedef struct
   clientConnected_t   connected;
   usercmd_t           cmd;                // we would lose angles if not persistant
   qboolean            localClient;        // true if "ip" info key is "localhost"
-  qboolean            initialSpawn;       // the first spawn should be at a cool location
   qboolean            stickySpec;         // don't stop spectating a player after they get killed
   qboolean            pmoveFixed;         //
   char                netname[ MAX_NAME_LENGTH ];
-  int                 maxHealth;          // for handicapping
   int                 enterTime;          // level.time the client entered the game
   int                 location;           // player locations
-  int                 voteCount;          // to prevent people from constantly calling votes
   qboolean            teamInfo;           // send team overlay updates?
   float               flySpeed;           // for spectator/noclip moves
   qboolean            disableBlueprintErrors; // should the buildable blueprint never be hidden from the players?
@@ -323,9 +321,6 @@ typedef struct
   g_admin_admin_t     *admin;
 
   int                 aliveSeconds;       // time player has been alive in seconds
-
-  int                 nameChangeTime;
-  int                 nameChanges;
 
   // used to save persistant[] values while in SPECTATOR_FOLLOW mode
   int                 credit;
