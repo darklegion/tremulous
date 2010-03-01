@@ -941,7 +941,7 @@ static const char *addr6parse( const char *str, addr_t *addr )
   return str + i;
 }
 
-qboolean G_AddressParse( const char *str, addr_t *addr, int *netmask )
+qboolean G_AddressParse( const char *str, addr_t *addr )
 {
   const char *p;
   int max;
@@ -955,23 +955,20 @@ qboolean G_AddressParse( const char *str, addr_t *addr, int *netmask )
     p = addr4parse( str, addr );
     max = 32;
   }
+  Q_strncpyz( addr->str, str, sizeof( addr->str ) );
   if( !p )
     return qfalse;
   if( *p == '/' )
   {
-    if( netmask )
-    {
-      *netmask = atoi( p + 1 );
-      if( *netmask < 1 || *netmask > max )
-        *netmask = max;
-    }
+    addr->mask = atoi( p + 1 );
+    if( addr->mask < 1 || addr->mask > max )
+      addr->mask = max;
   }
   else
   {
     if( *p )
       return qfalse;
-    if( netmask )
-      *netmask = max;
+    addr->mask = max;
   }
   return qtrue;
 }
@@ -983,11 +980,12 @@ G_AddressCompare
 Based largely on NET_CompareBaseAdrMask from ioq3 revision 1557
 ===============
 */
-qboolean G_AddressCompare( const addr_t *a, const addr_t *b, int netmask )
+qboolean G_AddressCompare( const addr_t *a, const addr_t *b )
 {
-  int i;
+  int i, netmask;
   if( a->type != b->type )
     return qfalse;
+  netmask = a->mask;
   if( a->type == IPv4 )
   {
     if( netmask < 1 || netmask > 32 )
@@ -1007,22 +1005,4 @@ qboolean G_AddressCompare( const addr_t *a, const addr_t *b, int netmask )
     return ( a->addr[ i ] & netmask ) == ( b->addr[ i ] & netmask );
   }
   return qtrue;
-}
-
-/*
-===============
-G_AdrCmpStr
-
-The first argument may be in CIDR notation
-===============
-*/
-qboolean G_AdrCmpStr( const char *a, const char *b )
-{
-  int netmask = -1;
-  addr_t cmpa, cmpb;
-  if( !G_AddressParse( a, &cmpa, &netmask ) )
-    return qfalse;
-  if( !G_AddressParse( b, &cmpb, NULL ) )
-    return qfalse;
-  return G_AddressCompare( &cmpa, &cmpb, netmask );
 }

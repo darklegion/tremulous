@@ -279,7 +279,7 @@ typedef struct namelog_s
 {
   struct namelog_s  *next;
   char              name[ MAX_NAMELOG_NAMES ][ MAX_NAME_LENGTH ];
-  char              ip[ MAX_NAMELOG_ADDRS ][ 40 ];
+  addr_t            ip[ MAX_NAMELOG_ADDRS ];
   char              guid[ 33 ];
   int               slot;
   qboolean          banned;
@@ -339,7 +339,7 @@ typedef struct
 
   vec3_t              lastDeathLocation;
   char                guid[ 33 ];
-  char                ip[ 40 ];
+  addr_t              ip;
   char                voice[ MAX_VOICE_NAME_LEN ];
   qboolean            useUnlagged;  
   // keep track of other players' info for tinfo
@@ -768,19 +768,9 @@ qboolean          G_InPowerZone( gentity_t *self );
 //
 // g_utils.c
 //
-#define ADDRLEN 16
-typedef struct
-{
-  enum
-  {
-    IPv4,
-    IPv6
-  } type;
-  byte addr[ ADDRLEN ];
-} addr_t;
-qboolean    G_AddressParse( const char *str, addr_t *addr, int *netmask );
-qboolean    G_AddressCompare( const addr_t *a, const addr_t *b, int netmask );
-qboolean    G_AdrCmpStr( const char *a, const char *b );
+//addr_t in g_admin.h for g_admin_ban_t
+qboolean    G_AddressParse( const char *str, addr_t *addr );
+qboolean    G_AddressCompare( const addr_t *a, const addr_t *b );
 
 int         G_ParticleSystemIndex( char *name );
 int         G_ShaderIndex( char *name );

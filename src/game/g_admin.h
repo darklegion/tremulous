@@ -99,12 +99,24 @@ typedef struct g_admin_admin
 }
 g_admin_admin_t;
 
+#define ADDRLEN 16
+typedef struct
+{
+  enum
+  {
+    IPv4,
+    IPv6
+  } type;
+  byte addr[ ADDRLEN ];
+  int mask;
+  char str[ 44 ];
+} addr_t;
 typedef struct g_admin_ban
 {
   struct g_admin_ban *next;
   char name[ MAX_NAME_LENGTH ];
   char guid[ 33 ];
-  char ip[ 44 ]; // big enough for IPv6 CIDR notation (without brackets)
+  addr_t ip;
   char reason[ MAX_ADMIN_BAN_REASON ];
   char made[ 18 ]; // big enough for strftime() %c
   int expires;

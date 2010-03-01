@@ -1063,7 +1063,7 @@ void ClientUserinfoChanged( int clientNum )
         trap_SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE
           " renamed to %s\n\"", oldname, client->pers.netname ) );
         G_LogPrintf( "ClientRename: %i [%s] (%s) \"%s^7\" -> \"%s^7\" \"%c%s%c^7\"\n",
-                   clientNum, client->pers.ip, client->pers.guid,
+                   clientNum, client->pers.ip.str, client->pers.guid,
                    oldname, client->pers.netname,
                    DECOLOR_OFF, client->pers.netname, DECOLOR_ON );
       }
@@ -1217,7 +1217,10 @@ char *ClientConnect( int clientNum, qboolean firstTime )
   Q_strncpyz( client->pers.guid, value, sizeof( client->pers.guid ) );
 
   value = Info_ValueForKey( userinfo, "ip" );
-  Q_strncpyz( client->pers.ip, value, sizeof( client->pers.ip ) );
+  // check for local client
+  if( !strcmp( value, "localhost" ) )
+    client->pers.localClient = qtrue;
+  G_AddressParse( value, &client->pers.ip );
 
   client->pers.admin = G_admin_admin( client->pers.guid );
 
@@ -1257,10 +1260,6 @@ char *ClientConnect( int clientNum, qboolean firstTime )
     }
   }
 
-  // check for local client
-  if( !strcmp( client->pers.ip, "localhost" ) )
-    client->pers.localClient = qtrue;
-
   client->pers.connected = CON_CONNECTING;
 
   // read or initialize the session data
@@ -1273,7 +1272,7 @@ char *ClientConnect( int clientNum, qboolean firstTime )
   G_namelog_connect( client );
   ClientUserinfoChanged( clientNum );
   G_LogPrintf( "ClientConnect: %i [%s] (%s) \"%s^7\" \"%c%s%c^7\"\n",
-               clientNum, client->pers.ip, client->pers.guid,
+               clientNum, client->pers.ip.str, client->pers.guid,
                client->pers.netname,
                DECOLOR_OFF, client->pers.netname, DECOLOR_ON );
 
@@ -1717,7 +1716,7 @@ void ClientDisconnect( int clientNum )
   }
 
   G_LogPrintf( "ClientDisconnect: %i [%s] (%s) \"%s^7\"\n", clientNum,
-   ent->client->pers.ip, ent->client->pers.guid, ent->client->pers.netname );
+   ent->client->pers.ip.str, ent->client->pers.guid, ent->client->pers.netname );
 
   trap_UnlinkEntity( ent );
   ent->s.modelindex = 0;

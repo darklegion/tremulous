@@ -60,12 +60,12 @@ void G_namelog_connect( gclient_t *client )
 
   G_namelog_update_name( client );
 
-  for( i = 0; i < MAX_NAMELOG_ADDRS && n->ip[ i ][ 0 ]; i++ )
-    if( !strcmp( n->ip[ i ], client->pers.ip ) )
+  for( i = 0; i < MAX_NAMELOG_ADDRS && n->ip[ i ].str[ 0 ]; i++ )
+    if( !strcmp( n->ip[ i ].str, client->pers.ip.str ) )
       return;
   if( i == MAX_NAMELOG_ADDRS )
     i--;
-  strcpy( n->ip[ i ], client->pers.ip );
+  memcpy( &n->ip[ i ], &client->pers.ip, sizeof( n->ip[ i ] ) );
 }
 
 void G_namelog_disconnect( gclient_t *client )
