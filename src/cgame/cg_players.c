@@ -721,51 +721,34 @@ void CG_PrecacheClientInfo( class_t class, char *model, char *skin )
   CG_LoadClientInfo( ci );
 }
 
-
 /*
 =============
-CG_TeamJoinMessage
+CG_StatusMessages
 
-Prints messages when players change teams
+Print messages for player status changes
 =============
 */
-void CG_TeamJoinMessage( clientInfo_t *newInfo, clientInfo_t *ci )
+static void CG_StatusMessages( clientInfo_t *new, clientInfo_t *old )
 {
-  int  team;
-  int  oldteam;
-  char *playerName;
-
-  if( !ci->infoValid )
+  if( !old->infoValid )
     return;
 
-  // Collect info
-  team = newInfo->team;
-  oldteam = ci->team;
+  if( strcmp( new->name, old->name ) )
+    CG_Printf( "%s" S_COLOR_WHITE " renamed to %s\n", old->name, new->name );
 
-  // If no change occurred, print nothing
-  if( team == oldteam )
-    return;
-
-  playerName = newInfo->name;
-
-  // Print the appropriate message
-  if( team == TEAM_NONE )
+  if( old->team != new->team )
   {
-    CG_Printf( "%s" S_COLOR_WHITE " left the %ss\n",
-      playerName, BG_TeamName( oldteam ) );
-  }
-  else if( oldteam == TEAM_NONE )
-  {
-    CG_Printf( "%s" S_COLOR_WHITE " joined the %ss\n",
-      playerName, BG_TeamName( team ) );
-  }
-  else
-  {
-    CG_Printf( "%s" S_COLOR_WHITE " left the %ss and joined the %ss\n",
-      playerName, BG_TeamName( oldteam ), BG_TeamName( team ) );
+    if( new->team == TEAM_NONE )
+      CG_Printf( "%s" S_COLOR_WHITE " left the %ss\n", new->name,
+        BG_TeamName( old->team ) );
+    else if( old->team == TEAM_NONE )
+      CG_Printf( "%s" S_COLOR_WHITE " joined the %ss\n", new->name,
+        BG_TeamName( new->team ) );
+    else
+      CG_Printf( "%s" S_COLOR_WHITE " left the %ss and joined the %ss\n",
+        new->name, BG_TeamName( old->team ), BG_TeamName( new->team ) );
   }
 }
-
 
 /*
 ======================
@@ -817,7 +800,6 @@ void CG_NewClientInfo( int clientNum )
   // team
   v = Info_ValueForKey( configstring, "t" );
   newInfo.team = atoi( v );
-  CG_TeamJoinMessage( &newInfo, ci );
 
   // if this is us, execute team-specific config files
   // unfortunately, these get re-executed after a vid_restart, because the
@@ -856,6 +838,8 @@ void CG_NewClientInfo( int clientNum )
   // voice
   v = Info_ValueForKey( configstring, "v" );
   Q_strncpyz( newInfo.voice, v, sizeof( newInfo.voice ) );
+
+  CG_StatusMessages( &newInfo, ci );
 
   // replace whatever was there with the new one
   newInfo.infoValid = qtrue;
