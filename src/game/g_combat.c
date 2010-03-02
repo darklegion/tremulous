@@ -1360,6 +1360,10 @@ void G_LogDestruction( gentity_t *self, gentity_t *actor, int mod )
   if( !actor )
     return;
 
+  // don't log when marked structures are removed
+  if( mod == MOD_DECONSTRUCT && !actor->client )
+    return;
+
   if( actor->client && actor->client->pers.teamSelection ==
     BG_Buildable( self->s.modelindex )->team )
   {
