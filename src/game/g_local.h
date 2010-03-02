@@ -325,8 +325,8 @@ typedef struct
   // used to save persistant[] values while in SPECTATOR_FOLLOW mode
   int                 credit;
 
-  qboolean            voted[ NUM_TEAMS ];
-  qboolean            vote[ NUM_TEAMS ];
+  int                 voted;
+  int                 vote;
 
   // flood protection
   int                 floodDemerits;

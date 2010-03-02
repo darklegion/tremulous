@@ -2028,15 +2028,15 @@ void G_Vote( gentity_t *ent, team_t team, qboolean voting )
   if( !level.voteTime[ team ] )
     return;
 
-  if( voting && ent->client->pers.voted[ team ] )
+  if( voting && ent->client->pers.voted & ( 1 << team ) )
     return;
 
-  if( !voting && !ent->client->pers.voted[ team ] )
+  if( !voting && !( ent->client->pers.voted & ( 1 << team ) ) )
     return;
 
-  ent->client->pers.voted[ team ] = voting;
+  ent->client->pers.voted |= 1 << team;
 
-  if( ent->client->pers.vote[ team ] )
+  if( ent->client->pers.vote & ( 1 << team ) )
   {
     if( voting )
       level.voteYes[ team ]++;
@@ -2142,7 +2142,7 @@ void G_CheckVote( team_t team )
   level.voteNo[ team ] = 0;
 
   for( i = 0; i < level.maxclients; i++ )
-    level.clients[ i ].pers.voted[ team ] = qfalse;
+    level.clients[ i ].pers.voted &= ~( 1 << team );
 
   trap_SetConfigstring( CS_VOTE_TIME + team, "" );
   trap_SetConfigstring( CS_VOTE_STRING + team, "" );

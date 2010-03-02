@@ -1258,7 +1258,7 @@ void Cmd_CallVote_f( gentity_t *ent )
     level.voteDisplayString[ team ] );
 
   ent->client->pers.namelog->voteCount++;
-  ent->client->pers.vote[ team ] = qtrue;
+  ent->client->pers.vote |= 1 << team;
   G_Vote( ent, team, qtrue );
 }
 
@@ -1283,7 +1283,7 @@ void Cmd_Vote_f( gentity_t *ent )
     return;
   }
 
-  if( ent->client->pers.voted[ team ] )
+  if( ent->client->pers.voted & ( 1 << team ) )
   {
     trap_SendServerCommand( ent-g_entities,
       va( "print \"%s: vote already cast\n\"", cmd ) );
@@ -1294,8 +1294,8 @@ void Cmd_Vote_f( gentity_t *ent )
     va( "print \"%s: vote cast\n\"", cmd ) );
 
   trap_Argv( 1, vote, sizeof( vote ) );
-  ent->client->pers.vote[ team ] =
-    ( tolower( vote[ 0 ] ) == 'y' || vote[ 0 ] == '1' );
+  ent->client->pers.vote |=
+    ( tolower( vote[ 0 ] ) == 'y' || vote[ 0 ] == '1' ) << team;
   G_Vote( ent, team, qtrue );
 }
 
