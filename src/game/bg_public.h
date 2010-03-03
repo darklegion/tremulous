@@ -271,26 +271,32 @@ typedef enum
 #define PS_SPRINTTOGGLE         0x00000008
 
 // entityState_t->eFlags
-#define EF_DEAD             0x00000001    // don't draw a foe marker over players with EF_DEAD
-#define EF_TELEPORT_BIT     0x00000002    // toggled every time the origin abruptly changes
-#define EF_PLAYER_EVENT     0x00000004
-#define EF_BOUNCE           0x00000008    // for missiles
-#define EF_BOUNCE_HALF      0x00000010    // for missiles
-#define EF_NO_BOUNCE_SOUND  0x00000020    // for missiles
-#define EF_B_SPAWNED        0x00000008    // buildable has spawned
-#define EF_B_POWERED        0x00000010    // buildable is powered
-#define EF_B_MARKED         0x00000020    // buildable is marked for deconstruction
-#define EF_WALLCLIMB        0x00000040    // wall walking
-#define EF_WALLCLIMBCEILING 0x00000080    // wall walking ceiling hack
-#define EF_NODRAW           0x00000100    // may have an event, but no model (unspawned items)
-#define EF_FIRING           0x00000200    // for lightning gun
-#define EF_FIRING2          0x00000400    // alt fire
-#define EF_FIRING3          0x00000800    // third fire
-#define EF_MOVER_STOP       0x00001000    // will push otherwise
-#define EF_POISONCLOUDED    0x00002000    // player hit with basilisk gas
-#define EF_CONNECTION       0x00004000    // draw a connection trouble sprite
-#define EF_BLOBLOCKED       0x00020000    // caught by a trapper
-#define EF_WARN_CHARGE      0x00040000    // Lucifer Cannon is about to overcharge
+// notice that some flags are overlapped, so their meaning depends on context
+#define EF_DEAD             0x0001    // don't draw a foe marker over players with EF_DEAD
+#define EF_TELEPORT_BIT     0x0002    // toggled every time the origin abruptly changes
+#define EF_PLAYER_EVENT     0x0004    // only used for eType > ET_EVENTS
+
+// for missiles:
+#define EF_BOUNCE           0x0008    // for missiles
+#define EF_BOUNCE_HALF      0x0010    // for missiles
+#define EF_NO_BOUNCE_SOUND  0x0020    // for missiles
+
+// buildable flags:
+#define EF_B_SPAWNED        0x0008
+#define EF_B_POWERED        0x0010
+#define EF_B_MARKED         0x0020
+
+#define EF_WARN_CHARGE      0x0020    // Lucifer Cannon is about to overcharge
+#define EF_WALLCLIMB        0x0040    // wall walking
+#define EF_WALLCLIMBCEILING 0x0080    // wall walking ceiling hack
+#define EF_NODRAW           0x0100    // may have an event, but no model (unspawned items)
+#define EF_FIRING           0x0200    // for lightning gun
+#define EF_FIRING2          0x0400    // alt fire
+#define EF_FIRING3          0x0800    // third fire
+#define EF_MOVER_STOP       0x1000    // will push otherwise
+#define EF_POISONCLOUDED    0x2000    // player hit with basilisk gas
+#define EF_CONNECTION       0x4000    // draw a connection trouble sprite
+#define EF_BLOBLOCKED       0x8000    // caught by a trapper
 
 typedef enum
 {
