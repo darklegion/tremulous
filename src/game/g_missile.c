@@ -126,18 +126,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace )
     return;
   }
 
-  if( !strcmp( ent->classname, "grenade" ) )
-  {
-    //grenade doesn't explode on impact
-    G_BounceMissile( ent, trace );
-
-    //only play a sound if requested
-    if( !( ent->s.eFlags & EF_NO_BOUNCE_SOUND ) )
-      G_AddEvent( ent, EV_GRENADE_BOUNCE, 0 );
-
-    return;
-  }
-  else if( !strcmp( ent->classname, "lockblob" ) )
+  if( !strcmp( ent->classname, "lockblob" ) )
   {
     if( other->client && other->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS )
     {
@@ -268,8 +257,7 @@ void G_RunMissile( gentity_t *ent )
 
   if( tr.fraction < 1.0f )
   {
-    if( !ent->pointAgainstWorld || tr.contents & CONTENTS_BODY || 
-        ( tr.entityNum >= 0 && tr.entityNum != ENTITYNUM_WORLD ) )
+    if( !ent->pointAgainstWorld || tr.contents & CONTENTS_BODY )
     {
       // We hit an entity or we don't care
       impact = qtrue;
