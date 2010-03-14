@@ -2755,7 +2755,7 @@ qboolean G_admin_namelog( gentity_t *ent )
     for( i = 0; i < MAX_NAMELOG_ADDRS && n->ip[ i ].str[ 0 ]; i++ )
       ADMBP( va( " %s", n->ip[ i ].str ) );
     for( i = 0; i < MAX_NAMELOG_NAMES && n->name[ i ][ 0 ]; i++ )
-      ADMBP( va( " '%s^7'", n->name[ i ] ) );
+      ADMBP( va( S_COLOR_WHITE " '%s" S_COLOR_WHITE "'", n->name[ i ] ) );
     ADMBP( "\n" );
   }
   ADMBP( va( "^3namelog:^7 %d recent clients found\n", printed ) );
