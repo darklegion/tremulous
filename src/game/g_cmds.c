@@ -1294,8 +1294,10 @@ void Cmd_Vote_f( gentity_t *ent )
     va( "print \"%s: vote cast\n\"", cmd ) );
 
   trap_Argv( 1, vote, sizeof( vote ) );
-  ent->client->pers.vote |=
-    ( tolower( vote[ 0 ] ) == 'y' || vote[ 0 ] == '1' ) << team;
+  if( vote[ 0 ] == 'y' )
+    ent->client->pers.vote |= 1 << team;
+  else
+    ent->client->pers.vote &= ~( 1 << team );
   G_Vote( ent, team, qtrue );
 }
 
