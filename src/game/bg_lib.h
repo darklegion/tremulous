@@ -104,8 +104,10 @@ int     toupper( int c );
 
 double  atof( const char *string );
 double  _atof( const char **stringPtr );
+double  strtod( const char *nptr, const char **endptr );
 int     atoi( const char *string );
 int     _atoi( const char **stringPtr );
+long    strtol( const char *nptr, const char **endptr, int base );
 
 int     sscanf( const char *buffer, const char *fmt, ... );
 
