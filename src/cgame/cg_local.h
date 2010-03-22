@@ -249,7 +249,7 @@ typedef struct pLerpValues_s
 typedef struct baseParticle_s
 {
   vec3_t          displacement;
-  float           randDisplacement;
+  vec3_t          randDisplacement;
   float           normalDisplacement;
 
   pMoveType_t     velMoveType;

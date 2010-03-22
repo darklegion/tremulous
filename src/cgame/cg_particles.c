@@ -210,7 +210,7 @@ static particle_t *CG_SpawnNewParticle( baseParticle_t *bp, particleEjector_t *p
         VectorAdd( p->origin, bp->displacement, p->origin );
 
       for( j = 0; j <= 2; j++ )
-        p->origin[ j ] += ( crandom( ) * bp->randDisplacement );
+        p->origin[ j ] += ( crandom( ) * bp->randDisplacement[ j ] );
 
       switch( bp->velMoveType )
       {
@@ -569,13 +569,11 @@ Parse a value and its random variance
 static void CG_ParseValueAndVariance( char *token, float *value, float *variance, qboolean allowNegative )
 {
   char  valueBuffer[ 16 ];
-  char  varianceBuffer[ 16 ];
   char  *variancePtr = NULL, *varEndPointer = NULL;
   float localValue = 0.0f;
   float localVariance = 0.0f;
 
   Q_strncpyz( valueBuffer, token, sizeof( valueBuffer ) );
-  Q_strncpyz( varianceBuffer, token, sizeof( varianceBuffer ) );
 
   variancePtr = strchr( valueBuffer, '~' );
 
@@ -1029,16 +1027,26 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
         if( !token )
           break;
 
-        bp->displacement[ i ] = atof_neg( token, qtrue );
+        CG_ParseValueAndVariance( token, &bp->displacement[ i ],
+                                  &bp->randDisplacement[ i ], qtrue );
       }
 
-      token = COM_Parse( text_p );
-      if( !token )
-        break;
+      // if there is another token on the same line interpret it as an
+      // additional displacement in all three directions, for compatibility
+      // with the old scripts where this was the only option
+      randFrac = 0;
+      token = COM_ParseExt( text_p, qfalse );
+      if( token )
+        CG_ParseValueAndVariance( token, NULL, &randFrac, qtrue );
 
-      CG_ParseValueAndVariance( token, NULL, &randFrac, qfalse );
+      for( i = 0; i < 3; i++ )
+      {
+        // convert randDisplacement from proportions to absolute values
+        if( bp->displacement[ i ] != 0 )
+          bp->randDisplacement[ i ] *= bp->displacement[ i ];
 
-      bp->randDisplacement = randFrac;
+        bp->randDisplacement[ i ] += randFrac;
+      }
 
       continue;
     }
