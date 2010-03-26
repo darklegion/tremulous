@@ -530,6 +530,10 @@ void Cmd_Team_f( gentity_t *ent )
   else if( oldteam == TEAM_HUMANS )
     humans--;
 
+  // stop team join spam
+  if( level.time - ent->client->pers.teamChangeTime < 1000 )
+    return;
+
   // disallow joining teams during warmup
   if( g_doWarmup.integer && ( ( level.warmupTime - level.time ) / 1000 ) > 0 )
   {
@@ -2872,7 +2876,7 @@ commands_t cmds[ ] = {
   { "score", CMD_INTERMISSION, ScoreboardMessage },
   { "sell", CMD_HUMAN|CMD_LIVING, Cmd_Sell_f },
   { "setviewpos", CMD_CHEAT_TEAM, Cmd_SetViewpos_f },
-  { "team", CMD_MESSAGE, Cmd_Team_f },
+  { "team", 0, Cmd_Team_f },
   { "teamvote", CMD_TEAM, Cmd_Vote_f },
   { "test", CMD_CHEAT, Cmd_Test_f },
   { "unignore", 0, Cmd_Ignore_f },
