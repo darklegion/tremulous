@@ -958,7 +958,7 @@ int  G_TimeTilSuddenDeath( void );
 // g_client.c
 //
 char *ClientConnect( int clientNum, qboolean firstTime );
-void ClientUserinfoChanged( int clientNum );
+char *ClientUserinfoChanged( int clientNum );
 void ClientDisconnect( int clientNum );
 void ClientBegin( int clientNum );
 void ClientCommand( int clientNum );

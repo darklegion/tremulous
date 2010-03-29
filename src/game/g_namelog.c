@@ -70,6 +70,8 @@ void G_namelog_connect( gclient_t *client )
 
 void G_namelog_disconnect( gclient_t *client )
 {
+  if( client->pers.namelog == NULL )
+    return;
   client->pers.namelog->slot = -1;
   client->pers.namelog = NULL;
 }
