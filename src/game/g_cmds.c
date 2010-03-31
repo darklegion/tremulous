@@ -2930,8 +2930,7 @@ void ClientCommand( int clientNum )
       G_FloodLimited( ent ) ) )
     return;
 
-  if( ( command->cmdFlags & CMD_TEAM ||
-      ( command->cmdFlags & CMD_CHEAT_TEAM && !g_cheats.integer ) ) &&
+  if( command->cmdFlags & CMD_TEAM &&
       ent->client->pers.teamSelection == TEAM_NONE )
   {
     G_TriggerMenu( clientNum, MN_CMD_TEAM );

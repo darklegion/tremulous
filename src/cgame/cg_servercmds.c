@@ -543,7 +543,8 @@ void CG_Menu( int menu, int arg )
       break;
 
     case MN_CMD_CHEAT_TEAM:
-      shortMsg  = "You may not use this command while on a team";
+      shortMsg  = "Cheats are not enabled on this server, so "
+                  "you may not use this command while on a team";
       type      = DT_COMMAND;
       break;
 
