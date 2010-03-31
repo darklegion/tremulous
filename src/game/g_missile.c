@@ -612,6 +612,10 @@ void AHive_SearchAndDestroy( gentity_t *self )
   for( i = 0; i < MAX_CLIENTS; i++ )
   {
     ent = &g_entities[ i ];
+
+    if( ent->flags & FL_NOTARGET )
+      continue;
+
     if( ent->client &&
         ent->health > 0 &&   
         ent->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS &&

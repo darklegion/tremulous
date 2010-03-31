@@ -1243,6 +1243,9 @@ qboolean G_SelectiveRadiusDamage( vec3_t origin, gentity_t *attacker, float dama
     if( !ent->takedamage )
       continue;
 
+    if( ent->flags & FL_NOTARGET )
+      continue;
+
     // find the distance from the edge of the bounding box
     for( i = 0 ; i < 3 ; i++ )
     {
