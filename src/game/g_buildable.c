@@ -3114,6 +3114,10 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
         buildable != core )
       continue;
 
+    // Don't include unpowered buildables
+    if( !collision && !ent->powered )
+      continue;
+
     if( ent->deconstruct )
     {
       level.markedBuildables[ numBuildables++ ] = ent;
@@ -3132,14 +3136,16 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
         if( repeaterInRange )
           repeaterInRangeCount--;
 
-        pointsYielded += BG_Buildable( ent->s.modelindex )->buildPoints;
+        if( ent->powered )
+          pointsYielded += BG_Buildable( ent->s.modelindex )->buildPoints;
         level.numBuildablesForRemoval++;
       }
       else if( BG_Buildable( ent->s.modelindex )->uniqueTest &&
                ent->s.modelindex == buildable )
       {
         // If it's a unique buildable, it must be replaced by the same type
-        pointsYielded += BG_Buildable( ent->s.modelindex )->buildPoints;
+        if( ent->powered )
+          pointsYielded += BG_Buildable( ent->s.modelindex )->buildPoints;
         level.numBuildablesForRemoval++;
       }
     }
@@ -3168,7 +3174,8 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
        level.numBuildablesForRemoval++ )
   {
     ent = level.markedBuildables[ level.numBuildablesForRemoval ];
-    pointsYielded += BG_Buildable( ent->s.modelindex )->buildPoints;
+    if( ent->powered )
+      pointsYielded += BG_Buildable( ent->s.modelindex )->buildPoints;
   }
 
   for( i = 0; i < level.numBuildablesForRemoval; i++ )
