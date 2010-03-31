@@ -2834,6 +2834,18 @@ static int G_CompareBuildablesForRemoval( const void *a, const void *b )
   else if( !aMatches && bMatches )
     return 1;
 
+  // If the only spawn is marked, prefer it last
+  if( cmpBuildable == BA_A_SPAWN || cmpBuildable == BA_H_SPAWN )
+  {
+    if( ( buildableA->s.modelindex == BA_A_SPAWN && level.numAlienSpawns == 1 ) ||
+        ( buildableA->s.modelindex == BA_H_SPAWN && level.numHumanSpawns == 1 ) )
+      return 1;
+
+    if( ( buildableB->s.modelindex == BA_A_SPAWN && level.numAlienSpawns == 1 ) ||
+        ( buildableB->s.modelindex == BA_H_SPAWN && level.numHumanSpawns == 1 ) )
+      return -1;
+  }
+
   // If one matches the thing we're building, prefer it
   aMatches = ( buildableA->s.modelindex == cmpBuildable );
   bMatches = ( buildableB->s.modelindex == cmpBuildable );
