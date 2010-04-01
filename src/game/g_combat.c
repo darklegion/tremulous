@@ -1378,7 +1378,7 @@ void G_LogDestruction( gentity_t *self, gentity_t *actor, int mod )
   }
 
   G_LogPrintf( S_COLOR_YELLOW "Deconstruct: %d %d %s %s: %s %s by %s\n",
-    actor->client ? actor - g_entities : ENTITYNUM_WORLD,
+    actor - g_entities,
     self - g_entities,
     BG_Buildable( self->s.modelindex )->name,
     modNames[ mod ],
