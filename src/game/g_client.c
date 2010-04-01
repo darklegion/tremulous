@@ -999,6 +999,11 @@ char *ClientUserinfoChanged( int clientNum )
         "dropped: illegal or malformed userinfo");
     return "Illegal or malformed userinfo";
   }
+  // If their userinfo overflowed, tremded is in the process of disconnecting them.
+  // If we send our own disconnect, it won't work, so just return to prevent crashes later
+  //  in this function. This check must come after the Info_Validate call.
+  else if( !userinfo[ 0 ] )
+    return "Empty (overflowed) userinfo";
 
   // stickyspec toggle
   s = Info_ValueForKey( userinfo, "cg_stickySpec" );  
