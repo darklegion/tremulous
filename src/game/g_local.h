@@ -755,7 +755,7 @@ void              G_BaseSelfDestruct( team_t team );
 int               G_NextQueueTime( int queuedBP, int totalBP, int queueBaseRate );
 void              G_QueueBuildPoints( gentity_t *self );
 int               G_GetBuildPoints( const vec3_t pos, team_t team, int dist );
-qboolean          G_FindPower( gentity_t *self );
+qboolean          G_FindPower( gentity_t *self, qboolean searchUnspawned );
 gentity_t         *G_PowerEntityForPoint( const vec3_t origin );
 gentity_t         *G_PowerEntityForEntity( gentity_t *ent );
 gentity_t         *G_RepeaterEntityForPoint( vec3_t origin );

@@ -120,7 +120,7 @@ G_FindPower
 attempt to find power for self, return qtrue if successful
 ================
 */
-qboolean G_FindPower( gentity_t *self )
+qboolean G_FindPower( gentity_t *self, qboolean searchUnspawned )
 {
   int       i, j;
   gentity_t *ent, *ent2;
@@ -159,7 +159,7 @@ qboolean G_FindPower( gentity_t *self )
 
     // If entity is a power item calculate the distance to it
     if( ( ent->s.modelindex == BA_H_REACTOR || ent->s.modelindex == BA_H_REPEATER ) &&
-        ent->spawned && ent->powered && ent->health > 0 )
+        ( searchUnspawned || ent->spawned ) && ent->powered && ent->health > 0 )
     {
       VectorSubtract( self->s.origin, ent->s.origin, temp_v );
       distance = VectorLength( temp_v );
@@ -297,7 +297,7 @@ gentity_t *G_PowerEntityForPoint( const vec3_t origin )
   dummy.s.modelindex = BA_NONE;
   VectorCopy( origin, dummy.s.origin );
 
-  if( G_FindPower( &dummy ) )
+  if( G_FindPower( &dummy, qfalse ) )
     return dummy.parentNode;
   else
     return NULL;
@@ -313,7 +313,7 @@ power for the specified entity
 */
 gentity_t *G_PowerEntityForEntity( gentity_t *ent )
 {
-  if( G_FindPower( ent ) )
+  if( G_FindPower( ent, qfalse ) )
     return ent->parentNode;
   return NULL;
 }
@@ -1664,7 +1664,7 @@ void HSpawn_Think( gentity_t *self )
   G_SuicideIfNoPower( self );
 
   // set parentNode
-  self->powered = G_FindPower( self );
+  self->powered = G_FindPower( self, qfalse );
 
   if( self->spawned )
   {
@@ -1937,7 +1937,7 @@ void HArmoury_Think( gentity_t *self )
   //make sure we have power
   self->nextthink = level.time + POWER_REFRESH_TIME;
 
-  self->powered = G_FindPower( self );
+  self->powered = G_FindPower( self, qfalse );
 
   G_SuicideIfNoPower( self );
 }
@@ -1963,7 +1963,7 @@ void HDCC_Think( gentity_t *self )
   //make sure we have power
   self->nextthink = level.time + POWER_REFRESH_TIME;
 
-  self->powered = G_FindPower( self );
+  self->powered = G_FindPower( self, qfalse );
 
   G_SuicideIfNoPower( self );
 }
@@ -2010,7 +2010,7 @@ void HMedistat_Think( gentity_t *self )
 
   self->nextthink = level.time + BG_Buildable( self->s.modelindex )->nextthink;
 
-  self->powered = G_FindPower( self );
+  self->powered = G_FindPower( self, qfalse );
   G_SuicideIfNoPower( self );
   G_IdlePowerState( self );
 
@@ -2347,7 +2347,7 @@ void HMGTurret_Think( gentity_t *self )
   // Turn off client side muzzle flashes
   self->s.eFlags &= ~EF_FIRING;
 
-  self->powered = G_FindPower( self );
+  self->powered = G_FindPower( self, qfalse );
   G_SuicideIfNoPower( self );
   G_IdlePowerState( self );
 
@@ -2428,7 +2428,7 @@ void HTeslaGen_Think( gentity_t *self )
 {
   self->nextthink = level.time + BG_Buildable( self->s.modelindex )->nextthink;
 
-  self->powered = G_FindPower( self );
+  self->powered = G_FindPower( self, qfalse );
   G_SuicideIfNoPower( self );
   G_IdlePowerState( self );
 
@@ -3626,7 +3626,7 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable, vec3_t ori
     built->powered = qtrue;
     built->s.eFlags |= EF_B_POWERED;
   }
-  else if( ( built->powered = G_FindPower( built ) ) )
+  else if( ( built->powered = G_FindPower( built, qfalse ) ) )
     built->s.eFlags |= EF_B_POWERED;
 
   built->s.eFlags &= ~EF_B_SPAWNED;
