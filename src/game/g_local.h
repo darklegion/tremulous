@@ -215,7 +215,6 @@ struct gentity_s
   int               clientSpawnTime;    // the time until this spawn can spawn a client
 
   int               credits[ MAX_CLIENTS ];     // human credits for each client
-  qboolean          creditsHash[ MAX_CLIENTS ]; // track who has claimed credit
   int               killedBy;                   // clientNum of killer
 
   gentity_t         *targeted;          // true if the player is currently a valid target of a turret

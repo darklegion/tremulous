@@ -123,6 +123,7 @@ char *modNames[ ] =
   "MOD_ATUBE",
   "MOD_OVERMIND",
   "MOD_DECONSTRUCT",
+  "MOD_REPLACE",
   "MOD_NOCREEP"
 };
 
@@ -139,9 +140,15 @@ float G_RewardAttackers( gentity_t *self )
   float value, totalDamage = 0;
   int team, i, maxHealth = 0;
 
-  // Total up all the damage done by every client
+  // Total up all the damage done by non-teammates
   for( i = 0; i < MAX_CLIENTS; i++ )
-    totalDamage += (float)self->credits[ i ];
+  {
+    gentity_t *player = g_entities + i;
+
+    if( !OnSameTeam( self, player ) || 
+        self->buildableTeam != player->client->pers.teamSelection )
+      totalDamage += (float)self->credits[ i ];
+  }
 
   if( totalDamage <= 0.0f )
     return 0.0f;
@@ -176,27 +183,32 @@ float G_RewardAttackers( gentity_t *self )
     gentity_t *player = g_entities + i;
     short num = value * self->credits[ i ] / totalDamage;
     int stageValue = num;
-    if( totalDamage < maxHealth )
+
+    if( !OnSameTeam( self, player ) || 
+        self->buildableTeam != player->client->pers.teamSelection )
+    {
+
+      if( totalDamage < maxHealth )
       stageValue *= totalDamage / maxHealth;
 
-    if( !player->client || !self->credits[ i ] ||
-        player->client->ps.stats[ STAT_TEAM ] == team )
-      continue;
+      if( !player->client || !self->credits[ i ] ||
+          player->client->ps.stats[ STAT_TEAM ] == team )
+        continue;
 
-    AddScore( player, num );
+      AddScore( player, num );
 
-    // killing buildables earns score, but not credits
-    if( self->s.eType != ET_BUILDABLE )
-    {
-      G_AddCreditToClient( player->client, num, qtrue );
+      // killing buildables earns score, but not credits
+      if( self->s.eType != ET_BUILDABLE )
+      {
+        G_AddCreditToClient( player->client, num, qtrue );
 
-      // add to stage counters
-      if( player->client->ps.stats[ STAT_TEAM ] == TEAM_ALIENS )
-        trap_Cvar_Set( "g_alienCredits", va( "%d", g_alienCredits.integer + stageValue ) );
-      else if( player->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS )
-        trap_Cvar_Set( "g_humanCredits", va( "%d", g_humanCredits.integer + stageValue ) );
+        // add to stage counters
+        if( player->client->ps.stats[ STAT_TEAM ] == TEAM_ALIENS )
+          trap_Cvar_Set( "g_alienCredits", va( "%d", g_alienCredits.integer + stageValue ) );
+        else if( player->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS )
+          trap_Cvar_Set( "g_humanCredits", va( "%d", g_humanCredits.integer + stageValue ) );
+      }
     }
-
     self->credits[ i ] = 0;
   }
   
@@ -1126,7 +1138,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
     targ->nextRegenTime = level.time + ALIEN_REGEN_DAMAGE_TIME;
 
     // add to the attackers "account" on the target
-    if( attacker->client && attacker != targ && !OnSameTeam( targ, attacker ) )
+    if( attacker->client && attacker != targ )
       targ->credits[ attacker->client->ps.clientNum ] += take;
 
     if( targ->health <= 0 )
@@ -1364,7 +1376,7 @@ void G_LogDestruction( gentity_t *self, gentity_t *actor, int mod )
     return;
 
   // don't log when marked structures are removed
-  if( mod == MOD_DECONSTRUCT && !actor->client )
+  if( mod == MOD_REPLACE )
     return;
 
   if( actor->client && actor->client->pers.teamSelection ==
