@@ -2482,12 +2482,9 @@ void G_QueueBuildPoints( gentity_t *self )
   int       queuePoints = 0;
   double    queueFraction = 0;
 
-  for( i = 0; i < MAX_CLIENTS; i++ )
+  for( i = 0; i < level.maxclients; i++ )
   {
     gentity_t *player = g_entities + i;
-
-    if( !player->client )
-      continue;
 
     damageTotal += self->credits[ i ];
 
@@ -2962,7 +2959,7 @@ void G_FreeMarkedBuildables( gentity_t *deconner, char *readable, int rsize,
     if( removalCounts[ bNum ] == 0 )
       totalListItems++;
 
-    G_Damage( ent, NULL, NULL, NULL, NULL, ent->health, 0, MOD_REPLACE );
+    G_Damage( ent, NULL, deconner, NULL, NULL, ent->health, 0, MOD_REPLACE );
 
     removalCounts[ bNum ]++;
 

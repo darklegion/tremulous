@@ -137,16 +137,17 @@ Returns the total damage dealt.
 */
 float G_RewardAttackers( gentity_t *self )
 {
-  float value, totalDamage = 0;
-  int team, i, maxHealth = 0;
+  float     value, totalDamage = 0;
+  int       team, i, maxHealth = 0;
+  gentity_t *player;
 
   // Total up all the damage done by non-teammates
-  for( i = 0; i < MAX_CLIENTS; i++ )
+  for( i = 0; i < level.maxclients; i++ )
   {
-    gentity_t *player = g_entities + i;
+    player = g_entities + i;
 
     if( !OnSameTeam( self, player ) || 
-        self->buildableTeam != player->client->pers.teamSelection )
+        self->buildableTeam != player->client->ps.stats[ STAT_TEAM ] )
       totalDamage += (float)self->credits[ i ];
   }
 
@@ -168,7 +169,7 @@ float G_RewardAttackers( gentity_t *self )
     if( !self->spawned )
     {
       value *= (float)( level.time - self->buildTime ) /
-          BG_Buildable( self->s.modelindex )->buildTime;
+        BG_Buildable( self->s.modelindex )->buildTime;
     }
 
     team = self->buildableTeam;
@@ -178,21 +179,18 @@ float G_RewardAttackers( gentity_t *self )
     return totalDamage;
 
   // Give credits and empty the array
-  for( i = 0; i < MAX_CLIENTS; i++ )
+  for( i = 0; i < level.maxclients; i++ )
   {
-    gentity_t *player = g_entities + i;
     short num = value * self->credits[ i ] / totalDamage;
-    int stageValue = num;
+    int   stageValue = num;
+    player = g_entities + i;
 
-    if( !OnSameTeam( self, player ) || 
-        self->buildableTeam != player->client->pers.teamSelection )
+    if( player->client->pers.teamSelection != team )
     {
-
       if( totalDamage < maxHealth )
-      stageValue *= totalDamage / maxHealth;
+        stageValue *= totalDamage / maxHealth;
 
-      if( !player->client || !self->credits[ i ] ||
-          player->client->ps.stats[ STAT_TEAM ] == team )
+      if( !self->credits[ i ] || player->client->ps.stats[ STAT_TEAM ] == team )
         continue;
 
       AddScore( player, num );
@@ -204,9 +202,11 @@ float G_RewardAttackers( gentity_t *self )
 
         // add to stage counters
         if( player->client->ps.stats[ STAT_TEAM ] == TEAM_ALIENS )
-          trap_Cvar_Set( "g_alienCredits", va( "%d", g_alienCredits.integer + stageValue ) );
+          trap_Cvar_Set( "g_alienCredits",
+            va( "%d", g_alienCredits.integer + stageValue ) );
         else if( player->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS )
-          trap_Cvar_Set( "g_humanCredits", va( "%d", g_humanCredits.integer + stageValue ) );
+          trap_Cvar_Set( "g_humanCredits",
+            va( "%d", g_humanCredits.integer + stageValue ) );
       }
     }
     self->credits[ i ] = 0;
@@ -1032,19 +1032,18 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
     }
 
     if( targ->s.eType == ET_BUILDABLE && attacker->client &&
-        mod != MOD_DECONSTRUCT )
+        mod != MOD_DECONSTRUCT && mod != MOD_SUICIDE &&
+        mod != MOD_REPLACE && mod != MOD_NOCREEP )
     {
       if( targ->buildableTeam == attacker->client->pers.teamSelection &&
-        !g_friendlyBuildableFire.integer && mod != MOD_DECONSTRUCT &&
-        mod != MOD_SUICIDE )
+        !g_friendlyBuildableFire.integer )
       {
         return;
       }
 
       // base is under attack warning if DCC'd
       if( targ->buildableTeam == TEAM_HUMANS && G_FindDCC( targ ) &&
-          level.time > level.humanBaseAttackTimer &&
-          mod != MOD_SUICIDE )
+          level.time > level.humanBaseAttackTimer )
       {
         level.humanBaseAttackTimer = level.time + DC_ATTACK_PERIOD;
         G_BroadcastEvent( EV_DCC_ATTACK, 0 );
@@ -1379,6 +1378,21 @@ void G_LogDestruction( gentity_t *self, gentity_t *actor, int mod )
   if( mod == MOD_REPLACE )
     return;
 
+  G_LogPrintf( S_COLOR_YELLOW "Deconstruct: %d %d %s %s: %s %s by %s\n",
+    actor - g_entities,
+    self - g_entities,
+    BG_Buildable( self->s.modelindex )->name,
+    modNames[ mod ],
+    BG_Buildable( self->s.modelindex )->humanName,
+    mod == MOD_DECONSTRUCT ? "deconstructed" : "destroyed",
+    actor->client ? actor->client->pers.netname : "<world>" );
+
+  // No-power deaths for humans come after some minutes and it's confusing
+  //  when the messages appear attributed to the deconner. Just don't print them.
+  if( mod == MOD_NOCREEP && actor->client && 
+      actor->client->pers.teamSelection == TEAM_HUMANS )
+    return;
+
   if( actor->client && actor->client->pers.teamSelection ==
     BG_Buildable( self->s.modelindex )->team )
   {
@@ -1389,12 +1403,4 @@ void G_LogDestruction( gentity_t *self, gentity_t *actor, int mod )
         actor->client->pers.netname ) );
   }
 
-  G_LogPrintf( S_COLOR_YELLOW "Deconstruct: %d %d %s %s: %s %s by %s\n",
-    actor - g_entities,
-    self - g_entities,
-    BG_Buildable( self->s.modelindex )->name,
-    modNames[ mod ],
-    BG_Buildable( self->s.modelindex )->humanName,
-    mod == MOD_DECONSTRUCT ? "deconstructed" : "destroyed",
-    actor->client ? actor->client->pers.netname : "<world>" );
 }
