@@ -1692,7 +1692,6 @@ Called when a repeater dies
 */
 static void HRepeater_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod )
 {
-  G_RewardAttackers( self );
   G_SetBuildableAnim( self, BANIM_DESTROY1, qtrue );
   G_SetIdleBuildableAnim( self, BANIM_DESTROYED );
 
