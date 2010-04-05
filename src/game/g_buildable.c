@@ -841,7 +841,11 @@ void ASpawn_Think( gentity_t *self )
         // If it's part of the map, kill self. 
         if( ent->s.eType == ET_BUILDABLE )
         {
-          G_Damage( ent, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
+          if( ent->builtBy >= 0 ) // don't queue the bp from this
+            G_Damage( ent, NULL, g_entities + ent->builtBy, NULL, NULL, 10000, 0, MOD_SUICIDE );
+          else
+            G_Damage( ent, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
+
           G_SetBuildableAnim( self, BANIM_SPAWN1, qtrue );
         }
         else if( ent->s.number == ENTITYNUM_WORLD || ent->s.eType == ET_MOVER )
