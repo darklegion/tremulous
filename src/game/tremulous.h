@@ -642,7 +642,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define HUMAN_TK_SUICIDE_PENALTY    150
 
 #define HUMAN_BUILDER_SCOREINC      50       // builders receive this many points every 10 seconds
-#define ALIEN_BUILDER_SCOREINC      AVM(50)  // builders receive this many points every 10 seconds
+#define ALIEN_BUILDER_SCOREINC      AVM(100)  // builders receive this many points every 10 seconds
 
 #define HUMAN_BUILDABLE_INACTIVE_TIME 90000
 

@@ -44,11 +44,11 @@ void AddScore( gentity_t *ent, int score )
   // make alien and human scores equivalent 
   if ( ent->client->pers.teamSelection == TEAM_ALIENS )
   {
-    score = rint( (double)score / 2.0 );
+    score = rint( ((float)score) / 2.0f );
   }
 
   // scale values down to fit the scoreboard better
-  score = rint( (double)score / 50.0 );
+  score = rint( ((float)score) / 50.0f );
 
   ent->client->ps.persistant[ PERS_SCORE ] += score;
   CalculateRanks( );
