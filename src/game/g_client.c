@@ -1691,7 +1691,7 @@ void ClientDisconnect( int clientNum )
 
   ent = g_entities + clientNum;
 
-  if( !ent->client )
+  if( !ent->client || ent->client->pers.connected == CON_DISCONNECTED )
     return;
 
   G_LeaveTeam( ent );
