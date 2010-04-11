@@ -1651,7 +1651,7 @@ static void CG_DrawTeamOverlay( rectDef_t *rect, float scale, vec4_t color )
   char         *s;
   int          i;
   float        x = rect->x;
-  float        y, dx;
+  float        y;
   clientInfo_t *ci, *pci;
   vec4_t       tcolor;
   float        iconSize = rect->h / 8.0f;
@@ -1660,8 +1660,14 @@ static void CG_DrawTeamOverlay( rectDef_t *rect, float scale, vec4_t color )
   float        midSep = 2.0f;
   float        backgroundWidth = rect->w;
   float        fontScale = 0.30f;
+  float        vPad = 0.0f;
+  float        nameWidth = 0.5f * rect->w;
+  char         name[ MAX_NAME_LENGTH + 2 ];
   int          maxDisplayCount = 0;
   int          displayCount = 0;
+  float        nameMaxX, nameMaxXCp;
+  float        maxX = rect->x + rect->w;
+  float        maxXCp = maxX;
   weapon_t     curWeapon = WP_NONE;
 
   if( cg.predictedPlayerState.pm_type == PM_SPECTATOR )
@@ -1682,7 +1688,7 @@ static void CG_DrawTeamOverlay( rectDef_t *rect, float scale, vec4_t color )
   for( i = 0; i < MAX_CLIENTS; i++ )
   {
     ci = cgs.clientinfo + i;
-    if( ci->infoValid && pci != ci && ci->team == pci->team)
+    if( ci->infoValid && pci != ci && ci->team == pci->team )
       maxDisplayCount++;
   }
 
@@ -1695,8 +1701,10 @@ static void CG_DrawTeamOverlay( rectDef_t *rect, float scale, vec4_t color )
   midSep *= scale;
   backgroundWidth *= scale;
   fontScale *= scale;
+  nameWidth *= scale;
 
-  y = rect->y - (float) maxDisplayCount * ( iconSize / 2.0f );
+  vPad = ( rect->h - ( (float) maxDisplayCount * iconSize ) ) / 2.0f;
+  y = rect->y + vPad;
 
   tcolor[ 0 ] = 1.0f;
   tcolor[ 1 ] = 1.0f;
@@ -1710,16 +1718,14 @@ static void CG_DrawTeamOverlay( rectDef_t *rect, float scale, vec4_t color )
     if( !ci->infoValid || pci == ci || ci->team != pci->team )
       continue;
 
-    dx = 0.f;
+    Com_sprintf( name, sizeof( name ), "%s^7", ci->name );
+
     trap_R_SetColor( color );
-    CG_DrawPic( x, y - iconSize + iconTopMargin, backgroundWidth,
+    CG_DrawPic( x, y, backgroundWidth,
                 iconSize, cgs.media.teamOverlayShader );
     trap_R_SetColor( tcolor );
     if( ci->health <= 0 || !ci->curWeaponClass )
-    {
-      dx = -iconSize;
-      s = va( "%s^7", ci->name );
-    }
+      s = "";
     else
     {
       if( ci->team == TEAM_HUMANS )
@@ -1727,15 +1733,14 @@ static void CG_DrawTeamOverlay( rectDef_t *rect, float scale, vec4_t color )
       else if( ci->team == TEAM_ALIENS )
         curWeapon = BG_Class( ci->curWeaponClass )->startWeapon;
 
-      CG_DrawPic( x + leftMargin, y - iconSize + iconTopMargin, iconSize, iconSize,
+      CG_DrawPic( x + leftMargin, y, iconSize, iconSize,
                   cg_weapons[ curWeapon ].weaponIcon );
       if( cg.predictedPlayerState.stats[ STAT_TEAM ] == TEAM_HUMANS )
       {
         if( ci->upgrade != UP_NONE )
         {
-          CG_DrawPic( x + iconSize + leftMargin, y - iconSize + iconTopMargin,
-                      iconSize, iconSize, cg_upgrades[ ci->upgrade ].upgradeIcon );
-          dx = iconSize;
+          CG_DrawPic( x + iconSize + leftMargin, y, iconSize, 
+                      iconSize, cg_upgrades[ ci->upgrade ].upgradeIcon );
         }
       }
       else
@@ -1743,21 +1748,28 @@ static void CG_DrawTeamOverlay( rectDef_t *rect, float scale, vec4_t color )
         if( curWeapon == WP_ABUILD2 || curWeapon == WP_ALEVEL1_UPG ||
             curWeapon == WP_ALEVEL2_UPG || curWeapon == WP_ALEVEL3_UPG )
         {
-          CG_DrawPic( x + iconSize + leftMargin, y - iconSize + iconTopMargin,
-                      iconSize, iconSize, cgs.media.upgradeClassIconShader );
-          dx = iconSize;
+          CG_DrawPic( x + iconSize + leftMargin, y, iconSize, 
+                      iconSize, cgs.media.upgradeClassIconShader );
         }
       }
 
-      s = va( "%s^7 [^%c%d^7] ^7%s", ci->name,
+      s = va( " [^%c%3d^7] ^7%s",
               CG_GetColorCharForHealth( i ),
               ci->health,
               CG_ConfigString( CS_LOCATIONS + ci->location ) );
     }
 
     trap_R_SetColor( NULL );
-    UI_Text_Paint( x + iconSize + leftMargin + midSep + dx, y, fontScale, tcolor, s,
-                   0, 0, ITEM_TEXTSTYLE_NORMAL );
+    nameMaxX = nameMaxXCp = x + 2.0f * iconSize +
+                            leftMargin + midSep + nameWidth;
+    UI_Text_Paint_Limit( &nameMaxXCp, x + 2.0f * iconSize + leftMargin + midSep, 
+                         y + iconSize - iconTopMargin, fontScale, tcolor, name,
+                         0, 0 );
+
+    maxXCp = maxX;
+
+    UI_Text_Paint_Limit( &maxXCp, nameMaxX, y + iconSize - iconTopMargin, 
+                         fontScale, tcolor, s, 0, 0 );
     y += iconSize;
     displayCount++;
   }

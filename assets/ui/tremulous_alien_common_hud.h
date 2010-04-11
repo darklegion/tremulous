@@ -263,11 +263,11 @@ itemDef
 itemDef
 {
   name "teamoverlay"
-  rect BORDER 120 160 128
+  rect BORDER 175 200 128
   style WINDOW_STYLE_EMPTY
   visible MENU_TRUE
   decoration
   forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.75
-  textscale 1.0
+  textscale 0.85
   ownerdraw CG_TEAMOVERLAY
 }

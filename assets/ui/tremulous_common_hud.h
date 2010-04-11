@@ -29,14 +29,14 @@ itemDef
 itemDef
 {
   name "tutorial"
-  rect BORDER 250 MAIN_W 180
+  rect BORDER 275 MAIN_W 130
   aspectBias ALIGN_LEFT
   style WINDOW_STYLE_EMPTY
   visible MENU_TRUE
   decoration
   forecolor 1 1 1 0.35
   textalign ALIGN_LEFT
-  textvalign VALIGN_TOP
+  textvalign VALIGN_CENTER
   textscale 0.3
   textstyle ITEM_TEXTSTYLE_NORMAL
   ownerdraw CG_TUTORIAL
