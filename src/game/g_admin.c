@@ -1294,9 +1294,6 @@ static qboolean admin_create_ban( gentity_t *ent,
 
   for( b = g_admin_bans; b; b = b->next )
   {
-    if( b->expires != 0 && b->expires <= t )
-      break;
-
     if( !b->next )
       break;
   }
