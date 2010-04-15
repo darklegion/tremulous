@@ -81,14 +81,6 @@ static void CG_Obituary( entityState_t *ent )
 
   switch( mod )
   {
-    case MOD_SUICIDE:
-      if( gender == GENDER_FEMALE )
-        message = "killed herself";
-      else if( gender == GENDER_NEUTER )
-        message = "killed itself";
-      else
-        message = "killed himself";
-      break;
     case MOD_FALLING:
       message = "fell fowl to gravity";
       break;
@@ -142,7 +134,7 @@ static void CG_Obituary( entityState_t *ent )
       break;
   }
 
-  if( attacker == target )
+  if( !message && attacker == target )
   {
     switch( mod )
     {
