@@ -154,17 +154,20 @@ int G_ClientNumbersFromString( char *s, int *plist, int max )
 {
   gclient_t *p;
   int i, found = 0;
+  char *endptr;
   char n2[ MAX_NAME_LENGTH ] = {""};
   char s2[ MAX_NAME_LENGTH ] = {""};
 
   if( max == 0 )
     return 0;
 
+  if( !s[ 0 ] )
+    return 0;
+
   // if a number is provided, it is a clientnum
-  for( i = 0; s[ i ] && isdigit( s[ i ] ); i++ );
-  if( !s[ i ] )
+  i = strtol( s, &endptr, 10 );
+  if( *endptr == '\0' )
   {
-    i = atoi( s );
     if( i >= 0 && i < level.maxclients )
     {
       p = &level.clients[ i ];
