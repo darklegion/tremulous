@@ -87,5 +87,5 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // custominfoparms below
 #define	SURF_NOALIENBUILD	0x80000  //disallow alien building
-#define	SURF_NOHUMANBUILD	0x100000 //disallow alien building
-#define	SURF_NOBUILD			0x200000 //disallow alien building
+#define	SURF_NOHUMANBUILD	0x100000 //disallow human building
+#define	SURF_NOBUILD		0x200000 //disallow building
