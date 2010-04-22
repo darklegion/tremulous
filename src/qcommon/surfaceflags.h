@@ -62,8 +62,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // custominfoparms below
 #define	CONTENTS_NOALIENBUILD			0x1000	//disallow alien building
-#define	CONTENTS_NOHUMANBUILD			0x2000	//disallow alien building
-#define	CONTENTS_NOBUILD					0x4000	//disallow alien building
+#define	CONTENTS_NOHUMANBUILD			0x2000	//disallow human building
+#define	CONTENTS_NOBUILD				0x4000	//disallow building
 
 #define	SURF_NODAMAGE			0x1		// never give falling damage
 #define	SURF_SLICK				0x2		// effects game physics
