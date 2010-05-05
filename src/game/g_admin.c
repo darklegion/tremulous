@@ -771,7 +771,7 @@ static int admin_listadmins( gentity_t *ent, int start, char *search )
         colorlen += 2;
     }
 
-    ADMBP( va( "%4i %4i %*s^7 %s\n",
+    ADMBP( va( "%4i %4i %*s^7 %s" S_COLOR_WHITE "\n",
       ( i + MAX_CLIENTS ),
       a->level,
       admin_level_maxname + colorlen,
