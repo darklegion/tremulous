@@ -1109,7 +1109,8 @@ qboolean G_admin_readconfig( gentity_t *ent )
     {
       level.clients[ i ].pers.admin =
         G_admin_admin( level.clients[ i ].pers.guid );
-      G_admin_authlog( &g_entities[ i ] );
+      if( level.clients[ i ].pers.admin )
+        G_admin_authlog( &g_entities[ i ] );
       G_admin_cmdlist( &g_entities[ i ] );
     }
   }
