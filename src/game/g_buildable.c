@@ -2474,15 +2474,15 @@ void HTeslaGen_Think( gentity_t *self )
 
 /*
 ============
-G_QueueBuildPoints
+G_QueueValue
 ============
 */
-void G_QueueBuildPoints( gentity_t *self )
+
+static int G_QueueValue( gentity_t *self )
 {
-  gentity_t *powerEntity;
   int       i;
   int       damageTotal = 0;
-  int       queuePoints = 0;
+  int       queuePoints;
   double    queueFraction = 0;
 
   for( i = 0; i < level.maxclients; i++ )
@@ -2501,6 +2501,20 @@ void G_QueueBuildPoints( gentity_t *self )
     queueFraction = 1.0;
 
   queuePoints = (int) ( queueFraction * (double) BG_Buildable( self->s.modelindex )->buildPoints );
+  return queuePoints;
+}
+
+/*
+============
+G_QueueBuildPoints
+============
+*/
+void G_QueueBuildPoints( gentity_t *self )
+{
+  gentity_t *powerEntity;
+  int       queuePoints;
+
+  queuePoints = G_QueueValue( self );
 
   if( !queuePoints )
     return;
@@ -3423,6 +3437,12 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable, vec3_t ori
   vec3_t    normal;
   char      readable[ MAX_STRING_CHARS ];
   char      buildnums[ MAX_STRING_CHARS ];
+  buildLog_t *log;
+
+  if( builder->client )
+    log = G_BuildLogNew( builder, BF_CONSTRUCT );
+  else
+    log = NULL;
 
   // Free existing buildables
   G_FreeMarkedBuildables( builder, readable, sizeof( readable ),
@@ -3654,6 +3674,9 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable, vec3_t ori
       readable );
   }
 
+  if( log )
+    G_BuildLogSet( log, built );
+
   return built;
 }
 
@@ -3742,7 +3765,7 @@ Traces down to find where an item should rest, instead of letting them
 free fall from their spawn points
 ================
 */
-static void G_FinishSpawningBuildable( gentity_t *ent )
+static gentity_t *G_FinishSpawningBuildable( gentity_t *ent, qboolean force )
 {
   trace_t     tr;
   vec3_t      dest;
@@ -3750,7 +3773,6 @@ static void G_FinishSpawningBuildable( gentity_t *ent )
   buildable_t buildable = ent->s.modelindex;
 
   built = G_Build( ent, buildable, ent->s.pos.trBase, ent->s.angles );
-  G_FreeEntity( ent );
 
   built->takedamage = qtrue;
   built->spawned = qtrue; //map entities are already spawned
@@ -3763,12 +3785,12 @@ static void G_FinishSpawningBuildable( gentity_t *ent )
 
   trap_Trace( &tr, built->s.origin, built->r.mins, built->r.maxs, dest, built->s.number, built->clipmask );
 
-  if( tr.startsolid )
+  if( tr.startsolid && !force )
   {
     G_Printf( S_COLOR_YELLOW "G_FinishSpawningBuildable: %s startsolid at %s\n",
               built->classname, vtos( built->s.origin ) );
     G_FreeEntity( built );
-    return;
+    return NULL;
   }
 
   //point items in the correct direction
@@ -3780,6 +3802,20 @@ static void G_FinishSpawningBuildable( gentity_t *ent )
   G_SetOrigin( built, tr.endpos );
 
   trap_LinkEntity( built );
+  return built;
+}
+
+/*
+============
+G_SpawnBuildableThink
+
+Complete spawning a buildable using it's placeholder
+============
+*/
+static void G_SpawnBuildableThink( gentity_t *ent )
+{
+  G_FinishSpawningBuildable( ent, qfalse );
+  G_FreeEntity( ent );
 }
 
 /*
@@ -3799,7 +3835,7 @@ void G_SpawnBuildable( gentity_t *ent, buildable_t buildable )
   // some movers spawn on the second frame, so delay item
   // spawns until the third frame so they can ride trains
   ent->nextthink = level.time + FRAMETIME * 2;
-  ent->think = G_FinishSpawningBuildable;
+  ent->think = G_SpawnBuildableThink;
 }
 
 /*
@@ -4100,6 +4136,177 @@ void G_BaseSelfDestruct( team_t team )
     if( ent->buildableTeam != team )
       continue;
     G_Damage( ent, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
+  }
+}
+
+/*
+============
+build log
+============
+*/
+buildLog_t *G_BuildLogNew( gentity_t *actor, buildFate_t fate )
+{
+  buildLog_t *log = &level.buildLog[ level.buildId++ % MAX_BUILDLOG ];
+
+  if( level.numBuildLogs < MAX_BUILDLOG )
+    level.numBuildLogs++;
+  log->time = level.time;
+  log->fate = fate;
+  log->actor = actor && actor->client ? actor->client->pers.namelog : NULL;
+  return log;
+}
+
+void G_BuildLogSet( buildLog_t *log, gentity_t *ent )
+{
+  log->modelindex = ent->s.modelindex;
+  log->deconstruct = log->deconstruct;
+  log->deconstructTime = ent->deconstructTime;
+  VectorCopy( ent->s.pos.trBase, log->origin );
+  VectorCopy( ent->s.angles, log->angles );
+  VectorCopy( ent->s.origin2, log->origin2 );
+  VectorCopy( ent->s.angles2, log->angles2 );
+  log->powerSource = ent->parentNode ? ent->parentNode->s.modelindex : BA_NONE;
+  log->powerValue = G_QueueValue( ent );
+}
+
+void G_BuildLogAuto( gentity_t *actor, gentity_t *buildable, buildFate_t fate )
+{
+  G_BuildLogSet( G_BuildLogNew( actor, fate ), buildable );
+}
+
+void G_BuildLogRevertThink( gentity_t *ent )
+{
+  gentity_t *built;
+  vec3_t    mins, maxs;
+  int       blockers[ MAX_GENTITIES ];
+  int       num;
+  int       victims = 0;
+  int       i;
+
+  if( ent->suicideTime > level.time )
+  {
+    BG_BuildableBoundingBox( ent->s.modelindex, mins, maxs );
+    VectorAdd( ent->s.pos.trBase, mins, mins );
+    VectorAdd( ent->s.pos.trBase, maxs, maxs );
+    num = trap_EntitiesInBox( mins, maxs, blockers, MAX_GENTITIES );
+    for( i = 0; i < num; i++ )
+    {
+      gentity_t *targ;
+      vec3_t    push;
+
+      targ = g_entities + blockers[ i ];
+      if( targ->client )
+      {
+        float val = ( targ->client->ps.eFlags & EF_WALLCLIMB) ? 300.0 : 150.0;
+
+        VectorSet( push, crandom() * val, crandom() * val, random() * val );
+        VectorAdd( targ->client->ps.velocity, push, targ->client->ps.velocity );
+        victims++;
+      }
+    }
+
+    if( victims )
+    {
+      // still a blocker
+      ent->nextthink = level.time + FRAMETIME;
+      return;
+    }
+  }
+
+  built = G_FinishSpawningBuildable( ent, qtrue );
+  if( ( built->deconstruct = ent->deconstruct ) )
+    built->deconstructTime = ent->deconstructTime;
+  built->buildTime = built->s.time = 0;
+  G_KillBox( built );
+
+  G_LogPrintf( "revert: restore %d %s\n",
+    built - g_entities, BG_Buildable( built->s.modelindex )->name );
+
+  G_FreeEntity( ent );
+}
+
+void G_BuildLogRevert( int id )
+{
+  buildLog_t *log;
+  gentity_t  *ent;
+  int        i;
+  vec3_t     dist;
+
+  level.numBuildablesForRemoval = 0;
+
+  level.numBuildLogs -= level.buildId - id;
+  while( level.buildId > id )
+  {
+    log = &level.buildLog[ --level.buildId % MAX_BUILDLOG ];
+    if( log->fate == BF_CONSTRUCT )
+    {
+      for( i = MAX_CLIENTS; i < level.num_entities; i++ )
+      {
+        ent = &g_entities[ i ];
+        if( ent->s.eType != ET_BUILDABLE ||
+          ent->s.modelindex != log->modelindex ||
+          ent->health <= 0 )
+          continue;
+
+        VectorSubtract( ent->s.pos.trBase, log->origin, dist );
+        if( VectorLengthSquared( dist ) > 2.0f )
+          continue;
+
+        G_LogPrintf( "revert: remove %d %s\n",
+          ent - g_entities, BG_Buildable( ent->s.modelindex )->name );
+        G_FreeEntity( ent );
+        break;
+      }
+    }
+    else
+    {
+      gentity_t  *builder = G_Spawn();
+
+      builder->client = NULL;
+      VectorCopy( log->origin, builder->s.pos.trBase );
+      VectorCopy( log->angles, builder->s.angles );
+      VectorCopy( log->origin2, builder->s.origin2 );
+      VectorCopy( log->angles2, builder->s.angles2 );
+      builder->s.modelindex = log->modelindex;
+      builder->deconstruct = log->deconstruct;
+      builder->deconstructTime = log->deconstructTime;
+
+      builder->think = G_BuildLogRevertThink;
+      builder->nextthink = level.time + FRAMETIME;
+      builder->suicideTime = level.time + 3000;
+
+      if( log->fate == BF_DESTROY )
+      {
+        int value = log->powerValue;
+
+        if( BG_Buildable( log->modelindex )->team == TEAM_ALIENS )
+        {
+          level.alienBuildPointQueue =
+            MAX( 0, level.alienBuildPointQueue - value );
+        }
+        else
+        {
+          if( log->powerSource == BA_H_REACTOR )
+          {
+            level.humanBuildPointQueue =
+              MAX( 0, level.humanBuildPointQueue - value );
+          }
+          else if( log->powerSource == BA_H_REPEATER )
+          {
+            gentity_t        *source;
+            buildPointZone_t *zone;
+
+            source = G_PowerEntityForPoint( log->origin );
+            if( source && source->usesBuildPointZone )
+            {
+              zone = &level.buildPointZones[ source->buildPointZone ];
+              zone->queuedBuildPoints =
+                MAX( 0, zone->queuedBuildPoints - value );
+            }
+          }
+        }
+      }
+    }
   }
 }
 

@@ -491,11 +491,40 @@ typedef enum
   TW_PASSED
 } timeWarning_t;
 
+// fate of a buildable
+typedef enum
+{
+  BF_CONSTRUCT,
+  BF_DECONSTRUCT,
+  BF_REPLACE,
+  BF_DESTROY,
+  BF_UNPOWER,
+  BF_AUTO
+} buildFate_t;
+
+// data needed to revert a change in layout
+typedef struct
+{
+  int          time;
+  buildFate_t  fate;
+  namelog_t    *actor;
+  buildable_t  modelindex;
+  qboolean     deconstruct;
+  int          deconstructTime;
+  vec3_t       origin;
+  vec3_t       angles;
+  vec3_t       origin2;
+  vec3_t       angles2;
+  buildable_t  powerSource;
+  int          powerValue;
+} buildLog_t;
+
 //
 // this structure is cleared as each map is entered
 //
 #define MAX_SPAWN_VARS      64
 #define MAX_SPAWN_VARS_CHARS  4096
+#define MAX_BUILDLOG          128
 
 typedef struct
 {
@@ -633,6 +662,10 @@ typedef struct
   int               emoticonCount;
 
   namelog_t         *namelogs;
+
+  buildLog_t        buildLog[ MAX_BUILDLOG ];
+  int               buildId;
+  int               numBuildLogs;
 } level_locals_t;
 
 #define CMD_CHEAT         0x0001
@@ -759,6 +792,10 @@ gentity_t         *G_PowerEntityForPoint( const vec3_t origin );
 gentity_t         *G_PowerEntityForEntity( gentity_t *ent );
 gentity_t         *G_RepeaterEntityForPoint( vec3_t origin );
 qboolean          G_InPowerZone( gentity_t *self );
+buildLog_t        *G_BuildLogNew( gentity_t *actor, buildFate_t fate );
+void              G_BuildLogSet( buildLog_t *log, gentity_t *ent );
+void              G_BuildLogAuto( gentity_t *actor, gentity_t *buildable, buildFate_t fate );
+void              G_BuildLogRevert( int id );
 
 //
 // g_utils.c

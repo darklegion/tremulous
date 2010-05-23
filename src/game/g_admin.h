@@ -171,6 +171,8 @@ qboolean G_admin_restart( gentity_t *ent );
 qboolean G_admin_nextmap( gentity_t *ent );
 qboolean G_admin_namelog( gentity_t *ent );
 qboolean G_admin_lock( gentity_t *ent );
+qboolean G_admin_buildlog( gentity_t *ent );
+qboolean G_admin_revert( gentity_t *ent );
 
 void G_admin_print( gentity_t *ent, char *m );
 void G_admin_buffer_print( gentity_t *ent, char *m );

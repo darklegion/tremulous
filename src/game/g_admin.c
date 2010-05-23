@@ -75,6 +75,11 @@ g_admin_cmd_t g_admin_cmds[ ] =
       "[^3name|slot#|IP(/mask)^7] (^5duration^7) (^5reason^7)"
     },
 
+    {"buildlog", G_admin_buildlog, "buildlog",
+      "show buildable log",
+      "(^5name|slot#^7) (^5id^7)"
+    },
+
     {"cancelvote", G_admin_endvote, "cancelvote",
       "cancel a vote taking place",
       "(^5a|h^7)"
@@ -153,6 +158,11 @@ g_admin_cmd_t g_admin_cmds[ ] =
     {"restart", G_admin_restart, "restart",
       "restart the current map (optionally using named layout or keeping/switching teams)",
       "(^5layout^7) (^5keepteams|switchteams|keepteamslock|switchteamslock^7)"
+    },
+
+    {"revert", G_admin_revert, "revert",
+      "revert buildables to a given time",
+      "[^3id^7]"
     },
 
     {"setlevel", G_admin_setlevel, "setlevel",
@@ -783,6 +793,7 @@ static int admin_listadmins( gentity_t *ent, int start, char *search )
   return drawn;
 }
 
+#define MAX_DURATION_LENGTH 13
 void G_admin_duration( int secs, char *duration, int dursize )
 {
   // sizeof("12.5 minutes") == 13
@@ -826,7 +837,7 @@ qboolean G_admin_ban_check( gentity_t *ent, char *reason, int rlen )
       ( !G_admin_permission( ent, ADMF_IMMUNITY ) &&
         G_AddressCompare( &ban->ip, &ent->client->pers.ip ) ) )
     {
-      char duration[ 13 ];
+      char duration[ MAX_DURATION_LENGTH ];
       G_admin_duration( ban->expires - t,
         duration, sizeof( duration ) );
       if( reason )
@@ -1431,7 +1442,7 @@ qboolean G_admin_ban( gentity_t *ent )
   char search[ MAX_NAME_LENGTH ];
   char secs[ MAX_TOKEN_CHARS ];
   char *reason;
-  char duration[ 13 ];
+  char duration[ MAX_DURATION_LENGTH ];
   int logmatches = 0;
   int i;
   qboolean exactmatch = qfalse;
@@ -1674,7 +1685,7 @@ qboolean G_admin_adjustban( gentity_t *ent )
   int length, maximum;
   int expires;
   int time = trap_RealTime( NULL );
-  char duration[ 13 ] = {""};
+  char duration[ MAX_DURATION_LENGTH ] = {""};
   char *reason;
   char bs[ 5 ];
   char secs[ MAX_TOKEN_CHARS ];
@@ -2193,7 +2204,7 @@ qboolean G_admin_showbans( gentity_t *ent )
   int found = 0;
   int count;
   int t;
-  char duration[ 13 ];
+  char duration[ MAX_DURATION_LENGTH ];
   int max_name = 1, max_banner = 1;
   int colorlen1, colorlen2;
   int len;
@@ -2810,6 +2821,167 @@ qboolean G_admin_lock( gentity_t *ent )
     command, BG_TeamName( team ), lock ? "" : "un",
     ent ? ent->client->pers.netname : "console" ) );
 
+  return qtrue;
+}
+
+static char *fates[] =
+{
+  "^2built^7",
+  "^3deconstructed^7",
+  "^7replaced^7",
+  "^3destroyed^7",
+  "^7unpowered^7",
+  "removed"
+};
+qboolean G_admin_buildlog( gentity_t *ent )
+{
+  char       search[ MAX_NAME_LENGTH ] = {""};
+  char       s[ MAX_NAME_LENGTH ] = {""};
+  char       n[ MAX_NAME_LENGTH ];
+  char       stamp[ 8 ];
+  int        id = -1;
+  int        printed = 0;
+  int        time;
+  int        start = MAX_CLIENTS + level.buildId - level.numBuildLogs;
+  int        i = 0, j;
+  buildLog_t *log;
+
+  if( !level.buildId )
+  {
+    ADMP( "^3buildlog: ^7log is empty\n" );
+    return qtrue;
+  }
+
+  if( trap_Argc() == 3 )
+  {
+    trap_Argv( 2, search, sizeof( search ) );
+    start = atoi( search );
+  }
+  if( trap_Argc() > 1 )
+  {
+    trap_Argv( 1, search, sizeof( search ) );
+    for( i = search[ 0 ] == '-'; isdigit( search[ i ] ); i++ );
+    if( i && !search[ i ] )
+    {
+      id = atoi( search );
+      if( trap_Argc() == 2 && ( id < 0 || id >= MAX_CLIENTS ) )
+      {
+        start = id;
+        id = -1;
+      }
+      else if( id < 0 || id >= MAX_CLIENTS ||
+        level.clients[ id ].pers.connected != CON_CONNECTED )
+      {
+        ADMP( "^3buildlog: ^7invalid client id\n" );
+        return qfalse;
+      }
+    }
+    else
+      G_SanitiseString( search, s, sizeof( s ) );
+  }
+  else
+    start = MAX( -MAX_ADMIN_LISTITEMS, -level.buildId );
+
+  if( start < 0 )
+    start = MAX( level.buildId - level.numBuildLogs, start + level.buildId );
+  else
+    start -= MAX_CLIENTS;
+  if( start < level.buildId - level.numBuildLogs || start >= level.buildId )
+  {
+    ADMP( "^3buildlog: ^7invalid build ID\n" );
+    return qfalse;
+  }
+
+  trap_SendServerCommand( -1,
+    va( "print \"^3buildlog: ^7%s^7 requested a log of recent building activity\n\"",
+        ent ? ent->client->pers.netname : "console"  ) );
+
+  ADMBP_begin();
+  for( i = start; i < level.buildId && printed < MAX_ADMIN_LISTITEMS; i++ )
+  {
+    log = &level.buildLog[ i % MAX_BUILDLOG ];
+    if( id >= 0 && id < MAX_CLIENTS )
+    {
+      if( log->actor != level.clients[ id ].pers.namelog )
+        continue;
+    }
+    else if( s[ 0 ] )
+    {
+      if( !log->actor )
+        continue;
+      for( j = 0; j < MAX_NAMELOG_NAMES && log->actor->name[ j ][ 0 ]; j++ )
+      {
+        G_SanitiseString( log->actor->name[ j ], n, sizeof( n ) );
+        if( strstr( n, s ) )
+          break;
+      }
+      if( j >= MAX_NAMELOG_NAMES || !log->actor->name[ j ][ 0 ] )
+        continue;
+    }
+    printed++;
+    time = ( log->time - level.startTime ) / 1000;
+    Com_sprintf( stamp, sizeof( stamp ), "%3d:%02d", time / 60, time % 60 );
+    ADMBP( va( "^2%c^7%-3d %s ^7%s^7 %s%s%s\n",
+      log->actor && log->fate != BF_REPLACE && log->fate != BF_UNPOWER ?
+        '*' : ' ',
+      i + MAX_CLIENTS,
+      log->actor && ( log->fate == BF_REPLACE || log->fate == BF_UNPOWER ) ?
+        "    \\_" : stamp,
+      BG_Buildable( log->modelindex )->humanName,
+      fates[ log->fate ],
+      log->actor ? " by " : "",
+      log->actor ?
+        log->actor->name[ log->actor->nameChanges % MAX_NAMELOG_NAMES ] :
+        "" ) );
+  }
+  ADMBP( va( "^3buildlog: ^7showing %d build logs %d - %d of %d - %d.  %s\n",
+    printed, start + MAX_CLIENTS, i + MAX_CLIENTS - 1,
+    level.buildId + MAX_CLIENTS - level.numBuildLogs,
+    level.buildId + MAX_CLIENTS - 1,
+    i < level.buildId ? va( "run 'buildlog %s%s%d' to see more",
+      search, search[ 0 ] ? " " : "", i + MAX_CLIENTS ) : "" ) );
+  ADMBP_end();
+  return qtrue;
+}
+
+qboolean G_admin_revert( gentity_t *ent )
+{
+  char       arg[ MAX_TOKEN_CHARS ];
+  char       time[ MAX_DURATION_LENGTH ];
+  int        id;
+  buildLog_t *log;
+
+  if( trap_Argc() != 2 )
+  {
+    ADMP( "^3revert: ^7usage: revert [id]\n" );
+    return qfalse;
+  }
+
+  trap_Argv( 1, arg, sizeof( arg ) );
+  id = atoi( arg ) - MAX_CLIENTS;
+  if( id < level.buildId - level.numBuildLogs || id >= level.buildId )
+  {
+    ADMP( "^3revert: ^7invalid id\n" );
+    return qfalse;
+  }
+
+  log = &level.buildLog[ id % MAX_BUILDLOG ];
+  if( !log->actor || log->fate == BF_REPLACE || log->fate == BF_UNPOWER )
+  {
+    // fixme: then why list them with an id # in build log ? - rez
+    ADMP( "^3revert: ^7you can only revert direct player actions, "
+      "indicated by ^2* ^7in buildlog\n" );
+    return qfalse;
+  }
+
+  G_admin_duration( ( level.time - log->time ) / 1000, time,
+    sizeof( time ) );
+  AP( va( "print \"^3revert: ^7%s^7 reverted %d %s over the past %s\n\"",
+    ent ? ent->client->pers.netname : "console",
+    level.buildId - id,
+    ( level.buildId - id ) > 1 ? "changes" : "change",
+    time ) );
+  G_BuildLogRevert( id );
   return qtrue;
 }
 

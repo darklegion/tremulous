@@ -1371,8 +1371,24 @@ Log deconstruct/destroy events
 */
 void G_LogDestruction( gentity_t *self, gentity_t *actor, int mod )
 {
-  if( !actor )
-    return;
+  buildFate_t fate;
+
+  switch( mod )
+  {
+    case MOD_DECONSTRUCT:
+      fate = BF_DECONSTRUCT;
+      break;
+    case MOD_REPLACE:
+      fate = BF_REPLACE;
+      break;
+    case MOD_NOCREEP:
+      fate = ( actor->client ) ? BF_UNPOWER : BF_AUTO;
+      break;
+    default:
+      fate = ( actor->client ) ? BF_DESTROY : BF_AUTO;
+      break;
+  }
+  G_BuildLogAuto( actor, self, fate );
 
   // don't log when marked structures are removed
   if( mod == MOD_REPLACE )
