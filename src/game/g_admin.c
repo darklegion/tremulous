@@ -636,7 +636,7 @@ static void admin_default_levels( void )
   l->level = level++;
   Q_strncpyz( l->name, "^3Senior Admin", sizeof( l->name ) );
   Q_strncpyz( l->flags,
-    "listplayers admintest adminhelp time putteam spec99 kick mute showbans ban "
+    "listplayers admintest adminhelp time putteam spec999 kick mute showbans ban "
     "namelog ADMINCHAT",
     sizeof( l->flags ) );
 
