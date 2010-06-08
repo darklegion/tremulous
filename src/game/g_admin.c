@@ -2303,7 +2303,7 @@ qboolean G_admin_showbans( gentity_t *ent )
 
   ADMBP_begin();
   for( i = 0, ban = g_admin_bans; i < start && ban; i++, ban = ban->next );
-  for( count = 0; count < MAX_ADMIN_SHOWBANS && ban; ban = ban->next )
+  for( count = 0; count < MAX_ADMIN_SHOWBANS && ban; i++, ban = ban->next )
   {
     if( ban->expires != 0 && ban->expires <= t )
       continue;
@@ -2348,7 +2348,7 @@ qboolean G_admin_showbans( gentity_t *ent )
 
 
     ADMBP( va( "%4i %*s^7 %-15s %-8s %*s^7 %-10s\n     \\__ %s\n",
-             ( count + start ),
+             i,
              max_name + colorlen1,
              ban->name,
              ban->ip.str,
