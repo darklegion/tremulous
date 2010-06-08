@@ -2348,7 +2348,7 @@ qboolean G_admin_showbans( gentity_t *ent )
 
 
     ADMBP( va( "%4i %*s^7 %-15s %-8s %*s^7 %-10s\n     \\__ %s\n",
-             i,
+             i + 1,
              max_name + colorlen1,
              ban->name,
              ban->ip.str,
