@@ -1602,6 +1602,13 @@ qboolean G_admin_ban( gentity_t *ent )
   G_admin_duration( ( seconds ) ? seconds : -1,
     duration, sizeof( duration ) );
 
+  AP( va( "print \"^3ban:^7 %s^7 has been banned by %s^7 "
+    "duration: %s, reason: %s\n\"",
+    match->name[ match->nameChanges % MAX_NAMELOG_NAMES ],
+    ( ent ) ? ent->client->pers.netname : "console",
+    duration,
+    ( *reason ) ? reason : "banned by admin" ) );
+
   if( ipmatch )
   {
     admin_create_ban( ent,
