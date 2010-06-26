@@ -1881,6 +1881,7 @@ qboolean UI_Text_IsEmoticon( const char *s, qboolean *escaped,
                              int *length, qhandle_t *h, int *width )
 {
   const char *p = s;
+  char emoticon[ MAX_EMOTICON_NAME_LEN ];
   int i;
 
   if( *p != '[' )
@@ -1896,11 +1897,16 @@ qboolean UI_Text_IsEmoticon( const char *s, qboolean *escaped,
     *escaped = qfalse;
 
   for( *length = 0; p[ *length ] != ']'; ( *length )++ )
-    if( !p[ *length ] )
+  {
+    if( !p[ *length ] || *length == MAX_EMOTICON_NAME_LEN - 1 )
       return qfalse;
 
+    emoticon[ *length ] = p[ *length ];
+  }
+  emoticon[ *length ] = '\0';
+
   for( i = 0; i < DC->Assets.emoticonCount; i++ )
-    if( !Q_stricmpn( DC->Assets.emoticons[ i ].name, p, *length ) )
+    if( !Q_stricmp( DC->Assets.emoticons[ i ].name, emoticon ) )
       break;
 
   if( i == DC->Assets.emoticonCount )
