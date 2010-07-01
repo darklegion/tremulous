@@ -937,17 +937,14 @@ int Q_CountChar(const char *string, char tocount)
 
 void Q_StripIndentMarker(char *string)
 {
-	int i;
+	int i, j;
 
-	for (i = 0; i < strlen(string); i++) {
-		if (string[i] == INDENT_MARKER) {
-			int j;
-
-			for (j = i; j < strlen(string); j++) {
-				string[j] = string[j+1];
-			}
+	for (i = j = 0; string[i]; i++) {
+		if (string[i] != INDENT_MARKER) {
+			string[j++] = string[i];
 		}
 	}
+	string[j] = 0;
 }
 
 void Q_ParseNewlines( char *dest, const char *src, int destsize )
