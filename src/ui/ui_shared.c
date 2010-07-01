@@ -7350,7 +7350,7 @@ qboolean Item_Parse( int handle, itemDef_t *item )
 
       if( test != key->param )
       {
-        if( test == ITEM_TYPE_NONE )
+        if( test == TYPE_NONE )
           PC_SourceError( handle, "menu item keyword %s requires "
                           "type specification", token.string );
         else
