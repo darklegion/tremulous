@@ -298,7 +298,7 @@ Q_EXPORT intptr_t vmMain( int command, int arg0, int arg1, int arg2, int arg3, i
       return 0;
 
     case GAME_CLIENT_USERINFO_CHANGED:
-      ClientUserinfoChanged( arg0 );
+      ClientUserinfoChanged( arg0, qfalse );
       return 0;
 
     case GAME_CLIENT_DISCONNECT:
@@ -1004,7 +1004,7 @@ void G_SpawnClients( team_t team )
       ent = &g_entities[ clientNum ];
 
       ent->client->sess.spectatorState = SPECTATOR_NOT;
-      ClientUserinfoChanged( clientNum );
+      ClientUserinfoChanged( clientNum, qfalse );
       ClientSpawn( ent, spawn, spawn_origin, spawn_angles );
     }
   }

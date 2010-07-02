@@ -240,7 +240,7 @@ void G_ChangeTeam( gentity_t *ent, team_t newTeam )
   // Copy credits to ps for the client
   ent->client->ps.persistant[ PERS_CREDIT ] = ent->client->pers.credit;
 
-  ClientUserinfoChanged( ent->client->ps.clientNum );
+  ClientUserinfoChanged( ent->client->ps.clientNum, qfalse );
 
   G_UpdateTeamConfigStrings( );
 

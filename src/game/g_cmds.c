@@ -1564,7 +1564,7 @@ void Cmd_Class_f( gentity_t *ent )
           //remove credit
           G_AddCreditToClient( ent->client, -cost, qtrue );
           ent->client->pers.classSelection = newClass;
-          ClientUserinfoChanged( clientNum );
+          ClientUserinfoChanged( clientNum, qfalse );
           VectorCopy( infestOrigin, ent->s.pos.trBase );
           VectorCopy( ent->client->ps.velocity, oldVel );
 
@@ -1989,7 +1989,7 @@ void Cmd_Buy_f( gentity_t *ent )
     G_TriggerMenu( ent->client->ps.clientNum, MN_H_UNKNOWNITEM );
 
   //update ClientInfo
-  ClientUserinfoChanged( ent->client->ps.clientNum );
+  ClientUserinfoChanged( ent->client->ps.clientNum, qfalse );
 }
 
 
@@ -2161,7 +2161,7 @@ void Cmd_Sell_f( gentity_t *ent )
     G_TriggerMenu( ent->client->ps.clientNum, MN_H_UNKNOWNITEM );
 
   //update ClientInfo
-  ClientUserinfoChanged( ent->client->ps.clientNum );
+  ClientUserinfoChanged( ent->client->ps.clientNum, qfalse );
 }
 
 
@@ -2625,7 +2625,7 @@ static void Cmd_Ignore_f( gentity_t *ent )
       if( !Com_ClientListContains( &ent->client->sess.ignoreList, pids[ i ] ) )
       {
         Com_ClientListAdd( &ent->client->sess.ignoreList, pids[ i ] );
-        ClientUserinfoChanged( ent->client->ps.clientNum );
+        ClientUserinfoChanged( ent->client->ps.clientNum, qfalse );
         trap_SendServerCommand( ent-g_entities, va( "print \"[skipnotify]"
           "ignore: added %s^7 to your ignore list\n\"",
           level.clients[ pids[ i ] ].pers.netname ) );
@@ -2642,7 +2642,7 @@ static void Cmd_Ignore_f( gentity_t *ent )
       if( Com_ClientListContains( &ent->client->sess.ignoreList, pids[ i ] ) )
       {
         Com_ClientListRemove( &ent->client->sess.ignoreList, pids[ i ] );
-        ClientUserinfoChanged( ent->client->ps.clientNum );
+        ClientUserinfoChanged( ent->client->ps.clientNum, qfalse );
         trap_SendServerCommand( ent-g_entities, va( "print \"[skipnotify]"
           "unignore: removed %s^7 from your ignore list\n\"",
           level.clients[ pids[ i ] ].pers.netname ) );

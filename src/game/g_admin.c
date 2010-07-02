@@ -2615,8 +2615,11 @@ qboolean G_admin_rename( gentity_t *ent )
     ADMP( va( "^3rename: ^7%s\n", err ) );
     return qfalse;
   }
-  victim->client->pers.namelog->nameChanges--;
-  victim->client->pers.namelog->nameChangeTime = 0;
+  if( victim->client->pers.connected != CON_CONNECTED )
+  {
+    ADMP( "^3rename: ^7sorry, but your intended victim is still connecting\n" );
+    return qfalse;
+  }
   trap_GetUserinfo( pids[ 0 ], userinfo, sizeof( userinfo ) );
   AP( va( "print \"^3rename: ^7%s^7 has been renamed to %s^7 by %s\n\"",
           victim->client->pers.netname,
@@ -2624,7 +2627,7 @@ qboolean G_admin_rename( gentity_t *ent )
           ( ent ) ? ent->client->pers.netname : "console" ) );
   Info_SetValueForKey( userinfo, "name", newname );
   trap_SetUserinfo( pids[ 0 ], userinfo );
-  ClientUserinfoChanged( pids[ 0 ] );
+  ClientUserinfoChanged( pids[ 0 ], qtrue );
   return qtrue;
 }
 
