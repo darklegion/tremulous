@@ -3120,7 +3120,7 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
     if( team == TEAM_HUMANS &&
         buildable != BA_H_REACTOR &&
         buildable != BA_H_REPEATER &&
-        G_PowerEntityForPoint( ent->s.origin ) != G_PowerEntityForPoint( origin ) )
+        ent->parentNode != G_PowerEntityForPoint( origin ) )
       continue;
 
     if( !ent->inuse )
