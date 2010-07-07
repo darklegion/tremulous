@@ -37,6 +37,7 @@ void G_namelog_connect( gclient_t *client )
 {
   namelog_t *n, *p = NULL;
   int       i;
+  char      *newname;
 
   for( n = level.namelogs; n; p = n, n = n->next )
   {
@@ -58,7 +59,12 @@ void G_namelog_connect( gclient_t *client )
   n->slot = client - level.clients;
   n->banned = qfalse;
 
-  G_namelog_update_name( client );
+  newname = n->name[ n->nameChanges % MAX_NAMELOG_NAMES ];
+  // If they're muted, copy in their last known name - this will stop people
+  // reconnecting to get around the name change protection.
+  if( n->muted && G_admin_name_check( &g_entities[ n->slot ],
+      newname, NULL, 0 ) )
+    Q_strncpyz( client->pers.netname, newname, MAX_NAME_LENGTH );
 
   for( i = 0; i < MAX_NAMELOG_ADDRS && n->ip[ i ].str[ 0 ]; i++ )
     if( !strcmp( n->ip[ i ].str, client->pers.ip.str ) )

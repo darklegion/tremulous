@@ -362,14 +362,16 @@ qboolean G_admin_name_check( gentity_t *ent, char *name, char *err, int len )
 
   if( !strcmp( name2, "console" ) )
   {
-    Q_strncpyz( err, "The name 'console' is not allowed.", len );
+    if( err && len > 0 )
+      Q_strncpyz( err, "The name 'console' is not allowed.", len );
     return qfalse;
   }
 
   G_DecolorString( name, testName, sizeof( testName ) );
   if( isdigit( testName[ 0 ] ) )
   {
-    Q_strncpyz( err, "Names cannot begin with numbers", len );
+    if( err && len > 0 )
+      Q_strncpyz( err, "Names cannot begin with numbers", len );
     return qfalse;
   }
 
@@ -381,7 +383,8 @@ qboolean G_admin_name_check( gentity_t *ent, char *name, char *err, int len )
 
   if( alphaCount == 0 )
   {
-    Q_strncpyz( err, "Names must contain letters", len );
+    if( err && len > 0 )
+      Q_strncpyz( err, "Names must contain letters", len );
     return qfalse;
   }
 
@@ -398,7 +401,8 @@ qboolean G_admin_name_check( gentity_t *ent, char *name, char *err, int len )
     G_SanitiseString( client->pers.netname, testName, sizeof( testName ) );
     if( !strcmp( name2, testName ) )
     {
-      Com_sprintf( err, len, "The name '%s^7' is already in use", name );
+      if( err && len > 0 )
+        Com_sprintf( err, len, "The name '%s^7' is already in use", name );
       return qfalse;
     }
   }
@@ -410,8 +414,9 @@ qboolean G_admin_name_check( gentity_t *ent, char *name, char *err, int len )
     G_SanitiseString( admin->name, testName, sizeof( testName ) );
     if( !strcmp( name2, testName ) && ent->client->pers.admin != admin )
     {
-      Com_sprintf( err, len, "The name '%s^7' belongs to an admin, "
-        "please use another name", name );
+      if( err && len > 0 )
+        Com_sprintf( err, len, "The name '%s^7' belongs to an admin, "
+                     "please use another name", name );
       return qfalse;
     }
   }
