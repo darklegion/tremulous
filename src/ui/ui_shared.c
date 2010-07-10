@@ -1999,6 +1999,7 @@ float UI_Text_Width( const char *text, float scale, int limit )
       if( *s == INDENT_MARKER )
       {
         s++;
+        count++;
         continue;
       }
 
@@ -4308,20 +4309,6 @@ static void SkipWhiteSpace( const char **text, char *lastColor )
   }
 }
 
-static void SkipEmoticons( const char **text )
-{
-  int      emoticonLen;
-  qboolean emoticonEscaped;
-
-  while( UI_Text_IsEmoticon( *text, &emoticonEscaped, &emoticonLen, NULL, NULL ) )
-  {
-    if( emoticonEscaped )
-      (*text)++;
-    else
-      (*text) += emoticonLen;
-  }
-}
-
 const char *Item_Text_Wrap( const char *text, float scale, float width )
 {
   static char   out[ 8192 ] = "";
@@ -4351,6 +4338,8 @@ const char *Item_Text_Wrap( const char *text, float scale, float width )
 
     while( testLength == 0 || UI_Text_Width( p, scale, testLength ) < testWidth )
     {
+      int      emoticonLen;
+      qboolean emoticonEscaped;
       qboolean previousCharIsSpace = qfalse;
 
       // Remaining string is too short to wrap
@@ -4364,18 +4353,25 @@ const char *Item_Text_Wrap( const char *text, float scale, float width )
       for( q = p, i = 0; i < testLength; i++ )
       {
         SkipColorCodes( &q, c );
-        SkipEmoticons( &q );
 
         previousCharIsSpace = isspace( *q );
         q++;
       }
 
+      if( UI_Text_IsEmoticon( q, &emoticonEscaped, &emoticonLen, NULL, NULL ) )
+      {
+        testLength += emoticonLen;
+        continue;
+      }
+
       if( testLength > 0 && *q == INDENT_MARKER )
+      {
         indentWidth = UI_Text_Width( p, scale, testLength );
+        eol = p;
+      }
 
       // Some color escapes might still be present
       SkipColorCodes( &q, c );
-      SkipEmoticons( &q );
 
       // Manual line break
       if( *q == '\n' )
