@@ -91,12 +91,19 @@ void G_AddCreditToClient( gclient_t *client, short credit, qboolean cap )
   if( !client )
     return;
 
-  client->pers.credit += credit;
-  capAmount = client->pers.teamSelection == TEAM_ALIENS ?
-               ALIEN_MAX_CREDITS : HUMAN_MAX_CREDITS;
-
-  if( cap && client->pers.credit > capAmount )
-    client->pers.credit = capAmount;
+  if( cap && credit > 0 )
+  {
+    capAmount = client->pers.teamSelection == TEAM_ALIENS ?
+                ALIEN_MAX_CREDITS : HUMAN_MAX_CREDITS;
+    if( client->pers.credit < capAmount )
+    {
+      client->pers.credit += credit;
+      if( client->pers.credit > capAmount )
+        client->pers.credit = capAmount;
+    }
+  }
+  else
+    client->pers.credit += credit;
 
   if( client->pers.credit < 0 )
     client->pers.credit = 0;
