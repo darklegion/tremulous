@@ -502,7 +502,7 @@ gentity_t *G_Reactor( void )
   static gentity_t *rc;
 
   // If cache becomes invalid renew it
-  if( !rc || rc->s.eType != ET_BUILDABLE || rc->s.modelindex == BA_H_REACTOR )
+  if( !rc || rc->s.eType != ET_BUILDABLE || rc->s.modelindex != BA_H_REACTOR )
     rc = G_FindBuildable( BA_H_REACTOR );
 
   // If we found it and it's alive, return it
@@ -517,7 +517,7 @@ gentity_t *G_Overmind( void )
   static gentity_t *om;
 
   // If cache becomes invalid renew it
-  if( !om || om->s.eType != ET_BUILDABLE || om->s.modelindex == BA_A_OVERMIND )
+  if( !om || om->s.eType != ET_BUILDABLE || om->s.modelindex != BA_A_OVERMIND )
     om = G_FindBuildable( BA_A_OVERMIND );
 
   // If we found it and it's alive, return it
