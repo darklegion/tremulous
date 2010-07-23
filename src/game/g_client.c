@@ -1323,6 +1323,10 @@ void ClientBegin( int clientNum )
 
   client = level.clients + clientNum;
 
+  // ignore if client allready entered the game
+  if( client->pers.connected == CON_CONNECTED )
+    return;
+
   if( ent->r.linked )
     trap_UnlinkEntity( ent );
 
