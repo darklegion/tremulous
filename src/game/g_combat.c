@@ -181,8 +181,7 @@ float G_RewardAttackers( gentity_t *self )
   // Give credits and empty the array
   for( i = 0; i < level.maxclients; i++ )
   {
-    short num = value * self->credits[ i ] / totalDamage;
-    int   stageValue = num;
+    int stageValue = value * self->credits[ i ] / totalDamage;
     player = g_entities + i;
 
     if( player->client->pers.teamSelection != team )
@@ -193,12 +192,12 @@ float G_RewardAttackers( gentity_t *self )
       if( !self->credits[ i ] || player->client->ps.stats[ STAT_TEAM ] == team )
         continue;
 
-      AddScore( player, num );
+      AddScore( player, stageValue );
 
       // killing buildables earns score, but not credits
       if( self->s.eType != ET_BUILDABLE )
       {
-        G_AddCreditToClient( player->client, num, qtrue );
+        G_AddCreditToClient( player->client, stageValue, qtrue );
 
         // add to stage counters
         if( player->client->ps.stats[ STAT_TEAM ] == TEAM_ALIENS )
