@@ -91,10 +91,6 @@ void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles )
   // set angles
   G_SetClientViewAngle( player, angles );
 
-  // kill anything at the destination
-  if( player->client->sess.spectatorState == SPECTATOR_NOT )
-    G_KillBox( player );
-
   // save results of pmove
   BG_PlayerStateToEntityState( &player->client->ps, &player->s, qtrue );
 
@@ -102,7 +98,12 @@ void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles )
   VectorCopy( player->client->ps.origin, player->r.currentOrigin );
 
   if( player->client->sess.spectatorState == SPECTATOR_NOT )
+  {
+    // kill anything at the destination
+    G_KillBox( player );
+
     trap_LinkEntity (player);
+  }
 }
 
 
