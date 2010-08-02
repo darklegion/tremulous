@@ -86,9 +86,10 @@ If "private", only the activator gets the message.  If no checks, all clients ge
 */
 void Use_Target_Print( gentity_t *ent, gentity_t *other, gentity_t *activator )
 {
-  if( activator && activator->client && ( ent->spawnflags & 4 ) )
+  if( ent->spawnflags & 4 )
   {
-    trap_SendServerCommand( activator-g_entities, va( "cp \"%s\"", ent->message ) );
+    if( activator && activator->client )
+      trap_SendServerCommand( activator-g_entities, va( "cp \"%s\"", ent->message ) );
     return;
   }
 
