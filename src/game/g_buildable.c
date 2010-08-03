@@ -2663,7 +2663,13 @@ void G_BuildableThink( gentity_t *ent, int msec )
   if( !ent->spawned && ent->health > 0 )
   {
     if( ent->buildTime + buildTime < level.time )
+    {
       ent->spawned = qtrue;
+      if( ent->s.modelindex == BA_A_OVERMIND )
+      {
+        G_TeamCommand( TEAM_ALIENS, "cp \"The Overmind has awakened!\"" );
+      }
+    }
   }
 
   // Timer actions
@@ -3645,13 +3651,7 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable, vec3_t ori
   G_SetIdleBuildableAnim( built, BG_Buildable( buildable )->idleAnim );
 
   if( built->builtBy >= 0 )
-  {
     G_SetBuildableAnim( built, BANIM_CONSTRUCT1, qtrue );
-    if( buildable == BA_A_OVERMIND )
-    {
-      G_TeamCommand( TEAM_ALIENS, "cp \"The Overmind has awakened!\"" );
-    }
-  }
 
   trap_LinkEntity( built );
 
