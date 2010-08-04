@@ -762,7 +762,7 @@ static float G_CalcDamageModifier( vec3_t point, gentity_t *targ, gentity_t *att
   hitRatio = hitRelative / clientHeight;
 
   // Get the yaw of the attack relative to the target's view yaw
-  VectorSubtract( targOrigin, point, bulletPath );
+  VectorSubtract( point, targOrigin, bulletPath );
   vectoangles( bulletPath, bulletAngle );
 
   hitRotation = AngleNormalize360( targ->client->ps.viewangles[ YAW ] -
