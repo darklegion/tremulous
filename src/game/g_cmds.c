@@ -2046,6 +2046,8 @@ void Cmd_Sell_f( gentity_t *ent )
       }
 
       ent->client->ps.stats[ STAT_WEAPON ] = WP_NONE;
+      // Cancel ghost buildables
+      ent->client->ps.stats[ STAT_BUILDABLE ] = BA_NONE;
 
       //add to funds
       G_AddCreditToClient( ent->client, (short)BG_Weapon( weapon )->price, qfalse );
