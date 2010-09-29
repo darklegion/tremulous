@@ -88,6 +88,34 @@ char *UI_Argv( int arg )
   return buffer;
 }
 
+char *UI_ConcatArgs( int arg, char *buf, int len )
+{
+  char *p;
+  int c;
+
+  if( len <= 0 )
+    return buf;
+
+  p = buf;
+  c = trap_Argc();
+
+  for( ; arg < c; arg++ )
+  {
+    char *argp = UI_Argv( arg );
+
+    while( *argp && p < &buf[ len - 1 ] )
+      *p++ = *argp++;
+
+    if( p < &buf[ len - 2 ] )
+      *p++ = ' ';
+    else
+      break;
+  }
+
+  *p = '\0';
+
+  return buf;
+}
 
 char *UI_Cvar_VariableString( const char *var_name )
 {
@@ -153,12 +181,27 @@ static void UI_MessageMode_f( void )
     Menus_ActivateByName( "say" );
 }
 
+static void UI_Me_f( void )
+{
+  char buf[ MAX_SAY_TEXT - 4 ], *cmd;
+
+  UI_ConcatArgs( 1, buf, sizeof( buf ) );
+
+  if( uiInfo.chatTeam )
+    cmd = "say_team";
+  else
+    cmd = "say";
+
+  trap_Cmd_ExecuteText( EXEC_APPEND, va( "%s \"/me %s\"", cmd, buf ) );
+}
+
 struct uicmd
 {
   char *cmd;
   void ( *function )( void );
 } commands[ ] = {
   { "closemenus", UI_CloseMenus_f },
+  { "me", UI_Me_f },
   { "menu", UI_Menu_f },
   { "messagemode", UI_MessageMode_f },
   { "messagemode2", UI_MessageMode_f },
