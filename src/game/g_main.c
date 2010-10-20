@@ -1392,10 +1392,11 @@ void CalculateRanks( void )
       level.numConnectedClients++;
       P[ i ] = (char)'0' + level.clients[ i ].pers.teamSelection;
 
+      level.numVotingClients[ TEAM_NONE ]++;
+
       if( level.clients[ i ].pers.connected != CON_CONNECTED )
         continue;
 
-      level.numVotingClients[ TEAM_NONE ]++;
       if( level.clients[ i ].pers.teamSelection != TEAM_NONE )
       {
         level.numPlayingClients++;
