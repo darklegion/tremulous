@@ -31,11 +31,11 @@
 #define PBUTT_X     MAP_X
 #define PBUTT_Y     (H-((2*PBUTT_H)+BORDER))
 #define PBUTT_W     (W-((2*BORDER)+SIDEBUTT_W))
-#define PBUTT_H     25
+#define PBUTT_H     45
 #define PLIST_X     PBUTT_X
 #define PLIST_Y     ((2*BORDER)+TOPBUTT_H)
 #define PLIST_W     PBUTT_W
-#define PLIST_H     (H-((4*BORDER)+(2*PBUTT_H)+TOPBUTT_H))
+#define PLIST_H     ((H-((4*BORDER)+(2*PBUTT_H)+TOPBUTT_H)))
 
 #define PLAYER_C    0.7
 #define IGN_C       0.15
@@ -215,6 +215,7 @@
         play "sound/misc/menu1.wav";
         hide gameGrp;
         show playervote;
+        show reasonfield;
         show vote;
       }
     }
@@ -237,8 +238,30 @@
         play "sound/misc/menu1.wav";
         hide gameGrp;
         show teamvote;
+        show reasonfield;
         show vote;
       }
+    }
+
+    itemDef
+    {
+      name reasonfield
+      group gameGrp
+      type ITEM_TYPE_EDITFIELD
+      style WINDOW_STYLE_EMPTY
+      text "Reason:"
+      cvar "ui_reason"
+      maxChars 50
+      rect PBUTT_X (PBUTT_Y+PBUTT_H) PBUTT_W PBUTT_H
+      textalign ALIGN_LEFT
+      textvalign VALIGN_CENTER
+      textscale .25
+      outlinecolor .2 .2 .2 .5
+      backcolor 0 0 0 0
+      forecolor 1 1 1 1
+      border WINDOW_BORDER_NONE
+      bordercolor 0 0 0 0
+      visible MENU_FALSE
     }
 
 ///// Map Vote
@@ -448,7 +471,7 @@
       text "Kick Player"
       type ITEM_TYPE_BUTTON
       textscale .25
-      rect PBUTT_X (PBUTT_Y+PBUTT_H) PBUTT_W PBUTT_H
+      rect PBUTT_X (PBUTT_Y+(PBUTT_H/2)) PBUTT_W PBUTT_H
       textalign ALIGN_CENTER
       textvalign VALIGN_CENTER
       forecolor 1 1 1 1
@@ -531,7 +554,7 @@
       type ITEM_TYPE_BUTTON
       textscale .25
       rect 110 215 150 20
-      rect PBUTT_X (PBUTT_Y+PBUTT_H) (PBUTT_W/2) PBUTT_H
+      rect PBUTT_X (PBUTT_Y+(PBUTT_H/2)) (PBUTT_W/2) PBUTT_H
       textalign ALIGN_CENTER
       textvalign VALIGN_CENTER
       forecolor 1 1 1 1
@@ -551,7 +574,7 @@
       text "Admit Defeat"
       type ITEM_TYPE_BUTTON
       textscale .25
-      rect (PBUTT_X+(PBUTT_W/2)) (PBUTT_Y+PBUTT_H) (PBUTT_W/2) PBUTT_H
+      rect (PBUTT_X+(PBUTT_W/2)) (PBUTT_Y+(PBUTT_H/2)) (PBUTT_W/2) PBUTT_H
       textalign ALIGN_CENTER
       textvalign VALIGN_CENTER
       forecolor 1 1 1 1

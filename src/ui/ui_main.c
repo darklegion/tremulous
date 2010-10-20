@@ -3204,16 +3204,26 @@ static void UI_RunMenuScript( char **args )
     {
       if( uiInfo.playerIndex >= 0 && uiInfo.playerIndex < uiInfo.playerCount )
       {
-        trap_Cmd_ExecuteText( EXEC_APPEND, va( "callvote kick %d\n",
-                                               uiInfo.clientNums[ uiInfo.playerIndex ] ) );
+        char buffer[ MAX_CVAR_VALUE_STRING ];
+        trap_Cvar_VariableStringBuffer( "ui_reason", buffer, sizeof( buffer ) ); 
+
+        trap_Cmd_ExecuteText( EXEC_APPEND, va( "callvote kick %d %s\n",
+                                               uiInfo.clientNums[ uiInfo.playerIndex ],
+                                               buffer ) );
+        trap_Cvar_Set( "ui_reason", "" );
       }
     }
     else if( Q_stricmp( name, "voteMute" ) == 0 )
     {
       if( uiInfo.playerIndex >= 0 && uiInfo.playerIndex < uiInfo.playerCount )
       {
-        trap_Cmd_ExecuteText( EXEC_APPEND, va( "callvote mute %d\n",
-                                               uiInfo.clientNums[ uiInfo.playerIndex ] ) );
+        char buffer[ MAX_CVAR_VALUE_STRING ];
+        trap_Cvar_VariableStringBuffer( "ui_reason", buffer, sizeof( buffer ) ); 
+
+        trap_Cmd_ExecuteText( EXEC_APPEND, va( "callvote mute %d %s\n",
+                                               uiInfo.clientNums[ uiInfo.playerIndex ],
+                                               buffer ) );
+        trap_Cvar_Set( "ui_reason", "" );
       }
     }
     else if( Q_stricmp( name, "voteUnMute" ) == 0 )
@@ -3228,16 +3238,26 @@ static void UI_RunMenuScript( char **args )
     {
       if( uiInfo.teamPlayerIndex >= 0 && uiInfo.teamPlayerIndex < uiInfo.myTeamCount )
       {
-        trap_Cmd_ExecuteText( EXEC_APPEND, va( "callteamvote kick %d\n",
-                                               uiInfo.teamClientNums[ uiInfo.teamPlayerIndex ] ) );
+        char buffer[ MAX_CVAR_VALUE_STRING ];
+        trap_Cvar_VariableStringBuffer( "ui_reason", buffer, sizeof( buffer ) ); 
+
+        trap_Cmd_ExecuteText( EXEC_APPEND, va( "callteamvote kick %d %s\n",
+                                               uiInfo.teamClientNums[ uiInfo.teamPlayerIndex ],
+                                               buffer ) );
+        trap_Cvar_Set( "ui_reason", "" );
       }
     }
     else if( Q_stricmp( name, "voteTeamDenyBuild" ) == 0 )
     {
       if( uiInfo.teamPlayerIndex >= 0 && uiInfo.teamPlayerIndex < uiInfo.myTeamCount )
       {
-        trap_Cmd_ExecuteText( EXEC_APPEND, va( "callteamvote denybuild %d\n",
-                                               uiInfo.teamClientNums[ uiInfo.teamPlayerIndex ] ) );
+        char buffer[ MAX_CVAR_VALUE_STRING ];
+        trap_Cvar_VariableStringBuffer( "ui_reason", buffer, sizeof( buffer ) ); 
+
+        trap_Cmd_ExecuteText( EXEC_APPEND, va( "callteamvote denybuild %d %s\n",
+                                               uiInfo.teamClientNums[ uiInfo.teamPlayerIndex ],
+                                               buffer ) );
+        trap_Cvar_Set( "ui_reason", "" );
       }
     }
     else if( Q_stricmp( name, "voteTeamAllowBuild" ) == 0 )

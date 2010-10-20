@@ -1093,12 +1093,14 @@ void Cmd_CallVote_f( gentity_t *ent )
          vote[ MAX_TOKEN_CHARS ],
          arg[ MAX_TOKEN_CHARS ];
   char   name[ MAX_NAME_LENGTH ] = "";
+  char   *reason;
   int    clientNum = -1;
   team_t team;
 
   trap_Argv( 0, cmd, sizeof( cmd ) );
   trap_Argv( 1, vote, sizeof( vote ) );
   trap_Argv( 2, arg, sizeof( arg ) );
+  reason = ConcatArgs( 3 );
 
   if( !Q_stricmp( cmd, "callteamvote" ) )
     team = ent->client->pers.teamSelection;
@@ -1192,6 +1194,13 @@ void Cmd_CallVote_f( gentity_t *ent )
           va( "print \"%s: player is not on your team\n\"", cmd ) );
         return;
       }
+
+      if( !reason[ 0 ] && !G_admin_permission( ent, ADMF_UNACCOUNTABLE ) )
+      {
+        trap_SendServerCommand( ent-g_entities,
+          va( "print \"%s: You must provide a reason\n\"", cmd ) );
+        return;
+      }  
     }
   }
 
@@ -1205,11 +1214,16 @@ void Cmd_CallVote_f( gentity_t *ent )
     }
 
     Com_sprintf( level.voteString[ team ], sizeof( level.voteString[ team ] ),
-      "ban %s \"1s%s\" vote kick", level.clients[ clientNum ].pers.ip.str,
-      g_adminTempBan.string );
+      "ban %s \"1s%s\" vote kick (%s)", level.clients[ clientNum ].pers.ip.str,
+      g_adminTempBan.string, reason );
     Com_sprintf( level.voteDisplayString[ team ],
-      sizeof( level.voteDisplayString[ team ] ),
-      "Kick player '%s'", name );
+      sizeof( level.voteDisplayString[ team ] ), "Kick player '%s'", name );
+    if( reason[ 0 ] )
+    {
+      Com_sprintf( level.voteDisplayString[ team ],
+        sizeof( level.voteDisplayString[ team ] ), "%s for '%s'", 
+        level.voteDisplayString[ team ], reason );
+    }
   }
   else if( team == TEAM_NONE )
   {
@@ -1227,6 +1241,12 @@ void Cmd_CallVote_f( gentity_t *ent )
       Com_sprintf( level.voteDisplayString[ team ],
         sizeof( level.voteDisplayString[ team ] ),
         "Mute player '%s'", name );
+      if( reason[ 0 ] )
+      {
+        Com_sprintf( level.voteDisplayString[ team ],
+          sizeof( level.voteDisplayString[ team ] ), "%s for '%s'",
+          level.voteDisplayString[ team ], reason );
+      }
     }
     else if( !Q_stricmp( vote, "unmute" ) )
     {
@@ -1342,6 +1362,12 @@ void Cmd_CallVote_f( gentity_t *ent )
     Com_sprintf( level.voteDisplayString[ team ],
       sizeof( level.voteDisplayString[ team ] ),
       "Take away building rights from '%s'", name );
+    if( reason[ 0 ] )
+    {
+      Com_sprintf( level.voteDisplayString[ team ],
+        sizeof( level.voteDisplayString[ team ] ), "%s for '%s'",
+        level.voteDisplayString[ team ], reason );
+    }
   }
   else if( !Q_stricmp( vote, "allowbuild" ) )
   {
