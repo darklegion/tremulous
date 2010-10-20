@@ -1061,8 +1061,8 @@ char *ClientUserinfoChanged( int clientNum, qboolean forceName )
     }
     else
     {
-      Q_strncpyz( client->pers.netname, newname,
-        sizeof( client->pers.netname ) );
+      G_CensorString( client->pers.netname, newname,
+        sizeof( client->pers.netname ), ent );
       if( !forceName && client->pers.connected == CON_CONNECTED )
       {
         client->pers.namelog->nameChangeTime = level.time;

@@ -542,6 +542,7 @@ struct svcmd
   { "listmaps", qtrue, Svcmd_ListMapsWrapper },
   { "m", qtrue, Svcmd_MessageWrapper },
   { "mapRotation", qfalse, Svcmd_MapRotation_f },
+  { "loadcensors", qfalse, G_LoadCensors },
   { "printqueue", qfalse, Svcmd_PrintQueue_f },
   { "say", qtrue, Svcmd_MessageWrapper },
   { "say_team", qtrue, Svcmd_TeamMessage_f },

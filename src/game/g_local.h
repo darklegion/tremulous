@@ -722,6 +722,8 @@ void      Cmd_Test_f( gentity_t *ent );
 void      Cmd_AdminMessage_f( gentity_t *ent );
 int       G_FloodLimited( gentity_t *ent );
 void      G_ListCommands( gentity_t *ent );
+void      G_LoadCensors( void );
+void      G_CensorString( char *out, const char *in, int len, gentity_t *ent );
 
 //
 // g_physics.c
@@ -1156,6 +1158,8 @@ extern  vmCvar_t  g_privateMessages;
 extern  vmCvar_t  g_specChat;
 extern  vmCvar_t  g_publicAdminMessages;
 extern  vmCvar_t  g_allowTeamOverlay;
+
+extern  vmCvar_t  g_censorship;
 
 void      trap_Print( const char *fmt );
 void      trap_Error( const char *fmt );
