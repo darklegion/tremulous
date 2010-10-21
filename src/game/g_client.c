@@ -850,11 +850,7 @@ static void G_ClientCleanName( const char *in, char *out, int outSize )
 
       *out++ = Q_COLOR_ESCAPE;
 
-      // don't allow black in a name, period
-      if( ColorIndex( *in ) == 0 )
-        *out++ = COLOR_WHITE;
-      else
-        *out++ = *in;
+      *out++ = *in;
 
       len += 2;
       continue;
