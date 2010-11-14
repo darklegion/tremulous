@@ -1037,8 +1037,9 @@ void G_WriteSessionData( void );
 // g_maprotation.c
 //
 void      G_PrintRotations( void );
-void      G_AdvanceMapRotation( void );
-qboolean  G_StartMapRotation( char *name, qboolean advance, qboolean putOnStack );
+void      G_AdvanceMapRotation( int depth );
+qboolean  G_StartMapRotation( char *name, qboolean advance,
+                              qboolean putOnStack, qboolean reset_index, int depth );
 void      G_StopMapRotation( void );
 qboolean  G_MapRotationActive( void );
 void      G_InitMapRotations( void );

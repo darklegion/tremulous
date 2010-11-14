@@ -1588,7 +1588,7 @@ void ExitLevel( void )
   if ( G_MapExists( g_nextMap.string ) )
     trap_SendConsoleCommand( EXEC_APPEND, va("map \"%s\"\n", g_nextMap.string ) );
   else if( G_MapRotationActive( ) )
-    G_AdvanceMapRotation( );
+    G_AdvanceMapRotation( 0 );
   else
     trap_SendConsoleCommand( EXEC_APPEND, "map_restart\n" );
 
