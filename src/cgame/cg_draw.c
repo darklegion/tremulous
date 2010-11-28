@@ -3080,8 +3080,9 @@ static void CG_DrawVote( team_t team )
   Q_strncpyz( nokey,
     CG_KeyBinding( va( "%svote no", team == TEAM_NONE ? "" : "team" ) ),
     sizeof( nokey ) );
-  s = va( "%sVOTE(%i): \"%s\"  [%s]Yes:%i [%s]No:%i",
-    team == TEAM_NONE ? "" : "TEAM", sec, cgs.voteString[ team ],
+  s = va( "%sVOTE(%i): \"%s\" called by \"%s" S_COLOR_WHITE "\" [%s]Yes:%i [%s]No:%i",
+    team == TEAM_NONE ? "" : "TEAM", sec,
+    cgs.voteString[ team ], cgs.voteCaller[ team ],
     yeskey, cgs.voteYes[ team ], nokey, cgs.voteNo[ team ] );
   UI_Text_Paint( 8, team == TEAM_NONE ? 340 : 360, 0.3f, white, s, 0, 0,
     ITEM_TEXTSTYLE_NORMAL );

@@ -1351,6 +1351,7 @@ typedef struct
   int           voteTime[ NUM_TEAMS ];
   int           voteYes[ NUM_TEAMS ];
   int           voteNo[ NUM_TEAMS ];
+  char          voteCaller[ NUM_TEAMS ][ MAX_NAME_LENGTH ];
   qboolean      voteModified[ NUM_TEAMS ];// beep whenever changed
   char          voteString[ NUM_TEAMS ][ MAX_STRING_TOKENS ];
 

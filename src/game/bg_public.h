@@ -39,45 +39,58 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define CROUCH_VIEWHEIGHT       12
 #define DEAD_VIEWHEIGHT         4 // height from ground
 
+// player teams
+typedef enum
+{
+  TEAM_NONE,
+  TEAM_ALIENS,
+  TEAM_HUMANS,
+
+  NUM_TEAMS
+} team_t;
+
 //
 // config strings are a general means of communicating variable length strings
 // from the server to all connected clients.
 //
 
 // CS_SERVERINFO and CS_SYSTEMINFO are defined in q_shared.h
-#define CS_MUSIC            2
-#define CS_MESSAGE          3   // from the map worldspawn's message field
-#define CS_MOTD             4   // g_motd string for server message of the day
-#define CS_WARMUP           5   // server time when the match will be restarted
-// 6 UNUSED
-// 7 UNUSED
-#define CS_VOTE_TIME        8
-#define CS_VOTE_STRING      (CS_VOTE_TIME + NUM_TEAMS)
-#define CS_VOTE_YES         (CS_VOTE_STRING + NUM_TEAMS)
-#define CS_VOTE_NO          (CS_VOTE_YES + NUM_TEAMS)
+enum
+{
+  CS_MUSIC            = 2,
+  CS_MESSAGE,               // from the map worldspawn's message field
+  CS_MOTD,                  // g_motd string for server message of the day
+  CS_WARMUP,                // server time when the match will be restarted
 
-#define CS_GAME_VERSION     20
-#define CS_LEVEL_START_TIME 21    // so the timer only shows the current level
-#define CS_INTERMISSION     22    // when 1, fraglimit/timelimit has been hit and intermission will start in a second or two
-#define CS_WINNER           23    // string indicating round winner
-#define CS_SHADERSTATE      24
-#define CS_BOTINFO          25
-#define CS_CLIENTS_READY    26
+  CS_VOTE_TIME,             // Vote stuff each needs NUM_TEAMS slots
+  CS_VOTE_STRING      = CS_VOTE_TIME + NUM_TEAMS,
+  CS_VOTE_YES         = CS_VOTE_STRING + NUM_TEAMS,
+  CS_VOTE_NO          = CS_VOTE_YES + NUM_TEAMS,
+  CS_VOTE_CALLER      = CS_VOTE_NO + NUM_TEAMS,
+  
+  CS_GAME_VERSION     = CS_VOTE_CALLER + NUM_TEAMS,
+  CS_LEVEL_START_TIME,      // so the timer only shows the current level
+  CS_INTERMISSION,          // when 1, fraglimit/timelimit has been hit and intermission will start in a second or two
+  CS_WINNER ,               // string indicating round winner
+  CS_SHADERSTATE,
+  CS_BOTINFO,
+  CS_CLIENTS_READY,
 
-#define CS_ALIEN_STAGES     29
-#define CS_HUMAN_STAGES     30
+  CS_ALIEN_STAGES,
+  CS_HUMAN_STAGES,
 
-#define CS_MODELS           33
-#define CS_SOUNDS           (CS_MODELS+MAX_MODELS)
-#define CS_SHADERS          (CS_SOUNDS+MAX_SOUNDS)
-#define CS_PARTICLE_SYSTEMS (CS_SHADERS+MAX_GAME_SHADERS)
-#define CS_PLAYERS          (CS_PARTICLE_SYSTEMS+MAX_GAME_PARTICLE_SYSTEMS)
-#define CS_LOCATIONS        (CS_PLAYERS+MAX_CLIENTS)
+  CS_MODELS,
+  CS_SOUNDS           = CS_MODELS + MAX_MODELS,
+  CS_SHADERS          = CS_SOUNDS + MAX_SOUNDS,
+  CS_PARTICLE_SYSTEMS = CS_SHADERS + MAX_GAME_SHADERS,
+  CS_PLAYERS          = CS_PARTICLE_SYSTEMS + MAX_GAME_PARTICLE_SYSTEMS,
+  CS_LOCATIONS        = CS_PLAYERS + MAX_CLIENTS,
 
-#define CS_MAX              (CS_LOCATIONS+MAX_LOCATIONS)
+  CS_MAX              = CS_LOCATIONS + MAX_LOCATIONS
+};
 
-#if (CS_MAX) > MAX_CONFIGSTRINGS
-#error overflow: (CS_MAX) > MAX_CONFIGSTRINGS
+#if CS_MAX > MAX_CONFIGSTRINGS
+#error overflow: CS_MAX > MAX_CONFIGSTRINGS
 #endif
 
 typedef enum
@@ -824,16 +837,6 @@ typedef enum
   SPECTATOR_FOLLOW,
   SPECTATOR_SCOREBOARD
 } spectatorState_t;
-
-// player teams
-typedef enum
-{
-  TEAM_NONE,
-  TEAM_ALIENS,
-  TEAM_HUMANS,
-
-  NUM_TEAMS
-} team_t;
 
 // modes of text communication
 typedef enum

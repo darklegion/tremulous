@@ -342,6 +342,9 @@ static void CG_ConfigStringModified( void )
   else if( num >= CS_VOTE_STRING && num < CS_VOTE_STRING + NUM_TEAMS )
     Q_strncpyz( cgs.voteString[ num - CS_VOTE_STRING ], str,
       sizeof( cgs.voteString[ num - CS_VOTE_STRING ] ) );
+  else if( num >= CS_VOTE_CALLER && num < CS_VOTE_CALLER + NUM_TEAMS )
+    Q_strncpyz( cgs.voteCaller[ num - CS_VOTE_CALLER ], str,
+      sizeof( cgs.voteCaller[ num - CS_VOTE_CALLER ] ) );
   else if( num == CS_INTERMISSION )
     cg.intermissionStarted = atoi( str );
   else if( num >= CS_MODELS && num < CS_MODELS+MAX_MODELS )

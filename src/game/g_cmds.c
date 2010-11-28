@@ -1421,6 +1421,8 @@ void Cmd_CallVote_f( gentity_t *ent )
     va( "%d", level.voteTime[ team ] ) );
   trap_SetConfigstring( CS_VOTE_STRING + team,
     level.voteDisplayString[ team ] );
+  trap_SetConfigstring( CS_VOTE_CALLER + team,
+    ent->client->pers.netname );
 
   ent->client->pers.namelog->voteCount++;
   ent->client->pers.vote |= 1 << team;
