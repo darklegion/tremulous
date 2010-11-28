@@ -139,6 +139,7 @@ float G_RewardAttackers( gentity_t *self )
 {
   float     value, totalDamage = 0;
   int       team, i, maxHealth = 0;
+  int       alienCredits = 0, humanCredits = 0;
   gentity_t *player;
 
   // Total up all the damage done by non-teammates
@@ -201,14 +202,25 @@ float G_RewardAttackers( gentity_t *self )
 
         // add to stage counters
         if( player->client->ps.stats[ STAT_TEAM ] == TEAM_ALIENS )
-          trap_Cvar_Set( "g_alienCredits",
-            va( "%d", g_alienCredits.integer + stageValue ) );
+          alienCredits += stageValue;
         else if( player->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS )
-          trap_Cvar_Set( "g_humanCredits",
-            va( "%d", g_humanCredits.integer + stageValue ) );
+          humanCredits += stageValue;
       }
     }
     self->credits[ i ] = 0;
+  }
+
+  if( alienCredits )
+  {
+    trap_Cvar_Set( "g_alienCredits",
+      va( "%d", g_alienCredits.integer + alienCredits ) );
+    trap_Cvar_Update( &g_alienCredits );
+  }
+  if( humanCredits )
+  {
+    trap_Cvar_Set( "g_humanCredits",
+      va( "%d", g_humanCredits.integer + humanCredits ) );
+    trap_Cvar_Update( &g_humanCredits );
   }
   
   return totalDamage;
