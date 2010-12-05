@@ -3057,7 +3057,7 @@ static void CG_DrawVote( team_t team )
   char    *s;
   int     sec;
   vec4_t  white = { 1.0f, 1.0f, 1.0f, 1.0f };
-  char    yeskey[ 32 ], nokey[ 32 ];
+  char    yeskey[ 32 ] = "", nokey[ 32 ] = "";
 
   if( !cgs.voteTime[ team ] )
     return;
@@ -3074,13 +3074,16 @@ static void CG_DrawVote( team_t team )
   if( sec < 0 )
     sec = 0;
 
-  Q_strncpyz( yeskey,
-    CG_KeyBinding( va( "%svote yes", team == TEAM_NONE ? "" : "team" ) ),
-    sizeof( yeskey ) );
-  Q_strncpyz( nokey,
-    CG_KeyBinding( va( "%svote no", team == TEAM_NONE ? "" : "team" ) ),
-    sizeof( nokey ) );
-  s = va( "%sVOTE(%i): \"%s\" called by \"%s" S_COLOR_WHITE "\" [%s]Yes:%i [%s]No:%i",
+  if( cg_tutorial.integer )
+  {
+    Com_sprintf( yeskey, sizeof( yeskey ), "[%s]", 
+      CG_KeyBinding( va( "%svote yes", team == TEAM_NONE ? "" : "team" ) ) );
+    Com_sprintf( nokey, sizeof( nokey ), "[%s]", 
+      CG_KeyBinding( va( "%svote no", team == TEAM_NONE ? "" : "team" ) ) );
+  }
+
+  s = va( "%sVOTE(%i): \"%s" S_COLOR_WHITE "\" called by \"%s" 
+          S_COLOR_WHITE "\" %sYes:%i %sNo:%i",
     team == TEAM_NONE ? "" : "TEAM", sec,
     cgs.voteString[ team ], cgs.voteCaller[ team ],
     yeskey, cgs.voteYes[ team ], nokey, cgs.voteNo[ team ] );
