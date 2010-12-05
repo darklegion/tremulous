@@ -2557,7 +2557,8 @@ static void CG_DrawCrosshairNames( rectDef_t *rect, float scale, int textStyle )
   name = cgs.clientinfo[ cg.crosshairClientNum ].name;
   if( cg_teamOverlayUserinfo.integer &&
       cg.snap->ps.stats[ STAT_TEAM ] != TEAM_NONE &&
-      cgs.teaminfoReceievedTime )
+      cgs.teaminfoReceievedTime &&
+      cgs.clientinfo[ cg.crosshairClientNum ].health > 0 )
   {
     name = va( "%s ^7[^%c%d^7]", name,
                CG_GetColorCharForHealth( cg.crosshairClientNum ),
