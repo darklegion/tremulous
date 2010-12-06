@@ -1340,8 +1340,10 @@ void Cmd_CallVote_f( gentity_t *ent )
       level.voteThreshold[ team ] = g_suddenDeathVotePercent.integer;
       Com_sprintf( level.voteString[ team ], sizeof( level.voteString[ team ] ),
         "suddendeath %d", g_suddenDeathVoteDelay.integer );
-      strcpy( level.voteDisplayString[ team ],
-        va( "Begin sudden death in %d seconds", g_suddenDeathVoteDelay.integer ) );
+      Com_sprintf( level.voteDisplayString[ team ],
+                   sizeof( level.voteDisplayString[ team ] ),
+                   "Begin sudden death in %d seconds",
+                   g_suddenDeathVoteDelay.integer );
     }
     else
     {
