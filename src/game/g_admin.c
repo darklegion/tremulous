@@ -75,6 +75,11 @@ g_admin_cmd_t g_admin_cmds[ ] =
       "[^3name|slot#|IP(/mask)^7] (^5duration^7) (^5reason^7)"
     },
 
+    {"builder", G_admin_builder, "builder",
+      "show who built a structure",
+      ""
+    },
+
     {"buildlog", G_admin_buildlog, "buildlog",
       "show buildable log",
       "(^5name|slot#^7) (^5id^7)"
@@ -2836,6 +2841,74 @@ qboolean G_admin_lock( gentity_t *ent )
   AP( va( "print \"^3%s: ^7the %s team has been %slocked by %s\n\"",
     command, BG_TeamName( team ), lock ? "" : "un",
     ent ? ent->client->pers.netname : "console" ) );
+
+  return qtrue;
+}
+
+qboolean G_admin_builder( gentity_t *ent )
+{
+  vec3_t     forward, right, up;
+  vec3_t     start, end, dist;
+  trace_t    tr;
+  gentity_t  *traceEnt;
+  buildLog_t *log;
+  int        i;
+
+  if( !ent )
+  {
+    ADMP( "^3builder: ^7console can't aim.\n" );
+    return qfalse;
+  }
+
+  AngleVectors( ent->client->ps.viewangles, forward, right, up );
+  if( ent->client->pers.teamSelection != TEAM_NONE &&
+      ent->client->sess.spectatorState == SPECTATOR_NOT )
+    CalcMuzzlePoint( ent, forward, right, up, start );
+  else
+    VectorCopy( ent->client->ps.origin, start );
+  VectorMA( start, 1000, forward, end );
+
+  trap_Trace( &tr, start, NULL, NULL, end, ent->s.number, MASK_PLAYERSOLID );
+  traceEnt = &g_entities[ tr.entityNum ];
+  if( tr.fraction < 1.0f && ( traceEnt->s.eType == ET_BUILDABLE ) )
+  {
+    if( !G_admin_permission( ent, "buildlog" ) &&
+        ent->client->pers.teamSelection != TEAM_NONE &&
+        ent->client->pers.teamSelection != traceEnt->buildableTeam )
+    {
+      ADMP( "^3builder: ^7structure not owned by your team\n" );
+      return qfalse;
+    }
+
+    for( i = 0 ; i < level.numBuildLogs; i++ )
+    {
+      log = &level.buildLog[ ( level.buildId - i - 1 ) % MAX_BUILDLOG ];
+      if( log->fate != BF_CONSTRUCT || traceEnt->s.modelindex != log->modelindex )
+        continue;
+
+      VectorSubtract( traceEnt->s.pos.trBase, log->origin, dist );
+      if(  VectorLengthSquared( dist ) < 2.0f )
+      {
+        char logid[ 20 ] = {""};
+
+        if( G_admin_permission( ent, "buildlog" ) )
+          Com_sprintf( logid, sizeof( logid ), ", buildlog #%d",
+                       MAX_CLIENTS + level.buildId - i - 1 );
+        ADMP( va( "^3builder: ^7%s built by %s^7%s\n",
+          BG_Buildable( log->modelindex )->humanName,
+          log->actor ?
+            log->actor->name[ log->actor->nameOffset % MAX_NAMELOG_NAMES ] :
+            "<world>",
+          logid ) );
+        break;
+      }
+    }
+    if ( i == level.numBuildLogs )
+      ADMP( va( "^3builder: ^7%s not in build log, possibly a layout item\n",
+        BG_Buildable( traceEnt->s.modelindex )->humanName ) );
+  }
+  else
+    ADMP( "^3builder: ^7no structure found under crosshair\n" );
 
   return qtrue;
 }
