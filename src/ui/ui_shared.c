@@ -1954,7 +1954,7 @@ static float UI_Parse_Indent( const char **text )
 
 float UI_Text_Width( const char *text, float scale, int limit )
 {
-  int         count, len;
+  int         count;
   float       out;
   glyphInfo_t *glyph;
   float       useScale;
@@ -1978,15 +1978,10 @@ float UI_Text_Width( const char *text, float scale, int limit )
 
   if( text )
   {
-    len = Q_PrintStrlen( text );
-
-    if( limit > 0 && len > limit )
-      len = limit;
-
     count = 0;
     indentWidth = UI_Parse_Indent( &s );
 
-    while( s && *s && count < len )
+    while( s && *s && ( limit == 0 || count < limit ) )
     {
       glyph = &font->glyphs[( int )*s];
 
