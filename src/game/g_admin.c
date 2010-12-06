@@ -1609,7 +1609,7 @@ qboolean G_admin_ban( gentity_t *ent )
 
   AP( va( "print \"^3ban:^7 %s^7 has been banned by %s^7 "
     "duration: %s, reason: %s\n\"",
-    match->name[ match->nameChanges % MAX_NAMELOG_NAMES ],
+    match->name[ match->nameOffset % MAX_NAMELOG_NAMES ],
     ( ent ) ? ent->client->pers.netname : "console",
     duration,
     ( *reason ) ? reason : "banned by admin" ) );
@@ -1618,7 +1618,7 @@ qboolean G_admin_ban( gentity_t *ent )
   {
     admin_create_ban( ent,
       match->slot == -1 ?
-        match->name[ match->nameChanges % MAX_NAMELOG_NAMES ] :
+        match->name[ match->nameOffset % MAX_NAMELOG_NAMES ] :
         level.clients[ match->slot ].pers.netname,
       match->guid,
       &ip,
@@ -1631,7 +1631,7 @@ qboolean G_admin_ban( gentity_t *ent )
     {
       admin_create_ban( ent,
         match->slot == -1 ?
-          match->name[ match->nameChanges % MAX_NAMELOG_NAMES ] :
+          match->name[ match->nameOffset % MAX_NAMELOG_NAMES ] :
           level.clients[ match->slot ].pers.netname,
         match->guid,
         &match->ip[ i ],
@@ -2779,7 +2779,8 @@ qboolean G_admin_namelog( gentity_t *ent )
     for( i = 0; i < MAX_NAMELOG_ADDRS && n->ip[ i ].str[ 0 ]; i++ )
       ADMBP( va( " %s", n->ip[ i ].str ) );
     for( i = 0; i < MAX_NAMELOG_NAMES && n->name[ i ][ 0 ]; i++ )
-      ADMBP( va( S_COLOR_WHITE " '%s" S_COLOR_WHITE "'", n->name[ i ] ) );
+      ADMBP( va( S_COLOR_WHITE " '%s" S_COLOR_WHITE "'%s", n->name[ i ],
+        ( i == n->nameOffset % MAX_NAMELOG_NAMES ) ? "*" : "" ) );
     ADMBP( "\n" );
   }
   ADMBP( va( "^3namelog:^7 %d recent clients found\n", printed ) );
@@ -2946,7 +2947,7 @@ qboolean G_admin_buildlog( gentity_t *ent )
       fates[ log->fate ],
       log->actor ? " by " : "",
       log->actor ?
-        log->actor->name[ log->actor->nameChanges % MAX_NAMELOG_NAMES ] :
+        log->actor->name[ log->actor->nameOffset % MAX_NAMELOG_NAMES ] :
         "" ) );
   }
   ADMBP( va( "^3buildlog: ^7showing %d build logs %d - %d of %d - %d.  %s\n",

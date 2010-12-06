@@ -283,6 +283,7 @@ typedef struct namelog_s
   int               slot;
   qboolean          banned;
 
+  int               nameOffset;
   int               nameChangeTime;
   int               nameChanges;
   int               voteCount;
