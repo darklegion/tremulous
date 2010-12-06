@@ -116,8 +116,8 @@ static cvarTable_t    cvarTable[ ] =
   { &ui_lastServerRefresh_1, "ui_lastServerRefresh_1_time", "", CVAR_ARCHIVE},
   { &ui_lastServerRefresh_2, "ui_lastServerRefresh_2_time", "", CVAR_ARCHIVE},
   { &ui_lastServerRefresh_3, "ui_lastServerRefresh_3_time", "", CVAR_ARCHIVE},
-  { &ui_smallFont, "ui_smallFont", "0.2", CVAR_ARCHIVE},
-  { &ui_bigFont, "ui_bigFont", "0.5", CVAR_ARCHIVE},
+  { &ui_smallFont, "ui_smallFont", "0.2", CVAR_ARCHIVE | CVAR_LATCH },
+  { &ui_bigFont, "ui_bigFont", "0.5", CVAR_ARCHIVE | CVAR_LATCH },
   { &ui_findPlayer, "ui_findPlayer", "", CVAR_ARCHIVE},
   { &ui_serverStatusTimeOut, "ui_serverStatusTimeOut", "7000", CVAR_ARCHIVE},
   { &ui_textWrapCache, "ui_textWrapCache", "1", CVAR_ARCHIVE },
@@ -4050,6 +4050,9 @@ void UI_Init( qboolean inGameLoad )
   // wide screen
   uiInfo.uiDC.aspectScale = ( ( 640.0f * uiInfo.uiDC.glconfig.vidHeight ) /
       ( 480.0f * uiInfo.uiDC.glconfig.vidWidth ) );
+
+  uiInfo.uiDC.smallFontScale = trap_Cvar_VariableValue( "ui_smallFont" );
+  uiInfo.uiDC.bigFontScale = trap_Cvar_VariableValue( "ui_bigFont" );
 
   uiInfo.uiDC.registerShaderNoMip = &trap_R_RegisterShaderNoMip;
   uiInfo.uiDC.setColor = &UI_SetColor;

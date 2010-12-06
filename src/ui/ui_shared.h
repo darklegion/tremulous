@@ -451,6 +451,8 @@ typedef struct
   int        frameTime;
   float      cursorx;
   float      cursory;
+  float      smallFontScale;
+  float      bigFontScale;
   qboolean  debug;
 
   cachedAssets_t Assets;

@@ -1858,6 +1858,16 @@ void Script_playLooped( itemDef_t *item, char **args )
   }
 }
 
+static ID_INLINE float UI_EmoticonHeight( fontInfo_t *font, float scale )
+{
+  return font->glyphs[ (int)'[' ].height * scale * font->glyphScale;
+}
+
+static ID_INLINE float UI_EmoticonWidth( fontInfo_t *font, float scale )
+{
+  return UI_EmoticonHeight( font, scale ) * DC->aspectScale;
+}
+
 void UI_EscapeEmoticons( char *dest, const char *src, int destsize )
 {
   int len;
@@ -1927,12 +1937,11 @@ qboolean UI_Text_IsEmoticon( const char *s, qboolean *escaped,
 
 static float UI_Parse_Indent( const char **text )
 {
-  char  indentWidth[ MAX_STRING_CHARS ];
-  char  *p = indentWidth;
-  int   numChars;
-  float pixels;
-
-  Q_strncpyz( indentWidth, *text, MAX_STRING_CHARS );
+  char        indentWidth[ 32 ];
+  char        *indentWidthPtr;
+  const char  *p = *text;
+  int         numDigits;
+  float       pixels;
 
   while( isdigit( *p ) || *p == '.' )
     p++;
@@ -1940,16 +1949,32 @@ static float UI_Parse_Indent( const char **text )
   if( *p != INDENT_MARKER )
     return 0.0f;
 
-  *p++ = '\0';
-  numChars = ( p - indentWidth );
-  p = indentWidth;
+  numDigits = ( p - *text );
 
-  if( !Float_Parse( &p, &pixels ) )
+  if( numDigits > sizeof( indentWidth ) - 1 )
     return 0.0f;
 
-  (*text) += numChars;
+  strncpy( indentWidth, *text, numDigits );
+
+  indentWidth[ numDigits ] = '\0';
+  indentWidthPtr = indentWidth;
+
+  if( !Float_Parse( &indentWidthPtr, &pixels ) )
+    return 0.0f;
+
+  (*text) += ( numDigits + 1 );
 
   return pixels;
+}
+
+static ID_INLINE fontInfo_t *UI_FontForScale( float scale )
+{
+  if( scale <= DC->smallFontScale )
+    return &DC->Assets.smallFont;
+  else if( scale >= DC->bigFontScale )
+    return &DC->Assets.bigFont;
+  else
+    return &DC->Assets.textFont;
 }
 
 float UI_Text_Width( const char *text, float scale, int limit )
@@ -1959,7 +1984,7 @@ float UI_Text_Width( const char *text, float scale, int limit )
   glyphInfo_t *glyph;
   float       useScale;
   const char  *s = text;
-  fontInfo_t  *font = &DC->Assets.textFont;
+  fontInfo_t  *font = UI_FontForScale( scale );
   int         emoticonLen;
   qboolean    emoticonEscaped;
   float       emoticonW;
@@ -1967,13 +1992,8 @@ float UI_Text_Width( const char *text, float scale, int limit )
   int         emoticons = 0;
   float       indentWidth = 0.0f;
 
-  if( scale <= DC->getCVarValue( "ui_smallFont" ) )
-    font = &DC->Assets.smallFont;
-  else if( scale >= DC->getCVarValue( "ui_bigFont" ) )
-    font = &DC->Assets.bigFont;
-
   useScale = scale * font->glyphScale;
-  emoticonW = UI_Text_Height( "[", scale, 0 ) * DC->aspectScale;
+  emoticonW = UI_EmoticonWidth( font, scale );
   out = 0;
 
   if( text )
@@ -2027,12 +2047,7 @@ float UI_Text_Height( const char *text, float scale, int limit )
   glyphInfo_t *glyph;
   float       useScale;
   const char  *s = text;
-  fontInfo_t  *font = &DC->Assets.textFont;
-
-  if( scale <= DC->getCVarValue( "ui_smallFont" ) )
-    font = &DC->Assets.smallFont;
-  else if( scale >= DC->getCVarValue( "ui_bigFont" ) )
-    font = &DC->Assets.bigFont;
+  fontInfo_t  *font = UI_FontForScale( scale );
 
   useScale = scale * font->glyphScale;
   max = 0;
@@ -2163,7 +2178,7 @@ static void UI_Text_Paint_Generic( float x, float y, float scale, float gapAdjus
   int         len;
   int         count = 0;
   vec4_t      newColor;
-  fontInfo_t  *font = &DC->Assets.textFont;
+  fontInfo_t  *font = UI_FontForScale( scale );
   glyphInfo_t *glyph;
   float       useScale;
   qhandle_t   emoticonHandle = 0;
@@ -2176,15 +2191,10 @@ static void UI_Text_Paint_Generic( float x, float y, float scale, float gapAdjus
   if( !text )
     return;
 
-  if( scale <= DC->getCVarValue( "ui_smallFont" ) )
-    font = &DC->Assets.smallFont;
-  else if( scale >= DC->getCVarValue( "ui_bigFont" ) )
-    font = &DC->Assets.bigFont;
-
   useScale = scale * font->glyphScale;
 
-  emoticonH = font->glyphs[ (int)'[' ].height * useScale;
-  emoticonW = emoticonH * DC->aspectScale;
+  emoticonH = UI_EmoticonHeight( font, scale );
+  emoticonW = UI_EmoticonWidth( font, scale );
 
   len = strlen( text );
   if( limit > 0 && len > limit )
@@ -4324,6 +4334,7 @@ const char *Item_Text_Wrap( const char *text, float scale, float width )
 
   while( *p )
   {
+    int pLength = strlen( p );
     eol = p;
     q = p + 1;
     testLength = 0;
@@ -4338,9 +4349,9 @@ const char *Item_Text_Wrap( const char *text, float scale, float width )
       qboolean previousCharIsSpace = qfalse;
 
       // Remaining string is too short to wrap
-      if( testLength >= strlen( p ) )
+      if( testLength >= pLength )
       {
-        eol = p + strlen( p );
+        eol = p + pLength;
         break;
       }
 
