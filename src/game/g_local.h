@@ -656,6 +656,8 @@ typedef struct
   char              layout[ MAX_QPATH ];
 
   team_t            surrenderTeam;
+  int               lastTeamImbalancedTime;
+  int               numTeamImbalanceWarnings;
 
   voice_t           *voices;
 
@@ -1119,6 +1121,7 @@ extern  vmCvar_t  g_alienCredits;
 extern  vmCvar_t  g_alienMaxStage;
 extern  vmCvar_t  g_alienStage2Threshold;
 extern  vmCvar_t  g_alienStage3Threshold;
+extern  vmCvar_t  g_teamImbalanceWarnings;
 extern  vmCvar_t  g_freeFundPeriod;
 
 extern  vmCvar_t  g_unlagged;
