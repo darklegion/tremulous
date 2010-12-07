@@ -1646,34 +1646,84 @@ static void CG_DrawTimer( rectDef_t *rect, float text_x, float text_y,
 CG_DrawTeamOverlay
 =================
 */
+
+typedef enum
+{
+  TEAMOVERLAY_OFF,
+  TEAMOVERLAY_ALL,
+  TEAMOVERLAY_SUPPORT,
+  TEAMOVERLAY_NEARBY,
+} teamOverlayMode_t;
+
+typedef enum
+{
+  TEAMOVERLAY_SORT_NONE,
+  TEAMOVERLAY_SORT_SCORE,
+  TEAMOVERLAY_SORT_WEAPONCLASS,
+} teamOverlaySort_t;
+
+static int QDECL SortScore( const void *a, const void *b )
+{
+  int na = *(int *)a;
+  int nb = *(int *)b;
+
+  return( cgs.clientinfo[ nb ].score - cgs.clientinfo[ na ].score );
+}
+
+static int QDECL SortWeaponClass( const void *a, const void *b )
+{
+  int out;
+  clientInfo_t *ca = cgs.clientinfo + *(int *)a;
+  clientInfo_t *cb = cgs.clientinfo + *(int *)b;
+
+  out = cb->curWeaponClass - ca->curWeaponClass;
+
+  // We want grangers on top. ckits are already on top without the special case.
+  if( ca->team == TEAM_ALIENS )
+  {
+    if( ca->curWeaponClass == PCL_ALIEN_BUILDER0_UPG || 
+        cb->curWeaponClass == PCL_ALIEN_BUILDER0_UPG ||
+        ca->curWeaponClass == PCL_ALIEN_BUILDER0 || 
+        cb->curWeaponClass == PCL_ALIEN_BUILDER0 )
+    {
+      out = -out;
+    }
+  }
+
+  return( out );
+}
+
 static void CG_DrawTeamOverlay( rectDef_t *rect, float scale, vec4_t color )
 {
-  char         *s;
-  int          i;
-  float        x = rect->x;
-  float        y;
-  clientInfo_t *ci, *pci;
-  vec4_t       tcolor;
-  float        iconSize = rect->h / 8.0f;
-  float        leftMargin = 4.0f;
-  float        iconTopMargin = 2.0f;
-  float        midSep = 2.0f;
-  float        backgroundWidth = rect->w;
-  float        fontScale = 0.30f;
-  float        vPad = 0.0f;
-  float        nameWidth = 0.5f * rect->w;
-  char         name[ MAX_NAME_LENGTH + 2 ];
-  int          maxDisplayCount = 0;
-  int          displayCount = 0;
-  float        nameMaxX, nameMaxXCp;
-  float        maxX = rect->x + rect->w;
-  float        maxXCp = maxX;
-  weapon_t     curWeapon = WP_NONE;
+  char              *s;
+  int               i;
+  float             x = rect->x;
+  float             y;
+  clientInfo_t      *ci, *pci;
+  vec4_t            tcolor;
+  float             iconSize = rect->h / 8.0f;
+  float             leftMargin = 4.0f;
+  float             iconTopMargin = 2.0f;
+  float             midSep = 2.0f;
+  float             backgroundWidth = rect->w;
+  float             fontScale = 0.30f;
+  float             vPad = 0.0f;
+  float             nameWidth = 0.5f * rect->w;
+  char              name[ MAX_NAME_LENGTH + 2 ];
+  int               maxDisplayCount = 0;
+  int               displayCount = 0;
+  float             nameMaxX, nameMaxXCp;
+  float             maxX = rect->x + rect->w;
+  float             maxXCp = maxX;
+  weapon_t          curWeapon = WP_NONE;
+  teamOverlayMode_t mode = cg_drawTeamOverlay.integer;
+  teamOverlaySort_t sort = cg_teamOverlaySortMode.integer;
+  int               displayClients[ MAX_CLIENTS ];
 
   if( cg.predictedPlayerState.pm_type == PM_SPECTATOR )
     return;
 
-  if( !cg_drawTeamOverlay.integer || !cg_teamOverlayMaxPlayers.integer )
+  if( mode == TEAMOVERLAY_OFF || !cg_teamOverlayMaxPlayers.integer )
     return;
 
   if( !cgs.teaminfoReceievedTime )
@@ -1685,11 +1735,62 @@ static void CG_DrawTeamOverlay( rectDef_t *rect, float scale, vec4_t color )
 
   pci = cgs.clientinfo + cg.snap->ps.clientNum;
 
-  for( i = 0; i < MAX_CLIENTS; i++ )
+  if( mode == TEAMOVERLAY_ALL || mode == TEAMOVERLAY_SUPPORT )
   {
-    ci = cgs.clientinfo + i;
-    if( ci->infoValid && pci != ci && ci->team == pci->team )
-      maxDisplayCount++;
+    for( i = 0; i < MAX_CLIENTS; i++ )
+    {
+      ci = cgs.clientinfo + i;
+      if( ci->infoValid && pci != ci && ci->team == pci->team )
+      {
+        if( mode == TEAMOVERLAY_ALL )
+          displayClients[ maxDisplayCount++ ] = i;
+        else
+        {
+          if( ci->curWeaponClass == PCL_ALIEN_BUILDER0 || 
+              ci->curWeaponClass == PCL_ALIEN_BUILDER0_UPG ||
+              ci->curWeaponClass == PCL_ALIEN_LEVEL1 || 
+              ci->curWeaponClass == PCL_ALIEN_LEVEL1_UPG ||
+              ci->curWeaponClass == WP_ABUILD ||
+              ci->curWeaponClass == WP_ABUILD2 )
+          {
+            displayClients[ maxDisplayCount++ ] = i;
+          }
+        }
+      }
+    }
+  }
+  else // find nearby
+  {
+    for( i = 0; i < cg.snap->numEntities; i++ )
+    {
+      centity_t *cent = &cg_entities[ cg.snap->entities[ i ].number ];
+      vec3_t relOrigin = { 0.0f, 0.0f, 0.0f };
+      int team = cent->currentState.misc & 0x00FF;
+
+      if( cent->currentState.eType != ET_PLAYER || 
+          team != pci->team ||
+          cent->currentState.eFlags & EF_DEAD )
+      {
+        continue;
+      }
+
+      VectorSubtract( cent->lerpOrigin, cg.predictedPlayerState.origin, relOrigin );
+
+      if( VectorLength( relOrigin ) < HELMET_RANGE )
+        displayClients[ maxDisplayCount++ ] = cg.snap->entities[ i ].number;
+    }
+  }
+
+  // Sort
+  if( sort == TEAMOVERLAY_SORT_SCORE )
+  {
+    qsort( displayClients, maxDisplayCount,
+      sizeof( displayClients[ 0 ] ), SortScore );
+  }
+  else if( sort == TEAMOVERLAY_SORT_WEAPONCLASS )
+  {
+    qsort( displayClients, maxDisplayCount,
+      sizeof( displayClients[ 0 ] ), SortWeaponClass );
   }
 
   if( maxDisplayCount > cg_teamOverlayMaxPlayers.integer )
@@ -1713,7 +1814,7 @@ static void CG_DrawTeamOverlay( rectDef_t *rect, float scale, vec4_t color )
 
   for( i = 0; i < MAX_CLIENTS && displayCount < maxDisplayCount; i++ )
   {
-    ci = cgs.clientinfo + i;
+    ci = cgs.clientinfo + displayClients[ i ];
 
     if( !ci->infoValid || pci == ci || ci->team != pci->team )
       continue;
@@ -1754,7 +1855,7 @@ static void CG_DrawTeamOverlay( rectDef_t *rect, float scale, vec4_t color )
       }
 
       s = va( " [^%c%3d^7] ^7%s",
-              CG_GetColorCharForHealth( i ),
+              CG_GetColorCharForHealth( displayClients[ i ] ),
               ci->health,
               CG_ConfigString( CS_LOCATIONS + ci->location ) );
     }

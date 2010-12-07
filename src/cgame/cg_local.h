@@ -1441,6 +1441,7 @@ extern  vmCvar_t    cg_drawCrosshair;
 extern  vmCvar_t    cg_drawCrosshairNames;
 extern  vmCvar_t    cg_crosshairSize;
 extern  vmCvar_t    cg_drawTeamOverlay;
+extern  vmCvar_t    cg_teamOverlaySortMode;
 extern  vmCvar_t    cg_teamOverlayMaxPlayers;
 extern  vmCvar_t    cg_teamOverlayUserinfo;
 extern  vmCvar_t    cg_draw2D;

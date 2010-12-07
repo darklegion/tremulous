@@ -156,6 +156,7 @@ vmCvar_t  cg_paused;
 vmCvar_t  cg_blood;
 vmCvar_t  cg_teamChatsOnly;
 vmCvar_t  cg_drawTeamOverlay;
+vmCvar_t  cg_teamOverlaySortMode;
 vmCvar_t  cg_teamOverlayMaxPlayers;
 vmCvar_t  cg_teamOverlayUserinfo;
 vmCvar_t  cg_noPrintDuplicate;
@@ -274,6 +275,7 @@ static cvarTable_t cvarTable[ ] =
   { &cg_thirdPersonShoulderViewMode, "cg_thirdPersonShoulderViewMode", "1", CVAR_ARCHIVE },
   { &cg_stats, "cg_stats", "0", 0 },
   { &cg_drawTeamOverlay, "cg_drawTeamOverlay", "1", CVAR_ARCHIVE },
+  { &cg_teamOverlaySortMode, "cg_teamOverlaySortMode", "1", CVAR_ARCHIVE },
   { &cg_teamOverlayMaxPlayers, "cg_teamOverlayMaxPlayers", "8", CVAR_ARCHIVE },
   { &cg_teamOverlayUserinfo, "teamoverlay", "1", CVAR_ARCHIVE|CVAR_USERINFO },
   { &cg_teamChatsOnly, "cg_teamChatsOnly", "0", CVAR_ARCHIVE },
