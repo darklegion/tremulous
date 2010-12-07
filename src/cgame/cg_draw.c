@@ -3158,6 +3158,7 @@ static void CG_DrawVote( team_t team )
 {
   char    *s;
   int     sec;
+  int     offset = 0;
   vec4_t  white = { 1.0f, 1.0f, 1.0f, 1.0f };
   char    yeskey[ 32 ] = "", nokey[ 32 ] = "";
 
@@ -3184,12 +3185,24 @@ static void CG_DrawVote( team_t team )
       CG_KeyBinding( va( "%svote no", team == TEAM_NONE ? "" : "team" ) ) );
   }
 
-  s = va( "%sVOTE(%i): \"%s" S_COLOR_WHITE "\" called by \"%s" 
-          S_COLOR_WHITE "\" %sYes:%i %sNo:%i",
-    team == TEAM_NONE ? "" : "TEAM", sec,
-    cgs.voteString[ team ], cgs.voteCaller[ team ],
+  if( team != TEAM_NONE )
+    offset = 80;
+
+  s = va( "%sVOTE(%i): %s", 
+    team == TEAM_NONE ? "" : "TEAM", sec, cgs.voteString[ team ] );
+
+  UI_Text_Paint( 8, 300 + offset, 0.3f, white, s, 0, 0,
+    ITEM_TEXTSTYLE_NORMAL );
+
+  s = va( "  Called by: \"%s\"", cgs.voteCaller[ team ] );
+
+  UI_Text_Paint( 8, 320 + offset, 0.3f, white, s, 0, 0,
+    ITEM_TEXTSTYLE_NORMAL );
+
+  s = va( "  %sYes:%i %sNo:%i",
     yeskey, cgs.voteYes[ team ], nokey, cgs.voteNo[ team ] );
-  UI_Text_Paint( 8, team == TEAM_NONE ? 340 : 360, 0.3f, white, s, 0, 0,
+
+  UI_Text_Paint( 8, 340 + offset, 0.3f, white, s, 0, 0,
     ITEM_TEXTSTYLE_NORMAL );
 }
 
