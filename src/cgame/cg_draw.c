@@ -1750,8 +1750,7 @@ static void CG_DrawTeamOverlay( rectDef_t *rect, float scale, vec4_t color )
               ci->curWeaponClass == PCL_ALIEN_BUILDER0_UPG ||
               ci->curWeaponClass == PCL_ALIEN_LEVEL1 || 
               ci->curWeaponClass == PCL_ALIEN_LEVEL1_UPG ||
-              ci->curWeaponClass == WP_ABUILD ||
-              ci->curWeaponClass == WP_ABUILD2 )
+              ci->curWeaponClass == WP_HBUILD )
           {
             displayClients[ maxDisplayCount++ ] = i;
           }
