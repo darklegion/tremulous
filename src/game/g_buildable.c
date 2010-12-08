@@ -2660,7 +2660,7 @@ void G_BuildableThink( gentity_t *ent, int msec )
   int buildTime = BG_Buildable( ent->s.modelindex )->buildTime;
 
   //toggle spawned flag for buildables
-  if( !ent->spawned && ent->health > 0 )
+  if( !ent->spawned && ent->health > 0 && !level.pausedTime )
   {
     if( ent->buildTime + buildTime < level.time )
     {

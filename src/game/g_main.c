@@ -2275,13 +2275,36 @@ Advances the non-player objects in the world
 */
 void G_RunFrame( int levelTime )
 {
-  int       i;
-  gentity_t *ent;
-  int       msec;
+  int        i;
+  gentity_t  *ent;
+  int        msec;
+  static int ptime3000 = 0;
 
   // if we are waiting for the level to restart, do nothing
   if( level.restarted )
     return;
+
+  if( level.pausedTime ) 
+  {
+    msec = levelTime - level.time - level.pausedTime;
+    level.pausedTime = levelTime - level.time;
+
+    ptime3000 += msec;
+    while( ptime3000 > 3000 )
+    {
+      ptime3000 -= 3000;
+      trap_SendServerCommand( -1, "cp \"The game has been paused. Please wait.\"" );
+    }
+    
+    // Prevents clients from getting lagged-out messages
+    for( i = 0; i < level.maxclients; i++ )
+    {
+      if( level.clients[ i ].pers.connected == CON_CONNECTED )
+        level.clients[ i ].ps.commandTime = levelTime;
+    }
+
+    return;
+  }
 
   level.framenum++;
   level.previousTime = level.time;

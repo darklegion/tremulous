@@ -144,6 +144,11 @@ g_admin_cmd_t g_admin_cmds[ ] =
       "pass a vote currently taking place",
       "(^5a|h^7)"
     },
+    
+    {"pause", G_admin_pause, "pause",
+      "Pause (or unpause) the game.",
+      ""
+    },
 
     {"putteam", G_admin_putteam, "putteam",
       "move a player to a specified team",
@@ -2909,6 +2914,34 @@ qboolean G_admin_builder( gentity_t *ent )
   }
   else
     ADMP( "^3builder: ^7no structure found under crosshair\n" );
+
+  return qtrue;
+}
+
+qboolean G_admin_pause( gentity_t *ent )
+{
+  if( !level.pausedTime ) 
+  {
+    AP( va( "print \"^3!pause: ^7%s^7 paused the game.\n\"", 
+          ( ent ) ? ent->client->pers.netname : "console" ) );
+    level.pausedTime = 1;
+    trap_SendServerCommand( -1, "cp \"The game has been paused. Please wait.\"" );
+  }
+  else
+  {
+    // Prevent accidental pause->unpause race conditions by two admins
+    if( level.pausedTime < 1000 )
+    {
+      ADMP( "^3pause: ^7Unpausing so soon assumed accidental and ignored.\n" );
+      return qfalse;
+    }
+
+    AP( va( "print \"^3!pause: ^7%s^7 unpaused the game (Paused for %d msec) \n\"",
+          ( ent ) ? ent->client->pers.netname : "console",level.pausedTime ) );
+          trap_SendServerCommand( -1, "cp \"The game has been unpaused!\"" );
+
+    level.pausedTime = 0;
+  }
 
   return qtrue;
 }
