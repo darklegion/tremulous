@@ -436,10 +436,10 @@ void CheckTeamStatus( void )
   }
 
   // Warn on imbalanced teams
-  if( g_teamImbalanceWarnings.integer && !level.intermissiontime && 
+  if( g_teamImbalanceWarnings.integer && !level.intermissiontime &&
       ( level.time - level.lastTeamImbalancedTime >
-        ( g_teamImbalanceWarnings.integer * 1000 ) ) && 
-      level.numTeamImbalanceWarnings < 3 )
+        ( g_teamImbalanceWarnings.integer * 1000 ) ) &&
+      level.numTeamImbalanceWarnings < 3 && !level.restarted )
   {
     level.lastTeamImbalancedTime = level.time;
     if( level.numAlienSpawns > 0 && 
