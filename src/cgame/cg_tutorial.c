@@ -599,8 +599,10 @@ static void CG_SpectatorText( char *text, playerState_t *ps )
     Q_strcat( text, MAX_TUTORIAL_TEXT,
         va( "Press %s to follow a player\n",
             CG_KeyNameForCommand( "+button2" ) ) );
-    }
   }
+}
+
+#define BINDING_REFRESH_INTERVAL 30
 
 /*
 ===============
@@ -613,8 +615,12 @@ const char *CG_TutorialText( void )
 {
   playerState_t *ps;
   static char   text[ MAX_TUTORIAL_TEXT ];
+  static int    refreshBindings = 0;
 
-  CG_GetBindings( );
+  if( refreshBindings == 0 )
+    CG_GetBindings( );
+
+  refreshBindings = ( refreshBindings + 1 ) % BINDING_REFRESH_INTERVAL;
 
   text[ 0 ] = '\0';
   ps = &cg.snap->ps;
