@@ -1863,7 +1863,7 @@ static int UI_OwnerDrawWidth( int ownerDraw, float scale )
   }
 
   if( s )
-    return UI_Text_Width( s, scale, 0 );
+    return UI_Text_Width( s, scale );
 
   return 0;
 }
@@ -4317,7 +4317,7 @@ static void UI_PrintTime ( char *buf, int bufsize, int time )
 // FIXME: move to ui_shared.c?
 void Text_PaintCenter( float x, float y, float scale, vec4_t color, const char *text, float adjust )
 {
-  int len = UI_Text_Width( text, scale, 0 );
+  int len = UI_Text_Width( text, scale );
   UI_Text_Paint( x - len / 2, y, scale, color, text, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE );
 }
 
@@ -4345,7 +4345,7 @@ void Text_PaintCenter_AutoWrapped( float x, float y, float xmax, float ystep, fl
 
     *s3 = '\0';
 
-    width = UI_Text_Width( s1, scale, 0 );
+    width = UI_Text_Width( s1, scale );
 
     *s3 = c_bcp;
 

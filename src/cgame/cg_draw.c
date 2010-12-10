@@ -39,8 +39,8 @@ static void CG_AlignText( rectDef_t *rect, const char *text, float scale,
 
   if( scale > 0.0f )
   {
-    w = UI_Text_Width( text, scale, 0 );
-    h = UI_Text_Height( text, scale, 0 );
+    w = UI_Text_Width( text, scale );
+    h = UI_Text_Height( text, scale );
   }
 
   switch( align )
@@ -1284,7 +1284,7 @@ static void CG_DrawKiller( rectDef_t *rect, float scale, vec4_t color,
  if( cg.killerName[ 0 ] )
  {
    int x = rect->x + rect->w / 2;
-   UI_Text_Paint( x - UI_Text_Width( CG_GetKillerText( ), scale, 0 ) / 2,
+   UI_Text_Paint( x - UI_Text_Width( CG_GetKillerText( ), scale ) / 2,
      rect->y + rect->h, scale, color, CG_GetKillerText( ), 0, 0, textStyle );
   }
 }
@@ -1301,7 +1301,7 @@ static void CG_DrawTeamSpectators( rectDef_t *rect, float scale, int textvalign,
 {
   float y;
   char  *text = cg.spectatorList;
-  float textWidth = UI_Text_Width( text, scale, 0 );
+  float textWidth = UI_Text_Width( text, scale );
 
   CG_AlignText( rect, text, scale, 0.0f, 0.0f, ALIGN_LEFT, textvalign, NULL, &y );
 
@@ -1514,10 +1514,10 @@ static void CG_DrawFPS( rectDef_t *rect, float text_x, float text_y,
     fps = 1000 * FPS_FRAMES / total;
 
     s = va( "%d", fps );
-    w = UI_Text_Width( "0", scale, 0 );
-    h = UI_Text_Height( "0", scale, 0 );
+    w = UI_Text_Width( "0", scale );
+    h = UI_Text_Height( "0", scale );
     strLength = CG_DrawStrlen( s );
-    totalWidth = UI_Text_Width( FPS_STRING, scale, 0 ) + w * strLength;
+    totalWidth = UI_Text_Width( FPS_STRING, scale ) + w * strLength;
 
     CG_AlignText( rect, s, 0.0f, totalWidth, h, textalign, textvalign, &tx, &ty );
 
@@ -1623,8 +1623,8 @@ static void CG_DrawTimer( rectDef_t *rect, float text_x, float text_y,
   seconds -= tens * 10;
 
   s = va( "%d:%d%d", mins, tens, seconds );
-  w = UI_Text_Width( "0", scale, 0 );
-  h = UI_Text_Height( "0", scale, 0 );
+  w = UI_Text_Width( "0", scale );
+  h = UI_Text_Height( "0", scale );
   strLength = CG_DrawStrlen( s );
   totalWidth = w * strLength;
 
@@ -1918,8 +1918,8 @@ static void CG_DrawClock( rectDef_t *rect, float text_x, float text_y,
 
     s = va( "%d%s%02d%s", h, ( qt.tm_sec % 2 ) ? ":" : " ", qt.tm_min, pm );
   }
-  w = UI_Text_Width( "0", scale, 0 );
-  h = UI_Text_Height( "0", scale, 0 );
+  w = UI_Text_Width( "0", scale );
+  h = UI_Text_Height( "0", scale );
   strLength = CG_DrawStrlen( s );
   totalWidth = w * strLength;
 
@@ -2067,7 +2067,7 @@ static void CG_DrawDisconnect( void )
 
   // also add text in center of screen
   s = "Connection Interrupted";
-  w = UI_Text_Width( s, 0.7f, 0 );
+  w = UI_Text_Width( s, 0.7f );
   UI_Text_Paint( 320 - w / 2, 100, 0.7f, color, s, 0, 0, ITEM_TEXTSTYLE_SHADOWED );
 
   // blink the icon
@@ -2225,9 +2225,9 @@ static void CG_DrawLagometer( rectDef_t *rect, float text_x, float text_y,
   else
     ping = va( "%d", cg.ping );
   ax = rect->x + ( rect->w / 2.0f ) -
-       ( UI_Text_Width( ping, scale, 0 ) / 2.0f ) + text_x;
+       ( UI_Text_Width( ping, scale ) / 2.0f ) + text_x;
   ay = rect->y + ( rect->h / 2.0f ) +
-       ( UI_Text_Height( ping, scale, 0 ) / 2.0f ) + text_y;
+       ( UI_Text_Height( ping, scale ) / 2.0f ) + text_y;
 
   Vector4Copy( textColor, adjustedColor );
   adjustedColor[ 3 ] = 0.5f;
@@ -2366,8 +2366,8 @@ static void CG_DrawSpeedText( rectDef_t *rect, float text_x, float text_y,
   Com_sprintf( speedstr, sizeof( speedstr ), "%d", (int)val );
 
   UI_Text_Paint(
-      rect->x + ( rect->w - UI_Text_Width( speedstr, scale, 0 ) ) / 2.0f,
-      rect->y + ( rect->h + UI_Text_Height( speedstr, scale, 0 ) ) / 2.0f,
+      rect->x + ( rect->w - UI_Text_Width( speedstr, scale ) ) / 2.0f,
+      rect->y + ( rect->h + UI_Text_Height( speedstr, scale ) ) / 2.0f,
       scale, color, speedstr, 0, 0, ITEM_TEXTSTYLE_NORMAL );
 }
 
@@ -2611,7 +2611,7 @@ static void CG_DrawLocation( rectDef_t *rect, float scale, int textalign, vec4_t
     location = CG_ConfigString( CS_LOCATIONS );
 
   // need to skip horiz. align if it's too long, but valign must be run either way
-  if( UI_Text_Width( location, scale, 0 ) < rect->w )
+  if( UI_Text_Width( location, scale ) < rect->w )
   {
     CG_AlignText( rect, location, scale, 0.0f, 0.0f, textalign, VALIGN_CENTER, &tx, &ty );
     UI_Text_Paint( tx, ty, scale, color, location, 0, 0, ITEM_TEXTSTYLE_NORMAL );
@@ -2665,7 +2665,7 @@ static void CG_DrawCrosshairNames( rectDef_t *rect, float scale, int textStyle )
                cgs.clientinfo[ cg.crosshairClientNum ].health );
   }
 
-  w = UI_Text_Width( name, scale, 0 );
+  w = UI_Text_Width( name, scale );
   x = rect->x + rect->w / 2.0f;
   UI_Text_Paint( x - w / 2.0f, rect->y + rect->h, scale, color, name, 0, 0, textStyle );
   trap_R_SetColor( NULL );
@@ -3122,8 +3122,8 @@ static void CG_DrawCenterString( void )
 
     linebuffer[ l ] = 0;
 
-    w = UI_Text_Width( linebuffer, 0.5, 0 );
-    h = UI_Text_Height( linebuffer, 0.5, 0 );
+    w = UI_Text_Width( linebuffer, 0.5 );
+    h = UI_Text_Height( linebuffer, 0.5 );
     x = ( SCREEN_WIDTH - w ) / 2;
     UI_Text_Paint( x, y + h, 0.5, color, linebuffer, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE );
     y += h + 6;
@@ -3316,7 +3316,7 @@ static qboolean CG_DrawQueue( void )
   Com_sprintf( buffer, MAX_STRING_CHARS, "You are %d%s in the spawn queue",
                position, ordinal );
 
-  w = UI_Text_Width( buffer, 0.7f, 0 );
+  w = UI_Text_Width( buffer, 0.7f );
   UI_Text_Paint( 320 - w / 2, 360, 0.7f, color, buffer, 0, 0, ITEM_TEXTSTYLE_SHADOWED );
 
   if( cg.snap->ps.persistant[ PERS_SPAWNS ] == 0 )
@@ -3327,7 +3327,7 @@ static qboolean CG_DrawQueue( void )
     Com_sprintf( buffer, MAX_STRING_CHARS, "There are %d spawns remaining",
                  cg.snap->ps.persistant[ PERS_SPAWNS ] );
 
-  w = UI_Text_Width( buffer, 0.7f, 0 );
+  w = UI_Text_Width( buffer, 0.7f );
   UI_Text_Paint( 320 - w / 2, 400, 0.7f, color, buffer, 0, 0, ITEM_TEXTSTYLE_SHADOWED );
 
   return qtrue;
@@ -3355,13 +3355,13 @@ static void CG_DrawWarmup( void )
   if( sec < 0 )
     return;
 
-  w = UI_Text_Width( text, size, 0 );
-  h = UI_Text_Height( text, size, 0 );
+  w = UI_Text_Width( text, size );
+  h = UI_Text_Height( text, size );
   UI_Text_Paint( 320 - w / 2, 200, size, colorWhite, text, 0, 0, ITEM_TEXTSTYLE_SHADOWED );
 
   Com_sprintf( text, sizeof( text ), "%s", sec ? va( "%d", sec ) : "FIGHT!" );
 
-  w = UI_Text_Width( text, size, 0 );
+  w = UI_Text_Width( text, size );
   UI_Text_Paint( 320 - w / 2, 200 + 1.5f * h, size, colorWhite, text, 0, 0, ITEM_TEXTSTYLE_SHADOWED );
 }
 

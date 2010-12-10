@@ -1523,7 +1523,7 @@ void CG_DrawItemSelectText( rectDef_t *rect, float scale, int textStyle )
     {
       if( ( name = cg_weapons[ cg.weaponSelect ].humanName ) )
       {
-        w = UI_Text_Width( name, scale, 0 );
+        w = UI_Text_Width( name, scale );
         x = rect->x + rect->w / 2;
         UI_Text_Paint( x - w / 2, rect->y + rect->h, scale, color, name, 0, 0, textStyle );
       }
@@ -1536,7 +1536,7 @@ void CG_DrawItemSelectText( rectDef_t *rect, float scale, int textStyle )
     {
       if( ( name = cg_upgrades[ cg.weaponSelect - 32 ].humanName ) )
       {
-        w = UI_Text_Width( name, scale, 0 );
+        w = UI_Text_Width( name, scale );
         x = rect->x + rect->w / 2;
         UI_Text_Paint( x - w / 2, rect->y + rect->h, scale, color, name, 0, 0, textStyle );
       }

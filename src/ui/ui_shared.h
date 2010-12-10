@@ -540,8 +540,8 @@ void UI_DrawTextBlock( rectDef_t *rect, float text_x, float text_y, vec4_t color
 void UI_Text_Paint( float x, float y, float scale, vec4_t color, const char *text, float adjust, int limit, int style );
 void UI_Text_Paint_Limit( float *maxX, float x, float y, float scale,
                           vec4_t color, const char* text, float adjust, int limit );
-float UI_Text_Width( const char *text, float scale, int limit );
-float UI_Text_Height( const char *text, float scale, int limit );
+float UI_Text_Width( const char *text, float scale );
+float UI_Text_Height( const char *text, float scale );
 float UI_Text_EmWidth( float scale );
 float UI_Text_EmHeight( float scale );
 qboolean UI_Text_IsEmoticon( const char *s, qboolean *escaped, int *length, qhandle_t *h, int *width );

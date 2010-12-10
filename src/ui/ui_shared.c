@@ -1977,7 +1977,7 @@ static ID_INLINE fontInfo_t *UI_FontForScale( float scale )
     return &DC->Assets.textFont;
 }
 
-float UI_Char_Width( const char **text, float scale, int *characters )
+float UI_Char_Width( const char **text, float scale )
 {
   glyphInfo_t *glyph;
   float       useScale;
@@ -1991,7 +1991,7 @@ float UI_Char_Width( const char **text, float scale, int *characters )
   useScale = scale * font->glyphScale;
   emoticonW = UI_EmoticonWidth( font, scale );
 
-  if( text && *text && characters )
+  if( text && *text )
   {
     s = *text;
     glyph = &font->glyphs[ (int)*s ];
@@ -2004,7 +2004,6 @@ float UI_Char_Width( const char **text, float scale, int *characters )
 
     if( *s == INDENT_MARKER )
     {
-      (*characters)++;
       *text = s + 1;
 
       return 0.0f;
@@ -2017,14 +2016,12 @@ float UI_Char_Width( const char **text, float scale, int *characters )
         s++;
       else
       {
-        *characters += emoticonLen;
         *text = s + emoticonLen;
 
         return emoticonWidth * emoticonW;
       }
     }
 
-    (*characters)++;
     *text = s + 1;
 
     return glyph->xSkip * DC->aspectScale * useScale;
@@ -2033,9 +2030,8 @@ float UI_Char_Width( const char **text, float scale, int *characters )
   return 0.0f;
 }
 
-float UI_Text_Width( const char *text, float scale, int limit )
+float UI_Text_Width( const char *text, float scale )
 {
-  int         count;
   float       out;
   const char  *s = text;
   float       indentWidth = 0.0f;
@@ -2044,19 +2040,17 @@ float UI_Text_Width( const char *text, float scale, int limit )
 
   if( text )
   {
-    count = 0;
     indentWidth = UI_Parse_Indent( &s );
 
-    while( *s && ( limit == 0 || count < limit ) )
-      out += UI_Char_Width( &s, scale, &count );
+    while( *s )
+      out += UI_Char_Width( &s, scale );
   }
 
   return out + indentWidth;
 }
 
-float UI_Text_Height( const char *text, float scale, int limit )
+float UI_Text_Height( const char *text, float scale )
 {
-  int         len, count;
   float       max;
   glyphInfo_t *glyph;
   float       useScale;
@@ -2068,14 +2062,7 @@ float UI_Text_Height( const char *text, float scale, int limit )
 
   if( text )
   {
-    len = strlen( text );
-
-    if( limit > 0 && len > limit )
-      len = limit;
-
-    count = 0;
-
-    while( s && *s && count < len )
+    while( s && *s )
     {
       if( Q_IsColorString( s ) )
       {
@@ -2090,7 +2077,6 @@ float UI_Text_Height( const char *text, float scale, int limit )
           max = glyph->height;
 
         s++;
-        count++;
       }
     }
   }
@@ -2100,12 +2086,12 @@ float UI_Text_Height( const char *text, float scale, int limit )
 
 float UI_Text_EmWidth( float scale )
 {
-  return UI_Text_Width( "M", scale, 0 );
+  return UI_Text_Width( "M", scale );
 }
 
 float UI_Text_EmHeight( float scale )
 {
-  return UI_Text_Height( "M", scale, 0 );
+  return UI_Text_Height( "M", scale );
 }
 
 
@@ -2221,9 +2207,11 @@ static void UI_Text_Paint_Generic( float x, float y, float scale, float gapAdjus
 
   while( s && *s && count < len )
   {
+    const char *t = s;
+    float charWidth = UI_Char_Width( &t, scale );
     glyph = &font->glyphs[ (int)*s ];
 
-    if( maxX && UI_Text_Width( s, scale, 1 ) + x > *maxX )
+    if( maxX && charWidth + x > *maxX )
     {
       *maxX = 0;
       break;
@@ -3246,7 +3234,7 @@ static void Item_TextField_CalcPaintOffset( itemDef_t *item, char *buff )
 
       if( buff[ item->cursorPos + 1 ] == '\0' )
       {
-        while( UI_Text_Width( &buff[ editPtr->paintOffset ], item->textscale, 0 ) <=
+        while( UI_Text_Width( &buff[ editPtr->paintOffset ], item->textscale ) <=
                ( editPtr->maxFieldWidth - EDIT_CURSOR_WIDTH ) && editPtr->paintOffset > 0 )
           editPtr->paintOffset--;
       }
@@ -3255,7 +3243,7 @@ static void Item_TextField_CalcPaintOffset( itemDef_t *item, char *buff )
 
       // Shift paintOffset so that the cursor is visible
 
-      while( UI_Text_Width( &buff[ editPtr->paintOffset ], item->textscale, 0 ) >
+      while( UI_Text_Width( &buff[ editPtr->paintOffset ], item->textscale ) >
              ( editPtr->maxFieldWidth - EDIT_CURSOR_WIDTH ) )
         editPtr->paintOffset++;
     }
@@ -4245,14 +4233,14 @@ void Item_SetTextExtents( itemDef_t *item, int *width, int *height, const char *
     {
       char buff[ MAX_CVAR_VALUE_STRING ];
       DC->getCVarString( item->cvar, buff, sizeof( buff ) );
-      originalWidth = UI_Text_Width( item->text, item->textscale, 0 ) +
-                      UI_Text_Width( buff, item->textscale, 0 );
+      originalWidth = UI_Text_Width( item->text, item->textscale ) +
+                      UI_Text_Width( buff, item->textscale );
     }
     else
-      originalWidth = UI_Text_Width( item->text, item->textscale, 0 );
+      originalWidth = UI_Text_Width( item->text, item->textscale );
 
-    *width = UI_Text_Width( textPtr, item->textscale, 0 );
-    *height = UI_Text_Height( textPtr, item->textscale, 0 );
+    *width = UI_Text_Width( textPtr, item->textscale );
+    *height = UI_Text_Height( textPtr, item->textscale );
     item->textRect.w = *width;
     item->textRect.h = *height;
 
@@ -4353,7 +4341,6 @@ const char *Item_Text_Wrap( const char *text, float scale, float width )
     float       textWidth = 0.0f;
     const char  *eol = p;
     const char  *q = p;
-    int         count = 0;
     float       testWidth = width - indentWidth;
 
     SkipColorCodes( &q, c );
@@ -4388,7 +4375,7 @@ const char *Item_Text_Wrap( const char *text, float scale, float width )
       if( !previousCharIsSpace && isspace( *q ) )
         eol = q;
 
-      textWidth += UI_Char_Width( &q, scale, &count );
+      textWidth += UI_Char_Width( &q, scale );
     }
 
     // No split has taken place, so just split mid-word
@@ -4814,7 +4801,7 @@ void Item_TextField_Paint( itemDef_t *item )
     editPtr->paintOffset = 0;
 
   // Shorten string to max viewable
-  while( UI_Text_Width( buff + editPtr->paintOffset, item->textscale, 0 ) >
+  while( UI_Text_Width( buff + editPtr->paintOffset, item->textscale ) >
          ( editPtr->maxFieldWidth - cursorWidth ) && strlen( buff ) > 0 )
     buff[ strlen( buff ) - 1 ] = '\0';
 
@@ -5506,7 +5493,7 @@ void Item_ListBoxRow_Paint( itemDef_t *item, int row, int renderPos, qboolean hi
         {
           float alignOffset = 0.0f, tw;
 
-          tw = UI_Text_Width( text, item->textscale, 0 );
+          tw = UI_Text_Width( text, item->textscale );
 
           switch( listPtr->columnInfo[ j ].align )
           {

@@ -1575,7 +1575,7 @@ static int CG_OwnerDrawWidth( int ownerDraw, float scale )
   switch( ownerDraw )
   {
     case CG_KILLER:
-      return UI_Text_Width( CG_GetKillerText( ), scale, 0 );
+      return UI_Text_Width( CG_GetKillerText( ), scale );
       break;
   }
 
