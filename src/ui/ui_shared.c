@@ -1977,67 +1977,81 @@ static ID_INLINE fontInfo_t *UI_FontForScale( float scale )
     return &DC->Assets.textFont;
 }
 
-float UI_Text_Width( const char *text, float scale, int limit )
+float UI_Char_Width( const char **text, float scale, int *characters )
 {
-  int         count;
-  float       out;
   glyphInfo_t *glyph;
   float       useScale;
-  const char  *s = text;
+  const char  *s;
   fontInfo_t  *font = UI_FontForScale( scale );
   int         emoticonLen;
   qboolean    emoticonEscaped;
   float       emoticonW;
   int         emoticonWidth;
-  int         emoticons = 0;
-  float       indentWidth = 0.0f;
 
   useScale = scale * font->glyphScale;
   emoticonW = UI_EmoticonWidth( font, scale );
-  out = 0;
+
+  if( text && *text && characters )
+  {
+    s = *text;
+    glyph = &font->glyphs[ (int)*s ];
+
+    if( Q_IsColorString( s ) )
+    {
+      *text = s + 2;
+      return 0.0f;
+    }
+
+    if( *s == INDENT_MARKER )
+    {
+      (*characters)++;
+      *text = s + 1;
+
+      return 0.0f;
+    }
+
+    if( UI_Text_IsEmoticon( s, &emoticonEscaped, &emoticonLen,
+                            NULL, &emoticonWidth ) )
+    {
+      if( emoticonEscaped )
+        s++;
+      else
+      {
+        *characters += emoticonLen;
+        *text = s + emoticonLen;
+
+        return emoticonWidth * emoticonW;
+      }
+    }
+
+    (*characters)++;
+    *text = s + 1;
+
+    return glyph->xSkip * DC->aspectScale * useScale;
+  }
+
+  return 0.0f;
+}
+
+float UI_Text_Width( const char *text, float scale, int limit )
+{
+  int         count;
+  float       out;
+  const char  *s = text;
+  float       indentWidth = 0.0f;
+
+  out = 0.0f;
 
   if( text )
   {
     count = 0;
     indentWidth = UI_Parse_Indent( &s );
 
-    while( s && *s && ( limit == 0 || count < limit ) )
-    {
-      glyph = &font->glyphs[( int )*s];
-
-      if( Q_IsColorString( s ) )
-      {
-        s += 2;
-        continue;
-      }
-
-      if( *s == INDENT_MARKER )
-      {
-        s++;
-        count++;
-        continue;
-      }
-
-      if( UI_Text_IsEmoticon( s, &emoticonEscaped, &emoticonLen,
-                              NULL, &emoticonWidth ) )
-      {
-        if( emoticonEscaped )
-          s++;
-        else
-        {
-          s += emoticonLen;
-          count += emoticonLen;
-          emoticons += emoticonWidth;
-          continue;
-        }
-      }
-      out += ( glyph->xSkip * DC->aspectScale );
-      s++;
-      count++;
-    }
+    while( *s && ( limit == 0 || count < limit ) )
+      out += UI_Char_Width( &s, scale, &count );
   }
 
-  return ( out * useScale ) + ( emoticons * emoticonW ) + indentWidth;
+  return out + indentWidth;
 }
 
 float UI_Text_Height( const char *text, float scale, int limit )
@@ -4319,60 +4333,45 @@ const char *Item_Text_Wrap( const char *text, float scale, float width )
   static char   out[ 8192 ] = "";
   char          *paint = out;
   char          c[ 3 ] = "";
-  const char    *p = text;
-  const char    *eol;
-  const char    *q = NULL;
-  unsigned int  testLength;
-  unsigned int  i;
+  const char    *p;
+  const char    *eos;
   float         indentWidth = 0.0f;
-  float         testWidth;
 
-  if( strlen( text ) >= sizeof( out ) )
+  if( !text )
+    return NULL;
+
+  p = text;
+  eos = p + strlen( p );
+
+  if( ( eos - p ) >= sizeof( out ) )
     return NULL;
 
   *paint = '\0';
 
   while( *p )
   {
-    int pLength = strlen( p );
-    eol = p;
-    q = p + 1;
-    testLength = 0;
-    testWidth = width - indentWidth;
+    float       textWidth = 0.0f;
+    const char  *eol = p;
+    const char  *q = p;
+    int         count = 0;
+    float       testWidth = width - indentWidth;
 
     SkipColorCodes( &q, c );
 
-    while( testLength == 0 || UI_Text_Width( p, scale, testLength ) < testWidth )
+    while( q && textWidth < testWidth )
     {
-      int      emoticonLen;
-      qboolean emoticonEscaped;
       qboolean previousCharIsSpace = qfalse;
 
       // Remaining string is too short to wrap
-      if( testLength >= pLength )
+      if( q >= eos )
       {
-        eol = p + pLength;
+        eol = eos;
         break;
       }
 
-      // Point q at the end of the current testLength
-      for( q = p, i = 0; i < testLength; i++ )
+      if( q > p && *q == INDENT_MARKER )
       {
-        SkipColorCodes( &q, c );
-
-        previousCharIsSpace = isspace( *q );
-        q++;
-      }
-
-      if( UI_Text_IsEmoticon( q, &emoticonEscaped, &emoticonLen, NULL, NULL ) )
-      {
-        testLength += emoticonLen;
-        continue;
-      }
-
-      if( testLength > 0 && *q == INDENT_MARKER )
-      {
-        indentWidth = UI_Text_Width( p, scale, testLength );
+        indentWidth = textWidth;
         eol = p;
       }
 
@@ -4389,22 +4388,25 @@ const char *Item_Text_Wrap( const char *text, float scale, float width )
       if( !previousCharIsSpace && isspace( *q ) )
         eol = q;
 
-      testLength++;
+      textWidth += UI_Char_Width( &q, scale, &count );
     }
 
     // No split has taken place, so just split mid-word
     if( eol == p )
       eol = q;
 
-    paint = out + strlen( out );
+    // Note that usage of strcat and strlen is deliberately being
+    // avoided here as it becomes surprisingly expensive on larger
+    // blocks of text
 
     // Copy text
     strncpy( paint, p, eol - p );
+    paint += ( eol - p );
+    *paint = '\0';
 
-    paint[ eol - p ] = '\0';
     p = eol;
 
-    if( out[ strlen( out ) - 1 ] == '\n' )
+    if( paint - out > 0 && *( paint - 1 ) == '\n' )
     {
       // The line is deliberately broken, clear the color and
       // any current indent
@@ -4414,20 +4416,31 @@ const char *Item_Text_Wrap( const char *text, float scale, float width )
     else
     {
       // Add a \n if it's not there already
-      Q_strcat( out, sizeof( out ), "\n" );
+      *paint++ = '\n';
+      *paint = '\0';
 
       // Insert a pixel indent on the next line
       if( indentWidth > 0.0f )
-        Q_strcat( out, sizeof( out ), va( "%f%c", indentWidth, INDENT_MARKER ) );
+      {
+        char  *indentMarkerText       = va( "%f%c", indentWidth, INDENT_MARKER );
+        int   indentMarkerTextLength  = strlen( indentMarkerText );
+
+        strncpy( paint, indentMarkerText, indentMarkerTextLength );
+        paint += indentMarkerTextLength;
+        *paint = '\0';
+      }
 
       // Skip leading whitespace on next line and save the
       // last color code
       SkipWhiteSpace( &p, c );
     }
 
-    Q_strcat( out, sizeof( out ), c );
-
-    paint = out + strlen( out );
+    if( c[ 0 ] )
+    {
+      *paint++ = c[ 0 ];
+      *paint++ = c[ 1 ];
+      *paint = '\0';
+    }
   }
 
   return out;
