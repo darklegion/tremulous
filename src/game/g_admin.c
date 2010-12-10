@@ -923,6 +923,52 @@ qboolean G_admin_cmd_check( gentity_t *ent )
   return qfalse;
 }
 
+struct llist
+{
+  struct llist *next;
+};
+static void llsort( struct llist **head, int compar( const void *, const void * ) )
+{
+  struct llist *a, *b, *t, *l;
+  int i, c = 1, ns, as, bs;
+
+  if( !*head )
+    return;
+
+  do
+  {
+    a = *head, l = *head = NULL;
+    for( ns = 0; a; ns++, a = b )
+    {
+      b = a;
+      for( i = as = 0; i < c; i++ )
+      {
+        as++;
+        if( !( b = b->next ) )
+          break;
+      }
+      for( bs = c; ( b && bs ) || as; l = t )
+      {
+        if( as && ( !bs || !b || compar( a, b ) < 0 ) )
+          t = a, a = a->next, as--;
+        else
+          t = b, b = b->next, bs--;
+        if( l )
+          l->next = t;
+        else
+          *head = t;
+      }
+    }
+    l->next = NULL;
+    c *= 2;
+  } while( ns > 1 );
+}
+
+static int cmplevel( const void *a, const void *b )
+{
+  return ((g_admin_level_t *)b)->level - ((g_admin_level_t *)a)->level;
+}
+
 qboolean G_admin_readconfig( gentity_t *ent )
 {
   g_admin_level_t *l = NULL;
@@ -1127,6 +1173,11 @@ qboolean G_admin_readconfig( gentity_t *ent )
           lc, ac, bc, cc ) );
   if( lc == 0 )
     admin_default_levels();
+  else
+  {
+    llsort( (struct llist **)&g_admin_levels, cmplevel );
+    llsort( (struct llist **)&g_admin_admins, cmplevel );
+  }
 
   // restore admin mapping
   for( i = 0; i < level.maxclients; i++ )

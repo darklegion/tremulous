@@ -92,9 +92,9 @@ g_admin_level_t;
 typedef struct g_admin_admin
 {
   struct g_admin_admin *next;
+  int level;
   char guid[ 33 ];
   char name[ MAX_NAME_LENGTH ];
-  int level;
   char flags[ MAX_ADMIN_FLAGS ];
 }
 g_admin_admin_t;
