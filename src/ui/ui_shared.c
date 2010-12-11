@@ -1980,51 +1980,43 @@ static ID_INLINE fontInfo_t *UI_FontForScale( float scale )
 float UI_Char_Width( const char **text, float scale )
 {
   glyphInfo_t *glyph;
-  float       useScale;
-  const char  *s;
-  fontInfo_t  *font = UI_FontForScale( scale );
+  fontInfo_t  *font;
   int         emoticonLen;
   qboolean    emoticonEscaped;
-  float       emoticonW;
   int         emoticonWidth;
-
-  useScale = scale * font->glyphScale;
-  emoticonW = UI_EmoticonWidth( font, scale );
 
   if( text && *text )
   {
-    s = *text;
-    glyph = &font->glyphs[ (int)*s ];
-
-    if( Q_IsColorString( s ) )
+    if( Q_IsColorString( *text ) )
     {
-      *text = s + 2;
+      *text += 2;
       return 0.0f;
     }
 
-    if( *s == INDENT_MARKER )
+    if( **text == INDENT_MARKER )
     {
-      *text = s + 1;
-
+      (*text)++;
       return 0.0f;
     }
 
-    if( UI_Text_IsEmoticon( s, &emoticonEscaped, &emoticonLen,
+    font = UI_FontForScale( scale );
+
+    if( UI_Text_IsEmoticon( *text, &emoticonEscaped, &emoticonLen,
                             NULL, &emoticonWidth ) )
     {
       if( emoticonEscaped )
-        s++;
+        (*text)++;
       else
       {
-        *text = s + emoticonLen;
-
-        return emoticonWidth * emoticonW;
+        *text += emoticonLen;
+        return emoticonWidth * UI_EmoticonWidth( font, scale );
       }
     }
 
-    *text = s + 1;
+    (*text)++;
 
-    return glyph->xSkip * DC->aspectScale * useScale;
+    glyph = &font->glyphs[ (int)**text ];
+    return glyph->xSkip * DC->aspectScale * scale * font->glyphScale;
   }
 
   return 0.0f;
@@ -4203,7 +4195,7 @@ void Rect_ToWindowCoords( rectDef_t *rect, windowDef_t *window )
   ToWindowCoords( &rect->x, &rect->y, window );
 }
 
-void Item_SetTextExtents( itemDef_t *item, int *width, int *height, const char *text )
+void Item_SetTextExtents( itemDef_t *item, const char *text )
 {
   const char *textPtr = ( text ) ? text : item->text;
   qboolean cvarContent;
@@ -4219,37 +4211,35 @@ void Item_SetTextExtents( itemDef_t *item, int *width, int *height, const char *
   if( textPtr == NULL )
     return;
 
-  *width = item->textRect.w;
-  *height = item->textRect.h;
-
   // as long as the item isn't dynamic content (ownerdraw or cvar), this
   // keeps us from computing the widths and heights more than once
-  if( *width == 0 || cvarContent || ( item->type == ITEM_TYPE_OWNERDRAW &&
+  if( item->textRect.w == 0.0f || cvarContent || ( item->type == ITEM_TYPE_OWNERDRAW &&
       item->textalignment != ALIGN_LEFT ) )
   {
-    int originalWidth;
+    float originalWidth = 0.0f;
 
-    if( cvarContent )
+    if( item->textalignment == ALIGN_CENTER || item->textalignment == ALIGN_RIGHT )
     {
-      char buff[ MAX_CVAR_VALUE_STRING ];
-      DC->getCVarString( item->cvar, buff, sizeof( buff ) );
-      originalWidth = UI_Text_Width( item->text, item->textscale ) +
-                      UI_Text_Width( buff, item->textscale );
+      if( cvarContent )
+      {
+        char buff[ MAX_CVAR_VALUE_STRING ];
+        DC->getCVarString( item->cvar, buff, sizeof( buff ) );
+        originalWidth = UI_Text_Width( item->text, item->textscale ) +
+          UI_Text_Width( buff, item->textscale );
+      }
+      else
+        originalWidth = UI_Text_Width( item->text, item->textscale );
     }
-    else
-      originalWidth = UI_Text_Width( item->text, item->textscale );
 
-    *width = UI_Text_Width( textPtr, item->textscale );
-    *height = UI_Text_Height( textPtr, item->textscale );
-    item->textRect.w = *width;
-    item->textRect.h = *height;
+    item->textRect.w = UI_Text_Width( textPtr, item->textscale );
+    item->textRect.h = UI_Text_Height( textPtr, item->textscale );
 
     if( item->textvalignment == VALIGN_BOTTOM )
       item->textRect.y = item->textaligny + item->window.rect.h;
     else if( item->textvalignment == VALIGN_CENTER )
-      item->textRect.y = item->textaligny + ( ( *height + item->window.rect.h ) / 2.0f );
+      item->textRect.y = item->textaligny + ( ( item->textRect.h + item->window.rect.h ) / 2.0f );
     else if( item->textvalignment == VALIGN_TOP )
-      item->textRect.y = item->textaligny + *height;
+      item->textRect.y = item->textaligny + item->textRect.h;
 
     if( item->textalignment == ALIGN_LEFT )
       item->textRect.x = item->textalignx;
@@ -4545,6 +4535,7 @@ void Item_Text_Wrapped_Paint( itemDef_t *item )
   const char  *p, *textPtr;
   float       x, y, w, h;
   vec4_t      color;
+  qboolean    useWrapCache = (qboolean)DC->getCVarValue( "ui_textWrapCache" );
 
   if( item->text == NULL )
   {
@@ -4565,8 +4556,7 @@ void Item_Text_Wrapped_Paint( itemDef_t *item )
   Item_TextColor( item, &color );
 
   // Check if this block is cached
-  if( ( qboolean )DC->getCVarValue( "ui_textWrapCache" ) &&
-      UI_CheckWrapCache( textPtr, &item->window.rect, item->textscale ) )
+  if( useWrapCache && UI_CheckWrapCache( textPtr, &item->window.rect, item->textscale ) )
   {
     while( UI_NextWrapLine( &p, &x, &y ) )
     {
@@ -4586,7 +4576,8 @@ void Item_Text_Wrapped_Paint( itemDef_t *item )
     float       paintY;
     int         i;
 
-    UI_CreateCacheEntry( textPtr, &item->window.rect, item->textscale );
+    if( useWrapCache )
+      UI_CreateCacheEntry( textPtr, &item->window.rect, item->textscale );
 
     x = item->window.rect.x + item->textalignx;
     y = item->window.rect.y + item->textaligny;
@@ -4641,7 +4632,6 @@ void Item_Text_Wrapped_Paint( itemDef_t *item )
       if( textPtr[ i ] == '\n' || textPtr[ i ] == '\0' )
       {
         itemDef_t   lineItem;
-        int         width, height;
 
         memset( &lineItem, 0, sizeof( itemDef_t ) );
         strncpy( buff, p, lineLength );
@@ -4675,17 +4665,20 @@ void Item_Text_Wrapped_Paint( itemDef_t *item )
                         lineItem.window.rect.w, lineItem.window.rect.h, 1, color );
         }
 
-        Item_SetTextExtents( &lineItem, &width, &height, buff );
+        Item_SetTextExtents( &lineItem, buff );
         UI_Text_Paint( lineItem.textRect.x, lineItem.textRect.y,
                        lineItem.textscale, color, buff, 0, 0,
                        lineItem.textStyle );
-        UI_AddCacheEntryLine( buff, lineItem.textRect.x, lineItem.textRect.y );
+
+        if( useWrapCache )
+          UI_AddCacheEntryLine( buff, lineItem.textRect.x, lineItem.textRect.y );
 
         lineNum++;
       }
     }
 
-    UI_FinishCacheEntry( );
+    if( useWrapCache )
+      UI_FinishCacheEntry( );
   }
 }
 
@@ -4732,7 +4725,6 @@ void Item_Text_Paint( itemDef_t *item )
 {
   char text[1024];
   const char *textPtr;
-  int height, width;
   vec4_t color;
 
   if( item->window.flags & WINDOW_WRAPPED )
@@ -4755,11 +4747,10 @@ void Item_Text_Paint( itemDef_t *item )
     textPtr = item->text;
 
   // this needs to go here as it sets extents for cvar types as well
-  Item_SetTextExtents( item, &width, &height, textPtr );
+  Item_SetTextExtents( item, textPtr );
 
   if( *textPtr == '\0' )
     return;
-
 
   Item_TextColor( item, &color );
 
