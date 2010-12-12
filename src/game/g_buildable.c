@@ -4244,19 +4244,22 @@ void G_BuildLogRevert( int id )
       for( i = MAX_CLIENTS; i < level.num_entities; i++ )
       {
         ent = &g_entities[ i ];
-        if( ent->s.eType != ET_BUILDABLE ||
-          ent->s.modelindex != log->modelindex ||
-          ent->health <= 0 )
-          continue;
-
-        VectorSubtract( ent->s.pos.trBase, log->origin, dist );
-        if( VectorLengthSquared( dist ) > 2.0f )
-          continue;
-
-        G_LogPrintf( "revert: remove %d %s\n",
-          ent - g_entities, BG_Buildable( ent->s.modelindex )->name );
-        G_FreeEntity( ent );
-        break;
+        if( ( ( ent->s.eType == ET_BUILDABLE &&
+                ent->health > 0 ) ||
+              ( ent->s.eType == ET_GENERAL &&
+                ent->think == G_BuildLogRevertThink ) ) &&
+            ent->s.modelindex == log->modelindex )
+        {
+          VectorSubtract( ent->s.pos.trBase, log->origin, dist );
+          if( VectorLengthSquared( dist ) <= 2.0f )
+          {
+            if( ent->s.eType == ET_BUILDABLE )
+              G_LogPrintf( "revert: remove %d %s\n",
+                ent - g_entities, BG_Buildable( ent->s.modelindex )->name );
+            G_FreeEntity( ent );
+            break;
+          }
+        }
       }
     }
     else
