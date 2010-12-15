@@ -74,6 +74,7 @@ typedef struct
 {
   char *keyword;
   qboolean ( * handler ) ( gentity_t *ent );
+  qboolean silent;
   char *flag;
   char *function;  // used for !help
   char *syntax;  // used for !help
