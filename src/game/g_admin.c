@@ -1430,6 +1430,8 @@ static qboolean admin_create_ban( gentity_t *ent,
 int G_admin_parse_time( const char *time )
 {
   int seconds = 0, num = 0;
+  if( !*time )
+    return -1;
   while( *time )
   {
     if( !isdigit( *time ) )
