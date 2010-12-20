@@ -2602,6 +2602,9 @@ static void CG_DrawLocation( rectDef_t *rect, float scale, int textalign, vec4_t
   float         maxX;
   float         tx = rect->x, ty = rect->y;
 
+  if( cg.intermissionStarted )
+    return;
+
   maxX = rect->x + rect->w;
 
   locent = CG_GetPlayerLocation( );
