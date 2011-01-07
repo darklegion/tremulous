@@ -59,7 +59,7 @@ void G_namelog_connect( gclient_t *client )
   n->slot = client - level.clients;
   n->banned = qfalse;
 
-  newname = n->name[ n->nameOffset % MAX_NAMELOG_NAMES ];
+  newname = n->name[ n->nameOffset ];
   // If they're muted, copy in their last known name - this will stop people
   // reconnecting to get around the name change protection.
   if( n->muted && G_admin_name_check( &g_entities[ n->slot ],
@@ -98,15 +98,15 @@ void G_namelog_update_name( gclient_t *client )
   char      n1[ MAX_NAME_LENGTH ], n2[ MAX_NAME_LENGTH ];
   namelog_t *n = client->pers.namelog;
 
-  if( n->name[ n->nameOffset % MAX_NAMELOG_NAMES ][ 0 ] )
+  if( n->name[ n->nameOffset ][ 0 ] )
   {
     G_SanitiseString( client->pers.netname, n1, sizeof( n1 ) );
-    G_SanitiseString( n->name[ n->nameOffset % MAX_NAMELOG_NAMES ],
+    G_SanitiseString( n->name[ n->nameOffset ],
       n2, sizeof( n2 ) );
     if( strcmp( n1, n2 ) != 0 )
-      n->nameOffset++;
+      n->nameOffset = ( n->nameOffset + 1 ) % MAX_NAMELOG_NAMES;
   }
-  strcpy( n->name[ n->nameOffset % MAX_NAMELOG_NAMES ], client->pers.netname );
+  strcpy( n->name[ n->nameOffset ], client->pers.netname );
 }
 
 void G_namelog_restore( gclient_t *client )
