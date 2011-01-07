@@ -950,11 +950,13 @@ qboolean G_AddressParse( const char *str, addr_t *addr )
     p = addr6parse( str, addr );
     max = 128;
   }
-  else
+  else if( strchr( str, '.' ) )
   {
     p = addr4parse( str, addr );
     max = 32;
   }
+  else
+    return qfalse;
   Q_strncpyz( addr->str, str, sizeof( addr->str ) );
   if( !p )
     return qfalse;
