@@ -2767,7 +2767,7 @@ qboolean G_admin_restart( gentity_t *ent )
         cl->sess.restartTeam = TEAM_ALIENS;
       else if(cl->pers.teamSelection == TEAM_ALIENS )
 	    cl->sess.restartTeam = TEAM_HUMANS;
-    }  	
+    }
   }
 
   if( !Q_stricmp( teampref, "switchteamslock" ) ||
