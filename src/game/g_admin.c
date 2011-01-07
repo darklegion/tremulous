@@ -144,7 +144,7 @@ g_admin_cmd_t g_admin_cmds[ ] =
       "pass a vote currently taking place",
       "(^5a|h^7)"
     },
-    
+
     {"pause", G_admin_pause, qfalse, "pause",
       "Pause (or unpause) the game.",
       ""
@@ -682,9 +682,9 @@ void G_admin_authlog( gentity_t *ent )
                ent->client->pers.admin->flags,
                ( level ) ? level->flags : "" );
 
-  G_LogPrintf( "AdminAuth: %i \"%s" S_COLOR_WHITE "\" \"%s" S_COLOR_WHITE 
-               "\" [%d] (%s): %s\n", 
-               ent - g_entities, ent->client->pers.netname, 
+  G_LogPrintf( "AdminAuth: %i \"%s" S_COLOR_WHITE "\" \"%s" S_COLOR_WHITE
+               "\" [%d] (%s): %s\n",
+               ent - g_entities, ent->client->pers.netname,
                ent->client->pers.admin->name, ent->client->pers.admin->level,
                ent->client->pers.guid, aflags );
 }
@@ -699,12 +699,12 @@ static void admin_log( gentity_t *admin, char *cmd )
     args--;
 
   G_LogPrintf( "AdminCmd: %i \"%s" S_COLOR_WHITE "\" "
-                          "(\"%s" S_COLOR_WHITE "\") [%d]: %s %s\n", 
+                          "(\"%s" S_COLOR_WHITE "\") [%d]: %s %s\n",
                ( admin ) ? admin->s.clientNum : -1,
                name,
                ( admin && admin->client->pers.admin ) ?
                           admin->client->pers.admin->name : name,
-               ( admin && admin->client->pers.admin ) ? 
+               ( admin && admin->client->pers.admin ) ?
                           admin->client->pers.admin->level : 0,
                cmd,
                ConcatArgs( args ) );
@@ -847,7 +847,7 @@ qboolean G_admin_ban_check( gentity_t *ent, char *reason, int rlen )
     // 0 is for perm ban
     if( ban->expires != 0 && ban->expires <= t )
       continue;
-    
+
     if( !Q_stricmp( ban->guid, ent->client->pers.guid ) ||
       ( !G_admin_permission( ent, ADMF_IMMUNITY ) &&
         G_AddressCompare( &ban->ip, &ent->client->pers.ip ) ) )
@@ -1289,7 +1289,7 @@ qboolean G_admin_setlevel( gentity_t *ent )
       if( level.clients[ i ].pers.connected == CON_DISCONNECTED )
         continue;
 
-      if( matches && level.clients[ i ].pers.admin && 
+      if( matches && level.clients[ i ].pers.admin &&
           level.clients[ i ].pers.admin == a )
       {
         vic = &g_entities[ i ];
@@ -2415,13 +2415,11 @@ qboolean G_admin_showbans( gentity_t *ent )
         colorlen1 += 2;
     }
 
-
     for( colorlen2 = j = 0; ban->banner[ j ]; j++ )
     {
       if( Q_IsColorString( &ban->banner[ j ] ) )
         colorlen2 += 2;
     }
-
 
     ADMBP( va( "%4i %*s^7 %-15s %-8s %*s^7 %-10s\n     \\__ %s\n",
              i + 1,
@@ -2715,9 +2713,9 @@ qboolean G_admin_restart( gentity_t *ent )
     trap_Argv( 1, layout, sizeof( layout ) );
 
     // Figure out which argument is which
-    if( Q_stricmp( layout, "keepteams" ) && 
-        Q_stricmp( layout, "keepteamslock" ) && 
-        Q_stricmp( layout, "switchteams" ) && 
+    if( Q_stricmp( layout, "keepteams" ) &&
+        Q_stricmp( layout, "keepteamslock" ) &&
+        Q_stricmp( layout, "switchteams" ) &&
         Q_stricmp( layout, "switchteamslock" ) )
     {
       if( !Q_stricmp( layout, "*BUILTIN*" ) ||
@@ -2732,16 +2730,16 @@ qboolean G_admin_restart( gentity_t *ent )
         return qfalse;
       }
     }
-    else 
+    else
     {
       layout[ 0 ] = '\0';
-      trap_Argv( 1, teampref, sizeof( teampref ) );    
+      trap_Argv( 1, teampref, sizeof( teampref ) );
     }
   }
-  
-  if( trap_Argc( ) > 2 ) 
-    trap_Argv( 2, teampref, sizeof( teampref ) );      
-  
+
+  if( trap_Argc( ) > 2 )
+    trap_Argv( 2, teampref, sizeof( teampref ) );
+
   if( !Q_stricmpn( teampref, "keepteams", 9 ) )
   {
     for( i = 0; i < g_maxclients.integer; i++ )
@@ -2755,7 +2753,7 @@ qboolean G_admin_restart( gentity_t *ent )
 
       cl->sess.restartTeam = cl->pers.teamSelection;
     }
-  } 
+  }
   else if( !Q_stricmpn( teampref, "switchteams", 11 ) )
   {
     for( i = 0; i < g_maxclients.integer; i++ )
@@ -2769,10 +2767,10 @@ qboolean G_admin_restart( gentity_t *ent )
         cl->sess.restartTeam = TEAM_ALIENS;
       else if(cl->pers.teamSelection == TEAM_ALIENS )
 	    cl->sess.restartTeam = TEAM_HUMANS;
-    }  	  
+    }  	
   }
-  
-  if( !Q_stricmp( teampref, "switchteamslock" ) || 
+
+  if( !Q_stricmp( teampref, "switchteamslock" ) ||
       !Q_stricmp( teampref, "keepteamslock" ) )
     trap_Cvar_Set( "g_lockTeamsAtStart", "1" );
 
@@ -2946,7 +2944,7 @@ qboolean G_admin_builder( gentity_t *ent )
         continue;
 
       VectorSubtract( traceEnt->s.pos.trBase, log->origin, dist );
-      if(  VectorLengthSquared( dist ) < 2.0f )
+      if( VectorLengthSquared( dist ) < 2.0f )
       {
         char logid[ 20 ] = {""};
 
@@ -2962,7 +2960,7 @@ qboolean G_admin_builder( gentity_t *ent )
         break;
       }
     }
-    if ( i == level.numBuildLogs )
+    if( i == level.numBuildLogs )
       ADMP( va( "^3builder: ^7%s not in build log, possibly a layout item\n",
         BG_Buildable( traceEnt->s.modelindex )->humanName ) );
   }
@@ -2974,9 +2972,9 @@ qboolean G_admin_builder( gentity_t *ent )
 
 qboolean G_admin_pause( gentity_t *ent )
 {
-  if( !level.pausedTime ) 
+  if( !level.pausedTime )
   {
-    AP( va( "print \"^3pause: ^7%s^7 paused the game.\n\"", 
+    AP( va( "print \"^3pause: ^7%s^7 paused the game.\n\"",
           ( ent ) ? ent->client->pers.netname : "console" ) );
     level.pausedTime = 1;
     trap_SendServerCommand( -1, "cp \"The game has been paused. Please wait.\"" );

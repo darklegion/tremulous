@@ -373,7 +373,7 @@ void Cmd_Give_f( gentity_t *ent )
       ent->client->boostedTime = level.time;
     }
   }
-  
+
   if( Q_stricmp( name, "gas" ) == 0 )
   {
     ent->client->ps.eFlags |= EF_POISONCLOUDED;
@@ -836,8 +836,8 @@ void G_Say( gentity_t *ent, saymode_t mode, const char *chatText )
 
   // check if blocked by g_specChat 0
   if( ( !g_specChat.integer ) && ( mode != SAY_TEAM ) &&
-      ( ent ) && ( ent->client->pers.teamSelection == TEAM_NONE ) && 
-      ( !G_admin_permission( ent, ADMF_NOCENSORFLOOD ) ) ) 
+      ( ent ) && ( ent->client->pers.teamSelection == TEAM_NONE ) &&
+      ( !G_admin_permission( ent, ADMF_NOCENSORFLOOD ) ) )
   {
     trap_SendServerCommand( ent-g_entities, "print \"say: Global chatting for "
       "spectators has been disabled. You may only use team chat.\n\"" );
@@ -909,14 +909,14 @@ static void Cmd_SayArea_f( gentity_t *ent )
   num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
   for( i = 0; i < num; i++ )
     G_SayTo( ent, &g_entities[ entityList[ i ] ], SAY_AREA, msg );
-  
+
   //Send to ADMF_SPEC_ALLCHAT candidates
   for( i = 0; i < level.maxclients; i++ )
   {
     if( g_entities[ i ].client->pers.teamSelection == TEAM_NONE &&
         G_admin_permission( &g_entities[ i ], ADMF_SPEC_ALLCHAT ) )
     {
-      G_SayTo( ent, &g_entities[ i ], SAY_AREA, msg );   
+      G_SayTo( ent, &g_entities[ i ], SAY_AREA, msg );
     }
   }
 }
@@ -1190,7 +1190,7 @@ void Cmd_CallVote_f( gentity_t *ent )
       }
 
       if( team != TEAM_NONE &&
-          ( ent->client->pers.teamSelection != 
+          ( ent->client->pers.teamSelection !=
             level.clients[ clientNum ].pers.teamSelection ) )
       {
         trap_SendServerCommand( ent-g_entities,
@@ -1203,7 +1203,7 @@ void Cmd_CallVote_f( gentity_t *ent )
         trap_SendServerCommand( ent-g_entities,
           va( "print \"%s: You must provide a reason\n\"", cmd ) );
         return;
-      }  
+      }
     }
   }
 
@@ -1224,7 +1224,7 @@ void Cmd_CallVote_f( gentity_t *ent )
     if( reason[ 0 ] )
     {
       Com_sprintf( level.voteDisplayString[ team ],
-        sizeof( level.voteDisplayString[ team ] ), "%s for '%s'", 
+        sizeof( level.voteDisplayString[ team ] ), "%s for '%s'",
         level.voteDisplayString[ team ], reason );
     }
   }
@@ -1320,20 +1320,20 @@ void Cmd_CallVote_f( gentity_t *ent )
     {
       if(!g_suddenDeathVotePercent.integer)
       {
-        trap_SendServerCommand( ent-g_entities, 
+        trap_SendServerCommand( ent-g_entities,
               "print \"Sudden Death votes have been disabled\n\"" );
         return;
-      } 
-      if( G_TimeTilSuddenDeath( ) <= 0 ) 
+      }
+      if( G_TimeTilSuddenDeath( ) <= 0 )
       {
-        trap_SendServerCommand( ent - g_entities, 
+        trap_SendServerCommand( ent - g_entities,
               va( "print \"callvote: Sudden Death has already begun\n\"") );
         return;
       }
       if( level.suddenDeathBeginTime > 0 &&
           G_TimeTilSuddenDeath() <= g_suddenDeathVoteDelay.integer * 1000 )
       {
-        trap_SendServerCommand( ent - g_entities, 
+        trap_SendServerCommand( ent - g_entities,
               va( "print \"callvote: Sudden Death is imminent\n\"") );
         return;
       }
@@ -1693,7 +1693,7 @@ void Cmd_Class_f( gentity_t *ent )
           return;
         }
       }
-      
+
       //check that we are not wallwalking
       if( ent->client->ps.eFlags & EF_WALLCLIMB )
       {
@@ -1795,7 +1795,7 @@ void Cmd_Destroy_f( gentity_t *ent )
       ( ( ent->client->ps.weapon >= WP_ABUILD ) &&
         ( ent->client->ps.weapon <= WP_HBUILD ) ) )
   {
-    // Always let the builder prevent the explosion 
+    // Always let the builder prevent the explosion
     if( traceEnt->health <= 0 )
     {
       G_QueueBuildPoints( traceEnt );
@@ -1889,18 +1889,18 @@ void Cmd_ActivateItem_f( gentity_t *ent )
 {
   char  s[ MAX_TOKEN_CHARS ];
   int   upgrade, weapon;
-  
+
   trap_Argv( 1, s, sizeof( s ) );
-  
+
   // "weapon" aliased to whatever weapon you have
   if( !Q_stricmp( "weapon", s ) )
   {
     if( ent->client->ps.weapon == WP_BLASTER &&
         BG_PlayerCanChangeWeapon( &ent->client->ps ) )
-      G_ForceWeaponChange( ent, WP_NONE );  
+      G_ForceWeaponChange( ent, WP_NONE );
     return;
   }
-  
+
   upgrade = BG_UpgradeByName( s )->number;
   weapon = BG_WeaponByName( s )->number;
 
@@ -2014,7 +2014,7 @@ void Cmd_Buy_f( gentity_t *ent )
       G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOARMOURYHERE );
     return;
   }
-  
+
   if( weapon != WP_NONE )
   {
     //already got this?
@@ -2191,10 +2191,10 @@ void Cmd_Sell_f( gentity_t *ent )
   if( weapon != WP_NONE )
   {
     weapon_t selected = BG_GetPlayerWeapon( &ent->client->ps );
-  
+
     if( !BG_PlayerCanChangeWeapon( &ent->client->ps ) )
       return;
-  
+
     //are we /allowed/ to sell this?
     if( !BG_Weapon( weapon )->purchasable )
     {
@@ -2517,7 +2517,7 @@ void G_StopFollowing( gentity_t *ent )
 
   if( ent->client->pers.teamSelection == TEAM_NONE )
   {
-    ent->client->sess.spectatorState = 
+    ent->client->sess.spectatorState =
       ent->client->ps.persistant[ PERS_SPECSTATE ] = SPECTATOR_FREE;
   }
   else
@@ -2560,7 +2560,7 @@ void G_FollowLockView( gentity_t *ent )
 {
   vec3_t spawn_origin, spawn_angles;
   int clientNum;
-  
+
   clientNum = ent->client->sess.spectatorClient;
   ent->client->sess.spectatorState =
     ent->client->ps.persistant[ PERS_SPECSTATE ] = SPECTATOR_FOLLOW;
@@ -2639,26 +2639,26 @@ qboolean G_FollowNewClient( gentity_t *ent, int dir )
     // can't follow a spectator
     if( level.clients[ clientnum ].pers.teamSelection == TEAM_NONE )
       continue;
-    
+
     // if stickyspec is disabled, can't follow someone in queue either
     if( !ent->client->pers.stickySpec &&
         level.clients[ clientnum ].sess.spectatorState != SPECTATOR_NOT )
       continue;
-    
+
     // can only follow teammates when dead and on a team
-    if( ent->client->pers.teamSelection != TEAM_NONE && 
-        ( level.clients[ clientnum ].pers.teamSelection != 
+    if( ent->client->pers.teamSelection != TEAM_NONE &&
+        ( level.clients[ clientnum ].pers.teamSelection !=
           ent->client->pers.teamSelection ) )
       continue;
-    
+
     // this is good, we can use it
     ent->client->sess.spectatorClient = clientnum;
     ent->client->sess.spectatorState = SPECTATOR_FOLLOW;
-    
+
     // if this client is in the spawn queue, we need to do something special
     if( level.clients[ clientnum ].sess.spectatorState != SPECTATOR_NOT )
       G_FollowLockView( ent );
-    
+
     return qtrue;
 
   } while( clientnum != original );
@@ -2698,7 +2698,7 @@ void Cmd_Follow_f( gentity_t *ent )
   {
     G_ToggleFollow( ent );
   }
-  else 
+  else
   {
     trap_Argv( 1, arg, sizeof( arg ) );
     if( G_ClientNumbersFromString( arg, pids, MAX_CLIENTS ) == 1 )
@@ -2727,8 +2727,8 @@ void Cmd_Follow_f( gentity_t *ent )
       return;
 
     // if not on team spectator, you can only follow teammates
-    if( ent->client->pers.teamSelection != TEAM_NONE && 
-        ( level.clients[ i ].pers.teamSelection != 
+    if( ent->client->pers.teamSelection != TEAM_NONE &&
+        ( level.clients[ i ].pers.teamSelection !=
           ent->client->pers.teamSelection ) )
       return;
 
@@ -3089,7 +3089,7 @@ void ClientCommand( int clientNum )
 
   // do tests here to reduce the amount of repeated code
 
-  if( !( command->cmdFlags & CMD_INTERMISSION ) && 
+  if( !( command->cmdFlags & CMD_INTERMISSION ) &&
       ( level.intermissiontime || level.pausedTime ) )
     return;
 
@@ -3248,7 +3248,7 @@ void Cmd_PrivateMessage_f( gentity_t *ent )
 
   // send the message
   for( i = 0; i < pcount; i++ )
-    if( G_SayTo( ent, &g_entities[ pids[ i ] ], 
+    if( G_SayTo( ent, &g_entities[ pids[ i ] ],
         teamonly ? SAY_TPRIVMSG : SAY_PRIVMSG, msg ) )
       count++;
 

@@ -246,7 +246,7 @@ static cvarTable_t   gameCvarTable[ ] =
 
   { &g_layouts, "g_layouts", "", CVAR_LATCH, 0, qfalse  },
   { &g_layoutAuto, "g_layoutAuto", "1", CVAR_ARCHIVE, 0, qfalse  },
-  
+
   { &g_emoticonsAllowedInNames, "g_emoticonsAllowedInNames", "1", CVAR_LATCH|CVAR_ARCHIVE, 0, qfalse  },
 
   { &g_admin, "g_admin", "admin.dat", CVAR_ARCHIVE, 0, qfalse  },
@@ -545,7 +545,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
 
       t = trap_RealTime( &qt );
       G_LogPrintf("RealTime: %04i/%02i/%02i %02i:%02i:%02i\n",
-            qt.tm_year+1900, qt.tm_mon+1, qt.tm_mday, 
+            qt.tm_year+1900, qt.tm_mon+1, qt.tm_mday,
             qt.tm_hour, qt.tm_min, qt.tm_sec );
 
     }
@@ -634,7 +634,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
   G_CountSpawns( );
 
   G_UpdateTeamConfigStrings( );
-  
+
   if( g_lockTeamsAtStart.integer )
   {
     level.alienTeamLocked = qtrue;
@@ -1021,7 +1021,7 @@ void G_SpawnClients( team_t team )
 /*
 ============
 G_CountSpawns
- 
+
 Counts the number of spawns for each team
 ============
 */
@@ -1054,7 +1054,7 @@ G_TimeTilSuddenDeath
 #define SUDDENDEATHWARNING 60000
 int G_TimeTilSuddenDeath( void )
 {
-  if( ( !g_suddenDeathTime.integer && level.suddenDeathBeginTime==0 ) || 
+  if( ( !g_suddenDeathTime.integer && level.suddenDeathBeginTime == 0 ) ||
       ( level.suddenDeathBeginTime < 0 ) )
     return SUDDENDEATHWARNING + 1; // Always some time away
 
@@ -1107,7 +1107,7 @@ void G_CalculateBuildPoints( void )
   else if( G_TimeTilSuddenDeath( ) <= SUDDENDEATHWARNING &&
     level.suddenDeathWarning < TW_IMMINENT )
   {
-    trap_SendServerCommand( -1, va( "cp \"Sudden Death in %d seconds!\"", 
+    trap_SendServerCommand( -1, va( "cp \"Sudden Death in %d seconds!\"",
           (int)(G_TimeTilSuddenDeath() / 1000 ) ) );
     level.suddenDeathWarning = TW_IMMINENT;
   }
@@ -1636,7 +1636,7 @@ void G_AdminMessage( gentity_t *ent, const char *msg )
   int     i;
 
   Com_sprintf( string, sizeof( string ), "chat %d %d \"%s\"",
-    ent ? ent - g_entities : -1, 
+    ent ? ent - g_entities : -1,
     G_admin_permission( ent, ADMF_ADMINCHAT ) ? SAY_ADMINS : SAY_ADMINS_PUBLIC,
     msg );
 
@@ -2190,8 +2190,8 @@ void CheckCvars( void )
     G_ClearDeconMarks( );
   }
 
-  // If we change g_suddenDeathTime during a map, we need to update 
-  // when sd will begin 
+  // If we change g_suddenDeathTime during a map, we need to update
+  // when sd will begin
   if( g_suddenDeathTime.modificationCount != lastSDTimeModCount )
   {
     lastSDTimeModCount = g_suddenDeathTime.modificationCount;
@@ -2284,7 +2284,7 @@ void G_RunFrame( int levelTime )
   if( level.restarted )
     return;
 
-  if( level.pausedTime ) 
+  if( level.pausedTime )
   {
     msec = levelTime - level.time - level.pausedTime;
     level.pausedTime = levelTime - level.time;
@@ -2295,7 +2295,7 @@ void G_RunFrame( int levelTime )
       ptime3000 -= 3000;
       trap_SendServerCommand( -1, "cp \"The game has been paused. Please wait.\"" );
     }
-    
+
     // Prevents clients from getting lagged-out messages
     for( i = 0; i < level.maxclients; i++ )
     {
