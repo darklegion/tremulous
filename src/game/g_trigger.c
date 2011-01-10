@@ -185,7 +185,7 @@ void AimAtTarget( gentity_t *self )
   }
 
   height = ent->s.origin[ 2 ] - origin[ 2 ];
-  gravity = g_gravity.value;
+  gravity = level.gravity;
   time = sqrt( height / ( 0.5 * gravity ) );
 
   if( !time )

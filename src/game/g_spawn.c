@@ -602,38 +602,24 @@ void SP_worldspawn( void )
 
   trap_SetConfigstring( CS_MOTD, g_motd.string );   // message of the day
 
-  G_SpawnString( "gravity", "800", &s );
-  trap_Cvar_Set( "g_gravity", s );
+  G_SpawnFloat( "gravity", "800", &level.gravity );
 
-  G_SpawnString( "humanBuildPoints", DEFAULT_HUMAN_BUILDPOINTS, &s );
-  trap_Cvar_Set( "g_humanBuildPoints", s );
+  G_SpawnInt( "humanMaxStage", DEFAULT_HUMAN_MAX_STAGE, &level.humanMaxStage );
 
-  G_SpawnString( "humanMaxStage", DEFAULT_HUMAN_MAX_STAGE, &s );
-  trap_Cvar_Set( "g_humanMaxStage", s );
+  G_SpawnInt( "humanStage2Threshold", DEFAULT_HUMAN_STAGE2_THRESH,
+    &level.humanStage2Threshold );
 
-  G_SpawnString( "humanStage2Threshold", DEFAULT_HUMAN_STAGE2_THRESH, &s );
-  trap_Cvar_Set( "g_humanStage2Threshold", s );
+  G_SpawnInt( "humanStage3Threshold", DEFAULT_HUMAN_STAGE3_THRESH,
+    &level.humanStage3Threshold );
 
-  G_SpawnString( "humanStage3Threshold", DEFAULT_HUMAN_STAGE3_THRESH, &s );
-  trap_Cvar_Set( "g_humanStage3Threshold", s );
+  G_SpawnInt( "alienMaxStage", DEFAULT_ALIEN_MAX_STAGE,
+    &level.alienMaxStage );
 
-  G_SpawnString( "alienBuildPoints", DEFAULT_ALIEN_BUILDPOINTS, &s );
-  trap_Cvar_Set( "g_alienBuildPoints", s );
+  G_SpawnInt( "alienStage2Threshold", DEFAULT_ALIEN_STAGE2_THRESH,
+    &level.alienStage2Threshold );
 
-  G_SpawnString( "alienMaxStage", DEFAULT_ALIEN_MAX_STAGE, &s );
-  trap_Cvar_Set( "g_alienMaxStage", s );
-
-  G_SpawnString( "alienStage2Threshold", DEFAULT_ALIEN_STAGE2_THRESH, &s );
-  trap_Cvar_Set( "g_alienStage2Threshold", s );
-
-  G_SpawnString( "alienStage3Threshold", DEFAULT_ALIEN_STAGE3_THRESH, &s );
-  trap_Cvar_Set( "g_alienStage3Threshold", s );
-
-  G_SpawnString( "enableDust", "0", &s );
-  trap_Cvar_Set( "g_enableDust", s );
-
-  G_SpawnString( "enableBreath", "0", &s );
-  trap_Cvar_Set( "g_enableBreath", s );
+  G_SpawnInt( "alienStage3Threshold", DEFAULT_ALIEN_STAGE3_THRESH,
+    &level.alienStage3Threshold );
 
   G_SpawnString( "disabledEquipment", "", &s );
   trap_Cvar_Set( "g_disabledEquipment", s );
