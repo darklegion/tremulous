@@ -1460,7 +1460,7 @@ int G_admin_parse_time( const char *time )
 
 qboolean G_admin_kick( gentity_t *ent )
 {
-  int pids[ MAX_CLIENTS ], found;
+  int pid;
   char name[ MAX_NAME_LENGTH ], *reason, err[ MAX_STRING_CHARS ];
   int minargc;
   gentity_t *vic;
@@ -1476,13 +1476,12 @@ qboolean G_admin_kick( gentity_t *ent )
   }
   trap_Argv( 1, name, sizeof( name ) );
   reason = ConcatArgs( 2 );
-  if( ( found = G_ClientNumbersFromString( name, pids, MAX_CLIENTS ) ) != 1 )
+  if( ( pid = G_ClientNumberFromString( name, err, sizeof( err ) ) ) == -1 )
   {
-    G_MatchOnePlayer( pids, found, err, sizeof( err ) );
-    ADMP( va( "^3kick: ^7%s\n", err ) );
+    ADMP( va( "^3kick: ^7%s", err ) );
     return qfalse;
   }
-  vic = &g_entities[ pids[ 0 ] ];
+  vic = &g_entities[ pid ];
   if( !admin_higher( ent, vic ) )
   {
     ADMP( "^3kick: ^7sorry, but your intended victim has a higher admin"
@@ -1877,7 +1876,7 @@ qboolean G_admin_adjustban( gentity_t *ent )
 
 qboolean G_admin_putteam( gentity_t *ent )
 {
-  int pids[ MAX_CLIENTS ], found;
+  int pid;
   char name[ MAX_NAME_LENGTH ], team[ sizeof( "spectators" ) ],
        err[ MAX_STRING_CHARS ];
   gentity_t *vic;
@@ -1891,19 +1890,18 @@ qboolean G_admin_putteam( gentity_t *ent )
     return qfalse;
   }
 
-  if( ( found = G_ClientNumbersFromString( name, pids, MAX_CLIENTS ) ) != 1 )
+  if( ( pid = G_ClientNumberFromString( name, err, sizeof( err ) ) ) == -1 )
   {
-    G_MatchOnePlayer( pids, found, err, sizeof( err ) );
-    ADMP( va( "^3putteam: ^7%s\n", err ) );
+    ADMP( va( "^3putteam: ^7%s", err ) );
     return qfalse;
   }
-  if( !admin_higher( ent, &g_entities[ pids[ 0 ] ] ) )
+  vic = &g_entities[ pid ];
+  if( !admin_higher( ent, vic ) )
   {
     ADMP( "^3putteam: ^7sorry, but your intended victim has a higher "
         " admin level than you\n" );
     return qfalse;
   }
-  vic = &g_entities[ pids[ 0 ] ];
   teamnum = G_TeamFromString( team );
   if( teamnum == NUM_TEAMS )
   {
@@ -1965,7 +1963,7 @@ qboolean G_admin_changemap( gentity_t *ent )
 
 qboolean G_admin_mute( gentity_t *ent )
 {
-  int pids[ MAX_CLIENTS ], found;
+  int pid;
   char name[ MAX_NAME_LENGTH ], err[ MAX_STRING_CHARS ];
   char command[ MAX_ADMIN_CMD_LEN ];
   gentity_t *vic;
@@ -1977,19 +1975,18 @@ qboolean G_admin_mute( gentity_t *ent )
     return qfalse;
   }
   trap_Argv( 1, name, sizeof( name ) );
-  if( ( found = G_ClientNumbersFromString( name, pids, MAX_CLIENTS ) ) != 1 )
+  if( ( pid = G_ClientNumberFromString( name, err, sizeof( err ) ) ) == -1 )
   {
-    G_MatchOnePlayer( pids, found, err, sizeof( err ) );
-    ADMP( va( "^3%s: ^7%s\n", command, err ) );
+    ADMP( va( "^3%s: ^7%s", command, err ) );
     return qfalse;
   }
-  if( !admin_higher( ent, &g_entities[ pids[ 0 ] ] ) )
+  vic = &g_entities[ pid ];
+  if( !admin_higher( ent, vic ) )
   {
     ADMP( va( "^3%s: ^7sorry, but your intended victim has a higher admin"
         " level than you\n", command ) );
     return qfalse;
   }
-  vic = &g_entities[ pids[ 0 ] ];
   if( vic->client->pers.namelog->muted )
   {
     if( !Q_stricmp( command, "mute" ) )
@@ -1998,7 +1995,7 @@ qboolean G_admin_mute( gentity_t *ent )
       return qtrue;
     }
     vic->client->pers.namelog->muted = qfalse;
-    CPx( pids[ 0 ], "cp \"^1You have been unmuted\"" );
+    CPx( pid, "cp \"^1You have been unmuted\"" );
     AP( va( "print \"^3unmute: ^7%s^7 has been unmuted by %s\n\"",
             vic->client->pers.netname,
             ( ent ) ? ent->client->pers.netname : "console" ) );
@@ -2011,7 +2008,7 @@ qboolean G_admin_mute( gentity_t *ent )
       return qtrue;
     }
     vic->client->pers.namelog->muted = qtrue;
-    CPx( pids[ 0 ], "cp \"^1You've been muted\"" );
+    CPx( pid, "cp \"^1You've been muted\"" );
     AP( va( "print \"^3mute: ^7%s^7 has been muted by ^7%s\n\"",
             vic->client->pers.netname,
             ( ent ) ? ent->client->pers.netname : "console" ) );
@@ -2021,7 +2018,7 @@ qboolean G_admin_mute( gentity_t *ent )
 
 qboolean G_admin_denybuild( gentity_t *ent )
 {
-  int pids[ MAX_CLIENTS ], found;
+  int pid;
   char name[ MAX_NAME_LENGTH ], err[ MAX_STRING_CHARS ];
   char command[ MAX_ADMIN_CMD_LEN ];
   gentity_t *vic;
@@ -2033,19 +2030,18 @@ qboolean G_admin_denybuild( gentity_t *ent )
     return qfalse;
   }
   trap_Argv( 1, name, sizeof( name ) );
-  if( ( found = G_ClientNumbersFromString( name, pids, MAX_CLIENTS ) ) != 1 )
+  if( ( pid = G_ClientNumberFromString( name, err, sizeof( err ) ) ) == -1 )
   {
-    G_MatchOnePlayer( pids, found, err, sizeof( err ) );
-    ADMP( va( "^3%s: ^7%s\n", command, err ) );
+    ADMP( va( "^3%s: ^7%s", command, err ) );
     return qfalse;
   }
-  if( !admin_higher( ent, &g_entities[ pids[ 0 ] ] ) )
+  vic = &g_entities[ pid ];
+  if( !admin_higher( ent, vic ) )
   {
     ADMP( va( "^3%s: ^7sorry, but your intended victim has a higher admin"
               " level than you\n", command ) );
     return qfalse;
   }
-  vic = &g_entities[ pids[ 0 ] ];
   if( vic->client->pers.namelog->denyBuild )
   {
     if( !Q_stricmp( command, "denybuild" ) )
@@ -2054,7 +2050,7 @@ qboolean G_admin_denybuild( gentity_t *ent )
       return qtrue;
     }
     vic->client->pers.namelog->denyBuild = qfalse;
-    CPx( pids[ 0 ], "cp \"^1You've regained your building rights\"" );
+    CPx( pid, "cp \"^1You've regained your building rights\"" );
     AP( va(
       "print \"^3allowbuild: ^7building rights for ^7%s^7 restored by %s\n\"",
       vic->client->pers.netname,
@@ -2069,7 +2065,7 @@ qboolean G_admin_denybuild( gentity_t *ent )
     }
     vic->client->pers.namelog->denyBuild = qtrue;
     vic->client->ps.stats[ STAT_BUILDABLE ] = BA_NONE;
-    CPx( pids[ 0 ], "cp \"^1You've lost your building rights\"" );
+    CPx( pid, "cp \"^1You've lost your building rights\"" );
     AP( va(
       "print \"^3denybuild: ^7building rights for ^7%s^7 revoked by ^7%s\n\"",
       vic->client->pers.netname,
@@ -2650,7 +2646,7 @@ qboolean G_admin_spec999( gentity_t *ent )
 
 qboolean G_admin_rename( gentity_t *ent )
 {
-  int pids[ MAX_CLIENTS ], found;
+  int pid;
   char name[ MAX_NAME_LENGTH ];
   char newname[ MAX_NAME_LENGTH ];
   char err[ MAX_STRING_CHARS ];
@@ -2664,13 +2660,12 @@ qboolean G_admin_rename( gentity_t *ent )
   }
   trap_Argv( 1, name, sizeof( name ) );
   Q_strncpyz( newname, ConcatArgs( 2 ), sizeof( newname ) );
-  if( ( found = G_ClientNumbersFromString( name, pids, MAX_CLIENTS ) ) != 1 )
+  if( ( pid = G_ClientNumberFromString( name, err, sizeof( err ) ) ) == -1 )
   {
-    G_MatchOnePlayer( pids, found, err, sizeof( err ) );
-    ADMP( va( "^3rename: ^7%s\n", err ) );
+    ADMP( va( "^3rename: ^7%s", err ) );
     return qfalse;
   }
-  victim = &g_entities[ pids[ 0 ] ];
+  victim = &g_entities[ pid ];
   if( !admin_higher( ent, victim ) )
   {
     ADMP( "^3rename: ^7sorry, but your intended victim has a higher admin"
@@ -2687,14 +2682,14 @@ qboolean G_admin_rename( gentity_t *ent )
     ADMP( "^3rename: ^7sorry, but your intended victim is still connecting\n" );
     return qfalse;
   }
-  trap_GetUserinfo( pids[ 0 ], userinfo, sizeof( userinfo ) );
+  trap_GetUserinfo( pid, userinfo, sizeof( userinfo ) );
   AP( va( "print \"^3rename: ^7%s^7 has been renamed to %s^7 by %s\n\"",
           victim->client->pers.netname,
           newname,
           ( ent ) ? ent->client->pers.netname : "console" ) );
   Info_SetValueForKey( userinfo, "name", newname );
-  trap_SetUserinfo( pids[ 0 ], userinfo );
-  ClientUserinfoChanged( pids[ 0 ], qtrue );
+  trap_SetUserinfo( pid, userinfo );
+  ClientUserinfoChanged( pid, qtrue );
   return qtrue;
 }
 

@@ -117,23 +117,15 @@ void  Svcmd_EntityList_f( void )
 
 static gclient_t *ClientForString( char *s )
 {
-  int idnum, count;
-  int pids[ MAX_CLIENTS ];
+  int  idnum;
+  char err[ MAX_STRING_CHARS ];
 
-  if( ( count = G_ClientNumbersFromString( s, pids, MAX_CLIENTS ) ) != 1 )
+  idnum = G_ClientNumberFromString( s, err, sizeof( err ) );
+  if( idnum == -1 )
   {
-    idnum = G_ClientNumberFromString( s );
-
-    if( idnum == -1 )
-    {
-      char err[ MAX_STRING_CHARS ];
-      G_MatchOnePlayer( pids, count, err, sizeof( err ) );
-      G_Printf( "%s\n", err );
-      return NULL;
-    }
+    G_Printf( "%s", err );
+    return NULL;
   }
-  else
-    idnum = pids[ 0 ];
 
   return &level.clients[ idnum ];
 }

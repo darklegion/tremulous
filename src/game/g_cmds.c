@@ -57,15 +57,26 @@ void G_SanitiseString( char *in, char *out, int len )
 G_ClientNumberFromString
 
 Returns a player number for either a number or name string
-Returns -1 if invalid
+Returns -1 and optionally sets err if invalid or not exactly 1 match
+err will have a trailing \n if set
 ==================
 */
-int G_ClientNumberFromString( char *s )
+int G_ClientNumberFromString( char *s, char *err, int len )
 {
   gclient_t *cl;
-  int       i;
+  int       i, found = 0, m = -1;
   char      s2[ MAX_NAME_LENGTH ];
   char      n2[ MAX_NAME_LENGTH ];
+  char      *p = err;
+  int       l, l2 = len;
+
+  if( !s[ 0 ] )
+  {
+    if( p )
+      Q_strncpyz( p, "no player name or slot # provided\n", len );
+
+    return -1;
+  }
 
   // numeric values are just slot numbers
   for( i = 0; s[ i ] && isdigit( s[ i ] ); i++ );
@@ -84,6 +95,15 @@ int G_ClientNumberFromString( char *s )
     return i;
   }
 
+  if( p )
+  {
+    Q_strncpyz( p, "more than one player name matches. "
+                "be more specific or use the slot #:\n", l2 );
+    l = strlen( p );
+    p += l;
+    l2 -= l;
+  }
+
   // check for a name match
   G_SanitiseString( s, s2, sizeof( s2 ) );
 
@@ -96,48 +116,28 @@ int G_ClientNumberFromString( char *s )
 
     if( !strcmp( n2, s2 ) )
       return i;
-  }
 
-  return -1;
-}
-
-
-/*
-==================
-G_MatchOnePlayer
-
-This is a companion function to G_ClientNumbersFromString()
-
-err will be populated with an error message.
-==================
-*/
-void G_MatchOnePlayer( int *plist, int num, char *err, int len )
-{
-  gclient_t *cl;
-  int i;
-  char line[ MAX_NAME_LENGTH + 10 ] = {""};
-
-  err[ 0 ] = '\0';
-  if( num == 0 )
-  {
-    Q_strcat( err, len, "no connected player by that name or slot #" );
-  }
-  else if( num > 1 )
-  {
-    Q_strcat( err, len, "more than one player name matches. "
-            "be more specific or use the slot #:\n" );
-    for( i = 0; i < num; i++ )
+    if( strstr( n2, s2 ) )
     {
-      cl = &level.clients[ plist[ i ] ];
-      if( cl->pers.connected == CON_DISCONNECTED )
-        continue;
-      Com_sprintf( line, sizeof( line ), "%2i - %s^7\n",
-        plist[ i ], cl->pers.netname );
-      if( strlen( err ) + strlen( line ) > len )
-        break;
-      Q_strcat( err, len, line );
+      if( p )
+      {
+        l = Q_snprintf( p, l2, "%-2d - %s^7\n", i, cl->pers.netname );
+        p += l;
+        l2 -= l;
+      }
+
+      found++;
+      m = i;
     }
   }
+
+  if( found == 1 )
+    return m;
+
+  if( found == 0 && err )
+    Q_strncpyz( err, "no connected player by that name or slot #\n", len );
+
+  return -1;
 }
 
 /*
@@ -1144,8 +1144,6 @@ void Cmd_CallVote_f( gentity_t *ent )
       !Q_stricmp( vote, "mute" ) || !Q_stricmp( vote, "unmute" ) ||
       !Q_stricmp( vote, "denybuild" ) || !Q_stricmp( vote, "allowbuild" ) )
   {
-    int  clientNums[ MAX_CLIENTS ];
-    int  matches;
     char err[ MAX_STRING_CHARS ];
 
     if( !arg[ 0 ] )
@@ -1156,28 +1154,15 @@ void Cmd_CallVote_f( gentity_t *ent )
     }
 
     // with a little extra work only players from the right team are considered
-    matches = G_ClientNumbersFromString( arg, clientNums, MAX_CLIENTS );
-    if( matches == 1 )
-      clientNum = clientNums[ 0 ];
-    else
-      clientNum = G_ClientNumberFromString( arg );
+    clientNum = G_ClientNumberFromString( arg, err, sizeof( err ) );
 
-    if( clientNum != -1 )
+    if( clientNum == -1 )
     {
-      G_DecolorString( level.clients[ clientNum ].pers.netname, name, sizeof( name ) );
-    }
-    else if( matches > 1 )
-    {
-      G_MatchOnePlayer( clientNums, matches, err, sizeof( err ) );
-      ADMP( va( "%s: %s\n", cmd, err ) );
+      ADMP( va( "%s: %s", cmd, err ) );
       return;
     }
-    else
-    {
-      trap_SendServerCommand( ent-g_entities,
-        va( "print \"%s: invalid player\n\"", cmd ) );
-      return;
-    }
+
+    G_DecolorString( level.clients[ clientNum ].pers.netname, name, sizeof( name ) );
 
     if( !Q_stricmp( vote, "kick" ) || !Q_stricmp( vote, "mute" ) ||
         !Q_stricmp( vote, "denybuild" ) )
@@ -2687,7 +2672,6 @@ Cmd_Follow_f
 void Cmd_Follow_f( gentity_t *ent )
 {
   int   i;
-  int   pids[ MAX_CLIENTS ];
   char  arg[ MAX_NAME_LENGTH ];
 
   // won't work unless spectating
@@ -2700,21 +2684,16 @@ void Cmd_Follow_f( gentity_t *ent )
   }
   else
   {
+    char err[ MAX_STRING_CHARS ];
     trap_Argv( 1, arg, sizeof( arg ) );
-    if( G_ClientNumbersFromString( arg, pids, MAX_CLIENTS ) == 1 )
-    {
-      i = pids[ 0 ];
-    }
-    else
-    {
-      i = G_ClientNumberFromString( arg );
 
-      if( i == -1 )
-      {
-        trap_SendServerCommand( ent - g_entities,
-          "print \"follow: invalid player\n\"" );
-        return;
-      }
+    i = G_ClientNumberFromString( arg, err, sizeof( err ) );
+
+    if( i == -1 )
+    {
+      trap_SendServerCommand( ent - g_entities,
+        va( "print \"follow: %s\"", err ) );
+      return;
     }
 
     // can't follow self
