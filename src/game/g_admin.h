@@ -101,8 +101,13 @@ typedef struct g_admin_admin
 g_admin_admin_t;
 
 #define ADDRLEN 16
+/*
+addr_ts are passed as "arg" to admin_search for IP address matching
+admin_search prints (char *)arg, so the stringified address needs to be first
+*/
 typedef struct
 {
+  char str[ 44 ];
   enum
   {
     IPv4,
@@ -110,8 +115,8 @@ typedef struct
   } type;
   byte addr[ ADDRLEN ];
   int mask;
-  char str[ 44 ];
 } addr_t;
+
 typedef struct g_admin_ban
 {
   struct g_admin_ban *next;
