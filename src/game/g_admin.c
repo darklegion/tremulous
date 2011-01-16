@@ -2880,9 +2880,10 @@ qboolean G_admin_pause( gentity_t *ent )
       return qfalse;
     }
 
-    AP( va( "print \"^3pause: ^7%s^7 unpaused the game (Paused for %d msec) \n\"",
-          ( ent ) ? ent->client->pers.netname : "console",level.pausedTime ) );
-          trap_SendServerCommand( -1, "cp \"The game has been unpaused!\"" );
+    AP( va( "print \"^3pause: ^7%s^7 unpaused the game (Paused for %d sec) \n\"",
+          ( ent ) ? ent->client->pers.netname : "console", 
+          (int) ( (float) level.pausedTime / 1000.0f ) ) );
+    trap_SendServerCommand( -1, "cp \"The game has been unpaused!\"" );
 
     level.pausedTime = 0;
   }

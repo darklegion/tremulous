@@ -2338,6 +2338,10 @@ void G_RunFrame( int levelTime )
     {
       ptime3000 -= 3000;
       trap_SendServerCommand( -1, "cp \"The game has been paused. Please wait.\"" );
+
+      if( level.pausedTime >= 110000  && level.pausedTime <= 119000 )
+        trap_SendServerCommand( -1, va( "print \"Server: Game will auto-unpause in %d seconds\n\"", 
+          (int) ( (float) ( 120000 - level.pausedTime ) / 1000.0f ) ) );
     }
 
     // Prevents clients from getting lagged-out messages
@@ -2345,6 +2349,13 @@ void G_RunFrame( int levelTime )
     {
       if( level.clients[ i ].pers.connected == CON_CONNECTED )
         level.clients[ i ].ps.commandTime = levelTime;
+    }
+
+    if( level.pausedTime > 120000 )
+    {
+      trap_SendServerCommand( -1, "print \"Server: The game has been unpaused automatically (2 minute max)\n\"" );
+      trap_SendServerCommand( -1, "cp \"The game has been unpaused!\"" );
+      level.pausedTime = 0;
     }
 
     return;
