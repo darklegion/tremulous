@@ -524,7 +524,7 @@ void Cmd_Team_f( gentity_t *ent )
   team_t    team;
   team_t    oldteam = ent->client->pers.teamSelection;
   char      s[ MAX_TOKEN_CHARS ];
-  qboolean  force = G_admin_permission(ent, ADMF_FORCETEAMCHANGE);
+  qboolean  force = G_admin_permission( ent, ADMF_FORCETEAMCHANGE );
   int       aliens = level.numAlienClients;
   int       humans = level.numHumanClients;
 
@@ -534,8 +534,20 @@ void Cmd_Team_f( gentity_t *ent )
     humans--;
 
   // stop team join spam
-  if( level.time - ent->client->pers.teamChangeTime < 1000 )
+  if( ent->client->pers.teamChangeTime && 
+      level.time - ent->client->pers.teamChangeTime < 1000 )
     return;
+
+  // stop switching teams for gameplay exploit reasons by enforcing a long
+  // wait before they can come back
+  if( !force && ent->client->pers.aliveSeconds && 
+      level.time - ent->client->pers.teamChangeTime < 30000 )
+  {
+    trap_SendServerCommand( ent-g_entities,
+      va( "print \"You must wait another %d seconds before changing teams again\n\"",
+        (int) ( ( 30000 - ( level.time - ent->client->pers.teamChangeTime ) ) / 1000.f ) ) );
+    return;
+  }
 
   // disallow joining teams during warmup
   if( g_doWarmup.integer && ( ( level.warmupTime - level.time ) / 1000 ) > 0 )
@@ -621,20 +633,6 @@ void Cmd_Team_f( gentity_t *ent )
     level.numPlayingClients >= g_maxGameClients.integer )
   {
     G_TriggerMenu( ent - g_entities, MN_PLAYERLIMIT );
-    return;
-  }
-
-  // guard against build timer exploit
-  if( oldteam != TEAM_NONE && ent->client->sess.spectatorState == SPECTATOR_NOT &&
-     ( ent->client->ps.stats[ STAT_CLASS ] == PCL_ALIEN_BUILDER0 ||
-       ent->client->ps.stats[ STAT_CLASS ] == PCL_ALIEN_BUILDER0_UPG ||
-       BG_InventoryContainsWeapon( WP_HBUILD, ent->client->ps.stats ) ) &&
-      ent->client->ps.stats[ STAT_MISC ] > 0 )
-  {
-    if( ent->client->pers.teamSelection == TEAM_ALIENS )
-      G_TriggerMenu( ent->client->ps.clientNum, MN_A_TEAMCHANGEBUILDTIMER );
-    else
-      G_TriggerMenu( ent->client->ps.clientNum, MN_H_TEAMCHANGEBUILDTIMER );
     return;
   }
 

@@ -519,20 +519,6 @@ void CG_Menu( int menu, int arg )
       type      = DT_COMMAND;
       break;
 
-    case MN_A_TEAMCHANGEBUILDTIMER:
-      longMsg   = "You cannot leave the Alien team until your build timer "
-                  "has expired.";
-      shortMsg  = "You cannot change teams until your build timer expires";
-      type      = DT_COMMAND;
-      break;
-
-    case MN_H_TEAMCHANGEBUILDTIMER:
-      longMsg   = "You cannot leave the Human team until your build timer "
-                  "has expired.";
-      shortMsg  = "You cannot change teams until your build timer expires";
-      type      = DT_COMMAND;
-      break;
-
     //===============================
 
     // Since cheating commands have no default binds, they will often be done
