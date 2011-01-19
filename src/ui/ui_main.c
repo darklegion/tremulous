@@ -3047,16 +3047,11 @@ static void UI_RunMenuScript( char **args )
         trap_Cvar_VariableStringBuffer( "ui_sayBuffer", buffer, sizeof( buffer ) );
 
         if( buffer[ 0 ] == '/' || buffer[ 0 ] == '\\' )
-        {
-            Menus_ReplaceActiveByName( "say_command" );
-        }
+          Menus_ReplaceActiveByName( "say_command" );
+        else if( uiInfo.chatTeam )
+          Menus_ReplaceActiveByName( "say_team" );
         else
-        {
-            if( !uiInfo.chatTeam )
-            Menus_ReplaceActiveByName( "say" );
-            else
-            Menus_ReplaceActiveByName( "say_team" );
-        }
+          Menus_ReplaceActiveByName( "say" );
       }
     }
     else if( Q_stricmp( name, "playMovie" ) == 0 )
