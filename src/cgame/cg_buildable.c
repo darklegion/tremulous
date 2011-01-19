@@ -552,7 +552,8 @@ static void CG_PositionAndOrientateBuildable( const vec3_t angles, const vec3_t 
                                               vec3_t outAxis[ 3 ], vec3_t outOrigin )
 {
   vec3_t  forward, start, end;
-  trace_t tr;
+  trace_t tr, box_tr;
+  float mag, fraction;
 
   AngleVectors( angles, forward, NULL, NULL );
   VectorCopy( normal, outAxis[ 2 ] );
@@ -572,17 +573,27 @@ static void CG_PositionAndOrientateBuildable( const vec3_t angles, const vec3_t 
 
   VectorMA( inOrigin, -TRACE_DEPTH, normal, end );
   VectorMA( inOrigin, 1.0f, normal, start );
+
+  // Take both capsule and box traces. If the capsule trace does not differ
+  //  significantly from the box trace use it. This may cause buildables to be
+  //  positioned *inside* the surface on which it is placed. This is intentional
+
   CG_CapTrace( &tr, start, mins, maxs, end, skipNumber,
                CONTENTS_SOLID | CONTENTS_PLAYERCLIP );
 
-  if( tr.fraction == 1.0f )
-  {
-    //erm we missed completely - try again with a box trace
-    CG_Trace( &tr, start, mins, maxs, end, skipNumber,
-              CONTENTS_SOLID | CONTENTS_PLAYERCLIP );
-  }
+  CG_Trace( &box_tr, start, mins, maxs, end, skipNumber,
+            CONTENTS_SOLID | CONTENTS_PLAYERCLIP );
 
-  VectorMA( inOrigin, tr.fraction * -TRACE_DEPTH, normal, outOrigin );
+  mag = Distance( tr.endpos, box_tr.endpos );
+
+  fraction = tr.fraction;
+
+  // this is either too far off of the bbox to be useful for gameplay purposes
+  //  or the model is positioned in thin air anyways.
+  if( mag > 15.0f || tr.fraction == 1.0f )
+    fraction = box_tr.fraction; 
+
+  VectorMA( inOrigin, fraction * -TRACE_DEPTH, normal, outOrigin );
 }
 
 /*
