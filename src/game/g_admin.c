@@ -1516,15 +1516,11 @@ qboolean G_admin_ban( gentity_t *ent )
   char secs[ MAX_TOKEN_CHARS ];
   char *reason;
   char duration[ MAX_DURATION_LENGTH ];
-  int logmatches = 0;
   int i;
-  qboolean exactmatch = qfalse;
-  char n2[ MAX_NAME_LENGTH ];
   char s2[ MAX_NAME_LENGTH ];
-  int netmask = -1;
   addr_t ip;
   qboolean ipmatch = qfalse;
-  namelog_t *namelog, *match = NULL;
+  namelog_t *match = NULL;
 
   if( trap_Argc() < 2 )
   {
@@ -1564,94 +1560,41 @@ qboolean G_admin_ban( gentity_t *ent )
   {
     int max = ip.type == IPv4 ? 32 : 128;
     int min = ent ? max / 2 : 1;
+    namelog_t *namelog;
+
     if( ip.mask < min || ip.mask > max )
     {
       ADMP( va( "^3ban: ^7invalid netmask (%d is not one of %d-%d)\n",
-        netmask, min, max ) );
+        ip.mask, min, max ) );
       return qfalse;
     }
     ipmatch = qtrue;
-  }
-  else if( ( match = G_NamelogFromString( ent, search ) ) && !match->banned )
-  {
-    logmatches = 1;
-    exactmatch = qtrue;
-  }
 
-  for( namelog = level.namelogs; namelog && !exactmatch; namelog = namelog->next )
-  {
-    // skip players in the namelog who have already been banned
-    if( namelog->banned )
-      continue;
-
-    if( ipmatch )
+    for( namelog = level.namelogs; namelog; namelog = namelog->next )
     {
+      // skip players in the namelog who have already been banned
+      if( namelog->banned )
+        continue;
+
       for( i = 0; i < MAX_NAMELOG_ADDRS && namelog->ip[ i ].str[ 0 ]; i++ )
       {
         if( G_AddressCompare( &ip, &namelog->ip[ i ] ) )
         {
           match = namelog;
-          if( ( ip.type == IPv4 && ip.mask == 32 ) ||
-            ( ip.type == IPv6 && ip.mask == 128 ) )
-          {
-            exactmatch = qtrue;
-            break;
-          }
-        }
-      }
-      if( match )
-        logmatches++;
-      if( exactmatch )
-        break;
-    }
-    else
-    {
-      for( i = 0; i < MAX_NAMELOG_NAMES && namelog->name[ i ][ 0 ]; i++ )
-      {
-        G_SanitiseString( namelog->name[ i ], n2, sizeof( n2 ) );
-        if( strstr( n2, s2 ) )
-        {
-          match = namelog;
-          logmatches++;
+          namelog = NULL;
           break;
         }
       }
     }
-  }
 
-  if( !logmatches )
-  {
-    ADMP( "^3ban: ^7no player found by that name, IP, or slot number\n" );
-    return qfalse;
-  }
-  if( !ipmatch && logmatches > 1 )
-  {
-    ADMBP_begin();
-    ADMBP( "^3ban: ^7multiple recent clients match name, use IP or slot#:\n" );
-    for( namelog = level.namelogs; namelog; namelog = namelog->next )
+    if( !match )
     {
-      for( i = 0; i < MAX_NAMELOG_NAMES && namelog->name[ i ][ 0 ]; i++ )
-      {
-        G_SanitiseString( namelog->name[ i ], n2, sizeof( n2 ) );
-        if( strstr( n2, s2 ) )
-          break;
-      }
-      if( i < MAX_NAMELOG_NAMES && namelog->name[ i ][ 0 ] )
-      {
-        ADMBP( namelog->slot > -1 ?
-          va( S_COLOR_YELLOW "%-2d %-2d" S_COLOR_WHITE, namelog->id,
-            namelog->slot ) :
-          va( "%-2d - ", namelog->id ) );
-        for( i = 0; i < MAX_NAMELOG_NAMES && namelog->name[ i ][ 0 ]; i++ )
-          ADMBP( va( " %s" S_COLOR_WHITE, namelog->name[ i ] ) );
-        for( i = 0; i < MAX_NAMELOG_ADDRS && namelog->ip[ i ].str[ 0 ]; i++ )
-          ADMBP( va( " %s", namelog->ip[ i ].str ) );
-        ADMBP( "\n" );
-      }
+      ADMP( "^3ban: ^7no player found by that IP address\n" );
+      return qfalse;
     }
-    ADMBP_end();
-    return qfalse;
   }
+  else if( !( match = G_NamelogFromString( ent, search ) ) || match->banned )
+    return qfalse;
 
   if( ent && !admin_higher_guid( ent->client->pers.guid, match->guid ) )
   {
