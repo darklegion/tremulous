@@ -540,7 +540,7 @@ void Cmd_Team_f( gentity_t *ent )
 
   // stop switching teams for gameplay exploit reasons by enforcing a long
   // wait before they can come back
-  if( !force && ent->client->pers.aliveSeconds && 
+  if( !force && !g_cheats.integer && ent->client->pers.aliveSeconds && 
       level.time - ent->client->pers.teamChangeTime < 30000 )
   {
     trap_SendServerCommand( ent-g_entities,
