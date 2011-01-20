@@ -51,9 +51,15 @@ void G_namelog_connect( gclient_t *client )
     n = BG_Alloc( sizeof( namelog_t ) );
     strcpy( n->guid, client->pers.guid );
     if( p )
+    {
       p->next = n;
+      n->id = p->id + 1;
+    }
     else
+    {
       level.namelogs = n;
+      n->id = MAX_CLIENTS;
+    }
   }
   client->pers.namelog = n;
   n->slot = client - level.clients;

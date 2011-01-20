@@ -294,6 +294,8 @@ typedef struct namelog_s
   int               score;
   int               credits;
   team_t            team;
+
+  int               id;
 } namelog_t;
 
 // client data that stays across multiple respawns, but is cleared

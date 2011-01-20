@@ -1202,6 +1202,15 @@ qboolean G_admin_time( gentity_t *ent )
   return qtrue;
 }
 
+// this should be in one of the headers, but it is only used here for now
+namelog_t *G_NamelogFromString( gentity_t *ent, char *s );
+
+/*
+for consistency, we should be able to target a disconnected player with setlevel
+but we can't use namelog and remain consistent, so the solution would be to make
+everyone a real level 0 admin so they can be targeted until the next level
+but that seems kind of stupid
+*/
 qboolean G_admin_setlevel( gentity_t *ent )
 {
   char name[ MAX_NAME_LENGTH ] = {""};
@@ -1551,20 +1560,7 @@ qboolean G_admin_ban( gentity_t *ent )
     }
   }
 
-  // ban by clientnum
-  for( i = 0; search[ i ] && isdigit( search[ i ] ); i++ );
-  if( !search[ i ] )
-  {
-    i = atoi( search );
-    if( i < MAX_CLIENTS &&
-      level.clients[ i ].pers.connected != CON_DISCONNECTED )
-    {
-      logmatches = 1;
-      exactmatch = qtrue;
-      for( match = level.namelogs; match->slot != i; match = match->next );
-    }
-  }
-  else if( G_AddressParse( search, &ip ) )
+  if( G_AddressParse( search, &ip ) )
   {
     int max = ip.type == IPv4 ? 32 : 128;
     int min = ent ? max / 2 : 1;
@@ -1575,6 +1571,11 @@ qboolean G_admin_ban( gentity_t *ent )
       return qfalse;
     }
     ipmatch = qtrue;
+  }
+  else if( ( match = G_NamelogFromString( ent, search ) ) && !match->banned )
+  {
+    logmatches = 1;
+    exactmatch = qtrue;
   }
 
   for( namelog = level.namelogs; namelog && !exactmatch; namelog = namelog->next )
@@ -1638,7 +1639,9 @@ qboolean G_admin_ban( gentity_t *ent )
       if( i < MAX_NAMELOG_NAMES && namelog->name[ i ][ 0 ] )
       {
         ADMBP( namelog->slot > -1 ?
-          va( S_COLOR_YELLOW "%-2d" S_COLOR_WHITE, namelog->slot ) : "- " );
+          va( S_COLOR_YELLOW "%-2d %-2d" S_COLOR_WHITE, namelog->id,
+            namelog->slot ) :
+          va( "%-2d - ", namelog->id ) );
         for( i = 0; i < MAX_NAMELOG_NAMES && namelog->name[ i ][ 0 ]; i++ )
           ADMBP( va( " %s" S_COLOR_WHITE, namelog->name[ i ] ) );
         for( i = 0; i < MAX_NAMELOG_ADDRS && namelog->ip[ i ].str[ 0 ]; i++ )
@@ -1657,7 +1660,7 @@ qboolean G_admin_ban( gentity_t *ent )
       " level than you\n" );
     return qfalse;
   }
-  if( !strcmp( match->ip[ 0 ].str, "localhost" ) )
+  if( match->slot > -1 && level.clients[ match->slot ].pers.localClient )
   {
     ADMP( "^3ban: ^7disconnecting the host would end the game\n" );
     return qfalse;
@@ -1959,10 +1962,9 @@ qboolean G_admin_changemap( gentity_t *ent )
 
 qboolean G_admin_mute( gentity_t *ent )
 {
-  int pid;
-  char name[ MAX_NAME_LENGTH ], err[ MAX_STRING_CHARS ];
+  char name[ MAX_NAME_LENGTH ];
   char command[ MAX_ADMIN_CMD_LEN ];
-  gentity_t *vic;
+  namelog_t *vic;
 
   trap_Argv( 0, command, sizeof( command ) );
   if( trap_Argc() < 2 )
@@ -1971,29 +1973,30 @@ qboolean G_admin_mute( gentity_t *ent )
     return qfalse;
   }
   trap_Argv( 1, name, sizeof( name ) );
-  if( ( pid = G_ClientNumberFromString( name, err, sizeof( err ) ) ) == -1 )
+  if( !( vic = G_NamelogFromString( ent, name ) ) )
   {
-    ADMP( va( "^3%s: ^7%s", command, err ) );
+    ADMP( va( "^3%s: ^7no match\n", command ) );
     return qfalse;
   }
-  vic = &g_entities[ pid ];
-  if( !admin_higher( ent, vic ) )
+  if( ent && !admin_higher_admin( ent->client->pers.admin,
+      G_admin_admin( vic->guid ) ) )
   {
     ADMP( va( "^3%s: ^7sorry, but your intended victim has a higher admin"
         " level than you\n", command ) );
     return qfalse;
   }
-  if( vic->client->pers.namelog->muted )
+  if( vic->muted )
   {
     if( !Q_stricmp( command, "mute" ) )
     {
       ADMP( "^3mute: ^7player is already muted\n" );
       return qtrue;
     }
-    vic->client->pers.namelog->muted = qfalse;
-    CPx( pid, "cp \"^1You have been unmuted\"" );
+    vic->muted = qfalse;
+    if( vic->slot > -1 )
+      CPx( vic->slot, "cp \"^1You have been unmuted\"" );
     AP( va( "print \"^3unmute: ^7%s^7 has been unmuted by %s\n\"",
-            vic->client->pers.netname,
+            vic->name[ vic->nameOffset ],
             ( ent ) ? ent->client->pers.netname : "console" ) );
   }
   else
@@ -2003,10 +2006,11 @@ qboolean G_admin_mute( gentity_t *ent )
       ADMP( "^3unmute: ^7player is not currently muted\n" );
       return qtrue;
     }
-    vic->client->pers.namelog->muted = qtrue;
-    CPx( pid, "cp \"^1You've been muted\"" );
+    vic->muted = qtrue;
+    if( vic->slot > -1 )
+      CPx( vic->slot, "cp \"^1You've been muted\"" );
     AP( va( "print \"^3mute: ^7%s^7 has been muted by ^7%s\n\"",
-            vic->client->pers.netname,
+            vic->name[ vic->nameOffset ],
             ( ent ) ? ent->client->pers.netname : "console" ) );
   }
   return qtrue;
@@ -2014,10 +2018,9 @@ qboolean G_admin_mute( gentity_t *ent )
 
 qboolean G_admin_denybuild( gentity_t *ent )
 {
-  int pid;
-  char name[ MAX_NAME_LENGTH ], err[ MAX_STRING_CHARS ];
+  char name[ MAX_NAME_LENGTH ];
   char command[ MAX_ADMIN_CMD_LEN ];
-  gentity_t *vic;
+  namelog_t *vic;
 
   trap_Argv( 0, command, sizeof( command ) );
   if( trap_Argc() < 2 )
@@ -2026,30 +2029,31 @@ qboolean G_admin_denybuild( gentity_t *ent )
     return qfalse;
   }
   trap_Argv( 1, name, sizeof( name ) );
-  if( ( pid = G_ClientNumberFromString( name, err, sizeof( err ) ) ) == -1 )
+  if( !( vic = G_NamelogFromString( ent, name ) ) )
   {
-    ADMP( va( "^3%s: ^7%s", command, err ) );
+    ADMP( va( "^3%s: ^7no match\n", command ) );
     return qfalse;
   }
-  vic = &g_entities[ pid ];
-  if( !admin_higher( ent, vic ) )
+  if( ent && !admin_higher_admin( ent->client->pers.admin,
+      G_admin_admin( vic->guid ) ) )
   {
     ADMP( va( "^3%s: ^7sorry, but your intended victim has a higher admin"
               " level than you\n", command ) );
     return qfalse;
   }
-  if( vic->client->pers.namelog->denyBuild )
+  if( vic->denyBuild )
   {
     if( !Q_stricmp( command, "denybuild" ) )
     {
       ADMP( "^3denybuild: ^7player already has no building rights\n" );
       return qtrue;
     }
-    vic->client->pers.namelog->denyBuild = qfalse;
-    CPx( pid, "cp \"^1You've regained your building rights\"" );
+    vic->denyBuild = qfalse;
+    if( vic->slot > -1 )
+      CPx( vic->slot, "cp \"^1You've regained your building rights\"" );
     AP( va(
       "print \"^3allowbuild: ^7building rights for ^7%s^7 restored by %s\n\"",
-      vic->client->pers.netname,
+      vic->name[ vic->nameOffset ],
       ( ent ) ? ent->client->pers.netname : "console" ) );
   }
   else
@@ -2059,12 +2063,15 @@ qboolean G_admin_denybuild( gentity_t *ent )
       ADMP( "^3allowbuild: ^7player already has building rights\n" );
       return qtrue;
     }
-    vic->client->pers.namelog->denyBuild = qtrue;
-    vic->client->ps.stats[ STAT_BUILDABLE ] = BA_NONE;
-    CPx( pid, "cp \"^1You've lost your building rights\"" );
+    vic->denyBuild = qtrue;
+    if( vic->slot > -1 )
+    {
+      level.clients[ vic->slot ].ps.stats[ STAT_BUILDABLE ] = BA_NONE;
+      CPx( vic->slot, "cp \"^1You've lost your building rights\"" );
+    }
     AP( va(
       "print \"^3denybuild: ^7building rights for ^7%s^7 revoked by ^7%s\n\"",
-      vic->client->pers.netname,
+      vic->name[ vic->nameOffset ],
       ( ent ) ? ent->client->pers.netname : "console" ) );
   }
   return qtrue;
@@ -2740,6 +2747,80 @@ qboolean G_admin_namelog( gentity_t *ent )
     ipmatch ? namelog_matchip : namelog_matchname, namelog_out, level.namelogs,
     ipmatch ? (void *)&ip : s2, start, MAX_CLIENTS, MAX_ADMIN_LISTITEMS );
   return qtrue;
+}
+
+/*
+==================
+G_NamelogFromString
+
+This is similar to G_ClientNumberFromString but for namelog instead
+Returns NULL if not exactly 1 match
+==================
+*/
+namelog_t *G_NamelogFromString( gentity_t *ent, char *s )
+{
+  namelog_t *p, *m = NULL;
+  int       i, found = 0;
+  char      n2[ MAX_NAME_LENGTH ] = {""};
+  char      s2[ MAX_NAME_LENGTH ] = {""};
+
+  if( !s[ 0 ] )
+    return NULL;
+
+  // if a number is provided, it is a clientnum or namelog id
+  for( i = 0; s[ i ] && isdigit( s[ i ] ); i++ );
+  if( !s[ i ] )
+  {
+    i = atoi( s );
+
+    if( i >= 0 && i < level.maxclients )
+    {
+      if( level.clients[ i ].pers.connected != CON_DISCONNECTED )
+        return level.clients[ i ].pers.namelog;
+    }
+    else if( i >= MAX_CLIENTS )
+    {
+      for( p = level.namelogs; p; p = p->next )
+      {
+        if( p->id == i )
+          break;
+      }
+      if( p )
+        return p;
+    }
+
+    return NULL;
+  }
+
+  // check for a name match
+  G_SanitiseString( s, s2, sizeof( s2 ) );
+
+  for( p = level.namelogs; p; p = p->next )
+  {
+    for( i = 0; i < MAX_NAMELOG_NAMES && p->name[ i ][ 0 ]; i++ )
+    {
+      G_SanitiseString( p->name[ i ], n2, sizeof( n2 ) );
+
+      // if this is an exact match to a current player
+      if( i == p->nameOffset && p->slot > -1 && !strcmp( s2, n2 ) )
+        return p;
+
+      if( strstr( n2, s2 ) )
+        m = p;
+    }
+
+    if( m == p )
+      found++;
+  }
+
+  if( found == 1 )
+    return m;
+
+  if( found > 1 )
+    admin_search( ent, "namelog", "recent clients", namelog_matchname,
+      namelog_out, level.namelogs, s2, 0, MAX_CLIENTS, -1 );
+
+  return NULL;
 }
 
 qboolean G_admin_lock( gentity_t *ent )
