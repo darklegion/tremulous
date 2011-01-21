@@ -749,7 +749,7 @@ static int admin_search( gentity_t *ent,
       if( i >= start && ( limit < 1 || count < limit ) )
       {
         out( l, str );
-        ADMBP( va( "%-3d %s\n", i + offset, str ) );
+        ADMBP( va( "%-3d %s" S_COLOR_WHITE "\n", i + offset, str ) );
         count++;
         end = i;
       }
