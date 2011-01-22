@@ -267,6 +267,7 @@ void CG_OffsetThirdPersonView( void )
   vec3_t        axis[ 3 ], rotaxis[ 3 ];
   float         deltaPitch;
   static float  pitch;
+  static vec3_t killerPos = { 0, 0, 0 };
 
   // If cg_thirdpersonShoulderViewMode == 2, do shoulder view instead
   // If cg_thirdpersonShoulderViewMode == 1, do shoulder view when chasing
@@ -291,18 +292,19 @@ void CG_OffsetThirdPersonView( void )
   // so pretend that the player was looking at the killer, then place cam behind them.
   if( cg.predictedPlayerState.stats[ STAT_HEALTH ] <= 0 )
   {
-    int killerEntNum;
-    vec3_t killerPos;
+    int killerEntNum = cg.predictedPlayerState.stats[ STAT_VIEWLOCK ];
 
-    killerEntNum = cg.predictedPlayerState.stats[ STAT_VIEWLOCK ];
-    
     // already looking at ourself
     if( killerEntNum != cg.snap->ps.clientNum )
     {
-      VectorCopy( cg_entities[ killerEntNum ].lerpOrigin, killerPos );
-
-      VectorSubtract( killerPos, cg.refdef.vieworg, killerPos );
-      vectoangles( killerPos, cg.refdefViewAngles );
+      vec3_t lookDirection;
+      if( cg.wasDeadLastFrame == qfalse || !cg_staticDeathCam.integer )
+      {
+        VectorCopy( cg_entities[ killerEntNum ].lerpOrigin, killerPos );
+        cg.wasDeadLastFrame = qtrue;
+      }
+      VectorSubtract( killerPos, cg.refdef.vieworg, lookDirection );
+      vectoangles( lookDirection, cg.refdefViewAngles );
     }
   }
 
@@ -1303,6 +1305,8 @@ static int CG_CalcViewValues( void )
     if( CG_IsParticleSystemValid( &cg.poisonCloudPS ) )
       CG_DestroyParticleSystem( &cg.poisonCloudPS );
   }
+  else
+    cg.wasDeadLastFrame = qfalse;
 
   if( cg.renderingThirdPerson )
   {

@@ -289,6 +289,26 @@
       }
     }
 
+    itemDef
+    {
+      name player
+      group optionsGrp
+      type ITEM_TYPE_YESNO
+      text "Static Death Cam:"
+      cvar "cg_staticDeathCam"
+      rect CONTENT_X (CONTENT_Y+(6*ELEM_H)) CONTENT_W ELEM_H
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textalignx CONTENT_OFF
+      textscale .25
+      forecolor 1 1 1 1
+      visible MENU_FALSE
+      action
+      {
+        play "sound/misc/menu1.wav";
+      }
+    }
+
 //////// HUD
 
     itemDef

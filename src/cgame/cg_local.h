@@ -1139,6 +1139,7 @@ typedef struct
   float         painBlendTarget;
   float         healBlendValue;
   int           lastHealth;
+  qboolean      wasDeadLastFrame;
 
   int           lastPredictedCommand;
   int           lastServerTime;
@@ -1468,6 +1469,7 @@ extern  vmCvar_t    cg_tracerLength;
 extern  vmCvar_t    cg_thirdPerson;
 extern  vmCvar_t    cg_thirdPersonAngle;
 extern  vmCvar_t    cg_thirdPersonShoulderViewMode;
+extern  vmCvar_t    cg_staticDeathCam;
 extern  vmCvar_t    cg_thirdPersonPitchFollow;
 extern  vmCvar_t    cg_thirdPersonRange;
 extern  vmCvar_t    cg_stereoSeparation;
