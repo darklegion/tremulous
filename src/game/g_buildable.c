@@ -370,11 +370,14 @@ int G_GetBuildPoints( const vec3_t pos, team_t team, int extraDistance )
 ==================
 G_InPowerZone
 
-See if a buildable is inside of another power zone
+See if a buildable is inside of another power zone.
+Return pointer to provider if so.
+It's different from G_FindPower because FindPower for
+providers will find themselves.
 (This doesn't check if power zones overlap)
 ==================
 */
-qboolean G_InPowerZone( gentity_t *self )
+gentity_t *G_InPowerZone( gentity_t *self )
 {
   int         i;
   gentity_t   *ent;
@@ -403,13 +406,13 @@ qboolean G_InPowerZone( gentity_t *self )
       distance = VectorLength( temp_v );
 
       if( ent->s.modelindex == BA_H_REACTOR && distance <= REACTOR_BASESIZE )
-        return qtrue;
+        return ent;
       else if( ent->s.modelindex == BA_H_REPEATER && distance <= REPEATER_BASESIZE )
-        return qtrue;
+        return ent;
     }
   }
 
-  return qfalse;
+  return NULL;
 }
 
 /*
@@ -1732,6 +1735,7 @@ void HRepeater_Think( gentity_t *self )
   int               i;
   qboolean          reactor = qfalse;
   gentity_t         *ent;
+  gentity_t         *powerEnt;
   buildPointZone_t  *zone;
 
   if( self->spawned )
@@ -1747,10 +1751,16 @@ void HRepeater_Think( gentity_t *self )
     }
   }
 
-  if( G_InPowerZone( self ) )
+  powerEnt = G_InPowerZone( self );
+  if( powerEnt != NULL )
   {
-    // if the repeater is inside of another power zone then disappear
-    G_Damage( self, NULL, NULL, NULL, NULL, self->health, 0, MOD_SUICIDE );
+    // If the repeater is inside of another power zone then suicide
+    // Attribute death to whoever built the reactor if that's a human,
+    // which will ensure that it does not queue the BP
+    if( powerEnt->builtBy >= 0 )
+      G_Damage( self, NULL, g_entities + powerEnt->builtBy, NULL, NULL, self->health, 0, MOD_SUICIDE );
+    else
+      G_Damage( self, NULL, NULL, NULL, NULL, self->health, 0, MOD_SUICIDE );
     return;
   }
 
