@@ -3617,6 +3617,9 @@ static const char *UI_FeederItemText( int feederID, int index, int column, qhand
             }
           }
 
+        case SORT_GAME:
+          return Info_ValueForKey( info, "game" );
+
         case SORT_MAP:
           return Info_ValueForKey( info, "mapname" );
 

@@ -458,6 +458,9 @@ static int LAN_CompareServers( int source, int sortKey, int sortDir, int s1, int
 			}
 			break;
 
+		case SORT_GAME:
+			res = Q_stricmp( server1->game, server2->game );
+			break;
 		case SORT_MAP:
 			res = Q_stricmp( server1->mapName, server2->mapName );
 			break;
