@@ -2365,7 +2365,7 @@ void Cmd_Build_f( gentity_t *ent )
     dynMenu_t err;
     dist = BG_Class( ent->client->ps.stats[ STAT_CLASS ] )->buildDist;
 
-    ent->client->ps.stats[ STAT_BUILDABLE ] = 0;
+    ent->client->ps.stats[ STAT_BUILDABLE ] = BA_NONE;
 
     //these are the errors displayed when the builder first selects something to use
     switch( G_CanBuild( ent, buildable, dist, origin ) )

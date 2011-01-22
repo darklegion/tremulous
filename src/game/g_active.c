@@ -462,7 +462,7 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd )
     client->ps.speed = client->pers.flySpeed;
     client->ps.stats[ STAT_STAMINA ] = 0;
     client->ps.stats[ STAT_MISC ] = 0;
-    client->ps.stats[ STAT_BUILDABLE ] = 0;
+    client->ps.stats[ STAT_BUILDABLE ] = BA_NONE;
     client->ps.stats[ STAT_CLASS ] = PCL_NONE;
     client->ps.weapon = WP_NONE;
 

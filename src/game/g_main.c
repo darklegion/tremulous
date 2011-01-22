@@ -1145,14 +1145,24 @@ void G_CalculateBuildPoints( void )
   {
     G_LogPrintf( "Beginning Sudden Death\n" );
     trap_SendServerCommand( -1, "cp \"Sudden Death!\"" );
+    trap_SendServerCommand( -1, "print \"Beginning Sudden Death.\n\"" );
     level.suddenDeathWarning = TW_PASSED;
     G_ClearDeconMarks( );
+
+    // Clear blueprints, or else structs that cost 0 BP can still be built after SD
+    for( i = 0; i < level.maxclients; i++ )
+    {
+      if( g_entities[ i ].client->ps.stats[ STAT_BUILDABLE ] != BA_NONE )
+        g_entities[ i ].client->ps.stats[ STAT_BUILDABLE ] = BA_NONE;
+    }
   }
   else if( G_TimeTilSuddenDeath( ) <= SUDDENDEATHWARNING &&
     level.suddenDeathWarning < TW_IMMINENT )
   {
     trap_SendServerCommand( -1, va( "cp \"Sudden Death in %d seconds!\"",
-          (int)(G_TimeTilSuddenDeath() / 1000 ) ) );
+          (int)( G_TimeTilSuddenDeath( ) / 1000 ) ) );
+    trap_SendServerCommand( -1, va( "print \"Sudden Death will begin in %d seconds.\n\"",
+          (int)( G_TimeTilSuddenDeath( ) / 1000 ) ) );
     level.suddenDeathWarning = TW_IMMINENT;
   }
 
