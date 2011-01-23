@@ -2139,9 +2139,7 @@ static void PM_GroundClimbTrace( void )
       pm->ps->eFlags |= EF_WALLCLIMB;
 
       //if we're not stuck to the ceiling then set grapplePoint to be a surface normal
-      //use VectorCompareEpsilon here to prevent a bug where differences in fp precision
-      //lead to taking crossproducts that give all-zero normals
-      if( !VectorCompareEpsilon( trace.plane.normal, ceilingNormal, .000001f ) )
+      if( !VectorCompareEpsilon( trace.plane.normal, ceilingNormal, 0.000001f ) )
       {
         //so we know what surface we're stuck to
         VectorCopy( trace.plane.normal, pm->ps->grapplePoint );
