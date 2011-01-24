@@ -1517,7 +1517,6 @@ qboolean G_admin_ban( gentity_t *ent )
   char *reason;
   char duration[ MAX_DURATION_LENGTH ];
   int i;
-  char s2[ MAX_NAME_LENGTH ];
   addr_t ip;
   qboolean ipmatch = qfalse;
   namelog_t *match = NULL;
@@ -1528,7 +1527,6 @@ qboolean G_admin_ban( gentity_t *ent )
     return qfalse;
   }
   trap_Argv( 1, search, sizeof( search ) );
-  G_SanitiseString( search, s2, sizeof( s2 ) );
   trap_Argv( 2, secs, sizeof( secs ) );
 
   seconds = G_admin_parse_time( secs );
@@ -1560,7 +1558,6 @@ qboolean G_admin_ban( gentity_t *ent )
   {
     int max = ip.type == IPv4 ? 32 : 128;
     int min = ent ? max / 2 : 1;
-    namelog_t *namelog;
 
     if( ip.mask < min || ip.mask > max )
     {
@@ -1570,21 +1567,19 @@ qboolean G_admin_ban( gentity_t *ent )
     }
     ipmatch = qtrue;
 
-    for( namelog = level.namelogs; namelog; namelog = namelog->next )
+    for( match = level.namelogs; match; match = match->next )
     {
       // skip players in the namelog who have already been banned
-      if( namelog->banned )
+      if( match->banned )
         continue;
 
-      for( i = 0; i < MAX_NAMELOG_ADDRS && namelog->ip[ i ].str[ 0 ]; i++ )
+      for( i = 0; i < MAX_NAMELOG_ADDRS && match->ip[ i ].str[ 0 ]; i++ )
       {
-        if( G_AddressCompare( &ip, &namelog->ip[ i ] ) )
-        {
-          match = namelog;
-          namelog = NULL;
+        if( G_AddressCompare( &ip, &match->ip[ i ] ) )
           break;
-        }
       }
+      if( i < MAX_NAMELOG_ADDRS && match->ip[ i ].str[ 0 ] )
+        break;
     }
 
     if( !match )
