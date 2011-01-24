@@ -1918,12 +1918,13 @@ PM_GroundClimbTrace
 */
 static void PM_GroundClimbTrace( void )
 {
-  vec3_t    surfNormal, movedir, lookdir, point;
-  vec3_t    refNormal = { 0.0f, 0.0f, 1.0f };
-  vec3_t    ceilingNormal = { 0.0f, 0.0f, -1.0f };
-  vec3_t    toAngles, surfAngles;
-  trace_t   trace;
-  int       i;
+  vec3_t      surfNormal, movedir, lookdir, point;
+  vec3_t      refNormal = { 0.0f, 0.0f, 1.0f };
+  vec3_t      ceilingNormal = { 0.0f, 0.0f, -1.0f };
+  vec3_t      toAngles, surfAngles;
+  trace_t     trace;
+  int         i;
+  const float eps = 0.000001f;
 
   //used for delta correction
   vec3_t    traceCROSSsurf, traceCROSSref, surfCROSSref;
@@ -2053,11 +2054,11 @@ static void PM_GroundClimbTrace( void )
 
       //if the trace result and old surface normal are different then we must have transided to a new
       //surface... do some stuff...
-      if( !VectorCompare( trace.plane.normal, surfNormal ) )
+      if( !VectorCompareEpsilon( trace.plane.normal, surfNormal, eps ) )
       {
         //if the trace result or the old vector is not the floor or ceiling correct the YAW angle
-        if( !VectorCompare( trace.plane.normal, refNormal ) && !VectorCompare( surfNormal, refNormal ) &&
-            !VectorCompare( trace.plane.normal, ceilingNormal ) && !VectorCompare( surfNormal, ceilingNormal ) )
+        if( !VectorCompareEpsilon( trace.plane.normal, refNormal, eps ) && !VectorCompareEpsilon( surfNormal, refNormal, eps ) &&
+            !VectorCompareEpsilon( trace.plane.normal, ceilingNormal, eps ) && !VectorCompareEpsilon( surfNormal, ceilingNormal, eps ) )
         {
           //behold the evil mindfuck from hell
           //it has fucked mind like nothing has fucked mind before
@@ -2115,7 +2116,7 @@ static void PM_GroundClimbTrace( void )
 
         //transition from wall to ceiling
         //normal for subsequent viewangle rotations
-        if( VectorCompare( trace.plane.normal, ceilingNormal ) )
+        if( VectorCompareEpsilon( trace.plane.normal, ceilingNormal, eps ) )
         {
           CrossProduct( surfNormal, trace.plane.normal, pm->ps->grapplePoint );
           VectorNormalize( pm->ps->grapplePoint );
@@ -2124,7 +2125,7 @@ static void PM_GroundClimbTrace( void )
 
         //transition from ceiling to wall
         //we need to do some different angle correction here cos GPISROTVEC
-        if( VectorCompare( surfNormal, ceilingNormal ) )
+        if( VectorCompareEpsilon( surfNormal, ceilingNormal, eps ) )
         {
           vectoangles( trace.plane.normal, toAngles );
           vectoangles( pm->ps->grapplePoint, surfAngles );
@@ -2139,7 +2140,7 @@ static void PM_GroundClimbTrace( void )
       pm->ps->eFlags |= EF_WALLCLIMB;
 
       //if we're not stuck to the ceiling then set grapplePoint to be a surface normal
-      if( !VectorCompareEpsilon( trace.plane.normal, ceilingNormal, 0.000001f ) )
+      if( !VectorCompareEpsilon( trace.plane.normal, ceilingNormal, eps ) )
       {
         //so we know what surface we're stuck to
         VectorCopy( trace.plane.normal, pm->ps->grapplePoint );
