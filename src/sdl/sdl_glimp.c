@@ -691,6 +691,15 @@ void GLimp_Init( void )
 	r_allowResize = ri.Cvar_Get( "r_allowResize", "0", CVAR_ARCHIVE );
 	r_centerWindow = ri.Cvar_Get( "r_centerWindow", "0", CVAR_ARCHIVE );
 
+	if( Cvar_VariableIntegerValue( "com_abnormalExit" ) )
+	{
+		ri.Cvar_Set( "r_width", va( "%d", R_FAILSAFE_WIDTH ) );
+		ri.Cvar_Set( "r_height", va( "%d", R_FAILSAFE_HEIGHT ) );
+		ri.Cvar_Set( "r_fullscreen", "0" );
+		ri.Cvar_Set( "r_centerWindow", "0" );
+		ri.Cvar_Set( "com_abnormalExit", "0" );
+	}
+
 	Sys_SetEnv( "SDL_VIDEO_CENTERED", r_centerWindow->integer ? "1" : "" );
 
 	Sys_GLimpInit( );

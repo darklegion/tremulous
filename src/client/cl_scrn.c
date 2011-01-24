@@ -549,8 +549,10 @@ void SCR_UpdateScreen( void ) {
 	// that case.
 	if( uivm || com_dedicated->integer )
 	{
+		// XXX
+		extern cvar_t* r_anaglyphMode;
 		// if running in stereo, we need to draw the frame twice
-		if ( cls.glconfig.stereoEnabled || Cvar_VariableIntegerValue("r_anaglyphMode")) {
+		if ( cls.glconfig.stereoEnabled || r_anaglyphMode->integer) {
 			SCR_DrawScreenField( STEREO_LEFT );
 			SCR_DrawScreenField( STEREO_RIGHT );
 		} else {

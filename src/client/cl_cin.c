@@ -1653,6 +1653,9 @@ void CIN_UploadCinematic(int handle) {
 		if (cl_inGameVideo->integer == 0 && cinTable[handle].playonwalls == 1) {
 			cinTable[handle].playonwalls--;
 		}
+		else if (cl_inGameVideo->integer != 0 && cinTable[handle].playonwalls != 1) {
+			cinTable[handle].playonwalls = 1;
+		}
 	}
 }
 
