@@ -2978,9 +2978,10 @@ qboolean G_admin_buildlog( gentity_t *ent )
     return qfalse;
   }
 
-  trap_SendServerCommand( -1,
-    va( "print \"^3buildlog: ^7%s^7 requested a log of recent building activity\n\"",
-        ent ? ent->client->pers.netname : "console"  ) );
+  if( ent && ent->client->pers.teamSelection != TEAM_NONE )
+    trap_SendServerCommand( -1,
+      va( "print \"^3buildlog: ^7%s^7 requested a log of recent building activity\n\"",
+           ent->client->pers.netname  ) );
 
   ADMBP_begin();
   for( i = start; i < level.buildId && printed < MAX_ADMIN_LISTITEMS; i++ )
