@@ -3051,7 +3051,7 @@ void ClientCommand( int clientNum )
   commands_t *command;
 
   ent = g_entities + clientNum;
-  if( !ent->client )
+  if( !ent->client || ent->client->pers.connected != CON_CONNECTED )
     return;   // not fully in game yet
 
   trap_Argv( 0, cmd, sizeof( cmd ) );
