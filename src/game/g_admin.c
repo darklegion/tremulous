@@ -2921,6 +2921,7 @@ static char *fates[] =
   "^3deconstructed^7",
   "^7replaced^7",
   "^3destroyed^7",
+  "^1TEAMKILLED^7",
   "^7unpowered^7",
   "removed"
 };

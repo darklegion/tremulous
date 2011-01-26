@@ -501,6 +501,7 @@ typedef enum
   BF_DECONSTRUCT,
   BF_REPLACE,
   BF_DESTROY,
+  BF_TEAMKILL,
   BF_UNPOWER,
   BF_AUTO
 } buildFate_t;

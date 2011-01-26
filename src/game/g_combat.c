@@ -1396,7 +1396,18 @@ void G_LogDestruction( gentity_t *self, gentity_t *actor, int mod )
       fate = ( actor->client ) ? BF_UNPOWER : BF_AUTO;
       break;
     default:
-      fate = ( actor->client ) ? BF_DESTROY : BF_AUTO;
+      if( actor->client )
+      {
+        if( actor->client->pers.teamSelection == 
+            BG_Buildable( self->s.modelindex )->team )
+        {
+          fate = BF_TEAMKILL;
+        }
+        else
+          fate = BF_DESTROY;
+      }
+      else
+        fate = BF_AUTO;
       break;
   }
   G_BuildLogAuto( actor, self, fate );
