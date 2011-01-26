@@ -471,7 +471,7 @@
       columns 5
         LIST_TOFF                                              ((SERVER_C*LIST_W)-(3*LIST_TOFF))   ALIGN_LEFT
         (LIST_TOFF+((SERVER_C)*LIST_W))                        ((MAP_C*LIST_W)-(3*LIST_TOFF))      ALIGN_LEFT
-        (LIST_TOFF+((SERVER_C+GAME_C)*LIST_W))                 ((MAP_C*LIST_W)-(3*LIST_TOFF))      ALIGN_LEFT
+        (LIST_TOFF+((SERVER_C+GAME_C)*LIST_W))                 ((GAME_C*LIST_W)-(3*LIST_TOFF))     ALIGN_LEFT
         (LIST_TOFF+((SERVER_C+GAME_C+MAP_C)*LIST_W))           ((PLAYERS_C*LIST_W)-(3*LIST_TOFF))  ALIGN_LEFT
         (LIST_TOFF+((SERVER_C+GAME_C+MAP_C+PLAYERS_C)*LIST_W)) ((PING_C*LIST_W)-(3*LIST_TOFF))     ALIGN_LEFT
 
