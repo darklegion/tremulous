@@ -4289,7 +4289,7 @@ void G_BuildLogRevert( int id )
       builder->nextthink = level.time + FRAMETIME;
       builder->suicideTime = level.time + 3000;
 
-      if( log->fate == BF_DESTROY )
+      if( log->fate == BF_DESTROY || log->fate == BF_TEAMKILL )
       {
         int value = log->powerValue;
 
