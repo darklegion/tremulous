@@ -106,7 +106,8 @@ int G_ClientNumberFromString( char *s, char *err, int len )
 
   // check for a name match
   G_SanitiseString( s, s2, sizeof( s2 ) );
-
+  if( !s2[ 0 ] )
+    return -1;
   for( i = 0, cl = level.clients; i < level.maxclients; i++, cl++ )
   {
     if( cl->pers.connected == CON_DISCONNECTED )
@@ -183,7 +184,7 @@ int G_ClientNumbersFromString( char *s, int *plist, int max )
 
   // now look for name matches
   G_SanitiseString( s, s2, sizeof( s2 ) );
-  if( strlen( s2 ) < 1 )
+  if( !s2[ 0 ] )
     return 0;
   for( i = 0; i < level.maxclients && found < max; i++ )
   {
@@ -267,7 +268,7 @@ void ScoreboardMessage( gentity_t *ent )
 
     j = strlen( entry );
 
-    if( stringlength + j > 1024 )
+    if( stringlength + j >= 1024 )
       break;
 
     strcpy( string + stringlength, entry );
