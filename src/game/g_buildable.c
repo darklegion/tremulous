@@ -3033,6 +3033,7 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
 {
   int               i;
   int               numBuildables = 0;
+  int               numRequired = 0;
   int               pointsYielded = 0;
   gentity_t         *ent;
   team_t            team = BG_Buildable( buildable )->team;
@@ -3046,6 +3047,7 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
   buildable_t       spawn;
   buildable_t       core;
   int               spawnCount = 0;
+  qboolean          changed = qtrue;
 
   level.numBuildablesForRemoval = 0;
 
@@ -3197,6 +3199,8 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
     }
   }
 
+  numRequired = level.numBuildablesForRemoval;
+
   // We still need build points, but have no candidates for removal
   if( buildPoints > 0 && numBuildables == 0 )
     return bpError;
@@ -3222,6 +3226,31 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
     ent = level.markedBuildables[ level.numBuildablesForRemoval ];
     if( ent->powered )
       pointsYielded += BG_Buildable( ent->s.modelindex )->buildPoints;
+  }
+
+  // Do another pass to see if we can meet quota with fewer buildables
+  //  than we have now due to mismatches between priority and BP amounts
+  //  by repeatedly testing if we can chop off the first thing that isn't
+  //  required by rules of collision/uniqueness, which are always at the head
+  while( changed && level.numBuildablesForRemoval > 1 && 
+         level.numBuildablesForRemoval > numRequired )
+  {
+    int pointsUnYielded = 0;
+    changed = qfalse;
+    ent = level.markedBuildables[ numRequired ];
+    if( ent->powered )
+      pointsUnYielded = BG_Buildable( ent->s.modelindex )->buildPoints;
+
+    if( pointsYielded - pointsUnYielded >= buildPoints )
+    {
+      pointsYielded -= pointsUnYielded;
+      memmove( &level.markedBuildables[ numRequired ],
+               &level.markedBuildables[ numRequired + 1 ],
+               ( level.numBuildablesForRemoval - numRequired ) 
+                 * sizeof( gentity_t * ) );
+      level.numBuildablesForRemoval--;
+      changed = qtrue;
+    }
   }
 
   for( i = 0; i < level.numBuildablesForRemoval; i++ )
