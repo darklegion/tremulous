@@ -1785,6 +1785,7 @@ void Cmd_Destroy_f( gentity_t *ent )
     if( traceEnt->health <= 0 )
     {
       G_QueueBuildPoints( traceEnt );
+      G_RewardAttackers( traceEnt );
       G_FreeEntity( traceEnt );
       return;
     }
