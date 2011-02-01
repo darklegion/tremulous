@@ -31,6 +31,7 @@ qboolean G_SpawnString( const char *key, const char *defaultString, char **out )
   {
     *out = (char *)defaultString;
 //    G_Error( "G_SpawnString() called while not spawning" );
+    return qfalse;
   }
 
   for( i = 0; i < level.numSpawnVars; i++ )
@@ -602,33 +603,23 @@ void SP_worldspawn( void )
 
   trap_SetConfigstring( CS_MOTD, g_motd.string );   // message of the day
 
-  G_SpawnFloat( "gravity", "800", &level.gravity );
+  if( G_SpawnString( "gravity", "", &s ) )
+    trap_Cvar_Set( "g_gravity", s );
 
-  G_SpawnInt( "humanMaxStage", DEFAULT_HUMAN_MAX_STAGE, &level.humanMaxStage );
+  if( G_SpawnString( "humanMaxStage", "", &s ) )
+    trap_Cvar_Set( "g_humanMaxStage", s );
 
-  G_SpawnInt( "humanStage2Threshold", DEFAULT_HUMAN_STAGE2_THRESH,
-    &level.humanStage2Threshold );
+  if( G_SpawnString( "alienMaxStage", "", &s ) )
+    trap_Cvar_Set( "g_alienMaxStage", s );
 
-  G_SpawnInt( "humanStage3Threshold", DEFAULT_HUMAN_STAGE3_THRESH,
-    &level.humanStage3Threshold );
+  if( G_SpawnString( "disabledEquipment", "", &s ) )
+    trap_Cvar_Set( "g_disabledEquipment", s );
 
-  G_SpawnInt( "alienMaxStage", DEFAULT_ALIEN_MAX_STAGE,
-    &level.alienMaxStage );
+  if( G_SpawnString( "disabledClasses", "", &s ) )
+    trap_Cvar_Set( "g_disabledClasses", s );
 
-  G_SpawnInt( "alienStage2Threshold", DEFAULT_ALIEN_STAGE2_THRESH,
-    &level.alienStage2Threshold );
-
-  G_SpawnInt( "alienStage3Threshold", DEFAULT_ALIEN_STAGE3_THRESH,
-    &level.alienStage3Threshold );
-
-  G_SpawnString( "disabledEquipment", "", &s );
-  trap_Cvar_Set( "g_disabledEquipment", s );
-
-  G_SpawnString( "disabledClasses", "", &s );
-  trap_Cvar_Set( "g_disabledClasses", s );
-
-  G_SpawnString( "disabledBuildables", "", &s );
-  trap_Cvar_Set( "g_disabledBuildables", s );
+  if( G_SpawnString( "disabledBuildables", "", &s ) )
+    trap_Cvar_Set( "g_disabledBuildables", s );
 
   g_entities[ ENTITYNUM_WORLD ].s.number = ENTITYNUM_WORLD;
   g_entities[ ENTITYNUM_WORLD ].classname = "worldspawn";
@@ -657,8 +648,6 @@ Parses textual entity definitions out of an entstring and spawns gentities.
 */
 void G_SpawnEntitiesFromString( void )
 {
-  // allow calls to G_Spawn*()
-  level.spawning = qtrue;
   level.numSpawnVars = 0;
 
   // the worldspawn is not an actual entity, but it still
@@ -672,7 +661,5 @@ void G_SpawnEntitiesFromString( void )
   // parse ents
   while( G_ParseSpawnVars( ) )
     G_SpawnGEntityFromSpawnVars( );
-
-  level.spawning = qfalse;      // any future calls to G_Spawn*() will be errors
 }
 

@@ -1347,7 +1347,7 @@ void ClientThink_real( gentity_t *ent )
       client->lastPoisonTime + ALIEN_POISON_TIME < level.time )
     client->ps.stats[ STAT_STATE ] &= ~SS_POISONED;
 
-  client->ps.gravity = level.gravity;
+  client->ps.gravity = g_gravity.value;
 
   if( BG_InventoryContainsUpgrade( UP_MEDKIT, client->ps.stats ) &&
       BG_UpgradeIsActive( UP_MEDKIT, client->ps.stats ) )

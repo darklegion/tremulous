@@ -28,12 +28,16 @@ level_locals_t  level;
 typedef struct
 {
   vmCvar_t  *vmCvar;
-  char    *cvarName;
-  char    *defaultString;
-  int     cvarFlags;
-  int     modificationCount;  // for tracking changes
-  qboolean  trackChange;  // track this variable, and announce if changed
-  void    (*update)( const char *, vmCvar_t * );
+  char      *cvarName;
+  char      *defaultString;
+  int       cvarFlags;
+  int       modificationCount; // for tracking changes
+  qboolean  trackChange;       // track this variable, and announce if changed
+  /* certain cvars can be set in worldspawn, but we don't want those values to
+     persist, so keep track of non-worldspawn changes and restore that on map
+     end. unfortunately, if the server crashes, the value set in worldspawn may
+     persist */
+  char      *explicit;
 } cvarTable_t;
 
 gentity_t   g_entities[ MAX_GENTITIES ];
@@ -139,13 +143,11 @@ vmCvar_t  g_censorship;
 
 vmCvar_t  g_tag;
 
-static void G_cvgravity( const char *name, vmCvar_t *cvar );
-static void G_cvhumanMaxStage( const char *name, vmCvar_t *cvar );
-static void G_cvhumanStage2Threshold( const char *name, vmCvar_t *cvar );
-static void G_cvhumanStage3Threshold( const char *name, vmCvar_t *cvar );
-static void G_cvalienMaxStage( const char *name, vmCvar_t *cvar );
-static void G_cvalienStage2Threshold( const char *name, vmCvar_t *cvar );
-static void G_cvalienStage3Threshold( const char *name, vmCvar_t *cvar );
+
+// copy cvars that can be set in worldspawn so they can be restored later
+static char cv_gravity[ MAX_CVAR_VALUE_STRING ];
+static char cv_humanMaxStage[ MAX_CVAR_VALUE_STRING ];
+static char cv_alienMaxStage[ MAX_CVAR_VALUE_STRING ];
 
 static cvarTable_t   gameCvarTable[ ] =
 {
@@ -190,7 +192,7 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_dedicated, "dedicated", "0", 0, 0, qfalse  },
 
   { &g_speed, "g_speed", "320", 0, 0, qtrue  },
-  { &g_gravity, "g_gravity", "800", 0, 0, qtrue, G_cvgravity },
+  { &g_gravity, "g_gravity", "800", 0, 0, qtrue, cv_gravity },
   { &g_knockback, "g_knockback", "1000", 0, 0, qtrue  },
   { &g_inactivity, "g_inactivity", "0", 0, 0, qtrue },
   { &g_debugMove, "g_debugMove", "0", 0, 0, qfalse },
@@ -217,14 +219,14 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_humanRepeaterBuildQueueTime, "g_humanRepeaterBuildQueueTime", DEFAULT_HUMAN_REPEATER_QUEUE_TIME, CVAR_ARCHIVE, 0, qfalse  },
   { &g_humanStage, "g_humanStage", "0", 0, 0, qfalse  },
   { &g_humanCredits, "g_humanCredits", "0", 0, 0, qfalse  },
-  { &g_humanMaxStage, "g_humanMaxStage", DEFAULT_HUMAN_MAX_STAGE, 0, 0, qfalse, G_cvhumanMaxStage },
-  { &g_humanStage2Threshold, "g_humanStage2Threshold", DEFAULT_HUMAN_STAGE2_THRESH, 0, 0, qfalse, G_cvhumanStage2Threshold },
-  { &g_humanStage3Threshold, "g_humanStage3Threshold", DEFAULT_HUMAN_STAGE3_THRESH, 0, 0, qfalse, G_cvhumanStage3Threshold },
+  { &g_humanMaxStage, "g_humanMaxStage", DEFAULT_HUMAN_MAX_STAGE, 0, 0, qfalse, cv_humanMaxStage },
+  { &g_humanStage2Threshold, "g_humanStage2Threshold", DEFAULT_HUMAN_STAGE2_THRESH, 0, 0, qfalse  },
+  { &g_humanStage3Threshold, "g_humanStage3Threshold", DEFAULT_HUMAN_STAGE3_THRESH, 0, 0, qfalse  },
   { &g_alienStage, "g_alienStage", "0", 0, 0, qfalse  },
   { &g_alienCredits, "g_alienCredits", "0", 0, 0, qfalse  },
-  { &g_alienMaxStage, "g_alienMaxStage", DEFAULT_ALIEN_MAX_STAGE, 0, 0, qfalse, G_cvalienMaxStage },
-  { &g_alienStage2Threshold, "g_alienStage2Threshold", DEFAULT_ALIEN_STAGE2_THRESH, 0, 0, qfalse, G_cvalienStage2Threshold },
-  { &g_alienStage3Threshold, "g_alienStage3Threshold", DEFAULT_ALIEN_STAGE3_THRESH, 0, 0, qfalse, G_cvalienStage3Threshold },
+  { &g_alienMaxStage, "g_alienMaxStage", DEFAULT_ALIEN_MAX_STAGE, 0, 0, qfalse, cv_alienMaxStage },
+  { &g_alienStage2Threshold, "g_alienStage2Threshold", DEFAULT_ALIEN_STAGE2_THRESH, 0, 0, qfalse  },
+  { &g_alienStage3Threshold, "g_alienStage3Threshold", DEFAULT_ALIEN_STAGE3_THRESH, 0, 0, qfalse  },
   { &g_teamImbalanceWarnings, "g_teamImbalanceWarnings", "30", CVAR_ARCHIVE, 0, qfalse  },
   { &g_freeFundPeriod, "g_freeFundPeriod", DEFAULT_FREEKILL_PERIOD, CVAR_ARCHIVE, 0, qtrue },
 
@@ -339,35 +341,6 @@ Q_EXPORT intptr_t vmMain( int command, int arg0, int arg1, int arg2, int arg3, i
   return -1;
 }
 
-static void G_cvgravity( const char *name, vmCvar_t *cvar )
-{
-  level.gravity = cvar->value;
-}
-static void G_cvhumanMaxStage( const char *name, vmCvar_t *cvar )
-{
-  level.humanMaxStage = cvar->integer;
-}
-static void G_cvhumanStage2Threshold( const char *name, vmCvar_t *cvar )
-{
-  level.humanStage2Threshold = cvar->integer;
-}
-static void G_cvhumanStage3Threshold( const char *name, vmCvar_t *cvar )
-{
-  level.humanStage3Threshold = cvar->integer;
-}
-static void G_cvalienMaxStage( const char *name, vmCvar_t *cvar )
-{
-  level.alienMaxStage = cvar->integer;
-}
-static void G_cvalienStage2Threshold( const char *name, vmCvar_t *cvar )
-{
-  level.alienStage2Threshold = cvar->integer;
-}
-static void G_cvalienStage3Threshold( const char *name, vmCvar_t *cvar )
-{
-  level.alienStage3Threshold = cvar->integer;
-}
-
 
 void QDECL G_Printf( const char *fmt, ... )
 {
@@ -479,8 +452,8 @@ void G_RegisterCvars( void )
     if( cv->vmCvar )
       cv->modificationCount = cv->vmCvar->modificationCount;
 
-    if( cv->update )
-      cv->update( cv->cvarName, cv->vmCvar );
+    if( cv->explicit )
+      strcpy( cv->explicit, cv->vmCvar->string );
   }
 }
 
@@ -508,10 +481,27 @@ void G_UpdateCvars( void )
           trap_SendServerCommand( -1, va( "print \"Server: %s changed to %s\n\"",
             cv->cvarName, cv->vmCvar->string ) );
 
-        if( cv->update )
-          cv->update( cv->cvarName, cv->vmCvar );
+        if( !level.spawning && cv->explicit )
+          strcpy( cv->explicit, cv->vmCvar->string );
       }
     }
+  }
+}
+
+/*
+=================
+G_RestoreCvars
+=================
+*/
+void G_RestoreCvars( void )
+{
+  int         i;
+  cvarTable_t *cv;
+
+  for( i = 0, cv = gameCvarTable; i < gameCvarTableSize; i++, cv++ )
+  {
+    if( cv->vmCvar && cv->explicit )
+      trap_Cvar_Set( cv->cvarName, cv->explicit );
   }
 }
 
@@ -640,6 +630,8 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
   // test to see if a custom buildable layout will be loaded
   G_LayoutSelect( );
 
+  // this has to be flipped after the first UpdateCvars
+  level.spawning = qtrue;
   // parse the key/value pairs and spawn gentities
   G_SpawnEntitiesFromString( );
 
@@ -714,6 +706,8 @@ void G_ShutdownGame( int restart )
 {
   // in case of a map_restart
   G_ClearVotes( );
+
+  G_RestoreCvars( );
 
   G_Printf( "==== ShutdownGame ====\n" );
 
@@ -1286,8 +1280,8 @@ void G_CalculateStages( void )
     humanPlayerCountMod = 0.1f;
 
   if( g_alienCredits.integer >=
-      (int)( ceil( (float)level.alienStage2Threshold * alienPlayerCountMod ) ) &&
-      g_alienStage.integer == S1 && level.alienMaxStage > S1 )
+      (int)( ceil( (float)g_alienStage2Threshold.integer * alienPlayerCountMod ) ) &&
+      g_alienStage.integer == S1 && g_alienMaxStage.integer > S1 )
   {
     trap_Cvar_Set( "g_alienStage", va( "%d", S2 ) );
     level.alienStage2Time = level.time;
@@ -1296,8 +1290,8 @@ void G_CalculateStages( void )
   }
 
   if( g_alienCredits.integer >=
-      (int)( ceil( (float)level.alienStage3Threshold * alienPlayerCountMod ) ) &&
-      g_alienStage.integer == S2 && level.alienMaxStage > S2 )
+      (int)( ceil( (float)g_alienStage3Threshold.integer * alienPlayerCountMod ) ) &&
+      g_alienStage.integer == S2 && g_alienMaxStage.integer > S2 )
   {
     trap_Cvar_Set( "g_alienStage", va( "%d", S3 ) );
     level.alienStage3Time = level.time;
@@ -1306,8 +1300,8 @@ void G_CalculateStages( void )
   }
 
   if( g_humanCredits.integer >=
-      (int)( ceil( (float)level.humanStage2Threshold * humanPlayerCountMod ) ) &&
-      g_humanStage.integer == S1 && level.humanMaxStage > S1 )
+      (int)( ceil( (float)g_humanStage2Threshold.integer * humanPlayerCountMod ) ) &&
+      g_humanStage.integer == S1 && g_humanMaxStage.integer > S1 )
   {
     trap_Cvar_Set( "g_humanStage", va( "%d", S2 ) );
     level.humanStage2Time = level.time;
@@ -1316,8 +1310,8 @@ void G_CalculateStages( void )
   }
 
   if( g_humanCredits.integer >=
-      (int)( ceil( (float)level.humanStage3Threshold * humanPlayerCountMod ) ) &&
-      g_humanStage.integer == S2 && level.humanMaxStage > S2 )
+      (int)( ceil( (float)g_humanStage3Threshold.integer * humanPlayerCountMod ) ) &&
+      g_humanStage.integer == S2 && g_humanMaxStage.integer > S2 )
   {
     trap_Cvar_Set( "g_humanStage", va( "%d", S3 ) );
     level.humanStage3Time = level.time;
@@ -1349,17 +1343,17 @@ void G_CalculateStages( void )
     lastHumanStageModCount = g_humanStage.modificationCount;
   }
 
-  if( g_alienStage.integer == S1 && level.alienMaxStage > S1 )
-    alienNextStageThreshold = (int)( ceil( (float)level.alienStage2Threshold * alienPlayerCountMod ) );
-  else if( g_alienStage.integer == S2 && level.alienMaxStage > S2 )
-    alienNextStageThreshold = (int)( ceil( (float)level.alienStage3Threshold * alienPlayerCountMod ) );
+  if( g_alienStage.integer == S1 && g_alienMaxStage.integer > S1 )
+    alienNextStageThreshold = (int)( ceil( (float)g_alienStage2Threshold.integer * alienPlayerCountMod ) );
+  else if( g_alienStage.integer == S2 && g_alienMaxStage.integer > S2 )
+    alienNextStageThreshold = (int)( ceil( (float)g_alienStage3Threshold.integer * alienPlayerCountMod ) );
   else
     alienNextStageThreshold = -1;
 
-  if( g_humanStage.integer == S1 && level.humanMaxStage > S1 )
-    humanNextStageThreshold = (int)( ceil( (float)level.humanStage2Threshold * humanPlayerCountMod ) );
-  else if( g_humanStage.integer == S2 && level.humanMaxStage > S2 )
-    humanNextStageThreshold = (int)( ceil( (float)level.humanStage3Threshold * humanPlayerCountMod ) );
+  if( g_humanStage.integer == S1 && g_humanMaxStage.integer > S1 )
+    humanNextStageThreshold = (int)( ceil( (float)g_humanStage2Threshold.integer * humanPlayerCountMod ) );
+  else if( g_humanStage.integer == S2 && g_humanMaxStage.integer > S2 )
+    humanNextStageThreshold = (int)( ceil( (float)g_humanStage3Threshold.integer * humanPlayerCountMod ) );
   else
     humanNextStageThreshold = -1;
 
@@ -2379,6 +2373,8 @@ void G_RunFrame( int levelTime )
   // get any cvar changes
   G_UpdateCvars( );
   CheckCvars( );
+  // now we are done spawning
+  level.spawning = qfalse;
 
   //
   // go through all allocated objects

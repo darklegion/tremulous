@@ -627,15 +627,6 @@ typedef struct
   gentity_t         *markedBuildables[ MAX_GENTITIES ];
   int               numBuildablesForRemoval;
 
-  // map/cvar-set values
-  float             gravity;
-  int               humanMaxStage;
-  int               humanStage2Threshold;
-  int               humanStage3Threshold;
-  int               alienMaxStage;
-  int               alienStage2Threshold;
-  int               alienStage3Threshold;
-
   int               alienKills;
   int               humanKills;
 
