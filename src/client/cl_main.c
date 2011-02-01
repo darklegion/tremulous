@@ -3370,7 +3370,7 @@ void CL_Init( void ) {
 #ifdef USE_CURL
 	cl_cURLLib = Cvar_Get("cl_cURLLib", DEFAULT_CURL_LIB, CVAR_ARCHIVE);
 #endif
-	com_downloadPrompt = Cvar_Get ("com_downloadPrompt", "0", CVAR_TEMP);
+	com_downloadPrompt = Cvar_Get ("com_downloadPrompt", "0", CVAR_ROM);
 	Cvar_Get( "com_downloadPromptText", "", CVAR_TEMP );
 
 	cl_conXOffset = Cvar_Get ("cl_conXOffset", "0", 0);
