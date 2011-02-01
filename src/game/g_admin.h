@@ -127,6 +127,7 @@ typedef struct g_admin_ban
   char made[ 18 ]; // big enough for strftime() %c
   int expires;
   char banner[ MAX_NAME_LENGTH ];
+  int warnCount;
 }
 g_admin_ban_t;
 

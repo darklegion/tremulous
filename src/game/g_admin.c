@@ -845,6 +845,7 @@ qboolean G_admin_ban_check( gentity_t *ent, char *reason, int rlen )
   int i;
   int t;
   g_admin_ban_t *ban;
+  char warningMessage[ MAX_STRING_CHARS ];
 
   t = trap_RealTime( NULL );
   if( ent->client->pers.localClient )
@@ -860,6 +861,7 @@ qboolean G_admin_ban_check( gentity_t *ent, char *reason, int rlen )
       char duration[ MAX_DURATION_LENGTH ];
       G_admin_duration( ban->expires - t,
         duration, sizeof( duration ) );
+
       if( reason )
         Com_sprintf(
           reason,
@@ -869,12 +871,18 @@ qboolean G_admin_ban_check( gentity_t *ent, char *reason, int rlen )
           ban->reason,
           duration
         );
-      G_Printf( S_COLOR_YELLOW "Banned player %s" S_COLOR_YELLOW
+
+      Com_sprintf( warningMessage, sizeof( warningMessage ),
+        S_COLOR_YELLOW "Banned player %s" S_COLOR_YELLOW
         " tried to connect from %s (ban #%d)\n",
         ent->client->pers.netname[ 0 ] ? ent->client->pers.netname :
           ban->name,
         ent->client->pers.ip.str,
         i + 1 );
+      trap_Print( warningMessage );
+      // don't spam admins
+      if( ban->warnCount++ < 5 )
+        G_AdminMessage( NULL, warningMessage );
       return qtrue;
     }
   }
