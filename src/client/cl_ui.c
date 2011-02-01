@@ -1095,7 +1095,7 @@ void CL_InitUI( void ) {
 	uivm = VM_Create( "ui", CL_UISystemCalls, interpret );
 	if ( !uivm ) {
 		Com_Printf( "Failed to find a valid UI vm. The following paths were searched:\n" );
-		Cmd_ExecuteString( "path/\n" );
+		Cmd_ExecuteString( "path /\n" );
 		Com_Error( ERR_FATAL, "VM_Create on UI failed" );
 	}
 
