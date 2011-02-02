@@ -2639,12 +2639,14 @@ static void namelog_out( void *namelog, char *str )
   namelog_t *n = (namelog_t *)namelog;
   char *p = str;
   int l, l2 = MAX_STRING_CHARS, i;
+  const char *scolor;
 
   if( n->slot > -1 )
   {
     l = Q_snprintf( p, l2, "^3%-2d", n->slot );
     p += l;
     l2 -= l;
+    scolor = S_COLOR_YELLOW;
   }
   else
   {
@@ -2652,6 +2654,7 @@ static void namelog_out( void *namelog, char *str )
     *p++ = ' ';
     *p = '\0';
     l2 -= 2;
+    scolor = S_COLOR_WHITE;
   }
 
   for( i = 0; i < MAX_NAMELOG_ADDRS && n->ip[ i ].str[ 0 ]; i++ )
@@ -2663,8 +2666,8 @@ static void namelog_out( void *namelog, char *str )
 
   for( i = 0; i < MAX_NAMELOG_NAMES && n->name[ i ][ 0 ]; i++ )
   {
-    l = Q_snprintf( p, l2, " '%s" S_COLOR_WHITE "'%s", n->name[ i ],
-                  ( i == n->nameOffset ) ? "*" : "" );
+    l = Q_snprintf( p, l2, " '%s%s'%s", n->name[ i ], scolor,
+                    i == n->nameOffset ? "*" : "" );
     p += l;
     l2 -= l;
   }
