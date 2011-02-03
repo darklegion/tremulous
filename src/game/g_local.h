@@ -324,6 +324,7 @@ typedef struct
   g_admin_admin_t     *admin;
 
   int                 aliveSeconds;       // time player has been alive in seconds
+  qboolean            hasHealed;          // has healed a player (basi regen aura) in the last 10sec (for score use)
 
   // used to save persistant[] values while in SPECTATOR_FOLLOW mode
   int                 credit;

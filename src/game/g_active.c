@@ -770,6 +770,17 @@ void ClientTimerActions( gentity_t *ent, int msec )
     {
       AddScore( ent, HUMAN_BUILDER_SCOREINC );
     }
+
+    // Give score to basis that healed other aliens
+    if( ent->client->pers.hasHealed )
+    {
+      if( client->ps.weapon == WP_ALEVEL1 )
+        AddScore( ent, LEVEL1_REGEN_SCOREINC );
+      else if( client->ps.weapon == WP_ALEVEL1_UPG )
+        AddScore( ent, LEVEL1_UPG_REGEN_SCOREINC );
+
+      ent->client->pers.hasHealed = qfalse;
+    }
   }
 
   // Regenerate Adv. Dragoon barbs
@@ -1419,11 +1430,22 @@ void ClientThink_real( gentity_t *ent )
               ent->client->pers.teamSelection && boost->health > 0 )
         {
           class_t class = boost->client->ps.stats[ STAT_CLASS ];
+          qboolean didBoost = qfalse;
+
           if( class == PCL_ALIEN_LEVEL1 && modifier < LEVEL1_REGEN_MOD )
+          {
             modifier = LEVEL1_REGEN_MOD;
+            didBoost = qtrue;
+          }
           else if( class == PCL_ALIEN_LEVEL1_UPG &&
                    modifier < LEVEL1_UPG_REGEN_MOD )
+          {
             modifier = LEVEL1_UPG_REGEN_MOD;
+            didBoost = qtrue;
+          }
+
+          if( didBoost && ent->health < client->ps.stats[ STAT_MAX_HEALTH ] )
+            boost->client->pers.hasHealed = qtrue;
         }
       }
 
