@@ -2191,12 +2191,18 @@ qboolean G_admin_listplayers( gentity_t *ent )
 
 static qboolean ban_matchip( void *ban, const void *ip )
 {
+  int expires = ((g_admin_ban_t *)ban)->expires;
+  if( expires != 0 && expires <= trap_RealTime( NULL ) )
+    return qfalse;
   return G_AddressCompare( &((g_admin_ban_t *)ban)->ip, (addr_t *)ip ) ||
     G_AddressCompare( (addr_t *)ip, &((g_admin_ban_t *)ban)->ip );
 }
 static qboolean ban_matchname( void *ban, const void *name )
 {
   char match[ MAX_NAME_LENGTH ];
+  int expires = ((g_admin_ban_t *)ban)->expires;
+  if( expires != 0 && expires <= trap_RealTime( NULL ) )
+    return qfalse;
   G_SanitiseString( ( (g_admin_ban_t *)ban )->name, match, sizeof( match ) );
   return strstr( match, (const char *)name ) != NULL;
 }
