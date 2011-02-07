@@ -2728,7 +2728,10 @@ namelog_t *G_NamelogFromString( gentity_t *ent, char *s )
   char      s2[ MAX_NAME_LENGTH ] = {""};
 
   if( !s[ 0 ] )
+  {
+    ADMP( "no slot #, namelog id, or player name provided\n" );
     return NULL;
+  }
 
   // if a number is provided, it is a clientnum or namelog id
   for( i = 0; s[ i ] && isdigit( s[ i ] ); i++ );
@@ -2752,6 +2755,7 @@ namelog_t *G_NamelogFromString( gentity_t *ent, char *s )
         return p;
     }
 
+    ADMP( "invalid slot # or namelog id\n" );
     return NULL;
   }
 
@@ -2780,8 +2784,11 @@ namelog_t *G_NamelogFromString( gentity_t *ent, char *s )
     return m;
 
   if( found > 1 )
-    admin_search( ent, "namelog", "recent clients", namelog_matchname,
+    admin_search( ent, "namelog", "recent players", namelog_matchname,
       namelog_out, level.namelogs, s2, 0, MAX_CLIENTS, -1 );
+
+  if( found == 0 )
+    ADMP( "no recent player found by that name\n" );
 
   return NULL;
 }
