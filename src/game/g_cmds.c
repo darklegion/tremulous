@@ -90,9 +90,23 @@ int G_ClientNumberFromString( char *s, char *err, int len )
     cl = &level.clients[ i ];
 
     if( cl->pers.connected == CON_DISCONNECTED )
+    {
+      if( p )
+        Q_strncpyz( p, "no player connected in that slot #\n", len );
+
       return -1;
+    }
 
     return i;
+  }
+
+  G_SanitiseString( s, s2, sizeof( s2 ) );
+  if( !s2[ 0 ] )
+  {
+    if( p )
+      Q_strncpyz( p, "no player name provided\n", len );
+
+    return -1;
   }
 
   if( p )
@@ -105,9 +119,6 @@ int G_ClientNumberFromString( char *s, char *err, int len )
   }
 
   // check for a name match
-  G_SanitiseString( s, s2, sizeof( s2 ) );
-  if( !s2[ 0 ] )
-    return -1;
   for( i = 0, cl = level.clients; i < level.maxclients; i++, cl++ )
   {
     if( cl->pers.connected == CON_DISCONNECTED )
