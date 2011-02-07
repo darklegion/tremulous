@@ -2209,6 +2209,7 @@ static void ban_out( void *ban, char *str )
   int i;
   int colorlen1 = 0;
   char duration[ MAX_DURATION_LENGTH ];
+  char *d_color = S_COLOR_WHITE;
   char date[ 11 ];
   g_admin_ban_t *b = ( g_admin_ban_t * )ban;
   int t = trap_RealTime( NULL );
@@ -2230,16 +2231,19 @@ static void ban_out( void *ban, char *str )
     G_admin_duration( b->expires ? b->expires - t : - 1,
                       duration, sizeof( duration ) );
   else
-    Q_strncpyz( duration, S_COLOR_CYAN "expired" S_COLOR_WHITE,
-                sizeof( duration ) );
+  {
+    Q_strncpyz( duration, "expired", sizeof( duration ) );
+    d_color = S_COLOR_CYAN;
+  }
 
   Com_sprintf( str, MAX_STRING_CHARS, "%-*s %s%-15s " S_COLOR_WHITE "%-8s %s"
-    "\n     \\__ %-*s %s",
+    "\n     \\__ %s%-*s " S_COLOR_WHITE "%s",
     MAX_NAME_LENGTH + colorlen1 - 1, b->name,
     ( strchr( b->ip.str, '/' ) ) ? S_COLOR_RED : S_COLOR_WHITE,
     b->ip.str,
     date,
     b->banner,
+    d_color,
     MAX_DURATION_LENGTH - 1,
     duration,
     b->reason );
