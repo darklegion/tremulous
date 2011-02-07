@@ -1602,7 +1602,10 @@ qboolean G_admin_ban( gentity_t *ent )
     }
   }
   else if( !( match = G_NamelogFromString( ent, search ) ) || match->banned )
+  {
+    ADMP( "^3ban: ^7no match\n" );
     return qfalse;
+  }
 
   if( ent && !admin_higher_guid( ent->client->pers.guid, match->guid ) )
   {
@@ -2706,7 +2709,7 @@ qboolean G_admin_namelog( gentity_t *ent )
       G_SanitiseString( search, s2, sizeof( s2 ) );
   }
 
-  admin_search( ent, "namelog", "recent clients",
+  admin_search( ent, "namelog", "recent players",
     ipmatch ? namelog_matchip : namelog_matchname, namelog_out, level.namelogs,
     ipmatch ? (void *)&ip : s2, start, MAX_CLIENTS, MAX_ADMIN_LISTITEMS );
   return qtrue;
@@ -2728,10 +2731,7 @@ namelog_t *G_NamelogFromString( gentity_t *ent, char *s )
   char      s2[ MAX_NAME_LENGTH ] = {""};
 
   if( !s[ 0 ] )
-  {
-    ADMP( "no slot #, namelog id, or player name provided\n" );
     return NULL;
-  }
 
   // if a number is provided, it is a clientnum or namelog id
   for( i = 0; s[ i ] && isdigit( s[ i ] ); i++ );
@@ -2755,7 +2755,6 @@ namelog_t *G_NamelogFromString( gentity_t *ent, char *s )
         return p;
     }
 
-    ADMP( "invalid slot # or namelog id\n" );
     return NULL;
   }
 
@@ -2786,9 +2785,6 @@ namelog_t *G_NamelogFromString( gentity_t *ent, char *s )
   if( found > 1 )
     admin_search( ent, "namelog", "recent players", namelog_matchname,
       namelog_out, level.namelogs, s2, 0, MAX_CLIENTS, -1 );
-
-  if( found == 0 )
-    ADMP( "no recent player found by that name\n" );
 
   return NULL;
 }
