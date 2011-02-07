@@ -1799,7 +1799,10 @@ qboolean G_admin_adjustban( gentity_t *ent )
     char *p = strchr( ban->ip.str, '/' );
     if( !p )
       p = ban->ip.str + strlen( ban->ip.str );
-    Com_sprintf( p, sizeof( ban->ip.str ) - ( p - ban->ip.str ), "/%d", mask );
+    if( mask == ( ban->ip.type == IPv6 ? 128 : 32 ) )
+      *p = '\0';
+    else
+      Com_sprintf( p, sizeof( ban->ip.str ) - ( p - ban->ip.str ), "/%d", mask );
     ban->ip.mask = mask;
   }
   reason = ConcatArgs( 3 + skiparg );
@@ -2191,29 +2194,24 @@ qboolean G_admin_listplayers( gentity_t *ent )
 
 static qboolean ban_matchip( void *ban, const void *ip )
 {
-  int expires = ((g_admin_ban_t *)ban)->expires;
-  if( expires != 0 && expires <= trap_RealTime( NULL ) )
-    return qfalse;
   return G_AddressCompare( &((g_admin_ban_t *)ban)->ip, (addr_t *)ip ) ||
     G_AddressCompare( (addr_t *)ip, &((g_admin_ban_t *)ban)->ip );
 }
 static qboolean ban_matchname( void *ban, const void *name )
 {
   char match[ MAX_NAME_LENGTH ];
-  int expires = ((g_admin_ban_t *)ban)->expires;
-  if( expires != 0 && expires <= trap_RealTime( NULL ) )
-    return qfalse;
+
   G_SanitiseString( ( (g_admin_ban_t *)ban )->name, match, sizeof( match ) );
   return strstr( match, (const char *)name ) != NULL;
 }
 static void ban_out( void *ban, char *str )
 {
   int i;
-  int colorlen1 = 0, colorlen2 = 0;
+  int colorlen1 = 0;
   char duration[ MAX_DURATION_LENGTH ];
   char date[ 11 ];
   g_admin_ban_t *b = ( g_admin_ban_t * )ban;
-  int secs = b->expires ? abs( b->expires - trap_RealTime( NULL ) ) : -1;
+  int t = trap_RealTime( NULL );
   char *made = b->made;
 
   for( i = 0; b->name[ i ]; i++ )
@@ -2222,26 +2220,27 @@ static void ban_out( void *ban, char *str )
       colorlen1 += 2;
   }
 
-  for( i = 0; b->banner[ i ]; i++ )
-  {
-    if( Q_IsColorString( &b->banner[ i ] ) )
-      colorlen2 += 2;
-  }
-
   // only print out the the date part of made
   date[ 0 ] = '\0';
   for( i = 0; *made && *made != ' ' && i < sizeof( date ) - 1; i++ )
     date[ i ] = *made++;
   date[ i ] = 0;
 
-  G_admin_duration( secs, duration, sizeof( duration ) );
+  if( !b->expires || b->expires - t > 0 )
+    G_admin_duration( b->expires ? b->expires - t : - 1,
+                      duration, sizeof( duration ) );
+  else
+    Q_strncpyz( duration, S_COLOR_CYAN "expired" S_COLOR_WHITE,
+                sizeof( duration ) );
 
-  Com_sprintf( str, MAX_STRING_CHARS, "%-*s " S_COLOR_WHITE "%-15s %-8s %-*s "
-    S_COLOR_WHITE "%s\n     \\__ %s",
+  Com_sprintf( str, MAX_STRING_CHARS, "%-*s %s%-15s " S_COLOR_WHITE "%-8s %s"
+    "\n     \\__ %-*s %s",
     MAX_NAME_LENGTH + colorlen1 - 1, b->name,
+    ( strchr( b->ip.str, '/' ) ) ? S_COLOR_RED : S_COLOR_WHITE,
     b->ip.str,
     date,
-    MAX_NAME_LENGTH + colorlen2 - 1, b->banner,
+    b->banner,
+    MAX_DURATION_LENGTH - 1,
     duration,
     b->reason );
 }
