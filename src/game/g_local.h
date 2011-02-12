@@ -719,6 +719,7 @@ void      G_ToggleFollow( gentity_t *ent );
 int       G_ClientNumberFromString( char *s, char *err, int len );
 int       G_ClientNumbersFromString( char *s, int *plist, int max );
 char      *ConcatArgs( int start );
+char      *ConcatArgsPrintable( int start );
 void      G_Say( gentity_t *ent, saymode_t mode, const char *chatText );
 void      G_DecolorString( char *in, char *out, int len );
 void      G_UnEscapeString( char *in, char *out, int len );

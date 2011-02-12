@@ -449,6 +449,29 @@ static void Svcmd_DumpUser_f( void )
   }
 }
 
+static void Svcmd_Pr_f( void )
+{
+  char targ[ 4 ];
+  int cl;
+
+  if( trap_Argc( ) < 3 )
+  {
+    G_Printf( "usage: <clientnum|-1> <message>\n" );
+    return;
+  }
+
+  trap_Argv( 1, targ, sizeof( targ ) );
+  cl = atoi( targ );
+
+  if( cl >= MAX_CLIENTS || cl < -1 )
+  {
+    G_Printf( "invalid clientnum %d\n", cl );
+    return;
+  }
+
+  trap_SendServerCommand( cl, va( "print \"%s\n\"", ConcatArgs( 2 ) ) );
+}
+
 static void Svcmd_PrintQueue_f( void )
 {
   char team[ MAX_STRING_CHARS ];
@@ -540,6 +563,7 @@ struct svcmd
   { "loadcensors", qfalse, G_LoadCensors },
   { "m", qtrue, Svcmd_MessageWrapper },
   { "mapRotation", qfalse, Svcmd_MapRotation_f },
+  { "pr", qfalse, Svcmd_Pr_f },
   { "printqueue", qfalse, Svcmd_PrintQueue_f },
   { "say", qtrue, Svcmd_MessageWrapper },
   { "say_team", qtrue, Svcmd_TeamMessage_f },

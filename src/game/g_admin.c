@@ -707,7 +707,7 @@ static void admin_log( gentity_t *admin, char *cmd )
                ( admin && admin->client->pers.admin ) ?
                           admin->client->pers.admin->level : 0,
                cmd,
-               ConcatArgs( args ) );
+               ConcatArgsPrintable( args ) );
 }
 
 struct llist

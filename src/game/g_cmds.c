@@ -332,6 +332,53 @@ char *ConcatArgs( int start )
   return line;
 }
 
+/*
+==================
+ConcatArgsPrintable
+Duplicate of concatargs but enquotes things that need to be
+Used to log command arguments in a way that preserves user intended tokenizing
+==================
+*/
+char *ConcatArgsPrintable( int start )
+{
+  int         i, c, tlen;
+  static char line[ MAX_STRING_CHARS ];
+  int         len;
+  char        arg[ MAX_STRING_CHARS + 2 ];
+  char        *printArg;
+
+  len = 0;
+  c = trap_Argc( );
+
+  for( i = start; i < c; i++ )
+  {
+    printArg = arg;
+    trap_Argv( i, arg, sizeof( arg ) );
+    if( strchr( arg, ' ' ) )
+      printArg = va( "\"%s\"", arg );
+    tlen = strlen( printArg );
+
+    if( len + tlen >= MAX_STRING_CHARS - 1 )
+      break;
+
+    memcpy( line + len, printArg, tlen );
+    len += tlen;
+
+    if( len == MAX_STRING_CHARS - 1 )
+      break;
+
+    if( i != c - 1 )
+    {
+      line[ len ] = ' ';
+      len++;
+    }
+  }
+
+  line[ len ] = 0;
+
+  return line;
+}
+
 
 /*
 ==================
