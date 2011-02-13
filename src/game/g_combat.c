@@ -1117,8 +1117,8 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
     {
       if( targ->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS &&
           mod != MOD_LEVEL2_ZAP && mod != MOD_POISON &&
-          mod != MOD_LEVEL1_PCLOUD &&
-          targ->client->poisonImmunityTime < level.time )
+          mod != MOD_LEVEL1_PCLOUD && mod != MOD_HSPAWN &&
+          mod != MOD_ASPAWN && targ->client->poisonImmunityTime < level.time )
       {
         targ->client->ps.stats[ STAT_STATE ] |= SS_POISONED;
         targ->client->lastPoisonTime = level.time;
