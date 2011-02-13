@@ -3471,13 +3471,17 @@ G_Build
 Spawns a buildable
 ================
 */
-static gentity_t *G_Build( gentity_t *builder, buildable_t buildable, vec3_t origin, vec3_t angles )
+static gentity_t *G_Build( gentity_t *builder, buildable_t buildable,
+    const vec3_t origin, const vec3_t angles )
 {
   gentity_t *built;
   vec3_t    normal;
+  vec3_t    localOrigin;
   char      readable[ MAX_STRING_CHARS ];
   char      buildnums[ MAX_STRING_CHARS ];
   buildLog_t *log;
+
+  VectorCopy( origin, localOrigin );
 
   if( builder->client )
     log = G_BuildLogNew( builder, BF_CONSTRUCT );
@@ -3522,7 +3526,7 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable, vec3_t ori
   // when building the initial layout, spawn the entity slightly off its
   // target surface so that it can be "dropped" onto it
   if( !builder->client )
-    VectorMA( origin, 1.0f, normal, origin );
+    VectorMA( localOrigin, 1.0f, normal, localOrigin );
 
   built->health = 1;
 
@@ -3654,7 +3658,7 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable, vec3_t ori
   else
     built->builtBy = -1;
 
-  G_SetOrigin( built, origin );
+  G_SetOrigin( built, localOrigin );
 
   // gently nudge the buildable onto the surface :)
   VectorScale( normal, -50.0f, built->s.pos.trDelta );
