@@ -204,13 +204,13 @@ static void CG_AlienBuilderText( char *text, playerState_t *ps )
       if( es->eFlags & EF_B_MARKED )
       {
         Q_strcat( text, MAX_TUTORIAL_TEXT,
-            va( "Press %s to unmark this structure\n",
+            va( "Press %s to unmark this structure for replacement\n",
               CG_KeyNameForCommand( "deconstruct" ) ) );
       }
       else
       {
         Q_strcat( text, MAX_TUTORIAL_TEXT,
-            va( "Press %s to mark this structure\n",
+            va( "Press %s to mark this structure for replacement\n",
               CG_KeyNameForCommand( "deconstruct" ) ) );
       }
     }
@@ -436,7 +436,7 @@ static void CG_HumanText( char *text, playerState_t *ps )
       case WP_MASS_DRIVER:
       case WP_LUCIFER_CANNON:
         Q_strcat( text, MAX_TUTORIAL_TEXT,
-            va( "Find a Reactor or Repeater and press %s for more ammo\n",
+            va( "Find an Armoury, Reactor, or Repeater and press %s for more ammo\n",
               CG_KeyNameForCommand( "buy ammo" ) ) );
         break;
 
@@ -527,19 +527,37 @@ static void CG_HumanText( char *text, playerState_t *ps )
   if( ps->stats[ STAT_STAMINA ] <= STAMINA_BLACKOUT_LEVEL )
   {
     Q_strcat( text, MAX_TUTORIAL_TEXT,
-        "You are blacking out. Stop sprinting to recover stamina.\n" );
+        "You are blacking out. Stop sprinting to recover stamina\n" );
   }
   else if( ps->stats[ STAT_STAMINA ] <= STAMINA_SLOW_LEVEL )
   {
     Q_strcat( text, MAX_TUTORIAL_TEXT,
-        "Your stamina is low. Stop sprinting to recover.\n" );
+        "Your stamina is low. Stop sprinting to recover\n" );
   }
 
-  if( cg.nearUsableBuildable )
+  switch( cg.nearUsableBuildable )
   {
-    Q_strcat( text, MAX_TUTORIAL_TEXT,
-        va( "Press %s to use this structure\n",
-          CG_KeyNameForCommand( "+button7" ) ) );
+    case BA_H_ARMOURY:
+      Q_strcat( text, MAX_TUTORIAL_TEXT,
+          va( "Press %s to buy equipment upgrades at the %s. Sell your old weapon first!\n",
+            CG_KeyNameForCommand( "+button7" ),
+            BG_Buildable( cg.nearUsableBuildable )->humanName ) );
+      break;
+    case BA_H_REPEATER:
+    case BA_H_REACTOR:
+      Q_strcat( text, MAX_TUTORIAL_TEXT,
+          va( "Press %s to refill your energy weapon's ammo at the %s\n",
+            CG_KeyNameForCommand( "+button7" ),
+            BG_Buildable( cg.nearUsableBuildable )->humanName ) );
+      break;
+    case BA_NONE:
+      break;
+    default:
+      Q_strcat( text, MAX_TUTORIAL_TEXT,
+          va( "Press %s to use the %s\n",
+            CG_KeyNameForCommand( "+button7" ),
+            BG_Buildable( cg.nearUsableBuildable )->humanName ) );
+      break;
   }
 
   Q_strcat( text, MAX_TUTORIAL_TEXT,

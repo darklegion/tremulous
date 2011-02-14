@@ -716,17 +716,17 @@ static void CG_DrawUsableBuildable( rectDef_t *rect, qhandle_t shader, vec4_t co
         ( !BG_Weapon( cg.snap->ps.weapon )->usesEnergy ||
           BG_Weapon( cg.snap->ps.weapon )->infiniteAmmo ) )
     {
-      cg.nearUsableBuildable = qfalse;
+      cg.nearUsableBuildable = BA_NONE;
       return;
     }
 
     trap_R_SetColor( color );
     CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
     trap_R_SetColor( NULL );
-    cg.nearUsableBuildable = qtrue;
+    cg.nearUsableBuildable = es->modelindex;
   }
   else
-    cg.nearUsableBuildable = qfalse;
+    cg.nearUsableBuildable = BA_NONE;
 }
 
 
