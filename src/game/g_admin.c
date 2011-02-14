@@ -874,12 +874,12 @@ qboolean G_admin_ban_check( gentity_t *ent, char *reason, int rlen )
 
       Com_sprintf( warningMessage, sizeof( warningMessage ),
         S_COLOR_YELLOW "Banned player %s" S_COLOR_YELLOW
-        " tried to connect from %s (ban #%d)\n",
+        " tried to connect from %s (ban #%d)",
         ent->client->pers.netname[ 0 ] ? ent->client->pers.netname :
           ban->name,
         ent->client->pers.ip.str,
         i + 1 );
-      trap_Print( warningMessage );
+      trap_Print( va( "%s\n", warningMessage ) );
       // don't spam admins
       if( ban->warnCount++ < 5 )
         G_AdminMessage( NULL, warningMessage );
