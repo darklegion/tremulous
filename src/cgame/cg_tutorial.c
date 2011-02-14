@@ -582,18 +582,22 @@ static void CG_SpectatorText( char *text, playerState_t *ps )
       Q_strcat( text, MAX_TUTORIAL_TEXT,
                 va( "Press %s to switch to chase-cam spectator mode\n",
                     CG_KeyNameForCommand( "+button2" ) ) );
-    else
+    else if( cgs.clientinfo[ cg.clientNum ].team == TEAM_NONE )
       Q_strcat( text, MAX_TUTORIAL_TEXT,
                 va( "Press %s to return to free spectator mode\n",
                     CG_KeyNameForCommand( "+button2" ) ) );
+    else
+      Q_strcat( text, MAX_TUTORIAL_TEXT,
+                va( "Press %s to stop following\n",
+                    CG_KeyNameForCommand( "+button2" ) ) );
 
-      Q_strcat( text, MAX_TUTORIAL_TEXT,
-          va( "Press %s or ",
-            CG_KeyNameForCommand( "weapprev" ) ) );
-      Q_strcat( text, MAX_TUTORIAL_TEXT,
-          va( "%s to change player\n",
-            CG_KeyNameForCommand( "weapnext" ) ) );
-    }
+    Q_strcat( text, MAX_TUTORIAL_TEXT,
+        va( "Press %s or ",
+          CG_KeyNameForCommand( "weapprev" ) ) );
+    Q_strcat( text, MAX_TUTORIAL_TEXT,
+        va( "%s to change player\n",
+          CG_KeyNameForCommand( "weapnext" ) ) );
+  }
   else
   {
     Q_strcat( text, MAX_TUTORIAL_TEXT,
