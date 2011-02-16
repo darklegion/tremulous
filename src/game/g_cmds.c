@@ -1460,9 +1460,29 @@ void Cmd_CallVote_f( gentity_t *ent )
   }
   else
   {
-    G_TeamCommand( team, va( "print \"%s" S_COLOR_WHITE
-      " called a team vote: %s\n\"", ent->client->pers.netname,
-      level.voteDisplayString[ team ] ) );
+    int i;
+
+    for( i = 0 ; i < level.maxclients ; i++ )
+    {
+      if( level.clients[ i ].pers.connected == CON_CONNECTED )
+      {
+        if( level.clients[ i ].pers.teamSelection == team ||
+            ( level.clients[ i ].pers.teamSelection == TEAM_NONE &&
+            G_admin_permission( &g_entities[ i ], ADMF_SPEC_ALLCHAT ) ) )
+        {
+          trap_SendServerCommand( i, va( "print \"%s" S_COLOR_WHITE
+            " called a team vote: %s\n\"", ent->client->pers.netname,
+            level.voteDisplayString[ team ] ) );
+        }
+        else if( G_admin_permission( &g_entities[ i ], ADMF_ADMINCHAT ) )
+        {
+          trap_SendServerCommand( i, va( "chat -1 %d \"" S_COLOR_YELLOW "%s" 
+            S_COLOR_YELLOW " called a team vote (%ss): %s\"", SAY_ADMINS,
+            ent->client->pers.netname, BG_TeamName( team ), 
+            level.voteDisplayString[ team ] ) );
+        }
+      }
+    }
   }
 
   G_DecolorString( ent->client->pers.netname, caller, sizeof( caller ) );
