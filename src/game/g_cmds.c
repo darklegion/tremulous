@@ -1230,6 +1230,13 @@ void Cmd_CallVote_f( gentity_t *ent )
       {
         trap_SendServerCommand( ent-g_entities,
           va( "print \"%s: admin is immune\n\"", cmd ) );
+
+        G_AdminMessage( NULL, va( S_COLOR_WHITE "%s" S_COLOR_YELLOW " attempted %s %s"
+                                " on immune admin " S_COLOR_WHITE "%s" S_COLOR_YELLOW
+                                " for: %s",
+                                ent->client->pers.netname, cmd, vote, 
+                                g_entities[ clientNum ].client->pers.netname, 
+                                reason[ 0 ] ? reason : "no reason" ) );
         return;
       }
 
