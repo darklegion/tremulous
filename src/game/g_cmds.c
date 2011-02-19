@@ -405,12 +405,13 @@ void Cmd_Give_f( gentity_t *ent )
   if( give_all || Q_stricmpn( name, "funds", 5 ) == 0 )
   {
     float credits = atof( name + 6 );
+    const float max = MAX( ALIEN_MAX_CREDITS, HUMAN_MAX_CREDITS );
 
     if( ent->client->pers.teamSelection == TEAM_ALIENS )
       credits *= ALIEN_CREDITS_PER_KILL;
 
-    if( give_all )
-      credits = ALIEN_MAX_CREDITS;
+    if( give_all || credits > max )
+      credits = max;
 
     G_AddCreditToClient( ent->client, credits, qtrue );
   }
