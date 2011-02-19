@@ -798,7 +798,6 @@ typedef struct weaponInfoMode_s
   int         missileAnimLooping;
 
   sfxHandle_t firingSound;
-  qboolean    loopFireSound;
 
   qhandle_t   muzzleParticleSystem;
 

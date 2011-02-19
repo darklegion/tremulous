@@ -2435,7 +2435,7 @@ void CG_DrawWeaponIcon( rectDef_t *rect, vec4_t color )
   if( weapon == 0 )
     return;
 
-  CG_RegisterWeapon( weapon );
+  assert( cg_weapons[ weapon ].registered );
 
   if( ps->clips == 0 && !BG_Weapon( weapon )->infiniteAmmo )
   {
