@@ -274,8 +274,9 @@ typedef enum
   PERS_CREDIT,    // human credit
   PERS_QUEUEPOS,  // position in the spawn queue
   PERS_NEWWEAPON,  // weapon to switch to
-  PERS_BP
-  // netcode has space for 4 more
+  PERS_BP,
+  PERS_MARKEDBP
+  // netcode has space for 3 more
 } persEnum_t;
 
 #define PS_WALLCLIMBINGFOLLOW   0x00000001

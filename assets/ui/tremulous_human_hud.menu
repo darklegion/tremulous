@@ -254,7 +254,7 @@
     itemDef
     {
       name "ammo"
-      rect 494 430 60 15
+      rect 507 430 53 15
       aspectBias ALIGN_RIGHT
       visible MENU_TRUE
       decoration

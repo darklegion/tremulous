@@ -636,6 +636,8 @@ static void CG_DrawPlayerWallclimbing( rectDef_t *rect, vec4_t backColor, vec4_t
 static void CG_DrawPlayerAmmoValue( rectDef_t *rect, vec4_t color )
 {
   int value;
+  int valueMarked = -1;
+  qboolean bp = qfalse;
 
   switch( BG_PrimaryWeapon( cg.snap->ps.stats ) )
   {
@@ -647,6 +649,8 @@ static void CG_DrawPlayerAmmoValue( rectDef_t *rect, vec4_t color )
     case WP_ABUILD2:
     case WP_HBUILD:
       value = cg.snap->ps.persistant[ PERS_BP ];
+      valueMarked = cg.snap->ps.persistant[ PERS_MARKEDBP ];
+      bp = qtrue;
       break;
 
     default:
@@ -656,11 +660,44 @@ static void CG_DrawPlayerAmmoValue( rectDef_t *rect, vec4_t color )
 
   if( value > 999 )
     value = 999;
+  if( valueMarked > 999 )
+    valueMarked = 999;
 
   if( value > -1 )
   {
+    float tx, ty;
+    char *text;
+    float scale;
+    int len;
+
     trap_R_SetColor( color );
-    CG_DrawField( rect->x, rect->y, 4, rect->w / 4, rect->h, value );
+    if( !bp )
+    {
+      CG_DrawField( rect->x - 5, rect->y, 4, rect->w / 4, rect->h, value );
+      trap_R_SetColor( NULL );
+      return;
+    }
+
+    if( valueMarked > 0 )
+      text = va( "%d+(%d)", value, valueMarked );
+    else
+      text = va( "%d", value );
+
+    len = strlen( text );
+
+    if( len <= 4 )
+      scale = 0.50;
+    else if( len <= 6 )
+      scale = 0.43;
+    else if( len == 7 ) 
+      scale = 0.36; 
+    else if( len == 8 )
+      scale = 0.33;
+    else if( len >= 9 )
+      scale = 0.31;
+
+    CG_AlignText( rect, text, scale, 0.0f, 0.0f, ALIGN_RIGHT, VALIGN_CENTER, &tx, &ty );
+    UI_Text_Paint( tx + 1, ty, scale, color, text, 0, 0, ITEM_TEXTSTYLE_NORMAL );
     trap_R_SetColor( NULL );
   }
 }

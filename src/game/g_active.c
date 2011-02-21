@@ -1713,7 +1713,9 @@ void ClientThink_real( gentity_t *ent )
   }
 
   client->ps.persistant[ PERS_BP ] = G_GetBuildPoints( client->ps.origin,
-    client->ps.stats[ STAT_TEAM ], BG_Class( client->ps.stats[ STAT_CLASS ] )->buildDist );
+    client->ps.stats[ STAT_TEAM ] );
+  client->ps.persistant[ PERS_MARKEDBP ] = G_GetMarkedBuildPoints( client->ps.origin,
+    client->ps.stats[ STAT_TEAM ] );
 
   if( client->ps.persistant[ PERS_BP ] < 0 )
     client->ps.persistant[ PERS_BP ] = 0;
