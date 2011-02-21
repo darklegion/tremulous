@@ -3301,13 +3301,13 @@ void Cmd_PrivateMessage_f( gentity_t *ent )
   int pids[ MAX_CLIENTS ];
   char name[ MAX_NAME_LENGTH ];
   char cmd[ 12 ];
-  char str[ MAX_STRING_CHARS ];
   char text[ MAX_STRING_CHARS ];
   char *msg;
   char color;
   int i, pcount;
   int count = 0;
   qboolean teamonly = qfalse;
+  char recipients[ MAX_STRING_CHARS ] = "";
 
   if( !g_privateMessages.integer && ent )
   {
@@ -3333,15 +3333,18 @@ void Cmd_PrivateMessage_f( gentity_t *ent )
 
   // send the message
   for( i = 0; i < pcount; i++ )
+  {
     if( G_SayTo( ent, &g_entities[ pids[ i ] ],
         teamonly ? SAY_TPRIVMSG : SAY_PRIVMSG, text ) )
+    {
       count++;
+      Q_strcat( recipients, sizeof( recipients ), va( "%s" S_COLOR_WHITE ", ",
+        level.clients[ pids[ i ] ].pers.netname ) );
+    }
+  }
 
   // report the results
   color = teamonly ? COLOR_CYAN : COLOR_YELLOW;
-
-  Com_sprintf( str, sizeof( str ), "^%csent to %i player%s", color, count,
-    ( count == 1 ) ? "" : "s" );
 
   if( !count )
     ADMP( va( "^3No player matching ^7\'%s^7\' ^3to send message to.\n",
@@ -3349,7 +3352,10 @@ void Cmd_PrivateMessage_f( gentity_t *ent )
   else
   {
     ADMP( va( "^%cPrivate message: ^7%s\n", color, text ) );
-    ADMP( va( "%s\n", str ) );
+    // remove trailing ", "
+    recipients[ strlen( recipients ) - 2 ] = '\0';
+    ADMP( va( "^%csent to %i player%s: " S_COLOR_WHITE "%s\n", color, count,
+      count == 1 ? "" : "s", recipients ) );
 
     G_LogPrintf( "%s: %d \"%s" S_COLOR_WHITE "\" \"%s\": ^%c%s\n",
       ( teamonly ) ? "TPrivMsg" : "PrivMsg",

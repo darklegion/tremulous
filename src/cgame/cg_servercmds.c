@@ -972,8 +972,13 @@ static void CG_Say( int clientNum, saymode_t mode, const char *text )
                  ignore, prefix, name, cgs.clientinfo[ cg.clientNum ].name,
                  maybeColon, INDENT_MARKER, color, text );
       if( !ignore[0] )
+      {
         CG_CenterPrint( va( "%sPrivate message from: " S_COLOR_WHITE "%s", 
                             color, name ), 200, GIANTCHAR_WIDTH * 4 );
+        if( clientNum < 0 || clientNum >= MAX_CLIENTS )
+          clientNum = cg.clientNum;
+        CG_Printf( ">> to reply, say: /m %d [your message] <<\n", clientNum );
+      }
       break;
     case SAY_RAW:
       CG_Printf( "%s\n", text );
