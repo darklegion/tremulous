@@ -392,6 +392,14 @@ void Cmd_Give_f( gentity_t *ent )
   char      *name;
   qboolean  give_all = qfalse;
 
+  if( trap_Argc( ) < 2 )
+  {
+    ADMP( "usage: give [what]\n" );
+    ADMP( "usage: valid choices are: all, health, funds [amount], stamina, "
+          "poison, gas, ammo\n" );
+    return;
+  }
+
   name = ConcatArgs( 1 );
   if( Q_stricmp( name, "all" ) == 0 )
     give_all = qtrue;
@@ -404,16 +412,26 @@ void Cmd_Give_f( gentity_t *ent )
 
   if( give_all || Q_stricmpn( name, "funds", 5 ) == 0 )
   {
-    float credits = atof( name + 6 );
-    const float max = MAX( ALIEN_MAX_CREDITS, HUMAN_MAX_CREDITS );
+    int credits;
 
-    if( ent->client->pers.teamSelection == TEAM_ALIENS )
-      credits *= ALIEN_CREDITS_PER_KILL;
+    if( give_all || trap_Argc( ) < 3 )
+      credits = 30000;
+    else
+    {
+      credits = atof( name + 6 ) *
+        ( ent->client->pers.teamSelection == 
+          TEAM_ALIENS ? ALIEN_CREDITS_PER_KILL : 1.0f );
 
-    if( give_all || credits > max )
-      credits = max;
+      // clamp credits manually, as G_AddCreditToClient() expects a short int
+      if( credits > 30000 )
+        credits = 30000;
+      else if( name[ 6 ] == '-' && credits < -30000 )
+        credits = -30000;
+      else if( credits < -30000 ) // overflowed int; didn't want negative
+        credits = 30000;
+    }
 
-    G_AddCreditToClient( ent->client, credits, qtrue );
+    G_AddCreditToClient( ent->client, (short)credits, qtrue );
   }
 
   if( give_all || Q_stricmp( name, "stamina" ) == 0 )
