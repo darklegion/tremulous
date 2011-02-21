@@ -412,10 +412,10 @@ void Cmd_Give_f( gentity_t *ent )
 
   if( give_all || Q_stricmpn( name, "funds", 5 ) == 0 )
   {
-    int credits;
+    float credits;
 
     if( give_all || trap_Argc( ) < 3 )
-      credits = 30000;
+      credits = 30000.0f;
     else
     {
       credits = atof( name + 6 ) *
@@ -423,12 +423,10 @@ void Cmd_Give_f( gentity_t *ent )
           TEAM_ALIENS ? ALIEN_CREDITS_PER_KILL : 1.0f );
 
       // clamp credits manually, as G_AddCreditToClient() expects a short int
-      if( credits > 30000 )
-        credits = 30000;
-      else if( name[ 6 ] == '-' && credits < -30000 )
-        credits = -30000;
-      else if( credits < -30000 ) // overflowed int; didn't want negative
-        credits = 30000;
+      if( credits > SHRT_MAX )
+        credits = 30000.0f;
+      else if( credits < SHRT_MIN )
+        credits = -30000.0f;
     }
 
     G_AddCreditToClient( ent->client, (short)credits, qtrue );
