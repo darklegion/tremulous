@@ -4487,7 +4487,7 @@ static qboolean UI_CheckWrapCache( const char *text, rectDef_t *rect, float scal
   {
     wrapCache_t *cacheEntry = &wrapCache[ i ];
 
-    if( Q_stricmp( text, cacheEntry->text ) )
+    if( strcmp( text, cacheEntry->text ) )
       continue;
 
     if( rect->x != cacheEntry->rect.x ||
