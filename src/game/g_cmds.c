@@ -3329,10 +3329,12 @@ void Cmd_PrivateMessage_f( gentity_t *ent )
   msg = ConcatArgs( 2 );
   pcount = G_ClientNumbersFromString( name, pids, MAX_CLIENTS );
 
+  G_CensorString( text, msg, sizeof( text ), ent );
+
   // send the message
   for( i = 0; i < pcount; i++ )
     if( G_SayTo( ent, &g_entities[ pids[ i ] ],
-        teamonly ? SAY_TPRIVMSG : SAY_PRIVMSG, msg ) )
+        teamonly ? SAY_TPRIVMSG : SAY_PRIVMSG, text ) )
       count++;
 
   // report the results
@@ -3340,8 +3342,6 @@ void Cmd_PrivateMessage_f( gentity_t *ent )
 
   Com_sprintf( str, sizeof( str ), "^%csent to %i player%s", color, count,
     ( count == 1 ) ? "" : "s" );
-
-  G_CensorString( text, msg, sizeof( text ), ent );
 
   if( !count )
     ADMP( va( "^3No player matching ^7\'%s^7\' ^3to send message to.\n",
