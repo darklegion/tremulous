@@ -1206,6 +1206,11 @@ char *ClientConnect( int clientNum, qboolean firstTime )
 
   ent = &g_entities[ clientNum ];
   client = &level.clients[ clientNum ];
+
+  // ignore if client already connected
+  if( client->pers.connected != CON_DISCONNECTED )
+    return NULL;
+
   ent->client = client;
   memset( client, 0, sizeof( *client ) );
 
@@ -1319,8 +1324,8 @@ void ClientBegin( int clientNum )
 
   client = level.clients + clientNum;
 
-  // ignore if client allready entered the game
-  if( client->pers.connected == CON_CONNECTED )
+  // ignore if client already entered the game
+  if( client->pers.connected != CON_CONNECTING )
     return;
 
   if( ent->r.linked )

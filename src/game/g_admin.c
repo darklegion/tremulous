@@ -2655,10 +2655,10 @@ static void namelog_out( void *namelog, char *str )
 
   if( n->slot > -1 )
   {
-    l = Q_snprintf( p, l2, "^3%-2d", n->slot );
+    scolor = S_COLOR_YELLOW;
+    l = Q_snprintf( p, l2, "%s%-2d", scolor, n->slot );
     p += l;
     l2 -= l;
-    scolor = S_COLOR_YELLOW;
   }
   else
   {
