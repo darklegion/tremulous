@@ -1004,7 +1004,12 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
     firing = qfalse;
 
   weapon = &cg_weapons[ weaponNum ];
-  assert( weapon->registered );
+  if( !weapon->registered )
+  {
+    Com_Printf( S_COLOR_YELLOW "WARNING: CG_AddPlayerWeapon: weapon %d (%s) "
+        "is not registered\n", weaponNum, BG_Weapon( weaponNum )->name );
+    return;
+  }
 
   // add the weapon
   Com_Memset( &gun, 0, sizeof( gun ) );
@@ -1227,7 +1232,12 @@ void CG_AddViewWeapon( playerState_t *ps )
     weaponMode = WPM_PRIMARY;
 
   wi = &cg_weapons[ weapon ];
-  assert( wi->registered );
+  if( !wi->registered )
+  {
+    Com_Printf( S_COLOR_YELLOW "WARNING: CG_AddViewWeapon: weapon %d (%s) "
+        "is not registered\n", weapon, BG_Weapon( weapon )->name );
+    return;
+  }
   cent = &cg.predictedPlayerEntity; // &cg_entities[cg.snap->ps.clientNum];
 
   if( ps->persistant[PERS_SPECSTATE] != SPECTATOR_NOT )
@@ -1427,7 +1437,12 @@ void CG_DrawItemSelect( rectDef_t *rect, vec4_t color )
     if( i == cg.weaponSelect )
       selectedItem = numItems;
 
-    assert( cg_weapons[ i ].registered );
+    if( !cg_weapons[ i ].registered )
+    {
+      Com_Printf( S_COLOR_YELLOW "WARNING: CG_DrawItemSelect: weapon %d (%s) "
+  	"is not registered\n", i, BG_Weapon( i )->name );
+      continue;
+    }
     items[ numItems ] = i;
     numItems++;
   }
@@ -1444,7 +1459,12 @@ void CG_DrawItemSelect( rectDef_t *rect, vec4_t color )
     if( i == cg.weaponSelect - 32 )
       selectedItem = numItems;
 
-    assert( cg_upgrades[ i ].registered );
+    if( !cg_upgrades[ i ].registered )
+    {
+      Com_Printf( S_COLOR_YELLOW "WARNING: CG_DrawItemSelect: upgrade %d (%s) "
+  	"is not registered\n", i, BG_Upgrade( i )->name );
+      continue;
+    }
     items[ numItems ] = i + 32;
     numItems++;
   }

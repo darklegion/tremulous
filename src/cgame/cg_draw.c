@@ -2469,10 +2469,18 @@ void CG_DrawWeaponIcon( rectDef_t *rect, vec4_t color )
   if( cg.predictedPlayerState.stats[ STAT_HEALTH ] <= 0 )
     return;
 
-  if( weapon == 0 )
+  if( weapon <= WP_NONE || weapon >= WP_NUM_WEAPONS )
+  {
+    CG_Error( "CG_DrawWeaponIcon: weapon out of range: %d\n", weapon );
     return;
+  }
 
-  assert( cg_weapons[ weapon ].registered );
+  if( !cg_weapons[ weapon ].registered )
+  {
+    Com_Printf( S_COLOR_YELLOW "WARNING: CG_DrawWeaponIcon: weapon %d (%s) "
+        "is not registered\n", weapon, BG_Weapon( weapon )->name );
+    return;
+  }
 
   if( ps->clips == 0 && !BG_Weapon( weapon )->infiniteAmmo )
   {
