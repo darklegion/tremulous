@@ -693,7 +693,7 @@ static void CG_DrawPlayerAmmoValue( rectDef_t *rect, vec4_t color )
       scale = 0.36; 
     else if( len == 8 )
       scale = 0.33;
-    else if( len >= 9 )
+    else
       scale = 0.31;
 
     CG_AlignText( rect, text, scale, 0.0f, 0.0f, ALIGN_RIGHT, VALIGN_CENTER, &tx, &ty );
