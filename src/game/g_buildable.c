@@ -4273,7 +4273,7 @@ void G_BuildLogRevertThink( gentity_t *ent )
   int       victims = 0;
   int       i;
 
-  if( ent->suicideTime > level.time )
+  if( ent->suicideTime > 0 )
   {
     BG_BuildableBoundingBox( ent->s.modelindex, mins, maxs );
     VectorAdd( ent->s.pos.trBase, mins, mins );
@@ -4294,6 +4294,8 @@ void G_BuildLogRevertThink( gentity_t *ent )
         victims++;
       }
     }
+
+    ent->suicideTime--;
 
     if( victims )
     {
@@ -4366,7 +4368,9 @@ void G_BuildLogRevert( int id )
 
       builder->think = G_BuildLogRevertThink;
       builder->nextthink = level.time + FRAMETIME;
-      builder->suicideTime = level.time + 3000;
+
+      // Number of thinks before giving up and killing players in the way
+      builder->suicideTime = 30; 
 
       if( log->fate == BF_DESTROY || log->fate == BF_TEAMKILL )
       {
