@@ -47,7 +47,7 @@
 {
   name "larmour chest crouch"
   minHeight 0.3
-  maxHeight 0.72
+  maxHeight 0.7
   minAngle  310
   maxAngle  50
   modifier  0.35
@@ -57,7 +57,7 @@
 {
   name "larmour left arm crouch"
   minHeight 0.3
-  maxHeight 0.72
+  maxHeight 0.7
   minAngle  50
   maxAngle  130
   modifier  0.3
@@ -67,7 +67,7 @@
 {
   name "larmour back crouch"
   minHeight 0.3
-  maxHeight 0.72
+  maxHeight 0.7
   minAngle  130
   maxAngle  230
   modifier  0.4
@@ -77,7 +77,7 @@
 {
   name "larmour right arm crouch"
   minHeight 0.3
-  maxHeight 0.72
+  maxHeight 0.7
   minAngle  230
   maxAngle  310
   modifier  0.3
