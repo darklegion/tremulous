@@ -353,6 +353,7 @@ typedef struct unlagged_s {
   qboolean    used;
 } unlagged_t;
 
+#define MAX_TRAMPLE_BUILDABLES_TRACKED 20
 // this structure is cleared on each ClientSpawn(),
 // except for 'client->pers' and 'client->sess'
 struct gclient_s
@@ -434,11 +435,13 @@ struct gclient_s
   unlagged_t          unlaggedBackup;
   unlagged_t          unlaggedCalc;
   int                 unlaggedTime;
- 
+
   float               voiceEnthusiasm;
   char                lastVoiceCmd[ MAX_VOICE_CMD_LEN ];
 
   int                 lcannonStartTime;
+  int                 trampleBuildablesHitPos;
+  int                 trampleBuildablesHit[ MAX_TRAMPLE_BUILDABLES_TRACKED ];
 
   int                 lastCrushTime;        // Tyrant crush
 };

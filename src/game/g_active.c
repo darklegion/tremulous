@@ -1602,6 +1602,15 @@ void ClientThink_real( gentity_t *ent )
       }
       break;
 
+    case WP_ALEVEL4:
+      // If not currently in a trample, reset the trample bookkeeping data
+      if( !( client->ps.pm_flags & PMF_CHARGE ) && client->trampleBuildablesHitPos )
+      {
+        ent->client->trampleBuildablesHitPos = 0;
+        memset( ent->client->trampleBuildablesHit, 0, sizeof( ent->client->trampleBuildablesHit ) );
+      }
+      break;
+
     case WP_HBUILD:
       CheckCkitRepair( ent );
       break;

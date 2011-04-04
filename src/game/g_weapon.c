@@ -1366,6 +1366,7 @@ G_ChargeAttack
 void G_ChargeAttack( gentity_t *ent, gentity_t *victim )
 {
   int       damage;
+  int       i;
   vec3_t    forward, normal;
 
   if( ent->client->ps.stats[ STAT_MISC ] <= 0 ||
@@ -1376,9 +1377,25 @@ void G_ChargeAttack( gentity_t *ent, gentity_t *victim )
   VectorSubtract( victim->s.origin, ent->s.origin, forward );
   VectorNormalize( forward );
   VectorNegate( forward, normal );
-  
+
   if( !victim->takedamage )
     return;
+
+  // For buildables, track the last MAX_TRAMPLE_BUILDABLES_TRACKED buildables
+  //  hit, and do not do damage if the current buildable is in that list
+  //  in order to prevent dancing over stuff to kill it very quickly
+  if( !victim->client )
+  {
+    for( i = 0; i < MAX_TRAMPLE_BUILDABLES_TRACKED; i++ )
+    {
+      if( ent->client->trampleBuildablesHit[ i ] == victim - g_entities )
+        return;
+    }
+
+    ent->client->trampleBuildablesHit[
+      ent->client->trampleBuildablesHitPos++ % MAX_TRAMPLE_BUILDABLES_TRACKED ] =
+      victim - g_entities;
+  }
 
   WideBloodSpurt( ent, victim, NULL );
 
@@ -1389,9 +1406,6 @@ void G_ChargeAttack( gentity_t *ent, gentity_t *victim )
             DAMAGE_NO_LOCDAMAGE, MOD_LEVEL4_TRAMPLE );
 
   ent->client->ps.weaponTime += LEVEL4_TRAMPLE_REPEAT;
-
-  if( !victim->client )
-    ent->client->ps.stats[ STAT_MISC ] = 0;
 }
 
 /*
