@@ -579,6 +579,7 @@ typedef struct
   char              voteDisplayString[ NUM_TEAMS ][ MAX_STRING_CHARS ];
   int               voteTime[ NUM_TEAMS ];        // level.time vote was called
   int               voteExecuteTime[ NUM_TEAMS ]; // time the vote is executed
+  int               voteDelay[ NUM_TEAMS ];       // it doesn't make sense to always delay vote execution
   int               voteYes[ NUM_TEAMS ];
   int               voteNo[ NUM_TEAMS ];
   int               numVotingClients[ NUM_TEAMS ];// set by CalculateRanks

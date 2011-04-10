@@ -2178,7 +2178,7 @@ void G_CheckVote( team_t team )
   }
 
   if( pass )
-    level.voteExecuteTime[ team ] = level.time + 3000;
+    level.voteExecuteTime[ team ] = level.time + level.voteDelay[ team ];
 
   G_LogPrintf( "EndVote: %s %s %d %d %d\n",
     team == TEAM_NONE ? "global" : BG_TeamName( team ),

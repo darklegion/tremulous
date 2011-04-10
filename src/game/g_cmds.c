@@ -1202,6 +1202,7 @@ void Cmd_CallVote_f( gentity_t *ent )
   if( level.voteExecuteTime[ team ] )
     G_ExecuteVote( team );
 
+  level.voteDelay[ team ] = 0;
   level.voteThreshold[ team ] = 50;
 
   if( g_voteLimit.integer > 0 &&
@@ -1338,6 +1339,7 @@ void Cmd_CallVote_f( gentity_t *ent )
     {
       strcpy( level.voteString[ team ], vote );
       strcpy( level.voteDisplayString[ team ], "Restart current map" );
+      // map_restart comes with a default delay
     }
     else if( !Q_stricmp( vote, "map" ) )
     {
@@ -1354,6 +1356,7 @@ void Cmd_CallVote_f( gentity_t *ent )
       Com_sprintf( level.voteDisplayString[ team ],
         sizeof( level.voteDisplayString[ team ] ),
         "Change to map '%s'", arg );
+      level.voteDelay[ team ] = 3000;
     }
     else if( !Q_stricmp( vote, "nextmap" ) )
     {
@@ -1383,6 +1386,7 @@ void Cmd_CallVote_f( gentity_t *ent )
     {
       strcpy( level.voteString[ team ], "evacuation" );
       strcpy( level.voteDisplayString[ team ], "End match in a draw" );
+      level.voteDelay[ team ] = 3000;
     }
     else if( !Q_stricmp( vote, "sudden_death" ) )
     {
@@ -1462,6 +1466,7 @@ void Cmd_CallVote_f( gentity_t *ent )
     Com_sprintf( level.voteString[ team ], sizeof( level.voteString[ team ] ),
       "admitdefeat %d", team );
     strcpy( level.voteDisplayString[ team ], "Admit Defeat" );
+    level.voteDelay[ team ] = 3000;
   }
   else
   {
