@@ -770,7 +770,7 @@ Test a list of entities for the closest to a particular point
 gentity_t *G_ClosestEnt( vec3_t origin, gentity_t **entities, int numEntities )
 {
   int       i;
-  float     nd, d = 1000000.0f;
+  float     nd, d;
   gentity_t *closestEnt = NULL;
 
   for( i = 0; i < numEntities; i++ )
