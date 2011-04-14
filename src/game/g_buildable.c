@@ -66,8 +66,8 @@ G_CheckSpawnPoint
 Check if a spawn at a specified point is valid
 ===============
 */
-gentity_t *G_CheckSpawnPoint( int spawnNum, vec3_t origin, vec3_t normal,
-    buildable_t spawn, vec3_t spawnOrigin )
+gentity_t *G_CheckSpawnPoint( int spawnNum, const vec3_t origin,
+    const vec3_t normal, buildable_t spawn, vec3_t spawnOrigin )
 {
   float   displacement;
   vec3_t  mins, maxs;

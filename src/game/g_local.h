@@ -774,8 +774,9 @@ typedef enum
   IBE_MAXERRORS
 } itemBuildError_t;
 
-gentity_t         *G_CheckSpawnPoint( int spawnNum, vec3_t origin, vec3_t normal,
-                    buildable_t spawn, vec3_t spawnOrigin );
+gentity_t         *G_CheckSpawnPoint( int spawnNum, const vec3_t origin,
+                                      const vec3_t normal, buildable_t spawn,
+                                      vec3_t spawnOrigin );
 
 buildable_t       G_IsPowered( vec3_t origin );
 qboolean          G_IsDCCBuilt( void );
