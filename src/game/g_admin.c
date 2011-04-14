@@ -848,6 +848,44 @@ void G_admin_duration( int secs, char *duration, int dursize )
     Com_sprintf( duration, dursize, "%i seconds", secs );
 }
 
+static void G_admin_ban_message(
+  gentity_t     *ent,
+  g_admin_ban_t *ban,
+  char          *creason,
+  int           clen,
+  char          *areason,
+  int           alen )
+{
+  if( creason )
+  {
+    char duration[ MAX_DURATION_LENGTH ];
+    G_admin_duration( ban->expires - trap_RealTime( NULL ), duration,
+      sizeof( duration ) );
+    // part of this might get cut off on the connect screen
+    Com_sprintf( creason, clen,
+      "You have been banned by %s" S_COLOR_WHITE " duration: %s"
+      " reason: %s",
+      ban->banner,
+      duration,
+      ban->reason );
+  }
+
+  if( areason && ent )
+  {
+    // we just want the ban number
+    int n = 0;
+    g_admin_ban_t *b = g_admin_bans;
+    for( ; b && b != ban; b = b->next, n++ )
+      ;
+    Com_sprintf( areason, alen,
+      S_COLOR_YELLOW "Banned player %s" S_COLOR_YELLOW
+      " tried to connect from %s (ban #%d)",
+      ent->client->pers.netname[ 0 ] ? ent->client->pers.netname : ban->name,
+      ent->client->pers.ip.str,
+      n );
+  }
+}
+
 static qboolean G_admin_ban_matches( g_admin_ban_t *ban, gentity_t *ent )
 {
   return !Q_stricmp( ban->guid, ent->client->pers.guid ) ||
@@ -855,52 +893,53 @@ static qboolean G_admin_ban_matches( g_admin_ban_t *ban, gentity_t *ent )
            G_AddressCompare( &ban->ip, &ent->client->pers.ip ) );
 }
 
-qboolean G_admin_ban_check( gentity_t *ent, char *reason, int rlen )
+static g_admin_ban_t *G_admin_match_ban( gentity_t *ent )
 {
-  int i;
   int t;
   g_admin_ban_t *ban;
-  char warningMessage[ MAX_STRING_CHARS ];
 
   t = trap_RealTime( NULL );
   if( ent->client->pers.localClient )
-    return qfalse;
-  for( ban = g_admin_bans, i = 0; ban; ban = ban->next, i++ )
+    return NULL;
+
+  for( ban = g_admin_bans; ban; ban = ban->next )
   {
     // 0 is for perm ban
     if( ban->expires != 0 && ban->expires <= t )
       continue;
 
     if( G_admin_ban_matches( ban, ent ) )
-    {
-      char duration[ MAX_DURATION_LENGTH ];
-      G_admin_duration( ban->expires - t,
-        duration, sizeof( duration ) );
-
-      if( reason )
-        Com_sprintf(
-          reason,
-          rlen,
-          "You have been banned by %s^7 reason: %s^7 expires: %s",
-          ban->banner,
-          ban->reason,
-          duration
-        );
-
-      Com_sprintf( warningMessage, sizeof( warningMessage ),
-        S_COLOR_YELLOW "Banned player %s" S_COLOR_YELLOW
-        " tried to connect from %s (ban #%d)",
-        ent->client->pers.netname[ 0 ] ? ent->client->pers.netname :
-          ban->name,
-        ent->client->pers.ip.str,
-        i + 1 );
-      trap_Print( va( "%s\n", warningMessage ) );
-      // don't spam admins
-      if( ban->warnCount++ < 5 )
-        G_AdminMessage( NULL, warningMessage );
-      return qtrue;
-    }
+      return ban;
   }
+
+  return NULL;
+}
+
+qboolean G_admin_ban_check( gentity_t *ent, char *reason, int rlen )
+{
+  g_admin_ban_t *ban;
+  char warningMessage[ MAX_STRING_CHARS ];
+
+  if( ent->client->pers.localClient )
+    return qfalse;
+
+  if( ( ban = G_admin_match_ban( ent ) ) )
+  {
+    G_admin_ban_message( ent, ban, reason, rlen,
+      warningMessage, sizeof( warningMessage ) );
+
+    // don't spam admins
+    if( ban->warnCount++ < 5 )
+      G_AdminMessage( NULL, warningMessage );
+    // and don't fill the console
+    else if( ban->warnCount < 10 )
+      trap_Print( va( "%s%s\n", warningMessage,
+        ban->warnCount + 1 == 10 ?
+          S_COLOR_WHITE " - future messages for this ban will be suppressed" :
+          "" ) );
+    return qtrue;
+  }
+
   return qfalse;
 }
 
@@ -1398,7 +1437,7 @@ qboolean G_admin_setlevel( gentity_t *ent )
   return qtrue;
 }
 
-static qboolean admin_create_ban( gentity_t *ent,
+static void admin_create_ban( gentity_t *ent,
   char *netname,
   char *guid,
   addr_t *ip,
@@ -1410,6 +1449,7 @@ static qboolean admin_create_ban( gentity_t *ent,
   int           t;
   int           i;
   char          *name;
+  char          disconnect[ MAX_STRING_CHARS ];
 
   t = trap_RealTime( &qt );
 
@@ -1452,21 +1492,20 @@ static qboolean admin_create_ban( gentity_t *ent,
   else
     Q_strncpyz( b->reason, reason, sizeof( b->reason ) );
 
+  G_admin_ban_message( NULL, b, disconnect, sizeof( disconnect ), NULL, 0 );
+
   for( i = 0; i < level.maxclients; i++ )
   {
     if( level.clients[ i ].pers.connected == CON_DISCONNECTED )
       continue;
     if( G_admin_ban_matches( b, &g_entities[ i ] ) )
     {
-      trap_SendServerCommand( i,
-        va( "disconnect \"You have been kicked by %s\nreason:\n%s\"",
-          b->banner, b->reason ) );
+      trap_SendServerCommand( i, va( "disconnect \"%s\"", disconnect ) );
 
       trap_DropClient( i, va( "has been kicked by %s^7. reason: %s",
         b->banner, b->reason ) );
     }
   }
-  return qtrue;
 }
 
 int G_admin_parse_time( const char *time )
