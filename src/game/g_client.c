@@ -149,74 +149,6 @@ qboolean SpotWouldTelefrag( gentity_t *spot )
   return qfalse;
 }
 
-/*
-================
-G_SelectNearestDeathmatchSpawnPoint
-
-Find the spot that we DON'T want to use
-================
-*/
-gentity_t *G_SelectNearestDeathmatchSpawnPoint( vec3_t from )
-{
-  gentity_t *spot;
-  vec3_t    delta;
-  float     dist, nearestDist;
-  gentity_t *nearestSpot;
-
-  nearestSpot = NULL;
-  spot = NULL;
-
-  while( (spot = G_Find( spot, FOFS( classname ), "info_player_deathmatch" ) ) != NULL )
-  {
-    VectorSubtract( spot->s.origin, from, delta );
-    dist = VectorLength( delta );
-
-    if( !nearestSpot || dist < nearestDist )
-    {
-      nearestDist = dist;
-      nearestSpot = spot;
-    }
-  }
-
-  return nearestSpot;
-}
-
-
-/*
-================
-G_SelectRandomDeathmatchSpawnPoint
-
-go to a random point that doesn't telefrag
-================
-*/
-gentity_t *G_SelectRandomDeathmatchSpawnPoint( void )
-{
-  gentity_t *spot, *search;
-  int       count;
-
-  count = 0;
-  spot = NULL;
-
-  while( ( search = G_Find( search, FOFS( classname ), "info_player_deathmatch" ) ) != NULL )
-  {
-    if( SpotWouldTelefrag( search ) )
-      continue;
-
-    count++;
-    // this is the nth spot; choose it with probability 1/n
-    // so we definitely choose the first spot, we then have a 1/2 chance of
-    // replacing it with the second...
-    // it's pretty easy to see by induction that this works for all n
-    if( rand( ) % count == 0 )
-      spot = search;
-  }
-
-  if( !count ) // no spots that won't telefrag
-    return G_Find( NULL, FOFS( classname ), "info_player_deathmatch" );
-
-  return spot;
-}
-
 
 /*
 ===========
@@ -225,7 +157,7 @@ G_SelectRandomFurthestSpawnPoint
 Chooses a player start, deathmatch start, etc
 ============
 */
-gentity_t *G_SelectRandomFurthestSpawnPoint ( vec3_t avoidPoint, vec3_t origin, vec3_t angles )
+static gentity_t *G_SelectRandomFurthestSpawnPoint ( vec3_t avoidPoint, vec3_t origin, vec3_t angles )
 {
   gentity_t *spot;
   vec3_t    delta;
@@ -309,7 +241,7 @@ find the nearest buildable of the right type that is
 spawned/healthy/unblocked etc.
 ================
 */
-gentity_t *G_SelectSpawnBuildable( vec3_t preference, buildable_t buildable )
+static gentity_t *G_SelectSpawnBuildable( vec3_t preference, buildable_t buildable )
 {
   gentity_t *search, *spot;
 
@@ -400,42 +332,11 @@ gentity_t *G_SelectTremulousSpawnPoint( team_t team, vec3_t preference, vec3_t o
 
 /*
 ===========
-G_SelectInitialSpawnPoint
-
-Try to find a spawn point marked 'initial', otherwise
-use normal spawn selection.
-============
-*/
-gentity_t *G_SelectInitialSpawnPoint( vec3_t origin, vec3_t angles )
-{
-  gentity_t *spot;
-
-  spot = NULL;
-  while( ( spot = G_Find( spot, FOFS( classname ), "info_player_deathmatch" ) ) != NULL )
-  {
-    if( spot->spawnflags & 1 )
-      break;
-  }
-
-  if( !spot || SpotWouldTelefrag( spot ) )
-  {
-    return G_SelectSpawnPoint( vec3_origin, origin, angles );
-  }
-
-  VectorCopy( spot->s.origin, origin );
-  origin[ 2 ] += 9;
-  VectorCopy( spot->s.angles, angles );
-
-  return spot;
-}
-
-/*
-===========
 G_SelectSpectatorSpawnPoint
 
 ============
 */
-gentity_t *G_SelectSpectatorSpawnPoint( vec3_t origin, vec3_t angles )
+static gentity_t *G_SelectSpectatorSpawnPoint( vec3_t origin, vec3_t angles )
 {
   FindIntermissionPoint( );
 
@@ -512,7 +413,7 @@ BodySink
 After sitting around for five seconds, fall into the ground and dissapear
 =============
 */
-void BodySink( gentity_t *ent )
+static void BodySink( gentity_t *ent )
 {
   //run on first BodySink call
   if( !ent->active )
@@ -537,30 +438,13 @@ void BodySink( gentity_t *ent )
 
 /*
 =============
-BodyFree
-
-After sitting around for a while the body becomes a freebie
-=============
-*/
-void BodyFree( gentity_t *ent )
-{
-  ent->killedBy = -1;
-
-  //if not claimed in the next minute destroy
-  ent->think = BodySink;
-  ent->nextthink = level.time + 60000;
-}
-
-
-/*
-=============
 SpawnCorpse
 
 A player is respawning, so make an entity that looks
 just like the existing corpse to leave behind.
 =============
 */
-void SpawnCorpse( gentity_t *ent )
+static void SpawnCorpse( gentity_t *ent )
 {
   gentity_t   *body;
   int         contents;
