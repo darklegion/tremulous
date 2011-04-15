@@ -1574,8 +1574,11 @@ qboolean G_admin_kick( gentity_t *ent )
     ADMP( "^3kick: ^7disconnecting the host would end the game\n" );
     return qfalse;
   }
-  admin_log( va( "%d (%s) \"%s" S_COLOR_WHITE "\"", pid, vic->client->pers.guid,
-    vic->client->pers.netname ) );
+  admin_log( va( "%d (%s) \"%s" S_COLOR_WHITE "\": \"%s" S_COLOR_WHITE "\"",
+    pid,
+    vic->client->pers.guid,
+    vic->client->pers.netname,
+    reason ) );
   admin_create_ban( ent,
     vic->client->pers.netname,
     vic->client->pers.guid,
