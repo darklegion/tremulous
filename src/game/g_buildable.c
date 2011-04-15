@@ -1545,24 +1545,22 @@ static void G_SuicideIfNoPower( gentity_t *self )
   if( self->buildableTeam != TEAM_HUMANS )
     return;
 
-  if( G_Reactor( ) && !self->powered )
+  if( !self->powered )
   {
-    // If no parent for x seconds then disappear
-    if( self->count < 0 )
+    // if the power hasn't reached this buildable for some time, then destroy the buildable
+    if( self->count == 0 )
       self->count = level.time;
-    else if( self->count > 0 && ( ( level.time - self->count ) > HUMAN_BUILDABLE_INACTIVE_TIME ) )
+    else if( ( level.time - self->count ) >= HUMAN_BUILDABLE_INACTIVE_TIME )
     {
       if( self->parentNode )
-        G_Damage( self, NULL, g_entities + self->parentNode->killedBy, 
+        G_Damage( self, NULL, g_entities + self->parentNode->killedBy,
                   NULL, NULL, self->health, 0, MOD_NOCREEP );
       else
         G_Damage( self, NULL, NULL, NULL, NULL, self->health, 0, MOD_NOCREEP );
     }
   }
   else
-  {
-    self->count = -1;
-  }
+    self->count = 0;
 }
 
 /*
@@ -1687,10 +1685,10 @@ void HSpawn_Think( gentity_t *self )
 {
   gentity_t *ent;
 
-  G_SuicideIfNoPower( self );
-
   // set parentNode
   self->powered = G_FindPower( self, qfalse );
+
+  G_SuicideIfNoPower( self );
 
   if( self->spawned )
   {
@@ -1779,23 +1777,10 @@ Think for human power repeater
 void HRepeater_Think( gentity_t *self )
 {
   int               i;
-  qboolean          reactor = qfalse;
-  gentity_t         *ent;
   gentity_t         *powerEnt;
   buildPointZone_t  *zone;
 
-  if( self->spawned )
-  {
-    // Iterate through entities
-    for ( i = 1, ent = g_entities + i; i < level.num_entities; i++, ent++ )
-    {
-      if( ent->s.eType != ET_BUILDABLE )
-        continue;
-
-      if( ent->s.modelindex == BA_H_REACTOR && ent->spawned && ent->health > 0 )
-        reactor = qtrue;
-    }
-  }
+  self->powered = G_FindPower( self, qfalse );
 
   powerEnt = G_InPowerZone( self );
   if( powerEnt != NULL )
@@ -1809,8 +1794,6 @@ void HRepeater_Think( gentity_t *self )
       G_Damage( self, NULL, NULL, NULL, NULL, self->health, 0, MOD_SUICIDE );
     return;
   }
-
-  self->powered = reactor;
 
   G_IdlePowerState( self );
 
