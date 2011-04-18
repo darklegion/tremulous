@@ -1540,10 +1540,10 @@ G_SuicideIfNoPower
 Destroy human structures that have been unpowered too long
 ================
 */
-static void G_SuicideIfNoPower( gentity_t *self )
+static qboolean G_SuicideIfNoPower( gentity_t *self )
 {
   if( self->buildableTeam != TEAM_HUMANS )
-    return;
+    return qfalse;
 
   if( !self->powered )
   {
@@ -1557,10 +1557,13 @@ static void G_SuicideIfNoPower( gentity_t *self )
                   NULL, NULL, self->health, 0, MOD_NOCREEP );
       else
         G_Damage( self, NULL, NULL, NULL, NULL, self->health, 0, MOD_NOCREEP );
+      return qtrue;
     }
   }
   else
     self->count = 0;
+
+  return qfalse;
 }
 
 /*
@@ -1688,7 +1691,8 @@ void HSpawn_Think( gentity_t *self )
   // set parentNode
   self->powered = G_FindPower( self, qfalse );
 
-  G_SuicideIfNoPower( self );
+  if( G_SuicideIfNoPower( self ) )
+    return;
 
   if( self->spawned )
   {
@@ -2028,7 +2032,8 @@ void HMedistat_Think( gentity_t *self )
   self->nextthink = level.time + BG_Buildable( self->s.modelindex )->nextthink;
 
   self->powered = G_FindPower( self, qfalse );
-  G_SuicideIfNoPower( self );
+  if( G_SuicideIfNoPower( self ) )
+    return;
   G_IdlePowerState( self );
 
   //clear target's healing flag
@@ -2365,7 +2370,8 @@ void HMGTurret_Think( gentity_t *self )
   self->s.eFlags &= ~EF_FIRING;
 
   self->powered = G_FindPower( self, qfalse );
-  G_SuicideIfNoPower( self );
+  if( G_SuicideIfNoPower( self ) )
+    return;
   G_IdlePowerState( self );
 
   // If not powered or spawned don't do anything
@@ -2446,7 +2452,8 @@ void HTeslaGen_Think( gentity_t *self )
   self->nextthink = level.time + BG_Buildable( self->s.modelindex )->nextthink;
 
   self->powered = G_FindPower( self, qfalse );
-  G_SuicideIfNoPower( self );
+  if( G_SuicideIfNoPower( self ) )
+    return;
   G_IdlePowerState( self );
 
   //if not powered don't do anything and check again for power next think
