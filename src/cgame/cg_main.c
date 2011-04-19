@@ -1466,9 +1466,14 @@ static const char *CG_FeederItemText( int feederID, int index, int column, qhand
 
   if( cg.intermissionStarted && CG_ClientIsReady( sp->client ) )
     showIcons = qfalse;
-  else if( cg.snap->ps.pm_type == PM_SPECTATOR || cg.snap->ps.pm_flags & PMF_FOLLOW ||
-    team == cg.snap->ps.stats[ STAT_TEAM ] || cg.intermissionStarted )
+  else if( cg.snap->ps.pm_type == PM_SPECTATOR ||
+           cg.snap->ps.pm_type == PM_NOCLIP ||
+           cg.snap->ps.pm_flags & PMF_FOLLOW ||
+           team == cg.snap->ps.stats[ STAT_TEAM ] ||
+           cg.intermissionStarted )
+  {
     showIcons = qtrue;
+  }
 
   if( info && info->infoValid )
   {
