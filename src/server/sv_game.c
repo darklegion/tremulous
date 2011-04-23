@@ -216,7 +216,7 @@ void SV_AdjustAreaPortalState( sharedEntity_t *ent, qboolean open ) {
 
 /*
 ==================
-SV_GameAreaEntities
+SV_EntityContact
 ==================
 */
 qboolean	SV_EntityContact( vec3_t mins, vec3_t maxs, const sharedEntity_t *gEnt, traceType_t type ) {
@@ -311,7 +311,7 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 		Cvar_Update( VMA(1) );
 		return 0;
 	case G_CVAR_SET:
-		Cvar_Set( (const char *)VMA(1), (const char *)VMA(2) );
+		Cvar_SetSafe( (const char *)VMA(1), (const char *)VMA(2) );
 		return 0;
 	case G_CVAR_VARIABLE_INTEGER_VALUE:
 		return Cvar_VariableIntegerValue( (const char *)VMA(1) );

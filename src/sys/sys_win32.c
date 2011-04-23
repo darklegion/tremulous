@@ -43,6 +43,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // Used to determine where to store user-specific files
 static char homePath[ MAX_OSPATH ] = { 0 };
 
+#ifndef DEDICATED
+static UINT timerResolution = 0;
+#endif
+
 #ifdef __WIN64__
 void Sys_SnapVector( float *v )
 {
@@ -310,6 +314,17 @@ qboolean Sys_Mkdir( const char *path )
 	}
 
 	return qtrue;
+}
+
+/*
+==================
+Sys_Mkfifo
+Noop on windows because named pipes do not function the same way
+==================
+*/
+FILE *Sys_Mkfifo( const char *ospath )
+{
+	return NULL;
 }
 
 /*
@@ -699,6 +714,8 @@ Windows specific initialisation
 void Sys_PlatformInit( void )
 {
 #ifndef DEDICATED
+	TIMECAPS ptc;
+	
 	const char *SDL_VIDEODRIVER = getenv( "SDL_VIDEODRIVER" );
 
 	if( SDL_VIDEODRIVER )
@@ -709,6 +726,36 @@ void Sys_PlatformInit( void )
 	}
 	else
 		SDL_VIDEODRIVER_externallySet = qfalse;
+
+	if(timeGetDevCaps(&ptc, sizeof(ptc)) == MMSYSERR_NOERROR)
+	{
+		timerResolution = ptc.wPeriodMin;
+
+		if(timerResolution > 1)
+		{
+			Com_Printf("Warning: Minimum supported timer resolution is %ums "
+				"on this system, recommended resolution 1ms\n", timerResolution);
+		}
+		
+		timeBeginPeriod(timerResolution);				
+	}
+	else
+		timerResolution = 0;
+#endif
+}
+
+/*
+==============
+Sys_PlatformExit
+
+Windows specific initialisation
+==============
+*/
+void Sys_PlatformExit( void )
+{
+#ifndef DEDICATED
+	if(timerResolution)
+		timeEndPeriod(timerResolution);
 #endif
 }
 
@@ -721,7 +768,10 @@ set/unset environment variables (empty value removes it)
 */
 void Sys_SetEnv(const char *name, const char *value)
 {
-	_putenv(va("%s=%s", name, value));
+	if(value)
+		_putenv(va("%s=%s", name, value));
+	else
+		_putenv(va("%s=", name));
 }
 
 /*

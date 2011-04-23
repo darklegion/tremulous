@@ -780,7 +780,6 @@ void		R_Modellist_f (void);
 extern	refimport_t		ri;
 
 #define	MAX_DRAWIMAGES			2048
-#define	MAX_LIGHTMAPS			256
 #define	MAX_SKINS				1024
 
 
@@ -917,7 +916,7 @@ typedef struct {
 	shader_t				*sunShader;
 
 	int						numLightmaps;
-	image_t					*lightmaps[MAX_LIGHTMAPS];
+	image_t					**lightmaps;
 
 	trRefEntity_t			*currentEntity;
 	trRefEntity_t			worldEntity;		// point currentEntity at this when rendering world
@@ -1062,7 +1061,6 @@ extern	cvar_t	*r_colorMipLevels;				// development aid to see texture mip usage
 extern	cvar_t	*r_picmip;						// controls picmip values
 extern	cvar_t	*r_finish;
 extern	cvar_t	*r_drawBuffer;
-extern  cvar_t  *r_glDriver;
 extern	cvar_t	*r_swapInterval;
 extern	cvar_t	*r_textureMode;
 extern	cvar_t	*r_offsetFactor;
@@ -1114,8 +1112,6 @@ extern	cvar_t	*r_printShaders;
 extern	cvar_t	*r_saveFontData;
 
 extern cvar_t	*r_marksOnTriangleMeshes;
-
-extern	cvar_t	*r_GLlibCoolDownMsec;
 
 //====================================================================
 
@@ -1302,19 +1298,19 @@ typedef struct stageVars
 
 typedef struct shaderCommands_s 
 {
-	glIndex_t	indexes[SHADER_MAX_INDEXES] ALIGN(16);
-	vec4_t		xyz[SHADER_MAX_VERTEXES] ALIGN(16);
-	vec4_t		normal[SHADER_MAX_VERTEXES] ALIGN(16);
-	vec2_t		texCoords[SHADER_MAX_VERTEXES][2] ALIGN(16);
-	color4ub_t	vertexColors[SHADER_MAX_VERTEXES] ALIGN(16);
-	int			vertexDlightBits[SHADER_MAX_VERTEXES] ALIGN(16);
+	glIndex_t	indexes[SHADER_MAX_INDEXES] QALIGN(16);
+	vec4_t		xyz[SHADER_MAX_VERTEXES] QALIGN(16);
+	vec4_t		normal[SHADER_MAX_VERTEXES] QALIGN(16);
+	vec2_t		texCoords[SHADER_MAX_VERTEXES][2] QALIGN(16);
+	color4ub_t	vertexColors[SHADER_MAX_VERTEXES] QALIGN(16);
+	int			vertexDlightBits[SHADER_MAX_VERTEXES] QALIGN(16);
 
-	stageVars_t	svars ALIGN(16);
+	stageVars_t	svars QALIGN(16);
 
-	color4ub_t	constantColor255[SHADER_MAX_VERTEXES] ALIGN(16);
+	color4ub_t	constantColor255[SHADER_MAX_VERTEXES] QALIGN(16);
 
 	shader_t	*shader;
-  float   shaderTime;
+	float		shaderTime;
 	int			fogNum;
 
 	int			dlightBits;	// or together of all vertexDlightBits
@@ -1699,10 +1695,10 @@ void RE_StretchPic ( float x, float y, float w, float h,
 					  float s1, float t1, float s2, float t2, qhandle_t hShader );
 void RE_BeginFrame( stereoFrame_t stereoFrame );
 void RE_EndFrame( int *frontEndMsec, int *backEndMsec );
-void SaveJPG(char * filename, int quality, int image_width, int image_height, unsigned char *image_buffer);
-int SaveJPGToBuffer( byte *buffer, int quality,
-		int image_width, int image_height,
-		byte *image_buffer );
+void RE_SaveJPG(char * filename, int quality, int image_width, int image_height,
+                unsigned char *image_buffer, int padding);
+size_t RE_SaveJPGToBuffer(byte *buffer, size_t bufSize, int quality,
+		          int image_width, int image_height, byte *image_buffer, int padding);
 void RE_TakeVideoFrame( int width, int height,
 		byte *captureBuffer, byte *encodeBuffer, qboolean motionJpeg );
 

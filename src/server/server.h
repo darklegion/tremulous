@@ -220,10 +220,6 @@ typedef struct {
 	qboolean	connected;
 } challenge_t;
 
-
-#define	MAX_MASTERS	8				// max recipients for heartbeat packets
-
-
 // this structure will be cleared only when the game dll changes
 typedef struct {
 	qboolean	initialized;				// sv_init has completed
@@ -248,8 +244,6 @@ typedef struct {
 extern	serverStatic_t	svs;				// persistant server info across maps
 extern	server_t		sv;					// cleared each map
 extern	vm_t			*gvm;				// game virtual machine
-
-#define	MAX_MASTER_SERVERS	5
 
 extern	cvar_t	*sv_fps;
 extern	cvar_t	*sv_timeout;
@@ -276,6 +270,8 @@ extern	cvar_t	*sv_maxPing;
 extern	cvar_t	*sv_pure;
 extern	cvar_t	*sv_lanForceRate;
 extern	cvar_t	*sv_dequeuePeriod;
+extern	cvar_t	*sv_heartbeat;
+extern	cvar_t	*sv_flatline;
 
 #ifdef USE_VOIP
 extern	cvar_t	*sv_voip;
@@ -295,10 +291,8 @@ void SV_AddOperatorCommands (void);
 void SV_RemoveOperatorCommands (void);
 
 
-void SV_MasterHeartbeat (void);
 void SV_MasterShutdown (void);
 void SV_MasterGameStat( const char *data );
-
 
 
 

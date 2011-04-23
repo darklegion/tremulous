@@ -22,6 +22,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+#define _ISOC99_SOURCE
+
+#include "vm_local.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -240,9 +243,15 @@ static void hash_add_label(const char* label, unsigned address)
 {
 	struct hashentry* h;
 	unsigned i = hashkey(label, -1U);
-	i %= sizeof(labelhash)/sizeof(labelhash[0]);
-	h = malloc(sizeof(struct hashentry));
-	h->label = strdup(label);
+	int labellen;
+	
+	i %= ARRAY_LEN(labelhash);
+	h = Z_Malloc(sizeof(struct hashentry));
+	
+	labellen = strlen(label) + 1;
+	h->label = Z_Malloc(labellen);
+	memcpy(h->label, label, labellen);
+	
 	h->address = address;
 	h->next = labelhash[i];
 	labelhash[i] = h;
@@ -252,7 +261,7 @@ static unsigned lookup_label(const char* label)
 {
 	struct hashentry* h;
 	unsigned i = hashkey(label, -1U);
-	i %= sizeof(labelhash)/sizeof(labelhash[0]);
+	i %= ARRAY_LEN(labelhash);
 	for(h = labelhash[i]; h; h = h->next )
 	{
 		if(!strcmp(h->label, label))
@@ -268,15 +277,15 @@ static void labelhash_free(void)
 	struct hashentry* h;
 	unsigned i;
 	unsigned z = 0, min = -1U, max = 0, t = 0;
-	for ( i = 0; i < sizeof(labelhash)/sizeof(labelhash[0]); ++i)
+	for ( i = 0; i < ARRAY_LEN(labelhash); ++i)
 	{
 		unsigned n = 0;
 		h = labelhash[i];
 		while(h)
 		{
 			struct hashentry* next = h->next;
-			free(h->label);
-			free(h);
+			Z_Free(h->label);
+			Z_Free(h);
 			h = next;
 			++n;
 		}
@@ -286,7 +295,7 @@ static void labelhash_free(void)
 		min = MIN(min, n);
 		max = MAX(max, n);
 	}
-	printf("total %u, hsize %"PRIu64", zero %u, min %u, max %u\n", t, sizeof(labelhash)/sizeof(labelhash[0]), z, min, max);
+	printf("total %u, hsize %"PRIu64", zero %u, min %u, max %u\n", t, ARRAY_LEN(labelhash), z, min, max);
 	memset(labelhash, 0, sizeof(labelhash));
 }
 
@@ -1008,7 +1017,7 @@ static op_t* getop(const char* n)
 #else
 	unsigned m, t, b;
 	int r;
-	t = sizeof(ops)/sizeof(ops[0])-1;
+	t = ARRAY_LEN(ops)-1;
 	b = 0;
 
 	while(b <= t)
@@ -1299,7 +1308,7 @@ void assembler_init(int pass)
 	if(!ops_sorted)
 	{
 		ops_sorted = 1;
-		qsort(ops, sizeof(ops)/sizeof(ops[0])-1, sizeof(ops[0]), opsort);
+		qsort(ops, ARRAY_LEN(ops)-1, sizeof(ops[0]), opsort);
 	}
 }
 

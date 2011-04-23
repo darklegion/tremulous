@@ -240,7 +240,7 @@ Cmd_CompleteTxtName
 */
 void Cmd_CompleteTxtName( char *args, int argNum ) {
 	if( argNum == 2 ) {
-		Field_CompleteFilename( "", "txt", qfalse );
+		Field_CompleteFilename( "", "txt", qfalse, qtrue );
 	}
 }
 
@@ -297,9 +297,9 @@ If no console is visible, the text will appear at the top of the game window
 ================
 */
 void CL_ConsolePrint( char *txt ) {
-	int		y;
-	int		c, l;
-	int		color;
+	int		y, l;
+	unsigned char	c;
+	unsigned short	color;
 	qboolean skipnotify = qfalse;		// NERVE - SMF
 
 	// TTimo - prefix for text that shows up in console but not in notify
@@ -336,7 +336,7 @@ void CL_ConsolePrint( char *txt ) {
 
 	color = ColorIndex(COLOR_WHITE);
 
-	while ( (c = *txt) != 0 ) {
+	while ( (c = *((unsigned char *) txt)) != 0 ) {
 		if ( Q_IsColorString( txt ) ) {
 			color = ColorIndex( *(txt+1) );
 			txt += 2;
@@ -373,10 +373,8 @@ void CL_ConsolePrint( char *txt ) {
 			y = con.current % con.totallines;
 			con.text[y*con.linewidth+con.x] = (color << 8) | c;
 			con.x++;
-			if (con.x >= con.linewidth) {
+			if(con.x >= con.linewidth)
 				Con_Linefeed(skipnotify);
-				con.x = 0;
-			}
 			break;
 		}
 	}

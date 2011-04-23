@@ -505,7 +505,11 @@ void SV_ClientEnterWorld( client_t *client, usercmd_t *cmd ) {
 
 	client->deltaMessage = -1;
 	client->nextSnapshotTime = svs.time;	// generate a snapshot immediately
-	client->lastUsercmd = *cmd;
+
+	if(cmd)
+		memcpy(&client->lastUsercmd, cmd, sizeof(client->lastUsercmd));
+	else
+		memset(&client->lastUsercmd, '\0', sizeof(client->lastUsercmd));
 
 	// call the game begin function
 	VM_Call( gvm, GAME_CLIENT_BEGIN, client - svs.clients );
@@ -633,7 +637,7 @@ void SV_WriteDownloadToClient( client_t *cl , msg_t *msg )
 	int curindex;
 	int rate;
 	int blockspersnap;
-	int idPack = 0, missionPack = 0, unreferenced = 1;
+	int unreferenced = 1;
 	char errorMessage[1024];
 	char pakbuf[MAX_QPATH], *pakptr;
 	int numRefPaks;
@@ -641,7 +645,8 @@ void SV_WriteDownloadToClient( client_t *cl , msg_t *msg )
 	if (!*cl->downloadName)
 		return;	// Nothing being downloaded
 
-	if (!cl->download) {
+	if(!cl->download)
+	{
  		// Chop off filename extension.
 		Com_sprintf(pakbuf, sizeof(pakbuf), "%s", cl->downloadName);
 		pakptr = Q_strrchr(pakbuf, '.');
@@ -665,12 +670,6 @@ void SV_WriteDownloadToClient( client_t *cl , msg_t *msg )
 					if(!FS_FilenameCompare(Cmd_Argv(curindex), pakbuf))
 					{
 						unreferenced = 0;
-
-						// now that we know the file is referenced,
-						// check whether it's legal to download it.
-						missionPack = FS_idPak(pakbuf, "missionpack");
-						idPack = missionPack || FS_idPak(pakbuf, BASEGAME);
-
 						break;
 					}
 				}
@@ -682,23 +681,13 @@ void SV_WriteDownloadToClient( client_t *cl , msg_t *msg )
 		// We open the file here
 		if ( !(sv_allowDownload->integer & DLF_ENABLE) ||
 			(sv_allowDownload->integer & DLF_NO_UDP) ||
-			idPack || unreferenced ||
+			unreferenced ||
 			( cl->downloadSize = FS_SV_FOpenFileRead( cl->downloadName, &cl->download ) ) < 0 ) {
 			// cannot auto-download file
 			if(unreferenced)
 			{
 				Com_Printf("clientDownload: %d : \"%s\" is not referenced and cannot be downloaded.\n", (int) (cl - svs.clients), cl->downloadName);
 				Com_sprintf(errorMessage, sizeof(errorMessage), "File \"%s\" is not referenced and cannot be downloaded.", cl->downloadName);
-			}
-			else if (idPack) {
-				Com_Printf("clientDownload: %d : \"%s\" cannot download id pk3 files\n", (int) (cl - svs.clients), cl->downloadName);
-				if (missionPack) {
-					Com_sprintf(errorMessage, sizeof(errorMessage), "Cannot autodownload Team Arena file \"%s\"\n"
-									"The Team Arena mission pack can be found in your local game store.", cl->downloadName);
-				}
-				else {
-					Com_sprintf(errorMessage, sizeof(errorMessage), "Cannot autodownload id pk3 file \"%s\"", cl->downloadName);
-				}
 			}
 			else if ( !(sv_allowDownload->integer & DLF_ENABLE) ||
 				(sv_allowDownload->integer & DLF_NO_UDP) ) {
@@ -1272,7 +1261,8 @@ void SV_ExecuteClientCommand( client_t *cl, const char *s, qboolean clientOK ) {
 
 	if (clientOK) {
 		// pass unknown strings to the game
-		if (!u->name && sv.state == SS_GAME && cl->state == CS_ACTIVE) {
+		if (!u->name && sv.state == SS_GAME && (cl->state == CS_ACTIVE || cl->state == CS_PRIMED)) {
+			Cmd_Args_Sanitize();
 			VM_Call( gvm, GAME_CLIENT_COMMAND, cl - svs.clients );
 		}
 	}
@@ -1560,7 +1550,7 @@ void SV_UserVoip( client_t *cl, msg_t *msg ) {
 
 		// Transmit this packet to the client.
 		// !!! FIXME: I don't like this queueing system.
-		if (client->queuedVoipPackets >= (sizeof (client->voipPacket) / sizeof (client->voipPacket[0]))) {
+		if (client->queuedVoipPackets >= ARRAY_LEN(client->voipPacket)) {
 			Com_Printf("Too many VoIP packets queued for client #%d\n", i);
 			continue;  // no room for another packet right now.
 		}

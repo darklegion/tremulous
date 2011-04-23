@@ -169,8 +169,6 @@ struct vm_s {
 	int			breakFunction;		// increment breakCount on function entry to this
 	int			breakCount;
 
-	char		fqpath[MAX_QPATH+1] ;
-
 	byte		*jumpTableTargets;
 	int			numJumpTableTargets;
 };

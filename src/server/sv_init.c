@@ -618,13 +618,15 @@ SV_Init
 Only called at main exe startup, not for each game
 ===============
 */
-void SV_Init (void) {
+void SV_Init (void)
+{
+	int index;
+
 	SV_AddOperatorCommands ();
 
 	// serverinfo vars
 	Cvar_Get ("timelimit", "0", CVAR_SERVERINFO);
 	Cvar_Get ("sv_keywords", "", CVAR_SERVERINFO);
-	Cvar_Get ("protocol", va("%i", PROTOCOL_VERSION), CVAR_SERVERINFO | CVAR_ROM);
 	sv_mapname = Cvar_Get ("mapname", "nomap", CVAR_SERVERINFO | CVAR_ROM);
 	sv_privateClients = Cvar_Get ("sv_privateClients", "0", CVAR_SERVERINFO);
 	sv_hostname = Cvar_Get ("sv_hostname", "noname", CVAR_SERVERINFO | CVAR_ARCHIVE );
@@ -657,11 +659,11 @@ void SV_Init (void) {
 
 	sv_allowDownload = Cvar_Get ("sv_allowDownload", "0", CVAR_SERVERINFO);
 	Cvar_Get ("sv_dlURL", "http://downloads.tremulous.net", CVAR_SERVERINFO | CVAR_ARCHIVE);
-	sv_master[0] = Cvar_Get ("sv_master1", MASTER_SERVER_NAME, 0 );
-	sv_master[1] = Cvar_Get ("sv_master2", "", CVAR_ARCHIVE );
-	sv_master[2] = Cvar_Get ("sv_master3", "", CVAR_ARCHIVE );
-	sv_master[3] = Cvar_Get ("sv_master4", "", CVAR_ARCHIVE );
-	sv_master[4] = Cvar_Get ("sv_master5", "", CVAR_ARCHIVE );
+	
+	sv_master[0] = Cvar_Get("sv_master1", MASTER_SERVER_NAME, 0);
+	for(index = 1; index < MAX_MASTER_SERVERS; index++)
+		sv_master[index] = Cvar_Get(va("sv_master%d", index + 1), "", CVAR_ARCHIVE);
+
 	sv_reconnectlimit = Cvar_Get ("sv_reconnectlimit", "3", 0);
 	sv_showloss = Cvar_Get ("sv_showloss", "0", 0);
 	sv_padPackets = Cvar_Get ("sv_padPackets", "0", 0);
@@ -669,6 +671,8 @@ void SV_Init (void) {
 	sv_mapChecksum = Cvar_Get ("sv_mapChecksum", "", CVAR_ROM);
 	sv_lanForceRate = Cvar_Get ("sv_lanForceRate", "1", CVAR_ARCHIVE );
 	sv_dequeuePeriod = Cvar_Get ("sv_dequeuePeriod", "500", CVAR_ARCHIVE );
+	sv_heartbeat = Cvar_Get("sv_heartbeat", HEARTBEAT_FOR_MASTER, CVAR_INIT);
+	sv_flatline = Cvar_Get("sv_flatline", FLATLINE_FOR_MASTER, CVAR_INIT);
 }
 
 

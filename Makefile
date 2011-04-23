@@ -4,7 +4,7 @@
 # GNU Make required
 #
 
-COMPILE_PLATFORM=$(shell uname|sed -e s/_.*//|tr '[:upper:]' '[:lower:]')
+COMPILE_PLATFORM=$(shell uname|sed -e s/_.*//|tr '[:upper:]' '[:lower:]'|sed -e 's/\//_/g')
 
 COMPILE_ARCH=$(shell uname -m | sed -e s/i.86/x86/)
 
@@ -97,6 +97,10 @@ ifndef BUILD_DIR
 BUILD_DIR=build
 endif
 
+ifndef TEMPDIR
+TEMPDIR=/tmp
+endif
+
 ifndef GENERATE_DEPENDENCIES
 GENERATE_DEPENDENCIES=1
 endif
@@ -141,6 +145,10 @@ ifndef USE_INTERNAL_ZLIB
 USE_INTERNAL_ZLIB=1
 endif
 
+ifndef USE_INTERNAL_JPEG
+USE_INTERNAL_JPEG=1
+endif
+
 ifndef USE_LOCAL_HEADERS
 USE_LOCAL_HEADERS=1
 endif
@@ -168,7 +176,7 @@ GDIR=$(MOUNT_DIR)/game
 CGDIR=$(MOUNT_DIR)/cgame
 NDIR=$(MOUNT_DIR)/null
 UIDIR=$(MOUNT_DIR)/ui
-JPDIR=$(MOUNT_DIR)/jpeg-6b
+JPDIR=$(MOUNT_DIR)/jpeg-8c
 SPEEXDIR=$(MOUNT_DIR)/libspeex
 ZDIR=$(MOUNT_DIR)/zlib
 Q3ASMDIR=$(MOUNT_DIR)/tools/asm
@@ -227,10 +235,10 @@ LIB=lib
 INSTALL=install
 MKDIR=mkdir
 
-ifeq ($(PLATFORM),linux)
+ifneq (,$(findstring "$(PLATFORM)", "linux" "gnu_kfreebsd" "kfreebsd-gnu"))
 
-  ifeq ($(ARCH),alpha)
-    ARCH=axp
+  ifeq ($(ARCH),axp)
+    ARCH=alpha
   else
   ifeq ($(ARCH),x86_64)
     LIB=lib64
@@ -297,6 +305,11 @@ ifeq ($(PLATFORM),linux)
     OPTIMIZE += -mtune=ultrasparc3 -mv8plus
     OPTIMIZEVM += -mtune=ultrasparc3 -mv8plus
     HAVE_VM_COMPILED=true
+  endif
+  ifeq ($(ARCH),alpha)
+    # According to http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=410555
+    # -ffast-math will cause the client to die with SIGFPE on Alpha
+    OPTIMIZE = $(OPTIMIZEVM)
   endif
   endif
   endif
@@ -560,8 +573,8 @@ ifeq ($(PLATFORM),freebsd)
   SERVER_CFLAGS = 
   HAVE_VM_COMPILED = true
 
-  OPTIMIZEVM = -O3 -funroll-loops -fomit-frame-pointer -ffast-math
-  OPTIMIZE = $(OPTIMIZEVM)
+  OPTIMIZEVM = -O3 -funroll-loops -fomit-frame-pointer
+  OPTIMIZE = $(OPTIMIZEVM) -ffast-math
 
   SHLIBEXT=so
   SHLIBCFLAGS=-fPIC
@@ -874,6 +887,13 @@ ifeq ($(USE_INTERNAL_ZLIB),1)
   BASE_CFLAGS += -I$(ZDIR)
 else
   LIBS += -lz
+endif
+
+ifeq ($(USE_INTERNAL_JPEG),1)
+  BASE_CFLAGS += -DUSE_INTERNAL_JPEG
+  BASE_CFLAGS += -I$(JPDIR)
+else
+  CLIENT_LIBS += -ljpeg
 endif
 
 ifdef DEFAULT_BASEDIR
@@ -1289,42 +1309,6 @@ Q3OBJ = \
   $(B)/client/vm.o \
   $(B)/client/vm_interpreted.o \
   \
-  $(B)/client/jcapimin.o \
-  $(B)/client/jcapistd.o \
-  $(B)/client/jccoefct.o  \
-  $(B)/client/jccolor.o \
-  $(B)/client/jcdctmgr.o \
-  $(B)/client/jchuff.o   \
-  $(B)/client/jcinit.o \
-  $(B)/client/jcmainct.o \
-  $(B)/client/jcmarker.o \
-  $(B)/client/jcmaster.o \
-  $(B)/client/jcomapi.o \
-  $(B)/client/jcparam.o \
-  $(B)/client/jcphuff.o \
-  $(B)/client/jcprepct.o \
-  $(B)/client/jcsample.o \
-  $(B)/client/jdapimin.o \
-  $(B)/client/jdapistd.o \
-  $(B)/client/jdatasrc.o \
-  $(B)/client/jdcoefct.o \
-  $(B)/client/jdcolor.o \
-  $(B)/client/jddctmgr.o \
-  $(B)/client/jdhuff.o \
-  $(B)/client/jdinput.o \
-  $(B)/client/jdmainct.o \
-  $(B)/client/jdmarker.o \
-  $(B)/client/jdmaster.o \
-  $(B)/client/jdpostct.o \
-  $(B)/client/jdsample.o \
-  $(B)/client/jdtrans.o \
-  $(B)/client/jerror.o \
-  $(B)/client/jfdctflt.o \
-  $(B)/client/jidctflt.o \
-  $(B)/client/jmemmgr.o \
-  $(B)/client/jmemnobs.o \
-  $(B)/client/jutils.o \
-  \
   $(B)/client/tr_animation.o \
   $(B)/client/tr_backend.o \
   $(B)/client/tr_bsp.o \
@@ -1361,6 +1345,56 @@ Q3OBJ = \
   $(B)/client/con_passive.o \
   $(B)/client/con_log.o \
   $(B)/client/sys_main.o
+
+ifneq ($(USE_INTERNAL_JPEG),0)
+  Q3OBJ += \
+    $(B)/client/jaricom.o \
+    $(B)/client/jcapimin.o \
+    $(B)/client/jcapistd.o \
+    $(B)/client/jcarith.o \
+    $(B)/client/jccoefct.o  \
+    $(B)/client/jccolor.o \
+    $(B)/client/jcdctmgr.o \
+    $(B)/client/jchuff.o   \
+    $(B)/client/jcinit.o \
+    $(B)/client/jcmainct.o \
+    $(B)/client/jcmarker.o \
+    $(B)/client/jcmaster.o \
+    $(B)/client/jcomapi.o \
+    $(B)/client/jcparam.o \
+    $(B)/client/jcprepct.o \
+    $(B)/client/jcsample.o \
+    $(B)/client/jctrans.o \
+    $(B)/client/jdapimin.o \
+    $(B)/client/jdapistd.o \
+    $(B)/client/jdarith.o \
+    $(B)/client/jdatadst.o \
+    $(B)/client/jdatasrc.o \
+    $(B)/client/jdcoefct.o \
+    $(B)/client/jdcolor.o \
+    $(B)/client/jddctmgr.o \
+    $(B)/client/jdhuff.o \
+    $(B)/client/jdinput.o \
+    $(B)/client/jdmainct.o \
+    $(B)/client/jdmarker.o \
+    $(B)/client/jdmaster.o \
+    $(B)/client/jdmerge.o \
+    $(B)/client/jdpostct.o \
+    $(B)/client/jdsample.o \
+    $(B)/client/jdtrans.o \
+    $(B)/client/jerror.o \
+    $(B)/client/jfdctflt.o \
+    $(B)/client/jfdctfst.o \
+    $(B)/client/jfdctint.o \
+    $(B)/client/jidctflt.o \
+    $(B)/client/jidctfst.o \
+    $(B)/client/jidctint.o \
+    $(B)/client/jmemmgr.o \
+    $(B)/client/jmemnobs.o \
+    $(B)/client/jquant1.o \
+    $(B)/client/jquant2.o \
+    $(B)/client/jutils.o
+endif
 
 ifeq ($(ARCH),x86)
   Q3OBJ += \

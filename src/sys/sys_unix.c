@@ -56,7 +56,7 @@ char *Sys_DefaultHomePath(void)
 	{
 		if( ( p = getenv( "HOME" ) ) != NULL )
 		{
-			Q_strncpyz( homePath, p, sizeof( homePath ) );
+			Com_sprintf(homePath, sizeof(homePath), "%s%c", p, PATH_SEP);
 #ifdef MACOS_X
 			Q_strcat( homePath, sizeof( homePath ),
 					"/Library/Application Support/Tremulous" );
@@ -238,6 +238,36 @@ qboolean Sys_Mkdir( const char *path )
 		return errno == EEXIST;
 
 	return qtrue;
+}
+
+/*
+==================
+Sys_Mkfifo
+==================
+*/
+FILE *Sys_Mkfifo( const char *ospath )
+{
+	FILE	*fifo;
+	int	result;
+	int	fn;
+	struct	stat buf;
+
+	// if file already exists AND is a pipefile, remove it
+	if( !stat( ospath, &buf ) && S_ISFIFO( buf.st_mode ) )
+		FS_Remove( ospath );
+
+	result = mkfifo( ospath, 0600 );
+	if( result != 0 )
+		return NULL;
+
+	fifo = fopen( ospath, "w+" );
+	if( fifo )
+	{
+		fn = fileno( fifo );
+		fcntl( fn, F_SETFL, O_NONBLOCK );
+	}
+
+	return fifo;
 }
 
 /*
@@ -499,7 +529,7 @@ void Sys_ErrorDialog( const char *error )
 	unsigned int size;
 	int f = -1;
 	const char *homepath = Cvar_VariableString( "fs_homepath" );
-	const char *gamedir = Cvar_VariableString( "fs_gamedir" );
+	const char *gamedir = Cvar_VariableString( "fs_game" );
 	const char *fileName = "crashlog.txt";
 	char *ospath = FS_BuildOSPath( homepath, gamedir, fileName );
 
@@ -738,6 +768,17 @@ void Sys_PlatformInit( void )
 
 	stdinIsATTY = isatty( STDIN_FILENO ) &&
 		!( term && ( !strcmp( term, "raw" ) || !strcmp( term, "dumb" ) ) );
+}
+
+/*
+==============
+Sys_PlatformExit
+
+Unix specific deinitialisation
+==============
+*/
+void Sys_PlatformExit( void )
+{
 }
 
 /*

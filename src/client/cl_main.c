@@ -84,6 +84,15 @@ cvar_t	*m_forward;
 cvar_t	*m_side;
 cvar_t	*m_filter;
 
+cvar_t	*j_pitch;
+cvar_t	*j_yaw;
+cvar_t	*j_forward;
+cvar_t	*j_side;
+cvar_t	*j_pitch_axis;
+cvar_t	*j_yaw_axis;
+cvar_t	*j_forward_axis;
+cvar_t	*j_side_axis;
+
 cvar_t	*cl_activeAction;
 
 cvar_t	*cl_motdString;
@@ -101,6 +110,8 @@ cvar_t	*cl_lanForcePackets;
 cvar_t	*cl_guidServerUniq;
 
 cvar_t	*cl_consoleKeys;
+
+cvar_t  *cl_gamename;
 
 clientActive_t		cl;
 clientConnection_t	clc;
@@ -129,6 +140,7 @@ int serverStatusCount;
 	void hA3Dg_ExportRenderGeom (refexport_t *incoming_re);
 #endif
 
+extern void GLimp_Minimize(void);
 extern void SV_BotFrame( int time );
 void CL_CheckForResend( void );
 void CL_ShowIP_f(void);
@@ -676,14 +688,14 @@ void CL_Record_f( void ) {
 	if ( Cmd_Argc() == 2 ) {
 		s = Cmd_Argv(1);
 		Q_strncpyz( demoName, s, sizeof( demoName ) );
-		Com_sprintf (name, sizeof(name), "demos/%s.dm_%d", demoName, PROTOCOL_VERSION );
+		Com_sprintf (name, sizeof(name), "demos/%s.%s%d", demoName, DEMOEXT, PROTOCOL_VERSION );
 	} else {
 		int		number;
 
 		// scan for a free demo name
 		for ( number = 0 ; number <= 9999 ; number++ ) {
 			CL_DemoFilename( number, demoName );
-			Com_sprintf (name, sizeof(name), "demos/%s.dm_%d", demoName, PROTOCOL_VERSION );
+			Com_sprintf (name, sizeof(name), "demos/%s.%s%d", demoName, DEMOEXT, PROTOCOL_VERSION );
 
 			if (!FS_FileExists(name))
 				break;	// file doesn't exist
@@ -933,9 +945,22 @@ static void CL_WalkDemoExt(char *arg, char *name, int *demofile)
 {
 	int i = 0;
 	*demofile = 0;
+
+	Com_sprintf (name, MAX_OSPATH, "demos/%s.%s%d", arg, DEMOEXT, PROTOCOL_VERSION);
+
+	FS_FOpenFileRead( name, demofile, qtrue );
+
+	if (*demofile)
+	{
+		Com_Printf("Demo file: %s\n", name);
+		return;
+	}
+
+	Com_Printf("Not found: %s\n", name);
+
 	while(demo_protocols[i])
 	{
-		Com_sprintf (name, MAX_OSPATH, "demos/%s.dm_%d", arg, demo_protocols[i]);
+		Com_sprintf (name, MAX_OSPATH, "demos/%s.%s%d", arg, DEMOEXT, demo_protocols[i]);
 		FS_FOpenFileRead( name, demofile, qtrue );
 		if (*demofile)
 		{
@@ -959,8 +984,8 @@ static void CL_CompleteDemoName( char *args, int argNum )
 	{
 		char demoExt[ 16 ];
 
-		Com_sprintf( demoExt, sizeof( demoExt ), ".dm_%d", PROTOCOL_VERSION );
-		Field_CompleteFilename( "demos", demoExt, qtrue );
+		Com_sprintf(demoExt, sizeof(demoExt), ".%s%d", DEMOEXT, PROTOCOL_VERSION);
+		Field_CompleteFilename( "demos", demoExt, qtrue, qtrue );
 	}
 }
 
@@ -992,34 +1017,41 @@ void CL_PlayDemo_f( void ) {
 	
 	CL_Disconnect( qtrue );
 
-	// check for an extension .dm_?? (?? is protocol)
-	ext_test = arg + strlen(arg) - 6;
-	if ((strlen(arg) > 6) && (ext_test[0] == '.') &&
-		((ext_test[1] == 'd') || (ext_test[1] == 'D')) &&
-		((ext_test[2] == 'm') || (ext_test[2] == 'M')) &&
-		(ext_test[3] == '_'))
+	// check for an extension .DEMOEXT_?? (?? is protocol)
+	ext_test = Q_strrchr(arg, '.');
+	
+	if(ext_test && !Q_stricmpn(ext_test + 1, DEMOEXT, ARRAY_LEN(DEMOEXT) - 1))
 	{
-		protocol = atoi(ext_test+4);
-		i=0;
-		while(demo_protocols[i])
+		protocol = atoi(ext_test + ARRAY_LEN(DEMOEXT));
+
+		for(i = 0; demo_protocols[i]; i++)
 		{
-			if (demo_protocols[i] == protocol)
+			if(demo_protocols[i] == protocol)
 				break;
-			i++;
 		}
-		if (demo_protocols[i])
+
+		if(demo_protocols[i] || protocol == PROTOCOL_VERSION)
 		{
-			Com_sprintf (name, sizeof(name), "demos/%s", arg);
-			FS_FOpenFileRead( name, &clc.demofile, qtrue );
-		} else {
-			Com_Printf("Protocol %d not supported for demos\n", protocol);
-			Q_strncpyz(retry, arg, sizeof(retry));
-			retry[strlen(retry)-6] = 0;
-			CL_WalkDemoExt( retry, name, &clc.demofile );
+			Com_sprintf(name, sizeof(name), "demos/%s", arg);
+			FS_FOpenFileRead(name, &clc.demofile, qtrue);
 		}
-	} else {
-		CL_WalkDemoExt( arg, name, &clc.demofile );
+		else
+		{
+			int len;
+
+			Com_Printf("Protocol %d not supported for demos\n", protocol);
+			len = ext_test - arg;
+
+			if(len >= ARRAY_LEN(retry))
+				len = ARRAY_LEN(retry) - 1;
+
+			Q_strncpyz(retry, arg, len + 1);
+			retry[len] = '\0';
+			CL_WalkDemoExt(retry, name, &clc.demofile);
+		}
 	}
+	else
+		CL_WalkDemoExt(arg, name, &clc.demofile);
 	
 	if (!clc.demofile) {
 		Com_Error( ERR_DROP, "couldn't open %s", name);
@@ -2421,7 +2453,7 @@ CL_ServersResponsePacket
 ===================
 */
 void CL_ServersResponsePacket( const netadr_t* from, msg_t *msg, qboolean extended ) {
-	int				i, count, total;
+	int				i, j, count, total;
 	netadr_t addresses[MAX_SERVERSPERPACKET];
 	int				numservers;
 	byte*			buffptr;
@@ -2537,6 +2569,18 @@ void CL_ServersResponsePacket( const netadr_t* from, msg_t *msg, qboolean extend
 	for (i = 0; i < numservers && count < MAX_GLOBAL_SERVERS; i++) {
 		// build net address
 		serverInfo_t *server = &cls.globalServers[count];
+
+		// Tequila: It's possible to have sent many master server requests. Then
+		// we may receive many times the same addresses from the master server.
+		// We just avoid to add a server if it is still in the global servers list.
+		for (j = 0; j < count; j++)
+		{
+			if (NET_CompareAdr(cls.globalServers[j].adr, addresses[i]))
+				break;
+		}
+
+		if (j < count)
+			continue;
 
 		CL_InitServerInfo( server, &addresses[i] );
 		Q_strncpyz( server->label, label, sizeof( server->label ) );
@@ -3363,6 +3407,7 @@ void CL_Init( void ) {
 	// offset for the power function (for style 1, ignored otherwise)
 	// this should be set to the max rate value
 	cl_mouseAccelOffset = Cvar_Get( "cl_mouseAccelOffset", "5", CVAR_ARCHIVE );
+	Cvar_CheckRange(cl_mouseAccelOffset, 0.001f, 50000.0f, qfalse);
 
 	cl_showMouseRate = Cvar_Get ("cl_showmouserate", "0", 0);
 
@@ -3394,6 +3439,15 @@ void CL_Init( void ) {
 	m_filter = Cvar_Get ("m_filter", "0", CVAR_ARCHIVE);
 #endif
 
+	j_pitch =        Cvar_Get ("j_pitch",        "0.022", CVAR_ARCHIVE);
+	j_yaw =          Cvar_Get ("j_yaw",          "-0.022", CVAR_ARCHIVE);
+	j_forward =      Cvar_Get ("j_forward",      "-0.25", CVAR_ARCHIVE);
+	j_side =         Cvar_Get ("j_side",         "0.25", CVAR_ARCHIVE);
+	j_pitch_axis =   Cvar_Get ("j_pitch_axis",   "3", CVAR_ARCHIVE);
+	j_yaw_axis =     Cvar_Get ("j_yaw_axis",     "4", CVAR_ARCHIVE);
+	j_forward_axis = Cvar_Get ("j_forward_axis", "1", CVAR_ARCHIVE);
+	j_side_axis =    Cvar_Get ("j_side_axis",    "0", CVAR_ARCHIVE);
+
 	cl_motdString = Cvar_Get( "cl_motdString", "", CVAR_ROM );
 
 	Cvar_Get( "cl_maxPing", "800", CVAR_ARCHIVE );
@@ -3404,6 +3458,8 @@ void CL_Init( void ) {
 
 	// ~ and `, as keys and characters
 	cl_consoleKeys = Cvar_Get( "cl_consoleKeys", "~ ` 0x7e 0x60", CVAR_ARCHIVE);
+
+	cl_gamename = Cvar_Get("cl_gamename", GAMENAME_FOR_MASTER, CVAR_TEMP);
 
 	// userinfo
 	Cvar_Get ("name", Sys_GetCurrentUser( ), CVAR_USERINFO | CVAR_ARCHIVE );
@@ -3481,6 +3537,7 @@ void CL_Init( void ) {
 	Cmd_AddCommand ("model", CL_SetModel_f );
 	Cmd_AddCommand ("video", CL_Video_f );
 	Cmd_AddCommand ("stopvideo", CL_StopVideo_f );
+	Cmd_AddCommand("minimize", GLimp_Minimize);
 	CL_InitRef();
 
 	SCR_Init ();
@@ -3944,9 +4001,9 @@ void CL_GlobalServers_f( void ) {
 	int			count, i, masterNum;
 	char		command[1024], *masteraddress;
 	
-	if ((count = Cmd_Argc()) < 3 || (masterNum = atoi(Cmd_Argv(1))) < 0 || masterNum > 4)
+	if ((count = Cmd_Argc()) < 3 || (masterNum = atoi(Cmd_Argv(1))) < 0 || masterNum > MAX_MASTER_SERVERS - 1)
 	{
-		Com_Printf( "usage: globalservers <master# 0-4> <protocol> [keywords]\n");
+		Com_Printf("usage: globalservers <master# 0-%d> <protocol> [keywords]\n", MAX_MASTER_SERVERS - 1);
 		return;	
 	}
 
@@ -3977,10 +4034,27 @@ void CL_GlobalServers_f( void ) {
 	cls.numglobalservers = -1;
 	cls.pingUpdateSource = AS_GLOBAL;
 
-	// TODO: test if we only have an IPv6 connection. If it's the case,
-	//       request IPv6 servers only by appending " ipv6" to the command
-	Com_sprintf( command, sizeof(command), "getserversExt "
-		GAMENAME_FOR_MASTER " %s", Cmd_Argv(2) );
+	// Use the extended query for IPv6 masters
+	if (to.type == NA_IP6 || to.type == NA_MULTICAST6)
+	{
+		int v4enabled = Cvar_VariableIntegerValue("net_enabled") & NET_ENABLEV4;
+		
+		if(v4enabled)
+		{
+			Com_sprintf(command, sizeof(command), "getserversExt %s %s ipv6",
+				cl_gamename->string, Cmd_Argv(2));
+		}
+		else
+		{
+			Com_sprintf(command, sizeof(command), "getserversExt %s %s",
+				cl_gamename->string, Cmd_Argv(2));
+		}
+
+		// TODO: test if we only have an IPv6 connection. If it's the case,
+		//       request IPv6 servers only by appending " ipv6" to the command
+	}
+	else
+		Com_sprintf(command, sizeof(command), "getservers %s", Cmd_Argv(2));
 
 	for (i=3; i < count; i++)
 	{
@@ -4004,9 +4078,9 @@ void CL_GetPing( int n, char *buf, int buflen, int *pingtime )
 	int		time;
 	int		maxPing;
 
-	if (!cl_pinglist[n].adr.port)
+	if (n < 0 || n >= MAX_PINGREQUESTS || !cl_pinglist[n].adr.port)
 	{
-		// empty slot
+		// empty or invalid slot
 		buf[0]    = '\0';
 		*pingtime = 0;
 		return;
@@ -4038,29 +4112,14 @@ void CL_GetPing( int n, char *buf, int buflen, int *pingtime )
 
 /*
 ==================
-CL_UpdateServerInfo
-==================
-*/
-void CL_UpdateServerInfo( int n )
-{
-	if (!cl_pinglist[n].adr.port)
-	{
-		return;
-	}
-
-	CL_SetServerInfoByAddress(cl_pinglist[n].adr, cl_pinglist[n].info, cl_pinglist[n].time );
-}
-
-/*
-==================
 CL_GetPingInfo
 ==================
 */
 void CL_GetPingInfo( int n, char *buf, int buflen )
 {
-	if (!cl_pinglist[n].adr.port)
+	if (n < 0 || n >= MAX_PINGREQUESTS || !cl_pinglist[n].adr.port)
 	{
-		// empty slot
+		// empty or invalid slot
 		if (buflen)
 			buf[0] = '\0';
 		return;
