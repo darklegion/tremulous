@@ -1080,7 +1080,6 @@ UI_StartServerRefresh
 */
 static void UI_StartServerRefresh( qboolean full )
 {
-  int   i;
   char  *ptr;
   int   time;
   qtime_t q;
@@ -1120,20 +1119,10 @@ static void UI_StartServerRefresh( qboolean full )
 
   if( ui_netSource.integer == AS_GLOBAL || ui_netSource.integer == AS_MPLAYER )
   {
-    if( ui_netSource.integer == AS_GLOBAL )
-      i = 0;
-    else
-      i = 1;
+    qboolean global = ui_netSource.integer == AS_GLOBAL;
 
-    ptr = UI_Cvar_VariableString( "debug_protocol" );
-
-    if( strlen( ptr ) )
-      trap_Cmd_ExecuteText( EXEC_APPEND, va( "globalservers %d %s full empty\n", i, ptr ) );
-    else
-    {
-      trap_Cmd_ExecuteText( EXEC_APPEND, va( "globalservers %d %d full empty\n", i,
-                            (int)trap_Cvar_VariableValue( "protocol" ) ) );
-    }
+    trap_Cmd_ExecuteText( EXEC_APPEND, va( "globalservers %d full empty\n",
+                          global ? 0 : 1 ) );
   }
 }
 
@@ -4124,8 +4113,6 @@ void UI_Init( qboolean inGameLoad )
 
   uiInfo.serverStatus.currentServerCinematic = -1;
   uiInfo.previewMovie = -1;
-
-  trap_Cvar_Register( NULL, "debug_protocol", "", 0 );
 
   UI_ParseResolutions( );
 }

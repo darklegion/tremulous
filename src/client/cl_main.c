@@ -2453,7 +2453,7 @@ CL_ServersResponsePacket
 ===================
 */
 void CL_ServersResponsePacket( const netadr_t* from, msg_t *msg, qboolean extended ) {
-	int				i, j, count, total;
+	int				i, count, total;
 	netadr_t addresses[MAX_SERVERSPERPACKET];
 	int				numservers;
 	byte*			buffptr;
@@ -2569,18 +2569,6 @@ void CL_ServersResponsePacket( const netadr_t* from, msg_t *msg, qboolean extend
 	for (i = 0; i < numservers && count < MAX_GLOBAL_SERVERS; i++) {
 		// build net address
 		serverInfo_t *server = &cls.globalServers[count];
-
-		// Tequila: It's possible to have sent many master server requests. Then
-		// we may receive many times the same addresses from the master server.
-		// We just avoid to add a server if it is still in the global servers list.
-		for (j = 0; j < count; j++)
-		{
-			if (NET_CompareAdr(cls.globalServers[j].adr, addresses[i]))
-				break;
-		}
-
-		if (j < count)
-			continue;
 
 		CL_InitServerInfo( server, &addresses[i] );
 		Q_strncpyz( server->label, label, sizeof( server->label ) );
@@ -4001,9 +3989,9 @@ void CL_GlobalServers_f( void ) {
 	int			count, i, masterNum;
 	char		command[1024], *masteraddress;
 	
-	if ((count = Cmd_Argc()) < 3 || (masterNum = atoi(Cmd_Argv(1))) < 0 || masterNum > MAX_MASTER_SERVERS - 1)
+	if ((count = Cmd_Argc()) < 2 || (masterNum = atoi(Cmd_Argv(1))) < 0 || masterNum > MAX_MASTER_SERVERS - 1)
 	{
-		Com_Printf("usage: globalservers <master# 0-%d> <protocol> [keywords]\n", MAX_MASTER_SERVERS - 1);
+		Com_Printf("usage: globalservers <master# 0-%d> [keywords]\n", MAX_MASTER_SERVERS - 1);
 		return;	
 	}
 
@@ -4034,27 +4022,12 @@ void CL_GlobalServers_f( void ) {
 	cls.numglobalservers = -1;
 	cls.pingUpdateSource = AS_GLOBAL;
 
-	// Use the extended query for IPv6 masters
-	if (to.type == NA_IP6 || to.type == NA_MULTICAST6)
-	{
-		int v4enabled = Cvar_VariableIntegerValue("net_enabled") & NET_ENABLEV4;
-		
-		if(v4enabled)
-		{
-			Com_sprintf(command, sizeof(command), "getserversExt %s %s ipv6",
-				cl_gamename->string, Cmd_Argv(2));
-		}
-		else
-		{
-			Com_sprintf(command, sizeof(command), "getserversExt %s %s",
-				cl_gamename->string, Cmd_Argv(2));
-		}
-
-		// TODO: test if we only have an IPv6 connection. If it's the case,
-		//       request IPv6 servers only by appending " ipv6" to the command
-	}
-	else
-		Com_sprintf(command, sizeof(command), "getservers %s", Cmd_Argv(2));
+	Com_sprintf( command, sizeof( command ), "getserversExt %s %d",
+                     cl_gamename->string, PROTOCOL_VERSION );
+	// TODO: test if we only have IPv4/IPv6, if so request only the relevant
+	// servers with getserversExt %s %d ipvX
+	// not that big a deal since the extra servers won't respond to getinfo
+	// anyway.
 
 	for (i=3; i < count; i++)
 	{
