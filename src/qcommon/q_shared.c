@@ -981,7 +981,7 @@ void Q_ParseNewlines( char *dest, const char *src, int destsize )
   *dest++ = '\0';
 }
 
-void QDECL Com_sprintf(char *dest, int size, const char *fmt, ...)
+int QDECL Com_sprintf(char *dest, int size, const char *fmt, ...)
 {
 	int		len;
 	va_list		argptr;
@@ -992,6 +992,8 @@ void QDECL Com_sprintf(char *dest, int size, const char *fmt, ...)
 
 	if(len >= size)
 		Com_Printf("Com_sprintf: Output length %d too short, require %d bytes.\n", size, len);
+	
+	return len;
 }
 
 /*
