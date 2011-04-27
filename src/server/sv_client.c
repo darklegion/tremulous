@@ -56,36 +56,19 @@ void SV_GetChallenge(netadr_t from)
 	int		i;
 	int		oldest;
 	int		oldestTime;
-	int		oldestClientTime;
-	int		clientChallenge;
+	const char *clientChallenge = Cmd_Argv(1);
 	challenge_t	*challenge;
-	qboolean wasfound = qfalse;
 
 	oldest = 0;
-	oldestClientTime = oldestTime = 0x7fffffff;
+	oldestTime = 0x7fffffff;
 
 	// see if we already have a challenge for this ip
 	challenge = &svs.challenges[0];
-	clientChallenge = atoi(Cmd_Argv(1));
-
-	for(i = 0 ; i < MAX_CHALLENGES ; i++, challenge++)
-	{
-		if(!challenge->connected && NET_CompareAdr(from, challenge->adr))
-		{
-			wasfound = qtrue;
-			
-			if(challenge->time < oldestClientTime)
-				oldestClientTime = challenge->time;
-		}
-		
-		if(wasfound && i >= MAX_CHALLENGES_MULTI)
-		{
-			i = MAX_CHALLENGES;
+	for (i = 0 ; i < MAX_CHALLENGES ; i++, challenge++) {
+		if (!challenge->connected && NET_CompareAdr( from, challenge->adr ) ) {
 			break;
 		}
-		
-		if(challenge->time < oldestTime)
-		{
+		if ( challenge->time < oldestTime ) {
 			oldestTime = challenge->time;
 			oldest = i;
 		}
@@ -95,19 +78,20 @@ void SV_GetChallenge(netadr_t from)
 	{
 		// this is the first time this client has asked for a challenge
 		challenge = &svs.challenges[oldest];
-		challenge->clientChallenge = clientChallenge;
+		challenge->clientChallenge = 0;
 		challenge->adr = from;
 		challenge->firstTime = svs.time;
+		challenge->time = svs.time;
 		challenge->connected = qfalse;
 	}
 
 	// always generate a new challenge number, so the client cannot circumvent sv_maxping
 	challenge->challenge = ( (rand() << 16) ^ rand() ) ^ svs.time;
-	challenge->wasrefused = qfalse;
+
 
 	challenge->time = svs.time;
 	challenge->pingTime = svs.time;
-	NET_OutOfBandPrint( NS_SERVER, challenge->adr, "challengeResponse %i %d", challenge->challenge, clientChallenge);
+	NET_OutOfBandPrint( NS_SERVER, challenge->adr, "challengeResponse %i %s", challenge->challenge, clientChallenge);
 }
 
 /*
@@ -137,12 +121,10 @@ void SV_DirectConnect( netadr_t from ) {
 	
 	Q_strncpyz( userinfo, Cmd_Argv(1), sizeof(userinfo) );
 
-	version = atoi(Info_ValueForKey(userinfo, "protocol"));
-	if(version != PROTOCOL_VERSION)
-	{
-		NET_OutOfBandPrint(NS_SERVER, from, "print\nServer uses protocol version %i "
-			"(yours is %i).\n", com_protocol->integer, version);
-		Com_DPrintf("    rejected connect from version %i\n", version);
+	version = atoi( Info_ValueForKey( userinfo, "protocol" ) );
+	if ( version != PROTOCOL_VERSION ) {
+		NET_OutOfBandPrint( NS_SERVER, from, "print\nServer uses protocol version %i\n", PROTOCOL_VERSION );
+		Com_DPrintf ("    rejected connect from version %i\n", version);
 		return;
 	}
 
@@ -310,7 +292,7 @@ gotnewcl:
 	newcl->challenge = challenge;
 
 	// save the address
-	Netchan_Setup(NS_SERVER, &newcl->netchan, from, qport, challenge);
+	Netchan_Setup (NS_SERVER, &newcl->netchan , from, qport);
 	// init the netchan queue
 	newcl->netchan_end_queue = &newcl->netchan_start_queue;
 
@@ -331,7 +313,7 @@ gotnewcl:
 	SV_UserinfoChanged( newcl );
 
 	// send the connect packet to the client
-	NET_OutOfBandPrint(NS_SERVER, from, "connectResponse %d", challenge);
+	NET_OutOfBandPrint( NS_SERVER, from, "connectResponse" );
 
 	Com_DPrintf( "Going from CS_FREE to CS_CONNECTED for %s\n", newcl->name );
 

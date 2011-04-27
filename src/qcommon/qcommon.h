@@ -192,8 +192,7 @@ void		NET_Sleep(int msec);
 
 #define MAX_DOWNLOAD_WINDOW			8		// max of eight download frames
 #define MAX_DOWNLOAD_BLKSIZE		2048	// 2048 byte block chunks
-
-#define NETCHAN_GENCHECKSUM(challenge, sequence) ((challenge) ^ ((sequence) * (challenge)))
+ 
 
 /*
 Netchan handles packet fragmentation and out of order / duplicate suppression
@@ -222,12 +221,10 @@ typedef struct {
 	int			unsentFragmentStart;
 	int			unsentLength;
 	byte		unsentBuffer[MAX_MSGLEN];
-
-	int			challenge;
 } netchan_t;
 
 void Netchan_Init( int qport );
-void Netchan_Setup(netsrc_t sock, netchan_t *chan, netadr_t adr, int qport, int challenge);
+void Netchan_Setup( netsrc_t sock, netchan_t *chan, netadr_t adr, int qport );
 
 void Netchan_Transmit( netchan_t *chan, int length, const byte *data );
 void Netchan_TransmitNextFragment( netchan_t *chan );
@@ -243,7 +240,7 @@ PROTOCOL
 ==============================================================
 */
 
-#define	PROTOCOL_VERSION	71
+#define	PROTOCOL_VERSION	70
 
 // maintain a list of compatible protocols for demo playing
 // NOTE: that stuff only works with two digits protocols

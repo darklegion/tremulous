@@ -84,8 +84,7 @@ Netchan_Setup
 called to open a channel to a remote system
 ==============
 */
-void Netchan_Setup(netsrc_t sock, netchan_t *chan, netadr_t adr, int qport, int challenge)
-{
+void Netchan_Setup( netsrc_t sock, netchan_t *chan, netadr_t adr, int qport ) {
 	Com_Memset (chan, 0, sizeof(*chan));
 	
 	chan->sock = sock;
@@ -192,20 +191,16 @@ void Netchan_TransmitNextFragment( netchan_t *chan ) {
 	msg_t		send;
 	byte		send_buf[MAX_PACKETLEN];
 	int			fragmentLength;
-	int			outgoingSequence;
 
 	// write the packet header
 	MSG_InitOOB (&send, send_buf, sizeof(send_buf));				// <-- only do the oob here
 
-	outgoingSequence = chan->outgoingSequence | FRAGMENT_BIT;
-	MSG_WriteLong(&send, outgoingSequence);
+	MSG_WriteLong( &send, chan->outgoingSequence | FRAGMENT_BIT );
 
 	// send the qport if we are a client
 	if ( chan->sock == NS_CLIENT ) {
 		MSG_WriteShort( &send, qport->integer );
 	}
-
-	MSG_WriteLong(&send, NETCHAN_GENCHECKSUM(chan->challenge, chan->outgoingSequence));
 
 	// copy the reliable message to the packet first
 	fragmentLength = FRAGMENT_SIZE;
@@ -274,14 +269,12 @@ void Netchan_Transmit( netchan_t *chan, int length, const byte *data ) {
 	MSG_InitOOB (&send, send_buf, sizeof(send_buf));
 
 	MSG_WriteLong( &send, chan->outgoingSequence );
+	chan->outgoingSequence++;
 
 	// send the qport if we are a client
-	if(chan->sock == NS_CLIENT)
-		MSG_WriteShort(&send, qport->integer);
-
-	MSG_WriteLong(&send, NETCHAN_GENCHECKSUM(chan->challenge, chan->outgoingSequence));
-
-	chan->outgoingSequence++;
+	if ( chan->sock == NS_CLIENT ) {
+		MSG_WriteShort( &send, qport->integer );
+	}
 
 	MSG_WriteData( &send, data, length );
 
@@ -334,12 +327,6 @@ qboolean Netchan_Process( netchan_t *chan, msg_t *msg ) {
 	if ( chan->sock == NS_SERVER ) {
 		qport = MSG_ReadShort( msg );
 	}
-
-	int checksum = MSG_ReadLong(msg);
-
-	// UDP spoofing protection
-	if(NETCHAN_GENCHECKSUM(chan->challenge, sequence) != checksum)
-		return qfalse;
 
 	// read the fragment information
 	if ( fragmented ) {
