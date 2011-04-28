@@ -2579,6 +2579,7 @@ void Com_Init( char *commandLine ) {
 
 	s = va("%s %s %s", Q3_VERSION, PLATFORM_STRING, __DATE__ );
 	com_version = Cvar_Get ("version", s, CVAR_ROM | CVAR_SERVERINFO );
+	Cvar_Get ("protocol", va("%i", PROTOCOL_VERSION), CVAR_SERVERINFO | CVAR_ROM);
 
 	Sys_Init();
 
