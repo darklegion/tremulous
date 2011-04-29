@@ -1080,7 +1080,6 @@ UI_StartServerRefresh
 */
 static void UI_StartServerRefresh( qboolean full )
 {
-  char  *ptr;
   int   time;
   qtime_t q;
 
