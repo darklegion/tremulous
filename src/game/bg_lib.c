@@ -2801,13 +2801,13 @@ void *bsearch( const void *key, const void *base, size_t nmemb, size_t size,
   int    comp;
   void   *ptr;
 
-  while( low <= high )
+  while( low < high )
   {
     mid = low + (high - low) / 2;
     ptr = (void *)((char *)base + ( mid * size ));
     comp = compar (key, ptr);
     if( comp < 0 )
-      high = mid - 1;
+      high = mid;
     else if( comp > 0 )
       low = mid + 1;
     else
