@@ -91,7 +91,7 @@ char *Sys_DefaultHomePath( void )
 			return NULL;
 		}
 		Q_strncpyz( homePath, szPath, sizeof( homePath ) );
-		Q_strcat( homePath, sizeof( homePath ), "\\Tremulous" );
+		Q_strcat( homePath, sizeof( homePath ), "\\" HOMEPATH_NAME_WIN );
 		FreeLibrary(shfolder);
 	}
 
