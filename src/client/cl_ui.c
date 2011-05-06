@@ -1117,11 +1117,7 @@ void CL_InitUI( void ) {
 		Cmd_ExecuteString( "which ui/\n" );
 	}
 
-	// reset any CVAR_CHEAT cvars registered by ui
-	if ( !clc.demoplaying && !cl_connectedToCheatServer ) 
-		Cvar_SetCheatState();
-
-    clc.newsString[ 0 ] = '\0';
+	clc.newsString[ 0 ] = '\0';
 }
 
 /*
