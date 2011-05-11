@@ -1304,7 +1304,7 @@ static qboolean SV_ClientCommand( client_t *cl, msg_t *msg ) {
 	// the command, we will stop processing the rest of the packet,
 	// including the usercmd.  This causes flooders to lag themselves
 	// but not other people
-	// We don't do this when the client hasn't been active yet since its
+	// We don't do this when the client hasn't been active yet since it's
 	// normal to spam a lot of commands when downloading
 #if 0 // flood protection in game for trem
 	if ( !com_cl_running->integer && 
