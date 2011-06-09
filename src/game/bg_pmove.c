@@ -3017,13 +3017,13 @@ static void PM_Weapon( void )
     {
       if( !( pm->ps->pm_flags & PMF_USE_ITEM_HELD ) )
       {
-        if( pm->cmd.weapon <= 32 )
+        if( pm->cmd.weapon < 32 )
         {
           //if trying to select a weapon, select it
           if( pm->ps->weapon != pm->cmd.weapon )
             PM_BeginWeaponChange( pm->cmd.weapon );
         }
-        else if( pm->cmd.weapon > 32 )
+        else
         {
           //if trying to toggle an upgrade, toggle it
           if( BG_InventoryContainsUpgrade( pm->cmd.weapon - 32, pm->ps->stats ) ) //sanity check
