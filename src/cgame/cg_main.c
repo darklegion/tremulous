@@ -1516,7 +1516,7 @@ static const char *CG_FeederItemText( int feederID, int index, int column, qhand
         break;
 
       case 3:
-        return info->name;
+        return va( S_COLOR_WHITE "%s", info->name );
         break;
 
       case 4:
