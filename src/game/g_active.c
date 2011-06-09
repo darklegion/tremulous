@@ -1417,6 +1417,9 @@ void ClientThink_real( gentity_t *ent )
       {
         gentity_t *boost = &g_entities[ entityList[ i ] ];
 
+        if( Distance( client->ps.origin, boost->s.origin ) > REGEN_BOOST_RANGE )
+          continue;
+
         if( modifier < BOOSTER_REGEN_MOD && boost->s.eType == ET_BUILDABLE &&
             boost->s.modelindex == BA_A_BOOSTER && boost->spawned &&
             boost->health > 0 && boost->powered )

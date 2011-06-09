@@ -1250,6 +1250,9 @@ static qboolean AHive_CheckTarget( gentity_t *self, gentity_t *enemy )
   // Check if the tip of the hive can see the target
   VectorMA( self->s.pos.trBase, self->r.maxs[ 2 ], self->s.origin2,
             tip_origin );
+  if( Distance( tip_origin, enemy->s.origin ) > HIVE_SENSE_RANGE )
+    return qfalse;
+
   trap_Trace( &trace, tip_origin, NULL, NULL, enemy->s.pos.trBase,
               self->s.number, MASK_SHOT );
   if( trace.fraction < 1.0f && trace.entityNum != enemy->s.number )
