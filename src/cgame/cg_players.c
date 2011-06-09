@@ -2382,6 +2382,7 @@ void CG_PlayerDisconnect( vec3_t org )
 
 centity_t *CG_GetPlayerLocation( void )
 {
+  int i;
   centity_t   *eloc, *best;
   float       bestlen, len;
   vec3_t      origin;
@@ -2391,13 +2392,17 @@ centity_t *CG_GetPlayerLocation( void )
 
   VectorCopy( cg.predictedPlayerState.origin, origin );
 
-  for( eloc = cg.locationHead; eloc; eloc = eloc->nextLocation )
+  for( i = MAX_CLIENTS; i < MAX_GENTITIES; i++ )
   {
+    eloc = &cg_entities[ i ];
+    if( !eloc->valid || eloc->currentState.eType != ET_LOCATION )
+      continue;
+
     len = DistanceSquared(origin, eloc->lerpOrigin);
 
     if( len > bestlen )
       continue;
-    
+
     if( !trap_R_inPVS( origin, eloc->lerpOrigin ) )
       continue;
 

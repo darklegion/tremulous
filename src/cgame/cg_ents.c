@@ -782,26 +782,6 @@ static void CG_LightFlare( centity_t *cent )
 
 /*
 =========================
-CG_LinkLocation
-=========================
-*/
-void CG_LinkLocation( centity_t *cent )
-{
-  centity_t *tempent;
-
-  for( tempent = cg.locationHead; tempent; tempent = tempent->nextLocation )
-  {
-    if( tempent == cent )
-      return;
-  }
-
-  cent->nextLocation = cg.locationHead;
-  cg.locationHead = cent;
-
-}
-
-/*
-=========================
 CG_Lev2ZapChain
 =========================
 */
@@ -1091,6 +1071,7 @@ static void CG_AddCEntity( centity_t *cent )
     case ET_INVISIBLE:
     case ET_PUSH_TRIGGER:
     case ET_TELEPORT_TRIGGER:
+    case ET_LOCATION:
       break;
 
     case ET_GENERAL:
@@ -1147,10 +1128,6 @@ static void CG_AddCEntity( centity_t *cent )
 
     case ET_LEV2_ZAP_CHAIN:
       CG_Lev2ZapChain( cent );
-      break;
-
-    case ET_LOCATION:
-      CG_LinkLocation( cent );
       break;
   }
 }

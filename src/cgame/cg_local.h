@@ -1153,8 +1153,6 @@ typedef struct
   int           nearUsableBuildable;
   
   int           nextWeaponClickTime;
-
-  centity_t     *locationHead;
 } cg_t;
 
 
@@ -1708,8 +1706,6 @@ void        CG_PositionEntityOnTag( refEntity_t *entity, const refEntity_t *pare
                                     qhandle_t parentModel, char *tagName );
 void        CG_PositionRotatedEntityOnTag( refEntity_t *entity, const refEntity_t *parent,
                                            qhandle_t parentModel, char *tagName );
-void        CG_LinkLocation( centity_t* cent );
-
 
 
 //
