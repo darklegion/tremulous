@@ -1404,8 +1404,24 @@ ifeq ($(ARCH),x86)
   Q3OBJ += \
     $(B)/client/snd_mixa.o \
     $(B)/client/matha.o \
-    $(B)/client/snapvectora.o
+    $(B)/client/snapvector.o \
+    $(B)/client/ftola.o
 endif
+ifeq ($(ARCH),x86_64)
+  Q3OBJ += \
+    $(B)/client/snapvector.o \
+    $(B)/client/ftola.o
+endif
+ifeq ($(ARCH),amd64)
+  Q3OBJ += \
+    $(B)/client/snapvector.o \
+    $(B)/client/ftola.o
+endif
+ifeq ($(ARCH),x64)
+  Q3OBJ += \
+    $(B)/client/snapvector.o \
+    $(B)/client/ftola.o
+ endif
 
 ifeq ($(USE_VOIP),1)
 ifeq ($(USE_INTERNAL_SPEEX),1)
@@ -1466,8 +1482,7 @@ endif
 ifeq ($(HAVE_VM_COMPILED),true)
   ifeq ($(ARCH),x86)
     Q3OBJ += \
-      $(B)/client/vm_x86.o \
-      $(B)/client/ftola.o
+      $(B)/client/vm_x86.o
   endif
   ifeq ($(ARCH),x86_64)
     ifeq ($(USE_OLD_VM64),1)
@@ -1476,8 +1491,7 @@ ifeq ($(HAVE_VM_COMPILED),true)
         $(B)/client/vm_x86_64_assembler.o
     else
       Q3OBJ += \
-        $(B)/client/vm_x86.o \
-        $(B)/client/ftola.o
+        $(B)/client/vm_x86.o
     endif
   endif
   ifeq ($(ARCH),amd64)
@@ -1487,8 +1501,7 @@ ifeq ($(HAVE_VM_COMPILED),true)
         $(B)/client/vm_x86_64_assembler.o
     else
       Q3OBJ += \
-        $(B)/client/vm_x86.o \
-        $(B)/client/ftola.o
+        $(B)/client/vm_x86.o
     endif
   endif
   ifeq ($(ARCH),x64)
@@ -1498,8 +1511,7 @@ ifeq ($(HAVE_VM_COMPILED),true)
         $(B)/client/vm_x86_64_assembler.o
     else
       Q3OBJ += \
-        $(B)/client/vm_x86.o \
-        $(B)/client/ftola.o
+        $(B)/client/vm_x86.o
     endif
   endif
   ifeq ($(ARCH),ppc)
@@ -1607,8 +1619,24 @@ Q3DOBJ = \
 
 ifeq ($(ARCH),x86)
   Q3DOBJ += \
-      $(B)/ded/snapvectora.o \
-      $(B)/ded/matha.o
+      $(B)/ded/matha.o \
+      $(B)/ded/snapvector.o \
+      $(B)/ded/ftola.o
+endif
+ifeq ($(ARCH),x86_64)
+  Q3DOBJ += \
+      $(B)/ded/snapvector.o \
+      $(B)/ded/ftola.o
+endif
+ifeq ($(ARCH),amd64)
+  Q3DOBJ += \
+      $(B)/ded/snapvector.o \
+      $(B)/ded/ftola.o
+endif
+ifeq ($(ARCH),x64)
+  Q3DOBJ += \
+      $(B)/ded/snapvector.o \
+      $(B)/ded/ftola.o
 endif
 
 ifeq ($(USE_INTERNAL_ZLIB),1)
@@ -1624,8 +1652,7 @@ endif
 ifeq ($(HAVE_VM_COMPILED),true)
   ifeq ($(ARCH),x86)
     Q3DOBJ += \
-      $(B)/ded/vm_x86.o \
-      $(B)/ded/ftola.o
+      $(B)/ded/vm_x86.o
   endif
   ifeq ($(ARCH),x86_64)
     ifeq ($(USE_OLD_VM64),1)
@@ -1634,8 +1661,7 @@ ifeq ($(HAVE_VM_COMPILED),true)
         $(B)/ded/vm_x86_64_assembler.o
     else
       Q3DOBJ += \
-        $(B)/ded/vm_x86.o \
-        $(B)/ded/ftola.o
+        $(B)/ded/vm_x86.o
     endif
   endif
   ifeq ($(ARCH),amd64)
@@ -1645,8 +1671,7 @@ ifeq ($(HAVE_VM_COMPILED),true)
         $(B)/ded/vm_x86_64_assembler.o
     else
       Q3DOBJ += \
-        $(B)/ded/vm_x86.o \
-        $(B)/ded/ftola.o
+        $(B)/ded/vm_x86.o
     endif
   endif
   ifeq ($(ARCH),x64)
@@ -1656,8 +1681,7 @@ ifeq ($(HAVE_VM_COMPILED),true)
         $(B)/ded/vm_x86_64_assembler.o
     else
       Q3DOBJ += \
-        $(B)/ded/vm_x86.o \
-        $(B)/ded/ftola.o
+        $(B)/ded/vm_x86.o
     endif
   endif
   ifeq ($(ARCH),ppc)
@@ -1828,6 +1852,10 @@ $(B)/base/vm/ui.qvm: $(UIVMOBJ) $(UIDIR)/ui_syscalls.asm $(Q3ASM)
 $(B)/client/%.o: $(ASMDIR)/%.s
 	$(DO_AS)
 
+# k8 so inline assembler knows about SSE
+$(B)/client/%.o: $(ASMDIR)/%.c
+	$(DO_CC) -march=k8
+
 $(B)/client/%.o: $(CDIR)/%.c
 	$(DO_CC)
 
@@ -1867,6 +1895,10 @@ $(B)/client/%.o: $(SYSDIR)/%.rc
 
 $(B)/ded/%.o: $(ASMDIR)/%.s
 	$(DO_AS)
+
+# k8 so inline assembler knows about SSE
+$(B)/ded/%.o: $(ASMDIR)/%.c
+	$(DO_CC) -march=k8
 
 $(B)/ded/%.o: $(SDIR)/%.c
 	$(DO_DED_CC)
