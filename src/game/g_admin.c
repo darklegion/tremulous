@@ -1019,7 +1019,7 @@ static void llsort( struct llist **head, int compar( const void *, const void * 
       }
       for( bs = c; ( b && bs ) || as; l = t )
       {
-        if( as && ( !bs || !b || compar( a, b ) < 0 ) )
+        if( as && ( !bs || !b || compar( a, b ) <= 0 ) )
           t = a, a = a->next, as--;
         else
           t = b, b = b->next, bs--;
