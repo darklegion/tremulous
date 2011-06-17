@@ -86,7 +86,7 @@ void CL_FlushMemory( void ) {
 void CL_StartHunkUsers( qboolean rendererOnly ) {
 }
 
-void CL_Snd_Restart(void)
+void CL_Snd_Shutdown(void)
 {
 }
 
