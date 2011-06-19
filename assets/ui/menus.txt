@@ -7,6 +7,7 @@
   loadMenu { "ui/options.menu" }
   loadMenu { "ui/createserver.menu" }
   loadMenu { "ui/mod.menu" }
+  loadMenu { "ui/demo.menu" }
   loadMenu { "ui/connect.menu" }
   loadMenu { "ui/password.menu" }
   loadMenu { "ui/quit.menu" }

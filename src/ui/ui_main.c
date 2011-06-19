@@ -2715,7 +2715,6 @@ static void UI_LoadDemos( void )
       if( !Q_stricmp( demoname +  len - strlen( demoExt ), demoExt ) )
         demoname[len-strlen( demoExt )] = '\0';
 
-      Q_strupr( demoname );
       uiInfo.demoList[i] = String_Alloc( demoname );
       demoname += len + 1;
     }
