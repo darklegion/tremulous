@@ -1287,6 +1287,8 @@ static void NET_GetLocalAddress(void)
 {
 	struct ifaddrs *ifap, *search;
 
+	numIP = 0;
+
 	if(getifaddrs(&ifap))
 		Com_Printf("NET_GetLocalAddress: Unable to get list of network interfaces: %s\n", NET_ErrorString());
 	else
@@ -1308,6 +1310,8 @@ static void NET_GetLocalAddress( void ) {
 	char				hostname[256];
 	struct addrinfo	hint;
 	struct addrinfo	*res = NULL;
+
+	numIP = 0;
 
 	if(gethostname( hostname, 256 ) == SOCKET_ERROR)
 		return;
