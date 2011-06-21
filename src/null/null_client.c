@@ -26,7 +26,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 cvar_t *cl_shownet;
 
-void CL_Shutdown( char *finalmsg ) {
+void CL_Shutdown(char *finalmsg, qboolean disconnect)
+{
 }
 
 void CL_Init( void ) {
@@ -80,14 +81,21 @@ void CL_InitKeyCommands( void ) {
 void CL_CDDialog( void ) {
 }
 
-void CL_FlushMemory( void ) {
+void CL_FlushMemory(void)
+{
+}
+
+void CL_ShutdownAll(qboolean shutdownRef)
+{
 }
 
 void CL_StartHunkUsers( qboolean rendererOnly ) {
 }
 
-void CL_Snd_Shutdown(void)
+void CL_InitRef(void)
 {
 }
 
-void CL_ShutdownAll(void) {}
+void CL_Snd_Shutdown(void)
+{
+}

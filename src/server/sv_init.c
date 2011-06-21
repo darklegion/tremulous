@@ -447,7 +447,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	CL_MapLoading();
 
 	// make sure all the client stuff is unloaded
-	CL_ShutdownAll();
+	CL_ShutdownAll(qfalse);
 
 	// clear the whole hunk because we're (re)loading the server
 	Hunk_Clear();

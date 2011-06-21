@@ -460,6 +460,7 @@ void CL_ParseGamestate( msg_t *msg ) {
 	entityState_t	nullstate;
 	int				cmd;
 	char			*s;
+	char oldGame[MAX_QPATH];
 
 	Con_Close();
 
@@ -515,6 +516,9 @@ void CL_ParseGamestate( msg_t *msg ) {
 	// read the checksum feed
 	clc.checksumFeed = MSG_ReadLong( msg );
 
+	// save old gamedir
+	Cvar_VariableStringBuffer("fs_game", oldGame, sizeof(oldGame));
+
 	// parse useful values out of CS_SERVERINFO
 	CL_ParseServerInfo();
 
@@ -526,7 +530,8 @@ void CL_ParseGamestate( msg_t *msg ) {
 		CL_StopRecord_f();
 	
 	// reinitialize the filesystem if the game directory has changed
-	FS_ConditionalRestart( clc.checksumFeed );
+	if(FS_ConditionalRestart(clc.checksumFeed, qfalse) && !cls.oldGame[0])
+		Q_strncpyz(cls.oldGame, oldGame, sizeof(cls.oldGame));
 
 	// This used to call CL_StartHunkUsers, but now we enter the download state before loading the
 	// cgame
