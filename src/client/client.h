@@ -340,6 +340,7 @@ typedef struct {
 	int pingUpdateSource;		// source currently pinging or updating
 	
 	char		oldGame[MAX_QPATH];
+	qboolean	oldGameSet;
 
 	// update server info
 	netadr_t	updateServer;

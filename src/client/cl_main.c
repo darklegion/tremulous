@@ -1319,11 +1319,10 @@ static void CL_UpdateGUID( const char *prefix, int prefix_len )
 
 static void CL_OldGame(void)
 {
-	char *curGame = Cvar_VariableString("fs_game");
-	
-	if(cls.oldGame[0] || *curGame)
+	if(cls.oldGameSet)
 	{
 		// change back to previous fs_game
+		cls.oldGameSet = qfalse;
 		Cvar_Set("fs_game", cls.oldGame);
 		Com_GameRestart(0, qtrue);
 	}
@@ -3387,6 +3386,7 @@ void CL_Init( void ) {
 	{
 		CL_ClearState();
 		clc.state = CA_DISCONNECTED;	// no longer CA_UNINITIALIZED
+		cls.oldGameSet = qfalse;
 	}
 
 	cls.realtime = 0;
