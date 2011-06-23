@@ -433,6 +433,11 @@ static void DoSyscall(void)
 		);
 #endif
 
+	// save currentVM so as to allow for recursive VM entry
+	savedVM = currentVM;
+	// modify VM stack pointer for recursive VM entry
+	currentVM->programStack = programStack - 4;
+
 	if(syscallNum < 0)
 	{
 		int *data;
@@ -441,12 +446,7 @@ static void DoSyscall(void)
 		intptr_t args[11];
 #endif
 		
-		// save currentVM so as to allow for recursive VM entry
-		savedVM = currentVM;
 		data = (int *) (savedVM->dataBase + programStack + 4);
-
-		// modify VM stack pointer for recursive VM entry
-		savedVM->programStack = programStack - 4;
 
 #if idx64
 		args[0] = ~syscallNum;
@@ -458,8 +458,6 @@ static void DoSyscall(void)
 		data[0] = ~syscallNum;
 		opStackBase[opStackOfs + 1] = savedVM->systemCall(data);
 #endif
-
-		currentVM = savedVM;
 	}
 	else
 	{
@@ -479,6 +477,8 @@ static void DoSyscall(void)
 		break;
 		}
 	}
+
+	currentVM = savedVM;
 }
 
 /*
