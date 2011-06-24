@@ -610,9 +610,6 @@ ifeq ($(PLATFORM),freebsd)
 
   ifeq ($(USE_CODEC_VORBIS),1)
     CLIENT_CFLAGS += -DUSE_CODEC_VORBIS
-  endif
-
-  ifeq ($(USE_CODEC_VORBIS),1)
     CLIENT_LIBS += -lvorbisfile -lvorbis -logg
   endif
 
