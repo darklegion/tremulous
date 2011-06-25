@@ -4070,12 +4070,24 @@ void CL_GlobalServers_f( void ) {
 	cls.numglobalservers = -1;
 	cls.pingUpdateSource = AS_GLOBAL;
 
-	Com_sprintf( command, sizeof( command ), "getserversExt %s %d",
-                     cl_gamename->string, PROTOCOL_VERSION );
-	// TODO: test if we only have IPv4/IPv6, if so request only the relevant
-	// servers with getserversExt %s %d ipvX
-	// not that big a deal since the extra servers won't respond to getinfo
-	// anyway.
+	// Use the extended query for IPv6 masters
+	if (to.type == NA_IP6 || to.type == NA_MULTICAST6)
+	{
+		int v4enabled = Cvar_VariableIntegerValue("net_enabled") & NET_ENABLEV4;
+		
+		if(v4enabled)
+		{
+			Com_sprintf(command, sizeof(command), "getserversExt %s %s",
+				cl_gamename->string, Cmd_Argv(2));
+		}
+		else
+		{
+			Com_sprintf(command, sizeof(command), "getserversExt %s %s ipv6",
+				cl_gamename->string, Cmd_Argv(2));
+		}
+	}
+	else
+		Com_sprintf(command, sizeof(command), "getservers %s", Cmd_Argv(2));
 
 	for (i=3; i < count; i++)
 	{
