@@ -1017,7 +1017,7 @@ static char* memData;
 
 int VM_CallCompiled(vm_t *vm, int *args)
 {
-	int stack[OPSTACK_SIZE + 3];
+	int stack[OPSTACK_SIZE + 15];
 	int		programCounter;
 	int		programStack;
 	int		stackOnEntry;
@@ -1064,7 +1064,7 @@ int VM_CallCompiled(vm_t *vm, int *args)
 
 	// off we go into generated code...
 	entryPoint = getentrypoint(vm);
-	opStack = PADP(stack, 4);
+	opStack = PADP(stack, 16);
 
 	*opStack = 0xDEADBEEF;
 	opStackRet = 0;
