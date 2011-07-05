@@ -1292,9 +1292,8 @@ void Cmd_CallVote_f( gentity_t *ent )
       sizeof( level.voteDisplayString[ team ] ), "Kick player '%s'", name );
     if( reason[ 0 ] )
     {
-      Com_sprintf( level.voteDisplayString[ team ],
-        sizeof( level.voteDisplayString[ team ] ), "%s for '%s'",
-        level.voteDisplayString[ team ], reason );
+      Q_strcat( level.voteDisplayString[ team ],
+        sizeof( level.voteDisplayString[ team ] ), va( " for '%s'", reason ) );
     }
   }
   else if( team == TEAM_NONE )
@@ -1315,9 +1314,8 @@ void Cmd_CallVote_f( gentity_t *ent )
         "Mute player '%s'", name );
       if( reason[ 0 ] )
       {
-        Com_sprintf( level.voteDisplayString[ team ],
-          sizeof( level.voteDisplayString[ team ] ), "%s for '%s'",
-          level.voteDisplayString[ team ], reason );
+        Q_strcat( level.voteDisplayString[ team ],
+          sizeof( level.voteDisplayString[ team ] ), va( " for '%s'", reason ) );
       }
     }
     else if( !Q_stricmp( vote, "unmute" ) )
@@ -1441,9 +1439,8 @@ void Cmd_CallVote_f( gentity_t *ent )
       "Take away building rights from '%s'", name );
     if( reason[ 0 ] )
     {
-      Com_sprintf( level.voteDisplayString[ team ],
-        sizeof( level.voteDisplayString[ team ] ), "%s for '%s'",
-        level.voteDisplayString[ team ], reason );
+      Q_strcat( level.voteDisplayString[ team ],
+        sizeof( level.voteDisplayString[ team ] ), va( " for '%s'", reason ) );
     }
   }
   else if( !Q_stricmp( vote, "allowbuild" ) )
