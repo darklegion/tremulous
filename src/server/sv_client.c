@@ -60,6 +60,19 @@ void SV_GetChallenge(netadr_t from)
 	int		clientChallenge;
 	challenge_t	*challenge;
 	qboolean wasfound = qfalse;
+	char *gameName;
+
+	gameName = Cmd_Argv(2);
+	if(gameName && *gameName)
+	{
+		// reject client if the heartbeat string sent by the client doesn't match ours
+		if(strcmp(gameName, sv_heartbeat->string))
+		{
+ 			NET_OutOfBandPrint(NS_SERVER, from, "print\nGame mismatch: This is a %s server\n",
+ 				sv_heartbeat->string);
+			return;
+		}
+	}
 
 	oldest = 0;
 	oldestClientTime = oldestTime = 0x7fffffff;
@@ -139,8 +152,9 @@ void SV_DirectConnect( netadr_t from ) {
 
 	version = atoi( Info_ValueForKey( userinfo, "protocol" ) );
 	if ( version != PROTOCOL_VERSION ) {
-		NET_OutOfBandPrint( NS_SERVER, from, "print\nServer uses protocol version %i\n", PROTOCOL_VERSION );
-		Com_DPrintf ("    rejected connect from version %i\n", version);
+		NET_OutOfBandPrint(NS_SERVER, from, "print\nServer uses protocol version %i "
+					"(yours is %i).\n", PROTOCOL_VERSION, version);
+		Com_DPrintf("    rejected connect from version %i\n", version);
 		return;
 	}
 
@@ -308,7 +322,7 @@ gotnewcl:
 	newcl->challenge = challenge;
 
 	// save the address
-	Netchan_Setup (NS_SERVER, &newcl->netchan , from, qport);
+	Netchan_Setup(NS_SERVER, &newcl->netchan, from, qport, challenge);
 	// init the netchan queue
 	newcl->netchan_end_queue = &newcl->netchan_start_queue;
 
@@ -329,7 +343,7 @@ gotnewcl:
 	SV_UserinfoChanged( newcl );
 
 	// send the connect packet to the client
-	NET_OutOfBandPrint( NS_SERVER, from, "connectResponse" );
+	NET_OutOfBandPrint(NS_SERVER, from, "connectResponse %d", challenge);
 
 	Com_DPrintf( "Going from CS_FREE to CS_CONNECTED for %s\n", newcl->name );
 
