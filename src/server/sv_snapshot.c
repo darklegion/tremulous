@@ -642,9 +642,6 @@ void SV_SendClientSnapshot( client_t *client ) {
 	// and the playerState_t
 	SV_WriteSnapshotToClient( client, &msg );
 
-	// Add any download data if the client is downloading
-	SV_WriteDownloadToClient( client, &msg );
-
 #ifdef USE_VOIP
 	SV_WriteVoipToClient( client, &msg );
 #endif
@@ -678,6 +675,9 @@ void SV_SendClientMessages( void ) {
 			continue;		// not time yet
 		}
 
+		if(*c->downloadName)
+			continue;		// Client is downloading, don't send snapshots
+
 		// send additional message fragments if the last message
 		// was too large to send at once
 		if ( c->netchan.unsentFragments ) {
@@ -691,4 +691,3 @@ void SV_SendClientMessages( void ) {
 		SV_SendClientSnapshot( c );
 	}
 }
-
