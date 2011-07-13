@@ -225,6 +225,8 @@ typedef struct {
 	byte		unsentBuffer[MAX_MSGLEN];
 
 	int			challenge;
+	int		lastSentTime;
+	int		lastSentSize;
 } netchan_t;
 
 void Netchan_Init( int qport );
@@ -277,9 +279,7 @@ enum svc_ops_e {
 	svc_snapshot,
 	svc_EOF,
 
-	// svc_extension follows a svc_EOF, followed by another svc_* ...
-	//  this keeps legacy clients compatible.
-	svc_extension,
+// new commands, supported only by ioquake3 protocol but not legacy
 	svc_voip,     // not wrapped in USE_VOIP, so this value is reserved.
 };
 
@@ -295,9 +295,7 @@ enum clc_ops_e {
 	clc_clientCommand,		// [string] message
 	clc_EOF,
 
-	// clc_extension follows a clc_EOF, followed by another clc_* ...
-	//  this keeps legacy servers compatible.
-	clc_extension,
+// new commands, supported only by ioquake3 protocol but not legacy
 	clc_voip,   // not wrapped in USE_VOIP, so this value is reserved.
 };
 
@@ -1013,7 +1011,7 @@ void SV_PacketEvent( netadr_t from, msg_t *msg );
 int SV_FrameMsec(void);
 qboolean SV_GameCommand( void );
 int SV_SendDownloadMessages(void);
-
+int SV_SendQueuedMessages(void);
 
 //
 // UI interface

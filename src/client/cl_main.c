@@ -289,7 +289,7 @@ void CL_Voip_f( void )
 		reason = "Not connected to a server";
 	else if (!clc.speexInitialized)
 		reason = "Speex not initialized";
-	else if (!cl_connectedToVoipServer)
+	else if (!clc.voipEnabled)
 		reason = "Server doesn't support VoIP";
 
 	if (reason != NULL) {
@@ -383,7 +383,7 @@ void CL_CaptureVoip(void)
 		qboolean dontCapture = qfalse;
 		if (clc.state != CA_ACTIVE)
 			dontCapture = qtrue;  // not connected to a server.
-		else if (!cl_connectedToVoipServer)
+		else if (!clc.voipEnabled)
 			dontCapture = qtrue;  // server doesn't support VoIP.
 		else if (clc.demoplaying)
 			dontCapture = qtrue;  // playing back a demo.
@@ -1429,7 +1429,7 @@ void CL_Disconnect( qboolean showMainMenu ) {
 
 #ifdef USE_VOIP
 	// not connected to voip server anymore.
-	cl_connectedToVoipServer = qfalse;
+	clc.voipEnabled = qfalse;
 #endif
 
 	// Stop recording any video

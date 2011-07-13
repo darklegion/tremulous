@@ -700,7 +700,7 @@ void SV_FinalMessage( char *message ) {
 					SV_SendServerCommand( cl, "disconnect \"%s\"", message );
 				}
 				// force a snapshot to be sent
-				cl->nextSnapshotTime = -1;
+				cl->lastSnapshotTime = 0;
 				SV_SendClientSnapshot( cl );
 			}
 		}

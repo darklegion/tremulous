@@ -35,7 +35,6 @@ char *svc_strings[256] = {
 	"svc_download",
 	"svc_snapshot",
 	"svc_EOF",
-	"svc_extension",
 	"svc_voip",
 };
 
@@ -331,10 +330,6 @@ void CL_ParseSnapshot( msg_t *msg ) {
 int cl_connectedToPureServer;
 int cl_connectedToCheatServer;
 
-#ifdef USE_VOIP
-int cl_connectedToVoipServer;
-#endif
-
 /*
 ==================
 CL_SystemInfoChanged
@@ -364,10 +359,8 @@ void CL_SystemInfoChanged( void ) {
 	}
 
 #ifdef USE_VOIP
-	// in the future, (val) will be a protocol version string, so only
-	//  accept explicitly 1, not generally non-zero.
 	s = Info_ValueForKey( systemInfo, "sv_voip" );
-	cl_connectedToVoipServer = (atoi( s ) == 1);
+	clc.voipEnabled = atoi(s);
 #endif
 
 	s = Info_ValueForKey( systemInfo, "sv_cheats" );
@@ -861,19 +854,6 @@ void CL_ParseServerMessage( msg_t *msg ) {
 		}
 
 		cmd = MSG_ReadByte( msg );
-
-		// See if this is an extension command after the EOF, which means we
-		//  got data that a legacy client should ignore.
-		if ((cmd == svc_EOF) && (MSG_LookaheadByte( msg ) == svc_extension)) {
-			SHOWNET( msg, "EXTENSION" );
-			MSG_ReadByte( msg );  // throw the svc_extension byte away.
-			cmd = MSG_ReadByte( msg );  // something legacy clients can't do!
-			// sometimes you get a svc_extension at end of stream...dangling
-			//  bits in the huffman decoder giving a bogus value?
-			if (cmd == -1) {
-				cmd = svc_EOF;
-			}
-		}
 
 		if (cmd == svc_EOF) {
 			SHOWNET( msg, "END OF MESSAGE" );
