@@ -119,8 +119,8 @@ void SV_GetChallenge(netadr_t from)
 	challenge->wasrefused = qfalse;
 	challenge->time = svs.time;
 	challenge->pingTime = svs.time;
-	NET_OutOfBandPrint(NS_SERVER, challenge->adr, "challengeResponse %d %d",
-			   challenge->challenge, clientChallenge);
+	NET_OutOfBandPrint(NS_SERVER, challenge->adr, "challengeResponse %d %d %d",
+			   challenge->challenge, clientChallenge, PROTOCOL_VERSION);
 }
 
 /*
