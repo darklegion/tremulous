@@ -48,7 +48,9 @@ cvar_t *s_alAvailableInputDevices;
 
 static qboolean enumeration_ext = qfalse;
 static qboolean enumeration_all_ext = qfalse;
+#ifdef USE_VOIP
 static qboolean capture_ext = qfalse;
+#endif
 
 /*
 =================
