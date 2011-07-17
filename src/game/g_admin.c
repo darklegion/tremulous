@@ -873,7 +873,7 @@ static void G_admin_ban_message(
   if( areason && ent )
   {
     // we just want the ban number
-    int n = 0;
+    int n = 1;
     g_admin_ban_t *b = g_admin_bans;
     for( ; b && b != ban; b = b->next, n++ )
       ;
