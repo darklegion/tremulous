@@ -2646,7 +2646,7 @@ Responses to broadcasts, etc
 void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 	char	*s;
 	char	*c;
-	int challenge;
+	int challenge = 0;
 
 	MSG_BeginReadingOOB( msg );
 	MSG_ReadLong( msg );	// skip the -1
@@ -3096,7 +3096,7 @@ CL_RefPrintf
 DLL glue
 ================
 */
-void QDECL CL_RefPrintf( int print_level, const char *fmt, ...) {
+static __attribute__ ((format (printf, 2, 3))) void QDECL CL_RefPrintf( int print_level, const char *fmt, ...) {
 	va_list		argptr;
 	char		msg[MAXPRINTMSG];
 	
