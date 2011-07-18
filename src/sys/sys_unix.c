@@ -548,10 +548,10 @@ void Sys_ErrorDialog( const char *error )
 Sys_ZenityCommand
 ==============
 */
-static int Sys_ZenityCommand( dialogType_t type, const char *message, const char *title )	
+static void Sys_ZenityCommand( dialogType_t type, const char *message, const char *title,
+		char *command, size_t commandSize )
 {
 	const char *options = "";
-	char       command[ 1024 ];
 
 	switch( type )
 	{
@@ -563,10 +563,8 @@ static int Sys_ZenityCommand( dialogType_t type, const char *message, const char
 		case DT_OK_CANCEL: options = "--question --ok-label=\"OK\" --cancel-label=\"Cancel\""; break;
 	}
 
-	Com_sprintf( command, sizeof( command ), "zenity %s --text=\"%s\" --title=\"%s\"",
+	Com_sprintf( command, commandSize, "zenity %s --text=\"%s\" --title=\"%s\" >/dev/null 2>/dev/null",
 		options, message, title );
-
-	return system( command );
 }
 
 /*
@@ -574,10 +572,10 @@ static int Sys_ZenityCommand( dialogType_t type, const char *message, const char
 Sys_KdialogCommand
 ==============
 */
-static int Sys_KdialogCommand( dialogType_t type, const char *message, const char *title )
+static void Sys_KdialogCommand( dialogType_t type, const char *message, const char *title,
+		char *command, size_t commandSize )
 {
 	const char *options = "";
-	char       command[ 1024 ];
 
 	switch( type )
 	{
@@ -589,10 +587,8 @@ static int Sys_KdialogCommand( dialogType_t type, const char *message, const cha
 		case DT_OK_CANCEL: options = "--warningcontinuecancel"; break;
 	}
 
-	Com_sprintf( command, sizeof( command ), "kdialog %s \"%s\" --title \"%s\"",
+	Com_sprintf( command, commandSize, "kdialog %s \"%s\" --title \"%s\" >/dev/null 2>/dev/null",
 		options, message, title );
-
-	return system( command );
 }
 
 /*
@@ -600,10 +596,10 @@ static int Sys_KdialogCommand( dialogType_t type, const char *message, const cha
 Sys_XmessageCommand
 ==============
 */
-static int Sys_XmessageCommand( dialogType_t type, const char *message, const char *title )
+static void Sys_XmessageCommand( dialogType_t type, const char *message, const char *title,
+		char *command, size_t commandSize )
 {
 	const char *options = "";
-	char       command[ 1024 ];
 
 	switch( type )
 	{
@@ -612,10 +608,8 @@ static int Sys_XmessageCommand( dialogType_t type, const char *message, const ch
 		case DT_OK_CANCEL: options = "-buttons OK:0,Cancel:1"; break;
 	}
 
-	Com_sprintf( command, sizeof( command ), "xmessage -center %s \"%s\"",
+	Com_sprintf( command, commandSize, "xmessage -center %s \"%s\" >/dev/null 2>/dev/null",
 		options, message );
-
-	return system( command );
 }
 
 /*
@@ -635,7 +629,7 @@ dialogResult_t Sys_Dialog( dialogType_t type, const char *message, const char *t
 		XMESSAGE,
 		NUM_DIALOG_PROGRAMS
 	} dialogCommandType_t;
-	typedef int (*dialogCommandBuilder_t)( dialogType_t, const char *, const char * );
+	typedef void (*dialogCommandBuilder_t)( dialogType_t, const char *, const char *, char *, size_t );
 
 	const char              *session = getenv( "DESKTOP_SESSION" );
 	qboolean                tried[ NUM_DIALOG_PROGRAMS ] = { qfalse };
@@ -655,7 +649,6 @@ dialogResult_t Sys_Dialog( dialogType_t type, const char *message, const char *t
 	while( 1 )
 	{
 		int i;
-		int exitCode;
 
 		for( i = NONE + 1; i < NUM_DIALOG_PROGRAMS; i++ )
 		{
@@ -664,14 +657,22 @@ dialogResult_t Sys_Dialog( dialogType_t type, const char *message, const char *t
 
 			if( !tried[ i ] )
 			{
-				exitCode = commands[ i ]( type, message, title );
+				int exitCode;
+				int childSignal;
+				int childCode;
+				char command[ 1024 ];
 
-				if( exitCode >= 0 )
+				commands[ i ]( type, message, title, command, sizeof( command ) );
+				exitCode = system( command );
+				childSignal = exitCode & 127;
+				childCode = exitCode >> 8;
+
+				if( exitCode != -1 && childSignal == 0 && childCode != 126 && childCode != 127 )
 				{
 					switch( type )
 					{
-						case DT_YES_NO:    return exitCode ? DR_NO : DR_YES;
-						case DT_OK_CANCEL: return exitCode ? DR_CANCEL : DR_OK;
+						case DT_YES_NO:    return childCode ? DR_NO : DR_YES;
+						case DT_OK_CANCEL: return childCode ? DR_CANCEL : DR_OK;
 						default:           return DR_OK;
 					}
 				}
