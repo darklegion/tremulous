@@ -932,7 +932,8 @@ S_Base_RawSamples
 Music streaming
 ============
 */
-void S_Base_RawSamples( int stream, int samples, int rate, int width, int s_channels, const byte *data, float volume ) {
+void S_Base_RawSamples( int stream, int samples, int rate, int width, int s_channels, const byte *data, float volume, int entityNum)
+{
 	int		i;
 	int		src, dst;
 	float	scale;
@@ -943,9 +944,16 @@ void S_Base_RawSamples( int stream, int samples, int rate, int width, int s_chan
 		return;
 	}
 
+	if(entityNum >= 0)
+	{
+		// FIXME: support spatialized raw streams, e.g. for VoIP
+		return;
+	}
+
 	if ( (stream < 0) || (stream >= MAX_RAW_STREAMS) ) {
 		return;
 	}
+	
 	rawsamples = s_rawsamples[stream];
 
 	if(s_muted->integer)
@@ -1411,8 +1419,8 @@ void S_UpdateBackgroundTrack( void ) {
 		if(r > 0)
 		{
 			// add to raw buffer
-			S_Base_RawSamples( 0, fileSamples, s_backgroundStream->info.rate,
-				s_backgroundStream->info.width, s_backgroundStream->info.channels, raw, s_musicVolume->value );
+			S_Base_RawSamples(0, fileSamples, s_backgroundStream->info.rate,
+				s_backgroundStream->info.width, s_backgroundStream->info.channels, raw, s_musicVolume->value, -1);
 		}
 		else
 		{
