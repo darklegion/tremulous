@@ -38,11 +38,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define Q3_VERSION                 PRODUCT_NAME " " PRODUCT_VERSION
 
 #define GAMENAME_FOR_MASTER       "Tremulous"
-#define HEARTBEAT_FOR_MASTER      GAMENAME_FOR_MASTER
-#define FLATLINE_FOR_MASTER       GAMENAME_FOR_MASTER "dead"
 #define HOMEPATH_NAME_UNIX        ".tremulous"
 #define HOMEPATH_NAME_WIN         "Tremulous"
 #define HOMEPATH_NAME_MACOSX      HOMEPATH_NAME_WIN
+
+// Heartbeat for dpmaster protocol. You shouldn't change this unless you know what you're doing
+#define HEARTBEAT_FOR_MASTER      "DarkPlaces"
 
 #define MAX_TEAMNAME 32
 #define MAX_MASTER_SERVERS      5 // number of supported master servers

@@ -281,9 +281,7 @@ extern	cvar_t	*sv_minPing;
 extern	cvar_t	*sv_maxPing;
 extern	cvar_t	*sv_pure;
 extern	cvar_t	*sv_lanForceRate;
-extern	cvar_t	*sv_dequeuePeriod;
-extern	cvar_t	*sv_heartbeat;
-extern	cvar_t	*sv_flatline;
+extern	cvar_t	*sv_banFile;
 
 #ifdef USE_VOIP
 extern	cvar_t	*sv_voip;

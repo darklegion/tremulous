@@ -111,8 +111,6 @@ cvar_t	*cl_guidServerUniq;
 
 cvar_t	*cl_consoleKeys;
 
-cvar_t  *cl_gamename;
-
 clientActive_t		cl;
 clientConnection_t	clc;
 clientStatic_t		cls;
@@ -226,58 +224,6 @@ void CL_UpdateVoipGain(const char *idstr, float gain)
 			Com_Printf("VoIP: player #%d gain now set to %f\n", id, gain);
 		}
 	}
-}
-
-/*
-================
-CL_VoipParseTargets
-
-Sets clc.voipTarget{1,2,3} by asking the cgame to produce a string and then
-parsing it as a series of client numbers
-Perhaps it would be better to allow the cgame to set the three integers
-directly, but this way we can change the net protocol without changing the
-vmcall
-================
-*/
-static void CL_VoipParseTargets( void )
-{
-  const char *target = cl_voipSendTarget->string;
-  intptr_t p = VM_Call( cgvm, CG_VOIP_STRING );
-
-  if( p )
-    target = VM_ExplicitArgPtr( cgvm, p );
-
-  if( !target[ 0 ] || Q_stricmp( target, "all" ) == 0 )
-    clc.voipTarget1 = clc.voipTarget2 = clc.voipTarget3 = 0x7FFFFFFF;
-  else if( Q_stricmp( target, "none" ) == 0 )
-    clc.voipTarget1 = clc.voipTarget2 = clc.voipTarget3 = 0;
-  else
-  {
-    char *end;
-    int val;
-    clc.voipTarget1 = clc.voipTarget2 = clc.voipTarget3 = 0;
-
-    while( 1 )
-    {
-      while( *target && !isdigit( *target ) )
-        target++;
-      if( !*target )
-        break;
-
-      val = strtol( target, &end, 10 );
-      assert( target != end );
-      if( val < 0 || val >= MAX_CLIENTS )
-        Com_Printf( S_COLOR_YELLOW "WARNING: VoIP target %d is not a valid "
-                    "client number\n", val );
-      else if( val < 31 )
-        clc.voipTarget1 |= 1 << val;
-      else if( ( val -= 31 ) < 31 )
-        clc.voipTarget2 |= 1 << val;
-      else if( ( val -= 31 ) < 31 )
-        clc.voipTarget3 |= 1 << val;
-      target = end;
-    }
-  }
 }
 
 void CL_Voip_f( void )
@@ -2369,9 +2315,9 @@ void CL_CheckForResend( void ) {
 		// requesting a challenge
 
 		// The challenge request shall be followed by a client challenge so no malicious server can hijack this connection.
-		// Add the heartbeat gamename so the server knows we're running the correct game and can reject the client
+		// Add the gamename so the server knows we're running the correct game or can reject the client
 		// with a meaningful message
-		Com_sprintf(data, sizeof(data), "getchallenge %d %s", clc.challenge, Cvar_VariableString("sv_heartbeat"));
+		Com_sprintf(data, sizeof(data), "getchallenge %d %s", clc.challenge, com_gamename->string);
 
 		NET_OutOfBandPrint(NS_CLIENT, clc.serverAddress, "%s", data);
 		break;
@@ -3597,8 +3543,6 @@ void CL_Init( void ) {
 	// ~ and `, as keys and characters
 	cl_consoleKeys = Cvar_Get( "cl_consoleKeys", "~ ` 0x7e 0x60", CVAR_ARCHIVE);
 
-	cl_gamename = Cvar_Get("cl_gamename", GAMENAME_FOR_MASTER, CVAR_TEMP);
-
 	// userinfo
 	Cvar_Get ("name", Sys_GetCurrentUser( ), CVAR_USERINFO | CVAR_ARCHIVE );
 	Cvar_Get ("rate", "25000", CVAR_USERINFO | CVAR_ARCHIVE );
@@ -3812,8 +3756,18 @@ void CL_ServerInfoPacket( netadr_t from, msg_t *msg ) {
 	char	info[MAX_INFO_STRING];
 	char	*infoString;
 	int		prot;
+	char	*gamename;
 
 	infoString = MSG_ReadString( msg );
+
+	// if this isn't the correct gamename, ignore it
+	gamename = Info_ValueForKey( infoString, "gamename" );
+
+	if (gamename && *gamename && strcmp(gamename, com_gamename->string))
+	{
+		Com_DPrintf( "Game mismatch in info packet: %s\n", infoString );
+		return;
+	}
 
 	// if this isn't the correct protocol version, ignore it
 	prot = atoi( Info_ValueForKey( infoString, "protocol" ) );
@@ -4185,16 +4139,17 @@ void CL_GlobalServers_f( void ) {
 		if(v4enabled)
 		{
 			Com_sprintf(command, sizeof(command), "getserversExt %s %s",
-				cl_gamename->string, Cmd_Argv(2));
+				com_gamename->string, Cmd_Argv(2));
 		}
 		else
 		{
 			Com_sprintf(command, sizeof(command), "getserversExt %s %s ipv6",
-				cl_gamename->string, Cmd_Argv(2));
+				com_gamename->string, Cmd_Argv(2));
 		}
 	}
 	else
-		Com_sprintf(command, sizeof(command), "getservers %s", Cmd_Argv(2));
+		Com_sprintf(command, sizeof(command), "getservers %s %s",
+			com_gamename->string, Cmd_Argv(2));
 
 	for (i=3; i < count; i++)
 	{

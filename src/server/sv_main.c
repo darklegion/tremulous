@@ -56,10 +56,7 @@ cvar_t	*sv_minPing;
 cvar_t	*sv_maxPing;
 cvar_t	*sv_pure;
 cvar_t	*sv_lanForceRate; // dedicated 1 (LAN) server forces local client rates to 99999 (bug #491)
-cvar_t	*sv_dequeuePeriod;
-cvar_t  *sv_heartbeat;			// Heartbeat string that is sent to the master
-cvar_t  *sv_flatline;			// If the master server supports it we can send a flatline
-					// when server is killed
+cvar_t	*sv_banFile;
 
 /*
 =============================================================================
@@ -323,11 +320,11 @@ Informs all masters that this server is going down
 void SV_MasterShutdown( void ) {
 	// send a hearbeat right now
 	svs.nextHeartbeatTime = -9999;
-	SV_MasterHeartbeat(sv_flatline->string);
+	SV_MasterHeartbeat(HEARTBEAT_FOR_MASTER);
 
 	// send it again to minimize chance of drops
 	svs.nextHeartbeatTime = -9999;
-	SV_MasterHeartbeat(sv_flatline->string);
+	SV_MasterHeartbeat(HEARTBEAT_FOR_MASTER);
 
 	// when the master tries to poll the server, it won't respond, so
 	// it will be removed from the list
@@ -649,6 +646,7 @@ void SVC_Info( netadr_t from ) {
 	Info_SetValueForKey( infostring, "challenge", Cmd_Argv(1) );
 
 	Info_SetValueForKey( infostring, "protocol", va("%i", PROTOCOL_VERSION) );
+	Info_SetValueForKey( infostring, "gamename", com_gamename->string );
 	Info_SetValueForKey( infostring, "hostname", sv_hostname->string );
 	Info_SetValueForKey( infostring, "mapname", sv_mapname->string );
 	Info_SetValueForKey( infostring, "clients", va("%i", count) );
@@ -1137,7 +1135,7 @@ void SV_Frame( int msec ) {
 	SV_SendClientMessages();
 
 	// send a heartbeat to the master if needed
-	SV_MasterHeartbeat(sv_heartbeat->string);
+	SV_MasterHeartbeat(HEARTBEAT_FOR_MASTER);
 }
 
 /*
