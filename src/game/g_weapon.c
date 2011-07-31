@@ -1305,9 +1305,6 @@ qboolean CheckPounceAttack( gentity_t *ent )
   payload = ent->client->pmext.pouncePayload;
   if( !( ent->client->ps.pm_flags & PMF_CHARGE ) )
     ent->client->pmext.pouncePayload = 0;
-    
-  if( ent->client->ps.weaponTime > 0 )
-    return qfalse;
 
   // Calculate muzzle point
   AngleVectors( ent->client->ps.viewangles, forward, right, up );
