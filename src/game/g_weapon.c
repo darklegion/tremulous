@@ -735,7 +735,7 @@ void teslaFire( gentity_t *self )
   trace_t tr;
   vec3_t origin, target;
   gentity_t *tent;
-  
+
   if( !self->enemy )
     return;
 
@@ -758,7 +758,7 @@ void teslaFire( gentity_t *self )
   if( self->enemy->takedamage )
   {
     vec3_t dir;
-    
+
     VectorSubtract( target, origin, dir );
     G_Damage( self->enemy, self, self, dir, tr.endpos,
               TESLAGEN_DMG, 0, MOD_TESLAGEN );

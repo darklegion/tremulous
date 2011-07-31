@@ -2469,15 +2469,18 @@ void HTeslaGen_Think( gentity_t *self )
 
   if( self->spawned && self->timestamp < level.time )
   {
-    vec3_t range, mins, maxs;
+    vec3_t origin, range, mins, maxs;
     int entityList[ MAX_GENTITIES ], i, num;
 
     // Communicates firing state to client
     self->s.eFlags &= ~EF_FIRING;
 
+    // Move the muzzle from the entity origin up a bit to fire over turrets
+    VectorMA( self->s.origin, self->r.maxs[ 2 ], self->s.origin2, origin );
+
     VectorSet( range, TESLAGEN_RANGE, TESLAGEN_RANGE, TESLAGEN_RANGE );
-    VectorAdd( self->s.origin, range, maxs );
-    VectorSubtract( self->s.origin, range, mins );
+    VectorAdd( origin, range, maxs );
+    VectorSubtract( origin, range, mins );
 
     // Attack nearby Aliens
     num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
@@ -2490,8 +2493,7 @@ void HTeslaGen_Think( gentity_t *self )
 
       if( self->enemy->client && self->enemy->health > 0 &&
           self->enemy->client->ps.stats[ STAT_TEAM ] == TEAM_ALIENS &&
-          Distance( self->enemy->s.pos.trBase,
-                    self->s.pos.trBase ) <= TESLAGEN_RANGE )
+          Distance( origin, self->enemy->s.pos.trBase ) <= TESLAGEN_RANGE )
         FireWeapon( self );
     }
     self->enemy = NULL;
