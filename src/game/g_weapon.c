@@ -780,23 +780,22 @@ BUILD GUN
 */
 void CheckCkitRepair( gentity_t *ent )
 {
-  vec3_t      forward, end;
+  vec3_t      viewOrigin, forward, end;
   trace_t     tr;
   gentity_t   *traceEnt;
   int         bHealth;
 
   if( ent->client->ps.weaponTime > 0 ||
       ent->client->ps.stats[ STAT_MISC ] > 0 )
-	return;
+    return;
 
-  // Construction kit repair
+  BG_GetClientViewOrigin( &ent->client->ps, viewOrigin );
   AngleVectors( ent->client->ps.viewangles, forward, NULL, NULL );
-  VectorMA( ent->client->ps.origin, 100, forward, end );
-  
-  trap_Trace( &tr, ent->client->ps.origin, NULL, NULL, end, ent->s.number,
-              MASK_PLAYERSOLID );
+  VectorMA( viewOrigin, 100, forward, end );
+
+  trap_Trace( &tr, viewOrigin, NULL, NULL, end, ent->s.number, MASK_PLAYERSOLID );
   traceEnt = &g_entities[ tr.entityNum ];
-  
+
   if( tr.fraction < 1.0f && traceEnt->spawned && traceEnt->health > 0 &&
       traceEnt->s.eType == ET_BUILDABLE && traceEnt->buildableTeam == TEAM_HUMANS )
   {

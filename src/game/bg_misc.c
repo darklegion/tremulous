@@ -3273,6 +3273,20 @@ void BG_GetClientNormal( const playerState_t *ps, vec3_t normal )
 
 /*
 ===============
+BG_GetClientViewOrigin
+
+Get the position of the client's eye, based on the client's position, the surface's normal, and client's view height
+===============
+*/
+void BG_GetClientViewOrigin( const playerState_t *ps, vec3_t viewOrigin )
+{
+  vec3_t normal;
+  BG_GetClientNormal( ps, normal );
+  VectorMA( ps->origin, ps->viewheight, normal, viewOrigin );
+}
+
+/*
+===============
 BG_PositionBuildableRelativeToPlayer
 
 Find a place to build a buildable
