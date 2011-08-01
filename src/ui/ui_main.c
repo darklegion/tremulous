@@ -2206,8 +2206,8 @@ static void UI_LoadTeams( void )
 {
   uiInfo.teamCount = 4;
 
-  uiInfo.teamList[ 0 ].text = String_Alloc( "Aliens" );
-  uiInfo.teamList[ 0 ].cmd = String_Alloc( "cmd team aliens\n" );
+  uiInfo.teamList[ 0 ].text = "Aliens";
+  uiInfo.teamList[ 0 ].cmd = "cmd team aliens\n";
   uiInfo.teamList[ 0 ].type = INFOTYPE_TEXT;
   uiInfo.teamList[ 0 ].v.text =
     "The Alien Team\n\n"
@@ -2216,8 +2216,8 @@ static void UI_LoadTeams( void )
     "of abilities including basic melee attacks, movement-"
     "crippling poisons and more.";
 
-  uiInfo.teamList[ 1 ].text = String_Alloc( "Humans" );
-  uiInfo.teamList[ 1 ].cmd = String_Alloc( "cmd team humans\n" );
+  uiInfo.teamList[ 1 ].text = "Humans";
+  uiInfo.teamList[ 1 ].cmd = "cmd team humans\n";
   uiInfo.teamList[ 1 ].type = INFOTYPE_TEXT;
   uiInfo.teamList[ 1 ].v.text =
     "The Human Team\n\n"
@@ -2227,13 +2227,13 @@ static void UI_LoadTeams( void )
     "weapons are available to the humans, each contributing "
     "to eradicate the alien threat.";
 
-  uiInfo.teamList[ 2 ].text = String_Alloc( "Spectate" );
-  uiInfo.teamList[ 2 ].cmd = String_Alloc( "cmd team spectate\n" );
+  uiInfo.teamList[ 2 ].text = "Spectate";
+  uiInfo.teamList[ 2 ].cmd = "cmd team spectate\n";
   uiInfo.teamList[ 2 ].type = INFOTYPE_TEXT;
   uiInfo.teamList[ 2 ].v.text = "Watch the game without playing.";
 
-  uiInfo.teamList[ 3 ].text = String_Alloc( "Auto select" );
-  uiInfo.teamList[ 3 ].cmd = String_Alloc( "cmd team auto\n" );
+  uiInfo.teamList[ 3 ].text = "Auto select";
+  uiInfo.teamList[ 3 ].cmd = "cmd team auto\n";
   uiInfo.teamList[ 3 ].type = INFOTYPE_TEXT;
   uiInfo.teamList[ 3 ].v.text = "Join the team with the least players.";
 }
@@ -2247,10 +2247,8 @@ UI_AddClass
 static void UI_AddClass( class_t class )
 {
   uiInfo.alienClassList[ uiInfo.alienClassCount ].text =
-
-    String_Alloc( BG_ClassConfig( class )->humanName );
+    BG_ClassConfig( class )->humanName;
   uiInfo.alienClassList[ uiInfo.alienClassCount ].cmd =
-
     String_Alloc( va( "cmd class %s\n", BG_Class( class )->name ) );
   uiInfo.alienClassList[ uiInfo.alienClassCount ].type = INFOTYPE_CLASS;
 
@@ -2286,7 +2284,7 @@ UI_AddItem
 static void UI_AddItem( weapon_t weapon )
 {
   uiInfo.humanItemList[ uiInfo.humanItemCount ].text =
-    String_Alloc( BG_Weapon( weapon )->humanName );
+    BG_Weapon( weapon )->humanName;
   uiInfo.humanItemList[ uiInfo.humanItemCount ].cmd =
     String_Alloc( va( "cmd class %s\n", BG_Weapon( weapon )->name ) );
   uiInfo.humanItemList[ uiInfo.humanItemCount ].type = INFOTYPE_WEAPON;
@@ -2403,8 +2401,7 @@ static void UI_LoadHumanArmouryBuys( void )
         !( BG_Weapon( i )->slots & slots ) &&
         !( uiInfo.weapons & ( 1 << i ) ) )
     {
-      uiInfo.humanArmouryBuyList[ j ].text =
-        String_Alloc( BG_Weapon( i )->humanName );
+      uiInfo.humanArmouryBuyList[ j ].text = BG_Weapon( i )->humanName;
       uiInfo.humanArmouryBuyList[ j ].cmd =
         String_Alloc( va( "cmd buy %s\n", BG_Weapon( i )->name ) );
       uiInfo.humanArmouryBuyList[ j ].type = INFOTYPE_WEAPON;
@@ -2425,8 +2422,7 @@ static void UI_LoadHumanArmouryBuys( void )
         !( BG_Upgrade( i )->slots & slots ) &&
         !( uiInfo.upgrades & ( 1 << i ) ) )
     {
-      uiInfo.humanArmouryBuyList[ j ].text =
-        String_Alloc( BG_Upgrade( i )->humanName );
+      uiInfo.humanArmouryBuyList[ j ].text = BG_Upgrade( i )->humanName;
       uiInfo.humanArmouryBuyList[ j ].cmd =
         String_Alloc( va( "cmd buy %s\n", BG_Upgrade( i )->name ) );
       uiInfo.humanArmouryBuyList[ j ].type = INFOTYPE_UPGRADE;
@@ -2455,7 +2451,7 @@ static void UI_LoadHumanArmourySells( void )
   {
     if( uiInfo.weapons & ( 1 << i ) )
     {
-      uiInfo.humanArmourySellList[ j ].text = String_Alloc( BG_Weapon( i )->humanName );
+      uiInfo.humanArmourySellList[ j ].text = BG_Weapon( i )->humanName;
       uiInfo.humanArmourySellList[ j ].cmd =
         String_Alloc( va( "cmd sell %s\n", BG_Weapon( i )->name ) );
       uiInfo.humanArmourySellList[ j ].type = INFOTYPE_WEAPON;
@@ -2471,7 +2467,7 @@ static void UI_LoadHumanArmourySells( void )
   {
     if( uiInfo.upgrades & ( 1 << i ) )
     {
-      uiInfo.humanArmourySellList[ j ].text = String_Alloc( BG_Upgrade( i )->humanName );
+      uiInfo.humanArmourySellList[ j ].text = BG_Upgrade( i )->humanName;
       uiInfo.humanArmourySellList[ j ].cmd =
         String_Alloc( va( "cmd sell %s\n", BG_Upgrade( i )->name ) );
       uiInfo.humanArmourySellList[ j ].type = INFOTYPE_UPGRADE;
@@ -2527,7 +2523,7 @@ static void UI_LoadAlienUpgrades( void )
   {
     if( BG_ClassCanEvolveFromTo( class, i, credits, stage, 0 ) >= 0 )
     {
-      uiInfo.alienUpgradeList[ j ].text = String_Alloc( BG_ClassConfig( i )->humanName );
+      uiInfo.alienUpgradeList[ j ].text = BG_ClassConfig( i )->humanName;
       uiInfo.alienUpgradeList[ j ].cmd =
         String_Alloc( va( "cmd class %s\n", BG_Class( i )->name ) );
       uiInfo.alienUpgradeList[ j ].type = INFOTYPE_CLASS;
@@ -2562,8 +2558,7 @@ static void UI_LoadAlienBuilds( void )
         BG_BuildableAllowedInStage( i, stage ) &&
         BG_BuildableIsAllowed( i ) )
     {
-      uiInfo.alienBuildList[ j ].text =
-        String_Alloc( BG_Buildable( i )->humanName );
+      uiInfo.alienBuildList[ j ].text = BG_Buildable( i )->humanName;
       uiInfo.alienBuildList[ j ].cmd =
         String_Alloc( va( "cmd build %s\n", BG_Buildable( i )->name ) );
       uiInfo.alienBuildList[ j ].type = INFOTYPE_BUILDABLE;
@@ -2598,8 +2593,7 @@ static void UI_LoadHumanBuilds( void )
         BG_BuildableAllowedInStage( i, stage ) &&
         BG_BuildableIsAllowed( i ) )
     {
-      uiInfo.humanBuildList[ j ].text =
-        String_Alloc( BG_Buildable( i )->humanName );
+      uiInfo.humanBuildList[ j ].text = BG_Buildable( i )->humanName;
       uiInfo.humanBuildList[ j ].cmd =
         String_Alloc( va( "cmd build %s\n", BG_Buildable( i )->name ) );
       uiInfo.humanBuildList[ j ].type = INFOTYPE_BUILDABLE;

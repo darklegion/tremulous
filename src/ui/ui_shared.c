@@ -214,19 +214,20 @@ static char strPool[STRING_POOL_SIZE];
 static int strHandleCount = 0;
 static stringDef_t *strHandle[HASH_TABLE_SIZE];
 
-
+// Make a copy of a string for later use. Can safely be called on the
+// same string repeatedly. Redundant on string literals or global
+// constants.
 const char *String_Alloc( const char *p )
 {
   int len;
   long hash;
   stringDef_t *str, *last;
-  static const char *staticNULL = "";
 
   if( p == NULL )
     return NULL;
 
   if( *p == 0 )
-    return staticNULL;
+    return "";
 
   hash = hashForString( p );
 
@@ -268,8 +269,11 @@ const char *String_Alloc( const char *p )
 
     return &strPool[ph];
   }
-
-  return NULL;
+  else
+  {
+    Com_Error( ERR_DROP, "String_Alloc( %s ): string pool full!", p );
+    return NULL; // not that we return at all
+  }
 }
 
 void String_Report( void )
