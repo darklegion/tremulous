@@ -157,6 +157,10 @@ ifndef BUILD_MASTER_SERVER
 BUILD_MASTER_SERVER=0
 endif
 
+ifndef USE_RENDERER_DLOPEN
+USE_RENDERER_DLOPEN=1
+endif
+
 ifndef DEBUG_CFLAGS
 DEBUG_CFLAGS=-g -O0
 endif
@@ -278,6 +282,10 @@ ifneq (,$(findstring "$(PLATFORM)", "linux" "gnu_kfreebsd" "kfreebsd-gnu"))
 
   ifeq ($(USE_CODEC_VORBIS),1)
     CLIENT_CFLAGS += -DUSE_CODEC_VORBIS
+  endif
+  
+  ifeq ($(USE_RENDERER_DLOPEN),1)
+    CLIENT_CFLAGS += -DUSE_RENDERER_DLOPEN
   endif
 
   OPTIMIZEVM = -O3 -funroll-loops -fomit-frame-pointer
@@ -487,6 +495,10 @@ ifeq ($(PLATFORM),mingw32)
 
   ifeq ($(USE_CODEC_VORBIS),1)
     CLIENT_CFLAGS += -DUSE_CODEC_VORBIS
+  endif
+  
+  ifeq ($(USE_RENDERER_DLOPEN),1)
+    CLIENT_CFLAGS += -DUSE_RENDERER_DLOPEN
   endif
 
   ifeq ($(ARCH),x64)
@@ -845,9 +857,16 @@ ifneq ($(BUILD_SERVER),0)
 endif
 
 ifneq ($(BUILD_CLIENT),0)
-  TARGETS += $(B)/tremulous$(FULLBINEXT)
-  ifneq ($(BUILD_CLIENT_SMP),0)
-    TARGETS += $(B)/tremulous-smp$(FULLBINEXT)
+  ifneq ($(USE_RENDERER_DLOPEN),0)
+    TARGETS += $(B)/tremulous$(FULLBINEXT) $(B)/renderer_opengl1_$(SHLIBNAME)
+    ifneq ($(BUILD_CLIENT_SMP),0)
+      TARGETS += $(B)/renderer_opengl1_smp_$(SHLIBNAME)
+    endif
+  else
+    TARGETS += $(B)/tremulous$(FULLBINEXT)
+    ifneq ($(BUILD_CLIENT_SMP),0)
+      TARGETS += $(B)/tremulous-smp$(FULLBINEXT)
+    endif
   endif
 endif
 
@@ -938,9 +957,14 @@ $(echo_cmd) "CC $<"
 $(Q)$(CC) $(NOTSHLIBCFLAGS) $(CFLAGS) $(CLIENT_CFLAGS) $(OPTIMIZE) -o $@ -c $<
 endef
 
+define DO_REF_CC
+$(echo_cmd) "REF_CC $<"
+$(Q)$(CC) $(SHLIBCFLAGS) $(CFLAGS) $(CLIENT_CFLAGS) $(OPTIMIZE) -o $@ -c $<
+endef
+
 define DO_SMP_CC
 $(echo_cmd) "SMP_CC $<"
-$(Q)$(CC) $(NOTSHLIBCFLAGS) $(CFLAGS) $(CLIENT_CFLAGS) $(OPTIMIZE) -DSMP -o $@ -c $<
+$(Q)$(CC) $(SHLIBCFLAGS) $(CFLAGS) $(CLIENT_CFLAGS) $(OPTIMIZE) -DSMP -o $@ -c $<
 endef
 
 ifeq ($(GENERATE_DEPENDENCIES),1)
@@ -1077,6 +1101,8 @@ makedirs:
 	@if [ ! -d $(B) ];then $(MKDIR) $(B);fi
 	@if [ ! -d $(B)/client ];then $(MKDIR) $(B)/client;fi
 	@if [ ! -d $(B)/clientsmp ];then $(MKDIR) $(B)/clientsmp;fi
+	@if [ ! -d $(B)/renderer ];then $(MKDIR) $(B)/renderer;fi
+	@if [ ! -d $(B)/renderersmp ];then $(MKDIR) $(B)/renderersmp;fi
 	@if [ ! -d $(B)/ded ];then $(MKDIR) $(B)/ded;fi
 	@if [ ! -d $(B)/base ];then $(MKDIR) $(B)/base;fi
 	@if [ ! -d $(B)/base/cgame ];then $(MKDIR) $(B)/base/cgame;fi
@@ -1312,37 +1338,7 @@ Q3OBJ = \
   $(B)/client/vm.o \
   $(B)/client/vm_interpreted.o \
   \
-  $(B)/client/tr_animation.o \
-  $(B)/client/tr_backend.o \
-  $(B)/client/tr_bsp.o \
-  $(B)/client/tr_cmds.o \
-  $(B)/client/tr_curve.o \
-  $(B)/client/tr_flares.o \
-  $(B)/client/tr_font.o \
-  $(B)/client/tr_image.o \
-  $(B)/client/tr_image_png.o \
-  $(B)/client/tr_image_jpg.o \
-  $(B)/client/tr_image_bmp.o \
-  $(B)/client/tr_image_tga.o \
-  $(B)/client/tr_image_pcx.o \
-  $(B)/client/tr_init.o \
-  $(B)/client/tr_light.o \
-  $(B)/client/tr_main.o \
-  $(B)/client/tr_marks.o \
-  $(B)/client/tr_mesh.o \
-  $(B)/client/tr_model.o \
-  $(B)/client/tr_model_iqm.o \
-  $(B)/client/tr_noise.o \
-  $(B)/client/tr_scene.o \
-  $(B)/client/tr_shade.o \
-  $(B)/client/tr_shade_calc.o \
-  $(B)/client/tr_shader.o \
-  $(B)/client/tr_shadows.o \
-  $(B)/client/tr_sky.o \
-  $(B)/client/tr_surface.o \
-  $(B)/client/tr_world.o \
   \
-  $(B)/client/sdl_gamma.o \
   $(B)/client/sdl_input.o \
   $(B)/client/sdl_snd.o \
   \
@@ -1350,54 +1346,95 @@ Q3OBJ = \
   $(B)/client/con_log.o \
   $(B)/client/sys_main.o
 
+Q3ROBJ = \
+  $(B)/renderer/tr_animation.o \
+  $(B)/renderer/tr_backend.o \
+  $(B)/renderer/tr_bsp.o \
+  $(B)/renderer/tr_cmds.o \
+  $(B)/renderer/tr_curve.o \
+  $(B)/renderer/tr_flares.o \
+  $(B)/renderer/tr_font.o \
+  $(B)/renderer/tr_image.o \
+  $(B)/renderer/tr_image_png.o \
+  $(B)/renderer/tr_image_jpg.o \
+  $(B)/renderer/tr_image_bmp.o \
+  $(B)/renderer/tr_image_tga.o \
+  $(B)/renderer/tr_image_pcx.o \
+  $(B)/renderer/tr_init.o \
+  $(B)/renderer/tr_light.o \
+  $(B)/renderer/tr_main.o \
+  $(B)/renderer/tr_marks.o \
+  $(B)/renderer/tr_mesh.o \
+  $(B)/renderer/tr_model.o \
+  $(B)/renderer/tr_model_iqm.o \
+  $(B)/renderer/tr_noise.o \
+  $(B)/renderer/tr_scene.o \
+  $(B)/renderer/tr_shade.o \
+  $(B)/renderer/tr_shade_calc.o \
+  $(B)/renderer/tr_shader.o \
+  $(B)/renderer/tr_shadows.o \
+  $(B)/renderer/tr_sky.o \
+  $(B)/renderer/tr_surface.o \
+  $(B)/renderer/tr_world.o \
+  \
+  $(B)/renderer/sdl_gamma.o
+  
+ifneq ($(USE_RENDERER_DLOPEN), 0)
+  Q3ROBJ += \
+    $(B)/renderer/q_shared.o \
+    $(B)/renderer/puff.o \
+    $(B)/renderer/q_math.o \
+    $(B)/renderer/tr_subs.o
+endif
+
 ifneq ($(USE_INTERNAL_JPEG),0)
-  Q3OBJ += \
-    $(B)/client/jaricom.o \
-    $(B)/client/jcapimin.o \
-    $(B)/client/jcapistd.o \
-    $(B)/client/jcarith.o \
-    $(B)/client/jccoefct.o  \
-    $(B)/client/jccolor.o \
-    $(B)/client/jcdctmgr.o \
-    $(B)/client/jchuff.o   \
-    $(B)/client/jcinit.o \
-    $(B)/client/jcmainct.o \
-    $(B)/client/jcmarker.o \
-    $(B)/client/jcmaster.o \
-    $(B)/client/jcomapi.o \
-    $(B)/client/jcparam.o \
-    $(B)/client/jcprepct.o \
-    $(B)/client/jcsample.o \
-    $(B)/client/jctrans.o \
-    $(B)/client/jdapimin.o \
-    $(B)/client/jdapistd.o \
-    $(B)/client/jdarith.o \
-    $(B)/client/jdatadst.o \
-    $(B)/client/jdatasrc.o \
-    $(B)/client/jdcoefct.o \
-    $(B)/client/jdcolor.o \
-    $(B)/client/jddctmgr.o \
-    $(B)/client/jdhuff.o \
-    $(B)/client/jdinput.o \
-    $(B)/client/jdmainct.o \
-    $(B)/client/jdmarker.o \
-    $(B)/client/jdmaster.o \
-    $(B)/client/jdmerge.o \
-    $(B)/client/jdpostct.o \
-    $(B)/client/jdsample.o \
-    $(B)/client/jdtrans.o \
-    $(B)/client/jerror.o \
-    $(B)/client/jfdctflt.o \
-    $(B)/client/jfdctfst.o \
-    $(B)/client/jfdctint.o \
-    $(B)/client/jidctflt.o \
-    $(B)/client/jidctfst.o \
-    $(B)/client/jidctint.o \
-    $(B)/client/jmemmgr.o \
-    $(B)/client/jmemnobs.o \
-    $(B)/client/jquant1.o \
-    $(B)/client/jquant2.o \
-    $(B)/client/jutils.o
+  Q3ROBJ += \
+    $(B)/renderer/jaricom.o \
+    $(B)/renderer/jcapimin.o \
+    $(B)/renderer/jcapistd.o \
+    $(B)/renderer/jcarith.o \
+    $(B)/renderer/jccoefct.o  \
+    $(B)/renderer/jccolor.o \
+    $(B)/renderer/jcdctmgr.o \
+    $(B)/renderer/jchuff.o   \
+    $(B)/renderer/jcinit.o \
+    $(B)/renderer/jcmainct.o \
+    $(B)/renderer/jcmarker.o \
+    $(B)/renderer/jcmaster.o \
+    $(B)/renderer/jcomapi.o \
+    $(B)/renderer/jcparam.o \
+    $(B)/renderer/jcprepct.o \
+    $(B)/renderer/jcsample.o \
+    $(B)/renderer/jctrans.o \
+    $(B)/renderer/jdapimin.o \
+    $(B)/renderer/jdapistd.o \
+    $(B)/renderer/jdarith.o \
+    $(B)/renderer/jdatadst.o \
+    $(B)/renderer/jdatasrc.o \
+    $(B)/renderer/jdcoefct.o \
+    $(B)/renderer/jdcolor.o \
+    $(B)/renderer/jddctmgr.o \
+    $(B)/renderer/jdhuff.o \
+    $(B)/renderer/jdinput.o \
+    $(B)/renderer/jdmainct.o \
+    $(B)/renderer/jdmarker.o \
+    $(B)/renderer/jdmaster.o \
+    $(B)/renderer/jdmerge.o \
+    $(B)/renderer/jdpostct.o \
+    $(B)/renderer/jdsample.o \
+    $(B)/renderer/jdtrans.o \
+    $(B)/renderer/jerror.o \
+    $(B)/renderer/jfdctflt.o \
+    $(B)/renderer/jfdctfst.o \
+    $(B)/renderer/jfdctint.o \
+    $(B)/renderer/jidctflt.o \
+    $(B)/renderer/jidctfst.o \
+    $(B)/renderer/jidctint.o \
+    $(B)/renderer/jmemmgr.o \
+    $(B)/renderer/jmemnobs.o \
+    $(B)/renderer/jquant1.o \
+    $(B)/renderer/jquant2.o \
+    $(B)/renderer/jutils.o
 endif
 
 ifeq ($(ARCH),x86)
@@ -1545,22 +1582,40 @@ ifeq ($(USE_MUMBLE),1)
 endif
 
 Q3POBJ += \
-  $(B)/client/sdl_glimp.o
+  $(B)/renderer/sdl_glimp.o
 
 Q3POBJ_SMP += \
-  $(B)/clientsmp/sdl_glimp.o
+  $(B)/renderersmp/sdl_glimp.o
 
-$(B)/tremulous$(FULLBINEXT): $(Q3OBJ) $(Q3POBJ) $(LIBSDLMAIN)
+ifneq ($(USE_RENDERER_DLOPEN),0)
+$(B)/tremulous$(FULLBINEXT): $(Q3OBJ) $(LIBSDLMAIN)
 	$(echo_cmd) "LD $@"
 	$(Q)$(CC) $(CLIENT_CFLAGS) $(CFLAGS) $(CLIENT_LDFLAGS) $(LDFLAGS) \
-		-o $@ $(Q3OBJ) $(Q3POBJ) \
+		-o $@ $(Q3OBJ) \
 		$(LIBSDLMAIN) $(CLIENT_LIBS) $(LIBS)
 
-$(B)/tremulous-smp$(FULLBINEXT): $(Q3OBJ) $(Q3POBJ_SMP) $(LIBSDLMAIN)
+$(B)/renderer_opengl1_$(SHLIBNAME): $(Q3ROBJ) $(Q3POBJ)
+	$(echo_cmd) "LD $@"
+	$(Q)$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(Q3ROBJ) $(Q3POBJ) \
+		$(THREAD_LIBS) $(LIBSDLMAIN) $(CLIENT_LIBS) $(LIBS)
+
+$(B)/renderer_opengl1_smp_$(SHLIBNAME): $(Q3ROBJ) $(Q3POBJ_SMP)
+	$(echo_cmd) "LD $@"
+	$(Q)$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(Q3ROBJ) $(Q3POBJ_SMP) \
+		$(THREAD_LIBS) $(LIBSDLMAIN) $(CLIENT_LIBS) $(LIBS)
+else
+$(B)/tremulous$(FULLBINEXT): $(Q3OBJ) $(Q3ROBJ) $(Q3POBJ) $(LIBSDLMAIN)
+	$(echo_cmd) "LD $@"
+	$(Q)$(CC) $(CLIENT_CFLAGS) $(CFLAGS) $(CLIENT_LDFLAGS) $(LDFLAGS) \
+		-o $@ $(Q3OBJ) $(Q3ROBJ) $(Q3POBJ) \
+		$(LIBSDLMAIN) $(CLIENT_LIBS) $(LIBS)
+
+$(B)/tremulous-smp$(FULLBINEXT): $(Q3OBJ) $(Q3ROBJ) $(Q3POBJ_SMP) $(LIBSDLMAIN)
 	$(echo_cmd) "LD $@"
 	$(Q)$(CC) $(CLIENT_CFLAGS) $(CFLAGS) $(CLIENT_LDFLAGS) $(LDFLAGS) $(THREAD_LDFLAGS) \
-		-o $@ $(Q3OBJ) $(Q3POBJ_SMP) \
+		-o $@ $(Q3OBJ) $(Q3ROBJ) $(Q3POBJ_SMP) \
 		$(THREAD_LIBS) $(LIBSDLMAIN) $(CLIENT_LIBS) $(LIBS)
+endif
 
 ifneq ($(strip $(LIBSDLMAIN)),)
 ifneq ($(strip $(LIBSDLMAINSRC)),)
@@ -1865,22 +1920,16 @@ $(B)/client/%.o: $(SDIR)/%.c
 $(B)/client/%.o: $(CMDIR)/%.c
 	$(DO_CC)
 
-$(B)/client/%.o: $(JPDIR)/%.c
-	$(DO_CC)
-
 $(B)/client/%.o: $(SPEEXDIR)/%.c
 	$(DO_CC)
 
 $(B)/client/%.o: $(ZDIR)/%.c
 	$(DO_CC)
 
-$(B)/client/%.o: $(RDIR)/%.c
-	$(DO_CC)
-
 $(B)/client/%.o: $(SDLDIR)/%.c
 	$(DO_CC)
 
-$(B)/clientsmp/%.o: $(SDLDIR)/%.c
+$(B)/renderersmp/%.o: $(SDLDIR)/%.c
 	$(DO_SMP_CC)
 
 $(B)/client/%.o: $(SYSDIR)/%.c
@@ -1891,6 +1940,19 @@ $(B)/client/%.o: $(SYSDIR)/%.m
 
 $(B)/client/%.o: $(SYSDIR)/%.rc
 	$(DO_WINDRES)
+
+
+$(B)/renderer/%.o: $(CMDIR)/%.c
+	$(DO_REF_CC)
+
+$(B)/renderer/%.o: $(SDLDIR)/%.c
+	$(DO_REF_CC)
+
+$(B)/renderer/%.o: $(JPDIR)/%.c
+	$(DO_REF_CC)
+
+$(B)/renderer/%.o: $(RDIR)/%.c
+	$(DO_REF_CC)
 
 
 $(B)/ded/%.o: $(ASMDIR)/%.s
@@ -1981,7 +2043,6 @@ OBJ = $(Q3OBJ) $(Q3POBJ) $(Q3POBJ_SMP) $(Q3DOBJ) \
   $(GOBJ) $(CGOBJ) $(UIOBJ) \
   $(GVMOBJ) $(CGVMOBJ) $(UIVMOBJ)
 TOOLSOBJ = $(LBURGOBJ) $(Q3CPPOBJ) $(Q3RCCOBJ) $(Q3LCCOBJ) $(Q3ASMOBJ)
-
 
 clean: clean-debug clean-release
 	@$(MAKE) -C $(MASTERDIR) clean

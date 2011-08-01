@@ -503,7 +503,7 @@ static void IN_ActivateMouse( void )
 	}
 
 	// in_nograb makes no sense in fullscreen mode
-	if( !r_fullscreen->integer )
+	if( !Cvar_VariableIntegerValue("r_fullscreen") )
 	{
 		if( in_nograb->modified || !mouseActive )
 		{
@@ -531,7 +531,7 @@ static void IN_DeactivateMouse( void )
 
 	// Always show the cursor when the mouse is disabled,
 	// but not when fullscreen
-	if( !r_fullscreen->integer )
+	if( !Cvar_VariableIntegerValue("r_fullscreen") )
 	{
 		if( ( Key_GetCatcher( ) == KEYCATCH_UI ) &&
 				( SDL_GetAppState( ) & SDL_APPMOUSEFOCUS ) )
@@ -985,8 +985,8 @@ static void IN_ProcessEvents( void )
 				char width[32], height[32];
 				Com_sprintf( width, sizeof(width), "%d", e.resize.w );
 				Com_sprintf( height, sizeof(height), "%d", e.resize.h );
-				ri.Cvar_Set( "r_width", width );
-				ri.Cvar_Set( "r_height", height );
+				Cvar_Set( "r_width", width );
+				Cvar_Set( "r_height", height );
 				/* wait until user stops dragging for 1 second, so
 				   we aren't constantly recreating the GL context while
 				   he tries to drag...*/
@@ -1026,12 +1026,12 @@ void IN_Frame( void )
 	loading = !!( clc.state != CA_DISCONNECTED && clc.state != CA_ACTIVE );
 	cursorShowing = Key_GetCatcher( ) & KEYCATCH_UI;
 
-	if( !r_fullscreen->integer && ( Key_GetCatcher( ) & KEYCATCH_CONSOLE ) )
+	if( !Cvar_VariableIntegerValue("r_fullscreen") && ( Key_GetCatcher( ) & KEYCATCH_CONSOLE ) )
 	{
 		// Console is down in windowed mode
 		IN_DeactivateMouse( );
 	}
-	else if( !r_fullscreen->integer && loading )
+	else if( !Cvar_VariableIntegerValue("r_fullscreen") && loading )
 	{
 		// Loading in windowed mode
 		IN_DeactivateMouse( );
