@@ -263,8 +263,7 @@ ifneq (,$(findstring "$(PLATFORM)", "linux" "gnu_kfreebsd" "kfreebsd-gnu"))
 
   BASE_CFLAGS = -Wall -fno-strict-aliasing -Wimplicit -Wstrict-prototypes \
     -pipe -DUSE_ICON
-  CLIENT_CFLAGS = $(SDL_CFLAGS)
-  SERVER_CFLAGS =
+  CLIENT_CFLAGS += $(SDL_CFLAGS)
 
   ifeq ($(USE_OPENAL),1)
     CLIENT_CFLAGS += -DUSE_OPENAL
@@ -385,8 +384,6 @@ ifeq ($(PLATFORM),darwin)
   OPTIMIZEVM=
 
   BASE_CFLAGS = -Wall -Wimplicit -Wstrict-prototypes
-  CLIENT_CFLAGS = 
-  SERVER_CFLAGS =
 
   ifeq ($(ARCH),ppc)
     BASE_CFLAGS += -faltivec
@@ -476,8 +473,6 @@ ifeq ($(PLATFORM),mingw32)
 
   BASE_CFLAGS = -Wall -fno-strict-aliasing -Wimplicit -Wstrict-prototypes \
     -DUSE_ICON
-  CLIENT_CFLAGS =
-  SERVER_CFLAGS =
 
   # In the absence of wspiapi.h, require Windows XP or later
   ifeq ($(shell test -e $(CMDIR)/wspiapi.h; echo $$?),1)
@@ -524,7 +519,7 @@ ifeq ($(PLATFORM),mingw32)
   BINEXT=.exe
 
   LIBS= -lws2_32 -lwinmm -lpsapi
-  CLIENT_LDFLAGS = -mwindows
+  CLIENT_LDFLAGS += -mwindows
   CLIENT_LIBS = -lgdi32 -lole32 -lopengl32
 
   ifeq ($(USE_CURL),1)
@@ -585,8 +580,7 @@ ifeq ($(PLATFORM),freebsd)
   BASE_CFLAGS = $(shell env MACHINE_ARCH=$(ARCH) make -f /dev/null -VCFLAGS) \
     -Wall -fno-strict-aliasing -Wimplicit -Wstrict-prototypes \
     -DUSE_ICON -DMAP_ANONYMOUS=MAP_ANON
-  CLIENT_CFLAGS = $(SDL_CFLAGS)
-  SERVER_CFLAGS = 
+  CLIENT_CFLAGS += $(SDL_CFLAGS)
   HAVE_VM_COMPILED = true
 
   OPTIMIZEVM = -O3 -funroll-loops -fomit-frame-pointer
@@ -651,8 +645,7 @@ ifeq ($(PLATFORM),openbsd)
 
   BASE_CFLAGS = -Wall -fno-strict-aliasing -Wimplicit -Wstrict-prototypes \
     -DUSE_ICON -DMAP_ANONYMOUS=MAP_ANON
-  CLIENT_CFLAGS = $(SDL_CFLAGS)
-  SERVER_CFLAGS = 
+  CLIENT_CFLAGS += $(SDL_CFLAGS)
 
   ifeq ($(USE_OPENAL),1)
     CLIENT_CFLAGS += -DUSE_OPENAL
@@ -721,8 +714,6 @@ ifeq ($(PLATFORM),netbsd)
   THREAD_LIBS=-lpthread
 
   BASE_CFLAGS = -Wall -fno-strict-aliasing -Wimplicit -Wstrict-prototypes
-  CLIENT_CFLAGS =
-  SERVER_CFLAGS =
 
   ifneq ($(ARCH),x86)
     BASE_CFLAGS += -DNO_VM_COMPILED
@@ -746,7 +737,7 @@ ifeq ($(PLATFORM),irix64)
 
   BASE_CFLAGS=-Dstricmp=strcasecmp -Xcpluscomm -woff 1185 \
     -I. -I$(ROOT)/usr/include -DNO_VM_COMPILED
-  CLIENT_CFLAGS = $(SDL_CFLAGS)
+  CLIENT_CFLAGS += $(SDL_CFLAGS)
   OPTIMIZE = -O3
   
   SHLIBEXT=so
@@ -786,8 +777,7 @@ ifeq ($(PLATFORM),sunos)
 
   BASE_CFLAGS = -Wall -fno-strict-aliasing -Wimplicit -Wstrict-prototypes \
     -pipe -DUSE_ICON
-  CLIENT_CFLAGS = $(SDL_CFLAGS)
-  SERVER_CFLAGS =
+  CLIENT_CFLAGS += $(SDL_CFLAGS)
 
   OPTIMIZEVM = -O3 -funroll-loops
 
