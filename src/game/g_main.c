@@ -2055,7 +2055,8 @@ void CheckExitRules( void )
   }
 
   if( level.uncondHumanWin ||
-      ( ( level.time > level.startTime + 1000 ) &&
+      ( !level.uncondAlienWin &&
+        ( level.time > level.startTime + 1000 ) &&
         ( level.numAlienSpawns == 0 ) &&
         ( level.numLiveAlienClients == 0 ) ) )
   {

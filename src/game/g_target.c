@@ -409,7 +409,8 @@ target_alien_win_use
 */
 void target_alien_win_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 {
-  level.uncondAlienWin = qtrue;
+  if( !level.uncondHumanWin )
+    level.uncondAlienWin = qtrue;
 }
 
 /*
@@ -429,7 +430,8 @@ target_human_win_use
 */
 void target_human_win_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 {
-  level.uncondHumanWin = qtrue;
+  if( !level.uncondAlienWin )
+    level.uncondHumanWin = qtrue;
 }
 
 /*
