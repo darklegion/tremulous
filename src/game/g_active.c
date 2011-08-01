@@ -469,6 +469,7 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd )
     // Set up for pmove
     memset( &pm, 0, sizeof( pm ) );
     pm.ps = &client->ps;
+    pm.pmext = &client->pmext;
     pm.cmd = *ucmd;
     pm.tracemask = MASK_DEADSOLID; // spectators can fly through bodies
     pm.trace = trap_Trace;
