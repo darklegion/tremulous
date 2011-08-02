@@ -331,17 +331,21 @@ int toupper( int c )
 
 void *memmove( void *dest, const void *src, size_t count )
 {
-  int   i;
+  size_t i;
 
   if( dest > src )
   {
-    for( i = count - 1; i >= 0; i-- )
-      ( (char *)dest )[ i ] = ( (char *)src )[ i ];
+    i = count;
+    while( i > 0 )
+    {
+      i--;
+      ((char *)dest)[ i ] = ((char *)src)[ i ];
+    }
   }
   else
   {
     for( i = 0; i < count; i++ )
-      ( (char *)dest )[ i ] = ( (char *)src )[ i ];
+      ((char *) dest)[ i ] = ((char *)src)[ i ];
   }
 
   return dest;
@@ -2385,13 +2389,8 @@ static int dopr (char *buffer, size_t maxlen, const char *format, va_list args)
         break; /* some picky compilers need this */
     }
   }
-  if (buffer != NULL)
-  {
-    if (currlen < maxlen - 1)
-      buffer[currlen] = '\0';
-    else
-      buffer[maxlen - 1] = '\0';
-  }
+  if (maxlen > 0)
+    buffer[currlen] = '\0';
   return total;
 }
 
@@ -2714,8 +2713,6 @@ static int dopr_outch (char *buffer, size_t *currlen, size_t maxlen, char c)
 
 int Q_vsnprintf(char *str, size_t length, const char *fmt, va_list args)
 {
-  if (str != NULL)
-    str[0] = 0;
   return dopr(str, length, fmt, args);
 }
 

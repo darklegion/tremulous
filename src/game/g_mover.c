@@ -2051,6 +2051,19 @@ void Reached_Train( gentity_t *ent )
 
   ent->s.pos.trDuration = length * 1000 / speed;
 
+  // Be sure to send to clients after any fast move case
+  ent->r.svFlags &= ~SVF_NOCLIENT;
+
+  // Fast move case
+  if( ent->s.pos.trDuration < 1 )
+  {
+    // As trDuration is used later in a division, we need to avoid that case now
+    ent->s.pos.trDuration = 1;
+
+    // Don't send entity to clients so it becomes really invisible
+    ent->r.svFlags |= SVF_NOCLIENT;
+  }
+
   // looping sound
   ent->s.loopSound = next->soundLoop;
 
