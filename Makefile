@@ -17,6 +17,12 @@ ifeq ($(COMPILE_PLATFORM),darwin)
   COMPILE_ARCH=$(shell uname -p | sed -e s/i.86/x86/)
 endif
 
+ifeq ($(COMPILE_PLATFORM),mingw32)
+  ifeq ($(COMPILE_ARCH),x86_64)
+    COMPILE_ARCH=x64
+  endif
+endif
+
 ifndef BUILD_STANDALONE
   BUILD_STANDALONE =
 endif
@@ -630,7 +636,7 @@ ifeq ($(PLATFORM),freebsd)
   endif
 
   # cross-compiling tweaks
-  ifeq ($(ARCH),i386)
+  ifeq ($(ARCH),x86)
     ifeq ($(CROSS_COMPILING),1)
       BASE_CFLAGS += -m32
     endif
@@ -711,10 +717,7 @@ else # ifeq openbsd
 
 ifeq ($(PLATFORM),netbsd)
 
-  ifeq ($(shell uname -m),i386)
-    ARCH=x86
-  endif
-
+  ARCH=x86
   LIBS=-lm
   SHLIBEXT=so
   SHLIBCFLAGS=-fPIC

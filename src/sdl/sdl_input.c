@@ -418,13 +418,13 @@ static void IN_GetUIMousePosition( int *x, int *y )
 		*x = pos & 0xFFFF;
 		*y = ( pos >> 16 ) & 0xFFFF;
 
-		*x = glConfig.vidWidth * *x / 640;
-		*y = glConfig.vidHeight * *y / 480;
+		*x = Cvar_VariableIntegerValue( "r_width" ) * *x / 640;
+		*y = Cvar_VariableIntegerValue( "r_height" ) * *y / 480;
 	}
 	else
 	{
-		*x = glConfig.vidWidth / 2;
-		*y = glConfig.vidHeight / 2;
+		*x = Cvar_VariableIntegerValue( "r_width" ) / 2;
+		*y = Cvar_VariableIntegerValue( "r_height" ) / 2;
 	}
 }
 
@@ -437,8 +437,8 @@ static void IN_SetUIMousePosition( int x, int y )
 {
 	if( uivm )
 	{
-		x = x * 640 / glConfig.vidWidth;
-		y = y * 480 / glConfig.vidHeight;
+		x = x * 640 / Cvar_VariableIntegerValue( "r_width" );
+		y = y * 480 / Cvar_VariableIntegerValue( "r_height" );
 		VM_Call( uivm, UI_SET_MOUSE_POSITION, x, y );
 	}
 }
@@ -1036,7 +1036,7 @@ void IN_Frame( void )
 		// Loading in windowed mode
 		IN_DeactivateMouse( );
 	}
-	else if( !r_fullscreen->integer && cursorShowing )
+	else if( !Cvar_VariableIntegerValue("r_fullscreen") && cursorShowing )
 	{
 		// Use WM cursor when not fullscreen
 		IN_DeactivateMouse( );
