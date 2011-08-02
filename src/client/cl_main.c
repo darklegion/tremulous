@@ -148,7 +148,7 @@ int serverStatusCount;
 	void hA3Dg_ExportRenderGeom (refexport_t *incoming_re);
 #endif
 
-static int isQuitting = qfalse;
+static int noGameRestart = qfalse;
 
 extern void SV_BotFrame( int time );
 void CL_CheckForResend( void );
@@ -1478,8 +1478,10 @@ void CL_Disconnect( qboolean showMainMenu ) {
 
 	CL_UpdateGUID( NULL, 0 );
 
-	if(!isQuitting)
+	if(!noGameRestart)
 		CL_OldGame();
+	else
+		noGameRestart = qfalse;
 }
 
 
@@ -1658,6 +1660,7 @@ void CL_Connect_f( void ) {
 	Cvar_Set( "sv_killserver", "1" );
 	SV_Frame( 0 );
 
+	noGameRestart = qtrue;
 	CL_Disconnect( qtrue );
 	Con_Close();
 
@@ -3716,7 +3719,7 @@ void CL_Shutdown(char *finalmsg, qboolean disconnect, qboolean quit)
 	}
 	recursive = qtrue;
 
-	isQuitting = quit;
+	noGameRestart = quit;
 
 	if(disconnect)
 		CL_Disconnect(qtrue);
