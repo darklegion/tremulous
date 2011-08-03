@@ -915,7 +915,7 @@ static const char *addr6parse( const char *str, addr_t *addr )
       }
       if( !str[ i ] )
         break;
-      if( str[ i ] != ':' || i == 8 )
+      if( str[ i ] != ':' || before + after == 8 )
         break;
       if( str[ i + 1 ] == ':' )
       {
