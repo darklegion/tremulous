@@ -90,14 +90,13 @@ send "\b \b"
 static void CON_Back( void )
 {
 	char key;
-	size_t size;
 
 	key = '\b';
-	size = write(STDOUT_FILENO, &key, 1);
+	write(STDOUT_FILENO, &key, 1);
 	key = ' ';
-	size = write(STDOUT_FILENO, &key, 1);
+	write(STDOUT_FILENO, &key, 1);
 	key = '\b';
-	size = write(STDOUT_FILENO, &key, 1);
+	write(STDOUT_FILENO, &key, 1);
 }
 
 /*
@@ -148,13 +147,12 @@ static void CON_Show( void )
 		ttycon_hide--;
 		if (ttycon_hide == 0)
 		{
-			size_t size;
-			size = write(STDOUT_FILENO, "]", 1);
+			write(STDOUT_FILENO, "]", 1);
 			if (TTY_con.cursor)
 			{
 				for (i=0; i<TTY_con.cursor; i++)
 				{
-					size = write(STDOUT_FILENO, TTY_con.buffer+i, 1);
+					write(STDOUT_FILENO, TTY_con.buffer+i, 1);
 				}
 			}
 		}
@@ -331,7 +329,6 @@ char *CON_Input( void )
 	int avail;
 	char key;
 	field_t *history;
-	size_t size;
 
 	if(ttycon_on)
 	{
@@ -361,8 +358,8 @@ char *CON_Input( void )
 					Q_strncpyz(text, TTY_con.buffer, sizeof(text));
 					Field_Clear(&TTY_con);
 					key = '\n';
-					size = write(1, &key, 1);
-					size = write( 1, "]", 1 );
+					write(1, &key, 1);
+					write( 1, "]", 1 );
 					return text;
 				}
 				if (key == '\t')
@@ -426,7 +423,7 @@ char *CON_Input( void )
 			TTY_con.buffer[TTY_con.cursor] = key;
 			TTY_con.cursor++;
 			// print the current line (this is differential)
-			size = write(STDOUT_FILENO, &key, 1);
+			write(STDOUT_FILENO, &key, 1);
 		}
 
 		return NULL;
