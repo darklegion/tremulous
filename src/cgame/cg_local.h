@@ -1084,10 +1084,7 @@ typedef struct
   float         v_dmg_pitch;
   float         v_dmg_roll;
 
-  vec3_t        kick_angles;                        // weapon kicks
-  vec3_t        kick_origin;
-
-  qboolean      chaseFollow;               
+  qboolean      chaseFollow;
 
   // temp working variables for player view
   float         bobfracsin;
