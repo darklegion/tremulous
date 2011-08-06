@@ -1242,11 +1242,10 @@ void G_CalculateBuildPoints( void )
         while( zone->queuedBuildPoints > 0 &&
                zone->nextQueueTime < level.time )
         {
+          zone->queuedBuildPoints--;
           zone->nextQueueTime += G_NextQueueTime( zone->queuedBuildPoints,
                                      zone->totalBuildPoints,
                                      g_humanRepeaterBuildQueueTime.integer );
-
-          zone->queuedBuildPoints--;
         }
       }
       else

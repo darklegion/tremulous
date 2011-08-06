@@ -240,7 +240,7 @@ qboolean G_FindPower( gentity_t *self, qboolean searchUnspawned )
             }
           }
 
-          if( self->usesBuildPointZone && level.buildPointZones[ ent->buildPointZone ].active )
+          if( ent->usesBuildPointZone && level.buildPointZones[ ent->buildPointZone ].active )
             buildPoints -= level.buildPointZones[ ent->buildPointZone ].queuedBuildPoints;
 
           buildPoints -= BG_Buildable( self->s.modelindex )->buildPoints;
@@ -1814,8 +1814,9 @@ void HRepeater_Think( gentity_t *self )
 
       if( !zone->active )
       {
-        // Initialise the BP queue with all BP queued
-        zone->queuedBuildPoints = zone->totalBuildPoints = g_humanRepeaterBuildPoints.integer;
+        // Initialise the BP queue with no BP queued
+        zone->queuedBuildPoints = 0;
+        zone->totalBuildPoints = g_humanRepeaterBuildPoints.integer;
         zone->nextQueueTime = level.time;
         zone->active = qtrue;
 
