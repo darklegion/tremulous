@@ -3358,10 +3358,10 @@ G_CanBuild
 Checks to see if a buildable can be built
 ================
 */
-itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance, vec3_t origin )
+itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance, vec3_t origin, vec3_t normal )
 {
   vec3_t            angles;
-  vec3_t            entity_origin, normal;
+  vec3_t            entity_origin;
   vec3_t            mins, maxs;
   trace_t           tr1, tr2, tr3;
   itemBuildError_t  reason = IBE_NONE, tempReason;
@@ -3514,10 +3514,9 @@ Spawns a buildable
 ================
 */
 static gentity_t *G_Build( gentity_t *builder, buildable_t buildable,
-    const vec3_t origin, const vec3_t angles )
+    const vec3_t origin, const vec3_t normal, const vec3_t angles )
 {
   gentity_t *built;
-  vec3_t    normal;
   vec3_t    localOrigin;
   char      readable[ MAX_STRING_CHARS ];
   char      buildnums[ MAX_STRING_CHARS ];
@@ -3542,28 +3541,6 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable,
   built->s.modelindex = buildable;
   built->buildableTeam = built->s.modelindex2 = BG_Buildable( buildable )->team;
   BG_BuildableBoundingBox( buildable, built->r.mins, built->r.maxs );
-
-  // detect the buildable's normal vector
-  if( !builder->client )
-  {
-    // initial base layout created by server
-
-    if( builder->s.origin2[ 0 ] ||
-        builder->s.origin2[ 1 ] ||
-        builder->s.origin2[ 2 ] )
-    {
-      VectorCopy( builder->s.origin2, normal );
-    }
-    else if( BG_Buildable( buildable )->traj == TR_BUOYANCY )
-      VectorSet( normal, 0.0f, 0.0f, -1.0f );
-    else
-      VectorSet( normal, 0.0f, 0.0f, 1.0f );
-  }
-  else
-  {
-    // in-game building by a player
-    BG_GetClientNormal( &builder->client->ps, normal );
-  }
 
   // when building the initial layout, spawn the entity slightly off its
   // target surface so that it can be "dropped" onto it
@@ -3774,14 +3751,14 @@ G_BuildIfValid
 qboolean G_BuildIfValid( gentity_t *ent, buildable_t buildable )
 {
   float         dist;
-  vec3_t        origin;
+  vec3_t        origin, normal;
 
   dist = BG_Class( ent->client->ps.stats[ STAT_CLASS ] )->buildDist;
 
-  switch( G_CanBuild( ent, buildable, dist, origin ) )
+  switch( G_CanBuild( ent, buildable, dist, origin, normal ) )
   {
     case IBE_NONE:
-      G_Build( ent, buildable, origin, ent->s.apos.trBase );
+      G_Build( ent, buildable, origin, normal, ent->s.apos.trBase );
       return qtrue;
 
     case IBE_NOALIENBP:
@@ -3854,11 +3831,18 @@ free fall from their spawn points
 static gentity_t *G_FinishSpawningBuildable( gentity_t *ent, qboolean force )
 {
   trace_t     tr;
-  vec3_t      dest;
+  vec3_t      normal, dest;
   gentity_t   *built;
   buildable_t buildable = ent->s.modelindex;
 
-  built = G_Build( ent, buildable, ent->s.pos.trBase, ent->s.angles );
+  if( ent->s.origin2[ 0 ] || ent->s.origin2[ 1 ] || ent->s.origin2[ 2 ] )
+    VectorCopy( ent->s.origin2, normal );
+  else if( BG_Buildable( buildable )->traj == TR_BUOYANCY )
+    VectorSet( normal, 0.0f, 0.0f, -1.0f );
+  else
+    VectorSet( normal, 0.0f, 0.0f, 1.0f );
+
+  built = G_Build( ent, buildable, ent->s.pos.trBase, normal, ent->s.angles );
 
   built->takedamage = qtrue;
   built->spawned = qtrue; //map entities are already spawned
