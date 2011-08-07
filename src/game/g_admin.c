@@ -482,7 +482,6 @@ static void admin_writeconfig( void )
 {
   fileHandle_t f;
   int t;
-  char levels[ MAX_STRING_CHARS ] = {""};
   g_admin_admin_t *a;
   g_admin_level_t *l;
   g_admin_ban_t *b;
@@ -555,7 +554,6 @@ static void admin_writeconfig( void )
   }
   for( c = g_admin_commands; c; c = c->next )
   {
-    levels[ 0 ] = '\0';
     trap_FS_Write( "[command]\n", 10, f );
     trap_FS_Write( "command = ", 10, f );
     admin_writeconfig_string( c->command, f );

@@ -1233,7 +1233,6 @@ void CG_Buildable( centity_t *cent )
   team_t          team = BG_Buildable( es->modelindex )->team;
   float           scale;
   int             health;
-  float           healthScale;
 
   //must be before EF_NODRAW check
   if( team == TEAM_ALIENS )
@@ -1450,7 +1449,6 @@ void CG_Buildable( centity_t *cent )
   }
 
   health = es->generic1;
-  healthScale = (float)health / BG_Buildable( es->modelindex )->health;
 
   if( health < cent->lastBuildableHealth &&
       ( es->eFlags & EF_B_SPAWNED ) )

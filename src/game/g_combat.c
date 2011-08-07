@@ -238,7 +238,6 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   int       killer;
   int       i;
   char      *killerName, *obit;
-  float     totalDamage = 0.0f;
 
   if( self->client->ps.pm_type == PM_DEAD )
     return;
@@ -319,7 +318,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   }
 
   // give credits for killing this player
-  totalDamage = G_RewardAttackers( self );
+  G_RewardAttackers( self );
 
   ScoreboardMessage( self );    // show scores
 
@@ -910,7 +909,6 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 {
   gclient_t *client;
   int     take;
-  int     save;
   int     asave = 0;
   int     knockback;
 
@@ -1078,7 +1076,6 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
   }
 
   take = damage;
-  save = 0;
 
   // add to the damage inflicted on a player this frame
   // the total will be turned into screen blends and view angle kicks

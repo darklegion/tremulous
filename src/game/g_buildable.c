@@ -932,11 +932,7 @@ Think function for Alien Overmind
 void AOvermind_Think( gentity_t *self )
 {
   vec3_t range = { OVERMIND_ATTACK_RANGE, OVERMIND_ATTACK_RANGE, OVERMIND_ATTACK_RANGE };
-  vec3_t mins, maxs;
   int    i;
-
-  VectorAdd( self->s.origin, range, maxs );
-  VectorSubtract( self->s.origin, range, mins );
 
   if( self->spawned && ( self->health > 0 ) )
   {
@@ -947,7 +943,7 @@ void AOvermind_Think( gentity_t *self )
       self->timestamp = level.time;
       G_SetBuildableAnim( self, BANIM_ATTACK1, qfalse );
     }
-    
+
     // just in case an egg finishes building after we tell overmind to stfu
     if( level.numAlienSpawns > 0 )
       level.overmindMuted = qfalse;
@@ -3370,7 +3366,6 @@ itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance
   qboolean          invert;
   int               contents;
   playerState_t     *ps = &ent->client->ps;
-  int               buildPoints;
 
   // Stop all buildables from interacting with traces
   G_SetBuildableLinkState( qfalse );
@@ -3395,7 +3390,6 @@ itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance
     reason = IBE_NORMAL;
 
   contents = trap_PointContents( entity_origin, -1 );
-  buildPoints = BG_Buildable( buildable )->buildPoints;
 
   if( ( tempReason = G_SufficientBPAvailable( buildable, origin ) ) != IBE_NONE )
     reason = tempReason;
