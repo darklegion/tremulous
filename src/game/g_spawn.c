@@ -612,14 +612,14 @@ void SP_worldspawn( void )
   if( G_SpawnString( "alienMaxStage", "", &s ) )
     trap_Cvar_Set( "g_alienMaxStage", s );
 
-  if( G_SpawnString( "disabledEquipment", "", &s ) )
-    trap_Cvar_Set( "g_disabledEquipment", s );
+  G_SpawnString( "disabledEquipment", "", &s );
+  trap_Cvar_Set( "g_disabledEquipment", s );
 
-  if( G_SpawnString( "disabledClasses", "", &s ) )
-    trap_Cvar_Set( "g_disabledClasses", s );
+  G_SpawnString( "disabledClasses", "", &s );
+  trap_Cvar_Set( "g_disabledClasses", s );
 
-  if( G_SpawnString( "disabledBuildables", "", &s ) )
-    trap_Cvar_Set( "g_disabledBuildables", s );
+  G_SpawnString( "disabledBuildables", "", &s );
+  trap_Cvar_Set( "g_disabledBuildables", s );
 
   g_entities[ ENTITYNUM_WORLD ].s.number = ENTITYNUM_WORLD;
   g_entities[ ENTITYNUM_WORLD ].classname = "worldspawn";
