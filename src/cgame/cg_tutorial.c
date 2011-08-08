@@ -707,7 +707,23 @@ const char *CG_TutorialText( void )
         }
       }
     }
+  }
+  else if( !cg.demoPlayback )
+  {
+    if( !CG_ClientIsReady( ps->clientNum ) )
+    {
+      Q_strcat( text, MAX_TUTORIAL_TEXT,
+          va( "Press %s when ready to continue\n",
+            CG_KeyNameForCommand( "+attack" ) ) );
+    }
+    else
+    {
+      Q_strcat( text, MAX_TUTORIAL_TEXT, "Waiting for other players to be ready\n" );
+    }
+  }
 
+  if( !cg.demoPlayback )
+  {
     Q_strcat( text, MAX_TUTORIAL_TEXT, "Press ESC for the menu" );
   }
 

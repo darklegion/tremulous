@@ -1556,6 +1556,7 @@ void        CG_KeyEvent( int key, qboolean down );
 void        CG_MouseEvent( int x, int y );
 void        CG_EventHandling( int type );
 void        CG_SetScoreSelection( void *menu );
+qboolean    CG_ClientIsReady( int clientNum );
 void        CG_BuildSpectatorString( void );
 
 qboolean    CG_FileExists( char *filename );

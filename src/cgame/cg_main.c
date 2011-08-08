@@ -1437,7 +1437,7 @@ static clientInfo_t * CG_InfoFromScoreIndex( int index, int team, int *scoreInde
   return &cgs.clientinfo[ cg.scores[ index ].client ];
 }
 
-static qboolean CG_ClientIsReady( int clientNum )
+qboolean CG_ClientIsReady( int clientNum )
 {
   clientList_t ready;
 
