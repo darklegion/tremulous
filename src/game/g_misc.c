@@ -88,6 +88,9 @@ void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles )
   player->client->ps.eFlags ^= EF_TELEPORT_BIT;
   G_UnlaggedClear( player );
 
+  // cut all relevant zap beams
+  G_ClearPlayerZapEffects( player );
+
   // set angles
   G_SetClientViewAngle( player, angles );
 

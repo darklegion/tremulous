@@ -1025,25 +1025,27 @@ LEVEL2
 
 ======================================================================
 */
-#define MAX_ZAPS  64
+#define MAX_ZAPS MAX_CLIENTS
 
-static zap_t  zaps[ MAX_CLIENTS ];
+static zap_t zaps[ MAX_ZAPS ];
 
 /*
 ===============
-G_FindNewZapTarget
+G_FindZapChainTargets
 ===============
 */
-static gentity_t *G_FindNewZapTarget( gentity_t *ent )
+static void G_FindZapChainTargets( zap_t *zap )
 {
+  gentity_t *ent = zap->targets[ 0 ]; // the source
   int       entityList[ MAX_GENTITIES ];
-  vec3_t    range = { LEVEL2_AREAZAP_RANGE, LEVEL2_AREAZAP_RANGE, LEVEL2_AREAZAP_RANGE };
+  vec3_t    range = { LEVEL2_AREAZAP_RANGE,
+                      LEVEL2_AREAZAP_RANGE,
+                      LEVEL2_AREAZAP_RANGE };
   vec3_t    mins, maxs;
-  int       i, j, k, num;
+  int       i, num;
   gentity_t *enemy;
   trace_t   tr;
 
-  VectorScale( range, 1.0f / M_ROOT3, range );
   VectorAdd( ent->s.origin, range, maxs );
   VectorSubtract( ent->s.origin, range, mins );
 
@@ -1052,45 +1054,29 @@ static gentity_t *G_FindNewZapTarget( gentity_t *ent )
   for( i = 0; i < num; i++ )
   {
     enemy = &g_entities[ entityList[ i ] ];
+    // don't chain to self; noclippers can be listed, don't chain to them either
+    if( enemy == ent || ( enemy->client && enemy->client->noclip ) )
+      continue;
 
-    if( ( ( enemy->client && enemy->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS ) ||
-        ( enemy->s.eType == ET_BUILDABLE &&
-          BG_Buildable( enemy->s.modelindex )->team == TEAM_HUMANS ) ) && enemy->health > 0 )
+    if( ( ( enemy->client &&
+            enemy->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS ) ||
+          ( enemy->s.eType == ET_BUILDABLE &&
+            BG_Buildable( enemy->s.modelindex )->team == TEAM_HUMANS ) ) &&
+        enemy->health > 0 && // only chain to living targets
+        Distance( ent->s.origin, enemy->s.origin ) <= LEVEL2_AREAZAP_RANGE )
     {
-      qboolean foundOldTarget = qfalse;
+      // world-LOS check: trace against the world, ignoring other BODY entities
+      trap_Trace( &tr, ent->s.origin, NULL, NULL,
+         enemy->s.origin, ent->s.number, CONTENTS_SOLID );
 
-      trap_Trace( &tr, muzzle, NULL, NULL, enemy->s.origin, ent->s.number, MASK_SHOT );
-
-      //can't see target from here
-      if( tr.entityNum == ENTITYNUM_WORLD )
-        continue;
-
-      for( j = 0; j < MAX_ZAPS; j++ )
+      if( tr.entityNum == ENTITYNUM_NONE )
       {
-        zap_t *zap = &zaps[ j ];
-
-        for( k = 0; k < zap->numTargets; k++ )
-        {
-          if( zap->targets[ k ] == enemy )
-          {
-            foundOldTarget = qtrue;
-            break;
-          }
-        }
-
-        if( foundOldTarget )
-          break;
+        zap->targets[ zap->numTargets++ ] = enemy;
+        if( zap->numTargets >= LEVEL2_AREAZAP_MAX_TARGETS )
+          return;
       }
-
-      // enemy is already targetted
-      if( foundOldTarget )
-        continue;
-
-      return enemy;
     }
   }
-
-  return &g_entities[ ENTITYNUM_NONE ];
 }
 
 /*
@@ -1100,23 +1086,19 @@ G_UpdateZapEffect
 */
 static void G_UpdateZapEffect( zap_t *zap )
 {
-  int       i;
-  gentity_t *effect = zap->effectChannel;
-  int       entityNums[ LEVEL2_AREAZAP_MAX_TARGETS + 1 ];
-
-  effect->s.eType = ET_LEV2_ZAP_CHAIN;
-  effect->classname = "lev2zapchain";
-  G_SetOrigin( effect, zap->creator->s.origin );
+  int i;
+  int entityNums[ LEVEL2_AREAZAP_MAX_TARGETS + 1 ];
 
   entityNums[ 0 ] = zap->creator->s.number;
 
   for( i = 0; i < zap->numTargets; i++ )
-  {
     entityNums[ i + 1 ] = zap->targets[ i ]->s.number;
-  }
 
-  BG_PackEntityNumbers( &effect->s, entityNums, zap->numTargets + 1 );
-  trap_LinkEntity( effect );
+  BG_PackEntityNumbers( &zap->effectChannel->s,
+                        entityNums, zap->numTargets + 1 );
+
+  VectorCopy( zap->creator->s.origin, zap->effectChannel->r.currentOrigin );
+  trap_LinkEntity( zap->effectChannel );
 }
 
 /*
@@ -1126,46 +1108,47 @@ G_CreateNewZap
 */
 static void G_CreateNewZap( gentity_t *creator, gentity_t *target )
 {
-  int       i, j;
-  zap_t     *zap;
+  int   i;
+  zap_t *zap;
 
   for( i = 0; i < MAX_ZAPS; i++ )
   {
     zap = &zaps[ i ];
+    if( zap->used )
+      continue;
 
-    if( !zap->used )
+    zap->used = qtrue;
+    zap->timeToLive = LEVEL2_AREAZAP_TIME;
+
+    zap->creator = creator;
+    zap->targets[ 0 ] = target;
+    zap->numTargets = 1;
+
+    // the zap chains only through living entities
+    if( target->health > 0 )
     {
-      G_Damage( target, creator, creator, forward, target->s.origin,
-                LEVEL2_AREAZAP_DMG, DAMAGE_NO_KNOCKBACK | DAMAGE_NO_LOCDAMAGE,
-                MOD_LEVEL2_ZAP );        
+      G_Damage( target, creator, creator, forward,
+                target->s.origin, LEVEL2_AREAZAP_DMG,
+                DAMAGE_NO_KNOCKBACK | DAMAGE_NO_LOCDAMAGE,
+                MOD_LEVEL2_ZAP );
 
-      zap->used = qtrue;
+      G_FindZapChainTargets( zap );
 
-      zap->timeToLive = LEVEL2_AREAZAP_TIME;
-
-      zap->creator = creator;
-
-      zap->targets[ 0 ] = target;
-      zap->numTargets = 1;
-
-      for( j = 1; j < LEVEL2_AREAZAP_MAX_TARGETS; j++ )
+      for( i = 1; i < zap->numTargets; i++ )
       {
-        zap->targets[ j ] = G_FindNewZapTarget( target );
-
-        if( zap->targets[ j ] )
-        {
-          zap->numTargets++;
-          G_Damage( zap->targets[ j ], target, zap->creator, forward,
-                    target->s.origin, LEVEL2_AREAZAP_DMG,
-                    DAMAGE_NO_KNOCKBACK | DAMAGE_NO_LOCDAMAGE, MOD_LEVEL2_ZAP );        
-        }
+        G_Damage( zap->targets[ i ], target, zap->creator, forward,
+                  target->s.origin, LEVEL2_AREAZAP_DMG,
+                  DAMAGE_NO_KNOCKBACK | DAMAGE_NO_LOCDAMAGE,
+                  MOD_LEVEL2_ZAP );
       }
-
-      zap->effectChannel = G_Spawn( );
-      G_UpdateZapEffect( zap );
-
-      return;
     }
+
+    zap->effectChannel = G_Spawn( );
+    zap->effectChannel->s.eType = ET_LEV2_ZAP_CHAIN;
+    zap->effectChannel->classname = "lev2zapchain";
+    G_UpdateZapEffect( zap );
+
+    return;
   }
 }
 
@@ -1183,36 +1166,63 @@ void G_UpdateZaps( int msec )
   for( i = 0; i < MAX_ZAPS; i++ )
   {
     zap = &zaps[ i ];
+    if( !zap->used )
+      continue;
 
-    if( zap->used )
+    zap->timeToLive -= msec;
+
+    // first, the disappearance of players is handled immediately in G_ClearPlayerZapEffects()
+
+    // the deconstruction or gibbing of a directly targeted buildable destroys the whole zap effect
+    if( zap->timeToLive <= 0 || !zap->targets[ 0 ]->inuse )
     {
-      //check each target is valid
-      for( j = 0; j < zap->numTargets; j++ )
-      {
-        gentity_t *source;
-        gentity_t *target = zap->targets[ j ];
+      G_FreeEntity( zap->effectChannel );
+      zap->used = qfalse;
+      continue;
+    }
 
-        if( j == 0 )
-          source = zap->creator;
-        else
-          source = zap->targets[ 0 ];
+    // the deconstruction or gibbing of chained buildables destroy the appropriate beams
+    for( j = 1; j < zap->numTargets; j++ )
+    {
+      if( !zap->targets[ j ]->inuse )
+        zap->targets[ j-- ] = zap->targets[ --zap->numTargets ];
+    }
 
-        if( target->health <= 0 || !target->inuse || //early out
-            Distance( source->s.origin, target->s.origin ) > LEVEL2_AREAZAP_RANGE )
-        {
-          target = zap->targets[ j ] = G_FindNewZapTarget( source );
-        }
-      }
+    G_UpdateZapEffect( zap );
+  }
+}
 
-      G_UpdateZapEffect( zap );
+/*
+===============
+G_ClearPlayerZapEffects
 
-      zap->timeToLive -= msec;
+called from G_LeaveTeam() and TeleportPlayer()
+===============
+*/
+void G_ClearPlayerZapEffects( gentity_t *player )
+{
+  int i, j;
+  zap_t *zap;
 
-      if( zap->timeToLive <= 0 || zap->numTargets == 0 || zap->creator->health <= 0 )
-      {
-        zap->used = qfalse;
-        G_FreeEntity( zap->effectChannel );
-      }
+  for( i = 0; i < MAX_ZAPS; i++ )
+  {
+    zap = &zaps[ i ];
+    if( !zap->used )
+      continue;
+
+    // the disappearance of the creator or the first target destroys the whole zap effect
+    if( zap->creator == player || zap->targets[ 0 ] == player )
+    {
+      G_FreeEntity( zap->effectChannel );
+      zap->used = qfalse;
+      continue;
+    }
+
+    // the disappearance of chained players destroy the appropriate beams
+    for( j = 1; j < zap->numTargets; j++ )
+    {
+      if( zap->targets[ j ] == player )
+        zap->targets[ j-- ] = zap->targets[ --zap->numTargets ];
     }
   }
 }
@@ -1232,9 +1242,9 @@ void areaZapFire( gentity_t *ent )
   if( traceEnt == NULL )
     return;
 
-  if( ( ( traceEnt->client && traceEnt->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS ) ||
+  if( ( traceEnt->client && traceEnt->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS ) ||
       ( traceEnt->s.eType == ET_BUILDABLE &&
-        BG_Buildable( traceEnt->s.modelindex )->team == TEAM_HUMANS ) ) && traceEnt->health > 0 )
+        BG_Buildable( traceEnt->s.modelindex )->team == TEAM_HUMANS ) )
   {
     G_CreateNewZap( ent, traceEnt );
   }

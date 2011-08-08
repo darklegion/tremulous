@@ -202,6 +202,9 @@ void G_LeaveTeam( gentity_t *self )
       G_FreeEntity( ent );
   }
 
+  // cut all relevant zap beams
+  G_ClearPlayerZapEffects( self );
+
   G_namelog_update_score( self->client );
 }
 

@@ -953,6 +953,7 @@ void      CheckCkitRepair( gentity_t *ent );
 void      G_ChargeAttack( gentity_t *ent, gentity_t *victim );
 void      G_CrushAttack( gentity_t *ent, gentity_t *victim );
 void      G_UpdateZaps( int msec );
+void      G_ClearPlayerZapEffects( gentity_t *player );
 
 
 //
