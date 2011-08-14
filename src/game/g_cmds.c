@@ -651,7 +651,7 @@ void Cmd_Team_f( gentity_t *ent )
     else if( level.alienTeamLocked || aliens > humans )
       team = TEAM_HUMANS;
     else
-      team = TEAM_ALIENS + ( rand( ) % 2 );
+      team = TEAM_ALIENS + rand( ) / ( RAND_MAX / 2 + 1 );
   }
   else switch( G_TeamFromString( s ) )
   {

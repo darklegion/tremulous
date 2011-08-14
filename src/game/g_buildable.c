@@ -1300,7 +1300,7 @@ void AHive_Think( gentity_t *self )
     if( num == 0 )
       return;
 
-    start = rand( ) % num;
+    start = rand( ) / ( RAND_MAX / num + 1 );
     for( i = start; i < num + start; i++ )
     {
       if( AHive_CheckTarget( self, g_entities + entityList[ i % num ] ) )
@@ -1477,7 +1477,7 @@ void ATrapper_FindEnemy( gentity_t *ent, int range )
 
   // iterate through entities
   // note that if we exist then level.num_entities != 0
-  start = rand( ) % level.num_entities;
+  start = rand( ) / ( RAND_MAX / level.num_entities + 1 );
   for( i = start; i < level.num_entities + start; i++ )
   {
     target = g_entities + ( i % level.num_entities );
@@ -2284,7 +2284,7 @@ void HMGTurret_FindEnemy( gentity_t *self )
   if( num == 0 )
     return;
 
-  start = rand( ) % num;
+  start = rand( ) / ( RAND_MAX / num + 1 );
   for( i = start; i < num + start ; i++ )
   {
     target = &g_entities[ entityList[ i % num ] ];
@@ -4072,7 +4072,7 @@ void G_LayoutSelect( void )
         "found, using map default\n" );
       return;
   }
-  layoutNum = ( rand( ) % cnt ) + 1;
+  layoutNum = rand( ) / ( RAND_MAX / cnt + 1 ) + 1;
   cnt = 0;
 
   Q_strncpyz( layouts2, layouts, sizeof( layouts2 ) );

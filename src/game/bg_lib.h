@@ -85,6 +85,7 @@ typedef unsigned  long uint32_t;
                  __FILE__, __LINE__, #expr )
 typedef int cmp_t( const void *, const void * );
 void        qsort( void *a, size_t n, size_t es, cmp_t *cmp );
+#define RAND_MAX 0x7fff
 void        srand( unsigned seed );
 int         rand( void );
 void        *bsearch( const void *key, const void *base, size_t nmemb,

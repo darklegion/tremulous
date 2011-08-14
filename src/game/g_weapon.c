@@ -422,7 +422,7 @@ void shotgunFire( gentity_t *ent )
   tent = G_TempEntity( muzzle, EV_SHOTGUN );
   VectorScale( forward, 4096, tent->s.origin2 );
   SnapVector( tent->s.origin2 );
-  tent->s.eventParm = rand() & 255;    // seed for spread pattern
+  tent->s.eventParm = rand() / ( RAND_MAX / 0x100 + 1 );    // seed for spread pattern
   tent->s.otherEntityNum = ent->s.number;
   G_UnlaggedOn( ent, muzzle, SHOTGUN_RANGE );
   ShotgunPattern( tent->s.pos.trBase, tent->s.origin2, tent->s.eventParm, ent );

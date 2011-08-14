@@ -940,7 +940,7 @@ static qboolean G_EvaluateMapCondition( condition_t **condition )
   switch( localCondition->lhs )
   {
     case CV_RANDOM:
-      result = rand( ) & 1;
+      result = rand( ) / ( RAND_MAX / 2 + 1 );
       break;
 
     case CV_NUMCLIENTS:

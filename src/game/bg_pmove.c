@@ -3330,7 +3330,7 @@ static void PM_Weapon( void )
       case WP_ALEVEL1:
         if( attack1 )
         {
-          num %= 6;
+          num /= RAND_MAX / 6 + 1;
           PM_ForceLegsAnim( NSPA_ATTACK1 );
           PM_StartWeaponAnim( WANIM_ATTACK1 + num );
         }
@@ -3345,14 +3345,14 @@ static void PM_Weapon( void )
       case WP_ALEVEL2:
         if( attack1 )
         {
-          num %= 6;
+          num /= RAND_MAX / 6 + 1;
           PM_ForceLegsAnim( NSPA_ATTACK1 );
           PM_StartWeaponAnim( WANIM_ATTACK1 + num );
         }
         break;
 
       case WP_ALEVEL4:
-        num %= 3;
+        num /= RAND_MAX / 3 + 1;
         PM_ForceLegsAnim( NSPA_ATTACK1 + num );
         PM_StartWeaponAnim( WANIM_ATTACK1 + num );
         break;
