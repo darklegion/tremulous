@@ -1038,13 +1038,14 @@ static void G_FindZapChainTargets( zap_t *zap )
 {
   gentity_t *ent = zap->targets[ 0 ]; // the source
   int       entityList[ MAX_GENTITIES ];
-  vec3_t    range = { LEVEL2_AREAZAP_RANGE,
-                      LEVEL2_AREAZAP_RANGE,
-                      LEVEL2_AREAZAP_RANGE };
+  vec3_t    range = { LEVEL2_AREAZAP_CHAIN_RANGE,
+                      LEVEL2_AREAZAP_CHAIN_RANGE,
+                      LEVEL2_AREAZAP_CHAIN_RANGE };
   vec3_t    mins, maxs;
   int       i, num;
   gentity_t *enemy;
   trace_t   tr;
+  float     distance;
 
   VectorAdd( ent->s.origin, range, maxs );
   VectorSubtract( ent->s.origin, range, mins );
@@ -1058,12 +1059,14 @@ static void G_FindZapChainTargets( zap_t *zap )
     if( enemy == ent || ( enemy->client && enemy->client->noclip ) )
       continue;
 
+    distance = Distance( ent->s.origin, enemy->s.origin );
+
     if( ( ( enemy->client &&
             enemy->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS ) ||
           ( enemy->s.eType == ET_BUILDABLE &&
             BG_Buildable( enemy->s.modelindex )->team == TEAM_HUMANS ) ) &&
         enemy->health > 0 && // only chain to living targets
-        Distance( ent->s.origin, enemy->s.origin ) <= LEVEL2_AREAZAP_RANGE )
+        distance <= LEVEL2_AREAZAP_CHAIN_RANGE )
     {
       // world-LOS check: trace against the world, ignoring other BODY entities
       trap_Trace( &tr, ent->s.origin, NULL, NULL,
@@ -1071,8 +1074,9 @@ static void G_FindZapChainTargets( zap_t *zap )
 
       if( tr.entityNum == ENTITYNUM_NONE )
       {
-        zap->targets[ zap->numTargets++ ] = enemy;
-        if( zap->numTargets >= LEVEL2_AREAZAP_MAX_TARGETS )
+        zap->targets[ zap->numTargets ] = enemy;
+        zap->distances[ zap->numTargets ] = distance;
+        if( ++zap->numTargets >= LEVEL2_AREAZAP_MAX_TARGETS )
           return;
       }
     }
@@ -1136,8 +1140,9 @@ static void G_CreateNewZap( gentity_t *creator, gentity_t *target )
 
       for( i = 1; i < zap->numTargets; i++ )
       {
-        G_Damage( zap->targets[ i ], target, zap->creator, forward,
-                  target->s.origin, LEVEL2_AREAZAP_DMG,
+        G_Damage( zap->targets[ i ], target, zap->creator, forward, target->s.origin,
+                  LEVEL2_AREAZAP_DMG * ( 1 - pow( (zap->distances[ i ] /
+                    LEVEL2_AREAZAP_CHAIN_RANGE ), LEVEL2_AREAZAP_CHAIN_FALLOFF ) ) + 1,
                   DAMAGE_NO_KNOCKBACK | DAMAGE_NO_LOCDAMAGE,
                   MOD_LEVEL2_ZAP );
       }

@@ -936,6 +936,7 @@ typedef struct zap_s
   gentity_t     *creator;
   gentity_t     *targets[ LEVEL2_AREAZAP_MAX_TARGETS ];
   int           numTargets;
+  float         distances[ LEVEL2_AREAZAP_MAX_TARGETS ];
 
   int           timeToLive;
 
