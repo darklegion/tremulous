@@ -1599,6 +1599,7 @@ qboolean G_admin_ban( gentity_t *ent )
   addr_t ip;
   qboolean ipmatch = qfalse;
   namelog_t *match = NULL;
+  qboolean cidr = qfalse;
 
   if( trap_Argc() < 2 )
   {
@@ -1636,11 +1637,17 @@ qboolean G_admin_ban( gentity_t *ent )
   if( G_AddressParse( search, &ip ) )
   {
     int max = ip.type == IPv4 ? 32 : 128;
-    int min = ent ? max / 2 : 1;
+    int min;
+
+    cidr = G_admin_permission( ent, ADMF_CAN_IP_BAN );
+    if( cidr )
+      min = ent ? max / 2 : 1;
+    else
+      min = max;
 
     if( ip.mask < min || ip.mask > max )
     {
-      ADMP( va( "^3ban: ^7invalid netmask (%d is not one of %d-%d)\n",
+      ADMP( va( "^3ban: ^7invalid netmask (%d is not in the range %d-%d)\n",
         ip.mask, min, max ) );
       return qfalse;
     }
@@ -1663,8 +1670,15 @@ qboolean G_admin_ban( gentity_t *ent )
 
     if( !match )
     {
-      ADMP( "^3ban: ^7no player found by that IP address\n" );
-      return qfalse;
+      if( cidr )
+      {
+        ADMP( "^3ban: ^7no player found by that IP address; banning anyway\n" );
+      }
+      else
+      {
+        ADMP( "^3ban: ^7no player found by that IP address\n" );
+        return qfalse;
+      }
     }
   }
   else if( !( match = G_NamelogFromString( ent, search ) ) || match->banned )
@@ -1673,14 +1687,14 @@ qboolean G_admin_ban( gentity_t *ent )
     return qfalse;
   }
 
-  if( ent && !admin_higher_guid( ent->client->pers.guid, match->guid ) )
+  if( ent && match && !admin_higher_guid( ent->client->pers.guid, match->guid ) )
   {
 
     ADMP( "^3ban: ^7sorry, but your intended victim has a higher admin"
       " level than you\n" );
     return qfalse;
   }
-  if( match->slot > -1 && level.clients[ match->slot ].pers.localClient )
+  if( match && match->slot > -1 && level.clients[ match->slot ].pers.localClient )
   {
     ADMP( "^3ban: ^7disconnecting the host would end the game\n" );
     return qfalse;
@@ -1691,22 +1705,32 @@ qboolean G_admin_ban( gentity_t *ent )
 
   AP( va( "print \"^3ban:^7 %s^7 has been banned by %s^7 "
     "duration: %s, reason: %s\n\"",
-    match->name[ match->nameOffset ],
+    match ? match->name[ match->nameOffset ] : "an IP address",
     ( ent ) ? ent->client->pers.netname : "console",
     duration,
     ( *reason ) ? reason : "banned by admin" ) );
 
   admin_log( va( "%d (%s) \"%s" S_COLOR_WHITE "\": \"%s" S_COLOR_WHITE "\"",
-    seconds, match->guid, match->name[ match->nameOffset ], reason ) );
+    seconds,
+    match ? match->guid : "",
+    match ? match->name[ match->nameOffset ] : "IP ban",
+    reason ) );
   if( ipmatch )
   {
-    admin_create_ban( ent,
-      match->slot == -1 ?
-        match->name[ match->nameOffset ] :
-        level.clients[ match->slot ].pers.netname,
-      match->guid,
-      &ip,
-      seconds, reason );
+    if( match )
+    {
+      admin_create_ban( ent,
+        match->slot == -1 ?
+          match->name[ match->nameOffset ] :
+          level.clients[ match->slot ].pers.netname,
+        match->guid,
+        &ip,
+        seconds, reason );
+    }
+    else
+    {
+      admin_create_ban( ent, "IP ban", "", &ip, seconds, reason );
+    }
     admin_log( va( "[%s]", ip.str ) );
   }
   else
@@ -1725,7 +1749,8 @@ qboolean G_admin_ban( gentity_t *ent )
     }
   }
 
-  match->banned = qtrue;
+  if( match )
+    match->banned = qtrue;
 
   if( !g_admin.string[ 0 ] )
     ADMP( "^3ban: ^7WARNING g_admin not set, not saving ban to a file\n" );
@@ -1821,11 +1846,17 @@ qboolean G_admin_adjustban( gentity_t *ent )
   if( secs[ 0 ] == '/' )
   {
     int max = ban->ip.type == IPv6 ? 128 : 32;
-    int min = ent ? max / 2 : 1;
+    int min;
+
+    if( G_admin_permission( ent, ADMF_CAN_IP_BAN ) )
+      min = ent ? max / 2 : 1;
+    else
+      min = max;
+
     mask = atoi( secs + 1 );
     if( mask < min || mask > max )
     {
-      ADMP( va( "^3adjustban: ^7invalid netmask (%d is not one of %d-%d)\n",
+      ADMP( va( "^3adjustban: ^7invalid netmask (%d is not in range %d-%d)\n",
         mask, min, max ) );
       return qfalse;
     }
