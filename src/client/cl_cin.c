@@ -1294,7 +1294,7 @@ static void RoQShutdown( void ) {
 
 /*
 ==================
-SCR_StopCinematic
+CIN_StopCinematic
 ==================
 */
 e_status CIN_StopCinematic(int handle) {
@@ -1321,7 +1321,7 @@ e_status CIN_StopCinematic(int handle) {
 
 /*
 ==================
-SCR_RunCinematic
+CIN_RunCinematic
 
 Fetch and decompress the pending frame
 ==================
@@ -1399,8 +1399,7 @@ e_status CIN_RunCinematic (int handle)
 
 /*
 ==================
-CL_PlayCinematic
-
+CIN_PlayCinematic
 ==================
 */
 int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, int systemBits ) {
@@ -1422,7 +1421,7 @@ int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, int systemBi
 		}
 	}
 
-	Com_DPrintf("SCR_PlayCinematic( %s )\n", arg);
+	Com_DPrintf("CIN_PlayCinematic( %s )\n", arg);
 
 	Com_Memset(&cin, 0, sizeof(cinematics_t) );
 	currentHandle = CIN_HandleForVideo();
@@ -1565,8 +1564,7 @@ void CIN_ResampleCinematic(int handle, int *buf2) {
 
 /*
 ==================
-SCR_DrawCinematic
-
+CIN_DrawCinematic
 ==================
 */
 void CIN_DrawCinematic (int handle) {
