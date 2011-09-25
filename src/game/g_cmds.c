@@ -3246,6 +3246,10 @@ void G_ListCommands( gentity_t *ent )
 
   for( i = 0; i < numCmds; i++ )
   {
+    // never advertise cheats
+    if( cmds[ i ].cmdFlags & CMD_CHEAT )
+      continue;
+
     len = strlen( cmds[ i ].cmdName ) + 1;
     if( len + outlen >= sizeof( out ) - 1 )
     {

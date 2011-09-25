@@ -1230,19 +1230,41 @@ static void CG_PoisonCloud_f( void )
   }
 }
 
+static char registeredCmds[ 8192 ]; // cmd1\0cmd2\0cmdn\0\0
 static void CG_GameCmds_f( void )
 {
-  int i;
-  int c = trap_Argc( );
+  int        i;
+  int        c = trap_Argc( );
+  const char *cmd;
+  size_t     len;
+  size_t     offset = strlen( registeredCmds );
 
-  /*
-  There is no corresponding trap_RemoveCommand because a server could send
-  something like
-    cmds quit
-  which would result in trap_RemoveCommand( "quit" ), which would be really bad
-  */
   for( i = 1; i < c; i++ )
-    trap_AddCommand( CG_Argv( i ) );
+  {
+    cmd = CG_Argv( i );
+    len = strlen( cmd ) + 1;
+    if( len + offset >= sizeof( registeredCmds ) - 1 )
+    {
+      CG_Printf( "AddCommand: too many commands (%d > %d)\n",
+        len + offset, sizeof( registeredCmds ) - 1 );
+      return;
+    }
+    trap_AddCommand( cmd );
+    strcpy( registeredCmds + offset, cmd );
+    offset += len + 1;
+  }
+}
+
+void CG_UnregisterCommands( void )
+{
+  size_t len, offset = 0;
+  while( registeredCmds[ offset ] )
+  {
+    len = strlen( registeredCmds + offset );
+    trap_RemoveCommand( registeredCmds + offset );
+    offset += len + 1;
+  }
+  memset( registeredCmds, 0, 2 );
 }
 
 static consoleCommand_t svcommands[ ] =

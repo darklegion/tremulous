@@ -1859,8 +1859,7 @@ Called before every level change or subsystem restart
 */
 void CG_Shutdown( void )
 {
-  // some mods may need to do cleanup work here,
-  // like closing files or archiving session data
+  CG_UnregisterCommands( );
 }
 
 /*
