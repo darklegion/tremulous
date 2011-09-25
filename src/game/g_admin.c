@@ -2972,12 +2972,16 @@ qboolean G_admin_builder( gentity_t *ent )
   gentity_t  *traceEnt;
   buildLog_t *log;
   int        i;
+  qboolean   buildlog;
+  char       logid[ 20 ] = {""};
 
   if( !ent )
   {
     ADMP( "^3builder: ^7console can't aim.\n" );
     return qfalse;
   }
+
+  buildlog = G_admin_permission( ent, "buildlog" );
 
   AngleVectors( ent->client->ps.viewangles, forward, right, up );
   if( ent->client->pers.teamSelection != TEAM_NONE &&
@@ -2991,7 +2995,7 @@ qboolean G_admin_builder( gentity_t *ent )
   traceEnt = &g_entities[ tr.entityNum ];
   if( tr.fraction < 1.0f && ( traceEnt->s.eType == ET_BUILDABLE ) )
   {
-    if( !G_admin_permission( ent, "buildlog" ) &&
+    if( !buildlog &&
         ent->client->pers.teamSelection != TEAM_NONE &&
         ent->client->pers.teamSelection != traceEnt->buildableTeam )
     {
@@ -2999,32 +3003,28 @@ qboolean G_admin_builder( gentity_t *ent )
       return qfalse;
     }
 
-    for( i = 0 ; i < level.numBuildLogs; i++ )
+    if( buildlog )
     {
-      log = &level.buildLog[ ( level.buildId - i - 1 ) % MAX_BUILDLOG ];
-      if( log->fate != BF_CONSTRUCT || traceEnt->s.modelindex != log->modelindex )
-        continue;
-
-      VectorSubtract( traceEnt->s.pos.trBase, log->origin, dist );
-      if( VectorLengthSquared( dist ) < 2.0f )
+      for( i = 0 ; buildlog && i < level.numBuildLogs; i++ )
       {
-        char logid[ 20 ] = {""};
+        log = &level.buildLog[ ( level.buildId - i - 1 ) % MAX_BUILDLOG ];
+        if( log->fate != BF_CONSTRUCT || traceEnt->s.modelindex != log->modelindex )
+          continue;
 
-        if( G_admin_permission( ent, "buildlog" ) )
+        VectorSubtract( traceEnt->s.pos.trBase, log->origin, dist );
+        if( VectorLengthSquared( dist ) < 2.0f )
           Com_sprintf( logid, sizeof( logid ), ", buildlog #%d",
                        MAX_CLIENTS + level.buildId - i - 1 );
-        ADMP( va( "^3builder: ^7%s built by %s^7%s\n",
-          BG_Buildable( log->modelindex )->humanName,
-          log->actor ?
-            log->actor->name[ log->actor->nameOffset ] :
-            "<world>",
-          logid ) );
-        break;
       }
     }
-    if( i == level.numBuildLogs )
-      ADMP( va( "^3builder: ^7%s not in build log, possibly a layout item\n",
-        BG_Buildable( traceEnt->s.modelindex )->humanName ) );
+
+    ADMP( va( "^3builder: ^7%s%s%s^7%s\n",
+      BG_Buildable( traceEnt->s.modelindex )->humanName,
+      traceEnt->builtBy ? " built by " : "",
+      traceEnt->builtBy ?
+        traceEnt->builtBy->name[ traceEnt->builtBy->nameOffset ] :
+        "",
+      buildlog ? ( logid[ 0 ] ? logid : ", not in buildlog" ) : "" ) );
   }
   else
     ADMP( "^3builder: ^7no structure found under crosshair\n" );
@@ -3160,13 +3160,22 @@ qboolean G_admin_buildlog( gentity_t *ent )
     printed++;
     time = ( log->time - level.startTime ) / 1000;
     Com_sprintf( stamp, sizeof( stamp ), "%3d:%02d", time / 60, time % 60 );
-    ADMBP( va( "^2%c^7%-3d %s ^7%s^7 %s%s%s\n",
+    ADMBP( va( "^2%c^7%-3d %s %s^7%s%s%s %s%s%s\n",
       log->actor && log->fate != BF_REPLACE && log->fate != BF_UNPOWER ?
         '*' : ' ',
       i + MAX_CLIENTS,
       log->actor && ( log->fate == BF_REPLACE || log->fate == BF_UNPOWER ) ?
         "    \\_" : stamp,
       BG_Buildable( log->modelindex )->humanName,
+      log->builtBy && log->fate != BF_CONSTRUCT ?
+        " (built by " :
+        "",
+      log->builtBy && log->fate != BF_CONSTRUCT ?
+        log->builtBy->name[ log->builtBy->nameOffset ] :
+        "",
+      log->builtBy && log->fate != BF_CONSTRUCT ?
+        "^7)" :
+        "",
       fates[ log->fate ],
       log->actor ? " by " : "",
       log->actor ?

@@ -884,8 +884,9 @@ void ASpawn_Think( gentity_t *self )
         // If it's part of the map, kill self. 
         if( ent->s.eType == ET_BUILDABLE )
         {
-          if( ent->builtBy >= 0 ) // don't queue the bp from this
-            G_Damage( ent, NULL, g_entities + ent->builtBy, NULL, NULL, 10000, 0, MOD_SUICIDE );
+          // don't queue the bp from this
+          if( ent->builtBy && ent->builtBy->slot >= 0 )
+            G_Damage( ent, NULL, g_entities + ent->builtBy->slot, NULL, NULL, 10000, 0, MOD_SUICIDE );
           else
             G_Damage( ent, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
 
@@ -1791,8 +1792,8 @@ void HRepeater_Think( gentity_t *self )
     // If the repeater is inside of another power zone then suicide
     // Attribute death to whoever built the reactor if that's a human,
     // which will ensure that it does not queue the BP
-    if( powerEnt->builtBy >= 0 )
-      G_Damage( self, NULL, g_entities + powerEnt->builtBy, NULL, NULL, self->health, 0, MOD_SUICIDE );
+    if( powerEnt->builtBy && powerEnt->builtBy->slot >= 0 )
+      G_Damage( self, NULL, g_entities + powerEnt->builtBy->slot, NULL, NULL, self->health, 0, MOD_SUICIDE );
     else
       G_Damage( self, NULL, NULL, NULL, NULL, self->health, 0, MOD_SUICIDE );
     return;
@@ -3667,9 +3668,9 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable,
   built->s.weapon = BG_Buildable( buildable )->turretProjType;
 
   if( builder->client )
-    built->builtBy = builder->client->ps.clientNum;
+    built->builtBy = builder->client->pers.namelog;
   else
-    built->builtBy = -1;
+    built->builtBy = NULL;
 
   G_SetOrigin( built, localOrigin );
 
@@ -3706,7 +3707,7 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable,
 
   G_SetIdleBuildableAnim( built, BG_Buildable( buildable )->idleAnim );
 
-  if( built->builtBy >= 0 )
+  if( built->builtBy )
     G_SetBuildableAnim( built, BANIM_CONSTRUCT1, qtrue );
 
   trap_LinkEntity( built );
@@ -4225,6 +4226,7 @@ void G_BuildLogSet( buildLog_t *log, gentity_t *ent )
   log->modelindex = ent->s.modelindex;
   log->deconstruct = log->deconstruct;
   log->deconstructTime = ent->deconstructTime;
+  log->builtBy = ent->builtBy;
   VectorCopy( ent->s.pos.trBase, log->origin );
   VectorCopy( ent->s.angles, log->angles );
   VectorCopy( ent->s.origin2, log->origin2 );
@@ -4339,6 +4341,7 @@ void G_BuildLogRevert( int id )
       builder->s.modelindex = log->modelindex;
       builder->deconstruct = log->deconstruct;
       builder->deconstructTime = log->deconstructTime;
+      builder->builtBy = log->builtBy;
 
       builder->think = G_BuildLogRevertThink;
       builder->nextthink = level.time + FRAMETIME;
