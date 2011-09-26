@@ -1230,28 +1230,28 @@ static void CG_PoisonCloud_f( void )
   }
 }
 
-static char registeredCmds[ 8192 ]; // cmd1\0cmd2\0cmdn\0\0
+static char   registeredCmds[ 8192 ]; // cmd1\0cmd2\0cmdn\0\0
+static size_t gcmdsOffset;
 static void CG_GameCmds_f( void )
 {
   int        i;
   int        c = trap_Argc( );
   const char *cmd;
   size_t     len;
-  size_t     offset = strlen( registeredCmds );
 
   for( i = 1; i < c; i++ )
   {
     cmd = CG_Argv( i );
     len = strlen( cmd ) + 1;
-    if( len + offset >= sizeof( registeredCmds ) - 1 )
+    if( len + gcmdsOffset >= sizeof( registeredCmds ) - 1 )
     {
-      CG_Printf( "AddCommand: too many commands (%d > %d)\n",
-        len + offset, sizeof( registeredCmds ) - 1 );
+      CG_Printf( "AddCommand: too many commands (%d >= %d)\n",
+        len + gcmdsOffset, sizeof( registeredCmds ) - 1 );
       return;
     }
     trap_AddCommand( cmd );
-    strcpy( registeredCmds + offset, cmd );
-    offset += len + 1;
+    strcpy( registeredCmds + gcmdsOffset, cmd );
+    gcmdsOffset += len;
   }
 }
 
@@ -1265,6 +1265,7 @@ void CG_UnregisterCommands( void )
     offset += len + 1;
   }
   memset( registeredCmds, 0, 2 );
+  gcmdsOffset = 0;
 }
 
 static consoleCommand_t svcommands[ ] =
