@@ -3668,6 +3668,8 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable,
 
   if( builder->client )
     built->builtBy = builder->client->pers.namelog;
+  else if( builder->builtBy )
+    built->builtBy = builder->builtBy;
   else
     built->builtBy = NULL;
 
