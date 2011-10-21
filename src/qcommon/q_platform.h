@@ -180,7 +180,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define OS_STRING "kFreeBSD"
 #endif
 
+#ifdef __clang__
+#define ID_INLINE static inline
+#else
 #define ID_INLINE inline
+#endif
+
 #define PATH_SEP '/'
 
 #if defined __i386__
