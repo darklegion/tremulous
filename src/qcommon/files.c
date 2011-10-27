@@ -3596,8 +3596,8 @@ qboolean FS_ConditionalRestart(int checksumFeed, qboolean disconnect)
 	if(fs_gamedirvar->modified)
 	{
 		if(FS_FilenameCompare(lastValidGame, fs_gamedirvar->string) &&
-		   (*lastValidGame || FS_FilenameCompare(fs_gamedirvar->string, com_basegame->string)) &&
-		   (*fs_gamedirvar->string || FS_FilenameCompare(lastValidGame, com_basegame->string)))
+		   (*lastValidGame || FS_FilenameCompare(fs_gamedirvar->string, BASEGAME)) &&
+		   (*fs_gamedirvar->string || FS_FilenameCompare(lastValidGame, BASEGAME)))
 		{
 			Com_GameRestart(checksumFeed, disconnect);
 			return qtrue;
