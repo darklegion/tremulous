@@ -109,10 +109,6 @@ qhandle_t R_RegisterMD3(const char *name, model_t *mod)
 		return mod->index;
 	}
 
-#ifdef _DEBUG
-	ri.Printf(PRINT_WARNING,"R_RegisterMD3: couldn't load %s\n", name);
-#endif
-
 	mod->type = MOD_BAD;
 	return 0;
 }
@@ -148,7 +144,6 @@ qhandle_t R_RegisterMDR(const char *name, model_t *mod)
 	
 	if(!loaded)
 	{
-		ri.Printf(PRINT_WARNING,"R_RegisterMDR: couldn't load mdr file %s\n", name);
 		mod->type = MOD_BAD;
 		return 0;
 	}
@@ -184,7 +179,6 @@ qhandle_t R_RegisterIQM(const char *name, model_t *mod)
 	
 	if(!loaded)
 	{
-		ri.Printf(PRINT_WARNING,"R_RegisterIQM: couldn't load iqm file %s\n", name);
 		mod->type = MOD_BAD;
 		return 0;
 	}
@@ -372,11 +366,12 @@ qhandle_t RE_RegisterModel( const char *name ) {
 						name, altName );
 			}
 
-			break;
+			return hModel;
 		}
 	}
 
-	return hModel;
+	ri.Printf(PRINT_WARNING, "WARNING: Failed to load model %s!\n", name);
+	return 0;
 }
 
 /*
