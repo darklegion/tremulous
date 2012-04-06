@@ -1566,7 +1566,6 @@ double strtod( const char *nptr, char **endptr )
     if( end != s && tolower( *nptr ) == 'p' )
     {
       int exp;
-      float res2;
       // apparently (confusingly) the exponent should be
       // decimal
       exp = strtol( &nptr[1], (char **)&end, 10 );
@@ -1612,7 +1611,6 @@ double strtod( const char *nptr, char **endptr )
     if( p != end && tolower( *nptr ) == 'e' )
     {
       int exp;
-      float res10;
       exp = strtol( &nptr[1], (char **)&end, 10 );
       if( &nptr[1] == end )
       {
