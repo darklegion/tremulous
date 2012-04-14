@@ -1,5 +1,5 @@
 #!/bin/sh
-CC=gcc4.0
+CC=gcc-4.0
 APPBUNDLE=Tremulous.app
 BINARY=Tremulous.ub
 DEDBIN=Tremded.ub
