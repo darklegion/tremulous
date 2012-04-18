@@ -2471,12 +2471,15 @@ void G_RunFrame( int levelTime )
   G_UnlaggedStore( );
 
   G_CountSpawns( );
-  G_CalculateBuildPoints( );
-  G_CalculateStages( );
-  G_SpawnClients( TEAM_ALIENS );
-  G_SpawnClients( TEAM_HUMANS );
-  G_CalculateAvgPlayers( );
-  G_UpdateZaps( msec );
+  if( !g_doWarmup.integer || level.warmupTime <= level.time )
+  {
+    G_CalculateBuildPoints( );
+    G_CalculateStages( );
+    G_SpawnClients( TEAM_ALIENS );
+    G_SpawnClients( TEAM_HUMANS );
+    G_CalculateAvgPlayers( );
+    G_UpdateZaps( msec );
+  }
 
   // see if it is time to end the level
   CheckExitRules( );
