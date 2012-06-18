@@ -510,7 +510,7 @@ int S_AL_SoundDuration( sfxHandle_t sfx )
 =================
 S_AL_BufferGet
 
-Return's an sfx's buffer
+Return's a sfx's buffer
 =================
 */
 static
