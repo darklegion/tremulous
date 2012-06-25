@@ -156,7 +156,7 @@ static void Svcmd_Status_f( void )
 
     trap_GetUserinfo( i, userinfo, sizeof( userinfo ) );
     G_Printf( "%-21s ", Info_ValueForKey( userinfo, "ip" ) );
-    G_Printf( "%-8d ", Info_ValueForKey( userinfo, "rate" ) );
+    G_Printf( "%-8d ", atoi( Info_ValueForKey( userinfo, "rate" ) ) );
     G_Printf( "%s\n", cl->pers.netname ); // Info_ValueForKey( userinfo, "name" )
   }
 }
