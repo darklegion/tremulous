@@ -512,13 +512,6 @@ void CG_Menu( int menu, int arg )
       type      = DT_COMMAND;
       break;
 
-    case MN_WARMUP:
-      longMsg   = "You must wait until the warmup time is finished "
-                  "before joining a team. ";
-      shortMsg  = "You cannot join a team during warmup.";
-      type      = DT_COMMAND;
-      break;
-
     //===============================
 
     // Since cheating commands have no default binds, they will often be done
