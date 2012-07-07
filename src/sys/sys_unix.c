@@ -54,7 +54,7 @@ char *Sys_DefaultHomePath(void)
 {
 	char *p;
 
-	if( !*homePath )
+	if( !*homePath && com_homepath != NULL )
 	{
 		if( ( p = getenv( "HOME" ) ) != NULL )
 		{
