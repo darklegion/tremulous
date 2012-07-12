@@ -707,12 +707,11 @@ char* Q_strrchr( const char* string, int c )
 qboolean Q_isanumber( const char *s )
 {
 	char *p;
-	double d;
 
 	if( *s == '\0' )
 		return qfalse;
 
-	d = strtod( s, &p );
+	strtod( s, &p );
 
 	return *p == '\0';
 }

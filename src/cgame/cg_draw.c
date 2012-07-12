@@ -503,12 +503,9 @@ static void CG_DrawPlayerBuildTimerRing( rectDef_t *rect, vec4_t backColor,
                                          vec4_t foreColor, qhandle_t shader )
 {
   playerState_t *ps = &cg.snap->ps;
-  centity_t     *cent;
   float         buildTime = ps->stats[ STAT_MISC ];
   float         progress;
   vec4_t        color;
-
-  cent = &cg_entities[ cg.snap->ps.clientNum ];
 
   if( buildTime > MAXIMUM_BUILD_TIME )
     buildTime = MAXIMUM_BUILD_TIME;
@@ -1276,11 +1273,9 @@ void CG_DrawLoadingScreen( void )
 
 float CG_GetValue( int ownerDraw )
 {
-  centity_t *cent;
   playerState_t *ps;
   weapon_t weapon;
 
-  cent = &cg_entities[ cg.snap->ps.clientNum ];
   ps = &cg.snap->ps;
   weapon = BG_GetPlayerWeapon( ps );
 
@@ -1926,12 +1921,11 @@ static void CG_DrawClock( rectDef_t *rect, float text_x, float text_y,
   int     i, strLength;
   float   w, h, totalWidth;
   qtime_t qt;
-  int     t;
 
   if( !cg_drawClock.integer )
     return;
 
-  t = trap_RealTime( &qt );
+  trap_RealTime( &qt );
 
   if( cg_drawClock.integer == 2 )
   {
@@ -2455,11 +2449,9 @@ CG_DrawWeaponIcon
 void CG_DrawWeaponIcon( rectDef_t *rect, vec4_t color )
 {
   int           maxAmmo;
-  centity_t     *cent;
   playerState_t *ps;
   weapon_t      weapon;
 
-  cent = &cg_entities[ cg.snap->ps.clientNum ];
   ps = &cg.snap->ps;
   weapon = BG_GetPlayerWeapon( ps );
 
@@ -3067,10 +3059,6 @@ CG_DrawLighting
 */
 static void CG_DrawLighting( void )
 {
-  centity_t   *cent;
-
-  cent = &cg_entities[ cg.snap->ps.clientNum ];
-
   //fade to black if stamina is low
   if( ( cg.snap->ps.stats[ STAT_STAMINA ] < STAMINA_BLACKOUT_LEVEL ) &&
       ( cg.snap->ps.stats[ STAT_TEAM ] == TEAM_HUMANS ) )
@@ -3257,7 +3245,6 @@ static void CG_DrawVote( team_t team )
 static qboolean CG_DrawScoreboard( void )
 {
   static qboolean firstTime = qtrue;
-  float fade, *fadeColor;
 
   if( menuScoreboard )
     menuScoreboard->window.flags &= ~WINDOW_FORCED;
@@ -3269,13 +3256,8 @@ static qboolean CG_DrawScoreboard( void )
     return qfalse;
   }
 
-  if( cg.showScores ||
-      cg.predictedPlayerState.pm_type == PM_INTERMISSION )
-  {
-    fade = 1.0;
-    fadeColor = colorWhite;
-  }
-  else
+  if( !cg.showScores &&
+      cg.predictedPlayerState.pm_type != PM_INTERMISSION )
   {
     cg.deferredPlayerLoading = 0;
     cg.killerName[ 0 ] = 0;

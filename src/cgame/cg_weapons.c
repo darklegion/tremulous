@@ -1395,10 +1395,8 @@ void CG_DrawItemSelect( rectDef_t *rect, vec4_t color )
   int           numItems = 0, selectedItem = 0;
   int           length;
   qboolean      vertical;
-  centity_t *cent;
   playerState_t *ps;
 
-  cent = &cg_entities[ cg.snap->ps.clientNum ];
   ps = &cg.snap->ps;
 
   // don't display if dead

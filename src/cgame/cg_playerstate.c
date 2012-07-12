@@ -245,8 +245,6 @@ CG_CheckLocalSounds
 */
 void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops )
 {
-  int reward;
-
   // don't play the sounds if the player just spawned
   if( ps->persistant[ PERS_SPECSTATE ] != ops->persistant[ PERS_SPECSTATE ] )
     return;
@@ -257,14 +255,6 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops )
     if( ps->stats[ STAT_HEALTH ] > 0 )
       CG_PainEvent( &cg.predictedPlayerEntity, ps->stats[ STAT_HEALTH ] );
   }
-
-
-  // if we are going into the intermission, don't start any voices
-  if( cg.intermissionStarted )
-    return;
-
-  // reward sounds
-  reward = qfalse;
 }
 
 

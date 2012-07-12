@@ -387,7 +387,7 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd )
   pmove_t pm;
   gclient_t *client;
   int clientNum;
-  qboolean attack1, attack3, following, queued;
+  qboolean attack1, following, queued;
 
   client = ent->client;
 
@@ -396,8 +396,6 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd )
 
   attack1 = ( client->buttons & BUTTON_ATTACK ) &&
             !( client->oldbuttons & BUTTON_ATTACK );
-  attack3 = ( client->buttons & BUTTON_USE_HOLDABLE ) &&
-            !( client->oldbuttons & BUTTON_USE_HOLDABLE );
    
   // We are in following mode only if we are following a non-spectating client           
   following = client->sess.spectatorState == SPECTATOR_FOLLOW;
@@ -565,8 +563,7 @@ void ClientTimerActions( gentity_t *ent, int msec )
   usercmd_t *ucmd;
   int       aForward, aRight;
   qboolean  walking = qfalse, stopped = qfalse,
-            crouched = qfalse, jumping = qfalse,
-            strafing = qfalse;
+            crouched = qfalse;
   int       i;
 
   ucmd = &ent->client->pers.cmd;
@@ -579,12 +576,7 @@ void ClientTimerActions( gentity_t *ent, int msec )
   else if( aForward <= 64 && aRight <= 64 )
     walking = qtrue;
 
-  if( aRight > 0 )
-    strafing = qtrue;
-
-  if( ucmd->upmove > 0 )
-    jumping = qtrue;
-  else if( ent->client->ps.pm_flags & PMF_DUCKED )
+  if( ucmd->upmove <= 0 && ent->client->ps.pm_flags & PMF_DUCKED )
     crouched = qtrue;
 
   client = ent->client;
@@ -1828,15 +1820,11 @@ while a slow client may have multiple ClientEndFrame between ClientThink.
 */
 void ClientEndFrame( gentity_t *ent )
 {
-  clientPersistant_t  *pers;
-
   if( ent->client->sess.spectatorState != SPECTATOR_NOT )
   {
     SpectatorClientEndFrame( ent );
     return;
   }
-
-  pers = &ent->client->pers;
 
   //
   // If the end of unit layout is displayed, don't give

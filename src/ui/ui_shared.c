@@ -2703,9 +2703,6 @@ int Item_ListBox_OverLB( itemDef_t *item, float x, float y )
 {
   rectDef_t r;
   int thumbstart;
-  int count;
-
-  count = DC->feederCount( item->feederID );
 
   r.x = SCROLLBAR_SLIDER_X( item );
   r.y = SCROLLBAR_Y( item );
@@ -3988,14 +3985,10 @@ void Menu_HandleKey( menuDef_t *menu, int key, qboolean down )
 {
   int i;
   itemDef_t *item = NULL;
-  qboolean inHandler = qfalse;
-
-  inHandler = qtrue;
 
   if( g_waitingForKey && down )
   {
     Item_Bind_HandleKey( g_bindItem, key, down );
-    inHandler = qfalse;
     return;
   }
 
@@ -4006,7 +3999,6 @@ void Menu_HandleKey( menuDef_t *menu, int key, qboolean down )
       g_editingField = qfalse;
       Item_RunScript( g_editItem, g_editItem->onTextEntry );
       g_editItem = NULL;
-      inHandler = qfalse;
       return;
     }
     else
@@ -4016,10 +4008,7 @@ void Menu_HandleKey( menuDef_t *menu, int key, qboolean down )
   }
 
   if( menu == NULL )
-  {
-    inHandler = qfalse;
     return;
-  }
 
   // see if the mouse is within the window bounds and if so is this a mouse click
   if( down && !( menu->window.flags & WINDOW_POPUP ) &&
@@ -4032,7 +4021,6 @@ void Menu_HandleKey( menuDef_t *menu, int key, qboolean down )
       inHandleKey = qtrue;
       Menus_HandleOOBClick( menu, key, down );
       inHandleKey = qfalse;
-      inHandler = qfalse;
       return;
     }
   }
@@ -4054,16 +4042,12 @@ void Menu_HandleKey( menuDef_t *menu, int key, qboolean down )
     if( Item_HandleKey( item, key, down ) )
     {
       Item_Action( item );
-      inHandler = qfalse;
       return;
     }
   }
 
   if( !down )
-  {
-    inHandler = qfalse;
     return;
-  }
 
   // default handling
   switch( key )
@@ -4178,8 +4162,6 @@ void Menu_HandleKey( menuDef_t *menu, int key, qboolean down )
 
       break;
   }
-
-  inHandler = qfalse;
 }
 
 void ToWindowCoords( float *x, float *y, windowDef_t *window )
@@ -5129,11 +5111,9 @@ void BindingFromName( const char *cvar )
 void Item_Slider_Paint( itemDef_t *item )
 {
   vec4_t newColor;
-  float x, y, value;
+  float x, y;
   menuDef_t *parent = ( menuDef_t* )item->parent;
   float vScale = Item_Slider_VScale( item );
-
-  value = ( item->cvar ) ? DC->getCVarValue( item->cvar ) : 0;
 
   if( item->window.flags & WINDOW_HASFOCUS )
     memcpy( newColor, &parent->focusColor, sizeof( vec4_t ) );
@@ -5646,7 +5626,6 @@ void Item_OwnerDraw_Paint( itemDef_t *item )
   if( DC->ownerDrawItem )
   {
     vec4_t color, lowLight;
-    menuDef_t *parent = ( menuDef_t* )item->parent;
     Fade( &item->window.flags, &item->window.foreColor[3], parent->fadeClamp, &item->window.nextTime,
           parent->fadeCycle, qtrue, parent->fadeAmount );
     memcpy( &color, &item->window.foreColor, sizeof( color ) );
