@@ -110,7 +110,7 @@ typedef enum
 typedef struct
 {
   char  *name;
-  int   ofs;
+  size_t ofs;
   fieldtype_t type;
   int   flags;
 } field_t;
@@ -159,11 +159,6 @@ void SP_info_player_intermission( gentity_t *ent );
 void SP_info_alien_intermission( gentity_t *ent );
 void SP_info_human_intermission( gentity_t *ent );
 
-void SP_info_firstplace( gentity_t *ent );
-void SP_info_secondplace( gentity_t *ent );
-void SP_info_thirdplace( gentity_t *ent );
-void SP_info_podium( gentity_t *ent );
-
 void SP_func_plat( gentity_t *ent );
 void SP_func_static( gentity_t *ent );
 void SP_func_rotating( gentity_t *ent );
@@ -193,7 +188,6 @@ void SP_trigger_ammo( gentity_t *ent );
 void SP_target_delay( gentity_t *ent );
 void SP_target_speaker( gentity_t *ent );
 void SP_target_print( gentity_t *ent );
-void SP_target_character( gentity_t *ent );
 void SP_target_score( gentity_t *ent );
 void SP_target_teleporter( gentity_t *ent );
 void SP_target_relay( gentity_t *ent );
@@ -209,17 +203,12 @@ void SP_target_hurt( gentity_t *ent );
 void SP_light( gentity_t *self );
 void SP_info_null( gentity_t *self );
 void SP_info_notnull( gentity_t *self );
-void SP_info_camp( gentity_t *self );
 void SP_path_corner( gentity_t *self );
 
 void SP_misc_teleporter_dest( gentity_t *self );
 void SP_misc_model( gentity_t *ent );
 void SP_misc_portal_camera( gentity_t *ent );
 void SP_misc_portal_surface( gentity_t *ent );
-
-void SP_shooter_rocket( gentity_t *ent );
-void SP_shooter_plasma( gentity_t *ent );
-void SP_shooter_grenade( gentity_t *ent );
 
 void SP_misc_particle_system( gentity_t *ent );
 void SP_misc_anim_model( gentity_t *ent );
@@ -334,7 +323,7 @@ qboolean G_CallSpawn( gentity_t *ent )
   }
 
   // check normal spawn functions
-  s = bsearch( ent->classname, spawns, sizeof( spawns ) / sizeof( spawn_t ),
+  s = bsearch( ent->classname, spawns, ARRAY_LEN( spawns ),
     sizeof( spawn_t ), cmdcmp );
   if( s )
   {
@@ -403,7 +392,7 @@ void G_ParseField( const char *key, const char *value, gentity_t *ent )
   vec3_t  vec;
   vec4_t  vec4;
 
-  f = bsearch( key, fields, sizeof( fields ) / sizeof( field_t ),
+  f = bsearch( key, fields, ARRAY_LEN( fields ),
     sizeof( field_t ), cmdcmp );
   if( !f )
     return;

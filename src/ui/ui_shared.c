@@ -2364,7 +2364,7 @@ commandDef_t commandList[] =
     {"transition", &Script_Transition},           // group/name
   };
 
-static size_t scriptCommandCount = sizeof( commandList ) / sizeof( commandDef_t );
+static size_t scriptCommandCount = ARRAY_LEN( commandList );
 
 // despite what lcc thinks, we do not get cmdcmp here
 static int commandComp( const void *a, const void *b )
@@ -4977,7 +4977,7 @@ static bind_t g_bindings[] =
   };
 
 
-static const int g_bindCount = sizeof( g_bindings ) / sizeof( bind_t );
+static const size_t g_bindCount = ARRAY_LEN( g_bindings );
 
 /*
 =================

@@ -279,7 +279,7 @@ void ScoreboardMessage( gentity_t *ent )
 
     j = strlen( entry );
 
-    if( stringlength + j >= 1024 )
+    if( stringlength + j >= sizeof( string ) )
       break;
 
     strcpy( string + stringlength, entry );
@@ -3138,7 +3138,7 @@ commands_t cmds[ ] = {
   { "vsay_team", CMD_MESSAGE|CMD_INTERMISSION, Cmd_VSay_f },
   { "where", 0, Cmd_Where_f }
 };
-static size_t numCmds = sizeof( cmds ) / sizeof( cmds[ 0 ] );
+static size_t numCmds = ARRAY_LEN( cmds );
 
 /*
 =================

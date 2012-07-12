@@ -49,7 +49,7 @@ static const char *netSources[ ] =
   "Favorites"
 };
 
-static const int numNetSources = sizeof( netSources ) / sizeof( const char* );
+static const size_t numNetSources = ARRAY_LEN( netSources );
 
 static const char *netnames[ ] =
 {
@@ -127,7 +127,7 @@ static cvarTable_t    cvarTable[ ] =
   { &ui_chatCommands, "ui_chatCommands", "1", CVAR_ARCHIVE }
 };
 
-static int    cvarTableSize = sizeof( cvarTable ) / sizeof( cvarTable[0] );
+static size_t cvarTableSize = ARRAY_LEN( cvarTable );
 
 /*
 ================
@@ -2689,11 +2689,11 @@ static void UI_LoadDemos( void )
   char  *demoname;
   int   i, len;
 
-  Com_sprintf( demoExt, sizeof( demoExt ), "dm_%d", ( int )trap_Cvar_VariableValue( "protocol" ) );
+  Com_sprintf( demoExt, sizeof( demoExt ), "%s%d", DEMOEXT, (int)trap_Cvar_VariableValue( "protocol" ) );
 
   uiInfo.demoCount = trap_FS_GetFileList( "demos", demoExt, demolist, 4096 );
 
-  Com_sprintf( demoExt, sizeof( demoExt ), ".dm_%d", ( int )trap_Cvar_VariableValue( "protocol" ) );
+  Com_sprintf( demoExt, sizeof( demoExt ), ".%s%d", DEMOEXT, (int)trap_Cvar_VariableValue( "protocol" ) );
 
   if( uiInfo.demoCount )
   {

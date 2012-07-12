@@ -48,7 +48,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  * CANIPBAN - allows banning not-necessarily-connected players with CIDR notation
  * ACTIVITY - inactivity rules do not apply to them
  * IMMUTABLE - admin commands cannot be used on them
- * INCOGNITO - does not show up as an admin in !listplayers
+ * INCOGNITO - does not show up as an admin in /listplayers
  * ALLFLAGS - all flags (including command flags) apply to this player
  * ADMINCHAT - receieves and can send /a admin messages
  */
@@ -70,16 +70,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MAX_ADMIN_LISTITEMS 20
 #define MAX_ADMIN_SHOWBANS 10
 
-// important note: QVM does not seem to allow a single char to be a
-// member of a struct at init time.  flag has been converted to char*
 typedef struct
 {
   char *keyword;
   qboolean ( * handler ) ( gentity_t *ent );
   qboolean silent;
   char *flag;
-  char *function;  // used for !help
-  char *syntax;  // used for !help
+  char *function;  // used in /adminhelp
+  char *syntax;  // used in /adminhelp
 }
 g_admin_cmd_t;
 

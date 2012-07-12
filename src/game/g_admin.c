@@ -209,7 +209,7 @@ g_admin_cmd_t g_admin_cmds[ ] =
     }
   };
 
-static size_t adminNumCmds = sizeof( g_admin_cmds ) / sizeof( g_admin_cmds[ 0 ] );
+static size_t adminNumCmds = ARRAY_LEN( g_admin_cmds );
 
 static int admin_level_maxname = 0;
 g_admin_level_t *g_admin_levels = NULL;

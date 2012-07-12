@@ -274,7 +274,7 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_tag, "g_tag", "main", CVAR_INIT, 0, qfalse }
 };
 
-static int gameCvarTableSize = sizeof( gameCvarTable ) / sizeof( gameCvarTable[ 0 ] );
+static size_t gameCvarTableSize = ARRAY_LEN( gameCvarTable );
 
 
 void G_InitGame( int levelTime, int randomSeed, int restart );

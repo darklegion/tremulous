@@ -357,7 +357,7 @@ static cvarTable_t cvarTable[ ] =
   { &cg_chatTeamPrefix, "cg_chatTeamPrefix", "1", CVAR_ARCHIVE}
 };
 
-static int   cvarTableSize = sizeof( cvarTable ) / sizeof( cvarTable[0] );
+static size_t cvarTableSize = ARRAY_LEN( cvarTable );
 
 /*
 =================
@@ -1738,7 +1738,6 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
   // clear everything
   memset( &cgs, 0, sizeof( cgs ) );
   memset( &cg, 0, sizeof( cg ) );
-  memset( &cg.pmext, 0, sizeof( cg.pmext ) );
   memset( cg_entities, 0, sizeof( cg_entities ) );
 
   cg.clientNum = clientNum;

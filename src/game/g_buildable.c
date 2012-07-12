@@ -172,17 +172,13 @@ qboolean G_FindPower( gentity_t *self, qboolean searchUnspawned )
           // Scan the buildables in the reactor zone
           for( j = MAX_CLIENTS, ent2 = g_entities + j; j < level.num_entities; j++, ent2++ )
           {
-            gentity_t *powerEntity;
-
             if( ent2->s.eType != ET_BUILDABLE )
               continue;
 
             if( ent2 == self )
               continue;
 
-            powerEntity = ent2->parentNode;
-
-            if( powerEntity && powerEntity->s.modelindex == BA_H_REACTOR && ( powerEntity == ent ) )
+            if( ent2->parentNode == ent )
             {
               buildPoints -= BG_Buildable( ent2->s.modelindex )->buildPoints;
             }
@@ -224,20 +220,14 @@ qboolean G_FindPower( gentity_t *self, qboolean searchUnspawned )
           // Scan the buildables in the repeater zone
           for( j = MAX_CLIENTS, ent2 = g_entities + j; j < level.num_entities; j++, ent2++ )
           {
-            gentity_t *powerEntity;
-
             if( ent2->s.eType != ET_BUILDABLE )
               continue;
 
             if( ent2 == self )
               continue;
 
-            powerEntity = ent2->parentNode;
-
-            if( powerEntity && powerEntity->s.modelindex == BA_H_REPEATER && ( powerEntity == ent ) )
-            {
+            if( ent2->parentNode == ent )
               buildPoints -= BG_Buildable( ent2->s.modelindex )->buildPoints;
-            }
           }
 
           if( ent->usesBuildPointZone && level.buildPointZones[ ent->buildPointZone ].active )
@@ -2956,7 +2946,7 @@ static int G_CompareBuildablesForRemoval( const void *a, const void *b )
   }
 
   // Resort to preference list
-  for( i = 0; i < sizeof( precedence ) / sizeof( precedence[ 0 ] ); i++ )
+  for( i = 0; i < ARRAY_LEN( precedence ); i++ )
   {
     if( buildableA->s.modelindex == precedence[ i ] )
       aPrecedence = i;

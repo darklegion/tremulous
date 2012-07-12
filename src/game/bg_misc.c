@@ -563,7 +563,7 @@ static const buildableAttributes_t bg_buildableList[ ] =
   }
 };
 
-int   bg_numBuildables = sizeof( bg_buildableList ) / sizeof( bg_buildableList[ 0 ] );
+size_t bg_numBuildables = ARRAY_LEN( bg_buildableList );
 
 static const buildableAttributes_t nullBuildable = { 0 };
 
@@ -1210,7 +1210,7 @@ static const classAttributes_t bg_classList[ ] =
   }
 };
 
-int   bg_numClasses = sizeof( bg_classList ) / sizeof( bg_classList[ 0 ] );
+size_t bg_numClasses = ARRAY_LEN( bg_classList );
 
 static const classAttributes_t nullClass = { 0 };
 
@@ -2365,7 +2365,7 @@ static const weaponAttributes_t bg_weapons[ ] =
   }
 };
 
-int   bg_numWeapons = sizeof( bg_weapons ) / sizeof( bg_weapons[ 0 ] );
+size_t bg_numWeapons = ARRAY_LEN( bg_weapons );
 
 static const weaponAttributes_t nullWeapon = { 0 };
 
@@ -2531,7 +2531,7 @@ static const upgradeAttributes_t bg_upgrades[ ] =
   }
 };
 
-int   bg_numUpgrades = sizeof( bg_upgrades ) / sizeof( bg_upgrades[ 0 ] );
+size_t bg_numUpgrades = ARRAY_LEN( bg_upgrades );
 
 static const upgradeAttributes_t nullUpgrade = { 0 };
 
@@ -2803,7 +2803,7 @@ BG_EventName
 */
 const char *BG_EventName( int num )
 {
-  if( num < 0 || num >= sizeof( eventnames ) / sizeof( char * ) )
+  if( num < 0 || num >= ARRAY_LEN( eventnames ) )
     return "UNKNOWN";
 
   return eventnames[ num ];
