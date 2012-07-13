@@ -2238,10 +2238,14 @@ void Cmd_Buy_f( gentity_t *ent )
     G_AddCreditToClient( ent->client, -(short)BG_Upgrade( upgrade )->price, qfalse );
   }
   else
+  {
     G_TriggerMenu( ent->client->ps.clientNum, MN_H_UNKNOWNITEM );
+    return;
+  }
 
   //update ClientInfo
   ClientUserinfoChanged( ent->client->ps.clientNum, qfalse );
+  ent->client->pers.infoChangeTime = level.time;
 }
 
 
@@ -2412,10 +2416,14 @@ void Cmd_Sell_f( gentity_t *ent )
     }
   }
   else
+  {
     G_TriggerMenu( ent->client->ps.clientNum, MN_H_UNKNOWNITEM );
+    return;
+  }
 
   //update ClientInfo
   ClientUserinfoChanged( ent->client->ps.clientNum, qfalse );
+  ent->client->pers.infoChangeTime = level.time;
 }
 
 
