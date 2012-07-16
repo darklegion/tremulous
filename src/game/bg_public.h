@@ -1242,7 +1242,6 @@ qboolean BG_WeaponIsAllowed( weapon_t weapon );
 qboolean BG_UpgradeIsAllowed( upgrade_t upgrade );
 qboolean BG_ClassIsAllowed( class_t class );
 qboolean BG_BuildableIsAllowed( buildable_t buildable );
-weapon_t BG_PrimaryWeapon( int stats[ ] );
 
 // Friendly Fire Flags
 #define FFF_HUMANS         1

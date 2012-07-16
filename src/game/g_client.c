@@ -1484,18 +1484,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
     if( !spawn )
       G_UseTargets( spawnPoint, ent );
 
-    // select the highest weapon number available, after any
-    // spawn given items have fired
-    client->ps.weapon = 1;
-
-    for( i = WP_NUM_WEAPONS - 1; i > 0 ; i-- )
-    {
-      if( BG_InventoryContainsWeapon( i, client->ps.stats ) )
-      {
-        client->ps.weapon = i;
-        break;
-      }
-    }
+    client->ps.weapon = client->ps.stats[ STAT_WEAPON ];
   }
 
   // run a client frame to drop exactly to the floor,

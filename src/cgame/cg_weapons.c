@@ -1353,10 +1353,7 @@ CG_WeaponSelectable
 */
 static qboolean CG_WeaponSelectable( weapon_t weapon )
 {
-  if( !BG_InventoryContainsWeapon( weapon, cg.snap->ps.stats ) )
-    return qfalse;
-
-  return qtrue;
+  return BG_InventoryContainsWeapon( weapon, cg.snap->ps.stats );
 }
 
 

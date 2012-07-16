@@ -45,16 +45,9 @@ void G_ForceWeaponChange( gentity_t *ent, weapon_t weapon )
     ps->weaponTime = 250;
     ps->weaponstate = WEAPON_READY;
   }
-  
-  if( weapon == WP_NONE ||
-      !BG_InventoryContainsWeapon( weapon, ps->stats ) )
-  {
-    // switch to the first non blaster weapon
-    ps->persistant[ PERS_NEWWEAPON ] =
-      BG_PrimaryWeapon( ent->client->ps.stats );
-  }
-  else
-    ps->persistant[ PERS_NEWWEAPON ] = weapon;
+
+  ps->persistant[ PERS_NEWWEAPON ] = ( weapon == WP_BLASTER ) ?
+    WP_BLASTER : ps->stats[ STAT_WEAPON ];
 
   // force this here to prevent flamer effect from continuing
   ps->generic1 = WPM_NOTFIRING;
@@ -70,42 +63,34 @@ G_GiveClientMaxAmmo
 */
 void G_GiveClientMaxAmmo( gentity_t *ent, qboolean buyingEnergyAmmo )
 {
-  int i, maxAmmo, maxClips;
-  qboolean restoredAmmo = qfalse, restoredEnergy = qfalse;
+  int maxAmmo;
+  weapon_t weapon = ent->client->ps.stats[ STAT_WEAPON ];
 
-  for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
+  if( BG_Weapon( weapon )->infiniteAmmo )
+    return;
+
+  if( buyingEnergyAmmo && !BG_Weapon( weapon )->usesEnergy )
+    return;
+
+  if( BG_WeaponIsFull( weapon, ent->client->ps.stats, ent->client->ps.ammo,
+                       ent->client->ps.clips ) )
+    return;
+
+  maxAmmo = BG_Weapon( weapon )->maxAmmo;
+
+  // Apply battery pack modifier
+  if( BG_Weapon( weapon )->usesEnergy &&
+      BG_InventoryContainsUpgrade( UP_BATTPACK, ent->client->ps.stats ) )
   {
-    qboolean energyWeapon;
-  
-    energyWeapon = BG_Weapon( i )->usesEnergy;
-    if( !BG_InventoryContainsWeapon( i, ent->client->ps.stats ) ||
-        BG_Weapon( i )->infiniteAmmo ||
-        BG_WeaponIsFull( i, ent->client->ps.stats,
-                         ent->client->ps.ammo, ent->client->ps.clips ) ||
-        ( buyingEnergyAmmo && !energyWeapon ) )
-      continue;
-      
-    maxAmmo = BG_Weapon( i )->maxAmmo;
-    maxClips = BG_Weapon( i )->maxClips;
-    
-    // Apply battery pack modifier
-    if( energyWeapon &&
-        BG_InventoryContainsUpgrade( UP_BATTPACK, ent->client->ps.stats ) )
-    {
-      maxAmmo *= BATTPACK_MODIFIER;
-      restoredEnergy = qtrue;
-    }
-
-    ent->client->ps.ammo = maxAmmo;
-    ent->client->ps.clips = maxClips;
-
-    restoredAmmo = qtrue;
+    maxAmmo *= BATTPACK_MODIFIER;
   }
 
-  if( restoredAmmo )
-    G_ForceWeaponChange( ent, ent->client->ps.weapon );
+  ent->client->ps.ammo = maxAmmo;
+  ent->client->ps.clips = BG_Weapon( weapon )->maxClips;
 
-  if( restoredEnergy )
+  G_ForceWeaponChange( ent, ent->client->ps.weapon );
+
+  if( BG_Weapon( weapon )->usesEnergy )
     G_AddEvent( ent, EV_RPTUSE_SOUND, 0 );
 }
 

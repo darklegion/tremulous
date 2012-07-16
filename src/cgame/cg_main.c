@@ -400,12 +400,9 @@ static void CG_SetUIVars( void )
   *carriageCvar = 0;
 
   //determine what the player is carrying
-  for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
-  {
-    if( BG_InventoryContainsWeapon( i, cg.snap->ps.stats ) &&
-        BG_Weapon( i )->purchasable )
-      strcat( carriageCvar, va( "W%d ", i ) );
-  }
+  if( BG_Weapon( cg.snap->ps.stats[ STAT_WEAPON ] )->purchasable )
+    strcat( carriageCvar, va( "W%d ", cg.snap->ps.stats[ STAT_WEAPON ] ) );
+
   for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
   {
     if( BG_InventoryContainsUpgrade( i, cg.snap->ps.stats ) &&

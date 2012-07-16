@@ -636,7 +636,7 @@ static void CG_DrawPlayerAmmoValue( rectDef_t *rect, vec4_t color )
   int valueMarked = -1;
   qboolean bp = qfalse;
 
-  switch( BG_PrimaryWeapon( cg.snap->ps.stats ) )
+  switch( cg.snap->ps.stats[ STAT_WEAPON ] )
   {
     case WP_NONE:
     case WP_BLASTER:
@@ -776,7 +776,7 @@ static void CG_DrawPlayerBuildTimer( rectDef_t *rect, vec4_t color )
   if( ps->stats[ STAT_MISC ] <= 0 )
     return;
 
-  switch( BG_PrimaryWeapon( ps->stats ) )
+  switch( ps->stats[ STAT_WEAPON ] )
   {
     case WP_ABUILD:
     case WP_ABUILD2:
@@ -812,7 +812,7 @@ static void CG_DrawPlayerClipsValue( rectDef_t *rect, vec4_t color )
   int           value;
   playerState_t *ps = &cg.snap->ps;
 
-  switch( BG_PrimaryWeapon( ps->stats ) )
+  switch( ps->stats[ STAT_WEAPON ] )
   {
     case WP_NONE:
     case WP_BLASTER:

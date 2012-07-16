@@ -1097,7 +1097,7 @@ void trigger_ammo_touch( gentity_t *self, gentity_t *other, trace_t *trace )
   if( other->client->ps.weaponstate != WEAPON_READY )
     return;
 
-  weapon = BG_PrimaryWeapon( other->client->ps.stats );
+  weapon = other->client->ps.stats[ STAT_WEAPON ];
   if( BG_Weapon( weapon )->usesEnergy && self->spawnflags & 2 )
     return;
 

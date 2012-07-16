@@ -606,7 +606,7 @@ void ClientTimerActions( gentity_t *ent, int msec )
       client->ps.stats[ STAT_STAMINA ] = -STAMINA_MAX;
 
     if( weapon == WP_ABUILD || weapon == WP_ABUILD2 ||
-        BG_InventoryContainsWeapon( WP_HBUILD, client->ps.stats ) )
+        client->ps.stats[ STAT_WEAPON ] == WP_HBUILD )
     {
         // Update build timer
         if( client->ps.stats[ STAT_MISC ] > 0 )

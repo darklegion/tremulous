@@ -3338,26 +3338,24 @@ Returns the credit value of a player
 */
 int BG_GetValueOfPlayer( playerState_t *ps )
 {
-  int i, worth = 0;
-  
+  int worth = 0;
+
   worth = BG_Class( ps->stats[ STAT_CLASS ] )->value;
 
   // Humans have worth from their equipment as well
   if( ps->stats[ STAT_TEAM ] == TEAM_HUMANS )
   {
+    upgrade_t i;
     for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
     {
       if( BG_InventoryContainsUpgrade( i, ps->stats ) )
         worth += BG_Upgrade( i )->price;
     }
 
-    for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
-    {
-      if( BG_InventoryContainsWeapon( i, ps->stats ) )
-        worth += BG_Weapon( i )->price;
-    }
+    if( ps->stats[ STAT_WEAPON ] != WP_NONE )
+      worth += BG_Weapon( ps->stats[ STAT_WEAPON ] )->price;
   }
-      
+
   return worth;
 }
 
@@ -3824,29 +3822,6 @@ qboolean BG_BuildableIsAllowed( buildable_t buildable )
   }
 
   return qtrue;
-}
-
-/*
-============
-BG_PrimaryWeapon
-============
-*/
-weapon_t BG_PrimaryWeapon( int stats[ ] )
-{
-  int i;
-
-  for( i = WP_NONE; i < WP_NUM_WEAPONS; i++ )
-  {
-    if( BG_Weapon( i )->slots != SLOT_WEAPON )
-      continue;
-    if( BG_InventoryContainsWeapon( i, stats ) )
-      return i;
-  }
-
-  if( BG_InventoryContainsWeapon( WP_BLASTER, stats ) )
-    return WP_BLASTER;
-
-  return WP_NONE;
 }
 
 /*

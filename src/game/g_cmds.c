@@ -1089,7 +1089,7 @@ void Cmd_VSay_f( gentity_t *ent )
   weapon = WP_NONE;
   if( ent->client->sess.spectatorState == SPECTATOR_NOT )
   {
-    weapon = BG_PrimaryWeapon( ent->client->ps.stats );
+    weapon = ent->client->ps.stats[ STAT_WEAPON ];
   }
 
   track = BG_VoiceTrackFind( cmd->tracks, ent->client->pers.teamSelection,
@@ -2348,36 +2348,6 @@ void Cmd_Sell_f( gentity_t *ent )
 
       //add to funds
       G_AddCreditToClient( ent->client, (short)BG_Upgrade( upgrade )->price, qfalse );
-    }
-  }
-  else if( !Q_stricmp( s, "weapons" ) )
-  {
-    weapon_t selected = BG_GetPlayerWeapon( &ent->client->ps );
-
-    if( !BG_PlayerCanChangeWeapon( &ent->client->ps ) )
-      return;
-
-    for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
-    {
-      //guard against selling the HBUILD weapons exploit
-      if( i == WP_HBUILD && ent->client->ps.stats[ STAT_MISC ] > 0 )
-      {
-        G_TriggerMenu( ent->client->ps.clientNum, MN_H_ARMOURYBUILDTIMER );
-        continue;
-      }
-
-      if( BG_InventoryContainsWeapon( i, ent->client->ps.stats ) &&
-          BG_Weapon( i )->purchasable )
-      {
-        ent->client->ps.stats[ STAT_WEAPON ] = WP_NONE;
-
-        //add to funds
-        G_AddCreditToClient( ent->client, (short)BG_Weapon( i )->price, qfalse );
-      }
-
-      //if we have this weapon selected, force a new selection
-      if( i == selected )
-        G_ForceWeaponChange( ent, WP_NONE );
     }
   }
   else if( !Q_stricmp( s, "upgrades" ) )
