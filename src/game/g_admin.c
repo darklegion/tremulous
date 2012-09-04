@@ -1782,6 +1782,11 @@ qboolean G_admin_unban( gentity_t *ent )
     ADMP( "^3unban: ^7invalid ban#\n" );
     return qfalse;
   }
+  if( ban->expires > 0 && ban->expires - time <= 0 )
+  {
+    ADMP( "^3unban: ^7ban already expired\n" );
+    return qfalse;
+  }
   if( !G_admin_permission( ent, ADMF_CAN_PERM_BAN ) &&
     ( ban->expires == 0 || ( ban->expires - time > MAX( 1,
       G_admin_parse_time( g_adminMaxBan.string ) ) ) ) )
@@ -1796,11 +1801,7 @@ qboolean G_admin_unban( gentity_t *ent )
           bnum,
           ban->name,
           ( ent ) ? ent->client->pers.netname : "console" ) );
-  if( p == ban )
-    g_admin_bans = ban->next;
-  else
-    p->next = ban->next;
-  BG_Free( ban );
+  p->expires = time;
   admin_writeconfig();
   return qtrue;
 }
