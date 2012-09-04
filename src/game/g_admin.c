@@ -1766,7 +1766,7 @@ qboolean G_admin_unban( gentity_t *ent )
   int time = trap_RealTime( NULL );
   char bs[ 5 ];
   int i;
-  g_admin_ban_t *ban, *p;
+  g_admin_ban_t *ban;
 
   if( trap_Argc() < 2 )
   {
@@ -1775,8 +1775,8 @@ qboolean G_admin_unban( gentity_t *ent )
   }
   trap_Argv( 1, bs, sizeof( bs ) );
   bnum = atoi( bs );
-  for( ban = p = g_admin_bans, i = 1; ban && i < bnum;
-       p = ban, ban = ban->next, i++ );
+  for( ban = g_admin_bans, i = 1; ban && i < bnum; ban = ban->next, i++ )
+    ;
   if( i != bnum || !ban )
   {
     ADMP( "^3unban: ^7invalid ban#\n" );
@@ -1801,7 +1801,7 @@ qboolean G_admin_unban( gentity_t *ent )
           bnum,
           ban->name,
           ( ent ) ? ent->client->pers.netname : "console" ) );
-  p->expires = time;
+  ban->expires = time;
   admin_writeconfig();
   return qtrue;
 }
