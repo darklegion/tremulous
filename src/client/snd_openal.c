@@ -593,9 +593,6 @@ static void _S_AL_SanitiseVector( vec3_t v, int line )
 	}
 }
 
-
-#define AL_THIRD_PERSON_THRESHOLD_SQ (48.0f*48.0f)
-
 /*
 =================
 S_AL_Gain
@@ -654,6 +651,8 @@ static void S_AL_ScaleGain(src_t *chksrc, vec3_t origin)
 /*
 =================
 S_AL_HearingThroughEntity
+
+Also see S_Base_HearingThroughEntity
 =================
 */
 static qboolean S_AL_HearingThroughEntity( int entityNum )
@@ -672,7 +671,7 @@ static qboolean S_AL_HearingThroughEntity( int entityNum )
 				entityList[ entityNum ].origin,
 				lastListenerOrigin );
 
-		if( distanceSq > AL_THIRD_PERSON_THRESHOLD_SQ )
+		if( distanceSq > THIRD_PERSON_THRESHOLD_SQ )
 			return qfalse; //we're the player, but third person
 		else
 			return qtrue;  //we're the player
