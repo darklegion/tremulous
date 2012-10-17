@@ -1128,7 +1128,7 @@ void R_DecomposeSort( unsigned sort, int *entityNum, shader_t **shader,
 					 int *fogNum, int *dlightMap ) {
 	*fogNum = ( sort >> QSORT_FOGNUM_SHIFT ) & 31;
 	*shader = tr.sortedShaders[ ( sort >> QSORT_SHADERNUM_SHIFT ) & (MAX_SHADERS-1) ];
-	*entityNum = ( sort >> QSORT_ENTITYNUM_SHIFT ) & MAX_ENTITIES;
+	*entityNum = ( sort >> QSORT_REFENTITYNUM_SHIFT ) & REFENTITYNUM_MASK;
 	*dlightMap = sort & 3;
 }
 
@@ -1209,7 +1209,7 @@ void R_AddEntitySurfaces (void) {
 		ent->needDlights = qfalse;
 
 		// preshift the value we are going to OR into the drawsurf sort
-		tr.shiftedEntityNum = tr.currentEntityNum << QSORT_ENTITYNUM_SHIFT;
+		tr.shiftedEntityNum = tr.currentEntityNum << QSORT_REFENTITYNUM_SHIFT;
 
 		//
 		// the weapon model must be handled special --
