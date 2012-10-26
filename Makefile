@@ -47,6 +47,9 @@ endif
 ifndef BUILD_MISSIONPACK
   BUILD_MISSIONPACK=
 endif
+ifndef BUILD_RENDERER_REND2
+  BUILD_RENDERER_REND2=
+endif
 
 ifneq ($(PLATFORM),darwin)
   BUILD_CLIENT_SMP = 0
@@ -209,6 +212,7 @@ BR=$(BUILD_DIR)/release-$(PLATFORM)-$(ARCH)
 CDIR=$(MOUNT_DIR)/client
 SDIR=$(MOUNT_DIR)/server
 RDIR=$(MOUNT_DIR)/renderer
+R2DIR=$(MOUNT_DIR)/rend2
 CMDIR=$(MOUNT_DIR)/qcommon
 SDLDIR=$(MOUNT_DIR)/sdl
 ASMDIR=$(MOUNT_DIR)/asm
@@ -846,6 +850,12 @@ ifneq ($(BUILD_CLIENT),0)
     ifneq ($(BUILD_CLIENT_SMP),0)
       TARGETS += $(B)/renderer_opengl1_smp_$(SHLIBNAME)
     endif
+    ifneq ($(BUILD_RENDERER_REND2), 0)
+      TARGETS += $(B)/renderer_rend2_$(SHLIBNAME)
+      ifneq ($(BUILD_CLIENT_SMP),0)
+        TARGETS += $(B)/renderer_rend2_smp_$(SHLIBNAME)
+      endif
+    endif
   else
     TARGETS += $(B)/$(CLIENTBIN)$(FULLBINEXT)
     ifneq ($(BUILD_CLIENT_SMP),0)
@@ -1115,6 +1125,7 @@ makedirs:
 	@if [ ! -d $(B) ];then $(MKDIR) $(B);fi
 	@if [ ! -d $(B)/client ];then $(MKDIR) $(B)/client;fi
 	@if [ ! -d $(B)/renderer ];then $(MKDIR) $(B)/renderer;fi
+	@if [ ! -d $(B)/rend2 ];then $(MKDIR) $(B)/rend2;fi
 	@if [ ! -d $(B)/renderersmp ];then $(MKDIR) $(B)/renderersmp;fi
 	@if [ ! -d $(B)/ded ];then $(MKDIR) $(B)/ded;fi
 	@if [ ! -d $(B)/$(BASEGAME) ];then $(MKDIR) $(B)/$(BASEGAME);fi
@@ -1366,6 +1377,46 @@ else
 	$(B)/client/con_tty.o
 endif
 
+Q3R2OBJ = \
+  $(B)/rend2/tr_animation.o \
+  $(B)/rend2/tr_backend.o \
+  $(B)/rend2/tr_bsp.o \
+  $(B)/rend2/tr_cmds.o \
+  $(B)/rend2/tr_curve.o \
+  $(B)/rend2/tr_extramath.o \
+  $(B)/rend2/tr_extensions.o \
+  $(B)/rend2/tr_fbo.o \
+  $(B)/rend2/tr_flares.o \
+  $(B)/rend2/tr_font.o \
+  $(B)/rend2/tr_glsl.o \
+  $(B)/rend2/tr_image.o \
+  $(B)/rend2/tr_image_png.o \
+  $(B)/rend2/tr_image_jpg.o \
+  $(B)/rend2/tr_image_bmp.o \
+  $(B)/rend2/tr_image_tga.o \
+  $(B)/rend2/tr_image_pcx.o \
+  $(B)/rend2/tr_init.o \
+  $(B)/rend2/tr_light.o \
+  $(B)/rend2/tr_main.o \
+  $(B)/rend2/tr_marks.o \
+  $(B)/rend2/tr_mesh.o \
+  $(B)/rend2/tr_model.o \
+  $(B)/rend2/tr_model_iqm.o \
+  $(B)/rend2/tr_noise.o \
+  $(B)/rend2/tr_postprocess.o \
+  $(B)/rend2/tr_scene.o \
+  $(B)/rend2/tr_shade.o \
+  $(B)/rend2/tr_shade_calc.o \
+  $(B)/rend2/tr_shader.o \
+  $(B)/rend2/tr_shadows.o \
+  $(B)/rend2/tr_sky.o \
+  $(B)/rend2/tr_surface.o \
+  $(B)/rend2/tr_vbo.o \
+  $(B)/rend2/tr_world.o \
+  \
+  $(B)/renderer/sdl_gamma.o \
+  $(B)/renderer/sdl_glimp.o
+
 Q3ROBJ = \
   $(B)/renderer/tr_animation.o \
   $(B)/renderer/tr_backend.o \
@@ -1397,10 +1448,17 @@ Q3ROBJ = \
   $(B)/renderer/tr_surface.o \
   $(B)/renderer/tr_world.o \
   \
-  $(B)/renderer/sdl_gamma.o
-  
+  $(B)/renderer/sdl_gamma.o \
+  $(B)/renderer/sdl_glimp.o
+
 ifneq ($(USE_RENDERER_DLOPEN), 0)
   Q3ROBJ += \
+    $(B)/renderer/q_shared.o \
+    $(B)/renderer/puff.o \
+    $(B)/renderer/q_math.o \
+    $(B)/renderer/tr_subs.o
+
+  Q3R2OBJ += \
     $(B)/renderer/q_shared.o \
     $(B)/renderer/puff.o \
     $(B)/renderer/q_math.o \
@@ -1408,7 +1466,7 @@ ifneq ($(USE_RENDERER_DLOPEN), 0)
 endif
 
 ifneq ($(USE_INTERNAL_JPEG),0)
-  Q3ROBJ += \
+  JPGOBJ = \
     $(B)/renderer/jaricom.o \
     $(B)/renderer/jcapimin.o \
     $(B)/renderer/jcapistd.o \
@@ -1601,12 +1659,6 @@ ifeq ($(USE_MUMBLE),1)
     $(B)/client/libmumblelink.o
 endif
 
-Q3POBJ += \
-  $(B)/renderer/sdl_glimp.o
-
-Q3POBJ_SMP += \
-  $(B)/renderersmp/sdl_glimp.o
-
 ifneq ($(USE_RENDERER_DLOPEN),0)
 $(B)/$(CLIENTBIN)$(FULLBINEXT): $(Q3OBJ) $(LIBSDLMAIN)
 	$(echo_cmd) "LD $@"
@@ -1614,26 +1666,37 @@ $(B)/$(CLIENTBIN)$(FULLBINEXT): $(Q3OBJ) $(LIBSDLMAIN)
 		-o $@ $(Q3OBJ) \
 		$(LIBSDLMAIN) $(CLIENT_LIBS) $(LIBS)
 
-$(B)/renderer_opengl1_$(SHLIBNAME): $(Q3ROBJ) $(Q3POBJ)
+$(B)/renderer_opengl1_$(SHLIBNAME): $(Q3ROBJ) $(JPGOBJ)
 	$(echo_cmd) "LD $@"
-	$(Q)$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(Q3ROBJ) $(Q3POBJ) \
+	$(Q)$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(Q3ROBJ) $(JPGOBJ) \
 		$(THREAD_LIBS) $(LIBSDLMAIN) $(RENDERER_LIBS) $(LIBS)
 
-$(B)/renderer_opengl1_smp_$(SHLIBNAME): $(Q3ROBJ) $(Q3POBJ_SMP)
+$(B)/renderer_opengl1_smp_$(SHLIBNAME): $(Q3ROBJ) $(JPGOBJ)
 	$(echo_cmd) "LD $@"
-	$(Q)$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(Q3ROBJ) $(Q3POBJ_SMP) \
+	$(Q)$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(Q3ROBJ) $(JPGOBJ) \
 		$(THREAD_LIBS) $(LIBSDLMAIN) $(RENDERER_LIBS) $(LIBS)
+
+$(B)/renderer_rend2_$(SHLIBNAME): $(Q3R2OBJ) $(JPGOBJ)
+	$(echo_cmd) "LD $@"
+	$(Q)$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(Q3R2OBJ) $(JPGOBJ) \
+		$(THREAD_LIBS) $(LIBSDLMAIN) $(RENDERER_LIBS) $(LIBS)
+
+$(B)/renderer_rend2_smp_$(SHLIBNAME): $(Q3R2OBJ) $(JPGOBJ)
+	$(echo_cmd) "LD $@"
+	$(Q)$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(Q3R2OBJ) $(JPGOBJ) \
+		$(THREAD_LIBS) $(LIBSDLMAIN) $(RENDERER_LIBS) $(LIBS)
+
 else
-$(B)/$(CLIENTBIN)$(FULLBINEXT): $(Q3OBJ) $(Q3ROBJ) $(Q3POBJ) $(LIBSDLMAIN)
+$(B)/$(CLIENTBIN)$(FULLBINEXT): $(Q3OBJ) $(Q3R2OBJ) $(JPGOBJ) $(LIBSDLMAIN)
 	$(echo_cmd) "LD $@"
 	$(Q)$(CC) $(CLIENT_CFLAGS) $(CFLAGS) $(CLIENT_LDFLAGS) $(LDFLAGS) \
-		-o $@ $(Q3OBJ) $(Q3ROBJ) $(Q3POBJ) \
+		-o $@ $(Q3OBJ) $(Q3R2OBJ) $(JPGOBJ) \
 		$(LIBSDLMAIN) $(CLIENT_LIBS) $(RENDERER_LIBS) $(LIBS)
 
-$(B)/$(CLIENTBIN)-smp$(FULLBINEXT): $(Q3OBJ) $(Q3ROBJ) $(Q3POBJ_SMP) $(LIBSDLMAIN)
+$(B)/$(CLIENTBIN)-smp$(FULLBINEXT): $(Q3OBJ) $(Q3R2OBJ) $(JPGOBJ) $(LIBSDLMAIN)
 	$(echo_cmd) "LD $@"
 	$(Q)$(CC) $(CLIENT_CFLAGS) $(CFLAGS) $(CLIENT_LDFLAGS) $(LDFLAGS) $(THREAD_LDFLAGS) \
-		-o $@ $(Q3OBJ) $(Q3ROBJ) $(Q3POBJ_SMP) \
+		-o $@ $(Q3OBJ) $(Q3R2OBJ) $(JPGOBJ) \
 		$(THREAD_LIBS) $(LIBSDLMAIN) $(CLIENT_LIBS) $(RENDERER_LIBS) $(LIBS)
 endif
 
@@ -1973,6 +2036,9 @@ $(B)/renderer/%.o: $(JPDIR)/%.c
 
 $(B)/renderer/%.o: $(RDIR)/%.c
 	$(DO_REF_CC)
+	
+$(B)/rend2/%.o: $(R2DIR)/%.c
+	$(DO_REF_CC)
 
 
 $(B)/ded/%.o: $(ASMDIR)/%.s
@@ -2059,7 +2125,7 @@ $(B)/$(BASEGAME)/qcommon/%.asm: $(CMDIR)/%.c $(Q3LCC)
 # MISC
 #############################################################################
 
-OBJ = $(Q3OBJ) $(Q3POBJ) $(Q3POBJ_SMP) $(Q3DOBJ) \
+OBJ = $(Q3OBJ) $(Q3ROBJ) $(Q3R2OBJ) $(Q3DOBJ) $(JPGOBJ) \
   $(GOBJ) $(CGOBJ) $(UIOBJ) \
   $(GVMOBJ) $(CGVMOBJ) $(UIVMOBJ)
 TOOLSOBJ = $(LBURGOBJ) $(Q3CPPOBJ) $(Q3RCCOBJ) $(Q3LCCOBJ) $(Q3ASMOBJ)
