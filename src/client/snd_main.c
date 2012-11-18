@@ -417,7 +417,6 @@ void S_Play_f( void ) {
 	int 		i;
 	int			c;
 	sfxHandle_t	h;
-	char		name[MAX_TOKEN_CHARS];
 
 	if( !si.RegisterSound || !si.StartLocalSound ) {
 		return;
@@ -431,8 +430,7 @@ void S_Play_f( void ) {
 	}
 
 	for( i = 1; i < c; i++ ) {
-		Q_strncpyz( name, Cmd_Argv(i), sizeof(name) );
-		h = si.RegisterSound( name, qfalse );
+		h = si.RegisterSound( Cmd_Argv(i), qfalse );
 
 		if( h ) {
 			si.StartLocalSound( h, CHAN_LOCAL_SOUND );
