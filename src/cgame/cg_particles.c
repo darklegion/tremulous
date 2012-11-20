@@ -629,6 +629,86 @@ static qboolean CG_ParseColor( byte *c, char **text_p )
     c[ i ] = (int)( (float)0xFF * atof_neg( token, qfalse ) );
   }
 
+  token = COM_Parse( text_p );
+  if( strcmp( token, "}" ) )
+  {
+    CG_Printf( S_COLOR_RED "ERROR: missing '}'\n" );
+    return qfalse;
+  }
+
+  return qtrue;
+}
+
+/*
+CG_ParseParticle helpers
+*/
+static void CG_CopyLine( int *i, char *toks, size_t size, char **text_p )
+{
+  char *token;
+
+  while( *i < size )
+  {
+    token = COM_ParseExt( text_p, qfalse );
+    if( !*token )
+      break;
+
+    Q_strncpyz( toks, token, size );
+    ( *i )++;
+
+    toks += size;
+  }
+}
+
+static qboolean CG_ParseType( pMoveType_t *pmt, char **text_p )
+{
+  char *token = COM_Parse( text_p );
+  if( !*token )
+    return qfalse;
+
+  if( !Q_stricmp( token, "static" ) )
+    *pmt = PMT_STATIC;
+  else if( !Q_stricmp( token, "static_transform" ) )
+    *pmt = PMT_STATIC_TRANSFORM;
+  else if( !Q_stricmp( token, "tag" ) )
+    *pmt = PMT_TAG;
+  else if( !Q_stricmp( token, "cent" ) )
+    *pmt = PMT_CENT_ANGLES;
+  else if( !Q_stricmp( token, "normal" ) )
+    *pmt = PMT_NORMAL;
+
+  return qtrue;
+}
+
+static qboolean CG_ParseDir( pMoveValues_t *pmv, char **text_p )
+{
+  char *token = COM_Parse( text_p );
+  if( !*token )
+    return qfalse;
+
+  if( !Q_stricmp( token, "linear" ) )
+    pmv->dirType = PMD_LINEAR;
+  else if( !Q_stricmp( token, "point" ) )
+    pmv->dirType = PMD_POINT;
+
+  return qtrue;
+}
+
+static qboolean CG_ParseFinal( pLerpValues_t *plv, char **text_p )
+{
+  char *token = COM_Parse( text_p );
+  if( !*token )
+    return qfalse;
+
+  if( !Q_stricmp( token, "-" ) )
+  {
+    plv->final = PARTICLES_SAME_AS_INITIAL;
+    plv->finalRandFrac = 0.0f;
+  }
+  else
+  {
+    CG_ParseValueAndVariance( token, &plv->final, &plv->finalRandFrac, qfalse );
+  }
+
   return qtrue;
 }
 
@@ -667,13 +747,9 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
       }
       else
       {
-        CG_ParseValueAndVariance( token, &number, &randFrac, qfalse );
-
-        bp->bounceFrac = number;
-        bp->bounceFracRandFrac = randFrac;
+        CG_ParseValueAndVariance( token, &bp->bounceFrac,
+          &bp->bounceFracRandFrac, qfalse );
       }
-
-      continue;
     }
     else if( !Q_stricmp( token, "bounceMark" ) )
     {
@@ -681,27 +757,21 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
       if( !*token )
         break;
 
-      CG_ParseValueAndVariance( token, &number, &randFrac, qfalse );
-
-      bp->bounceMarkCount = number;
-      bp->bounceMarkCountRandFrac = randFrac;
+      CG_ParseValueAndVariance( token, &bp->bounceMarkCount,
+        &bp->bounceMarkCountRandFrac, qfalse );
 
       token = COM_Parse( text_p );
       if( !*token )
         break;
 
-      CG_ParseValueAndVariance( token, &number, &randFrac, qfalse );
-
-      bp->bounceMarkRadius = number;
-      bp->bounceMarkRadiusRandFrac = randFrac;
+      CG_ParseValueAndVariance( token, &bp->bounceMarkRadius,
+        &bp->bounceMarkRadiusRandFrac, qfalse );
 
       token = COM_ParseExt( text_p, qfalse );
       if( !*token )
         break;
 
       Q_strncpyz( bp->bounceMarkName, token, MAX_QPATH );
-
-      continue;
     }
     else if( !Q_stricmp( token, "bounceSound" ) )
     {
@@ -709,18 +779,14 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
       if( !*token )
         break;
 
-      CG_ParseValueAndVariance( token, &number, &randFrac, qfalse );
-
-      bp->bounceSoundCount = number;
-      bp->bounceSoundCountRandFrac = randFrac;
+      CG_ParseValueAndVariance( token, &bp->bounceSoundCount,
+        &bp->bounceSoundCountRandFrac, qfalse );
 
       token = COM_Parse( text_p );
       if( !*token )
         break;
 
       Q_strncpyz( bp->bounceSoundName, token, MAX_QPATH );
-
-      continue;
     }
     else if( !Q_stricmp( token, "shader" ) )
     {
@@ -740,17 +806,7 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
       else
         bp->framerate = atof_neg( token, qfalse );
 
-      token = COM_ParseExt( text_p, qfalse );
-      if( !*token )
-        break;
-
-      while( *token && bp->numFrames < MAX_PS_SHADER_FRAMES )
-      {
-        Q_strncpyz( bp->shaderNames[ bp->numFrames++ ], token, MAX_QPATH );
-        token = COM_ParseExt( text_p, qfalse );
-      }
-
-      continue;
+      CG_CopyLine( &bp->numFrames, bp->shaderNames[ 0 ], MAX_QPATH, text_p );
     }
     else if( !Q_stricmp( token, "model" ) )
     {
@@ -761,17 +817,7 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
         break;
       }
 
-      token = COM_ParseExt( text_p, qfalse );
-      if( !*token )
-        break;
-
-      while( *token && bp->numModels < MAX_PS_MODELS )
-      {
-        Q_strncpyz( bp->modelNames[ bp->numModels++ ], token, MAX_QPATH );
-        token = COM_ParseExt( text_p, qfalse );
-      }
-
-      continue;
+      CG_CopyLine( &bp->numModels, bp->modelNames[ 0 ], MAX_QPATH, text_p );
     }
     else if( !Q_stricmp( token, "modelAnimation" ) )
     {
@@ -818,44 +864,20 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
         if( fps == 0.0f )
           fps = 1.0f;
 
-        bp->modelAnimation.frameLerp = 1000 / fps;
-        bp->modelAnimation.initialLerp = 1000 / fps;
+        bp->modelAnimation.frameLerp = bp->modelAnimation.initialLerp =
+          1000 / fps;
       }
-
-      continue;
     }
     ///
     else if( !Q_stricmp( token, "velocityType" ) )
     {
-      token = COM_Parse( text_p );
-      if( !*token )
+      if( !CG_ParseType( &bp->velMoveType, text_p ) )
         break;
-
-      if( !Q_stricmp( token, "static" ) )
-        bp->velMoveType = PMT_STATIC;
-      else if( !Q_stricmp( token, "static_transform" ) )
-        bp->velMoveType = PMT_STATIC_TRANSFORM;
-      else if( !Q_stricmp( token, "tag" ) )
-        bp->velMoveType = PMT_TAG;
-      else if( !Q_stricmp( token, "cent" ) )
-        bp->velMoveType = PMT_CENT_ANGLES;
-      else if( !Q_stricmp( token, "normal" ) )
-        bp->velMoveType = PMT_NORMAL;
-
-      continue;
     }
     else if( !Q_stricmp( token, "velocityDir" ) )
     {
-      token = COM_Parse( text_p );
-      if( !*token )
+      if( !CG_ParseDir( &bp->velMoveValues, text_p ) )
         break;
-
-      if( !Q_stricmp( token, "linear" ) )
-        bp->velMoveValues.dirType = PMD_LINEAR;
-      else if( !Q_stricmp( token, "point" ) )
-        bp->velMoveValues.dirType = PMD_POINT;
-
-      continue;
     }
     else if( !Q_stricmp( token, "velocityMagnitude" ) )
     {
@@ -863,12 +885,8 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
       if( !*token )
         break;
 
-      CG_ParseValueAndVariance( token, &number, &randFrac, qfalse );
-
-      bp->velMoveValues.mag = number;
-      bp->velMoveValues.magRandFrac = randFrac;
-
-      continue;
+      CG_ParseValueAndVariance( token, &bp->velMoveValues.mag,
+        &bp->velMoveValues.magRandFrac, qfalse );
     }
     else if( !Q_stricmp( token, "parentVelocityFraction" ) )
     {
@@ -876,12 +894,8 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
       if( !*token )
         break;
 
-      CG_ParseValueAndVariance( token, &number, &randFrac, qfalse );
-
-      bp->velMoveValues.parentVelFrac = number;
-      bp->velMoveValues.parentVelFracRandFrac = randFrac;
-
-      continue;
+      CG_ParseValueAndVariance( token, &bp->velMoveValues.parentVelFrac,
+        &bp->velMoveValues.parentVelFracRandFrac, qfalse );
     }
     else if( !Q_stricmp( token, "velocity" ) )
     {
@@ -898,11 +912,8 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
       if( !*token )
         break;
 
-      CG_ParseValueAndVariance( token, NULL, &randFrac, qfalse );
-
-      bp->velMoveValues.dirRandAngle = randFrac;
-
-      continue;
+      CG_ParseValueAndVariance( token, NULL, &bp->velMoveValues.dirRandAngle,
+        qfalse );
     }
     else if( !Q_stricmp( token, "velocityPoint" ) )
     {
@@ -919,44 +930,19 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
       if( !*token )
         break;
 
-      CG_ParseValueAndVariance( token, NULL, &randFrac, qfalse );
-
-      bp->velMoveValues.pointRandAngle = randFrac;
-
-      continue;
+      CG_ParseValueAndVariance( token, NULL, &bp->velMoveValues.pointRandAngle,
+        qfalse );
     }
     ///
     else if( !Q_stricmp( token, "accelerationType" ) )
     {
-      token = COM_Parse( text_p );
-      if( !*token )
+      if( !CG_ParseType( &bp->accMoveType, text_p ) )
         break;
-
-      if( !Q_stricmp( token, "static" ) )
-        bp->accMoveType = PMT_STATIC;
-      else if( !Q_stricmp( token, "static_transform" ) )
-        bp->accMoveType = PMT_STATIC_TRANSFORM;
-      else if( !Q_stricmp( token, "tag" ) )
-        bp->accMoveType = PMT_TAG;
-      else if( !Q_stricmp( token, "cent" ) )
-        bp->accMoveType = PMT_CENT_ANGLES;
-      else if( !Q_stricmp( token, "normal" ) )
-        bp->accMoveType = PMT_NORMAL;
-
-      continue;
     }
     else if( !Q_stricmp( token, "accelerationDir" ) )
     {
-      token = COM_Parse( text_p );
-      if( !*token )
+      if( !CG_ParseDir( &bp->accMoveValues, text_p ) )
         break;
-
-      if( !Q_stricmp( token, "linear" ) )
-        bp->accMoveValues.dirType = PMD_LINEAR;
-      else if( !Q_stricmp( token, "point" ) )
-        bp->accMoveValues.dirType = PMD_POINT;
-
-      continue;
     }
     else if( !Q_stricmp( token, "accelerationMagnitude" ) )
     {
@@ -964,12 +950,8 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
       if( !*token )
         break;
 
-      CG_ParseValueAndVariance( token, &number, &randFrac, qfalse );
-
-      bp->accMoveValues.mag = number;
-      bp->accMoveValues.magRandFrac = randFrac;
-
-      continue;
+      CG_ParseValueAndVariance( token, &bp->accMoveValues.mag,
+        &bp->accMoveValues.magRandFrac, qfalse );
     }
     else if( !Q_stricmp( token, "acceleration" ) )
     {
@@ -986,11 +968,8 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
       if( !*token )
         break;
 
-      CG_ParseValueAndVariance( token, NULL, &randFrac, qfalse );
-
-      bp->accMoveValues.dirRandAngle = randFrac;
-
-      continue;
+      CG_ParseValueAndVariance( token, NULL, &bp->accMoveValues.dirRandAngle,
+        qfalse );
     }
     else if( !Q_stricmp( token, "accelerationPoint" ) )
     {
@@ -1007,11 +986,8 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
       if( !*token )
         break;
 
-      CG_ParseValueAndVariance( token, NULL, &randFrac, qfalse );
-
-      bp->accMoveValues.pointRandAngle = randFrac;
-
-      continue;
+      CG_ParseValueAndVariance( token, NULL, &bp->accMoveValues.pointRandAngle,
+        qfalse );
     }
     ///
     else if( !Q_stricmp( token, "displacement" ) )
@@ -1042,8 +1018,6 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
 
         bp->randDisplacement[ i ] += randFrac;
       }
-
-      continue;
     }
     else if( !Q_stricmp( token, "normalDisplacement" ) )
     {
@@ -1052,20 +1026,14 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
         break;
 
       bp->normalDisplacement = atof_neg( token, qtrue );
-
-      continue;
     }
     else if( !Q_stricmp( token, "overdrawProtection" ) )
     {
       bp->overdrawProtection = qtrue;
-
-      continue;
     }
     else if( !Q_stricmp( token, "realLight" ) )
     {
       bp->realLight = qtrue;
-
-      continue;
     }
     else if( !Q_stricmp( token, "dynamicLight" ) )
     {
@@ -1075,36 +1043,19 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
       if( !*token )
         break;
 
-      CG_ParseValueAndVariance( token, &number, &randFrac, qfalse );
-
+      CG_ParseValueAndVariance( token, &number, &bp->dLightRadius.delayRandFrac,
+        qfalse );
       bp->dLightRadius.delay = (int)number;
-      bp->dLightRadius.delayRandFrac = randFrac;
 
       token = COM_Parse( text_p );
       if( !*token )
         break;
 
-      CG_ParseValueAndVariance( token, &number, &randFrac, qfalse );
+      CG_ParseValueAndVariance( token, &bp->dLightRadius.initial,
+        &bp->dLightRadius.initialRandFrac, qfalse );
 
-      bp->dLightRadius.initial = number;
-      bp->dLightRadius.initialRandFrac = randFrac;
-
-      token = COM_Parse( text_p );
-      if( !*token )
+      if( !CG_ParseFinal( &bp->dLightRadius, text_p ) )
         break;
-
-      if( !Q_stricmp( token, "-" ) )
-      {
-        bp->dLightRadius.final = PARTICLES_SAME_AS_INITIAL;
-        bp->dLightRadius.finalRandFrac = 0.0f;
-      }
-      else
-      {
-        CG_ParseValueAndVariance( token, &number, &randFrac, qfalse );
-
-        bp->dLightRadius.final = number;
-        bp->dLightRadius.finalRandFrac = randFrac;
-      }
 
       token = COM_Parse( text_p );
       if( !*token )
@@ -1114,22 +1065,11 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
       {
         if( !CG_ParseColor( bp->dLightColor, text_p ) )
           break;
-
-        token = COM_Parse( text_p );
-        if( Q_stricmp( token, "}" ) )
-        {
-          CG_Printf( S_COLOR_RED "ERROR: missing '}'\n" );
-          break;
-        }
       }
-
-      continue;
     }
     else if( !Q_stricmp( token, "cullOnStartSolid" ) )
     {
       bp->cullOnStartSolid = qtrue;
-
-      continue;
     }
     else if( !Q_stricmp( token, "radius" ) )
     {
@@ -1137,38 +1077,19 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
       if( !*token )
         break;
 
-      CG_ParseValueAndVariance( token, &number, &randFrac, qfalse );
-
+      CG_ParseValueAndVariance( token, &number, &bp->radius.delayRandFrac,
+        qfalse );
       bp->radius.delay = (int)number;
-      bp->radius.delayRandFrac = randFrac;
 
       token = COM_Parse( text_p );
       if( !*token )
         break;
 
-      CG_ParseValueAndVariance( token, &number, &randFrac, qfalse );
+      CG_ParseValueAndVariance( token, &bp->radius.initial,
+        &bp->radius.initialRandFrac, qfalse );
 
-      bp->radius.initial = number;
-      bp->radius.initialRandFrac = randFrac;
-
-      token = COM_Parse( text_p );
-      if( !*token )
+      if( !CG_ParseFinal( &bp->radius, text_p ) )
         break;
-
-      if( !Q_stricmp( token, "-" ) )
-      {
-        bp->radius.final = PARTICLES_SAME_AS_INITIAL;
-        bp->radius.finalRandFrac = 0.0f;
-      }
-      else
-      {
-        CG_ParseValueAndVariance( token, &number, &randFrac, qfalse );
-
-        bp->radius.final = number;
-        bp->radius.finalRandFrac = randFrac;
-      }
-
-      continue;
     }
     else if( !Q_stricmp( token, "physicsRadius" ) )
     {
@@ -1184,38 +1105,19 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
       if( !*token )
         break;
 
-      CG_ParseValueAndVariance( token, &number, &randFrac, qfalse );
-
+      CG_ParseValueAndVariance( token, &number, &bp->alpha.delayRandFrac,
+        qfalse );
       bp->alpha.delay = (int)number;
-      bp->alpha.delayRandFrac = randFrac;
 
       token = COM_Parse( text_p );
       if( !*token )
         break;
 
-      CG_ParseValueAndVariance( token, &number, &randFrac, qfalse );
+      CG_ParseValueAndVariance( token, &bp->alpha.initial,
+        &bp->alpha.initialRandFrac, qfalse );
 
-      bp->alpha.initial = number;
-      bp->alpha.initialRandFrac = randFrac;
-
-      token = COM_Parse( text_p );
-      if( !*token )
+      if( !CG_ParseFinal( &bp->alpha, text_p ) )
         break;
-
-      if( !Q_stricmp( token, "-" ) )
-      {
-        bp->alpha.final = PARTICLES_SAME_AS_INITIAL;
-        bp->alpha.finalRandFrac = 0.0f;
-      }
-      else
-      {
-        CG_ParseValueAndVariance( token, &number, &randFrac, qfalse );
-
-        bp->alpha.final = number;
-        bp->alpha.finalRandFrac = randFrac;
-      }
-
-      continue;
     }
     else if( !Q_stricmp( token, "color" ) )
     {
@@ -1223,10 +1125,9 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
       if( !*token )
         break;
 
-      CG_ParseValueAndVariance( token, &number, &randFrac, qfalse );
-
+      CG_ParseValueAndVariance( token, &number, &bp->colorDelayRandFrac,
+         qfalse );
       bp->colorDelay = (int)number;
-      bp->colorDelayRandFrac = randFrac;
 
       token = COM_Parse( text_p );
       if( !*token )
@@ -1238,33 +1139,17 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
           break;
 
         token = COM_Parse( text_p );
-        if( Q_stricmp( token, "}" ) )
-        {
-          CG_Printf( S_COLOR_RED "ERROR: missing '}'\n" );
-          break;
-        }
-
-        token = COM_Parse( text_p );
         if( !*token )
           break;
 
         if( !Q_stricmp( token, "-" ) )
         {
-          bp->finalColor[ 0 ] = bp->initialColor[ 0 ];
-          bp->finalColor[ 1 ] = bp->initialColor[ 1 ];
-          bp->finalColor[ 2 ] = bp->initialColor[ 2 ];
+          memcpy( bp->finalColor, bp->initialColor, sizeof( bp->finalColor ) );
         }
         else if( !Q_stricmp( token, "{" ) )
         {
           if( !CG_ParseColor( bp->finalColor, text_p ) )
             break;
-
-          token = COM_Parse( text_p );
-          if( Q_stricmp( token, "}" ) )
-          {
-            CG_Printf( S_COLOR_RED "ERROR: missing '}'\n" );
-            break;
-          }
         }
         else
         {
@@ -1277,8 +1162,6 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
         CG_Printf( S_COLOR_RED "ERROR: missing '{'\n" );
         break;
       }
-
-      continue;
     }
     else if( !Q_stricmp( token, "rotation" ) )
     {
@@ -1286,38 +1169,19 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
       if( !*token )
         break;
 
-      CG_ParseValueAndVariance( token, &number, &randFrac, qfalse );
-
+      CG_ParseValueAndVariance( token, &number, &bp->rotation.delayRandFrac,
+        qfalse );
       bp->rotation.delay = (int)number;
-      bp->rotation.delayRandFrac = randFrac;
 
       token = COM_Parse( text_p );
       if( !*token )
         break;
 
-      CG_ParseValueAndVariance( token, &number, &randFrac, qtrue );
+      CG_ParseValueAndVariance( token, &bp->rotation.initial,
+        &bp->rotation.initialRandFrac, qtrue );
 
-      bp->rotation.initial = number;
-      bp->rotation.initialRandFrac = randFrac;
-
-      token = COM_Parse( text_p );
-      if( !*token )
+      if( !CG_ParseFinal( &bp->rotation, text_p ) )
         break;
-
-      if( !Q_stricmp( token, "-" ) )
-      {
-        bp->rotation.final = PARTICLES_SAME_AS_INITIAL;
-        bp->rotation.finalRandFrac = 0.0f;
-      }
-      else
-      {
-        CG_ParseValueAndVariance( token, &number, &randFrac, qtrue );
-
-        bp->rotation.final = number;
-        bp->rotation.finalRandFrac = randFrac;
-      }
-
-      continue;
     }
     else if( !Q_stricmp( token, "lifeTime" ) )
     {
@@ -1325,10 +1189,8 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
       if( !*token )
         break;
 
-      CG_ParseValueAndVariance( token, &number, &randFrac, qfalse );
-
+      CG_ParseValueAndVariance( token, &number, &bp->lifeTimeRandFrac, qfalse );
       bp->lifeTime = (int)number;
-      bp->lifeTimeRandFrac = randFrac;
 
       continue;
     }
@@ -1339,8 +1201,6 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
         break;
 
       Q_strncpyz( bp->childSystemName, token, MAX_QPATH );
-
-      continue;
     }
     else if( !Q_stricmp( token, "onDeathSystem" ) )
     {
@@ -1349,8 +1209,6 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
         break;
 
       Q_strncpyz( bp->onDeathSystemName, token, MAX_QPATH );
-
-      continue;
     }
     else if( !Q_stricmp( token, "childTrailSystem" ) )
     {
@@ -1359,8 +1217,6 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
         break;
 
       Q_strncpyz( bp->childTrailSystemName, token, MAX_QPATH );
-
-      continue;
     }
     else if( !Q_stricmp( token, "scaleWithCharge" ) )
     {
@@ -1369,8 +1225,6 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
         break;
 
       bp->scaleWithCharge = atof( token );
-
-      continue;
     }
     else if( !Q_stricmp( token, "}" ) )
       return qtrue; //reached the end of this particle
@@ -1407,7 +1261,7 @@ Parse a particle ejector section
 static qboolean CG_ParseParticleEjector( baseParticleEjector_t *bpe, char **text_p )
 {
   char  *token;
-  float number, randFrac;
+  float number;
 
   // read optional parameters
   while( 1 )
@@ -1432,19 +1286,17 @@ static qboolean CG_ParseParticleEjector( baseParticleEjector_t *bpe, char **text
         CG_Printf( S_COLOR_RED "ERROR: ejector has > %d particles\n", MAX_PARTICLES_PER_EJECTOR );
         return qfalse;
       }
-      else if( numBaseParticles == MAX_BASEPARTICLES )
+
+      if( numBaseParticles == MAX_BASEPARTICLES )
       {
         CG_Printf( S_COLOR_RED "ERROR: maximum number of particles (%d) reached\n", MAX_BASEPARTICLES );
         return qfalse;
       }
-      else
-      {
-        //start parsing particles again
-        bpe->particles[ bpe->numParticles ] = &baseParticles[ numBaseParticles ];
-        bpe->numParticles++;
-        numBaseParticles++;
-      }
-      continue;
+
+      //start parsing particles again
+      bpe->particles[ bpe->numParticles ] = &baseParticles[ numBaseParticles ];
+      bpe->numParticles++;
+      numBaseParticles++;
     }
     else if( !Q_stricmp( token, "delay" ) )
     {
@@ -1452,12 +1304,9 @@ static qboolean CG_ParseParticleEjector( baseParticleEjector_t *bpe, char **text
       if( !*token )
         break;
 
-      CG_ParseValueAndVariance( token, &number, &randFrac, qfalse );
-
+      CG_ParseValueAndVariance( token, &number, &bpe->eject.delayRandFrac,
+        qfalse );
       bpe->eject.delay = (int)number;
-      bpe->eject.delayRandFrac = randFrac;
-
-      continue;
     }
     else if( !Q_stricmp( token, "period" ) )
     {
@@ -1481,8 +1330,6 @@ static qboolean CG_ParseParticleEjector( baseParticleEjector_t *bpe, char **text
         break;
 
       CG_ParseValueAndVariance( token, NULL, &bpe->eject.randFrac, qfalse );
-
-      continue;
     }
     else if( !Q_stricmp( token, "count" ) )
     {
@@ -1497,13 +1344,10 @@ static qboolean CG_ParseParticleEjector( baseParticleEjector_t *bpe, char **text
       }
       else
       {
-        CG_ParseValueAndVariance( token, &number, &randFrac, qfalse );
-
+        CG_ParseValueAndVariance( token, &number, &bpe->totalParticlesRandFrac,
+          qfalse );
         bpe->totalParticles = (int)number;
-        bpe->totalParticlesRandFrac = randFrac;
       }
-
-      continue;
     }
     else if( !Q_stricmp( token, "particle" ) ) //acceptable text
       continue;
@@ -1563,20 +1407,18 @@ static qboolean CG_ParseParticleSystem( baseParticleSystem_t *bps, char **text_p
         CG_Printf( S_COLOR_RED "ERROR: particle system has > %d ejectors\n", MAX_EJECTORS_PER_SYSTEM );
         return qfalse;
       }
-      else if( numBaseParticleEjectors == MAX_BASEPARTICLE_EJECTORS )
+
+      if( numBaseParticleEjectors == MAX_BASEPARTICLE_EJECTORS )
       {
         CG_Printf( S_COLOR_RED "ERROR: maximum number of particle ejectors (%d) reached\n",
             MAX_BASEPARTICLE_EJECTORS );
         return qfalse;
       }
-      else
-      {
-        //start parsing ejectors again
-        bps->ejectors[ bps->numEjectors ] = &baseParticleEjectors[ numBaseParticleEjectors ];
-        bps->numEjectors++;
-        numBaseParticleEjectors++;
-      }
-      continue;
+
+      //start parsing ejectors again
+      bps->ejectors[ bps->numEjectors ] = &baseParticleEjectors[ numBaseParticleEjectors ];
+      bps->numEjectors++;
+      numBaseParticleEjectors++;
     }
     else if( !Q_stricmp( token, "thirdPersonOnly" ) )
       bps->thirdPersonOnly = qtrue;
@@ -1666,10 +1508,8 @@ static qboolean CG_ParseParticleFile( const char *fileName )
               MAX_BASEPARTICLE_SYSTEMS );
           return qfalse;
         }
-        else
-          numBaseParticleSystems++;
 
-        continue;
+        numBaseParticleSystems++;
       }
       else
       {
