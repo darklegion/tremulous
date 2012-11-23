@@ -1197,7 +1197,7 @@ int FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean uniqueF
 				if(!FS_IsExt(filename, ".cfg", l) &&		// for config files
 				   !FS_IsExt(filename, ".menu", l) &&		// menu files
 				   !FS_IsExt(filename, ".game", l) &&		// menu files
-				   !FS_IsExt(filename, ".cfg", l) &&		// for journal files
+				   !FS_IsExt(filename, ".dat", l) &&		// for journal files
 				   !FS_IsDemoExt(filename, l))			// demos
 				{
 					continue;
