@@ -24,6 +24,16 @@ BASE_OBJ="
 	build/release-darwin-ppc/$BASEDIR/gameppc.dylib
 	build/release-darwin-x86/$BASEDIR/gamex86.dylib
 "
+RENDER_OBJ="
+	build/release-darwin-ppc/renderer_opengl1_smp_ppc.dylib
+	build/release-darwin-i386/renderer_opengl1_smp_i386.dylib
+	build/release-darwin-ppc/renderer_opengl1_ppc.dylib
+	build/release-darwin-i386/renderer_opengl1_i386.dylib
+	build/release-darwin-ppc/renderer_rend2_smp_ppc.dylib
+	build/release-darwin-i386/renderer_rend2_smp_i386.dylib
+	build/release-darwin-ppc/renderer_rend2_ppc.dylib
+	build/release-darwin-i386/renderer_rend2_i386.dylib
+"
 
 cd `dirname $0`
 if [ ! -f Makefile ]; then
@@ -166,6 +176,7 @@ echo "
 
 lipo -create -o $DESTDIR/$APPBUNDLE/Contents/MacOS/$BINARY $BIN_OBJ
 lipo -create -o $DESTDIR/$APPBUNDLE/Contents/MacOS/$DEDBIN $BIN_DEDOBJ
+cp $RENDER_OBJ $DESTDIR/$APPBUNDLE/Contents/MacOS/
 cp $BASE_OBJ $DESTDIR/$APPBUNDLE/Contents/MacOS/$BASEDIR/
 cp src/libs/macosx/*.dylib $DESTDIR/$APPBUNDLE/Contents/MacOS/
 
