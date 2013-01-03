@@ -642,11 +642,11 @@ static qboolean CG_ParseColor( byte *c, char **text_p )
 /*
 CG_ParseParticle helpers
 */
-static void CG_CopyLine( int *i, char *toks, size_t size, char **text_p )
+static void CG_CopyLine( int *i, char *toks, size_t num, size_t size, char **text_p )
 {
   char *token;
 
-  while( *i < size )
+  while( *i < num )
   {
     token = COM_ParseExt( text_p, qfalse );
     if( !*token )
@@ -806,7 +806,8 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
       else
         bp->framerate = atof_neg( token, qfalse );
 
-      CG_CopyLine( &bp->numFrames, bp->shaderNames[ 0 ], MAX_QPATH, text_p );
+      CG_CopyLine( &bp->numFrames, bp->shaderNames[ 0 ],
+        ARRAY_LEN( bp->shaderNames ), MAX_QPATH, text_p );
     }
     else if( !Q_stricmp( token, "model" ) )
     {
@@ -817,7 +818,8 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
         break;
       }
 
-      CG_CopyLine( &bp->numModels, bp->modelNames[ 0 ], MAX_QPATH, text_p );
+      CG_CopyLine( &bp->numModels, bp->modelNames[ 0 ],
+        ARRAY_LEN( bp->modelNames ), MAX_QPATH, text_p );
     }
     else if( !Q_stricmp( token, "modelAnimation" ) )
     {
