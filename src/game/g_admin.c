@@ -682,7 +682,7 @@ void G_admin_authlog( gentity_t *ent )
 
   G_LogPrintf( "AdminAuth: %i \"%s" S_COLOR_WHITE "\" \"%s" S_COLOR_WHITE
                "\" [%d] (%s): %s\n",
-               ent - g_entities, ent->client->pers.netname,
+               (int)( ent - g_entities ), ent->client->pers.netname,
                ent->client->pers.admin->name, ent->client->pers.admin->level,
                ent->client->pers.guid, aflags );
 }

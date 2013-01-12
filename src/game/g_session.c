@@ -54,7 +54,7 @@ void G_WriteClientSessionData( gclient_t *client )
     Com_ClientListString( &client->sess.ignoreList )
     );
 
-  var = va( "session%i", client - level.clients );
+  var = va( "session%i", (int)( client - level.clients ) );
 
   trap_Cvar_Set( var, s );
 }
@@ -74,7 +74,7 @@ void G_ReadSessionData( gclient_t *client )
   int         restartTeam;
   char        ignorelist[ 17 ];
 
-  var = va( "session%i", client - level.clients );
+  var = va( "session%i", (int)( client - level.clients ) );
   trap_Cvar_VariableStringBuffer( var, s, sizeof(s) );
 
   sscanf( s, "%i %i %i %i %16s",

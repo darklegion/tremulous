@@ -363,7 +363,7 @@ static void Parse_CreatePunctuationTable(script_t *script, punctuation_t *punctu
 Parse_ScriptError
 ===============
 */
-static void QDECL Parse_ScriptError(script_t *script, char *str, ...)
+__attribute__ ((format (printf, 2, 3))) static void QDECL Parse_ScriptError(script_t *script, char *str, ...)
 {
   char text[1024];
   va_list ap;
@@ -381,7 +381,7 @@ static void QDECL Parse_ScriptError(script_t *script, char *str, ...)
 Parse_ScriptWarning
 ===============
 */
-static void QDECL Parse_ScriptWarning(script_t *script, char *str, ...)
+__attribute__ ((format (printf, 2, 3))) static void QDECL Parse_ScriptWarning(script_t *script, char *str, ...)
 {
   char text[1024];
   va_list ap;
@@ -1098,7 +1098,7 @@ static void Parse_FreeScript(script_t *script)
 Parse_SourceError
 ===============
 */
-static void QDECL Parse_SourceError(source_t *source, char *str, ...)
+__attribute__ ((format (printf, 2, 3))) static void QDECL Parse_SourceError(source_t *source, char *str, ...)
 {
   char text[1024];
   va_list ap;
@@ -1114,7 +1114,7 @@ static void QDECL Parse_SourceError(source_t *source, char *str, ...)
 Parse_SourceWarning
 ===============
 */
-static void QDECL Parse_SourceWarning(source_t *source, char *str, ...)
+__attribute__ ((format (printf, 2, 3))) static void QDECL Parse_SourceWarning(source_t *source, char *str, ...)
 {
   char text[1024];
   va_list ap;
@@ -1917,7 +1917,6 @@ static int Parse_EvaluateTokens(source_t *source, token_t *tokens, signed long i
   int questmarkintvalue = 0;
   double questmarkfloatvalue = 0;
   int gotquestmarkvalue = qfalse;
-  int lastoperatortype = 0;
   //
   operator_t operator_heap[MAX_OPERATORS];
   int numoperators = 0;
@@ -2286,7 +2285,6 @@ static int Parse_EvaluateTokens(source_t *source, token_t *tokens, signed long i
       }
     }
     if (error) break;
-    lastoperatortype = o->operator;
     //if not an operator with arity 1
     if (o->operator != P_LOGIC_NOT
         && o->operator != P_BIN_NOT)

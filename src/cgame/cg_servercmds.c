@@ -1246,7 +1246,7 @@ static void CG_GameCmds_f( void )
     if( len + gcmdsOffset >= sizeof( registeredCmds ) - 1 )
     {
       CG_Printf( "AddCommand: too many commands (%d >= %d)\n",
-        len + gcmdsOffset, sizeof( registeredCmds ) - 1 );
+        (int)( len + gcmdsOffset ), (int)( sizeof( registeredCmds ) - 1 ) );
       return;
     }
     trap_AddCommand( cmd );

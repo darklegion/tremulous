@@ -54,7 +54,7 @@ void *BG_Alloc( int size )
   char *endptr;
   int *ptr;
 
-  allocsize = ( size + sizeof(int) + ROUNDBITS ) & ~ROUNDBITS;    // Round to 32-byte boundary
+  allocsize = ( size + (int)sizeof(int) + ROUNDBITS ) & ~ROUNDBITS;    // Round to 32-byte boundary
   ptr = NULL;
 
   smallest = NULL;

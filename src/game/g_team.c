@@ -23,27 +23,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "g_local.h"
 
-// NULL for everyone
-void QDECL PrintMsg( gentity_t *ent, const char *fmt, ... )
-{
-  char    msg[ 1024 ];
-  va_list argptr;
-  char    *p;
-
-  va_start( argptr,fmt );
-
-  if( Q_vsnprintf( msg, sizeof( msg ), fmt, argptr ) > sizeof( msg ) )
-    G_Error ( "PrintMsg overrun" );
-
-  va_end( argptr );
-
-  // double quotes are bad
-  while( ( p = strchr( msg, '"' ) ) != NULL )
-    *p = '\'';
-
-  trap_SendServerCommand( ( ( ent == NULL ) ? -1 : ent-g_entities ), va( "print \"%s\"", msg ) );
-}
-
 /*
 ================
 G_TeamFromString
@@ -249,7 +228,7 @@ void G_ChangeTeam( gentity_t *ent, team_t newTeam )
   G_UpdateTeamConfigStrings( );
 
   G_LogPrintf( "ChangeTeam: %d %s: %s" S_COLOR_WHITE " switched teams\n",
-    ent - g_entities, BG_TeamName( newTeam ), ent->client->pers.netname );
+    (int)( ent - g_entities ), BG_TeamName( newTeam ), ent->client->pers.netname );
 
   G_namelog_update_score( ent->client );
   TeamplayInfoMessage( ent );

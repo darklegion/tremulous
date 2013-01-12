@@ -3020,7 +3020,7 @@ void G_FreeMarkedBuildables( gentity_t *deconner, char *readable, int rsize,
     removalCounts[ bNum ]++;
 
     if( nums )
-      Q_strcat( nums, nsize, va( " %d", ent - g_entities ) );
+      Q_strcat( nums, nsize, va( " %d", (int)( ent - g_entities ) ) );
 
     G_FreeEntity( ent );
   }
@@ -3713,8 +3713,8 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable,
         readable ) );
     G_LogPrintf( "Construct: %d %d %s%s: %s" S_COLOR_WHITE " is building "
       "%s%s%s\n",
-      builder - g_entities,
-      built - g_entities,
+      (int)( builder - g_entities ),
+      (int)( built - g_entities ),
       BG_Buildable( built->s.modelindex )->name,
       buildnums,
       builder->client->pers.netname,
@@ -4279,7 +4279,7 @@ void G_BuildLogRevertThink( gentity_t *ent )
   G_KillBox( built );
 
   G_LogPrintf( "revert: restore %d %s\n",
-    built - g_entities, BG_Buildable( built->s.modelindex )->name );
+    (int)( built - g_entities ), BG_Buildable( built->s.modelindex )->name );
 
   G_FreeEntity( ent );
 }
@@ -4313,7 +4313,7 @@ void G_BuildLogRevert( int id )
           {
             if( ent->s.eType == ET_BUILDABLE )
               G_LogPrintf( "revert: remove %d %s\n",
-                ent - g_entities, BG_Buildable( ent->s.modelindex )->name );
+                (int)( ent - g_entities ), BG_Buildable( ent->s.modelindex )->name );
             G_FreeEntity( ent );
             break;
           }
