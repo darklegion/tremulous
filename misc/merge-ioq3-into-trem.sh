@@ -1,42 +1,92 @@
-#! /bin/sh
+#! /bin/bash
+# TODO Consider rewrite in perl/python to make this a but less crappy
 
-cd /tmp
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PATCHES_DIR=${DIR}/patches
+LAST_REVISION_FILE=${DIR}/last-merged-ioq3-revision
+LAST_REVISION=`cat ${LAST_REVISION_FILE}`
 
-# Make sure previous copies are gone
-rm -rf quake3/
+set -f
+# Things that exist in ioq3 which we don't want
+EXCLUSIONS="BUGS ChangeLog README ./*.txt
+  NOTTODO TODO misc/* *.mak src/cgame/*
+  src/game/* src/ui/* src/q3_ui/* src/botlib/* ui/*"
 
-# Checkout a new copy of ioq3
-svn co svn://svn.icculus.org/quake3/trunk/ quake3
-cd quake3/
+EXCLUDE_PARAMETERS=""
+for EXCLUSION in ${EXCLUSIONS}
+do
+  EXCLUDE_PARAMETERS+="--exclude=${EXCLUSION} "
+done
 
-IOQ3REVISION=`svnversion .`
-IOQ3VERSION=ioq3-r$IOQ3REVISION
+set +f
 
-rm -rf $IOQ3VERSION
-svn export . $IOQ3VERSION
-cd $IOQ3VERSION
+PATCHES=`ls ${PATCHES_DIR}/*.patch 2> /dev/null`
+if [ -z "${PATCHES}" ]
+then
+  echo "Fetching and generating patches..."
+  git fetch https://github.com/ioquake/ioq3.git
 
-# Remove READMEs and the like
-rm -rf BUGS ChangeLog README COPYING.txt NOTTODO TODO id-readme.txt misc/
+  mkdir -p ${PATCHES_DIR}
+  git format-patch -o ${PATCHES_DIR} ${LAST_REVISION}..FETCH_HEAD
+fi
 
-# Remove Q3 ui stuff
-rm -rf ui/
+if [ -d ".git/rebase-apply" ]
+then
+  echo "Failed patch detected."
 
-# Remove Windows/VC related stuff
-rm -f `find -iname "*.bat"`
-rm -f `find -iname "*.lnt"`
-rm -f `find -iname "*.sln"`
-rm -f `find -iname "*.vcproj"`
-rm -f `find -iname "*.def"`
-rm -f `find -iname "*.q3asm"`
-rm -f `find -iname "*.mak"`
-rm -f `find -iname "*.ico"`
-rm -f `find -iname "*.bmp"`
+  git diff --quiet --exit-code
+  if [ "$?" -ne 0 ]
+  then
+    echo "Unstaged changes present; git add any that are pending:"
+    git status
+    exit 1
+  fi
 
-# Remove game code
-rm -rf code/cgame/ code/game/ code/ui/ code/q3_ui/
+  PATCH=`ls ${PATCHES_DIR}/*.patch | head -n 1`
+  SHA=`cat ${PATCH} | head -n 1 | awk '{print $2;}'`
+  echo "Processing ${SHA} ${PATCH}..."
 
-mv code src
+  DIFF=`git diff --cached`
+  if [ -z "${DIFF}" ]
+  then
+    echo "Patch does nothing; skipping."
+    read -p "Confirm skip? "
+    git am --skip
+  else
+    read -p "Confirm resolve? "
+    git am --resolved
+  fi
+  
+  if [ "$?" -ne 0 ]
+  then
+    echo "Patch failed to apply."
+    exit $?
+  fi
 
-cd ..
-svn_load_dirs svn://svn.icculus.org/tremulous/ -t upstream/$IOQ3VERSION upstream/current $IOQ3VERSION/
+  echo ${SHA} > ${LAST_REVISION_FILE}
+  rm ${PATCH}
+fi
+
+PATCHES=`ls ${PATCHES_DIR}/*.patch 2> /dev/null`
+if [ -n "${PATCHES}" ]
+then
+  for PATCH in ${PATCHES}
+  do
+    SHA=`cat ${PATCH} | head -n 1 | awk '{print $2;}'`
+    echo "Processing ${SHA} ${PATCH}..."
+    cat ${PATCH} | sed -e 's/\([ab]\)\/code\//\1\/src\//g' | \
+      git am ${EXCLUDE_PARAMETERS} --quiet --3way
+    
+    if [ "$?" -ne 0 ]
+    then
+      echo "Patch failed to apply."
+      git status
+      exit $?
+    fi
+
+    echo ${SHA} > ${LAST_REVISION_FILE}
+    rm ${PATCH}
+  done
+else
+  echo "Nothing to do."
+fi
