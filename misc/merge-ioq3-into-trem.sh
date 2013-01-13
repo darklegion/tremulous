@@ -1,5 +1,5 @@
 #! /bin/bash
-# TODO Consider rewrite in perl/python to make this a but less crappy
+# TODO Consider rewrite in perl/python to make this a bit less crappy
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PATCHES_DIR=${DIR}/patches
@@ -56,7 +56,7 @@ then
     read -p "Confirm resolve? "
     git am --resolved
   fi
-  
+
   if [ "$?" -ne 0 ]
   then
     echo "Patch failed to apply."
@@ -76,7 +76,7 @@ then
     echo "Processing ${SHA} ${PATCH}..."
     cat ${PATCH} | sed -e 's/\([ab]\)\/code\//\1\/src\//g' | \
       git am ${EXCLUDE_PARAMETERS} --quiet --3way
-    
+
     if [ "$?" -ne 0 ]
     then
       echo "Patch failed to apply."
