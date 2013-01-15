@@ -417,13 +417,13 @@ static void IN_GetUIMousePosition( int *x, int *y )
 		*x = pos & 0xFFFF;
 		*y = ( pos >> 16 ) & 0xFFFF;
 
-		*x = Cvar_VariableIntegerValue( "r_width" ) * *x / 640;
-		*y = Cvar_VariableIntegerValue( "r_height" ) * *y / 480;
+		*x = cls.glconfig.vidWidth * *x / 640;
+		*y = cls.glconfig.vidHeight * *y / 480;
 	}
 	else
 	{
-		*x = Cvar_VariableIntegerValue( "r_width" ) / 2;
-		*y = Cvar_VariableIntegerValue( "r_height" ) / 2;
+		*x = cls.glconfig.vidWidth / 2;
+		*y = cls.glconfig.vidHeight / 2;
 	}
 }
 
@@ -436,8 +436,8 @@ static void IN_SetUIMousePosition( int x, int y )
 {
 	if( uivm )
 	{
-		x = x * 640 / Cvar_VariableIntegerValue( "r_width" );
-		y = y * 480 / Cvar_VariableIntegerValue( "r_height" );
+		x = x * 640 / cls.glconfig.vidWidth;
+		y = y * 480 / cls.glconfig.vidHeight;
 		VM_Call( uivm, UI_SET_MOUSE_POSITION, x, y );
 	}
 }
@@ -502,7 +502,7 @@ static void IN_ActivateMouse( void )
 	}
 
 	// in_nograb makes no sense in fullscreen mode
-	if( !Cvar_VariableIntegerValue("r_fullscreen") )
+	if( !cls.glconfig.isFullscreen )
 	{
 		if( in_nograb->modified || !mouseActive )
 		{
@@ -530,7 +530,7 @@ static void IN_DeactivateMouse( void )
 
 	// Always show the cursor when the mouse is disabled,
 	// but not when fullscreen
-	if( !Cvar_VariableIntegerValue("r_fullscreen") )
+	if( !cls.glconfig.isFullscreen )
 	{
 		if( ( Key_GetCatcher( ) == KEYCATCH_UI ) &&
 				( SDL_GetAppState( ) & SDL_APPMOUSEFOCUS ) )
@@ -1028,17 +1028,17 @@ void IN_Frame( void )
 	loading = ( clc.state != CA_DISCONNECTED && clc.state != CA_ACTIVE );
 	cursorShowing = Key_GetCatcher( ) & KEYCATCH_UI;
 
-	if( !Cvar_VariableIntegerValue("r_fullscreen") && ( Key_GetCatcher( ) & KEYCATCH_CONSOLE ) )
+	if( !cls.glconfig.isFullscreen && ( Key_GetCatcher( ) & KEYCATCH_CONSOLE ) )
 	{
 		// Console is down in windowed mode
 		IN_DeactivateMouse( );
 	}
-	else if( !Cvar_VariableIntegerValue("r_fullscreen") && loading )
+	else if( !cls.glconfig.isFullscreen && loading )
 	{
 		// Loading in windowed mode
 		IN_DeactivateMouse( );
 	}
-	else if( !Cvar_VariableIntegerValue("r_fullscreen") && cursorShowing )
+	else if( !cls.glconfig.isFullscreen && cursorShowing )
 	{
 		// Use WM cursor when not fullscreen
 		IN_DeactivateMouse( );
