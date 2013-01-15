@@ -3800,13 +3800,7 @@ void CL_ServerInfoPacket( netadr_t from, msg_t *msg ) {
 	// if this isn't the correct gamename, ignore it
 	gamename = Info_ValueForKey( infoString, "gamename" );
 
-#ifdef LEGACY_PROTOCOL
-	// gamename is optional for legacy protocol
-	if (com_legacyprotocol->integer && !*gamename)
-		gameMismatch = qfalse;
-	else
-#endif
-		gameMismatch = !*gamename || strcmp(gamename, com_gamename->string) != 0;
+	gameMismatch = !*gamename || strcmp(gamename, com_gamename->string) != 0;
 
 	if (gameMismatch)
 	{
