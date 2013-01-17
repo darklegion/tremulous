@@ -1083,6 +1083,8 @@ static qboolean CL_BindUICommand( const char *cmd ) {
 	if ( Key_GetCatcher( ) & KEYCATCH_CONSOLE )
 		return qfalse;
 
+	if ( !Q_stricmp( cmd, "toggleconsole" ) )
+		return qtrue;
 	if ( !Q_stricmp( cmd, "togglemenu" ) )
 		return qtrue;
 
