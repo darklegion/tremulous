@@ -1007,6 +1007,17 @@ extern	cvar_t	*r_nocurves;
 extern	cvar_t	*r_showcluster;
 
 extern cvar_t	*r_gamma;
+extern cvar_t	*r_displayRefresh;		// optional display refresh option
+extern cvar_t	*r_ignorehwgamma;		// overrides hardware gamma capabilities
+
+extern cvar_t	*r_allowExtensions;				// global enable/disable of OpenGL extensions
+extern cvar_t	*r_ext_compressed_textures;		// these control use of specific extensions
+extern cvar_t	*r_ext_multitexture;
+extern cvar_t	*r_ext_compiled_vertex_array;
+extern cvar_t	*r_ext_texture_env_add;
+
+extern cvar_t	*r_ext_texture_filter_anisotropic;
+extern cvar_t	*r_ext_max_anisotropy;
 
 extern	cvar_t	*r_nobind;						// turns off binding to appropriate textures
 extern	cvar_t	*r_singleShader;				// make most world faces use default shader
