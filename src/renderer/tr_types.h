@@ -214,11 +214,8 @@ typedef struct {
 	// used CDS.
 	qboolean				isFullscreen;
 	qboolean				stereoEnabled;
-	qboolean				smpActive;		// dual processor
-
 	qboolean				textureFilterAnisotropic;
 	int							maxAnisotropy;
-                
 } glconfig_t;
 
 #endif	// __TR_TYPES_H
