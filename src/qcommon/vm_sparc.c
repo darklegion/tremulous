@@ -1,6 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 2009 David S. Miller <davem@davemloft.net>
+Copyright (C) 2000-2013 Darklegion Development
 
 This file is part of Tremulous.
 

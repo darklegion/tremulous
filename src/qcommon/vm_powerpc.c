@@ -1,6 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 2008 Przemyslaw Iskra <sparky@pld-linux.org>
+Copyright (C) 2000-2013 Darklegion Development
 
 This file is part of Tremulous.
 

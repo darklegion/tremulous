@@ -1,8 +1,9 @@
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
+Copyright (C) 2000-2013 Darklegion Development
 
-This file is part of Quake III Arena source code.
+This file is part of Tremulous.
 
 Quake III Arena source code is free software; you can redistribute it
 and/or modify it under the terms of the GNU General Public License as

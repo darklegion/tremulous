@@ -1,7 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 2006 Tony J. White (tjw@tjw.org)
-Copyright (C) 2000-2009 Darklegion Development
+Copyright (C) 2000-2013 Darklegion Development
 
 This file is part of Tremulous.
 

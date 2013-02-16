@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 2011 James Canete (use.less01@gmail.com)
 
-This file is part of Quake III Arena source code.
+This file is part of Tremulous.
 
 Quake III Arena source code is free software; you can redistribute it
 and/or modify it under the terms of the GNU General Public License as
