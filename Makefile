@@ -198,6 +198,7 @@ BD=$(BUILD_DIR)/debug-$(PLATFORM)-$(ARCH)
 BR=$(BUILD_DIR)/release-$(PLATFORM)-$(ARCH)
 CDIR=$(MOUNT_DIR)/client
 SDIR=$(MOUNT_DIR)/server
+RCOMMONDIR=$(MOUNT_DIR)/renderercommon
 RGL1DIR=$(MOUNT_DIR)/renderergl1
 RGL2DIR=$(MOUNT_DIR)/renderergl2
 CMDIR=$(MOUNT_DIR)/qcommon
@@ -2034,6 +2035,9 @@ $(B)/renderergl1/%.o: $(SDLDIR)/%.c
 $(B)/renderergl1/%.o: $(JPDIR)/%.c
 	$(DO_REF_CC)
 
+$(B)/renderergl1/%.o: $(RCOMMONDIR)/%.c
+	$(DO_REF_CC)
+
 $(B)/renderergl1/%.o: $(RGL1DIR)/%.c
 	$(DO_REF_CC)
 
@@ -2041,6 +2045,9 @@ $(B)/renderergl2/glsl/%.c: $(RGL2DIR)/glsl/%.glsl
 	$(DO_REF_STR)
 
 $(B)/renderergl2/glsl/%.o: $(B)/renderergl2/glsl/%.c
+	$(DO_REF_CC)
+
+$(B)/renderergl2/%.o: $(RCOMMONDIR)/%.c
 	$(DO_REF_CC)
 
 $(B)/renderergl2/%.o: $(RGL2DIR)/%.c
