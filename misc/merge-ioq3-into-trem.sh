@@ -101,7 +101,7 @@ fi
 # Finished merging so update the last revision marker
 if [ -f ${LAST_REVISION_TEMP_FILE} ]
 then
-  diff ${LAST_REVISION_FILE} ${LAST_REVISION_TEMP_FILE} 2> /dev/null
+  diff ${LAST_REVISION_FILE} ${LAST_REVISION_TEMP_FILE} &> /dev/null
   if [ "$?" -ne 0 ]
   then
     mv ${LAST_REVISION_TEMP_FILE} ${LAST_REVISION_FILE}
