@@ -4,7 +4,14 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PATCHES_DIR=${DIR}/patches
 LAST_REVISION_FILE=${DIR}/last-merged-ioq3-revision
-LAST_REVISION=`cat ${LAST_REVISION_FILE}`
+LAST_REVISION_TEMP_FILE=${LAST_REVISION_FILE}.temp
+
+if [ -f ${LAST_REVISION_TEMP_FILE} ]
+then
+  LAST_REVISION=`cat ${LAST_REVISION_TEMP_FILE}`
+else
+  LAST_REVISION=`cat ${LAST_REVISION_FILE}`
+fi
 
 set -f
 # Things that exist in ioq3 which we don't want
@@ -63,7 +70,7 @@ then
     exit $?
   fi
 
-  echo ${SHA} > ${LAST_REVISION_FILE}
+  echo ${SHA} > ${LAST_REVISION_TEMP_FILE}
   rm ${PATCH}
 fi
 
@@ -84,9 +91,22 @@ then
       exit $?
     fi
 
-    echo ${SHA} > ${LAST_REVISION_FILE}
+    echo ${SHA} > ${LAST_REVISION_TEMP_FILE}
     rm ${PATCH}
   done
 else
-  echo "Nothing to do."
+  echo "Nothing to merge."
+fi
+
+# Finished merging so update the last revision marker
+if [ -f ${LAST_REVISION_TEMP_FILE} ]
+then
+  diff ${LAST_REVISION_FILE} ${LAST_REVISION_TEMP_FILE} 2> /dev/null
+  if [ "$?" -ne 0 ]
+  then
+    mv ${LAST_REVISION_TEMP_FILE} ${LAST_REVISION_FILE}
+    LAST_REVISION=`cat ${LAST_REVISION_FILE}`
+    git add ${LAST_REVISION_FILE}
+    git commit -m "Merged ioq3 ${LAST_REVISION}"
+  fi
 fi
