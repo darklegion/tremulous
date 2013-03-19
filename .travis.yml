@@ -12,6 +12,6 @@ before_install:
   - sudo apt-get install -q -y libgl1-mesa-dev libsdl1.2-dev libvorbis-dev libfreetype6-dev mingw-w64
   
 notifications:
-  irc: "irc.freenode.org#ioquake3"
+  irc: "irc.freenode.org#tremulous-dev"
   on_success: change
   on_failure: always
