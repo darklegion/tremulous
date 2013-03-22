@@ -1114,7 +1114,9 @@ targets: makedirs
 	done
 	@echo ""
 ifneq ($(TARGETS),)
-	@$(MAKE) $(TARGETS) V=$(V)
+  ifndef DEBUG_MAKEFILE
+		@$(MAKE) $(TARGETS) V=$(V)
+  endif
 endif
 
 makedirs:
