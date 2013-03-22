@@ -53,8 +53,8 @@ TIGERHOST=`uname -r |perl -w -p -e 's/\A(\d+)\..*\Z/$1/; $_ = (($_ >= 8) ? "1" :
 # we want to use the oldest available SDK for max compatiblity. However 10.4 and older
 # can not build 64bit binaries, making 10.5 the minimum version.   This has been tested 
 # with xcode 3.1 (xcode31_2199_developerdvd.dmg).  It contains the 10.5 SDK and a decent
-# enough gcc to actually compile ioquake3
-# For PPC macs, G4's or better are required to run ioquake3.
+# enough gcc to actually compile Tremulous
+# For PPC macs, G4's or better are required to run Tremulous.
 
 unset X86_64_SDK
 unset X86_64_CFLAGS
@@ -186,7 +186,7 @@ echo "
 	</plist>
 	" > $DESTDIR/$APPBUNDLE/Contents/Info.plist
 
-# Make UB's from previous builds of i386, x86_64 and ppc binaries
+# Make UB's from previous builds of x86, x86_64 and ppc binaries
 lipo -create -o $DESTDIR/$APPBUNDLE/Contents/MacOS/$BINARY $BIN_OBJ
 lipo -create -o $DESTDIR/$APPBUNDLE/Contents/MacOS/$DEDBIN $BIN_DEDOBJ
 

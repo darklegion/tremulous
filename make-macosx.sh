@@ -5,50 +5,49 @@
 
 if [ $# -ne 1 ]; then
 	echo "Usage:   $0 target_architecture"
-	echo "Example: $0 i386"
+	echo "Example: $0 x86"
 	echo "other valid options are x86_64 or ppc"
 	echo
 	echo "If you don't know or care about architectures please consider using make-macosx-ub.sh instead of this script."
 	exit 1
 fi
 
-if [ "$1" == "i386" ]; then
-	BUILDARCH=i386
+if [ "$1" == "x86" ]; then
+	BUILDARCH=x86
+	DARWIN_GCC_ARCH=i386
 elif [ "$1" == "x86_64" ]; then
 	BUILDARCH=x86_64
 elif [ "$1" == "ppc" ]; then
 	BUILDARCH=ppc
 else
 	echo "Invalid architecture: $1"
-	echo "Valid architectures are i386, x86_64 or ppc"
+	echo "Valid architectures are x86, x86_64 or ppc"
 	exit 1
 fi
 
+if [ -z "$DARWIN_GCC_ARCH" ]; then
+	DARWIN_GCC_ARCH=${BUILDARCH}
+fi
+
 CC=gcc-4.0
-APPBUNDLE=ioquake3.app
-BINARY=ioquake3.${BUILDARCH}
-DEDBIN=ioq3ded.${BUILDARCH}
+APPBUNDLE=Tremulous.app
+BINARY=tremulous.${BUILDARCH}
+DEDBIN=tremded.${BUILDARCH}
 PKGINFO=APPLIOQ3
-ICNS=misc/quake3.icns
+ICNS=misc/Tremulous.icns
 DESTDIR=build/release-darwin-${BUILDARCH}
-BASEDIR=baseq3
-MPACKDIR=missionpack
+BASEDIR=base
 
 BIN_OBJ="
-	build/release-darwin-${BUILDARCH}/ioquake3.${BUILDARCH}
+	build/release-darwin-${BUILDARCH}/${BINARY}
 "
 BIN_DEDOBJ="
-	build/release-darwin-${BUILDARCH}/ioq3ded.${BUILDARCH}
+	build/release-darwin-${BUILDARCH}/${DEDBIN}
 "
 BASE_OBJ="
 	build/release-darwin-${BUILDARCH}/$BASEDIR/cgame${BUILDARCH}.dylib
 	build/release-darwin-${BUILDARCH}/$BASEDIR/ui${BUILDARCH}.dylib
-	build/release-darwin-${BUILDARCH}/$BASEDIR/qagame${BUILDARCH}.dylib
-"
-MPACK_OBJ="
-	build/release-darwin-${BUILDARCH}/$MPACKDIR/cgame${BUILDARCH}.dylib
-	build/release-darwin-${BUILDARCH}/$MPACKDIR/ui${BUILDARCH}.dylib
-	build/release-darwin-${BUILDARCH}/$MPACKDIR/qagame${BUILDARCH}.dylib
+	build/release-darwin-${BUILDARCH}/$BASEDIR/game${BUILDARCH}.dylib
 "
 RENDER_OBJ="
 	build/release-darwin-${BUILDARCH}/renderer_opengl1_${BUILDARCH}.dylib
@@ -57,7 +56,7 @@ RENDER_OBJ="
 
 cd `dirname $0`
 if [ ! -f Makefile ]; then
-	echo "This script must be run from the ioquake3 build directory"
+	echo "This script must be run from the Tremulous build directory"
 	exit 1
 fi
 
@@ -70,8 +69,8 @@ TIGERHOST=`uname -r |perl -w -p -e 's/\A(\d+)\..*\Z/$1/; $_ = (($_ >= 8) ? "1" :
 # we want to use the oldest available SDK for max compatiblity. However 10.4 and older
 # can not build 64bit binaries, making 10.5 the minimum version.   This has been tested 
 # with xcode 3.1 (xcode31_2199_developerdvd.dmg).  It contains the 10.5 SDK and a decent
-# enough gcc to actually compile ioquake3
-# For PPC macs, G4's or better are required to run ioquake3.
+# enough gcc to actually compile Tremulous
+# For PPC macs, G4's or better are required to run Tremulous.
 
 unset ARCH_SDK
 unset ARCH_CFLAGS
@@ -79,7 +78,7 @@ unset ARCH_LDFLAGS
 
 if [ -d /Developer/SDKs/MacOSX10.5.sdk ]; then
 	ARCH_SDK=/Developer/SDKs/MacOSX10.5.sdk
-	ARCH_CFLAGS="-arch ${BUILDARCH} -isysroot /Developer/SDKs/MacOSX10.5.sdk \
+	ARCH_CFLAGS="-arch ${DARWIN_GCC_ARCH} -isysroot /Developer/SDKs/MacOSX10.5.sdk \
 			-DMAC_OS_X_VERSION_MIN_REQUIRED=1050"
 	ARCH_LDFLAGS=" -mmacosx-version-min=10.5"
 fi
@@ -106,13 +105,10 @@ echo "Creating .app bundle $DESTDIR/$APPBUNDLE"
 if [ ! -d $DESTDIR/$APPBUNDLE/Contents/MacOS/$BASEDIR ]; then
 	mkdir -p $DESTDIR/$APPBUNDLE/Contents/MacOS/$BASEDIR || exit 1;
 fi
-if [ ! -d $DESTDIR/$APPBUNDLE/Contents/MacOS/$MPACKDIR ]; then
-	mkdir -p $DESTDIR/$APPBUNDLE/Contents/MacOS/$MPACKDIR || exit 1;
-fi
 if [ ! -d $DESTDIR/$APPBUNDLE/Contents/Resources ]; then
 	mkdir -p $DESTDIR/$APPBUNDLE/Contents/Resources
 fi
-cp $ICNS $DESTDIR/$APPBUNDLE/Contents/Resources/ioquake3.icns || exit 1;
+cp $ICNS $DESTDIR/$APPBUNDLE/Contents/Resources/Tremulous.icns || exit 1;
 echo $PKGINFO > $DESTDIR/$APPBUNDLE/Contents/PkgInfo
 echo "
 	<?xml version=\"1.0\" encoding=\"UTF-8\"?>
@@ -126,15 +122,15 @@ echo "
 		<key>CFBundleExecutable</key>
 		<string>$BINARY</string>
 		<key>CFBundleGetInfoString</key>
-		<string>ioquake3 $Q3_VERSION</string>
+		<string>Tremulous $Q3_VERSION</string>
 		<key>CFBundleIconFile</key>
-		<string>ioquake3.icns</string>
+		<string>Tremulous.icns</string>
 		<key>CFBundleIdentifier</key>
-		<string>org.ioquake.ioquake3</string>
+		<string>net.tremulous</string>
 		<key>CFBundleInfoDictionaryVersion</key>
 		<string>6.0</string>
 		<key>CFBundleName</key>
-		<string>ioquake3</string>
+		<string>tremulous</string>
 		<key>CFBundlePackageType</key>
 		<string>APPL</string>
 		<key>CFBundleShortVersionString</key>
@@ -156,7 +152,6 @@ cp $BIN_OBJ $DESTDIR/$APPBUNDLE/Contents/MacOS/$BINARY
 cp $BIN_DEDOBJ $DESTDIR/$APPBUNDLE/Contents/MacOS/$DEDBIN
 cp $RENDER_OBJ $DESTDIR/$APPBUNDLE/Contents/MacOS/
 cp $BASE_OBJ $DESTDIR/$APPBUNDLE/Contents/MacOS/$BASEDIR/
-cp $MPACK_OBJ $DESTDIR/$APPBUNDLE/Contents/MacOS/$MPACKDIR/
 cp code/libs/macosx/*.dylib $DESTDIR/$APPBUNDLE/Contents/MacOS/
 cp code/libs/macosx/*.dylib $DESTDIR
 
