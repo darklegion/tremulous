@@ -849,7 +849,7 @@ ifndef CC
 endif
 
 ifndef RANLIB
-  RANLIB=gcc
+  RANLIB=ranlib
 endif
 
 ifneq ($(HAVE_VM_COMPILED),true)
