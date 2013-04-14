@@ -1962,8 +1962,6 @@ PPC_ComputeCode( vm_t *vm )
 			di_now = di_first;
 		}
 	}
-
-	return;
 }
 
 static void
