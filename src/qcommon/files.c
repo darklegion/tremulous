@@ -530,12 +530,12 @@ qboolean FS_CreatePath (char *OSPath) {
 
 /*
 =================
-FS_CheckFilenameIsNotImmutable
+FS_CheckFilenameIsMutable
 
 ERR_FATAL if trying to maniuplate a file with the platform library, QVM, or pk3 extension
 =================
  */
-static void FS_CheckFilenameIsNotImmutable( const char *filename,
+static void FS_CheckFilenameIsMutable( const char *filename,
 		const char *function )
 {
 	// Check if the filename ends with the library, QVM, or pk3 extension
@@ -555,7 +555,7 @@ FS_Remove
 ===========
 */
 void FS_Remove( const char *osPath ) {
-	FS_CheckFilenameIsNotImmutable( osPath, __func__ );
+	FS_CheckFilenameIsMutable( osPath, __func__ );
 
 	remove( osPath );
 }
@@ -567,7 +567,7 @@ FS_HomeRemove
 ===========
 */
 void FS_HomeRemove( const char *homePath ) {
-	FS_CheckFilenameIsNotImmutable( homePath, __func__ );
+	FS_CheckFilenameIsMutable( homePath, __func__ );
 
 	remove( FS_BuildOSPath( fs_homepath->string,
 			fs_gamedir, homePath ) );
@@ -652,7 +652,7 @@ fileHandle_t FS_SV_FOpenFileWrite( const char *filename ) {
 		Com_Printf( "FS_SV_FOpenFileWrite: %s\n", ospath );
 	}
 
-	FS_CheckFilenameIsNotImmutable( ospath, __func__ );
+	FS_CheckFilenameIsMutable( ospath, __func__ );
 
 	if( FS_CreatePath( ospath ) ) {
 		return 0;
@@ -765,7 +765,7 @@ void FS_SV_Rename( const char *from, const char *to, qboolean safe ) {
 	}
 
 	if ( safe ) {
-		FS_CheckFilenameIsNotImmutable( to_ospath, __func__ );
+		FS_CheckFilenameIsMutable( to_ospath, __func__ );
 	}
 
 	rename(from_ospath, to_ospath);
@@ -796,7 +796,7 @@ void FS_Rename( const char *from, const char *to ) {
 		Com_Printf( "FS_Rename: %s --> %s\n", from_ospath, to_ospath );
 	}
 
-	FS_CheckFilenameIsNotImmutable( to_ospath, __func__ );
+	FS_CheckFilenameIsMutable( to_ospath, __func__ );
 
 	rename(from_ospath, to_ospath);
 }
@@ -855,7 +855,7 @@ fileHandle_t FS_FOpenFileWrite( const char *filename ) {
 		Com_Printf( "FS_FOpenFileWrite: %s\n", ospath );
 	}
 
-	FS_CheckFilenameIsNotImmutable( ospath, __func__ );
+	FS_CheckFilenameIsMutable( ospath, __func__ );
 
 	if( FS_CreatePath( ospath ) ) {
 		return 0;
@@ -903,7 +903,7 @@ fileHandle_t FS_FOpenFileAppend( const char *filename ) {
 		Com_Printf( "FS_FOpenFileAppend: %s\n", ospath );
 	}
 
-	FS_CheckFilenameIsNotImmutable( ospath, __func__ );
+	FS_CheckFilenameIsMutable( ospath, __func__ );
 
 	if( FS_CreatePath( ospath ) ) {
 		return 0;
@@ -946,7 +946,7 @@ fileHandle_t FS_FCreateOpenPipeFile( const char *filename ) {
 		Com_Printf( "FS_FCreateOpenPipeFile: %s\n", ospath );
 	}
 
-	FS_CheckFilenameIsNotImmutable( ospath, __func__ );
+	FS_CheckFilenameIsMutable( ospath, __func__ );
 
 	fifo = Sys_Mkfifo( ospath );
 	if( fifo ) {
