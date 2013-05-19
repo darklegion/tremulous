@@ -267,6 +267,7 @@ ifneq ($(BUILD_CLIENT),0)
   else
     # assume they're in the system default paths (no -I or -L needed)
     CURL_LIBS=-lcurl
+    OPENAL_LIBS=-lopenal
   endif
   # Use sdl-config if all else fails
   ifeq ($(SDL_CFLAGS),)
@@ -364,7 +365,7 @@ ifneq (,$(findstring "$(PLATFORM)", "linux" "gnu_kfreebsd" "kfreebsd-gnu"))
 
   ifeq ($(USE_OPENAL),1)
     ifneq ($(USE_OPENAL_DLOPEN),1)
-      CLIENT_LIBS += -lopenal
+      CLIENT_LIBS += $(OPENAL_LIBS)
     endif
   endif
 
@@ -658,7 +659,7 @@ ifeq ($(PLATFORM),freebsd)
   # optional features/libraries
   ifeq ($(USE_OPENAL),1)
     ifeq ($(USE_OPENAL_DLOPEN),1)
-      CLIENT_LIBS += $(THREAD_LIBS) -lopenal
+      CLIENT_LIBS += $(THREAD_LIBS) $(OPENAL_LIBS)
     endif
   endif
 
@@ -750,7 +751,7 @@ ifeq ($(PLATFORM),openbsd)
 
   ifeq ($(USE_OPENAL),1)
     ifneq ($(USE_OPENAL_DLOPEN),1)
-      CLIENT_LIBS += $(THREAD_LIBS) -lopenal
+      CLIENT_LIBS += $(THREAD_LIBS) $(OPENAL_LIBS)
     endif
   endif
 
