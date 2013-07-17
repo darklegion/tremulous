@@ -2072,7 +2072,7 @@ CGOBJ_ = \
   $(B)/$(BASEGAME)/cgame/cg_trails.o \
   $(B)/$(BASEGAME)/cgame/cg_particles.o \
   $(B)/$(BASEGAME)/cgame/cg_tutorial.o \
-  $(B)/$(BASEGAME)/ui/ui_shared.o \
+  $(B)/$(BASEGAME)/cgame/ui_shared.o \
   \
   $(B)/$(BASEGAME)/qcommon/q_math.o \
   $(B)/$(BASEGAME)/qcommon/q_shared.o
@@ -2295,10 +2295,16 @@ endif
 $(B)/$(BASEGAME)/cgame/bg_%.o: $(GDIR)/bg_%.c
 	$(DO_CGAME_CC)
 
+$(B)/$(BASEGAME)/cgame/ui_%.o: $(UIDIR)/ui_%.c
+	$(DO_CGAME_CC)
+
 $(B)/$(BASEGAME)/cgame/%.o: $(CGDIR)/%.c
 	$(DO_CGAME_CC)
 
 $(B)/$(BASEGAME)/cgame/bg_%.asm: $(GDIR)/bg_%.c $(Q3LCC)
+	$(DO_CGAME_Q3LCC)
+
+$(B)/$(BASEGAME)/cgame/ui_%.asm: $(UIDIR)/ui_%.c $(Q3LCC)
 	$(DO_CGAME_Q3LCC)
 
 $(B)/$(BASEGAME)/cgame/%.asm: $(CGDIR)/%.c $(Q3LCC)
