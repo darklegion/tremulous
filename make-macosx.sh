@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 
 # Let's make the user give us a target build system
@@ -30,29 +30,7 @@ if [ -z "$DARWIN_GCC_ARCH" ]; then
 fi
 
 CC=gcc-4.0
-APPBUNDLE=Tremulous.app
-BINARY=tremulous.${BUILDARCH}
-DEDBIN=tremded.${BUILDARCH}
-PKGINFO=APPLIOQ3
-ICNS=misc/Tremulous.icns
 DESTDIR=build/release-darwin-${BUILDARCH}
-BASEDIR=base
-
-BIN_OBJ="
-	build/release-darwin-${BUILDARCH}/${BINARY}
-"
-BIN_DEDOBJ="
-	build/release-darwin-${BUILDARCH}/${DEDBIN}
-"
-BASE_OBJ="
-	build/release-darwin-${BUILDARCH}/$BASEDIR/cgame${BUILDARCH}.dylib
-	build/release-darwin-${BUILDARCH}/$BASEDIR/ui${BUILDARCH}.dylib
-	build/release-darwin-${BUILDARCH}/$BASEDIR/game${BUILDARCH}.dylib
-"
-RENDER_OBJ="
-	build/release-darwin-${BUILDARCH}/renderer_opengl1_${BUILDARCH}.dylib
-	build/release-darwin-${BUILDARCH}/renderer_opengl2_${BUILDARCH}.dylib
-"
 
 cd `dirname $0`
 if [ ! -f Makefile ]; then
@@ -96,9 +74,9 @@ NCPU=`sysctl -n hw.ncpu`
 
 
 # intel client and server
-if [ -d build/release-darwin-${BUILDARCH} ]; then
-	rm -r build/release-darwin-${BUILDARCH}
-fi
+#if [ -d build/release-darwin-${BUILDARCH} ]; then
+#	rm -r build/release-darwin-${BUILDARCH}
+#fi
 (ARCH=${BUILDARCH} CFLAGS=$ARCH_CFLAGS LDFLAGS=$ARCH_LDFLAGS make -j$NCPU) || exit 1;
 
 # use the following shell script to build an application bundle
