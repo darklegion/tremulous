@@ -593,7 +593,7 @@ int main( int argc, char **argv )
 
 	// Run time
 	SDL_version ver;
-	SDL_VERSION( &ver );
+	SDL_GetVersion( &ver );
 
 #define MINSDL_VERSION \
 	XSTRING(MINSDL_MAJOR) "." \
