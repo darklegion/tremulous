@@ -44,15 +44,17 @@ void R_AddAnimSurfaces( trRefEntity_t *ent ) {
 	md4Surface_t	*surface;
 	md4LOD_t		*lod;
 	shader_t		*shader;
+	int             cubemapIndex;
 	int				i;
 
 	header = (md4Header_t *) tr.currentModel->modelData;
 	lod = (md4LOD_t *)( (byte *)header + header->ofsLODs );
+	cubemapIndex = R_CubemapForPoint(ent->e.origin);
 
 	surface = (md4Surface_t *)( (byte *)lod + lod->ofsSurfaces );
 	for ( i = 0 ; i < lod->numSurfaces ; i++ ) {
 		shader = R_GetShaderByHandle( surface->shaderIndex );
-		R_AddDrawSurf( (void *)surface, shader, 0 /*fogNum*/, qfalse, qfalse );
+		R_AddDrawSurf( (void *)surface, shader, 0 /*fogNum*/, qfalse, qfalse, cubemapIndex );
 		surface = (md4Surface_t *)( (byte *)surface + surface->ofsEnd );
 	}
 }
@@ -324,6 +326,7 @@ void R_MDRAddAnimSurfaces( trRefEntity_t *ent ) {
 	int				lodnum = 0;
 	int				fogNum = 0;
 	int				cull;
+	int             cubemapIndex;
 	qboolean	personalModel;
 
 	header = (mdrHeader_t *) tr.currentModel->modelData;
@@ -385,6 +388,8 @@ void R_MDRAddAnimSurfaces( trRefEntity_t *ent ) {
 	// fogNum?
 	fogNum = R_MDRComputeFogNum( header, ent );
 
+	cubemapIndex = R_CubemapForPoint(ent->e.origin);
+
 	surface = (mdrSurface_t *)( (byte *)lod + lod->ofsSurfaces );
 
 	for ( i = 0 ; i < lod->numSurfaces ; i++ )
@@ -420,7 +425,7 @@ void R_MDRAddAnimSurfaces( trRefEntity_t *ent ) {
 			&& !(ent->e.renderfx & ( RF_NOSHADOW | RF_DEPTHHACK ) )
 			&& shader->sort == SS_OPAQUE )
 		{
-			R_AddDrawSurf( (void *)surface, tr.shadowShader, 0, qfalse, qfalse );
+			R_AddDrawSurf( (void *)surface, tr.shadowShader, 0, qfalse, qfalse, 0 );
 		}
 
 		// projection shadows work fine with personal models
@@ -429,11 +434,11 @@ void R_MDRAddAnimSurfaces( trRefEntity_t *ent ) {
 			&& (ent->e.renderfx & RF_SHADOW_PLANE )
 			&& shader->sort == SS_OPAQUE )
 		{
-			R_AddDrawSurf( (void *)surface, tr.projectionShadowShader, 0, qfalse, qfalse );
+			R_AddDrawSurf( (void *)surface, tr.projectionShadowShader, 0, qfalse, qfalse, 0 );
 		}
 
 		if (!personalModel)
-			R_AddDrawSurf( (void *)surface, shader, fogNum, qfalse, qfalse );
+			R_AddDrawSurf( (void *)surface, shader, fogNum, qfalse, qfalse, cubemapIndex );
 
 		surface = (mdrSurface_t *)( (byte *)surface + surface->ofsEnd );
 	}
