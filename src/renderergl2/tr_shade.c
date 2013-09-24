@@ -424,44 +424,27 @@ static void ProjectDlightTexture( void ) {
 
 static void ComputeShaderColors( shaderStage_t *pStage, vec4_t baseColor, vec4_t vertColor )
 {
+	baseColor[0] = 
+	baseColor[1] =
+	baseColor[2] =
+	baseColor[3] = 1.0f;
+
+	vertColor[0] =
+	vertColor[1] =
+	vertColor[2] =
+	vertColor[3] = 0.0f;
+
 	//
 	// rgbGen
 	//
 	switch ( pStage->rgbGen )
 	{
-		case CGEN_IDENTITY:
-			baseColor[0] = 
-			baseColor[1] =
-			baseColor[2] =
-			baseColor[3] = 1.0f;
-
-			vertColor[0] =
-			vertColor[1] =
-			vertColor[2] =
-			vertColor[3] = 0.0f;
-			break;
 		case CGEN_IDENTITY_LIGHTING:
 			baseColor[0] = 
 			baseColor[1] =
 			baseColor[2] = tr.identityLight;
-			baseColor[3] = 1.0f;
-
-			vertColor[0] =
-			vertColor[1] =
-			vertColor[2] =
-			vertColor[3] = 0.0f;
 			break;
 		case CGEN_EXACT_VERTEX:
-			baseColor[0] = 
-			baseColor[1] =
-			baseColor[2] =
-			baseColor[3] = 0.0f;
-
-			vertColor[0] =
-			vertColor[1] =
-			vertColor[2] =
-			vertColor[3] = 1.0f;
-			break;
 		case CGEN_EXACT_VERTEX_LIT:
 			baseColor[0] = 
 			baseColor[1] =
@@ -478,11 +461,6 @@ static void ComputeShaderColors( shaderStage_t *pStage, vec4_t baseColor, vec4_t
 			baseColor[1] = pStage->constantColor[1] / 255.0f;
 			baseColor[2] = pStage->constantColor[2] / 255.0f;
 			baseColor[3] = pStage->constantColor[3] / 255.0f;
-
-			vertColor[0] =
-			vertColor[1] =
-			vertColor[2] =
-			vertColor[3] = 0.0f;
 			break;
 		case CGEN_VERTEX:
 			baseColor[0] = 
@@ -510,12 +488,10 @@ static void ComputeShaderColors( shaderStage_t *pStage, vec4_t baseColor, vec4_t
 			baseColor[0] = 
 			baseColor[1] =
 			baseColor[2] = tr.identityLight;
-			baseColor[3] = 1.0f;
 
 			vertColor[0] =
 			vertColor[1] =
 			vertColor[2] = -tr.identityLight;
-			vertColor[3] = 0.0f;
 			break;
 		case CGEN_FOG:
 			{
@@ -528,22 +504,11 @@ static void ComputeShaderColors( shaderStage_t *pStage, vec4_t baseColor, vec4_t
 				baseColor[2] = ((unsigned char *)(&fog->colorInt))[2] / 255.0f;
 				baseColor[3] = ((unsigned char *)(&fog->colorInt))[3] / 255.0f;
 			}
-
-			vertColor[0] =
-			vertColor[1] =
-			vertColor[2] =
-			vertColor[3] = 0.0f;
 			break;
 		case CGEN_WAVEFORM:
 			baseColor[0] = 
 			baseColor[1] = 
 			baseColor[2] = RB_CalcWaveColorSingle( &pStage->rgbWave );
-			baseColor[3] = 1.0f;
-
-			vertColor[0] =
-			vertColor[1] =
-			vertColor[2] =
-			vertColor[3] = 0.0f;
 			break;
 		case CGEN_ENTITY:
 			if (backEnd.currentEntity)
@@ -553,11 +518,6 @@ static void ComputeShaderColors( shaderStage_t *pStage, vec4_t baseColor, vec4_t
 				baseColor[2] = ((unsigned char *)backEnd.currentEntity->e.shaderRGBA)[2] / 255.0f;
 				baseColor[3] = ((unsigned char *)backEnd.currentEntity->e.shaderRGBA)[3] / 255.0f;
 			}
-			
-			vertColor[0] =
-			vertColor[1] =
-			vertColor[2] =
-			vertColor[3] = 0.0f;
 			break;
 		case CGEN_ONE_MINUS_ENTITY:
 			if (backEnd.currentEntity)
@@ -567,23 +527,10 @@ static void ComputeShaderColors( shaderStage_t *pStage, vec4_t baseColor, vec4_t
 				baseColor[2] = 1.0f - ((unsigned char *)backEnd.currentEntity->e.shaderRGBA)[2] / 255.0f;
 				baseColor[3] = 1.0f - ((unsigned char *)backEnd.currentEntity->e.shaderRGBA)[3] / 255.0f;
 			}
-
-			vertColor[0] =
-			vertColor[1] =
-			vertColor[2] =
-			vertColor[3] = 0.0f;
 			break;
+		case CGEN_IDENTITY:
 		case CGEN_LIGHTING_DIFFUSE:
 		case CGEN_BAD:
-			baseColor[0] = 
-			baseColor[1] =
-			baseColor[2] =
-			baseColor[3] = 1.0f;
-
-			vertColor[0] =
-			vertColor[1] =
-			vertColor[2] =
-			vertColor[3] = 0.0f;
 			break;
 	}
 
@@ -593,10 +540,6 @@ static void ComputeShaderColors( shaderStage_t *pStage, vec4_t baseColor, vec4_t
 	switch ( pStage->alphaGen )
 	{
 		case AGEN_SKIP:
-			break;
-		case AGEN_IDENTITY:
-			baseColor[3] = 1.0f;
-			vertColor[3] = 0.0f;
 			break;
 		case AGEN_CONST:
 			baseColor[3] = pStage->constantColor[3] / 255.0f;
@@ -628,9 +571,9 @@ static void ComputeShaderColors( shaderStage_t *pStage, vec4_t baseColor, vec4_t
 			baseColor[3] = 1.0f;
 			vertColor[3] = -1.0f;
 			break;
+		case AGEN_IDENTITY:
 		case AGEN_LIGHTING_SPECULAR:
 		case AGEN_PORTAL:
-		case AGEN_FRESNEL:
 			// Done entirely in vertex program
 			baseColor[3] = 1.0f;
 			vertColor[3] = 0.0f;
@@ -1083,7 +1026,7 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 
 		if (backEnd.depthFill)
 		{
-			if (pStage->glslShaderGroup)
+			if (pStage->glslShaderGroup == tr.lightallShader)
 			{
 				int index = 0;
 
@@ -1121,7 +1064,7 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 				sp = &tr.genericShader[shaderAttribs];
 			}
 		}
-		else if (pStage->glslShaderGroup)
+		else if (pStage->glslShaderGroup == tr.lightallShader)
 		{
 			int index = pStage->glslShaderIndex;
 
@@ -1147,10 +1090,7 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 
 			sp = &pStage->glslShaderGroup[index];
 
-			if (pStage->glslShaderGroup == tr.lightallShader)
-			{
-				backEnd.pc.c_lightallDraws++;
-			}
+			backEnd.pc.c_lightallDraws++;
 		}
 		else
 		{
@@ -1270,7 +1210,7 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 			else if ( pStage->bundle[TB_COLORMAP].image[0] != 0 )
 				R_BindAnimatedImageToTMU( &pStage->bundle[TB_COLORMAP], TB_COLORMAP );
 		}
-		else if ( pStage->glslShaderGroup )
+		else if ( pStage->glslShaderGroup == tr.lightallShader )
 		{
 			int i;
 
@@ -1286,13 +1226,29 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 			{
 				for (i = 0; i < NUM_TEXTURE_BUNDLES; i++)
 				{
-					if (i == TB_LIGHTMAP)
+					image_t *img;
+
+					if (pStage->bundle[i].image[0])
 					{
-						R_BindAnimatedImageToTMU( &pStage->bundle[i], i);
-					}
-					else if (pStage->bundle[i].image[0])
-					{
-						GL_BindToTMU( tr.whiteImage, i);
+						switch(i)
+						{
+							case TB_LIGHTMAP:
+								R_BindAnimatedImageToTMU( &pStage->bundle[TB_LIGHTMAP], i);
+								break;
+
+							case TB_DIFFUSEMAP:
+							case TB_SPECULARMAP:
+							case TB_SHADOWMAP:
+							case TB_CUBEMAP:
+							default:
+								GL_BindToTMU( tr.whiteImage, i);
+								break;
+
+							case TB_NORMALMAP:
+							case TB_DELUXEMAP:
+								GL_BindToTMU( tr.greyImage, i);
+								break;
+						}
 					}
 				}
 			}
@@ -1300,15 +1256,32 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 			{
 				for (i = 0; i < NUM_TEXTURE_BUNDLES; i++)
 				{
-					if (i == TB_LIGHTMAP)
+					image_t *img;
+
+					if (pStage->bundle[i].image[0])
 					{
-						R_BindAnimatedImageToTMU( &pStage->bundle[TB_DELUXEMAP], i);
-					}
-					else if (pStage->bundle[i].image[0])
-					{
-						GL_BindToTMU( tr.whiteImage, i);
+						switch(i)
+						{
+							case TB_LIGHTMAP:
+								R_BindAnimatedImageToTMU( &pStage->bundle[TB_DELUXEMAP], i);
+								break;
+
+							case TB_DIFFUSEMAP:
+							case TB_SPECULARMAP:
+							case TB_SHADOWMAP:
+							case TB_CUBEMAP:
+							default:
+								GL_BindToTMU( tr.whiteImage, i);
+								break;
+
+							case TB_NORMALMAP:
+							case TB_DELUXEMAP:
+								GL_BindToTMU( tr.greyImage, i);
+								break;
+						}
 					}
 				}
+
 			}
 			else
 			{
