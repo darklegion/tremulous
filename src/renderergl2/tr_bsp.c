@@ -272,7 +272,7 @@ static	void R_LoadLightmaps( lump_t *l, lump_t *surfs ) {
 
 	if (r_hdr->integer)
 	{
-		if (glRefConfig.textureFloat && glRefConfig.halfFloatPixel)
+		if (glRefConfig.textureFloat && glRefConfig.halfFloatPixel && r_floatLightmap->integer)
 			textureInternalFormat = GL_RGBA16F_ARB;
 		else
 			textureInternalFormat = GL_RGBA8;
@@ -411,7 +411,7 @@ static	void R_LoadLightmaps( lump_t *l, lump_t *surfs ) {
 
 					VectorScale(color, lightScale, color);
 
-					if (glRefConfig.textureFloat && glRefConfig.halfFloatPixel)
+					if (glRefConfig.textureFloat && glRefConfig.halfFloatPixel && r_floatLightmap->integer)
 						ColorToRGBA16F(color, (unsigned short *)(&image[j*8]));
 					else
 						ColorToRGBM(color, &image[j*4]);
