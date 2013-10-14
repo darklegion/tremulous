@@ -1335,9 +1335,6 @@ typedef struct {
 	int			numDecisionNodes;
 	mnode_t		*nodes;
 
-	VBO_t          *vbo;
-	IBO_t          *ibo;
-
 	int         numWorldSurfaces;
 
 	int			numsurfaces;
