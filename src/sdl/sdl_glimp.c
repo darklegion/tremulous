@@ -215,6 +215,7 @@ static int GLimp_SetMode( qboolean failSafe, qboolean fullscreen, qboolean nobor
 	if ( r_allowResize->integer )
 		flags |= SDL_WINDOW_RESIZABLE;
 
+#ifdef USE_ICON
 	icon = SDL_CreateRGBSurfaceFrom(
 			(void *)CLIENT_WINDOW_ICON.pixel_data,
 			CLIENT_WINDOW_ICON.width,
@@ -227,6 +228,7 @@ static int GLimp_SetMode( qboolean failSafe, qboolean fullscreen, qboolean nobor
 			0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF
 #endif
 			);
+#endif
 
 	// If a window exists, note its display index
 	if( SDL_window != NULL )
