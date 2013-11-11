@@ -1536,6 +1536,10 @@ void S_AL_SrcUpdate( void )
 
 				if(!curSource->isPlaying)
 				{
+					qalSourcei(curSource->alSource, AL_LOOPING, AL_TRUE);
+					curSource->isPlaying = qtrue;
+					qalSourcePlay(curSource->alSource);
+
 					if(curSource->priority == SRCPRI_AMBIENT)
 					{
 						// If there are other ambient looping sources with the same sound,
@@ -1593,10 +1597,6 @@ void S_AL_SrcUpdate( void )
 					}
 						
 					curSfx->loopActiveCnt++;
-					
-					qalSourcei(curSource->alSource, AL_LOOPING, AL_TRUE);
-					curSource->isPlaying = qtrue;
-					qalSourcePlay(curSource->alSource);
 				}
 
 				// Update locality
