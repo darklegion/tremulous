@@ -125,26 +125,11 @@ void RB_AddQuadStampExt( vec3_t origin, vec3_t left, vec3_t up, float color[4], 
 	// constant normal all the way around
 	VectorSubtract( vec3_origin, backEnd.viewParms.or.axis[0], normal );
 
-	tess.normal[ndx][0] = (uint8_t)(normal[0] * 127.5f + 128.0f);
-	tess.normal[ndx][1] = (uint8_t)(normal[1] * 127.5f + 128.0f);
-	tess.normal[ndx][2] = (uint8_t)(normal[2] * 127.5f + 128.0f);
-	tess.normal[ndx][3] = 0;
+	tess.normal[ndx] =
+	tess.normal[ndx+1] =
+	tess.normal[ndx+2] =
+	tess.normal[ndx+3] = R_VboPackNormal(normal);
 
-	tess.normal[ndx+1][0] = (uint8_t)(normal[0] * 127.5f + 128.0f);
-	tess.normal[ndx+1][1] = (uint8_t)(normal[1] * 127.5f + 128.0f);
-	tess.normal[ndx+1][2] = (uint8_t)(normal[2] * 127.5f + 128.0f);
-	tess.normal[ndx+1][3] = 0;
-
-	tess.normal[ndx+2][0] = (uint8_t)(normal[0] * 127.5f + 128.0f);
-	tess.normal[ndx+2][1] = (uint8_t)(normal[1] * 127.5f + 128.0f);
-	tess.normal[ndx+2][2] = (uint8_t)(normal[2] * 127.5f + 128.0f);
-	tess.normal[ndx+2][3] = 0;
-
-	tess.normal[ndx+3][0] = (uint8_t)(normal[0] * 127.5f + 128.0f);
-	tess.normal[ndx+3][1] = (uint8_t)(normal[1] * 127.5f + 128.0f);
-	tess.normal[ndx+3][2] = (uint8_t)(normal[2] * 127.5f + 128.0f);
-	tess.normal[ndx+3][3] = 0;
-	
 	// standard square texture coordinates
 	VectorSet2(tess.texCoords[ndx  ][0], s1, t1);
 	VectorSet2(tess.texCoords[ndx  ][1], s1, t1);
@@ -332,10 +317,11 @@ static void RB_SurfaceVertsAndIndexes( int numVerts, srfVert_t *verts, int numIn
 	int             i;
 	glIndex_t      *inIndex;
 	srfVert_t      *dv;
-	float          *xyz, *texCoords, *lightCoords, *lightdir;
-	uint8_t        *normal;
+	float          *xyz, *texCoords, *lightCoords;
+	uint32_t        *lightdir;
+	uint32_t        *normal;
 #ifdef USE_VERT_TANGENT_SPACE
-	uint8_t        *tangent;
+	uint32_t        *tangent;
 #endif
 	glIndex_t      *outIndex;
 	float          *color;
@@ -362,28 +348,18 @@ static void RB_SurfaceVertsAndIndexes( int numVerts, srfVert_t *verts, int numIn
 	if ( tess.shader->vertexAttribs & ATTR_NORMAL )
 	{
 		dv = verts;
-		normal = tess.normal[ tess.numVertexes ];
-		for ( i = 0 ; i < numVerts ; i++, dv++, normal+=4 )
-		{
-			normal[0] = (uint8_t)(dv->normal[0] * 127.5f + 128.0f);
-			normal[1] = (uint8_t)(dv->normal[1] * 127.5f + 128.0f);
-			normal[2] = (uint8_t)(dv->normal[2] * 127.5f + 128.0f);
-			normal[3] = 0;
-		}
+		normal = &tess.normal[ tess.numVertexes ];
+		for ( i = 0 ; i < numVerts ; i++, dv++, normal++ )
+			*normal = R_VboPackNormal(dv->normal);
 	}
 
 #ifdef USE_VERT_TANGENT_SPACE
 	if ( tess.shader->vertexAttribs & ATTR_TANGENT )
 	{
 		dv = verts;
-		tangent = tess.tangent[ tess.numVertexes ];
-		for ( i = 0 ; i < numVerts ; i++, dv++, tangent+=4 )
-		{
-			tangent[0] = (uint8_t)(dv->tangent[0] * 127.5f + 128.0f);
-			tangent[1] = (uint8_t)(dv->tangent[1] * 127.5f + 128.0f);
-			tangent[2] = (uint8_t)(dv->tangent[2] * 127.5f + 128.0f);
-			tangent[3] = (uint8_t)(dv->tangent[3] * 127.5f + 128.0f);
-		}
+		tangent = &tess.tangent[ tess.numVertexes ];
+		for ( i = 0 ; i < numVerts ; i++, dv++, tangent++ )
+			*tangent = R_VboPackTangent(dv->tangent);
 	}
 #endif
 
@@ -414,9 +390,9 @@ static void RB_SurfaceVertsAndIndexes( int numVerts, srfVert_t *verts, int numIn
 	if ( tess.shader->vertexAttribs & ATTR_LIGHTDIRECTION )
 	{
 		dv = verts;
-		lightdir = tess.lightdir[ tess.numVertexes ];
-		for ( i = 0 ; i < numVerts ; i++, dv++, lightdir+=4 )
-			VectorCopy(dv->lightdir, lightdir);
+		lightdir = &tess.lightdir[ tess.numVertexes ];
+		for ( i = 0 ; i < numVerts ; i++, dv++, lightdir++ )
+			*lightdir = R_VboPackNormal(dv->lightdir);
 	}
 
 #if 0  // nothing even uses vertex dlightbits
@@ -1151,14 +1127,14 @@ static void LerpMeshVertexes_scalar(mdvSurface_t *surf, float backlerp)
    	}
 #endif
 	float *outXyz;
-	uint8_t *outNormal;
+	uint32_t *outNormal;
 	mdvVertex_t *newVerts;
 	int		vertNum;
 
 	newVerts = surf->verts + backEnd.currentEntity->e.frame * surf->numVerts;
 
 	outXyz =    tess.xyz[tess.numVertexes];
-	outNormal = tess.normal[tess.numVertexes];
+	outNormal = &tess.normal[tess.numVertexes];
 
 	if (backlerp == 0)
 	{
@@ -1173,14 +1149,11 @@ static void LerpMeshVertexes_scalar(mdvSurface_t *surf, float backlerp)
 			VectorCopy(newVerts->xyz,    outXyz);
 			VectorCopy(newVerts->normal, normal);
 
-			outNormal[0] = (uint8_t)(normal[0] * 127.5f + 128.0f);
-			outNormal[1] = (uint8_t)(normal[1] * 127.5f + 128.0f);
-			outNormal[2] = (uint8_t)(normal[2] * 127.5f + 128.0f);
-			outNormal[3] = 0;
+			*outNormal = R_VboPackNormal(normal);
 
 			newVerts++;
 			outXyz += 4;
-			outNormal += 4;
+			outNormal++;
 		}
 	}
 	else
@@ -1201,15 +1174,12 @@ static void LerpMeshVertexes_scalar(mdvSurface_t *surf, float backlerp)
 			VectorLerp(newVerts->normal, oldVerts->normal, backlerp, normal);
 			VectorNormalize(normal);
 
-			outNormal[0] = (uint8_t)(normal[0] * 127.5f + 128.0f);
-			outNormal[1] = (uint8_t)(normal[1] * 127.5f + 128.0f);
-			outNormal[2] = (uint8_t)(normal[2] * 127.5f + 128.0f);
-			outNormal[3] = 0;
+			*outNormal = R_VboPackNormal(normal);
 
 			newVerts++;
 			oldVerts++;
 			outXyz += 4;
-			outNormal += 4;
+			outNormal++;
 		}
 	}
 
@@ -1331,11 +1301,12 @@ static void RB_SurfaceGrid( srfBspSurface_t *srf ) {
 	int		i, j;
 	float	*xyz;
 	float	*texCoords, *lightCoords;
-	uint8_t *normal;
+	uint32_t *normal;
 #ifdef USE_VERT_TANGENT_SPACE
-	uint8_t *tangent;
+	uint32_t *tangent;
 #endif
-	float   *color, *lightdir;
+	float   *color;
+	uint32_t *lightdir;
 	srfVert_t	*dv;
 	int		rows, irows, vrows;
 	int		used;
@@ -1418,14 +1389,14 @@ static void RB_SurfaceGrid( srfBspSurface_t *srf ) {
 		numVertexes = tess.numVertexes;
 
 		xyz = tess.xyz[numVertexes];
-		normal = tess.normal[numVertexes];
+		normal = &tess.normal[numVertexes];
 #ifdef USE_VERT_TANGENT_SPACE
-		tangent = tess.tangent[numVertexes];
+		tangent = &tess.tangent[numVertexes];
 #endif
 		texCoords = tess.texCoords[numVertexes][0];
 		lightCoords = tess.texCoords[numVertexes][1];
 		color = tess.vertexColors[numVertexes];
-		lightdir = tess.lightdir[numVertexes];
+		lightdir = &tess.lightdir[numVertexes];
 		//vDlightBits = &tess.vertexDlightBits[numVertexes];
 
 		for ( i = 0 ; i < rows ; i++ ) {
@@ -1441,21 +1412,13 @@ static void RB_SurfaceGrid( srfBspSurface_t *srf ) {
 
 				if ( tess.shader->vertexAttribs & ATTR_NORMAL )
 				{
-					normal[0] = (uint8_t)(dv->normal[0] * 127.5f + 128.0f);
-					normal[1] = (uint8_t)(dv->normal[1] * 127.5f + 128.0f);
-					normal[2] = (uint8_t)(dv->normal[2] * 127.5f + 128.0f);
-					normal[3] = 0;
-					normal += 4;
+					*normal++ = R_VboPackNormal(dv->normal);
 				}
 
 #ifdef USE_VERT_TANGENT_SPACE
 				if ( tess.shader->vertexAttribs & ATTR_TANGENT )
 				{
-					tangent[0] = (uint8_t)(dv->tangent[0] * 127.5f + 128.0f);
-					tangent[1] = (uint8_t)(dv->tangent[1] * 127.5f + 128.0f);
-					tangent[2] = (uint8_t)(dv->tangent[2] * 127.5f + 128.0f);
-					tangent[3] = (uint8_t)(dv->tangent[3] * 127.5f + 128.0f);	
-					tangent += 4;
+					*tangent++ = R_VboPackTangent(dv->tangent);
 				}
 #endif
 				if ( tess.shader->vertexAttribs & ATTR_TEXCOORD )
@@ -1478,8 +1441,7 @@ static void RB_SurfaceGrid( srfBspSurface_t *srf ) {
 
 				if ( tess.shader->vertexAttribs & ATTR_LIGHTDIRECTION )
 				{
-					VectorCopy(dv->lightdir, lightdir);
-					lightdir += 4;
+					*lightdir++ = R_VboPackNormal(dv->lightdir);
 				}
 
 				//*vDlightBits++ = dlightBits;
