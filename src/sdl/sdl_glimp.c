@@ -727,13 +727,22 @@ success:
 	// This values force the UI to disable driver selection
 	glConfig.driverType = GLDRV_ICD;
 	glConfig.hardwareType = GLHW_GENERIC;
+    
+    // Remove call to SDL_SetGamma for Mac OS X
+    // It causes a crash, but is apparently fixed in SDL2
+    // somewhere upstream in ioq3. For more details, see
+    // http://www.ioquake.org/forums/viewtopic.php?f=12&t=1928
+#ifndef MACOS_X
 	glConfig.deviceSupportsGamma = SDL_SetGamma( 1.0f, 1.0f, 1.0f ) >= 0;
-
+#endif
+    
 	// Mysteriously, if you use an NVidia graphics card and multiple monitors,
 	// SDL_SetGamma will incorrectly return false... the first time; ask
 	// again and you get the correct answer. This is a suspected driver bug, see
 	// http://bugzilla.icculus.org/show_bug.cgi?id=4316
+#ifndef MACOS_X
 	glConfig.deviceSupportsGamma = SDL_SetGamma( 1.0f, 1.0f, 1.0f ) >= 0;
+#endif
 
 	if ( -1 == r_ignorehwgamma->integer)
 		glConfig.deviceSupportsGamma = 1;
