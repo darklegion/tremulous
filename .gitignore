@@ -4,3 +4,5 @@ Makefile.local
 *tags
 misc/patches
 misc/last-merged-ioq3-revision.temp
+.DS_Store
+*.orig

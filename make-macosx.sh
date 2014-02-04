@@ -29,7 +29,7 @@ if [ -z "$DARWIN_GCC_ARCH" ]; then
 	DARWIN_GCC_ARCH=${BUILDARCH}
 fi
 
-CC=gcc-4.0
+CC=clang
 APPBUNDLE=Tremulous.app
 BINARY=tremulous.${BUILDARCH}
 DEDBIN=tremded.${BUILDARCH}
@@ -152,6 +152,6 @@ cp $BIN_OBJ $DESTDIR/$APPBUNDLE/Contents/MacOS/$BINARY
 cp $BIN_DEDOBJ $DESTDIR/$APPBUNDLE/Contents/MacOS/$DEDBIN
 cp $RENDER_OBJ $DESTDIR/$APPBUNDLE/Contents/MacOS/
 cp $BASE_OBJ $DESTDIR/$APPBUNDLE/Contents/MacOS/$BASEDIR/
-cp code/libs/macosx/*.dylib $DESTDIR/$APPBUNDLE/Contents/MacOS/
-cp code/libs/macosx/*.dylib $DESTDIR
+cp src/libs/macosx/*.dylib $DESTDIR/$APPBUNDLE/Contents/MacOS/
+cp src/libs/macosx/*.dylib $DESTDIR
 

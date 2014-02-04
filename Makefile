@@ -410,7 +410,7 @@ ifeq ($(PLATFORM),darwin)
     BASE_CFLAGS += -arch i386 -m32 -mstackrealign
   endif
   ifeq ($(ARCH),x86_64)
-    OPTIMIZEVM += -arch x86_64 -mfpmath=sse
+    OPTIMIZEVM += -arch x86_64
   endif
 
   # When compiling on OSX for OSX, we're not cross compiling as far as the
@@ -468,12 +468,11 @@ ifeq ($(PLATFORM),darwin)
     $(LIBSDIR)/macosx/libSDL-1.2.0.dylib
   RENDERER_LIBS += -framework OpenGL $(LIBSDIR)/macosx/libSDL-1.2.0.dylib
 
-  OPTIMIZEVM += -falign-loops=16
-  OPTIMIZE = $(OPTIMIZEVM) -ffast-math
+  OPTIMIZE = -Ofast -flto
 
   SHLIBEXT=dylib
   SHLIBCFLAGS=-fPIC -fno-common
-  SHLIBLDFLAGS=-dynamiclib $(LDFLAGS) -Wl,-U,_com_altivec
+  SHLIBLDFLAGS=-dynamiclib -flto $(LDFLAGS) -Wl,-U,_com_altivec
 
   NOTSHLIBCFLAGS=-mdynamic-no-pic
 
