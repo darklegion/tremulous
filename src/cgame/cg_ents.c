@@ -964,7 +964,7 @@ static void CG_CalcEntityLerpPositions( centity_t *cent )
 	
     // don't let the projectile go through the floor
     if( tr.fraction < 1.0f )
-      VectorLerp( tr.fraction, lastOrigin, cent->lerpOrigin, cent->lerpOrigin );
+      VectorLerp2( tr.fraction, lastOrigin, cent->lerpOrigin, cent->lerpOrigin );
   }
 
   // adjust for riding a mover if it wasn't rolled into the predicted

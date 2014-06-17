@@ -2352,9 +2352,9 @@ static void CG_DrawSpeedGraph( rectDef_t *rect, vec4_t foreColor,
   {
     val = speedSamples[ ( oldestSpeedSample + i ) % SPEEDOMETER_NUM_SAMPLES ];
     if( val < SPEED_MED )
-      VectorLerp( val / SPEED_MED, slow, medium, color );
+      VectorLerp2( val / SPEED_MED, slow, medium, color );
     else if( val < SPEED_FAST )
-      VectorLerp( ( val - SPEED_MED ) / ( SPEED_FAST - SPEED_MED ),
+      VectorLerp2( ( val - SPEED_MED ) / ( SPEED_FAST - SPEED_MED ),
                   medium, fast, color );
     else
       VectorCopy( fast, color );

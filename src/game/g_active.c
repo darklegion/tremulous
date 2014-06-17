@@ -1052,13 +1052,13 @@ void G_UnlaggedCalc( int time, gentity_t *rewindEnt )
       continue;
 
     // between two unlagged markers
-    VectorLerp( lerp, ent->client->unlaggedHist[ startIndex ].mins,
+    VectorLerp2( lerp, ent->client->unlaggedHist[ startIndex ].mins,
       ent->client->unlaggedHist[ stopIndex ].mins,
       ent->client->unlaggedCalc.mins );
-    VectorLerp( lerp, ent->client->unlaggedHist[ startIndex ].maxs,
+    VectorLerp2( lerp, ent->client->unlaggedHist[ startIndex ].maxs,
       ent->client->unlaggedHist[ stopIndex ].maxs,
       ent->client->unlaggedCalc.maxs );
-    VectorLerp( lerp, ent->client->unlaggedHist[ startIndex ].origin,
+    VectorLerp2( lerp, ent->client->unlaggedHist[ startIndex ].origin,
       ent->client->unlaggedHist[ stopIndex ].origin,
       ent->client->unlaggedCalc.origin );
 

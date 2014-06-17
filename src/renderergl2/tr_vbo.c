@@ -559,14 +559,11 @@ R_CreateIBO2
 IBO_t          *R_CreateIBO2(const char *name, int numIndexes, glIndex_t * inIndexes, vboUsage_t usage)
 {
 	IBO_t          *ibo;
-	int             i, j;
+	int             i;
 
 	glIndex_t       *indexes;
 	int             indexesSize;
-	int             indexesCount;
 
-	glIndex_t	   *tri;
-	glIndex_t       index;
 	int				glUsage;
 
 	switch (usage)
@@ -605,16 +602,10 @@ IBO_t          *R_CreateIBO2(const char *name, int numIndexes, glIndex_t * inInd
 
 	indexesSize = numIndexes * sizeof(glIndex_t);
 	indexes = ri.Hunk_AllocateTempMemory(indexesSize);
-	indexesCount = 0;
 
-	for(i = 0, tri = inIndexes; i < numIndexes; i += 3, tri += 3)
+	for(i = 0; i < numIndexes; i++)
 	{
-		for(j = 0; j < 3; j++)
-		{
-			index = tri[j];
-			memcpy(indexes + indexesOfs, &index, sizeof(glIndex_t));
-			indexesOfs += sizeof(glIndex_t);
-		}
+		indexes[i] = inIndexes[i];
 	}
 
 	ibo->indexesSize = indexesSize;

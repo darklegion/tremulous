@@ -1534,7 +1534,7 @@ static qboolean CG_ParseParticleFile( const char *fileName )
       }
       if( i < numBaseParticleSystems )
       {
-        SkipBracedSection( &text_p );
+        SkipBracedSection( &text_p, 0 );
         continue;
       }
 

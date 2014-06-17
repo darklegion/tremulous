@@ -77,6 +77,9 @@ static ID_INLINE int VectorCompare5(const vec5_t v1, const vec5_t v2)
 	return 1;
 }
 
+void VectorLerp( vec3_t a, vec3_t b, float lerp, vec3_t c);
+
+
 qboolean SpheresIntersect(vec3_t origin1, float radius1, vec3_t origin2, float radius2);
 void BoundingSphereOfSpheres(vec3_t origin1, float radius1, vec3_t origin2, float radius2, vec3_t origin3, float *radius3);
 
