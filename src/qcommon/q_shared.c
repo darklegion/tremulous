@@ -601,6 +601,10 @@ void SkipRestOfLine ( char **data ) {
 	int		c;
 
 	p = *data;
+
+	if ( !*p )
+		return;
+
 	while ( (c = *p++) != 0 ) {
 		if ( c == '\n' ) {
 			com_lines++;
