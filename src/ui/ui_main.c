@@ -2130,10 +2130,10 @@ static qboolean UI_NetSource_HandleKey( int key )
         ui_netSource.integer++;
     }
 
-    if( ui_netSource.integer >= numNetSources )
-      ui_netSource.integer = 0;
-    else if( ui_netSource.integer < 0 )
+    if( ui_netSource.integer < 0 )
       ui_netSource.integer = numNetSources - 1;
+    else if( ui_netSource.integer >= numNetSources )
+      ui_netSource.integer = 0;
 
     UI_BuildServerDisplayList( qtrue );
 
