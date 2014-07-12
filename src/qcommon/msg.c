@@ -308,56 +308,25 @@ void MSG_WriteFloat( msg_t *sb, float f ) {
 	MSG_WriteBits( sb, dat.i, 32 );
 }
 
-void MSG_WriteString( msg_t *sb, const char *s ) {
-	if ( !s ) {
-		MSG_WriteData (sb, "", 1);
-	} else {
-		int		l,i;
-		char	string[MAX_STRING_CHARS];
+static void MSG_WriteString2( msg_t *sb, const char *s, int maxsize )
+{
+	int size = strlen( s ) + 1;
 
-		l = strlen( s );
-		if ( l >= MAX_STRING_CHARS ) {
-			Com_Printf( "MSG_WriteString: MAX_STRING_CHARS" );
-			MSG_WriteData (sb, "", 1);
-			return;
-		}
-		Q_strncpyz( string, s, sizeof( string ) );
-
-		// get rid of 0x80+ chars, because old clients don't like them
-		for ( i = 0 ; i < l ; i++ ) {
-			if ( ((byte *)string)[i] > 127 ) {
-				string[i] = '.';
-			}
-		}
-
-		MSG_WriteData (sb, string, l+1);
+	if ( size > maxsize ) {
+		Com_Printf( "MSG_WriteString2: %i > %i\n", size, maxsize );
+		MSG_WriteData( sb, "", 1 );
+		return;
 	}
+
+	MSG_WriteData( sb, s, size );
+}
+
+void MSG_WriteString( msg_t *sb, const char *s ) {
+	MSG_WriteString2( sb, s, MAX_STRING_CHARS );
 }
 
 void MSG_WriteBigString( msg_t *sb, const char *s ) {
-	if ( !s ) {
-		MSG_WriteData (sb, "", 1);
-	} else {
-		int		l,i;
-		char	string[BIG_INFO_STRING];
-
-		l = strlen( s );
-		if ( l >= BIG_INFO_STRING ) {
-			Com_Printf( "MSG_WriteString: BIG_INFO_STRING" );
-			MSG_WriteData (sb, "", 1);
-			return;
-		}
-		Q_strncpyz( string, s, sizeof( string ) );
-
-		// get rid of 0x80+ chars, because old clients don't like them
-		for ( i = 0 ; i < l ; i++ ) {
-			if ( ((byte *)string)[i] > 127 ) {
-				string[i] = '.';
-			}
-		}
-
-		MSG_WriteData (sb, string, l+1);
-	}
+	MSG_WriteString2( sb, s, BIG_INFO_STRING );
 }
 
 void MSG_WriteAngle( msg_t *sb, float f ) {
@@ -451,10 +420,6 @@ char *MSG_ReadString( msg_t *msg ) {
 		if ( c == -1 || c == 0 ) {
 			break;
 		}
-		// don't allow higher ascii values
-		if ( c > 127 ) {
-			c = '.';
-		}
 
 		string[l] = c;
 		l++;
@@ -475,10 +440,6 @@ char *MSG_ReadBigString( msg_t *msg ) {
 		if ( c == -1 || c == 0 ) {
 			break;
 		}
-		// don't allow higher ascii values
-		if ( c > 127 ) {
-			c = '.';
-		}
 
 		string[l] = c;
 		l++;
@@ -498,10 +459,6 @@ char *MSG_ReadStringLine( msg_t *msg ) {
 		c = MSG_ReadByte(msg);		// use ReadByte so -1 is out of bounds
 		if (c == -1 || c == 0 || c == '\n') {
 			break;
-		}
-		// don't allow higher ascii values
-		if ( c > 127 ) {
-			c = '.';
 		}
 
 		string[l] = c;
