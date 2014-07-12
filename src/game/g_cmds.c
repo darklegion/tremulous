@@ -547,22 +547,6 @@ void Cmd_Noclip_f( gentity_t *ent )
 
 
 /*
-==================
-Cmd_LevelShot_f
-
-This is just to help generate the level pictures
-for the menus.  It goes to the intermission immediately
-and sends over a command to the client to resize the view,
-hide the scoreboard, and take a special screenshot
-==================
-*/
-void Cmd_LevelShot_f( gentity_t *ent )
-{
-  BeginIntermission( );
-  trap_SendServerCommand( ent - g_entities, "clientLevelShot" );
-}
-
-/*
 =================
 Cmd_Kill_f
 =================
@@ -3101,7 +3085,6 @@ commands_t cmds[ ] = {
   { "itemdeact", CMD_HUMAN|CMD_LIVING, Cmd_DeActivateItem_f },
   { "itemtoggle", CMD_HUMAN|CMD_LIVING, Cmd_ToggleItem_f },
   { "kill", CMD_TEAM|CMD_LIVING, Cmd_Kill_f },
-  { "levelshot", CMD_CHEAT, Cmd_LevelShot_f },
   { "listmaps", CMD_MESSAGE|CMD_INTERMISSION, Cmd_ListMaps_f },
   { "m", CMD_MESSAGE|CMD_INTERMISSION, Cmd_PrivateMessage_f },
   { "mt", CMD_MESSAGE|CMD_INTERMISSION, Cmd_PrivateMessage_f },

@@ -3407,10 +3407,6 @@ static void CG_Draw2D( void )
 {
   menuDef_t *menu = NULL;
 
-  // if we are taking a levelshot for the menu, don't draw anything
-  if( cg.levelShot )
-    return;
-
   // fading to black if stamina runs out
   // (only 2D that can't be disabled)
   CG_DrawLighting( );

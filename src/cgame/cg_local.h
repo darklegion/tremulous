@@ -920,7 +920,6 @@ typedef struct
   int           clientNum;
 
   qboolean      demoPlayback;
-  qboolean      levelShot;                          // taking a level menu screenshot
   int           deferredPlayerLoading;
   qboolean      loading;                            // don't defer players at initial startup
   qboolean      intermissionStarted;                // don't play voice rewards, because game will end shortly

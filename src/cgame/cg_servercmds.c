@@ -1178,16 +1178,6 @@ static void CG_Chat_f( void )
 
 /*
 =================
-CG_ClientLevelShot_f
-=================
-*/
-static void CG_ClientLevelShot_f( void )
-{
-  cg.levelShot = qtrue;
-}
-
-/*
-=================
 CG_ServerMenu_f
 =================
 */
@@ -1270,7 +1260,6 @@ void CG_UnregisterCommands( void )
 static consoleCommand_t svcommands[ ] =
 {
   { "chat", CG_Chat_f },
-  { "clientLevelShot", CG_ClientLevelShot_f },
   { "cmds", CG_GameCmds_f },
   { "cp", CG_CenterPrint_f },
   { "cs", CG_ConfigStringModified },
