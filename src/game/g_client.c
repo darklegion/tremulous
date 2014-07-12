@@ -1087,22 +1087,6 @@ const char *ClientConnect( int clientNum, qboolean firstTime )
   if( i < sizeof( client->pers.guid ) - 1 )
     return "Invalid GUID";
 
-  for( i = 0; i < level.maxclients; i++ )
-  {
-    if( level.clients[ i ].pers.connected == CON_DISCONNECTED )
-      continue;
-
-    if( !Q_stricmp( client->pers.guid, level.clients[ i ].pers.guid ) )
-    {
-      if( !G_ClientIsLagging( level.clients + i ) )
-      {
-        trap_SendServerCommand( i, "cp \"Your GUID is not secure\"" );
-        return "Duplicate GUID";
-      }
-      trap_DropClient( i, "Ghost" );
-    }
-  }
-
   client->pers.connected = CON_CONNECTING;
 
   // read or initialize the session data
