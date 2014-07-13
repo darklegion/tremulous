@@ -61,7 +61,6 @@ static void G_Bounce( gentity_t *ent, trace_t *trace )
 
   if( VectorLength( ent->s.pos.trDelta ) < 10 )
   {
-    VectorMA( trace->endpos, 0.5f, trace->plane.normal, trace->endpos ); // make sure it is off ground
     G_SetOrigin( ent, trace->endpos );
     ent->s.groundEntityNum = trace->entityNum;
     VectorCopy( trace->plane.normal, ent->s.origin2 );
@@ -69,8 +68,8 @@ static void G_Bounce( gentity_t *ent, trace_t *trace )
     return;
   }
 
+  VectorMA( ent->r.currentOrigin, 0.15, trace->plane.normal, ent->r.currentOrigin );
   VectorCopy( ent->r.currentOrigin, ent->s.pos.trBase );
-  VectorAdd( ent->r.currentOrigin, trace->plane.normal, ent->r.currentOrigin);
   ent->s.pos.trTime = level.time;
 }
 
