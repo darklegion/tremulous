@@ -4565,7 +4565,7 @@ void Item_Text_Wrapped_Paint( itemDef_t *item )
     float       lineHeight    = fontHeight + lineSpacing;
     float       textHeight;
     int         textLength;
-    int         paintLines, totalLines, lineNum = 0;
+    int         firstLine, paintLines, totalLines, lineNum;
     float       paintY;
     int         i;
 
@@ -4588,11 +4588,21 @@ void Item_Text_Wrapped_Paint( itemDef_t *item )
       if( textPtr[ i ] == '\n' )
         totalLines++;
     }
+    if( textLength && textPtr[ textLength - 1 ] != '\n' )
+    {
+      totalLines++; // count the last, non-newline-terminated line
+      textLength++; // a '\0' will mark the end of the last line
+    }
 
     paintLines = ( int )floor( ( h + lineSpacing ) / lineHeight );
 
-    if( paintLines > totalLines )
+    if( totalLines > paintLines )
+      firstLine = totalLines - paintLines;
+    else
+    {
+      firstLine = 0;
       paintLines = totalLines;
+    }
 
     textHeight = ( paintLines * lineHeight ) - lineSpacing;
 
@@ -4615,11 +4625,15 @@ void Item_Text_Wrapped_Paint( itemDef_t *item )
 
     p = textPtr;
 
-    for( i = 0, lineNum = 0; i < textLength && lineNum < paintLines; i++ )
+    // skip the first few lines
+    for( lineNum = 0; lineNum < firstLine; lineNum++ )
+      p = strchr( p, '\n' ) + 1;
+
+    for( i = p - textPtr; i < textLength && lineNum < firstLine + paintLines; i++ )
     {
       int lineLength = &textPtr[ i ] - p;
 
-      if( lineLength >= sizeof( buff ) - 1 )
+      if( lineLength >= sizeof( buff ) )
         break;
 
       if( textPtr[ i ] == '\n' || textPtr[ i ] == '\0' )
@@ -4643,7 +4657,7 @@ void Item_Text_Wrapped_Paint( itemDef_t *item )
         lineItem.textRect.w         = 0.0f;
         lineItem.textRect.h         = 0.0f;
         lineItem.window.rect.x      = x;
-        lineItem.window.rect.y      = paintY + ( lineNum * lineHeight );
+        lineItem.window.rect.y      = paintY + ( ( lineNum - firstLine ) * lineHeight );
         lineItem.window.rect.w      = w;
         lineItem.window.rect.h      = lineHeight;
         lineItem.window.border      = item->window.border;
