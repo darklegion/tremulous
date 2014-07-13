@@ -2268,14 +2268,17 @@ static void CG_DrawLagometer( rectDef_t *rect, float text_x, float text_y,
   CG_DrawDisconnect( );
 }
 
-#define SPEEDOMETER_NUM_SAMPLES 160
+#define SPEEDOMETER_NUM_SAMPLES 4096
+#define SPEEDOMETER_NUM_DISPLAYED_SAMPLES 160
 #define SPEEDOMETER_DRAW_TEXT   0x1
 #define SPEEDOMETER_DRAW_GRAPH  0x2
 #define SPEEDOMETER_IGNORE_Z    0x4
 float speedSamples[ SPEEDOMETER_NUM_SAMPLES ];
+int speedSampleTimes[ SPEEDOMETER_NUM_SAMPLES ];
 // array indices
 int oldestSpeedSample = 0;
 int maxSpeedSample = 0;
+int maxSpeedSampleInWindow = 0;
 
 /*
 ===================
@@ -2288,6 +2291,8 @@ void CG_AddSpeed( void )
 {
   float speed;
   vec3_t vel;
+  int windowTime;
+  qboolean newSpeedGteMaxSpeed, newSpeedGteMaxSpeedInWindow;
 
   VectorCopy( cg.snap->ps.velocity, vel );
 
@@ -2296,16 +2301,22 @@ void CG_AddSpeed( void )
 
   speed = VectorLength( vel );
 
-  if( speed > speedSamples[ maxSpeedSample ] )
-  {
+  windowTime = cg_maxSpeedTimeWindow.integer;
+  if( windowTime < 0 )
+    windowTime = 0;
+  else if( windowTime > SPEEDOMETER_NUM_SAMPLES * 1000 )
+    windowTime = SPEEDOMETER_NUM_SAMPLES * 1000;
+
+  if( ( newSpeedGteMaxSpeed = ( speed >= speedSamples[ maxSpeedSample ] ) ) )
     maxSpeedSample = oldestSpeedSample;
-    speedSamples[ oldestSpeedSample++ ] = speed;
-    oldestSpeedSample %= SPEEDOMETER_NUM_SAMPLES;
-    return;
-  }
+
+  if( ( newSpeedGteMaxSpeedInWindow = ( speed >= speedSamples[ maxSpeedSampleInWindow ] ) ) )
+    maxSpeedSampleInWindow = oldestSpeedSample;
 
   speedSamples[ oldestSpeedSample ] = speed;
-  if( maxSpeedSample == oldestSpeedSample++ )
+  speedSampleTimes[ oldestSpeedSample ] = cg.time;
+
+  if( !newSpeedGteMaxSpeed && maxSpeedSample == oldestSpeedSample )
   {
     // if old max was overwritten find a new one
     int i;
@@ -2316,7 +2327,23 @@ void CG_AddSpeed( void )
     }
   }
 
-  oldestSpeedSample %= SPEEDOMETER_NUM_SAMPLES;
+  if( !newSpeedGteMaxSpeedInWindow && ( maxSpeedSampleInWindow == oldestSpeedSample ||
+        cg.time - speedSampleTimes[ maxSpeedSampleInWindow ] > windowTime ) )
+  {
+    int i;
+    do {
+      maxSpeedSampleInWindow = ( maxSpeedSampleInWindow + 1 ) % SPEEDOMETER_NUM_SAMPLES;
+    } while( cg.time - speedSampleTimes[ maxSpeedSampleInWindow ] > windowTime );
+    for( i = maxSpeedSampleInWindow; ; i = ( i + 1 ) % SPEEDOMETER_NUM_SAMPLES )
+    {
+      if( speedSamples[ i ] > speedSamples[ maxSpeedSampleInWindow ] )
+        maxSpeedSampleInWindow = i;
+      if( i == oldestSpeedSample )
+        break;
+    }
+  }
+
+  oldestSpeedSample = ( oldestSpeedSample + 1 ) % SPEEDOMETER_NUM_SAMPLES;
 }
 
 #define SPEEDOMETER_MIN_RANGE 900
@@ -2348,9 +2375,10 @@ static void CG_DrawSpeedGraph( rectDef_t *rect, vec4_t foreColor,
 
   Vector4Copy( foreColor, color );
 
-  for( i = 1; i < SPEEDOMETER_NUM_SAMPLES; i++ )
+  for( i = 1; i < SPEEDOMETER_NUM_DISPLAYED_SAMPLES; i++ )
   {
-    val = speedSamples[ ( oldestSpeedSample + i ) % SPEEDOMETER_NUM_SAMPLES ];
+    val = speedSamples[ ( oldestSpeedSample + i + SPEEDOMETER_NUM_SAMPLES -
+      SPEEDOMETER_NUM_DISPLAYED_SAMPLES ) % SPEEDOMETER_NUM_SAMPLES ];
     if( val < SPEED_MED )
       VectorLerp2( val / SPEED_MED, slow, medium, color );
     else if( val < SPEED_FAST )
@@ -2360,8 +2388,8 @@ static void CG_DrawSpeedGraph( rectDef_t *rect, vec4_t foreColor,
       VectorCopy( fast, color );
     trap_R_SetColor( color );
     top = rect->y + ( 1 - val / max ) * rect->h;
-    CG_DrawPic( rect->x + ( i / (float)SPEEDOMETER_NUM_SAMPLES ) * rect->w, top,
-                rect->w / (float)SPEEDOMETER_NUM_SAMPLES, val * rect->h / max,
+    CG_DrawPic( rect->x + ( i / (float)SPEEDOMETER_NUM_DISPLAYED_SAMPLES ) * rect->w, top,
+                rect->w / (float)SPEEDOMETER_NUM_DISPLAYED_SAMPLES, val * rect->h / max,
                 cgs.media.whiteShader );
   }
   trap_R_SetColor( NULL );
@@ -2389,12 +2417,10 @@ static void CG_DrawSpeedText( rectDef_t *rect, float text_x, float text_y,
       vel[ 2 ] = 0;
     val = VectorLength( vel );
   }
-  else if( oldestSpeedSample == 0 )
-    val = speedSamples[ SPEEDOMETER_NUM_SAMPLES - 1 ];
   else
-    val = speedSamples[ oldestSpeedSample - 1 ];
+    val = speedSamples[ ( oldestSpeedSample - 1 + SPEEDOMETER_NUM_SAMPLES ) % SPEEDOMETER_NUM_SAMPLES ];
 
-  Com_sprintf( speedstr, sizeof( speedstr ), "%d", (int)val );
+  Com_sprintf( speedstr, sizeof( speedstr ), "%d / %d", (int)val, (int)speedSamples[ maxSpeedSampleInWindow ] );
 
   UI_Text_Paint(
       rect->x + ( rect->w - UI_Text_Width( speedstr, scale ) ) / 2.0f,
