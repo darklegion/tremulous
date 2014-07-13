@@ -372,7 +372,7 @@ This allows the clients to use axial -127 to 127 values for all directions
 without getting a sqrt(2) distortion in speed.
 ============
 */
-static float PM_CmdScale( usercmd_t *cmd )
+static float PM_CmdScale( usercmd_t *cmd, qboolean zFlight )
 {
   int         max;
   float       total;
@@ -424,9 +424,12 @@ static float PM_CmdScale( usercmd_t *cmd )
       modifier *= HUMAN_SIDE_MODIFIER;
     }
 
-    //must have have stamina to jump
-    if( pm->ps->stats[ STAT_STAMINA ] < STAMINA_SLOW_LEVEL + STAMINA_JUMP_TAKE )
-      cmd->upmove = 0;
+    if( !zFlight )
+    {
+      //must have have stamina to jump
+      if( pm->ps->stats[ STAT_STAMINA ] < STAMINA_SLOW_LEVEL + STAMINA_JUMP_TAKE )
+        cmd->upmove = 0;
+    }
 
     //slow down once stamina depletes
     if( pm->ps->stats[ STAT_STAMINA ] <= STAMINA_SLOW_LEVEL )
@@ -467,28 +470,22 @@ static float PM_CmdScale( usercmd_t *cmd )
   if( pm->ps->pm_type == PM_GRABBED )
     modifier = 0.0f;
 
-  if( pm->ps->pm_type != PM_SPECTATOR && pm->ps->pm_type != PM_NOCLIP )
-  {
-    if( BG_Class( pm->ps->stats[ STAT_CLASS ] )->jumpMagnitude == 0.0f )
-      cmd->upmove = 0;
-
-    //prevent speed distortions for non ducking classes
-    if( !( pm->ps->pm_flags & PMF_DUCKED ) && pm->ps->pm_type != PM_JETPACK && cmd->upmove < 0 )
-      cmd->upmove = 0;
-  }
-
   max = abs( cmd->forwardmove );
   if( abs( cmd->rightmove ) > max )
     max = abs( cmd->rightmove );
+  total = cmd->forwardmove * cmd->forwardmove + cmd->rightmove * cmd->rightmove;
 
-  if( abs( cmd->upmove ) > max )
-    max = abs( cmd->upmove );
+  if( zFlight )
+  {
+    if( abs( cmd->upmove ) > max )
+      max = abs( cmd->upmove );
+    total += cmd->upmove * cmd->upmove;
+  }
 
   if( !max )
     return 0;
 
-  total = sqrt( cmd->forwardmove * cmd->forwardmove
-    + cmd->rightmove * cmd->rightmove + cmd->upmove * cmd->upmove );
+  total = sqrt( total );
 
   scale = (float)pm->ps->speed * max / ( 127.0 * total ) * modifier;
 
@@ -695,8 +692,6 @@ static qboolean PM_CheckWallJump( void )
   if( pm->ps->pm_flags & PMF_JUMP_HELD &&
       pm->ps->grapplePoint[ 2 ] == 1.0f )
   {
-    // clear upmove so cmdscale doesn't lower running speed
-    pm->cmd.upmove = 0;
     return qfalse;
   }
 
@@ -805,18 +800,11 @@ static qboolean PM_CheckJump( void )
 
   //can't jump whilst grabbed
   if( pm->ps->pm_type == PM_GRABBED )
-  {
-    pm->cmd.upmove = 0;
     return qfalse;
-  }
 
   // must wait for jump to be released
   if( pm->ps->pm_flags & PMF_JUMP_HELD )
-  {
-    // clear upmove so cmdscale doesn't lower running speed
-    pm->cmd.upmove = 0;
     return qfalse;
-  }
 
   //don't allow walljump for a short while after jumping from the ground
   if( BG_ClassHasAbility( pm->ps->stats[ STAT_CLASS ], SCA_WALLJUMPER ) )
@@ -1077,7 +1065,7 @@ static void PM_WaterMove( void )
 #endif
   PM_Friction( );
 
-  scale = PM_CmdScale( &pm->cmd );
+  scale = PM_CmdScale( &pm->cmd, qtrue );
   //
   // user intentions
   //
@@ -1136,7 +1124,7 @@ static void PM_JetPackMove( void )
   //normal slowdown
   PM_Friction( );
 
-  scale = PM_CmdScale( &pm->cmd );
+  scale = PM_CmdScale( &pm->cmd, qfalse );
 
   // user intentions
   for( i = 0; i < 2; i++ )
@@ -1183,7 +1171,7 @@ static void PM_FlyMove( void )
   // normal slowdown
   PM_Friction( );
 
-  scale = PM_CmdScale( &pm->cmd );
+  scale = PM_CmdScale( &pm->cmd, qtrue );
   //
   // user intentions
   //
@@ -1233,7 +1221,7 @@ static void PM_AirMove( void )
   smove = pm->cmd.rightmove;
 
   cmd = pm->cmd;
-  scale = PM_CmdScale( &cmd );
+  scale = PM_CmdScale( &cmd, qfalse );
 
   // set the movementDir so clients can rotate the legs for strafing
   PM_SetMovementDir( );
@@ -1310,7 +1298,7 @@ static void PM_ClimbMove( void )
   smove = pm->cmd.rightmove;
 
   cmd = pm->cmd;
-  scale = PM_CmdScale( &cmd );
+  scale = PM_CmdScale( &cmd, qfalse );
 
   // set the movementDir so clients can rotate the legs for strafing
   PM_SetMovementDir( );
@@ -1424,7 +1412,7 @@ static void PM_WalkMove( void )
   smove = pm->cmd.rightmove;
 
   cmd = pm->cmd;
-  scale = PM_CmdScale( &cmd );
+  scale = PM_CmdScale( &cmd, qfalse );
 
   // set the movementDir so clients can rotate the legs for strafing
   PM_SetMovementDir( );
@@ -1521,7 +1509,7 @@ static void PM_LadderMove( void )
 
   PM_Friction( );
 
-  scale = PM_CmdScale( &pm->cmd );
+  scale = PM_CmdScale( &pm->cmd, qtrue );
 
   for( i = 0; i < 3; i++ )
     wishvel[ i ] = scale * pml.forward[ i ] * pm->cmd.forwardmove + scale * pml.right[ i ] * pm->cmd.rightmove;
@@ -1656,7 +1644,7 @@ static void PM_NoclipMove( void )
   }
 
   // accelerate
-  scale = PM_CmdScale( &pm->cmd );
+  scale = PM_CmdScale( &pm->cmd, qtrue );
 
   fmove = pm->cmd.forwardmove;
   smove = pm->cmd.rightmove;
@@ -3863,8 +3851,5 @@ void Pmove( pmove_t *pmove )
 
     pmove->cmd.serverTime = pmove->ps->commandTime + msec;
     PmoveSingle( pmove );
-
-    if( pmove->ps->pm_flags & PMF_JUMP_HELD )
-      pmove->cmd.upmove = 20;
   }
 }
