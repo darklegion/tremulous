@@ -1589,7 +1589,7 @@ void Menus_CloseAll( void )
   if( openMenuCount > 0 )
   {
     for( i = openMenuCount; i > 0; i-- )
-      Menus_Close( menuStack[ i ] );
+      Menus_Close( menuStack[ i - 1 ] );
 
     openMenuCount = 0;
   }
