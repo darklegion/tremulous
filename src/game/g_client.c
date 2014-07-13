@@ -1313,7 +1313,6 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   ent->s.groundEntityNum = ENTITYNUM_NONE;
   ent->client = &level.clients[ index ];
   ent->takedamage = qtrue;
-  ent->inuse = qtrue;
   ent->classname = "player";
   ent->r.contents = CONTENTS_BODY;
   ent->clipmask = MASK_PLAYERSOLID;
@@ -1538,7 +1537,6 @@ void ClientDisconnect( int clientNum )
    ent->client->pers.ip.str, ent->client->pers.guid, ent->client->pers.netname );
 
   trap_UnlinkEntity( ent );
-  ent->s.modelindex = 0;
   ent->inuse = qfalse;
   ent->classname = "disconnected";
   ent->client->pers.connected = CON_DISCONNECTED;
