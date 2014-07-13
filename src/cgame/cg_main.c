@@ -597,10 +597,9 @@ void CG_RemoveNotifyLine( void )
     cg.consoleText[ i ] = cg.consoleText[ i + offset ];
 
   //pop up the first consoleLine
+  cg.numConsoleLines--;
   for( i = 0; i < cg.numConsoleLines; i++ )
     cg.consoleLines[ i ] = cg.consoleLines[ i + 1 ];
-
-  cg.numConsoleLines--;
 }
 
 /*
@@ -624,18 +623,22 @@ void CG_AddNotifyText( void )
 
   bufferLen = strlen( buffer );
   textLen = strlen( cg.consoleText );
-  
+
   // Ignore console messages that were just printed
   if( cg_noPrintDuplicate.integer && textLen >= bufferLen &&
       !strcmp( cg.consoleText + textLen - bufferLen, buffer ) )
     return;
-      
-  if( cg.numConsoleLines == MAX_CONSOLE_LINES )
-    CG_RemoveNotifyLine( );
 
-  Q_strcat( cg.consoleText, MAX_CONSOLE_TEXT, buffer );
+  if( cg.numConsoleLines == MAX_CONSOLE_LINES )
+  {
+    CG_RemoveNotifyLine( );
+    textLen = strlen( cg.consoleText );
+  }
+
+  Q_strncpyz( cg.consoleText + textLen, buffer, MAX_CONSOLE_TEXT - textLen );
   cg.consoleLines[ cg.numConsoleLines ].time = cg.time;
-  cg.consoleLines[ cg.numConsoleLines ].length = bufferLen;
+  cg.consoleLines[ cg.numConsoleLines ].length =
+    MIN( bufferLen, MAX_CONSOLE_TEXT - textLen - 1 );
   cg.numConsoleLines++;
 }
 
