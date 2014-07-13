@@ -2381,7 +2381,7 @@ centity_t *CG_GetPlayerLocation( void )
   vec3_t      origin;
 
   best = NULL;
-  bestlen = 3.0f * 8192.0f * 8192.0f;
+  bestlen = 0.0f;
 
   VectorCopy( cg.predictedPlayerState.origin, origin );
 
@@ -2393,7 +2393,7 @@ centity_t *CG_GetPlayerLocation( void )
 
     len = DistanceSquared(origin, eloc->lerpOrigin);
 
-    if( len > bestlen )
+    if( best != NULL && len > bestlen )
       continue;
 
     if( !trap_R_inPVS( origin, eloc->lerpOrigin ) )

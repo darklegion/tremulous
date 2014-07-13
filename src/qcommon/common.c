@@ -2629,8 +2629,8 @@ void Com_Init( char *commandLine ) {
 		// if the user didn't give any commands, run default action
 		if ( !com_dedicated->integer ) {
 			Cbuf_AddText ("cinematic splash.RoQ\n");
-#endif
 		}
+#endif
 	}
 
 	// start in full screen ui mode

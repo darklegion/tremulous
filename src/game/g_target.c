@@ -301,7 +301,7 @@ in site, closest in distance
 */
 void SP_target_location( gentity_t *self )
 {
-  static int n = 1;
+  static int n = 0;
   const char *message;
   self->s.eType = ET_LOCATION;
   self->r.svFlags = SVF_BROADCAST;
@@ -320,7 +320,7 @@ void SP_target_location( gentity_t *self )
       self->count = 7;
 
     message = va( "%c%c%s" S_COLOR_WHITE, Q_COLOR_ESCAPE, self->count + '0',
-      self->message);
+      (const char*)self->message);
   }
   else
     message = self->message;

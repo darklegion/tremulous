@@ -2645,10 +2645,9 @@ static void CG_DrawLocation( rectDef_t *rect, float scale, int textalign, vec4_t
   maxX = rect->x + rect->w;
 
   locent = CG_GetPlayerLocation( );
-  if( locent )
-    location = CG_ConfigString( CS_LOCATIONS + locent->currentState.generic1 );
-  else
-    location = CG_ConfigString( CS_LOCATIONS );
+  if( !locent )
+    return;
+  location = CG_ConfigString( CS_LOCATIONS + locent->currentState.generic1 );
 
   // need to skip horiz. align if it's too long, but valign must be run either way
   if( UI_Text_Width( location, scale ) < rect->w )

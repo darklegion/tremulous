@@ -909,12 +909,12 @@ static void CG_Say( int clientNum, saymode_t mode, const char *text )
         if( locent )
           locationNum = locent->currentState.generic1;
         else
-          locationNum = 0;
+          locationNum = -1;
       }
       else
         locationNum = ci->location;
 
-      if( locationNum > 0 && locationNum < MAX_LOCATIONS )
+      if( locationNum >= 0 && locationNum < MAX_LOCATIONS )
       {
         const char *s = CG_ConfigString( CS_LOCATIONS + locationNum );
 

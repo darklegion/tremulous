@@ -94,10 +94,7 @@ Sys_DefaultInstallPath
 */
 char *Sys_DefaultInstallPath(void)
 {
-    if (*installPath)
-        return installPath;
-    else
-        return Sys_Cwd();
+    return installPath;
 }
 
 /*
@@ -309,7 +306,7 @@ void Sys_Init(void)
     Cmd_AddCommand( "in_restart", Sys_In_Restart_f );
     Cmd_AddCommand( "script", Sys_Script_f );
     Cvar_Set( "arch", OS_STRING " " ARCH_STRING );
-    Cvar_Set( "username", Sys_GetCurrentUser( ) );
+    Cvar_Set( "username", "UnnamedPlayer" );
 }
 
 /*
