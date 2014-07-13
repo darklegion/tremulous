@@ -581,15 +581,20 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
   else
     G_Printf( "Not logging to disk\n" );
 
+  if( g_mapConfigs.string[ 0 ] && !trap_Cvar_VariableIntegerValue( "g_mapConfigsLoaded" ) )
   {
     char map[ MAX_CVAR_VALUE_STRING ] = {""};
 
+    G_Printf( "InitGame: executing map configuration scripts and restarting\n" );
     trap_Cvar_VariableStringBuffer( "mapname", map, sizeof( map ) );
     G_MapConfigs( map );
+    trap_SendConsoleCommand( EXEC_APPEND, "wait\nmap_restart 0\n" );
   }
-
-  // we're done with g_mapConfigs, so reset this for the next map
-  trap_Cvar_Set( "g_mapConfigsLoaded", "0" );
+  else
+  {
+    // we're done with g_mapConfigs, so reset this for the next map
+    trap_Cvar_Set( "g_mapConfigsLoaded", "0" );
+  }
 
   // set this cvar to 0 if it exists, but otherwise avoid its creation
   if( trap_Cvar_VariableIntegerValue( "g_rangeMarkerWarningGiven" ) )
@@ -1641,11 +1646,19 @@ void ExitLevel( void )
   gclient_t *cl;
 
   if ( G_MapExists( g_nextMap.string ) )
+  {
+    G_MapConfigs( g_nextMap.string );
     trap_SendConsoleCommand( EXEC_APPEND, va("map \"%s\"\n", g_nextMap.string ) );
+  }
   else if( G_MapRotationActive( ) )
     G_AdvanceMapRotation( 0 );
   else
+  {
+    char map[ MAX_CVAR_VALUE_STRING ];
+    trap_Cvar_VariableStringBuffer( "mapname", map, sizeof( map ) );
+    G_MapConfigs( map );
     trap_SendConsoleCommand( EXEC_APPEND, "map_restart\n" );
+  }
 
   trap_Cvar_Set( "g_nextMap", "" );
 
@@ -2045,6 +2058,22 @@ FUNCTIONS CALLED EVERY FRAME
 void G_ExecuteVote( team_t team )
 {
   level.voteExecuteTime[ team ] = 0;
+
+  if( !Q_stricmpn( level.voteString[ team ], "map_restart", 11 ) )
+  {
+    char map[ MAX_QPATH ];
+    trap_Cvar_VariableStringBuffer( "mapname", map, sizeof( map ) );
+    G_MapConfigs( map );
+  }
+  else if( !Q_stricmpn( level.voteString[ team ], "map", 3 ) )
+  {
+    char map[ MAX_QPATH ];
+    char *p;
+    Q_strncpyz( map, strchr( level.voteString[ team ], '"' ) + 1, sizeof( map ) );
+    if( ( p = strchr( map, '"' ) ) )
+      *p = '\0';
+    G_MapConfigs( map );
+  }
 
   trap_SendConsoleCommand( EXEC_APPEND, va( "%s\n",
     level.voteString[ team ] ) );

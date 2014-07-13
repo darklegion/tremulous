@@ -869,10 +869,9 @@ static void G_IssueMapChange( int index, int rotation )
     trap_Cvar_Set( "g_layouts", map->layouts );
   }
 
-  trap_SendConsoleCommand( EXEC_APPEND, va( "map \"%s\"\n", map->name ) );
-
-  // Load up map defaults if g_mapConfigs is set
   G_MapConfigs( map->name );
+
+  trap_SendConsoleCommand( EXEC_APPEND, va( "map \"%s\"\n", map->name ) );
 
   if( strlen( map->postCommand ) > 0 )
     trap_SendConsoleCommand( EXEC_APPEND, map->postCommand );

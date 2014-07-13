@@ -258,6 +258,7 @@ This is just a silly alias for doing:
 static void Svcmd_LayoutLoad_f( void )
 {
   char layouts[ MAX_CVAR_VALUE_STRING ];
+  char map[ MAX_CVAR_VALUE_STRING ];
   char *s;
 
   if( trap_Argc( ) < 2 )
@@ -269,6 +270,8 @@ static void Svcmd_LayoutLoad_f( void )
   s = ConcatArgs( 1 );
   Q_strncpyz( layouts, s, sizeof( layouts ) );
   trap_Cvar_Set( "g_layouts", layouts ); 
+  trap_Cvar_VariableStringBuffer( "mapname", map, sizeof( map ) );
+  G_MapConfigs( map );
   trap_SendConsoleCommand( EXEC_APPEND, "map_restart\n" );
   level.restarted = qtrue;
 }
