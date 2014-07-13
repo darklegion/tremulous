@@ -264,6 +264,7 @@ typedef struct namelog_s
   char              name[ MAX_NAMELOG_NAMES ][ MAX_NAME_LENGTH ];
   addr_t            ip[ MAX_NAMELOG_ADDRS ];
   char              guid[ 33 ];
+  qboolean          guidless;
   int               slot;
   qboolean          banned;
 
@@ -322,7 +323,9 @@ typedef struct
   int                 floodTime;
 
   vec3_t              lastDeathLocation;
+  int                 alternateProtocol;
   char                guid[ 33 ];
+  qboolean            guidless;
   addr_t              ip;
   char                voice[ MAX_VOICE_NAME_LEN ];
   qboolean            useUnlagged;

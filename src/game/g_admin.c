@@ -1428,6 +1428,12 @@ qboolean G_admin_setlevel( gentity_t *ent )
     return qfalse;
   }
 
+  if( vic && vic->client->pers.guidless )
+  {
+    ADMP( va( "^3setlevel: ^7%s^7 has no GUID\n", vic->client->pers.netname ) );
+    return qfalse;
+  }
+
   if( !a && vic )
   {
     for( a = g_admin_admins; a && a->next; a = a->next );
@@ -1645,7 +1651,7 @@ qboolean G_admin_kick( gentity_t *ent )
     reason ) );
   admin_create_ban( ent,
     vic->client->pers.netname,
-    vic->client->pers.guid,
+    vic->client->pers.guidless ? "" : vic->client->pers.guid,
     &vic->client->pers.ip,
     MAX( 1, G_admin_parse_time( g_adminTempBan.string ) ),
     ( *reason ) ? reason : "kicked by admin" );
@@ -1834,7 +1840,7 @@ qboolean G_admin_ban( gentity_t *ent )
         match->slot == -1 ?
           match->name[ match->nameOffset ] :
           level.clients[ match->slot ].pers.netname,
-        match->guid,
+        match->guidless ? "" : match->guid,
         &ip,
         seconds, reason );
     }
@@ -1853,7 +1859,7 @@ qboolean G_admin_ban( gentity_t *ent )
         match->slot == -1 ?
           match->name[ match->nameOffset ] :
           level.clients[ match->slot ].pers.netname,
-        match->guid,
+        match->guidless ? "" : match->guid,
         &match->ip[ i ],
         seconds, reason );
       admin_log( va( "[%s]", match->ip[ i ].str ) );
@@ -2421,12 +2427,12 @@ qboolean G_admin_listplayers( gentity_t *ent )
         colorlen += 2;
     }
 
-    ADMBP( va( "%2i ^%c%c^7 %-2i^2%c^7 %*s^7 ^1%c%c^7 %s^7 %s%s%s\n",
+    ADMBP( va( "%2i ^%c%c %s %s^7 %*s^7 ^1%c%c^7 %s^7 %s%s%s\n",
               i,
               c,
               t,
-              l ? l->level : 0,
-              hint ? '*' : ' ',
+              p->pers.guidless ? "^1---" : va( "^7%-2i^2%c", l ? l->level : 0, hint ? '*' : ' ' ),
+              p->pers.alternateProtocol == 2 ? "^11" : p->pers.alternateProtocol == 1 ? "^3G" : " ",
               admin_level_maxname + colorlen,
               lname,
               muted,

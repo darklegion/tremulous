@@ -1064,6 +1064,22 @@ const char *ClientConnect( int clientNum, qboolean firstTime )
 
   client->pers.admin = G_admin_admin( client->pers.guid );
 
+  client->pers.alternateProtocol = trap_Cvar_VariableIntegerValue( va( "sv_clAltProto%i", clientNum ) );
+
+  if( client->pers.alternateProtocol == 2 && client->pers.guid[ 0 ] == '\0' )
+  {
+    size_t len = strlen( client->pers.ip.str );
+    if( len == 0 )
+      len = 1;
+    for( i = 0; i < sizeof( client->pers.guid ) - 1; ++i )
+    {
+      int j = client->pers.ip.str[ i % len ] + rand() / ( RAND_MAX / 16 + 1 );
+      client->pers.guid[ i ] = "0123456789ABCDEF"[ j % 16 ];
+    }
+    client->pers.guid[ sizeof( client->pers.guid ) - 1 ] = '\0';
+    client->pers.guidless = qtrue;
+  }
+
   // check for admin ban
   if( G_admin_ban_check( ent, reason, sizeof( reason ) ) )
   {
