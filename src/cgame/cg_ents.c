@@ -1019,7 +1019,7 @@ static void CG_CEntityPVSEnter( centity_t *cent )
       break;
 
     case ET_BUILDABLE:
-      cent->lastBuildableHealth = es->generic1;
+      cent->lastBuildableHealth = es->misc;
       break;
   }
 

@@ -720,7 +720,7 @@ void teslaFire( gentity_t *self )
 
   // Send tesla zap trail
   tent = G_TempEntity( tr.endpos, EV_TESLATRAIL );
-  tent->s.generic1 = self->s.number; // src
+  tent->s.misc = self->s.number; // src
   tent->s.clientNum = self->enemy->s.number; // dest
 }
 

@@ -795,7 +795,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
     case EV_TESLATRAIL:
       cent->currentState.weapon = WP_TESLAGEN;
       {
-        centity_t *source = &cg_entities[ es->generic1 ];
+        centity_t *source = &cg_entities[ es->misc ];
         centity_t *target = &cg_entities[ es->clientNum ];
         vec3_t    sourceOffset = { 0.0f, 0.0f, 28.0f };
 

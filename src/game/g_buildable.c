@@ -1881,7 +1881,7 @@ void HReactor_Think( gentity_t *self )
         continue;
 
       tent = G_TempEntity( enemy->s.pos.trBase, EV_TESLATRAIL );
-      tent->s.generic1 = self->s.number; //src
+      tent->s.misc = self->s.number; //src
       tent->s.clientNum = enemy->s.number; //dest
       VectorCopy( self->s.pos.trBase, tent->s.origin2 );
       fired = qtrue;
@@ -2753,7 +2753,7 @@ void G_BuildableThink( gentity_t *ent, int msec )
   ent->dcc = ( ent->buildableTeam != TEAM_HUMANS ) ? 0 : G_FindDCC( ent );
 
   // Set health
-  ent->s.generic1 = MAX( ent->health, 0 );
+  ent->s.misc = MAX( ent->health, 0 );
 
   // Set flags
   ent->s.eFlags &= ~( EF_B_POWERED | EF_B_SPAWNED | EF_B_MARKED );
@@ -3737,7 +3737,7 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable,
     VectorScale( normal, -50.0f, built->s.pos.trDelta );
   }
 
-  built->s.generic1 = MAX( built->health, 0 );
+  built->s.misc = MAX( built->health, 0 );
 
   if( BG_Buildable( buildable )->team == TEAM_ALIENS )
   {
