@@ -256,7 +256,7 @@ static gentity_t *G_SelectSpawnBuildable( vec3_t preference, buildable_t buildab
     if( search->health <= 0 )
       continue;
 
-    if( !search->s.groundEntityNum )
+    if( search->s.groundEntityNum == ENTITYNUM_NONE )
       continue;
 
     if( search->clientSpawnTime > 0 )

@@ -583,7 +583,7 @@ qboolean G_FindCreep( gentity_t *self )
   vec3_t    temp_v;
 
   //don't check for creep if flying through the air
-  if( self->s.groundEntityNum == -1 )
+  if( self->s.groundEntityNum == ENTITYNUM_NONE )
     return qtrue;
 
   //if self does not have a parentNode or it's parentNode is invalid find a new one
@@ -865,7 +865,7 @@ void ASpawn_Think( gentity_t *self )
   if( self->spawned )
   {
     //only suicide if at rest
-    if( self->s.groundEntityNum )
+    if( self->s.groundEntityNum != ENTITYNUM_NONE )
     {
       if( ( ent = G_CheckSpawnPoint( self->s.number, self->s.origin,
               self->s.origin2, BA_A_SPAWN, NULL ) ) != NULL )
@@ -1686,7 +1686,7 @@ void HSpawn_Think( gentity_t *self )
   if( self->spawned )
   {
     //only suicide if at rest
-    if( self->s.groundEntityNum )
+    if( self->s.groundEntityNum != ENTITYNUM_NONE )
     {
       if( ( ent = G_CheckSpawnPoint( self->s.number, self->s.origin,
               self->s.origin2, BA_H_SPAWN, NULL ) ) != NULL )
@@ -3678,7 +3678,7 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable,
   built->s.pos.trType = BG_Buildable( buildable )->traj;
   built->s.pos.trTime = level.time;
   built->physicsBounce = BG_Buildable( buildable )->bounce;
-  built->s.groundEntityNum = -1;
+  built->s.groundEntityNum = ENTITYNUM_NONE;
 
   built->s.generic1 = MAX( built->health, 0 );
 
