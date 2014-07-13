@@ -2445,9 +2445,8 @@ void CG_ParticleSystemEntity( centity_t *cent )
 
     if( CG_IsParticleSystemValid( &cent->entityPS ) )
     {
-      CG_SetAttachmentPoint( &cent->entityPS->attachment, cent->lerpOrigin );
       CG_SetAttachmentCent( &cent->entityPS->attachment, cent );
-      CG_AttachToPoint( &cent->entityPS->attachment );
+      CG_AttachToCent( &cent->entityPS->attachment );
     }
     else
       cent->entityPSMissing = qtrue;
