@@ -417,9 +417,9 @@ void Cmd_Give_f( gentity_t *ent )
           TEAM_ALIENS ? ALIEN_CREDITS_PER_KILL : 1.0f );
 
       // clamp credits manually, as G_AddCreditToClient() expects a short int
-      if( credits > SHRT_MAX )
+      if( credits > 30000.0f )
         credits = 30000.0f;
-      else if( credits < SHRT_MIN )
+      else if( credits < -30000.0f )
         credits = -30000.0f;
     }
 
