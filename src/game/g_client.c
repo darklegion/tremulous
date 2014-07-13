@@ -1199,6 +1199,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   int                 i;
   clientPersistant_t  saved;
   clientSession_t     savedSess;
+  qboolean            savedNoclip;
   int                 persistant[ MAX_PERSISTANT ];
   gentity_t           *spawnPoint = NULL;
   int                 flags;
@@ -1281,6 +1282,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   saved = client->pers;
   savedSess = client->sess;
   savedPing = client->ps.ping;
+  savedNoclip = client->noclip;
 
   for( i = 0; i < MAX_PERSISTANT; i++ )
     persistant[ i ] = client->ps.persistant[ i ];
@@ -1291,6 +1293,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   client->pers = saved;
   client->sess = savedSess;
   client->ps.ping = savedPing;
+  client->noclip = savedNoclip;
   client->lastkilled_client = -1;
 
   for( i = 0; i < MAX_PERSISTANT; i++ )
@@ -1318,7 +1321,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   ent->die = player_die;
   ent->waterlevel = 0;
   ent->watertype = 0;
-  ent->flags = 0;
+  ent->flags &= FL_GODMODE | FL_NOTARGET;
 
   // calculate each client's acceleration
   ent->evaluateAcceleration = qtrue;

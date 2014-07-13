@@ -324,6 +324,10 @@ void  G_TouchTriggers( gentity_t *ent )
   if( !ent->client )
     return;
 
+  // noclipping clients don't activate triggers!
+  if( ent->client->noclip )
+    return;
+
   // dead clients don't activate triggers!
   if( ent->client->ps.stats[ STAT_HEALTH ] <= 0 )
     return;
@@ -1550,8 +1554,7 @@ void ClientThink_real( gentity_t *ent )
 
   // moved from after Pmove -- potentially the cause of
   // future triggering bugs
-  if( !ent->client->noclip )
-    G_TouchTriggers( ent );
+  G_TouchTriggers( ent );
 
   Pmove( &pm );
 
@@ -1730,7 +1733,6 @@ void ClientThink_real( gentity_t *ent )
 
   if( ent->suicideTime > 0 && ent->suicideTime < level.time )
   {
-    ent->flags &= ~FL_GODMODE;
     ent->client->ps.stats[ STAT_HEALTH ] = ent->health = 0;
     player_die( ent, ent, ent, 100000, MOD_SUICIDE );
 
