@@ -426,6 +426,7 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd )
     else if( client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS )
       G_RemoveFromSpawnQueue( &level.humanSpawnQueue, client->ps.clientNum );
     client->pers.classSelection = PCL_NONE;
+    client->pers.humanItemSelection = WP_NONE;
     client->ps.stats[ STAT_CLASS ] = PCL_NONE;
     client->ps.pm_flags &= ~PMF_QUEUED;
     queued = qfalse;
