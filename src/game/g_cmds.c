@@ -2449,6 +2449,16 @@ void Cmd_Build_f( gentity_t *ent )
   trap_Argv( 1, s, sizeof( s ) );
 
   buildable = BG_BuildableByName( s )->number;
+  team = ent->client->ps.stats[ STAT_TEAM ];
+
+  if( buildable == BA_NONE || !BG_BuildableIsAllowed( buildable ) ||
+      !( ( 1 << ent->client->ps.weapon ) & BG_Buildable( buildable )->buildWeapon ) ||
+      ( team == TEAM_ALIENS && !BG_BuildableAllowedInStage( buildable, g_alienStage.integer ) ) ||
+      ( team == TEAM_HUMANS && !BG_BuildableAllowedInStage( buildable, g_humanStage.integer ) ) )
+  {
+    G_TriggerMenu( ent->client->ps.clientNum, MN_B_CANNOT );
+    return;
+  }
 
   if( G_TimeTilSuddenDeath( ) <= 0 )
   {
@@ -2456,18 +2466,12 @@ void Cmd_Build_f( gentity_t *ent )
     return;
   }
 
-  team = ent->client->ps.stats[ STAT_TEAM ];
+  ent->client->ps.stats[ STAT_BUILDABLE ] = buildable;
 
-  if( buildable != BA_NONE &&
-      ( ( 1 << ent->client->ps.weapon ) & BG_Buildable( buildable )->buildWeapon ) &&
-      BG_BuildableIsAllowed( buildable ) &&
-      ( ( team == TEAM_ALIENS && BG_BuildableAllowedInStage( buildable, g_alienStage.integer ) ) ||
-        ( team == TEAM_HUMANS && BG_BuildableAllowedInStage( buildable, g_humanStage.integer ) ) ) )
+  if( 1 )
   {
     dynMenu_t err;
     dist = BG_Class( ent->client->ps.stats[ STAT_CLASS ] )->buildDist;
-
-    ent->client->ps.stats[ STAT_BUILDABLE ] = BA_NONE;
 
     //these are the errors displayed when the builder first selects something to use
     switch( G_CanBuild( ent, buildable, dist, origin, normal, &groundEntNum ) )
@@ -2479,20 +2483,30 @@ void Cmd_Build_f( gentity_t *ent )
       case IBE_RPTPOWERHERE:
       case IBE_SPWNWARN:
         err = MN_NONE;
-        // we OR-in the selected builable later
-        ent->client->ps.stats[ STAT_BUILDABLE ] = SB_VALID_TOGGLEBIT;
+        ent->client->ps.stats[ STAT_BUILDABLE ] |= SB_VALID_TOGGLEBIT;
         break;
 
       // can't place yet but maybe soon: start with valid togglebit off
       case IBE_NORMAL:
+        err = MN_B_NORMAL;
+        break;
+
       case IBE_NOCREEP:
+        err = MN_A_NOCREEP;
+        break;
+
       case IBE_NOROOM:
+        err = MN_B_NOROOM;
+        break;
+
       case IBE_NOOVERMIND:
+        err = MN_A_NOOVMND;
+        break;
+
       case IBE_NOPOWERHERE:
         err = MN_NONE;
         break;
 
-      // more serious errors just pop a menu
       case IBE_NOALIENBP:
         err = MN_A_NOBP;
         break;
@@ -2514,7 +2528,7 @@ void Cmd_Build_f( gentity_t *ent )
         break;
 
       case IBE_PERMISSION:
-        err = MN_B_CANNOT;
+        err = MN_B_NORMAL;
         break;
 
       case IBE_LASTSPAWN:
@@ -2526,9 +2540,7 @@ void Cmd_Build_f( gentity_t *ent )
         break;
     }
 
-    if( err == MN_NONE || ent->client->pers.disableBlueprintErrors )
-      ent->client->ps.stats[ STAT_BUILDABLE ] |= buildable;
-    else
+    if( err != MN_NONE && !ent->client->pers.disableBlueprintErrors )
       G_TriggerMenu( ent->client->ps.clientNum, err );
   }
   else
