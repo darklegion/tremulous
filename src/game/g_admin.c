@@ -175,6 +175,11 @@ g_admin_cmd_t g_admin_cmds[ ] =
       "[^3id^7]"
     },
 
+    {"setdevmode", G_admin_setdevmode, qfalse, "setdevmode",
+      "switch developer mode on or off",
+      "[^3on|off^7]"
+    },
+
     {"setlevel", G_admin_setlevel, qfalse, "setlevel",
       "sets the admin level of a player",
       "[^3name|slot#|admin#^7] [^3level^7]"
@@ -1535,6 +1540,48 @@ int G_admin_parse_time( const char *time )
   if( num )
     seconds += num;
   return seconds;
+}
+
+qboolean G_admin_setdevmode( gentity_t *ent )
+{
+  char str[ 5 ];
+  if( trap_Argc() != 2 )
+  {
+    ADMP( "^3setdevmode: ^7usage: setdevmode [on|off]\n" );
+    return qfalse;
+  }
+  trap_Argv( 1, str, sizeof( str ) );
+  if( !Q_stricmp( str, "on" ) )
+  {
+    if( g_cheats.integer )
+    {
+      ADMP( "^3setdevmode: ^7developer mode is already on\n" );
+      return qfalse;
+    }
+    trap_Cvar_Set( "sv_cheats", "1" );
+    trap_Cvar_Update( &g_cheats );
+    AP( va( "print \"^3setdevmode: ^7%s ^7has switched developer mode on\n\"",
+            ent ? ent->client->pers.netname : "console" ) );
+    return qtrue;
+  }
+  else if( !Q_stricmp( str, "off" ) )
+  {
+    if( !g_cheats.integer )
+    {
+      ADMP( "^3setdevmode: ^7developer mode is already off\n" );
+      return qfalse;
+    }
+    trap_Cvar_Set( "sv_cheats", "0" );
+    trap_Cvar_Update( &g_cheats );
+    AP( va( "print \"^3setdevmode: ^7%s ^7has switched developer mode off\n\"",
+            ent ? ent->client->pers.netname : "console" ) );
+    return qtrue;
+  }
+  else
+  {
+    ADMP( "^3setdevmode: ^7usage: setdevmode [on|off]\n" );
+    return qfalse;
+  }
 }
 
 qboolean G_admin_kick( gentity_t *ent )
