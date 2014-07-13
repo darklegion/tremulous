@@ -35,10 +35,8 @@ pml_t       pml;
 float pm_stopspeed = 100.0f;
 float pm_duckScale = 0.25f;
 float pm_swimScale = 0.50f;
-float pm_wadeScale = 0.70f;
 
 float pm_accelerate = 10.0f;
-float pm_airaccelerate = 1.0f;
 float pm_wateraccelerate = 4.0f;
 float pm_flyaccelerate = 4.0f;
 
@@ -502,7 +500,7 @@ static float PM_CmdScale( usercmd_t *cmd )
 ================
 PM_SetMovementDir
 
-Determine the rotation of the legs reletive
+Determine the rotation of the legs relative
 to the facing dir
 ================
 */
@@ -678,10 +676,7 @@ static qboolean PM_CheckWallJump( void )
       !( trace.surfaceFlags & ( SURF_SKY | SURF_SLICK ) ) &&
       trace.plane.normal[ 2 ] < MIN_WALK_NORMAL )
   {
-    if( !VectorCompare( trace.plane.normal, pm->ps->grapplePoint ) )
-    {
-      VectorCopy( trace.plane.normal, pm->ps->grapplePoint );
-    }
+    VectorCopy( trace.plane.normal, pm->ps->grapplePoint );
   }
   else
     return qfalse;
@@ -1783,12 +1778,12 @@ static void PM_CrashLand( void )
 
     if( delta > AVG_FALL_DISTANCE )
     {
-      if( PM_Live( pm->ps->pm_type ) )
+      if( PM_Alive( pm->ps->pm_type ) )
         PM_AddEvent( EV_FALL_FAR );
     }
     else if( delta > MIN_FALL_DISTANCE )
     {
-      if( PM_Live( pm->ps->pm_type ) )
+      if( PM_Alive( pm->ps->pm_type ) )
         PM_AddEvent( EV_FALL_MEDIUM );
     }
     else
@@ -3632,7 +3627,7 @@ void PmoveSingle( pmove_t *pmove )
   pm = pmove;
 
   // this counter lets us debug movement problems with a journal
-  // by setting a conditional breakpoint fot the previous frame
+  // by setting a conditional breakpoint for the previous frame
   c_pmove++;
 
   // clear results

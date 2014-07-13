@@ -619,7 +619,7 @@ static int CG_GetCorpseNum( class_t class )
     if( !Q_stricmp( modelName, match->modelName ) &&
         !Q_stricmp( skinName, match->skinName ) )
     {
-      // this clientinfo is identical, so use it's handles
+      // this clientinfo is identical, so use its handles
       return i;
     }
   }
@@ -2160,7 +2160,7 @@ void CG_Corpse( centity_t *cent )
   int           renderfx;
   qboolean      shadow = qfalse;
   float         shadowPlane;
-  vec3_t        origin, liveZ, deadZ;
+  vec3_t        origin, aliveZ, deadZ;
   float         scale;
 
   corpseNum = CG_GetCorpseNum( es->clientNum );
@@ -2180,8 +2180,8 @@ void CG_Corpse( centity_t *cent )
   memset( &head, 0, sizeof( head ) );
 
   VectorCopy( cent->lerpOrigin, origin );
-  BG_ClassBoundingBox( es->clientNum, liveZ, NULL, NULL, deadZ, NULL );
-  origin[ 2 ] -= ( liveZ[ 2 ] - deadZ[ 2 ] );
+  BG_ClassBoundingBox( es->clientNum, aliveZ, NULL, NULL, deadZ, NULL );
+  origin[ 2 ] -= ( aliveZ[ 2 ] - deadZ[ 2 ] );
 
   VectorCopy( es->angles, cent->lerpAngles );
 

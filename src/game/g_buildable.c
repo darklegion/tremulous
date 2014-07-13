@@ -586,7 +586,7 @@ qboolean G_FindCreep( gentity_t *self )
   if( !self->client && self->s.groundEntityNum == ENTITYNUM_NONE )
     return qtrue;
 
-  //if self does not have a parentNode or it's parentNode is invalid find a new one
+  //if self does not have a parentNode or its parentNode is invalid, then find a new one
   if( self->client || self->parentNode == NULL || !self->parentNode->inuse ||
       self->parentNode->health <= 0 )
   {
@@ -1466,7 +1466,6 @@ void ATrapper_FindEnemy( gentity_t *ent, int range )
   int       start;
 
   // iterate through entities
-  // note that if we exist then level.num_entities != 0
   start = rand( ) / ( RAND_MAX / level.num_entities + 1 );
   for( i = start; i < level.num_entities + start; i++ )
   {
@@ -1594,7 +1593,6 @@ think function
 */
 void HSpawn_Disappear( gentity_t *self )
 {
-  self->s.eFlags |= EF_NODRAW; //don't draw the model once its destroyed
   self->timestamp = level.time;
   G_QueueBuildPoints( self );
   G_RewardAttackers( self );
@@ -2071,7 +2069,7 @@ void HMedistat_Think( gentity_t *self )
       if( self->enemy == player && player->client &&
           player->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS &&
           player->health < player->client->ps.stats[ STAT_MAX_HEALTH ] &&
-          PM_Live( player->client->ps.pm_type ) )
+          PM_Alive( player->client->ps.pm_type ) )
       {
         occupied = qtrue;
         player->client->ps.stats[ STAT_STATE ] |= SS_HEALING_ACTIVE;
@@ -2094,7 +2092,7 @@ void HMedistat_Think( gentity_t *self )
         {
           if( ( player->health < player->client->ps.stats[ STAT_MAX_HEALTH ] ||
                 player->client->ps.stats[ STAT_STAMINA ] < STAMINA_MAX ) &&
-              PM_Live( player->client->ps.pm_type ) )
+              PM_Alive( player->client->ps.pm_type ) )
           {
             self->enemy = player;
 
@@ -3650,7 +3648,6 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable,
       break;
   }
 
-  built->s.number = built - g_entities;
   built->r.contents = CONTENTS_BODY;
   built->clipmask = MASK_PLAYERSOLID;
   built->enemy = NULL;
@@ -3865,7 +3862,7 @@ static gentity_t *G_FinishSpawningBuildable( gentity_t *ent, qboolean force )
 ============
 G_SpawnBuildableThink
 
-Complete spawning a buildable using it's placeholder
+Complete spawning a buildable using its placeholder
 ============
 */
 static void G_SpawnBuildableThink( gentity_t *ent )

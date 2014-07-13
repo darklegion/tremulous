@@ -33,8 +33,6 @@ PUSHMOVE
 ===============================================================================
 */
 
-void MatchTeam( gentity_t *teamLeader, int moverState, int time );
-
 typedef struct
 {
   gentity_t *ent;
@@ -279,7 +277,7 @@ qboolean G_MoverPush( gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **
 
   listedEntities = trap_EntitiesInBox( totalMins, totalMaxs, entityList, MAX_GENTITIES );
 
-  // move the pusher to it's final position
+  // move the pusher to its final position
   VectorAdd( pusher->r.currentOrigin, move, pusher->r.currentOrigin );
   VectorAdd( pusher->r.currentAngles, amove, pusher->r.currentAngles );
   trap_LinkEntity( pusher );
@@ -1231,7 +1229,7 @@ static void manualDoorTriggerSpectator( gentity_t *door, gentity_t *player )
 ================
 manualTriggerSpectator
 
-Trip to skip the closest door targetted by trigger
+Trip to skip the closest door targeted by trigger
 ================
 */
 void manualTriggerSpectator( gentity_t *trigger, gentity_t *player )
@@ -1740,7 +1738,7 @@ PLAT
 ==============
 Touch_Plat
 
-Don't allow decent if a living player is on it
+Don't allow to descend if a player is on it and is alive
 ===============
 */
 void Touch_Plat( gentity_t *ent, gentity_t *other, trace_t *trace )
@@ -1910,7 +1908,7 @@ void Touch_Button( gentity_t *ent, gentity_t *other, trace_t *trace )
 
 
 /*QUAKED func_button (0 .5 .8) ?
-When a button is touched, it moves some distance in the direction of it's angle, triggers all of it's targets, waits some time, then returns to it's original position where it can be triggered again.
+When a button is touched, it moves some distance in the direction of its angle, triggers all of its targets, waits some time, then returns to its original position where it can be triggered again.
 
 "model2"  .md3 model to also draw
 "angle"   determines the opening direction

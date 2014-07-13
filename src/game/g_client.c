@@ -464,7 +464,6 @@ static void SpawnCorpse( gentity_t *ent )
   VectorCopy( ent->s.apos.trBase, body->s.angles );
   body->s.eFlags = EF_DEAD;
   body->s.eType = ET_CORPSE;
-  body->s.number = body - g_entities;
   body->timestamp = level.time;
   body->s.event = 0;
   body->r.contents = CONTENTS_CORPSE;
@@ -1127,9 +1126,9 @@ const char *ClientConnect( int clientNum, qboolean firstTime )
 ===========
 ClientBegin
 
-called when a client has finished connecting, and is ready
-to be placed into the level.  This will happen every level load,
-and on transition between teams, but doesn't happen on respawns
+Called when a client has finished connecting, and is ready
+to be placed into the level. This will happen on every
+level load and level restart, but doesn't happen on respawns.
 ============
 */
 void ClientBegin( int clientNum )

@@ -40,7 +40,7 @@ void P_DamageFeedback( gentity_t *player )
   vec3_t    angles;
 
   client = player->client;
-  if( !PM_Live( client->ps.pm_type ) )
+  if( !PM_Alive( client->ps.pm_type ) )
     return;
 
   // total points of damage shot at the player this frame
@@ -735,9 +735,9 @@ void ClientTimerActions( gentity_t *ent, int msec )
     else
       client->voiceEnthusiasm = 0.0f;
 
-    client->pers.aliveSeconds++;
+    client->pers.secondsAlive++;
     if( g_freeFundPeriod.integer > 0 &&
-        client->pers.aliveSeconds % g_freeFundPeriod.integer == 0 )
+        client->pers.secondsAlive % g_freeFundPeriod.integer == 0 )
     {
       // Give clients some credit periodically
       if( G_TimeTilSuddenDeath( ) > 0 )

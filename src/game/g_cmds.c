@@ -600,7 +600,7 @@ void Cmd_Team_f( gentity_t *ent )
 
   // stop switching teams for gameplay exploit reasons by enforcing a long
   // wait before they can come back
-  if( !force && !g_cheats.integer && ent->client->pers.aliveSeconds && 
+  if( !force && !g_cheats.integer && ent->client->pers.secondsAlive &&
       level.time - ent->client->pers.teamChangeTime < 30000 )
   {
     trap_SendServerCommand( ent-g_entities,
@@ -1776,7 +1776,6 @@ void Cmd_Class_f( gentity_t *ent )
         return;
       }
 
-      //guard against selling the HBUILD weapons exploit
       if( ent->client->sess.spectatorState == SPECTATOR_NOT &&
           ( currentClass == PCL_ALIEN_BUILDER0 ||
             currentClass == PCL_ALIEN_BUILDER0_UPG ) &&
@@ -3067,35 +3066,35 @@ int G_FloodLimited( gentity_t *ent )
 
 commands_t cmds[ ] = {
   { "a", CMD_MESSAGE|CMD_INTERMISSION, Cmd_AdminMessage_f },
-  { "build", CMD_TEAM|CMD_LIVING, Cmd_Build_f },
-  { "buy", CMD_HUMAN|CMD_LIVING, Cmd_Buy_f },
+  { "build", CMD_TEAM|CMD_ALIVE, Cmd_Build_f },
+  { "buy", CMD_HUMAN|CMD_ALIVE, Cmd_Buy_f },
   { "callteamvote", CMD_MESSAGE|CMD_TEAM, Cmd_CallVote_f },
   { "callvote", CMD_MESSAGE, Cmd_CallVote_f },
   { "class", CMD_TEAM, Cmd_Class_f },
-  { "damage", CMD_CHEAT|CMD_LIVING, Cmd_Damage_f },
-  { "deconstruct", CMD_TEAM|CMD_LIVING, Cmd_Destroy_f },
-  { "destroy", CMD_CHEAT|CMD_TEAM|CMD_LIVING, Cmd_Destroy_f },
+  { "damage", CMD_CHEAT|CMD_ALIVE, Cmd_Damage_f },
+  { "deconstruct", CMD_TEAM|CMD_ALIVE, Cmd_Destroy_f },
+  { "destroy", CMD_CHEAT|CMD_TEAM|CMD_ALIVE, Cmd_Destroy_f },
   { "follow", CMD_SPEC, Cmd_Follow_f },
   { "follownext", CMD_SPEC, Cmd_FollowCycle_f },
   { "followprev", CMD_SPEC, Cmd_FollowCycle_f },
-  { "give", CMD_CHEAT|CMD_TEAM|CMD_LIVING, Cmd_Give_f },
-  { "god", CMD_CHEAT|CMD_TEAM|CMD_LIVING, Cmd_God_f },
+  { "give", CMD_CHEAT|CMD_TEAM|CMD_ALIVE, Cmd_Give_f },
+  { "god", CMD_CHEAT|CMD_TEAM|CMD_ALIVE, Cmd_God_f },
   { "ignore", 0, Cmd_Ignore_f },
-  { "itemact", CMD_HUMAN|CMD_LIVING, Cmd_ActivateItem_f },
-  { "itemdeact", CMD_HUMAN|CMD_LIVING, Cmd_DeActivateItem_f },
-  { "itemtoggle", CMD_HUMAN|CMD_LIVING, Cmd_ToggleItem_f },
-  { "kill", CMD_TEAM|CMD_LIVING, Cmd_Kill_f },
+  { "itemact", CMD_HUMAN|CMD_ALIVE, Cmd_ActivateItem_f },
+  { "itemdeact", CMD_HUMAN|CMD_ALIVE, Cmd_DeActivateItem_f },
+  { "itemtoggle", CMD_HUMAN|CMD_ALIVE, Cmd_ToggleItem_f },
+  { "kill", CMD_TEAM|CMD_ALIVE, Cmd_Kill_f },
   { "listmaps", CMD_MESSAGE|CMD_INTERMISSION, Cmd_ListMaps_f },
   { "m", CMD_MESSAGE|CMD_INTERMISSION, Cmd_PrivateMessage_f },
   { "mt", CMD_MESSAGE|CMD_INTERMISSION, Cmd_PrivateMessage_f },
   { "noclip", CMD_CHEAT_TEAM, Cmd_Noclip_f },
-  { "notarget", CMD_CHEAT|CMD_TEAM|CMD_LIVING, Cmd_Notarget_f },
-  { "reload", CMD_HUMAN|CMD_LIVING, Cmd_Reload_f },
+  { "notarget", CMD_CHEAT|CMD_TEAM|CMD_ALIVE, Cmd_Notarget_f },
+  { "reload", CMD_HUMAN|CMD_ALIVE, Cmd_Reload_f },
   { "say", CMD_MESSAGE|CMD_INTERMISSION, Cmd_Say_f },
-  { "say_area", CMD_MESSAGE|CMD_TEAM|CMD_LIVING, Cmd_SayArea_f },
+  { "say_area", CMD_MESSAGE|CMD_TEAM|CMD_ALIVE, Cmd_SayArea_f },
   { "say_team", CMD_MESSAGE|CMD_INTERMISSION, Cmd_Say_f },
   { "score", CMD_INTERMISSION, ScoreboardMessage },
-  { "sell", CMD_HUMAN|CMD_LIVING, Cmd_Sell_f },
+  { "sell", CMD_HUMAN|CMD_ALIVE, Cmd_Sell_f },
   { "setviewpos", CMD_CHEAT_TEAM, Cmd_SetViewpos_f },
   { "team", 0, Cmd_Team_f },
   { "teamvote", CMD_TEAM, Cmd_Vote_f },
@@ -3187,11 +3186,11 @@ void ClientCommand( int clientNum )
     return;
   }
 
-  if( command->cmdFlags & CMD_LIVING &&
+  if( command->cmdFlags & CMD_ALIVE &&
     ( ent->client->ps.stats[ STAT_HEALTH ] <= 0 ||
       ent->client->sess.spectatorState != SPECTATOR_NOT ) )
   {
-    G_TriggerMenu( clientNum, MN_CMD_LIVING );
+    G_TriggerMenu( clientNum, MN_CMD_ALIVE );
     return;
   }
 

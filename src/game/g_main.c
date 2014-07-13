@@ -1430,8 +1430,8 @@ void CalculateRanks( void )
   memset( level.numVotingClients, 0, sizeof( level.numVotingClients ) );
   level.numAlienClients = 0;
   level.numHumanClients = 0;
-  level.numLiveAlienClients = 0;
-  level.numLiveHumanClients = 0;
+  level.numAlienClientsAlive = 0;
+  level.numHumanClientsAlive = 0;
 
   for( i = 0; i < level.maxclients; i++ )
   {
@@ -1454,19 +1454,19 @@ void CalculateRanks( void )
         {
           level.numAlienClients++;
           if( level.clients[ i ].sess.spectatorState == SPECTATOR_NOT )
-            level.numLiveAlienClients++;
+            level.numAlienClientsAlive++;
         }
         else if( level.clients[ i ].pers.teamSelection == TEAM_HUMANS )
         {
           level.numHumanClients++;
           if( level.clients[ i ].sess.spectatorState == SPECTATOR_NOT )
-            level.numLiveHumanClients++;
+            level.numHumanClientsAlive++;
         }
       }
     }
   }
-  level.numNonSpectatorClients = level.numLiveAlienClients +
-    level.numLiveHumanClients;
+  level.numNonSpectatorClients = level.numAlienClientsAlive +
+    level.numHumanClientsAlive;
   level.numVotingClients[ TEAM_ALIENS ] = level.numAlienClients;
   level.numVotingClients[ TEAM_HUMANS ] = level.numHumanClients;
   P[ i ] = '\0';
@@ -1965,7 +1965,7 @@ void CheckExitRules( void )
       ( !level.uncondAlienWin &&
         ( level.time > level.startTime + 1000 ) &&
         ( level.numAlienSpawns == 0 ) &&
-        ( level.numLiveAlienClients == 0 ) ) )
+        ( level.numAlienClientsAlive == 0 ) ) )
   {
     //humans win
     level.lastWin = TEAM_HUMANS;
@@ -1976,7 +1976,7 @@ void CheckExitRules( void )
   else if( level.uncondAlienWin ||
            ( ( level.time > level.startTime + 1000 ) &&
              ( level.numHumanSpawns == 0 ) &&
-             ( level.numLiveHumanClients == 0 ) ) )
+             ( level.numHumanClientsAlive == 0 ) ) )
   {
     //aliens win
     level.lastWin = TEAM_ALIENS;
