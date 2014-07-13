@@ -24,6 +24,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "server.h"
 
 
+char alternateInfos[2][2][BIG_INFO_STRING];
+
 /*
 ===============
 SV_SendConfigstring
@@ -34,6 +36,7 @@ given client
 */
 static void SV_SendConfigstring(client_t *client, int index)
 {
+	const char *configstring;
 	int maxChunkSize = MAX_STRING_CHARS - 24;
 	int len;
 
@@ -44,7 +47,13 @@ static void SV_SendConfigstring(client_t *client, int index)
 		return;
 	}
 
-	len = strlen(sv.configstrings[index].s);
+	if ( index <= CS_SYSTEMINFO && client->netchan.alternateProtocol != 0 ) {
+		configstring = alternateInfos[index][ client->netchan.alternateProtocol - 1 ];
+	} else {
+		configstring = sv.configstrings[index].s;
+	}
+
+	len = strlen(configstring);
 
 	if( len >= maxChunkSize ) {
 		int		sent = 0;
@@ -62,7 +71,7 @@ static void SV_SendConfigstring(client_t *client, int index)
 			else {
 				cmd = "bcs1";
 			}
-			Q_strncpyz( buf, &sv.configstrings[index].s[sent],
+			Q_strncpyz( buf, &configstring[sent],
 				maxChunkSize );
 
 			SV_SendServerCommand( client, "%s %i \"%s\"\n", cmd,
@@ -74,7 +83,7 @@ static void SV_SendConfigstring(client_t *client, int index)
 	} else {
 		// standard cs, just send it
 		SV_SendServerCommand( client, "cs %i \"%s\"\n", index,
-			sv.configstrings[index].s );
+			configstring );
 	}
 }
 
@@ -112,6 +121,7 @@ SV_SetConfigstring
 ===============
 */
 void SV_SetConfigstring (int index, const char *val) {
+	qboolean modified[3] = { qfalse, qfalse, qfalse };
 	int		i;
 	client_t	*client;
 
@@ -123,14 +133,45 @@ void SV_SetConfigstring (int index, const char *val) {
 		val = "";
 	}
 
-	// don't bother broadcasting an update if no change
-	if ( !strcmp( val, sv.configstrings[ index ].s ) ) {
-		return;
-	}
+	if ( index <= CS_SYSTEMINFO ) {
+		for ( i = 1; i < 3; ++i ) {
+			char info[BIG_INFO_STRING];
 
-	// change the string in sv
-	Z_Free( sv.configstrings[index].s );
-	sv.configstrings[index].s = CopyString( val );
+			Q_strncpyz( info, val, sizeof( info ) );
+			if ( index == CS_SERVERINFO ) {
+				Info_SetValueForKey_Big( info, "protocol", ( i == 1 ? "70" : "69" ) );
+			} else if ( i == 2 ) {
+				Info_SetValueForKey_Big( info, "sv_paks", Cvar_VariableString( "sv_alternatePaks" ) );
+				Info_SetValueForKey_Big( info, "sv_pakNames", Cvar_VariableString( "sv_alternatePakNames" ) );
+				Info_SetValueForKey_Big( info, "sv_referencedPaks", Cvar_VariableString( "sv_referencedAlternatePaks" ) );
+				Info_SetValueForKey_Big( info, "sv_referencedPakNames", Cvar_VariableString( "sv_referencedAlternatePakNames" ) );
+			}
+
+			if ( strcmp( info, alternateInfos[index][i - 1] ) ) {
+				modified[i] = qtrue;
+				strcpy( alternateInfos[index][i - 1], info );
+			}
+		}
+
+		if ( strcmp( val, sv.configstrings[index].s ) ) {
+			modified[0] = qtrue;
+			Z_Free( sv.configstrings[index].s );
+			sv.configstrings[index].s = CopyString( val );
+		}
+
+		if ( !modified[0] && !modified[1] && !modified[2] ) {
+			return;
+		}
+	} else {
+		// don't bother broadcasting an update if no change
+		if ( !strcmp( val, sv.configstrings[ index ].s ) ) {
+			return;
+		}
+
+		// change the string in sv
+		Z_Free( sv.configstrings[index].s );
+		sv.configstrings[index].s = CopyString( val );
+	}
 
 	// send it to all the clients if we aren't
 	// spawning a new server
@@ -138,6 +179,10 @@ void SV_SetConfigstring (int index, const char *val) {
 
 		// send the data to all relevent clients
 		for (i = 0, client = svs.clients; i < sv_maxclients->integer ; i++, client++) {
+			if ( index <= CS_SYSTEMINFO && !modified[ client->netchan.alternateProtocol ] ) {
+				continue;
+			}
+
 			if ( client->state < CS_ACTIVE ) {
 				if ( client->state == CS_PRIMED )
 					client->csUpdated[ index ] = qtrue;
@@ -396,6 +441,9 @@ static void SV_ClearServer(void) {
 	int i;
 
 	for ( i = 0 ; i < MAX_CONFIGSTRINGS ; i++ ) {
+		if ( i <= CS_SYSTEMINFO ) {
+			alternateInfos[i][0][0] = alternateInfos[i][1][0] = '\0';
+		}
 		if ( sv.configstrings[i].s ) {
 			Z_Free( sv.configstrings[i].s );
 		}
@@ -486,6 +534,9 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	// wipe the entire per-level structure
 	SV_ClearServer();
 	for ( i = 0 ; i < MAX_CONFIGSTRINGS ; i++ ) {
+		if ( i <= CS_SYSTEMINFO ) {
+			alternateInfos[i][0][0] = alternateInfos[i][1][0] = '\0';
+		}
 		sv.configstrings[i].s = CopyString("");
 		sv.configstrings[i].restricted = qfalse;
 		Com_Memset(&sv.configstrings[i].clientList, 0, sizeof(clientList_t));
@@ -563,13 +614,17 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	if ( sv_pure->integer ) {
 		// the server sends these to the clients so they will only
 		// load pk3s also loaded at the server
-		p = FS_LoadedPakChecksums();
+		p = FS_LoadedPakChecksums( qfalse );
 		Cvar_Set( "sv_paks", p );
+		p = FS_LoadedPakChecksums( qtrue );
+		Cvar_Set( "sv_alternatePaks", p );
 		if (strlen(p) == 0) {
 			Com_Printf( "WARNING: sv_pure set but no PK3 files loaded\n" );
 		}
-		p = FS_LoadedPakNames();
+		p = FS_LoadedPakNames( qfalse );
 		Cvar_Set( "sv_pakNames", p );
+		p = FS_LoadedPakNames( qtrue );
+		Cvar_Set( "sv_alternatePakNames", p );
 
 		// if a dedicated pure server we need to touch the cgame because it could be in a
 		// seperate pk3 file and the client will need to load the latest cgame.qvm
@@ -580,13 +635,19 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	else {
 		Cvar_Set( "sv_paks", "" );
 		Cvar_Set( "sv_pakNames", "" );
+		Cvar_Set( "sv_alternatePaks", "" );
+		Cvar_Set( "sv_alternatePakNames", "" );
 	}
 	// the server sends these to the clients so they can figure
 	// out which pk3s should be auto-downloaded
-	p = FS_ReferencedPakChecksums();
+	p = FS_ReferencedPakChecksums( qfalse );
 	Cvar_Set( "sv_referencedPaks", p );
-	p = FS_ReferencedPakNames();
+	p = FS_ReferencedPakChecksums( qtrue );
+	Cvar_Set( "sv_referencedAlternatePaks", p );
+	p = FS_ReferencedPakNames( qfalse );
 	Cvar_Set( "sv_referencedPakNames", p );
+	p = FS_ReferencedPakNames( qtrue );
+	Cvar_Set( "sv_referencedAlternatePakNames", p );
 
 	// save systeminfo and serverinfo strings
 	Q_strncpyz( systemInfo, Cvar_InfoString_Big( CVAR_SYSTEMINFO ), sizeof( systemInfo ) );
@@ -658,6 +719,10 @@ void SV_Init (void)
 	Cvar_Get ("sv_pakNames", "", CVAR_SYSTEMINFO | CVAR_ROM );
 	Cvar_Get ("sv_referencedPaks", "", CVAR_SYSTEMINFO | CVAR_ROM );
 	Cvar_Get ("sv_referencedPakNames", "", CVAR_SYSTEMINFO | CVAR_ROM );
+	Cvar_Get ("sv_alternatePaks", "", CVAR_ALTERNATE_SYSTEMINFO | CVAR_ROM );
+	Cvar_Get ("sv_alternatePakNames", "", CVAR_ALTERNATE_SYSTEMINFO | CVAR_ROM );
+	Cvar_Get ("sv_referencedAlternatePaks", "", CVAR_ALTERNATE_SYSTEMINFO | CVAR_ROM );
+	Cvar_Get ("sv_referencedAlternatePakNames", "", CVAR_ALTERNATE_SYSTEMINFO | CVAR_ROM );
 
 	// server vars
 	sv_rconPassword = Cvar_Get ("rconPassword", "", CVAR_TEMP );

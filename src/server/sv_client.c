@@ -459,6 +459,8 @@ void SV_DropClient( client_t *drop, const char *reason ) {
 	}
 }
 
+extern char alternateInfos[2][2][BIG_INFO_STRING];
+
 /*
 ================
 SV_SendClientGameState
@@ -475,6 +477,7 @@ static void SV_SendClientGameState( client_t *client ) {
 	entityState_t	*base, nullstate;
 	msg_t		msg;
 	byte		msgBuffer[MAX_MSGLEN];
+	const char	*configstring;
 
  	Com_DPrintf ("SV_SendClientGameState() for %s\n", client->name);
 	Com_DPrintf( "Going from CS_CONNECTED to CS_PRIMED for %s\n", client->name );
@@ -505,10 +508,16 @@ static void SV_SendClientGameState( client_t *client ) {
 
 	// write the configstrings
 	for ( start = 0 ; start < MAX_CONFIGSTRINGS ; start++ ) {
-		if (sv.configstrings[start].s[0]) {
+		if ( start <= CS_SYSTEMINFO && client->netchan.alternateProtocol != 0 ) {
+			configstring = alternateInfos[start][ client->netchan.alternateProtocol - 1 ];
+		} else {
+			configstring = sv.configstrings[start].s;
+		}
+
+		if (configstring[0]) {
 			MSG_WriteByte( &msg, svc_configstring );
 			MSG_WriteShort( &msg, start );
-			MSG_WriteBigString( &msg, sv.configstrings[start].s );
+			MSG_WriteBigString( &msg, configstring );
 		}
 	}
 
@@ -713,7 +722,7 @@ int SV_WriteDownloadToClient(client_t *cl, msg_t *msg)
 			// Check for pk3 filename extension
 			if(!Q_stricmp(pakptr + 1, "pk3"))
 			{
-				const char *referencedPaks = FS_ReferencedPakNames();
+				const char *referencedPaks = FS_ReferencedPakNames( cl->netchan.alternateProtocol == 2 );
 
 				// Check whether the file appears in the list of referenced
 				// paks to prevent downloading of arbitrary files.
@@ -970,9 +979,9 @@ static void SV_VerifyPaks_f( client_t *cl ) {
 
 		nChkSum1 = nChkSum2 = 0;
 		// we run the game, so determine which cgame and ui the client "should" be running
-		bGood = (FS_FileIsInPAK("vm/cgame.qvm", &nChkSum1) == 1);
+		bGood = (FS_FileIsInPAK_A(cl->netchan.alternateProtocol == 2, "vm/cgame.qvm", &nChkSum1) == 1);
 		if (bGood)
-			bGood = (FS_FileIsInPAK("vm/ui.qvm", &nChkSum2) == 1);
+			bGood = (FS_FileIsInPAK_A(cl->netchan.alternateProtocol == 2, "vm/ui.qvm", &nChkSum2) == 1);;
 
 		nClientPaks = Cmd_Argc();
 
@@ -1048,7 +1057,7 @@ static void SV_VerifyPaks_f( client_t *cl ) {
 				break;
 
 			// get the pure checksums of the pk3 files loaded by the server
-			pPaks = FS_LoadedPakPureChecksums();
+			pPaks = FS_LoadedPakPureChecksums( cl->netchan.alternateProtocol == 2 );
 			Cmd_TokenizeString( pPaks );
 			nServerPaks = Cmd_Argc();
 			if (nServerPaks > 1024)

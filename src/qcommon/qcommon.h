@@ -651,6 +651,7 @@ long		FS_FOpenFileRead( const char *qpath, fileHandle_t *file, qboolean uniqueFI
 // file IO goes through FS_ReadFile, which Does The Right Thing already.
 
 int		FS_FileIsInPAK(const char *filename, int *pChecksum );
+int		FS_FileIsInPAK_A(qboolean alternate, const char *filename, int *pChecksum );
 // returns 1 if a file is in the PAK file, otherwise -1
 
 int		FS_Write( const void *buffer, int len, fileHandle_t f );
@@ -699,14 +700,14 @@ int		FS_Seek( fileHandle_t f, long offset, int origin );
 
 qboolean FS_FilenameCompare( const char *s1, const char *s2 );
 
-const char *FS_LoadedPakNames( void );
-const char *FS_LoadedPakChecksums( void );
-const char *FS_LoadedPakPureChecksums( void );
+const char *FS_LoadedPakNames( qboolean alternate );
+const char *FS_LoadedPakChecksums( qboolean alternate );
+const char *FS_LoadedPakPureChecksums( qboolean alternate );
 // Returns a space separated string containing the checksums of all loaded pk3 files.
 // Servers with sv_pure set will get this string and pass it to clients.
 
-const char *FS_ReferencedPakNames( void );
-const char *FS_ReferencedPakChecksums( void );
+const char *FS_ReferencedPakNames( qboolean alternate );
+const char *FS_ReferencedPakChecksums( qboolean alternate );
 const char *FS_ReferencedPakPureChecksums( void );
 // Returns a space separated string containing the checksums of all loaded 
 // AND referenced pk3 files. Servers with sv_pure set will get this string 
