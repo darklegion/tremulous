@@ -37,8 +37,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define SVF_BROADCAST           0x00000020  // send to all connected clients
 #define SVF_PORTAL              0x00000040  // merge a second pvs at origin2 into snapshots
-#define SVF_USE_CURRENT_ORIGIN  0x00000080  // entity->r.currentOrigin instead of entity->s.origin
-                      // for link position (missiles and movers)
+
 #define SVF_SINGLECLIENT    0x00000100  // only send to a single client (entityShared_t->singleClient)
 #define SVF_NOSERVERINFO    0x00000200  // don't send CS_SERVERINFO updates to this client
                       // so that it can be updated for ping tools without
