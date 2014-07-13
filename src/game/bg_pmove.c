@@ -2953,7 +2953,7 @@ static void PM_Weapon( void )
   if( pm->ps->weapon == WP_LUCIFER_CANNON )
   {
     // Charging up
-    if( !pm->ps->weaponTime && pm->ps->weaponstate != WEAPON_NEEDS_RESET &&
+    if( !pm->ps->weaponTime &&
         ( pm->cmd.buttons & BUTTON_ATTACK ) )
     {
       pm->ps->stats[ STAT_MISC ] += pml.msec;
@@ -3134,14 +3134,6 @@ static void PM_Weapon( void )
 
     case WP_LUCIFER_CANNON:
       attack3 = qfalse;
-      
-      // Prevent firing of the Lucifer Cannon after an overcharge
-      if( pm->ps->weaponstate == WEAPON_NEEDS_RESET )
-      {
-        if( attack1 )
-          return;
-        pm->ps->weaponstate = WEAPON_READY;
-      }
 
       // Can't fire secondary while primary is charging
       if( attack1 || pm->ps->stats[ STAT_MISC ] > 0 )
@@ -3157,9 +3149,6 @@ static void PM_Weapon( void )
           pm->ps->weaponstate = WEAPON_READY;
           return;
         }
-
-        // Overcharge
-        pm->ps->weaponstate = WEAPON_NEEDS_RESET;
       }
 
       if( pm->ps->stats[ STAT_MISC ] > LCANNON_CHARGE_TIME_MIN )
@@ -3362,8 +3351,7 @@ static void PM_Weapon( void )
     pm->ps->torsoTimer = TIMER_ATTACK;
   }
 
-  if( pm->ps->weaponstate != WEAPON_NEEDS_RESET )
-    pm->ps->weaponstate = WEAPON_FIRING;
+  pm->ps->weaponstate = WEAPON_FIRING;
 
   // take an ammo away if not infinite
   if( !BG_Weapon( pm->ps->weapon )->infiniteAmmo ||
