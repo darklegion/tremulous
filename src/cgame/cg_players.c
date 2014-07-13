@@ -2176,8 +2176,6 @@ void CG_Corpse( centity_t *cent )
   BG_ClassBoundingBox( es->clientNum, aliveZ, NULL, NULL, deadZ, NULL );
   origin[ 2 ] -= ( aliveZ[ 2 ] - deadZ[ 2 ] );
 
-  VectorCopy( es->angles, cent->lerpAngles );
-
   // get the rotation information
   if( !ci->nonsegmented )
     CG_PlayerAngles( cent, cent->lerpAngles, legs.axis, torso.axis, head.axis );

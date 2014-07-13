@@ -408,9 +408,6 @@ static void CG_Missile( centity_t *cent )
 
   wim = &wi->wim[ weaponMode ];
 
-  // calculate the axis
-  VectorCopy( es->angles, cent->lerpAngles );
-
   // add dynamic light
   if( wim->missileDlight )
   {
@@ -655,7 +652,7 @@ static void CG_LightFlare( centity_t *cent )
   flare.renderfx |= RF_DEPTHHACK;
 
   //bunch of geometry
-  AngleVectors( es->angles, forward, NULL, NULL );
+  AngleVectors( cent->lerpAngles, forward, NULL, NULL );
   VectorCopy( cent->lerpOrigin, flare.origin );
   VectorSubtract( flare.origin, cg.refdef.vieworg, delta );
   len = VectorLength( delta );

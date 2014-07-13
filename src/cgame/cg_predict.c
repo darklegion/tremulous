@@ -273,7 +273,7 @@ int   CG_PointContents( const vec3_t point, int passEntityNum )
     if( !cmodel )
       continue;
 
-    contents |= trap_CM_TransformedPointContents( point, cmodel, ent->origin, ent->angles );
+    contents |= trap_CM_TransformedPointContents( point, cmodel, cent->lerpOrigin, cent->lerpAngles );
   }
 
   return contents;
