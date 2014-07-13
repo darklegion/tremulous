@@ -2389,8 +2389,12 @@ A bmodel that just sits there, doing nothing.  Can be used for conditional walls
 */
 void SP_func_static( gentity_t *ent )
 {
+  vec3_t savedOrigin;
   trap_SetBrushModel( ent, ent->model );
+  VectorCopy( ent->r.currentOrigin, savedOrigin );
   InitMover( ent );
+  VectorCopy( savedOrigin, ent->r.currentOrigin );
+  VectorCopy( savedOrigin, ent->s.pos.trBase );
 }
 
 
@@ -2416,6 +2420,8 @@ check either the X_AXIS or Y_AXIS box to change that.
 */
 void SP_func_rotating( gentity_t *ent )
 {
+  vec3_t savedOrigin;
+
   if( !ent->speed )
     ent->speed = 100;
 
@@ -2433,7 +2439,10 @@ void SP_func_rotating( gentity_t *ent )
     ent->damage = 2;
 
   trap_SetBrushModel( ent, ent->model );
+  VectorCopy( ent->r.currentOrigin, savedOrigin );
   InitMover( ent );
+  VectorCopy( savedOrigin, ent->r.currentOrigin );
+  VectorCopy( savedOrigin, ent->s.pos.trBase );
 
   trap_LinkEntity( ent );
 }
@@ -2462,6 +2471,7 @@ void SP_func_bobbing( gentity_t *ent )
 {
   float   height;
   float   phase;
+  vec3_t  savedOrigin;
 
   G_SpawnFloat( "speed", "4", &ent->speed );
   G_SpawnFloat( "height", "32", &height );
@@ -2469,7 +2479,10 @@ void SP_func_bobbing( gentity_t *ent )
   G_SpawnFloat( "phase", "0", &phase );
 
   trap_SetBrushModel( ent, ent->model );
+  VectorCopy( ent->r.currentOrigin, savedOrigin );
   InitMover( ent );
+  VectorCopy( savedOrigin, ent->r.currentOrigin );
+  VectorCopy( savedOrigin, ent->s.pos.trBase );
 
   ent->s.pos.trDuration = ent->speed * 1000;
   ent->s.pos.trTime = ent->s.pos.trDuration * phase;
@@ -2510,6 +2523,7 @@ void SP_func_pendulum( gentity_t *ent )
   float length;
   float phase;
   float speed;
+  vec3_t savedOrigin;
 
   G_SpawnFloat( "speed", "30", &speed );
   G_SpawnInt( "dmg", "2", &ent->damage );
@@ -2527,7 +2541,10 @@ void SP_func_pendulum( gentity_t *ent )
 
   ent->s.pos.trDuration = ( 1000 / freq );
 
+  VectorCopy( ent->r.currentOrigin, savedOrigin );
   InitMover( ent );
+  VectorCopy( savedOrigin, ent->r.currentOrigin );
+  VectorCopy( savedOrigin, ent->s.pos.trBase );
 
   ent->s.apos.trDuration = 1000 / freq;
   ent->s.apos.trTime = ent->s.apos.trDuration * phase;
