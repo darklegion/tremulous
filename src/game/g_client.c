@@ -1468,7 +1468,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   else
   {
     // fire the targets of the spawn point
-    if( !spawn )
+    if( !spawn && spawnPoint )
       G_UseTargets( spawnPoint, ent );
 
     client->ps.weapon = client->ps.stats[ STAT_WEAPON ];
