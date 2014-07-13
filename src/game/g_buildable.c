@@ -583,7 +583,7 @@ qboolean G_FindCreep( gentity_t *self )
   vec3_t    temp_v;
 
   //don't check for creep if flying through the air
-  if( self->s.groundEntityNum == ENTITYNUM_NONE )
+  if( !self->client && self->s.groundEntityNum == ENTITYNUM_NONE )
     return qtrue;
 
   //if self does not have a parentNode or it's parentNode is invalid find a new one
