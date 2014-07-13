@@ -3103,7 +3103,7 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
   }
   else
   {
-    Com_Error( ERR_FATAL, "team is %d\n", team );
+    Com_Error( ERR_FATAL, "team is %d", team );
     return IBE_NONE;
   }
 
@@ -3464,7 +3464,7 @@ itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance
           break;
 
         default:
-          Com_Error( ERR_FATAL, "No reason for denying build of %d\n", buildable );
+          Com_Error( ERR_FATAL, "No reason for denying build of %d", buildable );
           break;
       }
     }
