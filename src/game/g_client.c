@@ -1258,7 +1258,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   {
     if( spawn == NULL )
     {
-      G_Error( "ClientSpawn: spawn is NULL\n" );
+      G_Error( "ClientSpawn: spawn is NULL" );
       return;
     }
 

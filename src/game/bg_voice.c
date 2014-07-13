@@ -378,7 +378,7 @@ static voiceCmd_t *BG_VoiceParse( char *name )
 
         trap_Parse_SourceFileAndLine( handle, filename, &line );
         Com_Error( ERR_FATAL, "BG_VoiceParse(): "
-          "parse error on line %d of %s\n", line, filename );
+          "parse error on line %d of %s", line, filename );
       }
     }
       
@@ -389,7 +389,7 @@ static voiceCmd_t *BG_VoiceParse( char *name )
 
         trap_Parse_SourceFileAndLine( handle, filename, &line );
         Com_Error( ERR_FATAL, "BG_VoiceParse(): "
-          "command \"%s\" exceeds MAX_VOICE_CMD_LEN (%d) on line %d of %s\n",
+          "command \"%s\" exceeds MAX_VOICE_CMD_LEN (%d) on line %d of %s",
           token.string, MAX_VOICE_CMD_LEN, line, filename );
     }
    

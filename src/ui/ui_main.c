@@ -1449,7 +1449,7 @@ void UI_LoadMenus( const char *menuFile, qboolean reset )
   handle = trap_Parse_LoadSource( menuFile );
 
   if( !handle )
-    trap_Error( va( S_COLOR_RED "menu list '%s' not found, unable to continue!\n", menuFile ) );
+    trap_Error( va( S_COLOR_RED "menu list '%s' not found, unable to continue!", menuFile ) );
 
   if( reset )
     Menu_Reset();
