@@ -888,7 +888,7 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
         break;
 
       CG_ParseValueAndVariance( token, &bp->velMoveValues.mag,
-        &bp->velMoveValues.magRandFrac, qfalse );
+        &bp->velMoveValues.magRandFrac, qtrue );
     }
     else if( !Q_stricmp( token, "parentVelocityFraction" ) )
     {
@@ -953,7 +953,7 @@ static qboolean CG_ParseParticle( baseParticle_t *bp, char **text_p )
         break;
 
       CG_ParseValueAndVariance( token, &bp->accMoveValues.mag,
-        &bp->accMoveValues.magRandFrac, qfalse );
+        &bp->accMoveValues.magRandFrac, qtrue );
     }
     else if( !Q_stricmp( token, "acceleration" ) )
     {
