@@ -81,6 +81,7 @@ extern glconfig_t	glConfig;		// outside of TR since it shouldn't be cleared duri
 extern cvar_t *r_stencilbits;			// number of desired stencil bits
 extern cvar_t *r_depthbits;			// number of desired depth bits
 extern cvar_t *r_colorbits;			// number of desired color bits, only relevant for fullscreen
+extern cvar_t *r_alphabits;			// number of desired alpha bits
 extern cvar_t *r_texturebits;			// number of desired texture bits
 extern cvar_t *r_ext_multisample;
 										// 0 = use framebuffer depth
