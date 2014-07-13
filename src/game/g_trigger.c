@@ -295,7 +295,7 @@ void trigger_teleporter_touch( gentity_t *self, gentity_t *other, trace_t *trace
     return;
   }
 
-  TeleportPlayer( other, dest->s.origin, dest->s.angles, 400.0f );
+  TeleportPlayer( other, dest->s.origin, dest->s.angles, self->speed );
 }
 
 /*
@@ -320,6 +320,8 @@ automatically near doors to allow spectators to move through them
 void SP_trigger_teleport( gentity_t *self )
 {
   InitTrigger( self );
+
+  G_SpawnFloat( "speed", "400", &self->speed );
 
   // unlike other triggers, we need to send this one to the client
   // unless is a spectator trigger
