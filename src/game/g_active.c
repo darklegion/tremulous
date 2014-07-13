@@ -627,9 +627,10 @@ void ClientTimerActions( gentity_t *ent, int msec )
         {
           int     dist = BG_Class( ent->client->ps.stats[ STAT_CLASS ] )->buildDist;
           vec3_t  dummy, dummy2;
+          int     dummy3;
 
           if( G_CanBuild( ent, client->ps.stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT,
-                          dist, dummy, dummy2 ) == IBE_NONE )
+                          dist, dummy, dummy2, &dummy3 ) == IBE_NONE )
             client->ps.stats[ STAT_BUILDABLE ] |= SB_VALID_TOGGLEBIT;
           else
             client->ps.stats[ STAT_BUILDABLE ] &= ~SB_VALID_TOGGLEBIT;

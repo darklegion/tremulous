@@ -3323,8 +3323,7 @@ void BG_PositionBuildableRelativeToPlayer( const playerState_t *ps,
 
   // The mask is MASK_DEADSOLID on purpose to avoid collisions with other entities
   (*trace)( tr, entityOrigin, mins, maxs, targetOrigin, ps->clientNum, MASK_DEADSOLID );
-  VectorCopy( tr->endpos, entityOrigin );
-  VectorMA( entityOrigin, 0.1f, playerNormal, outOrigin );
+  VectorCopy( tr->endpos, outOrigin );
   vectoangles( forward, outAngles );
 }
 
