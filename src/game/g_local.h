@@ -190,6 +190,7 @@ struct gentity_s
 
   team_t            buildableTeam;      // buildable item team
   gentity_t         *parentNode;        // for creep and defence/spawn dependencies
+  gentity_t         *rangeMarker;
   qboolean          active;             // for power repeater, but could be useful elsewhere
   qboolean          locked;             // used for turret tracking
   qboolean          powered;            // for human buildables
@@ -303,6 +304,7 @@ typedef struct
   int                 teamInfo;           // level.time of team overlay update (disabled = 0)
   float               flySpeed;           // for spectator/noclip moves
   qboolean            disableBlueprintErrors; // should the buildable blueprint never be hidden from the players?
+  int                 buildableRangeMarkerMask;
 
   class_t             classSelection;     // player class (copied to ent->client->ps.stats[ STAT_CLASS ] once spawned)
   float               evolveHealthFraction;
@@ -806,6 +808,8 @@ buildLog_t        *G_BuildLogNew( gentity_t *actor, buildFate_t fate );
 void              G_BuildLogSet( buildLog_t *log, gentity_t *ent );
 void              G_BuildLogAuto( gentity_t *actor, gentity_t *buildable, buildFate_t fate );
 void              G_BuildLogRevert( int id );
+void              G_RemoveRangeMarkerFrom( gentity_t *self );
+void              G_UpdateBuildableRangeMarkers( void );
 
 //
 // g_utils.c

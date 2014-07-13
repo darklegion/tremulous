@@ -392,6 +392,42 @@ void CG_InitBuildables( void )
 }
 
 /*
+================
+CG_BuildableRangeMarkerProperties
+================
+*/
+qboolean CG_GetBuildableRangeMarkerProperties( buildable_t bType, rangeMarkerType_t *rmType, float *range, vec3_t rgb )
+{
+  shaderColorEnum_t shc;
+
+  switch( bType )
+  {
+    case BA_A_SPAWN:    *range = CREEP_BASESIZE;    shc = SHC_LIGHT_GREEN; break;
+    case BA_A_OVERMIND: *range = CREEP_BASESIZE;    shc = SHC_DARK_GREEN;  break;
+    case BA_A_ACIDTUBE: *range = ACIDTUBE_RANGE;    shc = SHC_RED;         break;
+    case BA_A_TRAPPER:  *range = TRAPPER_RANGE;     shc = SHC_PINK;        break;
+    case BA_A_HIVE:     *range = HIVE_SENSE_RANGE;  shc = SHC_YELLOW;      break;
+    case BA_H_MGTURRET: *range = MGTURRET_RANGE;    shc = SHC_ORANGE;      break;
+    case BA_H_TESLAGEN: *range = TESLAGEN_RANGE;    shc = SHC_VIOLET;      break;
+    case BA_H_DCC:      *range = DC_RANGE;          shc = SHC_GREEN_CYAN;  break;
+    case BA_H_REACTOR:  *range = REACTOR_BASESIZE;  shc = SHC_DARK_BLUE;   break;
+    case BA_H_REPEATER: *range = REPEATER_BASESIZE; shc = SHC_LIGHT_BLUE;  break;
+    default: return qfalse;
+  }
+
+  if( bType == BA_A_TRAPPER )
+    *rmType = RMT_SPHERICAL_CONE_64;
+  else if( bType == BA_H_MGTURRET )
+    *rmType = RMT_SPHERICAL_CONE_240;
+  else
+    *rmType = RMT_SPHERE;
+
+  VectorCopy( cg_shaderColors[ shc ], rgb );
+
+  return qtrue;
+}
+
+/*
 ===============
 CG_SetBuildableLerpFrameAnimation
 
@@ -597,6 +633,37 @@ static void CG_PositionAndOrientateBuildable( const vec3_t angles, const vec3_t 
 }
 
 /*
+================
+CG_GhostBuildableRangeMarker
+================
+*/
+static void CG_GhostBuildableRangeMarker( buildable_t buildable, const vec3_t origin, const vec3_t normal )
+{
+  qboolean drawS, drawI, drawF;
+  float so, lo, th;
+  rangeMarkerType_t rmType;
+  float range;
+  vec3_t rgb;
+
+  if( CG_GetRangeMarkerPreferences( &drawS, &drawI, &drawF, &so, &lo, &th ) &&
+      CG_GetBuildableRangeMarkerProperties( buildable, &rmType, &range, rgb ) )
+  {
+    vec3_t localOrigin, angles;
+
+    if( buildable == BA_A_HIVE || buildable == BA_H_TESLAGEN )
+      VectorMA( origin, BG_BuildableConfig( buildable )->maxs[ 2 ], normal, localOrigin );
+    else
+      VectorCopy( origin, localOrigin );
+
+    if( rmType != RMT_SPHERE )
+      vectoangles( normal, angles );
+
+    CG_DrawRangeMarker( rmType, localOrigin, ( rmType != RMT_SPHERE ? angles : NULL ),
+                        range, drawS, drawI, drawF, rgb, so, lo, th );
+  }
+}
+
+/*
 ==================
 CG_GhostBuildable
 ==================
@@ -617,6 +684,9 @@ void CG_GhostBuildable( buildable_t buildable )
   BG_BuildableBoundingBox( buildable, mins, maxs );
 
   BG_PositionBuildableRelativeToPlayer( ps, mins, maxs, CG_Trace, entity_origin, angles, &tr );
+
+  if( cg_rangeMarkerForBlueprint.integer && tr.entityNum != ENTITYNUM_NONE )
+    CG_GhostBuildableRangeMarker( buildable, entity_origin, tr.plane.normal );
 
   CG_PositionAndOrientateBuildable( ps->viewangles, entity_origin, tr.plane.normal, ps->clientNum,
                                     mins, maxs, ent.axis, ent.origin );

@@ -432,6 +432,13 @@ typedef enum
   BA_NUM_BUILDABLES
 } buildable_t;
 
+typedef enum
+{
+  RMT_SPHERE,
+  RMT_SPHERICAL_CONE_64,
+  RMT_SPHERICAL_CONE_240
+} rangeMarkerType_t;
+
 // entityState_t->event values
 // entity events are for effects that take place relative
 // to an existing entities origin.  Very network efficient.
@@ -1179,7 +1186,8 @@ typedef enum
   ET_PLAYER,
   ET_ITEM,
 
-  ET_BUILDABLE,       // buildable type
+  ET_BUILDABLE,
+  ET_RANGE_MARKER,
 
   ET_LOCATION,
 

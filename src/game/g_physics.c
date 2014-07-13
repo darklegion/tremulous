@@ -153,6 +153,8 @@ void G_Physics( gentity_t *ent, int msec )
   contents = trap_PointContents( ent->r.currentOrigin, -1 );
   if( contents & CONTENTS_NODROP )
   {
+    if( ent->s.eType == ET_BUILDABLE )
+      G_RemoveRangeMarkerFrom( ent );
     G_FreeEntity( ent );
     return;
   }

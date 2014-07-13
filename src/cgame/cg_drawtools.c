@@ -437,3 +437,161 @@ char CG_GetColorCharForHealth( int clientnum )
     health_char = '3';
   return health_char;
 }
+
+/*
+================
+CG_DrawSphere
+================
+*/
+void CG_DrawSphere( const vec3_t center, float radius, int customShader, const float *shaderRGBA )
+{
+  refEntity_t re;
+  memset( &re, 0, sizeof( re ) );
+
+  re.reType = RT_MODEL;
+  re.hModel = cgs.media.sphereModel;
+  re.customShader = customShader;
+  re.renderfx = RF_NOSHADOW;
+  if( shaderRGBA != NULL )
+  {
+    int i;
+    for( i = 0; i < 4; ++i )
+      re.shaderRGBA[ i ] = 255 * shaderRGBA[ i ];
+  }
+
+  VectorCopy( center, re.origin );
+
+  radius *= 0.01f;
+  VectorSet( re.axis[ 0 ], radius, 0, 0 );
+  VectorSet( re.axis[ 1 ], 0, radius, 0 );
+  VectorSet( re.axis[ 2 ], 0, 0, radius );
+  re.nonNormalizedAxes = qtrue;
+
+  trap_R_AddRefEntityToScene( &re );
+}
+
+/*
+================
+CG_DrawSphericalCone
+================
+*/
+void CG_DrawSphericalCone( const vec3_t tip, const vec3_t rotation, float radius,
+                           qboolean a240, int customShader, const float *shaderRGBA )
+{
+  refEntity_t re;
+  memset( &re, 0, sizeof( re ) );
+
+  re.reType = RT_MODEL;
+  re.hModel = a240 ? cgs.media.sphericalCone240Model : cgs.media.sphericalCone64Model;
+  re.customShader = customShader;
+  re.renderfx = RF_NOSHADOW;
+  if( shaderRGBA != NULL )
+  {
+    int i;
+    for( i = 0; i < 4; ++i )
+      re.shaderRGBA[ i ] = 255 * shaderRGBA[ i ];
+  }
+
+  VectorCopy( tip, re.origin );
+
+  radius *= 0.01f;
+  AnglesToAxis( rotation, re.axis );
+  VectorScale( re.axis[ 0 ], radius, re.axis[ 0 ] );
+  VectorScale( re.axis[ 1 ], radius, re.axis[ 1 ] );
+  VectorScale( re.axis[ 2 ], radius, re.axis[ 2 ] );
+  re.nonNormalizedAxes = qtrue;
+
+  trap_R_AddRefEntityToScene( &re );
+}
+
+/*
+================
+CG_DrawRangeMarker
+================
+*/
+void CG_DrawRangeMarker( rangeMarkerType_t rmType, const vec3_t origin, const float *angles, float range,
+                         qboolean drawSurface, qboolean drawIntersection, qboolean drawFrontline,
+                         const vec3_t rgb, float surfaceOpacity, float lineOpacity, float lineThickness )
+{
+  if( drawSurface )
+  {
+    qhandle_t pcsh;
+    vec4_t rgba;
+
+    pcsh = cgs.media.plainColorShader;
+    VectorCopy( rgb, rgba );
+    rgba[ 3 ] = surfaceOpacity;
+
+    switch( rmType )
+    {
+      case RMT_SPHERE:
+        CG_DrawSphere( origin, range, pcsh, rgba );
+        break;
+      case RMT_SPHERICAL_CONE_64:
+        CG_DrawSphericalCone( origin, angles, range, qfalse, pcsh, rgba );
+        break;
+      case RMT_SPHERICAL_CONE_240:
+        CG_DrawSphericalCone( origin, angles, range, qtrue, pcsh, rgba );
+        break;
+    }
+  }
+
+  if( drawIntersection || drawFrontline )
+  {
+    const cgMediaBinaryShader_t *mbsh;
+    cgBinaryShaderSetting_t *bshs;
+    int i;
+
+    if( cg.numBinaryShadersUsed >= NUM_BINARY_SHADERS )
+      return;
+    mbsh = &cgs.media.binaryShaders[ cg.numBinaryShadersUsed ];
+
+    if( rmType == RMT_SPHERE )
+    {
+      if( range > lineThickness / 2 )
+      {
+        if( drawIntersection )
+          CG_DrawSphere( origin, range - lineThickness / 2, mbsh->b1, NULL );
+        CG_DrawSphere( origin, range - lineThickness / 2, mbsh->f2, NULL );
+      }
+
+      if( drawIntersection )
+        CG_DrawSphere( origin, range + lineThickness / 2, mbsh->b2, NULL );
+      CG_DrawSphere( origin, range + lineThickness / 2, mbsh->f1, NULL );
+    }
+    else if( rmType == RMT_SPHERICAL_CONE_64 || rmType == RMT_SPHERICAL_CONE_240 )
+    {
+      qboolean a240;
+      float f, r;
+      vec3_t forward, tip;
+
+      a240 = ( rmType == RMT_SPHERICAL_CONE_240 );
+      f = lineThickness * ( a240 ? 0.26f : 0.8f );
+      r = f + lineThickness * ( a240 ? 0.23f : 0.43f );
+      AngleVectors( angles, forward, NULL, NULL );
+
+      if( range > r )
+      {
+        VectorMA( origin, f, forward, tip );
+        if( drawIntersection )
+          CG_DrawSphericalCone( tip, angles, range - r, a240, mbsh->b1, NULL );
+        CG_DrawSphericalCone( tip, angles, range - r, a240, mbsh->f2, NULL );
+      }
+
+      VectorMA( origin, -f, forward, tip );
+      if( drawIntersection )
+        CG_DrawSphericalCone( tip, angles, range + r, a240, mbsh->b2, NULL );
+      CG_DrawSphericalCone( tip, angles, range + r, a240, mbsh->f1, NULL );
+    }
+
+    bshs = &cg.binaryShaderSettings[ cg.numBinaryShadersUsed ];
+
+    for( i = 0; i < 3; ++i )
+      bshs->color[ i ] = 255 * lineOpacity * rgb[ i ];
+    bshs->drawIntersection = drawIntersection;
+    bshs->drawFrontline = drawFrontline;
+
+    ++cg.numBinaryShadersUsed;
+  }
+}
+

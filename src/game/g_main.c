@@ -597,6 +597,10 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
   // we're done with g_mapConfigs, so reset this for the next map
   trap_Cvar_Set( "g_mapConfigsLoaded", "0" );
 
+  // set this cvar to 0 if it exists, but otherwise avoid its creation
+  if( trap_Cvar_VariableIntegerValue( "g_rangeMarkerWarningGiven" ) )
+    trap_Cvar_Set( "g_rangeMarkerWarningGiven", "0" );
+
   G_RegisterCommands( );
   G_admin_readconfig( NULL );
   G_LoadCensors( );
@@ -2397,6 +2401,7 @@ void G_RunFrame( int levelTime )
     G_CalculateAvgPlayers( );
     G_UpdateZaps( msec );
   }
+  G_UpdateBuildableRangeMarkers( );
 
   // see if it is time to end the level
   CheckExitRules( );

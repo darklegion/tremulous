@@ -922,6 +922,15 @@ typedef struct
 
 typedef struct
 {
+  byte color[ 3 ];
+  qboolean drawIntersection;
+  qboolean drawFrontline;
+} cgBinaryShaderSetting_t;
+
+#define NUM_BINARY_SHADERS 256
+
+typedef struct
+{
   int           clientFrame;                        // incremented each frame
 
   int           clientNum;
@@ -1156,6 +1165,9 @@ typedef struct
   int           nearUsableBuildable;
   
   int           nextWeaponClickTime;
+
+  int           numBinaryShadersUsed;
+  cgBinaryShaderSetting_t binaryShaderSettings[ NUM_BINARY_SHADERS ];
 } cg_t;
 
 
@@ -1163,6 +1175,17 @@ typedef struct
 // loaded at gamestate time are stored in cgMedia_t
 // Other media that can be tied to clients, weapons, or items are
 // stored in the clientInfo_t, itemInfo_t, weaponInfo_t, and powerupInfo_t
+
+typedef struct
+{
+  qhandle_t f1;
+  qhandle_t f2;
+  qhandle_t f3;
+  qhandle_t b1;
+  qhandle_t b2;
+  qhandle_t b3;
+} cgMediaBinaryShader_t;
+
 typedef struct
 {
   qhandle_t   charsetShader;
@@ -1196,6 +1219,14 @@ typedef struct
   qhandle_t   greenBuildShader;
   qhandle_t   redBuildShader;
   qhandle_t   humanSpawningShader;
+
+  qhandle_t   sphereModel;
+  qhandle_t   sphericalCone64Model;
+  qhandle_t   sphericalCone240Model;
+
+  qhandle_t   plainColorShader;
+  qhandle_t   binaryAlpha1Shader;
+  cgMediaBinaryShader_t binaryShaders[ NUM_BINARY_SHADERS ];
 
   // disconnect
   qhandle_t   disconnectPS;
@@ -1411,6 +1442,22 @@ typedef struct
   void ( *function )( void );
 } consoleCommand_t;
 
+typedef enum
+{
+  SHC_DARK_BLUE,
+  SHC_LIGHT_BLUE,
+  SHC_GREEN_CYAN,
+  SHC_VIOLET,
+  SHC_YELLOW,
+  SHC_ORANGE,
+  SHC_LIGHT_GREEN,
+  SHC_DARK_GREEN,
+  SHC_RED,
+  SHC_PINK,
+  SHC_GREY,
+  SHC_NUM_SHADER_COLORS
+} shaderColorEnum_t;
+
 //==============================================================================
 
 extern  cgs_t     cgs;
@@ -1422,6 +1469,8 @@ extern  weaponInfo_t    cg_weapons[ 32 ];
 extern  upgradeInfo_t   cg_upgrades[ 32 ];
 
 extern  buildableInfo_t cg_buildables[ BA_NUM_BUILDABLES ];
+
+extern  const vec3_t    cg_shaderColors[ SHC_NUM_SHADER_COLORS ];
 
 extern  markPoly_t      cg_markPolys[ MAX_MARK_POLYS ];
 
@@ -1509,6 +1558,16 @@ extern  vmCvar_t    cg_disableCommandDialogs;
 extern  vmCvar_t    cg_disableScannerPlane;
 extern  vmCvar_t    cg_tutorial;
 
+extern  vmCvar_t    cg_rangeMarkerDrawSurface;
+extern  vmCvar_t    cg_rangeMarkerDrawIntersection;
+extern  vmCvar_t    cg_rangeMarkerDrawFrontline;
+extern  vmCvar_t    cg_rangeMarkerSurfaceOpacity;
+extern  vmCvar_t    cg_rangeMarkerLineOpacity;
+extern  vmCvar_t    cg_rangeMarkerLineThickness;
+extern  vmCvar_t    cg_rangeMarkerForBlueprint;
+extern  vmCvar_t    cg_rangeMarkerBuildableTypes;
+extern  vmCvar_t    cg_binaryShaderScreenScale;
+
 extern  vmCvar_t    cg_painBlendUpRate;
 extern  vmCvar_t    cg_painBlendDownRate;
 extern  vmCvar_t    cg_painBlendMax;
@@ -1567,6 +1626,10 @@ void        CG_BuildSpectatorString( void );
 qboolean    CG_FileExists( const char *filename );
 void        CG_RemoveNotifyLine( void );
 void        CG_AddNotifyText( void );
+qboolean    CG_GetRangeMarkerPreferences( qboolean *drawSurface, qboolean *drawIntersection,
+                                          qboolean *drawFrontline, float *surfaceOpacity,
+                                          float *lineOpacity, float *lineThickness );
+void        CG_UpdateBuildableRangeMarkerMask( void );
 
 
 //
@@ -1609,6 +1672,12 @@ void        CG_DrawTopBottom(float x, float y, float w, float h, float size);
 qboolean    CG_WorldToScreen( vec3_t point, float *x, float *y );
 char        *CG_KeyBinding( const char *bind );
 char        CG_GetColorCharForHealth( int clientnum );
+void        CG_DrawSphere( const vec3_t center, float radius, int customShader, const float *shaderRGBA );
+void        CG_DrawSphericalCone( const vec3_t tip, const vec3_t rotation, float radius,
+                                  qboolean a240, int customShader, const float *shaderRGBA );
+void        CG_DrawRangeMarker( rangeMarkerType_t rmType, const vec3_t origin, const float *angles, float range,
+                                qboolean drawSurface, qboolean drawIntersection, qboolean drawFrontline,
+                                const vec3_t rgb, float surfaceOpacity, float lineOpacity, float lineThickness );
 
 //
 // cg_draw.c
@@ -1659,6 +1728,7 @@ void        CG_DrawBuildableStatus( void );
 void        CG_InitBuildables( void );
 void        CG_HumanBuildableExplosion( vec3_t origin, vec3_t dir );
 void        CG_AlienBuildableExplosion( vec3_t origin, vec3_t dir );
+qboolean    CG_GetBuildableRangeMarkerProperties( buildable_t bType, rangeMarkerType_t *rmType, float *range, vec3_t rgb );
 
 //
 // cg_animation.c
@@ -1709,6 +1779,7 @@ void        CG_PositionEntityOnTag( refEntity_t *entity, const refEntity_t *pare
                                     qhandle_t parentModel, char *tagName );
 void        CG_PositionRotatedEntityOnTag( refEntity_t *entity, const refEntity_t *parent,
                                            qhandle_t parentModel, char *tagName );
+void        CG_RangeMarker( centity_t *cent );
 
 
 //

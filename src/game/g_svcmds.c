@@ -58,6 +58,9 @@ void  Svcmd_EntityList_f( void )
       case ET_BUILDABLE:
         G_Printf( "ET_BUILDABLE        " );
         break;
+      case ET_RANGE_MARKER:
+        G_Printf( "ET_RANGE_MARKER     " );
+        break;
       case ET_LOCATION:
         G_Printf( "ET_LOCATION         " );
         break;

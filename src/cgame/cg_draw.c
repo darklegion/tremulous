@@ -3590,6 +3590,66 @@ void CG_ResetPainBlend( void )
 }
 
 /*
+================
+CG_DrawBinaryShadersFinalPhases
+================
+*/
+static void CG_DrawBinaryShadersFinalPhases( void )
+{
+  float ss, f, l, u;
+  polyVert_t verts[ 4 ] = {
+    { { 0, 0, 0 }, { 0, 0 }, { 255, 255, 255, 255 } },
+    { { 0, 0, 0 }, { 1, 0 }, { 255, 255, 255, 255 } },
+    { { 0, 0, 0 }, { 1, 1 }, { 255, 255, 255, 255 } },
+    { { 0, 0, 0 }, { 0, 1 }, { 255, 255, 255, 255 } }
+  };
+  int i, j, k;
+
+  if( !cg.numBinaryShadersUsed )
+    return;
+
+  ss = cg_binaryShaderScreenScale.value;
+  if( ss <= 0.0f )
+  {
+    cg.numBinaryShadersUsed = 0;
+    return;
+  }
+  else if( ss > 1.0f )
+    ss = 1.0f;
+
+  ss = sqrt( ss );
+
+  f = 1.01f; // FIXME: is this a good choice to avoid near-clipping?
+  l = f * tan( DEG2RAD( cg.refdef.fov_x / 2 ) ) * ss;
+  u = f * tan( DEG2RAD( cg.refdef.fov_y / 2 ) ) * ss;
+
+  VectorMA( cg.refdef.vieworg, f, cg.refdef.viewaxis[ 0 ], verts[ 0 ].xyz );
+  VectorMA( verts[ 0 ].xyz, l, cg.refdef.viewaxis[ 1 ], verts[ 0 ].xyz );
+  VectorMA( verts[ 0 ].xyz, u, cg.refdef.viewaxis[ 2 ], verts[ 0 ].xyz );
+  VectorMA( verts[ 0 ].xyz, -2*l, cg.refdef.viewaxis[ 1 ], verts[ 1 ].xyz );
+  VectorMA( verts[ 1 ].xyz, -2*u, cg.refdef.viewaxis[ 2 ], verts[ 2 ].xyz );
+  VectorMA( verts[ 0 ].xyz, -2*u, cg.refdef.viewaxis[ 2 ], verts[ 3 ].xyz );
+
+  trap_R_AddPolyToScene( cgs.media.binaryAlpha1Shader, 4, verts );
+
+  for( i = 0; i < cg.numBinaryShadersUsed; ++i )
+  {
+    for( j = 0; j < 4; ++j )
+    {
+      for( k = 0; k < 3; ++k )
+        verts[ j ].modulate[ k ] = cg.binaryShaderSettings[ i ].color[ k ];
+    }
+
+    if( cg.binaryShaderSettings[ i ].drawFrontline )
+      trap_R_AddPolyToScene( cgs.media.binaryShaders[ i ].f3, 4, verts );
+    if( cg.binaryShaderSettings[ i ].drawIntersection )
+      trap_R_AddPolyToScene( cgs.media.binaryShaders[ i ].b3, 4, verts );
+  }
+
+  cg.numBinaryShadersUsed = 0;
+}
+
+/*
 =====================
 CG_DrawActive
 
@@ -3630,6 +3690,8 @@ void CG_DrawActive( stereoFrame_t stereoView )
   if( separation != 0 )
     VectorMA( cg.refdef.vieworg, -separation, cg.refdef.viewaxis[ 1 ],
               cg.refdef.vieworg );
+
+  CG_DrawBinaryShadersFinalPhases( );
 
   // draw 3D view
   trap_R_RenderScene( &cg.refdef );

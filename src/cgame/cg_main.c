@@ -190,6 +190,16 @@ vmCvar_t  cg_disableCommandDialogs;
 vmCvar_t  cg_disableScannerPlane;
 vmCvar_t  cg_tutorial;
 
+vmCvar_t  cg_rangeMarkerDrawSurface;
+vmCvar_t  cg_rangeMarkerDrawIntersection;
+vmCvar_t  cg_rangeMarkerDrawFrontline;
+vmCvar_t  cg_rangeMarkerSurfaceOpacity;
+vmCvar_t  cg_rangeMarkerLineOpacity;
+vmCvar_t  cg_rangeMarkerLineThickness;
+vmCvar_t  cg_rangeMarkerForBlueprint;
+vmCvar_t  cg_rangeMarkerBuildableTypes;
+vmCvar_t  cg_binaryShaderScreenScale;
+
 vmCvar_t  cg_painBlendUpRate;
 vmCvar_t  cg_painBlendDownRate;
 vmCvar_t  cg_painBlendMax;
@@ -307,6 +317,18 @@ static cvarTable_t cvarTable[ ] =
   { &cg_disableCommandDialogs, "cg_disableCommandDialogs", "0", CVAR_ARCHIVE },
   { &cg_disableScannerPlane, "cg_disableScannerPlane", "0", CVAR_ARCHIVE },
   { &cg_tutorial, "cg_tutorial", "1", CVAR_ARCHIVE },
+
+  { &cg_rangeMarkerDrawSurface, "cg_rangeMarkerDrawSurface", "1", CVAR_ARCHIVE },
+  { &cg_rangeMarkerDrawIntersection, "cg_rangeMarkerDrawIntersection", "1", CVAR_ARCHIVE },
+  { &cg_rangeMarkerDrawFrontline, "cg_rangeMarkerDrawFrontline", "1", CVAR_ARCHIVE },
+  { &cg_rangeMarkerSurfaceOpacity, "cg_rangeMarkerSurfaceOpacity", "0.08", CVAR_ARCHIVE },
+  { &cg_rangeMarkerLineOpacity, "cg_rangeMarkerLineOpacity", "0.4", CVAR_ARCHIVE },
+  { &cg_rangeMarkerLineThickness, "cg_rangeMarkerLineThickness", "4.0", CVAR_ARCHIVE },
+  { &cg_rangeMarkerForBlueprint, "cg_rangeMarkerForBlueprint", "1", CVAR_ARCHIVE },
+  { &cg_rangeMarkerBuildableTypes, "cg_rangeMarkerBuildableTypes", "support", CVAR_ARCHIVE },
+  { NULL, "cg_buildableRangeMarkerMask", "", CVAR_USERINFO },
+  { &cg_binaryShaderScreenScale, "cg_binaryShaderScreenScale", "1.0", CVAR_ARCHIVE },
+
   { &cg_hudFiles, "cg_hudFiles", "ui/hud.txt", CVAR_ARCHIVE},
   { NULL, "cg_alienConfig", "", CVAR_ARCHIVE },
   { NULL, "cg_humanConfig", "", CVAR_ARCHIVE },
@@ -417,6 +439,106 @@ static void CG_SetUIVars( void )
 }
 
 /*
+================
+CG_UpdateBuildableRangeMarkerMask
+================
+*/
+void CG_UpdateBuildableRangeMarkerMask( void )
+{
+  static int mc = 0;
+
+  if( cg_rangeMarkerBuildableTypes.modificationCount != mc )
+  {
+    int brmMask;
+    char buffer[ MAX_CVAR_VALUE_STRING ];
+    char *p, *q;
+    buildable_t buildable;
+
+    brmMask = 0;
+
+    if( !cg_rangeMarkerBuildableTypes.string[ 0 ] )
+      goto empty;
+
+    Q_strncpyz( buffer, cg_rangeMarkerBuildableTypes.string, sizeof( buffer ) );
+    p = &buffer[ 0 ];
+
+    for(;;)
+    {
+      q = strchr( p, ',' );
+      if( q )
+        *q = '\0';
+
+      while( *p == ' ' )
+        ++p;
+
+      buildable = BG_BuildableByName( p )->number;
+
+      if( buildable != BA_NONE )
+      {
+        brmMask |= 1 << buildable;
+      }
+      else if( !Q_stricmp( p, "all" ) )
+      {
+        brmMask |= ( 1 << BA_A_OVERMIND ) | ( 1 << BA_A_SPAWN ) |
+                   ( 1 << BA_A_ACIDTUBE ) | ( 1 << BA_A_TRAPPER ) | ( 1 << BA_A_HIVE ) |
+                   ( 1 << BA_H_REACTOR ) | ( 1 << BA_H_REPEATER ) | ( 1 << BA_H_DCC ) |
+                   ( 1 << BA_H_MGTURRET ) | ( 1 << BA_H_TESLAGEN );
+      }
+      else
+      {
+        char *pp;
+        int only;
+
+        if( !Q_stricmpn( p, "alien", 5 ) )
+        {
+          pp = p + 5;
+          only = ( 1 << BA_A_OVERMIND ) | ( 1 << BA_A_SPAWN ) |
+                 ( 1 << BA_A_ACIDTUBE ) | ( 1 << BA_A_TRAPPER ) | ( 1 << BA_A_HIVE );
+        }
+        else if( !Q_stricmpn( p, "human", 5 ) )
+        {
+          pp = p + 5;
+          only = ( 1 << BA_H_REACTOR ) | ( 1 << BA_H_REPEATER ) | ( 1 << BA_H_DCC ) |
+                 ( 1 << BA_H_MGTURRET ) | ( 1 << BA_H_TESLAGEN );
+        }
+        else
+        {
+          pp = p;
+          only = ~0;
+        }
+
+        if( pp != p && !*pp )
+        {
+          brmMask |= only;
+        }
+        else if( !Q_stricmp( pp, "support" ) )
+        {
+          brmMask |= only & ( ( 1 << BA_A_OVERMIND ) | ( 1 << BA_A_SPAWN ) |
+                              ( 1 << BA_H_REACTOR ) | ( 1 << BA_H_REPEATER ) | ( 1 << BA_H_DCC ) );
+        }
+        else if( !Q_stricmp( pp, "offensive" ) )
+        {
+          brmMask |= only & ( ( 1 << BA_A_ACIDTUBE ) | ( 1 << BA_A_TRAPPER ) | ( 1 << BA_A_HIVE ) |
+                              ( 1 << BA_H_MGTURRET ) | ( 1 << BA_H_TESLAGEN ) );
+        }
+        else
+          Com_Printf( S_COLOR_YELLOW "WARNING: unknown buildable or group: %s\n", p );
+      }
+
+      if( q )
+        p = q + 1;
+      else
+        break;
+    }
+
+    empty:
+    trap_Cvar_Set( "cg_buildableRangeMarkerMask", va( "%i", brmMask ) );
+
+    mc = cg_rangeMarkerBuildableTypes.modificationCount;
+  }
+}
+
+/*
 =================
 CG_UpdateCvars
 =================
@@ -433,7 +555,7 @@ void CG_UpdateCvars( void )
   // check for modications here
 
   CG_SetUIVars( );
-
+  CG_UpdateBuildableRangeMarkerMask();
 }
 
 
@@ -808,6 +930,22 @@ static void CG_RegisterGraphics( void )
 
   cgs.media.alienBleedPS              = CG_RegisterParticleSystem( "alienBleedPS" );
   cgs.media.humanBleedPS              = CG_RegisterParticleSystem( "humanBleedPS" );
+
+  cgs.media.sphereModel               = trap_R_RegisterModel( "models/generic/sphere" );
+  cgs.media.sphericalCone64Model      = trap_R_RegisterModel( "models/generic/sphericalCone64" );
+  cgs.media.sphericalCone240Model     = trap_R_RegisterModel( "models/generic/sphericalCone240" );
+
+  cgs.media.plainColorShader          = trap_R_RegisterShader( "gfx/plainColor" );
+  cgs.media.binaryAlpha1Shader        = trap_R_RegisterShader( "gfx/binary/alpha1" );
+  for( i = 0; i < NUM_BINARY_SHADERS; ++i )
+  {
+    cgs.media.binaryShaders[ i ].f1 = trap_R_RegisterShader( va( "gfx/binary/%03i_F1", i ) );
+    cgs.media.binaryShaders[ i ].f2 = trap_R_RegisterShader( va( "gfx/binary/%03i_F2", i ) );
+    cgs.media.binaryShaders[ i ].f3 = trap_R_RegisterShader( va( "gfx/binary/%03i_F3", i ) );
+    cgs.media.binaryShaders[ i ].b1 = trap_R_RegisterShader( va( "gfx/binary/%03i_B1", i ) );
+    cgs.media.binaryShaders[ i ].b2 = trap_R_RegisterShader( va( "gfx/binary/%03i_B2", i ) );
+    cgs.media.binaryShaders[ i ].b3 = trap_R_RegisterShader( va( "gfx/binary/%03i_B3", i ) );
+  }
 
   CG_BuildableStatusParse( "ui/assets/human/buildstat.cfg", &cgs.humanBuildStat );
   CG_BuildableStatusParse( "ui/assets/alien/buildstat.cfg", &cgs.alienBuildStat );
@@ -1907,5 +2045,50 @@ static char *CG_VoIPString( void )
     return NULL;
 
   return voipString;
+}
+
+const vec3_t cg_shaderColors[ SHC_NUM_SHADER_COLORS ] =
+{
+  { 0.0f,   0.0f,   0.75f  }, // dark blue
+  { 0.3f,   0.35f,  0.625f }, // light blue
+  { 0.0f,   0.625f, 0.563f }, // green-cyan
+  { 0.313f, 0.0f,   0.625f }, // violet
+  { 0.625f, 0.625f, 0.0f   }, // yellow
+  { 0.875f, 0.313f, 0.0f   }, // orange
+  { 0.375f, 0.625f, 0.375f }, // light green
+  { 0.0f,   0.438f, 0.0f   }, // dark green
+  { 1.0f,   0.0f,   0.0f   }, // red
+  { 0.625f, 0.375f, 0.4f   }, // pink
+  { 0.313f, 0.313f, 0.313f }  // grey
+};
+
+/*
+================
+CG_RangeMarkerPreferences
+================
+*/
+qboolean CG_GetRangeMarkerPreferences( qboolean *drawSurface, qboolean *drawIntersection,
+                                       qboolean *drawFrontline, float *surfaceOpacity,
+                                       float *lineOpacity, float *lineThickness )
+{
+  *drawSurface = !!cg_rangeMarkerDrawSurface.integer;
+  *drawIntersection = !!cg_rangeMarkerDrawIntersection.integer;
+  *drawFrontline = !!cg_rangeMarkerDrawFrontline.integer;
+  *surfaceOpacity = cg_rangeMarkerSurfaceOpacity.value;
+  *lineOpacity = cg_rangeMarkerLineOpacity.value;
+  *lineThickness = cg_rangeMarkerLineThickness.value;
+
+  if( ( *drawSurface && *surfaceOpacity > 0.0f ) ||
+      ( ( *drawIntersection || *drawFrontline ) && *lineOpacity > 0.0f &&
+        *lineThickness > 0.0f && cg_binaryShaderScreenScale.value > 0.0f ) )
+  {
+    if( *surfaceOpacity > 1.0f )
+      *surfaceOpacity = 1.0f;
+    if( *lineOpacity > 1.0f )
+      *lineOpacity = 1.0f;
+    return qtrue;
+  }
+
+  return qfalse;
 }
 
