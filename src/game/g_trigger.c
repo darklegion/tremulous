@@ -626,7 +626,7 @@ trigger_buildable_touch
 void trigger_buildable_touch( gentity_t *ent, gentity_t *other, trace_t *trace )
 {
   //only triggered by buildables
-  if( !other || other->s.eType != ET_BUILDABLE )
+  if( other->s.eType != ET_BUILDABLE )
     return;
 
   trigger_buildable_trigger( ent, other );
