@@ -561,7 +561,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
       if( clientNum == cg.predictedPlayerState.clientNum )
       {
         // smooth landing z changes
-        cg.landChange = -8;
+        cg.landChange = -1 * BG_Class( cg.predictedPlayerState.stats[ STAT_CLASS ] )->landBob;
         cg.landTime = cg.time;
       }
       break;
@@ -573,19 +573,19 @@ void CG_EntityEvent( centity_t *cent, vec3_t position )
       if( clientNum == cg.predictedPlayerState.clientNum )
       {
         // smooth landing z changes
-        cg.landChange = -16;
+        cg.landChange = -2 * BG_Class( cg.predictedPlayerState.stats[ STAT_CLASS ] )->landBob;
         cg.landTime = cg.time;
       }
       break;
 
     case EV_FALL_FAR:
-      trap_S_StartSound (NULL, es->number, CHAN_AUTO, CG_CustomSound( es->number, "*fall1.wav" ) );
+      trap_S_StartSound( NULL, es->number, CHAN_AUTO, CG_CustomSound( es->number, "*fall1.wav" ) );
       cent->pe.painTime = cg.time;  // don't play a pain sound right after this
 
       if( clientNum == cg.predictedPlayerState.clientNum )
       {
         // smooth landing z changes
-        cg.landChange = -24;
+        cg.landChange = -3 * BG_Class( cg.predictedPlayerState.stats[ STAT_CLASS ] )->landBob;
         cg.landTime = cg.time;
       }
       break;

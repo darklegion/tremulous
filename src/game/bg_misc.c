@@ -864,6 +864,7 @@ static const classAttributes_t bg_classList[ ] =
     90,                                             //int     fov;
     0.000f,                                         //float   bob;
     1.0f,                                           //float   bobCycle;
+    0.0f,                                           //float   landBob;
     0,                                              //int     steptime;
     600,                                            //float   speed;
     10.0f,                                          //float   acceleration;
@@ -891,6 +892,7 @@ static const classAttributes_t bg_classList[ ] =
     110,                                            //int     fov;
     0.001f,                                         //float   bob;
     2.0f,                                           //float   bobCycle;
+    4.5f,                                           //float   landBob;
     150,                                            //int     steptime;
     ABUILDER_SPEED,                                 //float   speed;
     10.0f,                                          //float   acceleration;
@@ -919,6 +921,7 @@ static const classAttributes_t bg_classList[ ] =
     110,                                            //int     fov;
     0.001f,                                         //float   bob;
     2.0f,                                           //float   bobCycle;
+    4.5f,                                           //float   landBob;
     100,                                            //int     steptime;
     ABUILDER_UPG_SPEED,                             //float   speed;
     10.0f,                                          //float   acceleration;
@@ -946,6 +949,7 @@ static const classAttributes_t bg_classList[ ] =
     140,                                            //int     fov;
     0.0f,                                           //float   bob;
     2.5f,                                           //float   bobCycle;
+    0.0f,                                           //float   landBob;
     25,                                             //int     steptime;
     LEVEL0_SPEED,                                   //float   speed;
     10.0f,                                          //float   acceleration;
@@ -975,6 +979,7 @@ static const classAttributes_t bg_classList[ ] =
     120,                                            //int     fov;
     0.001f,                                         //float   bob;
     1.8f,                                           //float   bobCycle;
+    0.0f,                                           //float   landBob;
     60,                                             //int     steptime;
     LEVEL1_SPEED,                                   //float   speed;
     10.0f,                                          //float   acceleration;
@@ -1004,6 +1009,7 @@ static const classAttributes_t bg_classList[ ] =
     120,                                            //int     fov;
     0.001f,                                         //float   bob;
     1.8f,                                           //float   bobCycle;
+    0.0f,                                           //float   landBob;
     60,                                             //int     steptime;
     LEVEL1_UPG_SPEED,                               //float   speed;
     10.0f,                                          //float   acceleration;
@@ -1031,6 +1037,7 @@ static const classAttributes_t bg_classList[ ] =
     90,                                             //int     fov;
     0.001f,                                         //float   bob;
     1.5f,                                           //float   bobCycle;
+    0.0f,                                           //float   landBob;
     80,                                             //int     steptime;
     LEVEL2_SPEED,                                   //float   speed;
     10.0f,                                          //float   acceleration;
@@ -1058,6 +1065,7 @@ static const classAttributes_t bg_classList[ ] =
     90,                                             //int     fov;
     0.001f,                                         //float   bob;
     1.5f,                                           //float   bobCycle;
+    0.0f,                                           //float   landBob;
     80,                                             //int     steptime;
     LEVEL2_UPG_SPEED,                               //float   speed;
     10.0f,                                          //float   acceleration;
@@ -1086,6 +1094,7 @@ static const classAttributes_t bg_classList[ ] =
     110,                                            //int     fov;
     0.0005f,                                        //float   bob;
     1.3f,                                           //float   bobCycle;
+    0.0f,                                           //float   landBob;
     90,                                             //int     steptime;
     LEVEL3_SPEED,                                   //float   speed;
     10.0f,                                          //float   acceleration;
@@ -1114,6 +1123,7 @@ static const classAttributes_t bg_classList[ ] =
     110,                                            //int     fov;
     0.0005f,                                        //float   bob;
     1.3f,                                           //float   bobCycle;
+    0.0f,                                           //float   landBob;
     90,                                             //int     steptime;
     LEVEL3_UPG_SPEED,                               //float   speed;
     10.0f,                                          //float   acceleration;
@@ -1143,6 +1153,7 @@ static const classAttributes_t bg_classList[ ] =
     90,                                             //int     fov;
     0.001f,                                         //float   bob;
     1.1f,                                           //float   bobCycle;
+    0.0f,                                           //float   landBob;
     100,                                            //int     steptime;
     LEVEL4_SPEED,                                   //float   speed;
     10.0f,                                          //float   acceleration;
@@ -1169,6 +1180,7 @@ static const classAttributes_t bg_classList[ ] =
     90,                                             //int     fov;
     0.002f,                                         //float   bob;
     1.0f,                                           //float   bobCycle;
+    8.0f,                                           //float   landBob;
     100,                                            //int     steptime;
     1.0f,                                           //float   speed;
     10.0f,                                          //float   acceleration;
@@ -1195,6 +1207,7 @@ static const classAttributes_t bg_classList[ ] =
     90,                                             //int     fov;
     0.002f,                                         //float   bob;
     1.0f,                                           //float   bobCycle;
+    5.0f,                                           //float   landBob;
     100,                                            //int     steptime;
     1.0f,                                           //float   speed;
     10.0f,                                          //float   acceleration;
