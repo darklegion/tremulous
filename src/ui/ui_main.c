@@ -2974,11 +2974,6 @@ static void UI_RunMenuScript( char **args )
     else if( Q_stricmp( name, "LoadAlienUpgrades" ) == 0 )
     {
       UI_LoadAlienUpgrades( );
-
-      //disallow the menu if it would be empty
-
-      if( uiInfo.alienUpgradeCount <= 0 )
-        Menus_CloseAll( );
     }
     else if( Q_stricmp( name, "UpgradeToNewClass" ) == 0 )
     {
