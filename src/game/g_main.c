@@ -1268,6 +1268,8 @@ void G_CalculateStages( void )
   int           alienNextStageThreshold, humanNextStageThreshold;
   static int    lastAlienStageModCount  = 1;
   static int    lastHumanStageModCount  = 1;
+  static int    alienTriggerStage       = 0;
+  static int    humanTriggerStage       = 0;
 
   if( alienPlayerCountMod < 0.1f )
     alienPlayerCountMod = 0.1f;
@@ -1317,7 +1319,8 @@ void G_CalculateStages( void )
 
   if( g_alienStage.modificationCount > lastAlienStageModCount )
   {
-    G_Checktrigger_stages( TEAM_ALIENS, g_alienStage.integer );
+    while( alienTriggerStage < MIN( g_alienStage.integer, S3 ) )
+      G_Checktrigger_stages( TEAM_ALIENS, ++alienTriggerStage );
 
     if( g_alienStage.integer == S2 )
       level.alienStage2Time = level.time;
@@ -1329,7 +1332,8 @@ void G_CalculateStages( void )
 
   if( g_humanStage.modificationCount > lastHumanStageModCount )
   {
-    G_Checktrigger_stages( TEAM_HUMANS, g_humanStage.integer );
+    while( humanTriggerStage < MIN( g_humanStage.integer, S3 ) )
+      G_Checktrigger_stages( TEAM_HUMANS, ++humanTriggerStage );
 
     if( g_humanStage.integer == S2 )
       level.humanStage2Time = level.time;
