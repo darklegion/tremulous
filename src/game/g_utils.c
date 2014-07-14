@@ -569,7 +569,7 @@ void G_KillBox( gentity_t *ent )
   {
     hit = &g_entities[ touch[ i ] ];
 
-    if( !hit->client )
+    if( ent->client && !hit->client ) // players can telefrag only other players
       continue;
 
     // impossible to telefrag self
