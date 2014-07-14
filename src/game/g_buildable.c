@@ -2129,12 +2129,15 @@ void HMedistat_Think( gentity_t *self )
       if( self->enemy->client->ps.stats[ STAT_STAMINA ] > STAMINA_MAX )
         self->enemy->client->ps.stats[ STAT_STAMINA ] = STAMINA_MAX;
 
-      self->enemy->health++;
+      if( self->enemy->health < self->enemy->client->ps.stats[ STAT_MAX_HEALTH ] )
+      {
+        self->enemy->health++;
+        self->enemy->client->ps.stats[ STAT_HEALTH ] = self->enemy->health;
+      }
 
       //if they're completely healed, give them a medkit
       if( self->enemy->health >= self->enemy->client->ps.stats[ STAT_MAX_HEALTH ] )
       {
-        self->enemy->health =  self->enemy->client->ps.stats[ STAT_MAX_HEALTH ];
         if( !BG_InventoryContainsUpgrade( UP_MEDKIT, self->enemy->client->ps.stats ) )
           BG_AddUpgradeToInventory( UP_MEDKIT, self->enemy->client->ps.stats );
       }
@@ -2713,28 +2716,31 @@ void G_BuildableThink( gentity_t *ent, int msec )
   {
     ent->time1000 -= 1000;
 
-    if( !ent->spawned && ent->health > 0 )
-      ent->health += (int)( ceil( (float)maxHealth / (float)( buildTime * 0.001f ) ) );
-    else if( ent->health > 0 && ent->health < maxHealth )
+    if( ent->health > 0 && ent->health < maxHealth )
     {
-      if( ent->buildableTeam == TEAM_ALIENS && regenRate &&
-        ( ent->lastDamageTime + ALIEN_REGEN_DAMAGE_TIME ) < level.time )
+      if( !ent->spawned )
+        ent->health += (int)( ceil( (float)maxHealth / (float)( buildTime * 0.001f ) ) );
+      else
       {
-        ent->health += regenRate;
+        if( ent->buildableTeam == TEAM_ALIENS && regenRate &&
+          ( ent->lastDamageTime + ALIEN_REGEN_DAMAGE_TIME ) < level.time )
+        {
+          ent->health += regenRate;
+        }
+        else if( ent->buildableTeam == TEAM_HUMANS && ent->dcc &&
+          ( ent->lastDamageTime + HUMAN_REGEN_DAMAGE_TIME ) < level.time )
+        {
+          ent->health += DC_HEALRATE * ent->dcc;
+        }
       }
-      else if( ent->buildableTeam == TEAM_HUMANS && ent->dcc &&
-        ( ent->lastDamageTime + HUMAN_REGEN_DAMAGE_TIME ) < level.time )
-      {
-        ent->health += DC_HEALRATE * ent->dcc;
-      }
-    }
 
-    if( ent->health >= maxHealth )
-    {
-      int i;
-      ent->health = maxHealth;
-      for( i = 0; i < MAX_CLIENTS; i++ )
-        ent->credits[ i ] = 0;
+      if( ent->health >= maxHealth )
+      {
+        int i;
+        ent->health = maxHealth;
+        for( i = 0; i < MAX_CLIENTS; i++ )
+          ent->credits[ i ] = 0;
+      }
     }
   }
 

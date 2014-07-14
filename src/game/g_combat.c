@@ -1160,7 +1160,11 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
         targ->flags |= FL_NO_KNOCKBACK;
 
       if( targ->health < -999 )
+      {
         targ->health = -999;
+        if( targ->client )
+          targ->client->ps.stats[ STAT_HEALTH ] = -999;
+      }
 
       targ->enemy = attacker;
       targ->die( targ, inflictor, attacker, take, mod );

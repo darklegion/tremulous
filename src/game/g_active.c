@@ -676,6 +676,7 @@ void ClientTimerActions( gentity_t *ent, int msec )
         {
           ent->client->medKitHealthToRestore--;
           ent->health++;
+          ent->client->ps.stats[ STAT_HEALTH ] = ent->health;
         }
         else
           ent->client->ps.stats[ STAT_STATE ] &= ~SS_HEALING_2X;
@@ -691,6 +692,7 @@ void ClientTimerActions( gentity_t *ent, int msec )
           {
             ent->client->medKitHealthToRestore--;
             ent->health++;
+            ent->client->ps.stats[ STAT_HEALTH ] = ent->health;
 
             client->medKitIncrementTime = level.time +
               ( remainingStartupTime / MEDKIT_STARTUP_SPEED );
@@ -1462,16 +1464,20 @@ void ClientThink_real( gentity_t *ent )
       interval = 1000 / ( regenRate * modifier );
       // if recovery interval is less than frametime, compensate
       count = 1 + ( level.time - ent->nextRegenTime ) / interval;
-
-      ent->health += count;
       ent->nextRegenTime += count * interval;
 
-      // if at max health, clear damage counters
-      if( ent->health >= client->ps.stats[ STAT_MAX_HEALTH ] )
+      if( ent->health < client->ps.stats[ STAT_MAX_HEALTH ] )
       {
-        ent->health = client->ps.stats[ STAT_MAX_HEALTH ];
-        for( i = 0; i < MAX_CLIENTS; i++ )
-          ent->credits[ i ] = 0;
+        ent->health += count;
+        client->ps.stats[ STAT_HEALTH ] = ent->health;
+
+        // if at max health, clear damage counters
+        if( ent->health >= client->ps.stats[ STAT_MAX_HEALTH ] )
+        {
+          ent->health = client->ps.stats[ STAT_HEALTH ] = client->ps.stats[ STAT_MAX_HEALTH ];
+          for( i = 0; i < MAX_CLIENTS; i++ )
+            ent->credits[ i ] = 0;
+        }
       }
     }
   }
@@ -1844,12 +1850,6 @@ void ClientEndFrame( gentity_t *ent )
     ent->s.eFlags |= EF_CONNECTION;
   else
     ent->s.eFlags &= ~EF_CONNECTION;
-
-  if( ent->client->ps.stats[ STAT_HEALTH ] != ent->health )
-  {
-    ent->client->ps.stats[ STAT_HEALTH ] = ent->health; // FIXME: get rid of ent->health...
-    ent->client->pers.infoChangeTime = level.time;
-  }
 
   // respawn if dead
   if( ent->client->ps.stats[ STAT_HEALTH ] <= 0 && level.time >= ent->client->respawnTime )

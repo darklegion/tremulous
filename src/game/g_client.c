@@ -525,8 +525,7 @@ static void SpawnCorpse( gentity_t *ent )
 
   body->takedamage = qfalse;
 
-  body->health = ent->health = ent->client->ps.stats[ STAT_HEALTH ];
-  ent->health = 0;
+  body->health = ent->health;
 
   //change body dimensions
   BG_ClassBoundingBox( ent->client->ps.stats[ STAT_CLASS ], mins, NULL, NULL, body->r.mins, body->r.maxs );
@@ -1383,7 +1382,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   if( ent == spawn )
   {
     ent->health *= ent->client->pers.evolveHealthFraction;
-    client->ps.stats[ STAT_HEALTH ] *= ent->client->pers.evolveHealthFraction;
+    client->ps.stats[ STAT_HEALTH ] = ent->health;
   }
 
   //clear the credits array
