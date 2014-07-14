@@ -497,6 +497,9 @@ static void CG_Mover( centity_t *cent )
 
   s1 = &cent->currentState;
 
+  if( !s1->modelindex )
+    return;
+
   // create the render entity
   memset( &ent, 0, sizeof( ent ) );
   VectorCopy( cent->lerpOrigin, ent.origin );
