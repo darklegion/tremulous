@@ -1205,7 +1205,6 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, const vec3_t origin, const v
   clientSession_t     savedSess;
   qboolean            savedNoclip, savedCliprcontents;
   int                 persistant[ MAX_PERSISTANT ];
-  gentity_t           *spawnPoint = NULL;
   int                 flags;
   int                 savedPing;
   int                 teamLocal;
@@ -1237,43 +1236,38 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, const vec3_t origin, const v
   if( ent->client->sess.spectatorState == SPECTATOR_FOLLOW )
     G_StopFollowing( ent );
 
-  if( origin != NULL )
-    VectorCopy( origin, spawn_origin );
-
-  if( angles != NULL )
-    VectorCopy( angles, spawn_angles );
-
   // find a spawn point
   // do it before setting health back up, so farthest
   // ranging doesn't count this client
   if( client->sess.spectatorState != SPECTATOR_NOT )
   {
-    if( teamLocal == TEAM_NONE )
-      spawnPoint = G_SelectSpectatorSpawnPoint( spawn_origin, spawn_angles );
-    else if( teamLocal == TEAM_ALIENS )
-      spawnPoint = G_SelectAlienLockSpawnPoint( spawn_origin, spawn_angles );
+    if( teamLocal == TEAM_ALIENS )
+      spawn = G_SelectAlienLockSpawnPoint( spawn_origin, spawn_angles );
     else if( teamLocal == TEAM_HUMANS )
-      spawnPoint = G_SelectHumanLockSpawnPoint( spawn_origin, spawn_angles );
+      spawn = G_SelectHumanLockSpawnPoint( spawn_origin, spawn_angles );
+    else
+      spawn = G_SelectSpectatorSpawnPoint( spawn_origin, spawn_angles );
   }
   else
   {
-    if( spawn == NULL )
+    if( origin == NULL || angles == NULL )
     {
-      G_Error( "ClientSpawn: spawn is NULL" );
+      G_Error( "ClientSpawn: origin or angles is NULL" );
       return;
     }
 
-    spawnPoint = spawn;
+    VectorCopy( origin, spawn_origin );
+    VectorCopy( angles, spawn_angles );
 
-    if( ent != spawn )
+    if( spawn != NULL && spawn != ent )
     {
       //start spawn animation on spawnPoint
-      G_SetBuildableAnim( spawnPoint, BANIM_SPAWN1, qtrue );
+      G_SetBuildableAnim( spawn, BANIM_SPAWN1, qtrue );
 
-      if( spawnPoint->buildableTeam == TEAM_ALIENS )
-        spawnPoint->clientSpawnTime = ALIEN_SPAWN_REPEAT_TIME;
-      else if( spawnPoint->buildableTeam == TEAM_HUMANS )
-        spawnPoint->clientSpawnTime = HUMAN_SPAWN_REPEAT_TIME;
+      if( spawn->buildableTeam == TEAM_ALIENS )
+        spawn->clientSpawnTime = ALIEN_SPAWN_REPEAT_TIME;
+      else if( spawn->buildableTeam == TEAM_HUMANS )
+        spawn->clientSpawnTime = HUMAN_SPAWN_REPEAT_TIME;
     }
   }
 
@@ -1404,7 +1398,11 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, const vec3_t origin, const v
   if( client->sess.spectatorState == SPECTATOR_NOT &&
       client->ps.stats[ STAT_TEAM ] == TEAM_ALIENS )
   {
-    if( ent == spawn )
+    if( spawn == NULL )
+    {
+      G_AddPredictableEvent( ent, EV_PLAYER_RESPAWN, 0 );
+    }
+    else if( ent == spawn )
     {
       //evolution particle system
       G_AddPredictableEvent( ent, EV_ALIEN_EVOLVE, DirToByte( up ) );
@@ -1414,13 +1412,13 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, const vec3_t origin, const v
       spawn_angles[ YAW ] += 180.0f;
       AngleNormalize360( spawn_angles[ YAW ] );
 
-      if( spawnPoint->s.origin2[ 2 ] > 0.0f )
+      if( spawn->s.origin2[ 2 ] > 0.0f )
       {
         vec3_t  forward, dir;
 
         AngleVectors( spawn_angles, forward, NULL, NULL );
         VectorScale( forward, F_VEL, forward );
-        VectorAdd( spawnPoint->s.origin2, forward, dir );
+        VectorAdd( spawn->s.origin2, forward, dir );
         VectorNormalize( dir );
 
         VectorScale( dir, UP_VEL, client->ps.velocity );
@@ -1432,8 +1430,11 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, const vec3_t origin, const v
   else if( client->sess.spectatorState == SPECTATOR_NOT &&
            client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS )
   {
-    spawn_angles[ YAW ] += 180.0f;
-    AngleNormalize360( spawn_angles[ YAW ] );
+    if( spawn != NULL )
+    {
+      spawn_angles[ YAW ] += 180.0f;
+      AngleNormalize360( spawn_angles[ YAW ] );
+    }
   }
 
   // the respawned flag will be cleared after the attack and jump keys come up
@@ -1472,8 +1473,8 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, const vec3_t origin, const v
   else
   {
     // fire the targets of the spawn point
-    if( !spawn && spawnPoint )
-      G_UseTargets( spawnPoint, ent );
+    if( spawn != NULL && spawn != ent )
+      G_UseTargets( spawn, ent );
 
     client->ps.weapon = client->ps.stats[ STAT_WEAPON ];
   }
