@@ -4265,6 +4265,7 @@ static void G_LayoutBuildItem( buildable_t buildable, vec3_t origin,
   gentity_t *builder;
 
   builder = G_Spawn( );
+  builder->classname = "builder";
   VectorCopy( origin, builder->r.currentOrigin );
   VectorCopy( angles, builder->r.currentAngles );
   VectorCopy( origin2, builder->s.origin2 );
@@ -4550,6 +4551,7 @@ void G_BuildLogRevert( int id )
     else
     {
       gentity_t  *builder = G_Spawn();
+      builder->classname = "builder";
 
       VectorCopy( log->origin, builder->r.currentOrigin );
       VectorCopy( log->angles, builder->r.currentAngles );

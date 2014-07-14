@@ -1704,6 +1704,7 @@ void SP_func_door_model( gentity_t *ent )
 
   //brush model
   clipBrush = ent->clipBrush = G_Spawn( );
+  clipBrush->classname = "func_door_model_clip_brush";
   clipBrush->model = ent->model;
   trap_SetBrushModel( clipBrush, clipBrush->model );
   clipBrush->s.eType = ET_INVISIBLE;
