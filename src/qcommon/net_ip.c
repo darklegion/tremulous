@@ -1303,8 +1303,6 @@ static void NET_GetLocalAddress( void ) {
 	if(gethostname( hostname, 256 ) == SOCKET_ERROR)
 		return;
 
-	Com_Printf( "Hostname: %s\n", hostname );
-	
 	memset(&hint, 0, sizeof(hint));
 	
 	hint.ai_family = AF_UNSPEC;
