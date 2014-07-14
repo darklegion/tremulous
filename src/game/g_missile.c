@@ -590,6 +590,9 @@ void AHive_SearchAndDestroy( gentity_t *self )
   int       i;
   float     d, nearest;
 
+  if( self->parent && !self->parent->inuse )
+    self->parent = NULL;
+
   if( level.time > self->timestamp )
   {
     VectorCopy( self->r.currentOrigin, self->s.pos.trBase );
@@ -598,11 +601,20 @@ void AHive_SearchAndDestroy( gentity_t *self )
 
     self->think = G_ExplodeMissile;
     self->nextthink = level.time + 50;
-    self->parent->active = qfalse; //allow the parent to start again
+    if( self->parent )
+      self->parent->active = qfalse; //allow the parent to start again
     return;
   }
 
-  nearest = DistanceSquared( self->r.currentOrigin, self->target_ent->r.currentOrigin );
+  ent = self->target_ent;
+  if( ent && ent->health > 0 && ent->client && ent->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS )
+    nearest = DistanceSquared( self->r.currentOrigin, ent->r.currentOrigin );
+  else
+  {
+    self->target_ent = NULL;
+    nearest = 0; // silence warning
+  }
+
   //find the closest human
   for( i = 0; i < MAX_CLIENTS; i++ )
   {
@@ -614,7 +626,8 @@ void AHive_SearchAndDestroy( gentity_t *self )
     if( ent->client &&
         ent->health > 0 &&   
         ent->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS &&
-        nearest > (d = DistanceSquared( ent->r.currentOrigin, self->r.currentOrigin ) ) )
+        ( d = DistanceSquared( ent->r.currentOrigin, self->r.currentOrigin ),
+          ( self->target_ent == NULL || d < nearest ) ) )
     {
       trap_Trace( &tr, self->r.currentOrigin, self->r.mins, self->r.maxs,
                   ent->r.currentOrigin, self->r.ownerNum, self->clipmask );
@@ -625,8 +638,14 @@ void AHive_SearchAndDestroy( gentity_t *self )
       }
     }
   }
+
+  if( self->target_ent == NULL )
+    VectorClear( dir );
+  else
+  {
     VectorSubtract( self->target_ent->r.currentOrigin, self->r.currentOrigin, dir );
     VectorNormalize( dir );
+  }
 
     //change direction towards the player
     VectorScale( dir, HIVE_SPEED, self->s.pos.trDelta );

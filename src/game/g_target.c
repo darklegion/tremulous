@@ -31,6 +31,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 void Think_Target_Delay( gentity_t *ent )
 {
+  if( ent->activator && !ent->activator->inuse )
+    ent->activator = NULL;
   G_UseTargets( ent, ent->activator );
 }
 
