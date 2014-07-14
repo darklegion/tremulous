@@ -994,10 +994,10 @@ void G_UnlaggedCalc( int time, gentity_t *rewindEnt )
 {
   int i = 0;
   gentity_t *ent;
-  int startIndex = level.unlaggedIndex;
-  int stopIndex = -1;
-  int frameMsec = 0;
-  float lerp = 0.5f;
+  int startIndex;
+  int stopIndex;
+  int frameMsec;
+  float lerp;
 
   if( !g_unlagged.integer )
     return;
@@ -1009,13 +1009,18 @@ void G_UnlaggedCalc( int time, gentity_t *rewindEnt )
     ent->client->unlaggedCalc.used = qfalse;
   }
 
-  for( i = 0; i < MAX_UNLAGGED_MARKERS; i++ )
+  // client is on the current frame, no need for unlagged
+  if( level.unlaggedTimes[ level.unlaggedIndex ] <= time )
+    return;
+
+  startIndex = level.unlaggedIndex;
+  for( i = 1; i < MAX_UNLAGGED_MARKERS; i++ )
   {
-    if( level.unlaggedTimes[ startIndex ] <= time )
-      break;
     stopIndex = startIndex;
     if( --startIndex < 0 )
       startIndex = MAX_UNLAGGED_MARKERS - 1;
+    if( level.unlaggedTimes[ startIndex ] <= time )
+      break;
   }
   if( i == MAX_UNLAGGED_MARKERS )
   {
@@ -1023,18 +1028,11 @@ void G_UnlaggedCalc( int time, gentity_t *rewindEnt )
     // just use the oldest marker with no lerping
     lerp = 0.0f;
   }
-
-  // client is on the current frame, no need for unlagged
-  if( stopIndex == -1 )
-    return;
-
-  // lerp between two markers
-  frameMsec = level.unlaggedTimes[ stopIndex ] -
-    level.unlaggedTimes[ startIndex ];
-  if( frameMsec > 0 )
+  else
   {
-    lerp = ( float )( time - level.unlaggedTimes[ startIndex ] ) /
-      ( float )frameMsec;
+    // lerp between two markers
+    frameMsec = level.unlaggedTimes[ stopIndex ] - level.unlaggedTimes[ startIndex ];
+    lerp = ( float )( time - level.unlaggedTimes[ startIndex ] ) / ( float )frameMsec;
   }
 
   for( i = 0; i < level.maxclients; i++ )
