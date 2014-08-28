@@ -38,7 +38,7 @@ if [ -n "${CPPCHECK}" ]; then
 			exit 1
 		fi
 
-		cppcheck --enable=all --max-configs=1 --xml --xml-version=2 code 2> ${CPPCHECK}
+		cppcheck --enable=all --max-configs=1 --xml --xml-version=2 src 2> ${CPPCHECK}
 	fi
 
 	ln -sf ${CPPCHECK} cppcheck.xml
