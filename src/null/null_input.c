@@ -33,6 +33,3 @@ void IN_Shutdown( void ) {
 void IN_Restart( void ) {
 }
 
-void Sys_SendKeyEvents (void) {
-}
-
