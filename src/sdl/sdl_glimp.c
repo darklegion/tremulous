@@ -477,6 +477,10 @@ static int GLimp_SetMode( qboolean failSafe, qboolean fullscreen, qboolean nobor
 			continue;
 		}
 
+		qglClearColor( 0, 0, 0, 1 );
+		qglClear( GL_COLOR_BUFFER_BIT );
+		SDL_GL_SwapWindow( SDL_window );
+
 		SDL_GL_SetSwapInterval( r_swapInterval->integer );
 
 		glConfig.colorBits = testColorBits;
