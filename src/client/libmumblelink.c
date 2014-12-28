@@ -36,7 +36,7 @@
 #endif
 
 #include <fcntl.h>
-#include <inttypes.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
