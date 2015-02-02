@@ -191,6 +191,10 @@ void locateCamera( gentity_t *ent )
     G_SetMovedir( owner->r.currentAngles, dir );
 
   ent->s.eventParm = DirToByte( dir );
+
+  ByteToDir( ent->s.eventParm, dir );
+  vectoangles( dir, ent->r.currentAngles );
+  ent->r.currentAngles[ 2 ] = ent->s.clientNum * 360.0f / 256;
 }
 
 /*QUAKED misc_portal_surface (0 0 1) (-8 -8 -8) (8 8 8)
