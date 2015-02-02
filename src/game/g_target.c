@@ -157,7 +157,7 @@ void SP_target_speaker( gentity_t *ent )
   G_SpawnFloat( "random", "0", &ent->random );
 
   if( !G_SpawnString( "noise", "NOSOUND", &s ) )
-    G_Error( "target_speaker without a noise key at %s", vtos( ent->s.origin ) );
+    G_Error( "target_speaker without a noise key at %s", vtos( ent->r.currentOrigin ) );
 
   // force all client relative sounds to be "activator" speakers that
   // play on the entity that activates it
@@ -187,8 +187,6 @@ void SP_target_speaker( gentity_t *ent )
   if( ent->spawnflags & 4 )
     ent->r.svFlags |= SVF_BROADCAST;
 
-  VectorCopy( ent->s.origin, ent->s.pos.trBase );
-
   // must link the entity so we get areas and clusters so
   // the server can determine who to send updates to
   trap_LinkEntity( ent );
@@ -211,7 +209,7 @@ void target_teleporter_use( gentity_t *self, gentity_t *other, gentity_t *activa
     return;
   }
 
-  TeleportPlayer( activator, dest->s.origin, dest->s.angles, self->speed );
+  TeleportPlayer( activator, dest->r.currentOrigin, dest->r.currentAngles, self->speed );
 }
 
 /*QUAKED target_teleporter (1 0 0) (-8 -8 -8) (8 8 8)
@@ -220,7 +218,7 @@ The activator will be teleported away.
 void SP_target_teleporter( gentity_t *self )
 {
   if( !self->targetname )
-    G_Printf( "untargeted %s at %s\n", self->classname, vtos( self->s.origin ) );
+    G_Printf( "untargeted %s at %s\n", self->classname, vtos( self->r.currentOrigin ) );
 
   G_SpawnFloat( "speed", "400", &self->speed );
 
@@ -288,7 +286,7 @@ Used as a positional target for in-game calculation, like jumppad targets.
 */
 void SP_target_position( gentity_t *self )
 {
-  G_SetOrigin( self, self->s.origin );
+  G_SetOrigin( self, self->r.currentOrigin );
 }
 
 /*QUAKED target_location (0 0.5 0) (-8 -8 -8) (8 8 8)
@@ -330,7 +328,7 @@ void SP_target_location( gentity_t *self )
   level.locationHead = self;
   n++;
 
-  G_SetOrigin( self, self->s.origin );
+  G_SetOrigin( self, self->r.currentOrigin );
 }
 
 
@@ -391,7 +389,7 @@ void SP_target_rumble( gentity_t *self )
   if( !self->targetname )
   {
     G_Printf( S_COLOR_YELLOW "WARNING: untargeted %s at %s\n", self->classname,
-                                                               vtos( self->s.origin ) );
+                                                               vtos( self->r.currentOrigin ) );
   }
 
   if( !self->count )
@@ -470,7 +468,7 @@ void SP_target_hurt( gentity_t *self )
   if( !self->targetname )
   {
     G_Printf( S_COLOR_YELLOW "WARNING: untargeted %s at %s\n", self->classname,
-                                                               vtos( self->s.origin ) );
+                                                               vtos( self->r.currentOrigin ) );
   }
 
   if( !self->damage )

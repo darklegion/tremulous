@@ -482,7 +482,8 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd )
     Pmove( &pm );
 
     // Save results of pmove
-    VectorCopy( client->ps.origin, ent->s.origin );
+    VectorCopy( client->ps.origin, ent->s.pos.trBase );
+    VectorCopy( client->ps.origin, ent->r.currentOrigin );
 
     G_TouchTriggers( ent );
     trap_UnlinkEntity( ent );
@@ -1408,7 +1409,7 @@ void ClientThink_real( gentity_t *ent )
       {
         gentity_t *boost = &g_entities[ entityList[ i ] ];
 
-        if( Distance( client->ps.origin, boost->s.origin ) > REGEN_BOOST_RANGE )
+        if( Distance( client->ps.origin, boost->r.currentOrigin ) > REGEN_BOOST_RANGE )
           continue;
 
         if( modifier < BOOSTER_REGEN_MOD && boost->s.eType == ET_BUILDABLE &&
@@ -1639,7 +1640,7 @@ void ClientThink_real( gentity_t *ent )
 
   // NOTE: now copy the exact origin over otherwise clients can be snapped into solid
   VectorCopy( ent->client->ps.origin, ent->r.currentOrigin );
-  VectorCopy( ent->client->ps.origin, ent->s.origin );
+  VectorCopy( ent->client->ps.origin, ent->s.pos.trBase );
 
   // save results of triggers and client events
   if( ent->client->ps.eventSequence != oldEventSequence )

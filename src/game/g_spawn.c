@@ -113,8 +113,8 @@ field_t fields[ ] =
 {
   {"acceleration", FOFS(acceleration), F_VECTOR},
   {"alpha", FOFS(pos1), F_VECTOR},
-  {"angle", FOFS(s.angles), F_ANGLEHACK},
-  {"angles", FOFS(s.angles), F_VECTOR},
+  {"angle", FOFS(s.apos.trBase), F_ANGLEHACK},
+  {"angles", FOFS(s.apos.trBase), F_VECTOR},
   {"animation", FOFS(animation), F_VECTOR4},
   {"bounce", FOFS(physicsBounce), F_FLOAT},
   {"classname", FOFS(classname), F_STRING},
@@ -124,7 +124,7 @@ field_t fields[ ] =
   {"message", FOFS(message), F_STRING},
   {"model", FOFS(model), F_STRING},
   {"model2", FOFS(model2), F_STRING},
-  {"origin", FOFS(s.origin), F_VECTOR},
+  {"origin", FOFS(s.pos.trBase), F_VECTOR},
   {"radius", FOFS(pos2), F_VECTOR},
   {"random", FOFS(random), F_FLOAT},
   {"rotatorAngle", FOFS(rotatorAngle), F_FLOAT},
@@ -306,8 +306,9 @@ qboolean G_CallSpawn( gentity_t *ent )
 
     if( buildable == BA_A_SPAWN || buildable == BA_H_SPAWN )
     {
-      ent->s.angles[ YAW ] += 180.0f;
-      AngleNormalize360( ent->s.angles[ YAW ] );
+      ent->r.currentAngles[ YAW ] += 180.0f;
+      AngleNormalize360( ent->r.currentAngles[ YAW ] );
+      ent->s.apos.trBase[ YAW ] = ent->r.currentAngles[ YAW ];
     }
 
     G_SpawnBuildable( ent, buildable );
@@ -460,9 +461,8 @@ void G_SpawnGEntityFromSpawnVars( void )
     return;
   }
 
-  // move editor origin to pos
-  VectorCopy( ent->s.origin, ent->s.pos.trBase );
-  VectorCopy( ent->s.origin, ent->r.currentOrigin );
+  VectorCopy( ent->s.pos.trBase, ent->r.currentOrigin );
+  VectorCopy( ent->s.apos.trBase, ent->r.currentAngles );
 
   // if we didn't get a classname, don't bother spawning anything
   if( !G_CallSpawn( ent ) )

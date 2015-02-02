@@ -974,8 +974,8 @@ static void Cmd_SayArea_f( gentity_t *ent )
   G_LogPrintf( "SayArea: %d \"%s" S_COLOR_WHITE "\": " S_COLOR_BLUE "%s\n",
     (int)( ent - g_entities ), ent->client->pers.netname, msg );
 
-  VectorAdd( ent->s.origin, range, maxs );
-  VectorSubtract( ent->s.origin, range, mins );
+  VectorAdd( ent->r.currentOrigin, range, maxs );
+  VectorSubtract( ent->r.currentOrigin, range, mins );
 
   num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
   for( i = 0; i < num; i++ )
@@ -1149,8 +1149,8 @@ void Cmd_Where_f( gentity_t *ent )
     return;
   trap_SendServerCommand( ent - g_entities,
                           va( "print \"origin: %f %f %f\n\"",
-                              ent->s.origin[ 0 ], ent->s.origin[ 1 ],
-                              ent->s.origin[ 2 ] ) );
+                              ent->r.currentOrigin[ 0 ], ent->r.currentOrigin[ 1 ],
+                              ent->r.currentOrigin[ 2 ] ) );
 }
 
 /*
@@ -3074,7 +3074,7 @@ void Cmd_Damage_f( gentity_t *ent )
     dz = atof( arg );
     nonloc = qfalse;
   }
-  VectorCopy( ent->s.origin, point );
+  VectorCopy( ent->r.currentOrigin, point );
   point[ 0 ] += dx;
   point[ 1 ] += dy;
   point[ 2 ] += dz;

@@ -26,8 +26,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 void InitTrigger( gentity_t *self )
 {
-  if( !VectorCompare( self->s.angles, vec3_origin ) )
-    G_SetMovedir( self->s.angles, self->movedir );
+  if( !VectorCompare( self->r.currentAngles, vec3_origin ) )
+    G_SetMovedir( self->r.currentAngles, self->movedir );
 
   trap_SetBrushModel( self, self->model );
   self->r.contents = CONTENTS_TRIGGER;    // replaces the -1 from trap_SetBrushModel
@@ -189,7 +189,7 @@ void AimAtTarget( gentity_t *self )
     return;
   }
 
-  height = ent->s.origin[ 2 ] - origin[ 2 ];
+  height = ent->r.currentOrigin[ 2 ] - origin[ 2 ];
   gravity = g_gravity.value;
   time = sqrt( height / ( 0.5 * gravity ) );
 
@@ -200,7 +200,7 @@ void AimAtTarget( gentity_t *self )
   }
 
   // set s.origin2 to the push velocity
-  VectorSubtract( ent->s.origin, origin, self->s.origin2 );
+  VectorSubtract( ent->r.currentOrigin, origin, self->s.origin2 );
   self->s.origin2[ 2 ] = 0;
   dist = VectorNormalize( self->s.origin2 );
 
@@ -251,13 +251,13 @@ void SP_target_push( gentity_t *self )
   if( !self->speed )
     self->speed = 1000;
 
-  G_SetMovedir( self->s.angles, self->s.origin2 );
+  G_SetMovedir( self->r.currentAngles, self->s.origin2 );
   VectorScale( self->s.origin2, self->speed, self->s.origin2 );
 
   if( self->target )
   {
-    VectorCopy( self->s.origin, self->r.absmin );
-    VectorCopy( self->s.origin, self->r.absmax );
+    VectorCopy( self->r.currentOrigin, self->r.absmin );
+    VectorCopy( self->r.currentOrigin, self->r.absmax );
     self->think = AimAtTarget;
     self->nextthink = level.time + FRAMETIME;
   }
@@ -300,7 +300,7 @@ void trigger_teleporter_touch( gentity_t *self, gentity_t *other, trace_t *trace
     return;
   }
 
-  TeleportPlayer( other, dest->s.origin, dest->s.angles, self->speed );
+  TeleportPlayer( other, dest->r.currentOrigin, dest->r.currentAngles, self->speed );
 }
 
 /*
@@ -477,7 +477,7 @@ void SP_func_timer( gentity_t *self )
   if( self->random >= self->wait )
   {
     self->random = self->wait - FRAMETIME;
-    G_Printf( "func_timer at %s has random >= wait\n", vtos( self->s.origin ) );
+    G_Printf( "func_timer at %s has random >= wait\n", vtos( self->r.currentOrigin ) );
   }
 
   if( self->spawnflags & 1 )

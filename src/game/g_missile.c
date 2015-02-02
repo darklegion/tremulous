@@ -197,7 +197,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace )
       if( VectorLength( velocity ) == 0 )
         velocity[ 2 ] = 1;  // stepped on a grenade
 
-      G_Damage( other, ent, attacker, velocity, ent->s.origin, ent->damage,
+      G_Damage( other, ent, attacker, velocity, ent->r.currentOrigin, ent->damage,
         DAMAGE_NO_LOCDAMAGE, ent->methodOfDeath );
     }
   }

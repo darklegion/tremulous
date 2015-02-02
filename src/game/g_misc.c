@@ -44,7 +44,7 @@ target_position does the same thing
 */
 void SP_info_notnull( gentity_t *self )
 {
-  G_SetOrigin( self, self->s.origin );
+  G_SetOrigin( self, self->r.currentOrigin );
 }
 
 
@@ -136,8 +136,7 @@ void SP_misc_model( gentity_t *ent )
   VectorSet (ent->maxs, 16, 16, 16);
   trap_LinkEntity (ent);
 
-  G_SetOrigin( ent, ent->s.origin );
-  VectorCopy( ent->s.angles, ent->s.apos.trBase );
+  G_SetOrigin( ent, ent->r.currentOrigin );
 #else
   G_FreeEntity( ent );
 #endif
@@ -178,17 +177,17 @@ void locateCamera( gentity_t *ent )
   // clientNum holds the rotate offset
   ent->s.clientNum = owner->s.clientNum;
 
-  VectorCopy( owner->s.origin, ent->s.origin2 );
+  VectorCopy( owner->r.currentOrigin, ent->s.origin2 );
 
   // see if the portal_camera has a target
   target = G_PickTarget( owner->target );
   if( target )
   {
-    VectorSubtract( target->s.origin, owner->s.origin, dir );
+    VectorSubtract( target->r.currentOrigin, owner->r.currentOrigin, dir );
     VectorNormalize( dir );
   }
   else
-    G_SetMovedir( owner->s.angles, dir );
+    G_SetMovedir( owner->r.currentAngles, dir );
 
   ent->s.eventParm = DirToByte( dir );
 }
@@ -208,7 +207,7 @@ void SP_misc_portal_surface( gentity_t *ent )
 
   if( !ent->target )
   {
-    VectorCopy( ent->s.origin, ent->s.origin2 );
+    VectorCopy( ent->r.currentOrigin, ent->s.origin2 );
   }
   else
   {
@@ -280,8 +279,7 @@ void SP_misc_particle_system( gentity_t *self )
 {
   char  *s;
 
-  G_SetOrigin( self, self->s.origin );
-  VectorCopy( self->s.angles, self->s.apos.trBase );
+  G_SetOrigin( self, self->r.currentOrigin );
 
   G_SpawnString( "psName", "", &s );
   G_SpawnFloat( "wait", "0", &self->wait );
@@ -428,7 +426,7 @@ void SP_misc_light_flare( gentity_t *self )
 
   //try to find a spot near to the flare which is empty. This
   //is used to facilitate visibility testing
-  findEmptySpot( self->s.origin, 8.0f, self->s.angles2 );
+  findEmptySpot( self->r.currentOrigin, 8.0f, self->s.angles2 );
 
   self->use = SP_use_light_flare;
 

@@ -1239,8 +1239,8 @@ static void Touch_DoorTriggerSpectator( gentity_t *ent, gentity_t *other, trace_
   axis = ent->count;
   VectorClear( dir );
 
-  if( fabs( other->s.origin[ axis ] - ent->r.absmax[ axis ] ) <
-      fabs( other->s.origin[ axis ] - ent->r.absmin[ axis ] ) )
+  if( fabs( other->r.currentOrigin[ axis ] - ent->r.absmax[ axis ] ) <
+      fabs( other->r.currentOrigin[ axis ] - ent->r.absmin[ axis ] ) )
   {
     origin[ axis ] = ent->r.absmin[ axis ] - 20;
     dir[ axis ] = -1;
@@ -1507,11 +1507,13 @@ void SP_func_door( gentity_t *ent )
   G_SpawnInt( "dmg", "2", &ent->damage );
 
   // first position at start
-  VectorCopy( ent->s.origin, ent->pos1 );
+  VectorCopy( ent->r.currentOrigin, ent->pos1 );
 
+  G_SetMovedir( ent->r.currentAngles, ent->movedir );
+  VectorClear( ent->s.apos.trBase );
+  VectorClear( ent->r.currentOrigin );
   // calculate second position
   trap_SetBrushModel( ent, ent->model );
-  G_SetMovedir( ent->s.angles, ent->movedir );
   abs_movedir[ 0 ] = fabs( ent->movedir[ 0 ] );
   abs_movedir[ 1 ] = fabs( ent->movedir[ 1 ] );
   abs_movedir[ 2 ] = fabs( ent->movedir[ 2 ] );
@@ -1525,7 +1527,7 @@ void SP_func_door( gentity_t *ent )
     vec3_t  temp;
 
     VectorCopy( ent->pos2, temp );
-    VectorCopy( ent->s.origin, ent->pos2 );
+    VectorCopy( ent->r.currentOrigin, ent->pos2 );
     VectorCopy( temp, ent->pos1 );
   }
 
@@ -1601,7 +1603,8 @@ void SP_func_door_rotating( gentity_t *ent )
 
   // set the axis of rotation
   VectorClear( ent->movedir );
-  VectorClear( ent->s.angles );
+  VectorClear( ent->s.apos.trBase );
+  VectorClear( ent->r.currentAngles );
 
   if( ent->spawnflags & 32 )
     ent->movedir[ 2 ] = 1.0;
@@ -1619,12 +1622,12 @@ void SP_func_door_rotating( gentity_t *ent )
   if( !ent->rotatorAngle )
   {
     G_Printf( "%s at %s with no rotatorAngle set.\n",
-              ent->classname, vtos( ent->s.origin ) );
+              ent->classname, vtos( ent->r.currentOrigin ) );
 
     ent->rotatorAngle = 90.0;
   }
 
-  VectorCopy( ent->s.angles, ent->pos1 );
+  VectorCopy( ent->r.currentAngles, ent->pos1 );
   trap_SetBrushModel( ent, ent->model );
   VectorMA( ent->pos1, ent->rotatorAngle, ent->movedir, ent->pos2 );
 
@@ -1634,14 +1637,10 @@ void SP_func_door_rotating( gentity_t *ent )
     vec3_t  temp;
 
     VectorCopy( ent->pos2, temp );
-    VectorCopy( ent->s.angles, ent->pos2 );
+    VectorCopy( ent->pos1, ent->pos2 );
     VectorCopy( temp, ent->pos1 );
     VectorNegate( ent->movedir, ent->movedir );
   }
-
-  // set origin
-  VectorCopy( ent->s.origin, ent->s.pos.trBase );
-  VectorCopy( ent->s.pos.trBase, ent->r.currentOrigin );
 
   InitRotator( ent );
 
@@ -1717,7 +1716,7 @@ void SP_func_door_model( gentity_t *ent )
   VectorCopy( clipBrush->r.mins, ent->r.mins );
   VectorCopy( clipBrush->r.maxs, ent->r.maxs );
 
-  G_SpawnVector( "modelOrigin", "0 0 0", ent->s.origin );
+  G_SpawnVector( "modelOrigin", "0 0 0", ent->r.currentOrigin );
 
   G_SpawnVector( "scale", "1 1 1", ent->s.origin2 );
 
@@ -1763,12 +1762,10 @@ void SP_func_door_model( gentity_t *ent )
 
   ent->moverState = MODEL_POS1;
   ent->s.eType = ET_MODELDOOR;
-  VectorCopy( ent->s.origin, ent->s.pos.trBase );
   ent->s.pos.trType = TR_STATIONARY;
   ent->s.pos.trTime = 0;
   ent->s.pos.trDuration = 0;
   VectorClear( ent->s.pos.trDelta );
-  VectorCopy( ent->s.angles, ent->s.apos.trBase );
   ent->s.apos.trType = TR_STATIONARY;
   ent->s.apos.trTime = 0;
   ent->s.apos.trDuration = 0;
@@ -1917,7 +1914,8 @@ void SP_func_plat( gentity_t *ent )
   G_SpawnString( "soundPos1", "sound/movers/plats/pt1_end.wav", &s );
   ent->soundPos1 = G_SoundIndex( s );
 
-  VectorClear( ent->s.angles );
+  VectorClear( ent->s.apos.trBase );
+  VectorClear( ent->r.currentAngles );
 
   G_SpawnFloat( "speed", "200", &ent->speed );
   G_SpawnInt( "dmg", "2", &ent->damage );
@@ -1933,7 +1931,7 @@ void SP_func_plat( gentity_t *ent )
     height = ( ent->r.maxs[ 2 ] - ent->r.mins[ 2 ] ) - lip;
 
   // pos1 is the rest (bottom) position, pos2 is the top
-  VectorCopy( ent->s.origin, ent->pos2 );
+  VectorCopy( ent->r.currentOrigin, ent->pos2 );
   VectorCopy( ent->pos2, ent->pos1 );
   ent->pos1[ 2 ] -= height;
 
@@ -2010,14 +2008,16 @@ void SP_func_button( gentity_t *ent )
   ent->wait *= 1000;
 
   // first position
-  VectorCopy( ent->s.origin, ent->pos1 );
+  VectorCopy( ent->r.currentOrigin, ent->pos1 );
 
+  G_SetMovedir( ent->r.currentAngles, ent->movedir );
+  VectorClear( ent->s.apos.trBase );
+  VectorClear( ent->r.currentAngles );
   // calculate second position
   trap_SetBrushModel( ent, ent->model );
 
   G_SpawnFloat( "lip", "4", &lip );
 
-  G_SetMovedir( ent->s.angles, ent->movedir );
   abs_movedir[ 0 ] = fabs( ent->movedir[ 0 ] );
   abs_movedir[ 1 ] = fabs( ent->movedir[ 1 ] );
   abs_movedir[ 2 ] = fabs( ent->movedir[ 2 ] );
@@ -2088,8 +2088,8 @@ void Reached_Train( gentity_t *ent )
 
   // set the new trajectory
   ent->nextTrain = next->nextTrain;
-  VectorCopy( next->s.origin, ent->pos1 );
-  VectorCopy( next->nextTrain->s.origin, ent->pos2 );
+  VectorCopy( next->r.currentOrigin, ent->pos1 );
+  VectorCopy( next->nextTrain->r.currentOrigin, ent->pos2 );
 
   // if the path_corner has a speed, use that
   if( next->speed )
@@ -2230,7 +2230,7 @@ void Think_SetupTrainTargets( gentity_t *ent )
     if( !path->target )
     {
       G_Printf( "Train corner at %s without a target\n",
-        vtos( path->s.origin ) );
+        vtos( path->r.currentOrigin ) );
       return;
     }
 
@@ -2245,7 +2245,7 @@ void Think_SetupTrainTargets( gentity_t *ent )
       if( !next )
       {
         G_Printf( "Train corner at %s without a target path_corner\n",
-          vtos( path->s.origin ) );
+          vtos( path->r.currentOrigin ) );
         return;
       }
     } while( strcmp( next->classname, "path_corner" ) );
@@ -2269,7 +2269,7 @@ void SP_path_corner( gentity_t *self )
 {
   if( !self->targetname )
   {
-    G_Printf( "path_corner with no targetname at %s\n", vtos( self->s.origin ) );
+    G_Printf( "path_corner with no targetname at %s\n", vtos( self->r.currentOrigin ) );
     G_FreeEntity( self );
     return;
   }
@@ -2304,13 +2304,13 @@ void Blocked_Train( gentity_t *self, gentity_t *other )
         if( other->buildableTeam == TEAM_ALIENS )
         {
           VectorCopy( other->s.origin2, dir );
-          tent = G_TempEntity( other->s.origin, EV_ALIEN_BUILDABLE_EXPLOSION );
+          tent = G_TempEntity( other->r.currentOrigin, EV_ALIEN_BUILDABLE_EXPLOSION );
           tent->s.eventParm = DirToByte( dir );
         }
         else if( other->buildableTeam == TEAM_HUMANS )
         {
           VectorSet( dir, 0.0f, 0.0f, 1.0f );
-          tent = G_TempEntity( other->s.origin, EV_HUMAN_BUILDABLE_EXPLOSION );
+          tent = G_TempEntity( other->r.currentOrigin, EV_HUMAN_BUILDABLE_EXPLOSION );
           tent->s.eventParm = DirToByte( dir );
         }
       }
@@ -2341,7 +2341,8 @@ The train spawns at the first target it is pointing at.
 */
 void SP_func_train( gentity_t *self )
 {
-  VectorClear( self->s.angles );
+  VectorClear( self->s.apos.trBase );
+  VectorClear( self->r.currentAngles );
 
   if( self->spawnflags & TRAIN_BLOCK_STOPS )
     self->damage = 0;
@@ -2390,8 +2391,6 @@ void SP_func_static( gentity_t *ent )
 {
   trap_SetBrushModel( ent, ent->model );
   InitMover( ent );
-  VectorCopy( ent->s.origin, ent->s.pos.trBase );
-  VectorCopy( ent->s.origin, ent->r.currentOrigin );
 }
 
 
@@ -2436,10 +2435,6 @@ void SP_func_rotating( gentity_t *ent )
   trap_SetBrushModel( ent, ent->model );
   InitMover( ent );
 
-  VectorCopy( ent->s.origin, ent->s.pos.trBase );
-  VectorCopy( ent->s.pos.trBase, ent->r.currentOrigin );
-  VectorCopy( ent->s.apos.trBase, ent->r.currentAngles );
-
   trap_LinkEntity( ent );
 }
 
@@ -2475,9 +2470,6 @@ void SP_func_bobbing( gentity_t *ent )
 
   trap_SetBrushModel( ent, ent->model );
   InitMover( ent );
-
-  VectorCopy( ent->s.origin, ent->s.pos.trBase );
-  VectorCopy( ent->s.origin, ent->r.currentOrigin );
 
   ent->s.pos.trDuration = ent->speed * 1000;
   ent->s.pos.trTime = ent->s.pos.trDuration * phase;
@@ -2536,11 +2528,6 @@ void SP_func_pendulum( gentity_t *ent )
   ent->s.pos.trDuration = ( 1000 / freq );
 
   InitMover( ent );
-
-  VectorCopy( ent->s.origin, ent->s.pos.trBase );
-  VectorCopy( ent->s.origin, ent->r.currentOrigin );
-
-  VectorCopy( ent->s.angles, ent->s.apos.trBase );
 
   ent->s.apos.trDuration = 1000 / freq;
   ent->s.apos.trTime = ent->s.apos.trDuration * phase;

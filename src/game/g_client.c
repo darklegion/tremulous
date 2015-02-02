@@ -134,8 +134,8 @@ qboolean SpotWouldTelefrag( gentity_t *spot )
   gentity_t *hit;
   vec3_t    mins, maxs;
 
-  VectorAdd( spot->s.origin, playerMins, mins );
-  VectorAdd( spot->s.origin, playerMaxs, maxs );
+  VectorAdd( spot->r.currentOrigin, playerMins, mins );
+  VectorAdd( spot->r.currentOrigin, playerMaxs, maxs );
   num = trap_EntitiesInBox( mins, maxs, touch, MAX_GENTITIES );
 
   for( i = 0; i < num; i++ )
@@ -174,7 +174,7 @@ static gentity_t *G_SelectRandomFurthestSpawnPoint ( vec3_t avoidPoint, vec3_t o
     if( SpotWouldTelefrag( spot ) )
       continue;
 
-    VectorSubtract( spot->s.origin, avoidPoint, delta );
+    VectorSubtract( spot->r.currentOrigin, avoidPoint, delta );
     dist = VectorLength( delta );
 
     for( i = 0; i < numSpots; i++ )
@@ -216,18 +216,18 @@ static gentity_t *G_SelectRandomFurthestSpawnPoint ( vec3_t avoidPoint, vec3_t o
     if( !spot )
       G_Error( "Couldn't find a spawn point" );
 
-    VectorCopy( spot->s.origin, origin );
+    VectorCopy( spot->r.currentOrigin, origin );
     origin[ 2 ] += 9;
-    VectorCopy( spot->s.angles, angles );
+    VectorCopy( spot->r.currentAngles, angles );
     return spot;
   }
 
   // select a random spot from the spawn points furthest away
   rnd = random( ) * ( numSpots / 2 );
 
-  VectorCopy( list_spot[ rnd ]->s.origin, origin );
+  VectorCopy( list_spot[ rnd ]->r.currentOrigin, origin );
   origin[ 2 ] += 9;
-  VectorCopy( list_spot[ rnd ]->s.angles, angles );
+  VectorCopy( list_spot[ rnd ]->r.currentAngles, angles );
 
   return list_spot[ rnd ];
 }
@@ -262,12 +262,12 @@ static gentity_t *G_SelectSpawnBuildable( vec3_t preference, buildable_t buildab
     if( search->clientSpawnTime > 0 )
       continue;
 
-    if( G_CheckSpawnPoint( search->s.number, search->s.origin,
+    if( G_CheckSpawnPoint( search->s.number, search->r.currentOrigin,
           search->s.origin2, buildable, NULL ) != NULL )
       continue;
 
-    if( !spot || DistanceSquared( preference, search->s.origin ) <
-                 DistanceSquared( preference, spot->s.origin ) )
+    if( !spot || DistanceSquared( preference, search->r.currentOrigin ) <
+                 DistanceSquared( preference, spot->r.currentOrigin ) )
       spot = search;
   }
 
@@ -318,11 +318,11 @@ gentity_t *G_SelectTremulousSpawnPoint( team_t team, vec3_t preference, vec3_t o
     return NULL;
 
   if( team == TEAM_ALIENS )
-    G_CheckSpawnPoint( spot->s.number, spot->s.origin, spot->s.origin2, BA_A_SPAWN, origin );
+    G_CheckSpawnPoint( spot->s.number, spot->r.currentOrigin, spot->s.origin2, BA_A_SPAWN, origin );
   else if( team == TEAM_HUMANS )
-    G_CheckSpawnPoint( spot->s.number, spot->s.origin, spot->s.origin2, BA_H_SPAWN, origin );
+    G_CheckSpawnPoint( spot->s.number, spot->r.currentOrigin, spot->s.origin2, BA_H_SPAWN, origin );
 
-  VectorCopy( spot->s.angles, angles );
+  VectorCopy( spot->r.currentAngles, angles );
   angles[ ROLL ] = 0;
 
   return spot;
@@ -365,8 +365,8 @@ gentity_t *G_SelectAlienLockSpawnPoint( vec3_t origin, vec3_t angles )
   if( !spot )
     return G_SelectSpectatorSpawnPoint( origin, angles );
 
-  VectorCopy( spot->s.origin, origin );
-  VectorCopy( spot->s.angles, angles );
+  VectorCopy( spot->r.currentOrigin, origin );
+  VectorCopy( spot->r.currentAngles, angles );
 
   return spot;
 }
@@ -390,8 +390,8 @@ gentity_t *G_SelectHumanLockSpawnPoint( vec3_t origin, vec3_t angles )
   if( !spot )
     return G_SelectSpectatorSpawnPoint( origin, angles );
 
-  VectorCopy( spot->s.origin, origin );
-  VectorCopy( spot->s.angles, angles );
+  VectorCopy( spot->r.currentOrigin, origin );
+  VectorCopy( spot->r.currentAngles, angles );
 
   return spot;
 }
@@ -461,7 +461,8 @@ static void SpawnCorpse( gentity_t *ent )
 
   body = G_Spawn( );
 
-  VectorCopy( ent->s.apos.trBase, body->s.angles );
+  VectorCopy( ent->s.apos.trBase, body->s.apos.trBase );
+  VectorCopy( ent->s.apos.trBase, body->r.currentAngles );
   body->s.eFlags = EF_DEAD;
   body->s.eType = ET_CORPSE;
   body->timestamp = level.time;
@@ -563,8 +564,9 @@ void G_SetClientViewAngle( gentity_t *ent, vec3_t angle )
     ent->client->ps.delta_angles[ i ] = cmdAngle - ent->client->pers.cmd.angles[ i ];
   }
 
-  VectorCopy( angle, ent->s.angles );
-  VectorCopy( ent->s.angles, ent->client->ps.viewangles );
+  VectorCopy( angle, ent->s.apos.trBase );
+  VectorCopy( angle, ent->r.currentAngles );
+  VectorCopy( angle, ent->client->ps.viewangles );
 }
 
 /*

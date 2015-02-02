@@ -716,7 +716,6 @@ void G_SetOrigin( gentity_t *ent, const vec3_t origin )
   VectorClear( ent->s.pos.trDelta );
 
   VectorCopy( origin, ent->r.currentOrigin );
-  VectorCopy( origin, ent->s.origin );
 }
 
 // from quakestyle.telefragged.com
@@ -783,13 +782,13 @@ gentity_t *G_ClosestEnt( vec3_t origin, gentity_t **entities, int numEntities )
     return NULL;
 
   closestEnt = entities[ 0 ];
-  d = DistanceSquared( origin, closestEnt->s.origin );
+  d = DistanceSquared( origin, closestEnt->r.currentOrigin );
 
   for( i = 1; i < numEntities; i++ )
   {
     gentity_t *ent = entities[ i ];
 
-    nd = DistanceSquared( origin, ent->s.origin );
+    nd = DistanceSquared( origin, ent->r.currentOrigin );
     if( nd < d )
     {
       d = nd;

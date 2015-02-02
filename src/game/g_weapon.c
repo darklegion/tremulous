@@ -237,10 +237,10 @@ static void WideBloodSpurt( gentity_t *attacker, gentity_t *victim, trace_t *tr 
     return;
 
   if( tr )
-    VectorSubtract( tr->endpos, victim->s.origin, normal );
+    VectorSubtract( tr->endpos, victim->r.currentOrigin, normal );
   else
     VectorSubtract( attacker->client->ps.origin,
-                    victim->s.origin, normal );
+                    victim->r.currentOrigin, normal );
 
   // Normalize the horizontal components of the vector difference to the
   // "radius" of the bounding box
@@ -258,7 +258,7 @@ static void WideBloodSpurt( gentity_t *attacker, gentity_t *victim, trace_t *tr 
   if( normal[ 2 ] < victim->r.mins[ 2 ] )
     normal[ 2 ] = victim->r.mins[ 2 ];
 
-  VectorAdd( victim->s.origin, normal, origin );
+  VectorAdd( victim->r.currentOrigin, normal, origin );
   VectorNegate( normal, normal );
   VectorNormalize( normal );
 
@@ -697,7 +697,7 @@ void teslaFire( gentity_t *self )
   VectorMA( muzzle, self->r.maxs[ 2 ], self->s.origin2, origin );
 
   // Don't aim for the center, aim at the top of the bounding box
-  VectorCopy( self->enemy->s.origin, target );
+  VectorCopy( self->enemy->r.currentOrigin, target );
   target[ 2 ] += self->enemy->r.maxs[ 2 ];
 
   // Trace to the target entity
@@ -985,7 +985,7 @@ void poisonCloud( gentity_t *ent )
     if( humanPlayer->client &&
         humanPlayer->client->pers.teamSelection == TEAM_HUMANS )
     {
-      trap_Trace( &tr, muzzle, NULL, NULL, humanPlayer->s.origin,
+      trap_Trace( &tr, muzzle, NULL, NULL, humanPlayer->r.currentOrigin,
                   humanPlayer->s.number, CONTENTS_SOLID );
 
       //can't see target from here
@@ -1032,8 +1032,8 @@ static void G_FindZapChainTargets( zap_t *zap )
   trace_t   tr;
   float     distance;
 
-  VectorAdd( ent->s.origin, range, maxs );
-  VectorSubtract( ent->s.origin, range, mins );
+  VectorAdd( ent->r.currentOrigin, range, maxs );
+  VectorSubtract( ent->r.currentOrigin, range, mins );
 
   num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
 
@@ -1044,7 +1044,7 @@ static void G_FindZapChainTargets( zap_t *zap )
     if( enemy == ent || ( enemy->client && enemy->client->noclip ) )
       continue;
 
-    distance = Distance( ent->s.origin, enemy->s.origin );
+    distance = Distance( ent->r.currentOrigin, enemy->r.currentOrigin );
 
     if( ( ( enemy->client &&
             enemy->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS ) ||
@@ -1054,8 +1054,8 @@ static void G_FindZapChainTargets( zap_t *zap )
         distance <= LEVEL2_AREAZAP_CHAIN_RANGE )
     {
       // world-LOS check: trace against the world, ignoring other BODY entities
-      trap_Trace( &tr, ent->s.origin, NULL, NULL,
-         enemy->s.origin, ent->s.number, CONTENTS_SOLID );
+      trap_Trace( &tr, ent->r.currentOrigin, NULL, NULL,
+         enemy->r.currentOrigin, ent->s.number, CONTENTS_SOLID );
 
       if( tr.entityNum == ENTITYNUM_NONE )
       {
@@ -1086,7 +1086,7 @@ static void G_UpdateZapEffect( zap_t *zap )
   BG_PackEntityNumbers( &zap->effectChannel->s,
                         entityNums, zap->numTargets + 1 );
 
-  VectorCopy( zap->creator->s.origin, zap->effectChannel->r.currentOrigin );
+  VectorCopy( zap->creator->r.currentOrigin, zap->effectChannel->r.currentOrigin );
   trap_LinkEntity( zap->effectChannel );
 }
 
@@ -1117,7 +1117,7 @@ static void G_CreateNewZap( gentity_t *creator, gentity_t *target )
     if( target->health > 0 )
     {
       G_Damage( target, creator, creator, forward,
-                target->s.origin, LEVEL2_AREAZAP_DMG,
+                target->r.currentOrigin, LEVEL2_AREAZAP_DMG,
                 DAMAGE_NO_KNOCKBACK | DAMAGE_NO_LOCDAMAGE,
                 MOD_LEVEL2_ZAP );
 
@@ -1125,7 +1125,7 @@ static void G_CreateNewZap( gentity_t *creator, gentity_t *target )
 
       for( i = 1; i < zap->numTargets; i++ )
       {
-        G_Damage( zap->targets[ i ], target, zap->creator, forward, target->s.origin,
+        G_Damage( zap->targets[ i ], target, zap->creator, forward, target->r.currentOrigin,
                   LEVEL2_AREAZAP_DMG * ( 1 - pow( (zap->distances[ i ] /
                     LEVEL2_AREAZAP_CHAIN_RANGE ), LEVEL2_AREAZAP_CHAIN_FALLOFF ) ) + 1,
                   DAMAGE_NO_KNOCKBACK | DAMAGE_NO_LOCDAMAGE,
@@ -1328,7 +1328,7 @@ void G_ChargeAttack( gentity_t *ent, gentity_t *victim )
       ent->client->ps.weaponTime )
     return;
 
-  VectorSubtract( victim->s.origin, ent->s.origin, forward );
+  VectorSubtract( victim->r.currentOrigin, ent->r.currentOrigin, forward );
   VectorNormalize( forward );
 
   if( !victim->takedamage )
@@ -1355,7 +1355,7 @@ void G_ChargeAttack( gentity_t *ent, gentity_t *victim )
   damage = LEVEL4_TRAMPLE_DMG * ent->client->ps.stats[ STAT_MISC ] /
            LEVEL4_TRAMPLE_DURATION;
 
-  G_Damage( victim, ent, ent, forward, victim->s.origin, damage,
+  G_Damage( victim, ent, ent, forward, victim->r.currentOrigin, damage,
             DAMAGE_NO_LOCDAMAGE, MOD_LEVEL4_TRAMPLE );
 
   ent->client->ps.weaponTime += LEVEL4_TRAMPLE_REPEAT;
@@ -1376,7 +1376,7 @@ void G_CrushAttack( gentity_t *ent, gentity_t *victim )
 
   if( !victim->takedamage ||
       ent->client->ps.origin[ 2 ] + ent->r.mins[ 2 ] <
-      victim->s.origin[ 2 ] + victim->r.maxs[ 2 ] ||
+      victim->r.currentOrigin[ 2 ] + victim->r.maxs[ 2 ] ||
       ( victim->client &&
         victim->client->ps.groundEntityNum == ENTITYNUM_NONE ) )
     return;
@@ -1401,8 +1401,8 @@ void G_CrushAttack( gentity_t *ent, gentity_t *victim )
     return;
 
   // Crush the victim over a period of time
-  VectorSubtract( victim->s.origin, ent->client->ps.origin, dir );
-  G_Damage( victim, ent, ent, dir, victim->s.origin, damage,
+  VectorSubtract( victim->r.currentOrigin, ent->client->ps.origin, dir );
+  G_Damage( victim, ent, ent, dir, victim->r.currentOrigin, damage,
             DAMAGE_NO_LOCDAMAGE, MOD_LEVEL4_CRUSH );
 }
 

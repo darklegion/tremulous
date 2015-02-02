@@ -1530,8 +1530,10 @@ void MoveClientToIntermission( gentity_t *ent )
     G_StopFollowing( ent );
 
   // move to the spot
-  VectorCopy( level.intermission_origin, ent->s.origin );
+  VectorCopy( level.intermission_origin, ent->s.pos.trBase );
+  VectorCopy( level.intermission_origin, ent->r.currentOrigin );
   VectorCopy( level.intermission_origin, ent->client->ps.origin );
+  VectorCopy( level.intermission_angle, ent->s.apos.trBase );
   VectorCopy( level.intermission_angle, ent->client->ps.viewangles );
   ent->client->ps.pm_type = PM_INTERMISSION;
 
@@ -1567,8 +1569,8 @@ void FindIntermissionPoint( void )
   }
   else
   {
-    VectorCopy( ent->s.origin, level.intermission_origin );
-    VectorCopy( ent->s.angles, level.intermission_angle );
+    VectorCopy( ent->r.currentOrigin, level.intermission_origin );
+    VectorCopy( ent->r.currentAngles, level.intermission_angle );
     // if it has a target, look towards it
     if( ent->target )
     {
@@ -1576,7 +1578,7 @@ void FindIntermissionPoint( void )
 
       if( target )
       {
-        VectorSubtract( target->s.origin, level.intermission_origin, dir );
+        VectorSubtract( target->r.currentOrigin, level.intermission_origin, dir );
         vectoangles( dir, level.intermission_angle );
       }
     }

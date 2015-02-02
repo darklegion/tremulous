@@ -158,7 +158,7 @@ qboolean G_FindPower( gentity_t *self, qboolean searchUnspawned )
     if( ( ent->s.modelindex == BA_H_REACTOR || ent->s.modelindex == BA_H_REPEATER ) &&
         ( searchUnspawned || ent->spawned ) && ent->powered && ent->health > 0 )
     {
-      VectorSubtract( self->s.origin, ent->s.origin, temp_v );
+      VectorSubtract( self->r.currentOrigin, ent->r.currentOrigin, temp_v );
       distance = VectorLength( temp_v );
 
       // Always prefer a reactor if there is one in range
@@ -276,7 +276,7 @@ gentity_t *G_PowerEntityForPoint( const vec3_t origin )
   dummy.parentNode = NULL;
   dummy.buildableTeam = TEAM_HUMANS;
   dummy.s.modelindex = BA_NONE;
-  VectorCopy( origin, dummy.s.origin );
+  VectorCopy( origin, dummy.r.currentOrigin );
 
   if( G_FindPower( &dummy, qfalse ) )
     return dummy.parentNode;
@@ -438,7 +438,7 @@ gentity_t *G_InPowerZone( gentity_t *self )
     if( ( ent->s.modelindex == BA_H_REACTOR || ent->s.modelindex == BA_H_REPEATER ) &&
         ent->spawned && ent->powered )
     {
-      VectorSubtract( self->s.origin, ent->s.origin, temp_v );
+      VectorSubtract( self->r.currentOrigin, ent->r.currentOrigin, temp_v );
       distance = VectorLength( temp_v );
 
       if( ent->s.modelindex == BA_H_REACTOR && distance <= REACTOR_BASESIZE )
@@ -478,7 +478,7 @@ int G_FindDCC( gentity_t *self )
     //if entity is a dcc calculate the distance to it
     if( ent->s.modelindex == BA_H_DCC && ent->spawned )
     {
-      VectorSubtract( self->s.origin, ent->s.origin, temp_v );
+      VectorSubtract( self->r.currentOrigin, ent->r.currentOrigin, temp_v );
       distance = VectorLength( temp_v );
       if( distance < DC_RANGE && ent->powered )
       {
@@ -599,7 +599,7 @@ qboolean G_FindCreep( gentity_t *self )
             ent->s.modelindex == BA_A_OVERMIND ) &&
           ent->spawned && ent->health > 0 )
       {
-        VectorSubtract( self->s.origin, ent->s.origin, temp_v );
+        VectorSubtract( self->r.currentOrigin, ent->r.currentOrigin, temp_v );
         distance = VectorLength( temp_v );
         if( distance < minDistance )
         {
@@ -641,7 +641,7 @@ static qboolean G_IsCreepHere( vec3_t origin )
 
   dummy.parentNode = NULL;
   dummy.s.modelindex = BA_NONE;
-  VectorCopy( origin, dummy.s.origin );
+  VectorCopy( origin, dummy.r.currentOrigin );
 
   return G_FindCreep( &dummy );
 }
@@ -665,8 +665,8 @@ static void G_CreepSlow( gentity_t *self )
 
   VectorSet( range, creepSize, creepSize, creepSize );
 
-  VectorAdd( self->s.origin, range, maxs );
-  VectorSubtract( self->s.origin, range, mins );
+  VectorAdd( self->r.currentOrigin, range, maxs );
+  VectorSubtract( self->r.currentOrigin, range, mins );
 
   //find humans
   num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
@@ -868,7 +868,7 @@ void ASpawn_Think( gentity_t *self )
     //only suicide if at rest
     if( self->s.groundEntityNum != ENTITYNUM_NONE )
     {
-      if( ( ent = G_CheckSpawnPoint( self->s.number, self->s.origin,
+      if( ( ent = G_CheckSpawnPoint( self->s.number, self->r.currentOrigin,
               self->s.origin2, BA_A_SPAWN, NULL ) ) != NULL )
       {
         // If the thing blocking the spawn is a buildable, kill it. 
@@ -1072,8 +1072,8 @@ void ABarricade_Shrink( gentity_t *self, qboolean shrink )
     trace_t tr;
     int anim;
 
-    trap_Trace( &tr, self->s.origin, self->r.mins, self->r.maxs,
-                self->s.origin, self->s.number, MASK_PLAYERSOLID );
+    trap_Trace( &tr, self->r.currentOrigin, self->r.mins, self->r.maxs,
+                self->r.currentOrigin, self->s.number, MASK_PLAYERSOLID );
     if ( tr.startsolid || tr.fraction < 1.0f )
     {
       self->r.maxs[ 2 ] = (int)( self->r.maxs[ 2 ] * BARRICADE_SHRINKPROP );
@@ -1143,8 +1143,8 @@ void ABarricade_Touch( gentity_t *self, gentity_t *other, trace_t *trace )
 
   // Client must be high enough to pass over. Note that STEPSIZE (18) is
   // hardcoded here because we don't include bg_local.h!
-  client_z = other->s.origin[ 2 ] + other->r.mins[ 2 ];
-  min_z = self->s.origin[ 2 ] - 18 +
+  client_z = other->r.currentOrigin[ 2 ] + other->r.mins[ 2 ];
+  min_z = self->r.currentOrigin[ 2 ] - 18 +
           (int)( self->r.maxs[ 2 ] * BARRICADE_SHRINKPROP );
   if( client_z < min_z )
     return;
@@ -1173,8 +1173,8 @@ void AAcidTube_Think( gentity_t *self )
 
   AGeneric_Think( self );
 
-  VectorAdd( self->s.origin, range, maxs );
-  VectorSubtract( self->s.origin, range, mins );
+  VectorAdd( self->r.currentOrigin, range, maxs );
+  VectorSubtract( self->r.currentOrigin, range, mins );
 
   // attack nearby humans
   if( self->spawned && self->health > 0 && self->powered )
@@ -1237,7 +1237,7 @@ static qboolean AHive_CheckTarget( gentity_t *self, gentity_t *enemy )
   // Check if the tip of the hive can see the target
   VectorMA( self->s.pos.trBase, self->r.maxs[ 2 ], self->s.origin2,
             tip_origin );
-  if( Distance( tip_origin, enemy->s.origin ) > HIVE_SENSE_RANGE )
+  if( Distance( tip_origin, enemy->r.currentOrigin ) > HIVE_SENSE_RANGE )
     return qfalse;
 
   trap_Trace( &trace, tip_origin, NULL, NULL, enemy->s.pos.trBase,
@@ -1283,8 +1283,8 @@ void AHive_Think( gentity_t *self )
     vec3_t mins, maxs,
            range = { HIVE_SENSE_RANGE, HIVE_SENSE_RANGE, HIVE_SENSE_RANGE };
 
-    VectorAdd( self->s.origin, range, maxs );
-    VectorSubtract( self->s.origin, range, mins );
+    VectorAdd( self->r.currentOrigin, range, maxs );
+    VectorSubtract( self->r.currentOrigin, range, mins );
 
     num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
 
@@ -1688,7 +1688,7 @@ void HSpawn_Think( gentity_t *self )
     //only suicide if at rest
     if( self->s.groundEntityNum != ENTITYNUM_NONE )
     {
-      if( ( ent = G_CheckSpawnPoint( self->s.number, self->s.origin,
+      if( ( ent = G_CheckSpawnPoint( self->s.number, self->r.currentOrigin,
               self->s.origin2, BA_H_SPAWN, NULL ) ) != NULL )
       {
         // If the thing blocking the spawn is a buildable, kill it. 
@@ -1856,13 +1856,13 @@ void HReactor_Think( gentity_t *self )
 
   if( self->dcc )
   {
-    VectorAdd( self->s.origin, dccrange, maxs );
-    VectorSubtract( self->s.origin, dccrange, mins );
+    VectorAdd( self->r.currentOrigin, dccrange, maxs );
+    VectorSubtract( self->r.currentOrigin, dccrange, mins );
   }
   else
   {
-    VectorAdd( self->s.origin, range, maxs );
-    VectorSubtract( self->s.origin, range, mins );
+    VectorAdd( self->r.currentOrigin, range, maxs );
+    VectorSubtract( self->r.currentOrigin, range, mins );
   }
 
   if( self->spawned && ( self->health > 0 ) )
@@ -2046,8 +2046,8 @@ void HMedistat_Think( gentity_t *self )
 
   if( self->spawned )
   {
-    VectorAdd( self->s.origin, self->r.maxs, maxs );
-    VectorAdd( self->s.origin, self->r.mins, mins );
+    VectorAdd( self->r.currentOrigin, self->r.maxs, maxs );
+    VectorAdd( self->r.currentOrigin, self->r.mins, mins );
 
     mins[ 2 ] += fabs( self->r.mins[ 2 ] ) + self->r.maxs[ 2 ];
     maxs[ 2 ] += 60; //player height
@@ -2265,8 +2265,8 @@ void HMGTurret_FindEnemy( gentity_t *self )
     
   // Look for targets in a box around the turret
   VectorSet( range, MGTURRET_RANGE, MGTURRET_RANGE, MGTURRET_RANGE );
-  VectorAdd( self->s.origin, range, maxs );
-  VectorSubtract( self->s.origin, range, mins );
+  VectorAdd( self->r.currentOrigin, range, maxs );
+  VectorSubtract( self->r.currentOrigin, range, mins );
   num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
 
   if( num == 0 )
@@ -2460,7 +2460,7 @@ void HTeslaGen_Think( gentity_t *self )
     self->s.eFlags &= ~EF_FIRING;
 
     // Move the muzzle from the entity origin up a bit to fire over turrets
-    VectorMA( self->s.origin, self->r.maxs[ 2 ], self->s.origin2, origin );
+    VectorMA( self->r.currentOrigin, self->r.maxs[ 2 ], self->s.origin2, origin );
 
     VectorSet( range, TESLAGEN_RANGE, TESLAGEN_RANGE, TESLAGEN_RANGE );
     VectorAdd( origin, range, maxs );
@@ -2645,16 +2645,16 @@ void G_BuildableTouchTriggers( gentity_t *ent )
 
   BG_BuildableBoundingBox( ent->s.modelindex, bmins, bmaxs );
 
-  VectorAdd( ent->s.origin, bmins, mins );
-  VectorAdd( ent->s.origin, bmaxs, maxs );
+  VectorAdd( ent->r.currentOrigin, bmins, mins );
+  VectorAdd( ent->r.currentOrigin, bmaxs, maxs );
 
   VectorSubtract( mins, range, mins );
   VectorAdd( maxs, range, maxs );
 
   num = trap_EntitiesInBox( mins, maxs, touch, MAX_GENTITIES );
 
-  VectorAdd( ent->s.origin, bmins, mins );
-  VectorAdd( ent->s.origin, bmaxs, maxs );
+  VectorAdd( ent->r.currentOrigin, bmins, mins );
+  VectorAdd( ent->r.currentOrigin, bmaxs, maxs );
 
   for( i = 0; i < num; i++ )
   {
@@ -2897,9 +2897,9 @@ static int G_CompareBuildablesForRemoval( const void *a, const void *b )
 
   // Prefer the one that collides with the thing we're building
   aMatches = G_BuildablesIntersect( cmpBuildable, cmpOrigin,
-      buildableA->s.modelindex, buildableA->s.origin );
+      buildableA->s.modelindex, buildableA->r.currentOrigin );
   bMatches = G_BuildablesIntersect( cmpBuildable, cmpOrigin,
-      buildableB->s.modelindex, buildableB->s.origin );
+      buildableB->s.modelindex, buildableB->r.currentOrigin );
   if( aMatches && !bMatches )
     return -1;
   else if( !aMatches && bMatches )
@@ -3115,7 +3115,7 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
       if( ent->s.eType != ET_BUILDABLE )
         continue;
 
-      if( G_BuildablesIntersect( buildable, origin, ent->s.modelindex, ent->s.origin ) )
+      if( G_BuildablesIntersect( buildable, origin, ent->s.modelindex, ent->r.currentOrigin ) )
         return IBE_NOROOM;
     }
 
@@ -3131,7 +3131,7 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
     if( ent->s.eType != ET_BUILDABLE )
       continue;
 
-    collision = G_BuildablesIntersect( buildable, origin, ent->s.modelindex, ent->s.origin );
+    collision = G_BuildablesIntersect( buildable, origin, ent->s.modelindex, ent->r.currentOrigin );
 
     if( collision )
     {
@@ -3151,7 +3151,7 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
     // Check if this is a repeater and it's in range
     if( buildable == BA_H_REPEATER &&
         buildable == ent->s.modelindex &&
-        Distance( ent->s.origin, origin ) < REPEATER_BASESIZE )
+        Distance( ent->r.currentOrigin, origin ) < REPEATER_BASESIZE )
     {
       repeaterInRange = qtrue;
       repeaterInRangeCount++;
@@ -3707,8 +3707,10 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable,
   // set turret angles
   VectorCopy( builder->s.angles2, built->s.angles2 );
 
-  VectorCopy( angles, built->s.angles );
-  built->s.angles[ PITCH ] = 0.0f;
+  VectorCopy( angles, built->s.apos.trBase );
+  VectorCopy( angles, built->r.currentAngles );
+  built->s.apos.trBase[ PITCH ] = 0.0f;
+  built->r.currentAngles[ PITCH ] = 0.0f;
   built->s.angles2[ YAW ] = angles[ YAW ];
   built->s.angles2[ PITCH ] = MGTURRET_VERTICALCAP;
   built->physicsBounce = BG_Buildable( buildable )->bounce;
@@ -3873,8 +3875,8 @@ static gentity_t *G_FinishSpawningBuildable( gentity_t *ent, qboolean force )
   else
     VectorSet( normal, 0.0f, 0.0f, 1.0f );
 
-  built = G_Build( ent, buildable, ent->s.pos.trBase,
-                   normal, ent->s.angles, ENTITYNUM_NONE );
+  built = G_Build( ent, buildable, ent->r.currentOrigin,
+                   normal, ent->r.currentAngles, ENTITYNUM_NONE );
 
   built->takedamage = qtrue;
   built->spawned = qtrue; //map entities are already spawned
@@ -3883,14 +3885,14 @@ static gentity_t *G_FinishSpawningBuildable( gentity_t *ent, qboolean force )
 
   // drop towards normal surface
   VectorScale( built->s.origin2, -4096.0f, dest );
-  VectorAdd( dest, built->s.origin, dest );
+  VectorAdd( dest, built->r.currentOrigin, dest );
 
-  trap_Trace( &tr, built->s.origin, built->r.mins, built->r.maxs, dest, built->s.number, built->clipmask );
+  trap_Trace( &tr, built->r.currentOrigin, built->r.mins, built->r.maxs, dest, built->s.number, built->clipmask );
 
   if( tr.startsolid && !force )
   {
     G_Printf( S_COLOR_YELLOW "G_FinishSpawningBuildable: %s startsolid at %s\n",
-              built->classname, vtos( built->s.origin ) );
+              built->classname, vtos( built->r.currentOrigin ) );
     G_RemoveRangeMarkerFrom( built );
     G_FreeEntity( built );
     return NULL;
@@ -3981,12 +3983,12 @@ void G_LayoutSave( char *name )
 
     s = va( "%s %f %f %f %f %f %f %f %f %f %f %f %f\n",
       BG_Buildable( ent->s.modelindex )->name,
-      ent->s.pos.trBase[ 0 ],
-      ent->s.pos.trBase[ 1 ],
-      ent->s.pos.trBase[ 2 ],
-      ent->s.angles[ 0 ],
-      ent->s.angles[ 1 ],
-      ent->s.angles[ 2 ],
+      ent->r.currentOrigin[ 0 ],
+      ent->r.currentOrigin[ 1 ],
+      ent->r.currentOrigin[ 2 ],
+      ent->r.currentAngles[ 0 ],
+      ent->r.currentAngles[ 1 ],
+      ent->r.currentAngles[ 2 ],
       ent->s.origin2[ 0 ],
       ent->s.origin2[ 1 ],
       ent->s.origin2[ 2 ],
@@ -4141,8 +4143,8 @@ static void G_LayoutBuildItem( buildable_t buildable, vec3_t origin,
   gentity_t *builder;
 
   builder = G_Spawn( );
-  VectorCopy( origin, builder->s.pos.trBase );
-  VectorCopy( angles, builder->s.angles );
+  VectorCopy( origin, builder->r.currentOrigin );
+  VectorCopy( angles, builder->r.currentAngles );
   VectorCopy( origin2, builder->s.origin2 );
   VectorCopy( angles2, builder->s.angles2 );
   G_SpawnBuildable( builder, buildable );
@@ -4264,8 +4266,8 @@ void G_BuildLogSet( buildLog_t *log, gentity_t *ent )
   log->deconstruct = ent->deconstruct;
   log->deconstructTime = ent->deconstructTime;
   log->builtBy = ent->builtBy;
-  VectorCopy( ent->s.pos.trBase, log->origin );
-  VectorCopy( ent->s.angles, log->angles );
+  VectorCopy( ent->r.currentOrigin, log->origin );
+  VectorCopy( ent->r.currentAngles, log->angles );
   VectorCopy( ent->s.origin2, log->origin2 );
   VectorCopy( ent->s.angles2, log->angles2 );
   log->powerSource = ent->parentNode ? ent->parentNode->s.modelindex : BA_NONE;
@@ -4371,8 +4373,8 @@ void G_BuildLogRevert( int id )
     {
       gentity_t  *builder = G_Spawn();
 
-      VectorCopy( log->origin, builder->s.pos.trBase );
-      VectorCopy( log->angles, builder->s.angles );
+      VectorCopy( log->origin, builder->r.currentOrigin );
+      VectorCopy( log->angles, builder->r.currentAngles );
       VectorCopy( log->origin2, builder->s.origin2 );
       VectorCopy( log->angles2, builder->s.angles2 );
       builder->s.modelindex = log->modelindex;

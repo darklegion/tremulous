@@ -339,7 +339,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
       ScoreboardMessage( g_entities + i );
   }
 
-  VectorCopy( self->s.origin, self->client->pers.lastDeathLocation );
+  VectorCopy( self->r.currentOrigin, self->client->pers.lastDeathLocation );
 
   self->takedamage = qfalse; // can still be gibbed
 
@@ -349,12 +349,10 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   else
     self->r.contents = CONTENTS_CORPSE;
 
-  self->s.angles[ PITCH ] = 0;
-  self->s.angles[ ROLL ] = 0;
-  self->s.angles[ YAW ] = self->s.apos.trBase[ YAW ];
+  self->client->ps.viewangles[ PITCH ] = 0; // zomg
+  self->client->ps.viewangles[ YAW ] = self->s.apos.trBase[ YAW ];
+  self->client->ps.viewangles[ ROLL ] = 0;
   LookAtKiller( self, inflictor, attacker );
-
-  VectorCopy( self->s.angles, self->client->ps.viewangles );
 
   self->s.loopSound = 0;
 
