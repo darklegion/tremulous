@@ -1482,11 +1482,12 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   ent->client->pers.cmd.serverTime = level.time;
   ClientThink( ent-g_entities );
 
+  VectorCopy( ent->client->ps.viewangles, ent->r.currentAngles );
+  VectorCopy( ent->client->ps.origin, ent->r.currentOrigin );
   // positively link the client, even if the command times are weird
   if( client->sess.spectatorState == SPECTATOR_NOT )
   {
     BG_PlayerStateToEntityState( &client->ps, &ent->s, qtrue );
-    VectorCopy( ent->client->ps.origin, ent->r.currentOrigin );
     trap_LinkEntity( ent );
   }
 

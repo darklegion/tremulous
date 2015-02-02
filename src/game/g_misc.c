@@ -102,6 +102,7 @@ void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles, float spee
 
   // use the precise origin for linking
   VectorCopy( player->client->ps.origin, player->r.currentOrigin );
+  VectorCopy( player->client->ps.viewangles, player->r.currentAngles );
 
   if( player->client->sess.spectatorState == SPECTATOR_NOT )
   {

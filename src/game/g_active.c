@@ -484,6 +484,8 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd )
     // Save results of pmove
     VectorCopy( client->ps.origin, ent->s.pos.trBase );
     VectorCopy( client->ps.origin, ent->r.currentOrigin );
+    VectorCopy( client->ps.viewangles, ent->r.currentAngles );
+    VectorCopy( client->ps.viewangles, ent->s.pos.trBase );
 
     G_TouchTriggers( ent );
     trap_UnlinkEntity( ent );
@@ -1559,6 +1561,7 @@ void ClientThink_real( gentity_t *ent )
   if( ent->client->ps.eventSequence != oldEventSequence )
     ent->eventTime = level.time;
 
+  VectorCopy( ent->client->ps.viewangles, ent->r.currentAngles );
   if( g_smoothClients.integer )
     BG_PlayerStateToEntityStateExtraPolate( &ent->client->ps, &ent->s, ent->client->ps.commandTime, qtrue );
   else
