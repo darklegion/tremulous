@@ -156,7 +156,6 @@ static cvarTable_t   gameCvarTable[ ] =
 
   // noset vars
   { NULL, "gamename", GAME_VERSION , CVAR_SERVERINFO | CVAR_ROM, 0, qfalse  },
-  { NULL, "gamedate", __DATE__ , CVAR_ROM, 0, qfalse  },
   { &g_restarted, "g_restarted", "0", CVAR_ROM, 0, qfalse  },
   { &g_lockTeamsAtStart, "g_lockTeamsAtStart", "0", CVAR_ROM, 0, qfalse  },
   { NULL, "sv_mapname", "", CVAR_SERVERINFO | CVAR_ROM, 0, qfalse  },
@@ -544,7 +543,6 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
 
   G_Printf( "------- Game Initialization -------\n" );
   G_Printf( "gamename: %s\n", GAME_VERSION );
-  G_Printf( "gamedate: %s\n", __DATE__ );
 
   BG_InitMemory( );
 

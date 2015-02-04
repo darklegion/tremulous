@@ -2490,8 +2490,6 @@ Com_Init
 void Com_Init( char *commandLine ) {
 	int	qport;
 
-	Com_Printf( "%s %s %s\n", Q3_VERSION, PLATFORM_STRING, __DATE__ );
-
 	if ( setjmp (abortframe) ) {
 		Sys_Error ("Error during initialization");
 	}
@@ -2529,13 +2527,8 @@ void Com_Init( char *commandLine ) {
 	// done early so bind command exists
 	CL_InitKeyCommands();
 
-	com_standalone = Cvar_Get("com_standalone", "0", CVAR_ROM);
-	com_basegame = Cvar_Get("com_basegame", BASEGAME, CVAR_INIT);
 	com_homepath = Cvar_Get("com_homepath", "", CVAR_INIT);
 	
-	if(!com_basegame->string[0])
-		Cvar_ForceReset("com_basegame");
-
 	FS_InitFilesystem ();
 
 	Com_InitJournaling();
@@ -2608,12 +2601,7 @@ void Com_Init( char *commandLine ) {
 	com_busyWait = Cvar_Get("com_busyWait", "0", CVAR_ARCHIVE);
 	Cvar_Get("com_errorMessage", "", CVAR_ROM | CVAR_NORESTART);
 
-#ifdef CINEMATICS_INTRO
-	com_introPlayed = Cvar_Get( "com_introplayed", "0", CVAR_ARCHIVE);
-#endif
-
-	const char* s = va("%s %s %s", Q3_VERSION, PLATFORM_STRING, __DATE__ );
-	com_version = Cvar_Get ("version", s, CVAR_ROM | CVAR_SERVERINFO );
+	com_version = Cvar_Get ("version", PRODUCT_NAME, CVAR_ROM | CVAR_SERVERINFO );
 	Cvar_Get ("protocol", va("%i", PROTOCOL_VERSION), CVAR_SERVERINFO | CVAR_ROM);
 	com_gamename = Cvar_Get("com_gamename", GAMENAME_FOR_MASTER, CVAR_SERVERINFO | CVAR_INIT);
 
@@ -2638,9 +2626,9 @@ void Com_Init( char *commandLine ) {
 
 	// add + commands from command line
 	if ( !Com_AddStartupCommands() ) {
+#ifdef CINEMATICS_LOGO
 		// if the user didn't give any commands, run default action
 		if ( !com_dedicated->integer ) {
-#ifdef CINEMATICS_LOGO
 			Cbuf_AddText ("cinematic splash.RoQ\n");
 #endif
 		}
