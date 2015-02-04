@@ -290,16 +290,12 @@ void CL_cURL_BeginDownload( const char *localName, const char *remoteURL )
 		qcurl_easy_setopt_warn(clc.downloadCURL, CURLOPT_VERBOSE, 1);
 	qcurl_easy_setopt_warn(clc.downloadCURL, CURLOPT_URL, clc.downloadURL);
 	qcurl_easy_setopt_warn(clc.downloadCURL, CURLOPT_TRANSFERTEXT, 0);
-	qcurl_easy_setopt_warn(clc.downloadCURL, CURLOPT_REFERER,
-		va("Tremulous://%s", NET_AdrToString(clc.serverAddress)));
-	qcurl_easy_setopt_warn(clc.downloadCURL, CURLOPT_USERAGENT, va("%s %s",
-		Q3_VERSION, qcurl_version()));
-	qcurl_easy_setopt_warn(clc.downloadCURL, CURLOPT_WRITEFUNCTION,
-		CL_cURL_CallbackWrite);
+	qcurl_easy_setopt_warn(clc.downloadCURL, CURLOPT_REFERER, va("Tremulous://%s", NET_AdrToString(clc.serverAddress)));
+	qcurl_easy_setopt_warn(clc.downloadCURL, CURLOPT_USERAGENT, va("%s %s", Q3_VERSION, qcurl_version()));
+	qcurl_easy_setopt_warn(clc.downloadCURL, CURLOPT_WRITEFUNCTION, CL_cURL_CallbackWrite);
 	qcurl_easy_setopt_warn(clc.downloadCURL, CURLOPT_WRITEDATA, &clc.download);
 	qcurl_easy_setopt_warn(clc.downloadCURL, CURLOPT_NOPROGRESS, 0);
-	qcurl_easy_setopt_warn(clc.downloadCURL, CURLOPT_PROGRESSFUNCTION,
-		CL_cURL_CallbackProgress);
+	qcurl_easy_setopt_warn(clc.downloadCURL, CURLOPT_PROGRESSFUNCTION, CL_cURL_CallbackProgress);
 	qcurl_easy_setopt_warn(clc.downloadCURL, CURLOPT_PROGRESSDATA, NULL);
 	qcurl_easy_setopt_warn(clc.downloadCURL, CURLOPT_FAILONERROR, 1);
 	qcurl_easy_setopt_warn(clc.downloadCURL, CURLOPT_FOLLOWLOCATION, 1);
