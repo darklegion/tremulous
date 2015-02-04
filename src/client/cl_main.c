@@ -1636,9 +1636,6 @@ void CL_Connect_f( void ) {
 
 	Cvar_Set("ui_singlePlayerActive", "0");
 
-	// fire a message off to the motd server
-	CL_RequestMotd();
-
 	// clear any previous "server full" type messages
 	clc.serverMessage[0] = 0;
 
