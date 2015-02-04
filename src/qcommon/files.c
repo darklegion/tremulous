@@ -3639,7 +3639,7 @@ void FS_InitFilesystem( void ) {
 		    Com_Error(ERR_FATAL, "Couldn't load default.cfg");
 	}
 
-	Q_strncpyz(lastValidBase, fs_basepath->string, sizeof(lastValidBase));
+	Q_strncpyz(lastValidBase, fs_basegame->string, sizeof(lastValidBase));
 	Q_strncpyz(lastValidGame, fs_gamedirvar->string, sizeof(lastValidGame));
 }
 
@@ -3671,7 +3671,7 @@ void FS_Restart( int checksumFeed ) {
 		// (for instance a TA demo server)
 		if (lastValidBase[0]) {
 			FS_PureServerSetLoadedPaks("", "");
-			Cvar_Set("fs_basepath", lastValidBase);
+			Cvar_Set("fs_basegame", lastValidBase);
 			Cvar_Set("fs_game", lastValidGame);
 			lastValidBase[0] = '\0';
 			lastValidGame[0] = '\0';
@@ -3689,7 +3689,7 @@ void FS_Restart( int checksumFeed ) {
 		}
 	}
 
-	Q_strncpyz(lastValidBase, fs_basepath->string, sizeof(lastValidBase));
+	Q_strncpyz(lastValidBase, fs_basegame->string, sizeof(lastValidBase));
 	Q_strncpyz(lastValidGame, fs_gamedirvar->string, sizeof(lastValidGame));
 
 }
