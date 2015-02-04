@@ -641,26 +641,6 @@ static void CL_GetGlconfig( glconfig_t *config ) {
 
 /*
 ====================
-CL_GetClipboardData
-====================
-*/
-static void CL_GetClipboardData( char *buf, int buflen ) {
-	char	*cbd;
-
-	cbd = Sys_GetClipboardData();
-
-	if ( !cbd ) {
-		*buf = 0;
-		return;
-	}
-
-	Q_strncpyz( buf, cbd, buflen );
-
-	Z_Free( cbd );
-}
-
-/*
-====================
 GetConfigString
 ====================
 */
@@ -885,7 +865,7 @@ intptr_t CL_UISystemCalls( intptr_t *args ) {
         return 0;
 
 	case UI_GETCLIPBOARDDATA:
-		CL_GetClipboardData( VMA(1), args[2] );
+		((char *)VMA(1))[0] = '\0';
 		return 0;
 
 	case UI_GETCLIENTSTATE:
