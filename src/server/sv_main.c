@@ -332,39 +332,6 @@ void SV_MasterShutdown( void ) {
 }
 
 /*
-=================
-SV_MasterGameStat
-=================
-*/
-void SV_MasterGameStat( const char *data )
-{
-  netadr_t adr;
-
-  if( !com_dedicated || com_dedicated->integer != 2 )
-    return; // only dedicated servers send stats
-
-  Com_Printf( "Resolving %s\n", MASTER_SERVER_NAME );
-
-  switch( NET_StringToAdr( MASTER_SERVER_NAME, &adr, NA_UNSPEC ) )
-  {
-    case 0:
-      Com_Printf( "Couldn't resolve master address: %s\n", MASTER_SERVER_NAME );
-      return;
-
-    case 2:
-      adr.port = BigShort( PORT_MASTER );
-    default:
-      break;
-  }
-
-  Com_Printf( "%s resolved to %s\n", MASTER_SERVER_NAME,
-              NET_AdrToStringwPort( adr ) );
-
-  Com_Printf( "Sending gamestat to %s\n", MASTER_SERVER_NAME );
-  NET_OutOfBandPrint( NS_SERVER, adr, "gamestat %s", data );
-}
-
-/*
 ==============================================================================
 
 CONNECTIONLESS COMMANDS

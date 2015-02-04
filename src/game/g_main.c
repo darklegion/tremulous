@@ -1739,93 +1739,6 @@ void QDECL G_LogPrintf( const char *fmt, ... )
 }
 
 /*
-=================
-G_SendGameStat
-=================
-*/
-void G_SendGameStat( team_t team )
-{
-  char      map[ MAX_STRING_CHARS ];
-  char      teamChar;
-  char      data[ BIG_INFO_STRING ];
-  char      entry[ MAX_STRING_CHARS ];
-  int       i, dataLength, entryLength;
-  gclient_t *cl;
-
-  // games with cheats enabled are not very good for balance statistics
-  if( g_cheats.integer )
-    return;
-
-  trap_Cvar_VariableStringBuffer( "mapname", map, sizeof( map ) );
-
-  switch( team )
-  {
-    case TEAM_ALIENS: teamChar = 'A'; break;
-    case TEAM_HUMANS: teamChar = 'H'; break;
-    case TEAM_NONE:   teamChar = 'L'; break;
-    default: return;
-  }
-
-  Com_sprintf( data, BIG_INFO_STRING,
-      "%s %s T:%c A:%f H:%f M:%s D:%d SD:%d AS:%d AS2T:%d AS3T:%d HS:%d HS2T:%d HS3T:%d CL:%d",
-      Q3_VERSION,
-      g_tag.string,
-      teamChar,
-      level.averageNumAlienClients,
-      level.averageNumHumanClients,
-      map,
-      level.time - level.startTime,
-      G_TimeTilSuddenDeath( ),
-      g_alienStage.integer,
-      level.alienStage2Time - level.startTime,
-      level.alienStage3Time - level.startTime,
-      g_humanStage.integer,
-      level.humanStage2Time - level.startTime,
-      level.humanStage3Time - level.startTime,
-      level.numConnectedClients );
-
-  dataLength = strlen( data );
-
-  for( i = 0; i < level.numConnectedClients; i++ )
-  {
-    int ping;
-
-    cl = &level.clients[ level.sortedClients[ i ] ];
-
-    if( cl->pers.connected == CON_CONNECTING )
-      ping = -1;
-    else
-      ping = cl->ps.ping < 999 ? cl->ps.ping : 999;
-
-    switch( cl->ps.stats[ STAT_TEAM ] )
-    {
-      case TEAM_ALIENS: teamChar = 'A'; break;
-      case TEAM_HUMANS: teamChar = 'H'; break;
-      case TEAM_NONE:   teamChar = 'S'; break;
-      default: return;
-    }
-
-    Com_sprintf( entry, MAX_STRING_CHARS,
-      " \"%s\" %c %d %d %d",
-      cl->pers.netname,
-      teamChar,
-      cl->ps.persistant[ PERS_SCORE ],
-      ping,
-      ( level.time - cl->pers.enterTime ) / 60000 );
-
-    entryLength = strlen( entry );
-
-    if( dataLength + entryLength >= BIG_INFO_STRING )
-      break;
-
-    strcpy( data + dataLength, entry );
-    dataLength += entryLength;
-  }
-
-  trap_SendGameStat( data );
-}
-
-/*
 ================
 LogExit
 
@@ -1882,8 +1795,6 @@ void LogExit( const char *string )
         ent->use( ent, ent, ent );
     }
   }
-
-  G_SendGameStat( level.lastWin );
 }
 
 

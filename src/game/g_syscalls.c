@@ -257,11 +257,6 @@ void trap_SnapVector( float *v )
   syscall( G_SNAPVECTOR, v );
 }
 
-void trap_SendGameStat( const char *data )
-{
-  syscall( G_SEND_GAMESTAT, data );
-}
-
 int trap_Parse_AddGlobalDefine( char *define )
 {
   return syscall( G_PARSE_ADD_GLOBAL_DEFINE, define );
