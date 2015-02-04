@@ -1104,8 +1104,6 @@ void	Sys_Sleep(int msec);
 
 qboolean Sys_LowPhysicalMemory( void );
 
-void Sys_SetEnv(const char *name, const char *value);
-
 typedef enum
 {
 	DR_YES = 0,
