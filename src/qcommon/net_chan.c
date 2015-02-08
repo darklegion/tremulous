@@ -84,7 +84,7 @@ Netchan_Setup
 called to open a channel to a remote system
 ==============
 */
-void Netchan_Setup(netsrc_t sock, netchan_t *chan, netadr_t adr, int qport, int challenge)
+void Netchan_Setup(int alternateProtocol, netsrc_t sock, netchan_t *chan, netadr_t adr, int qport, int challenge)
 {
 	Com_Memset (chan, 0, sizeof(*chan));
 	
@@ -94,6 +94,7 @@ void Netchan_Setup(netsrc_t sock, netchan_t *chan, netadr_t adr, int qport, int 
 	chan->incomingSequence = 0;
 	chan->outgoingSequence = 1;
 	chan->challenge = challenge;
+	chan->alternateProtocol = alternateProtocol;
 }
 
 /*
@@ -120,7 +121,8 @@ void Netchan_TransmitNextFragment( netchan_t *chan ) {
 		MSG_WriteShort( &send, qport->integer );
 	}
 
-	MSG_WriteLong(&send, NETCHAN_GENCHECKSUM(chan->challenge, chan->outgoingSequence));
+	if ( chan->alternateProtocol == 0 )
+		MSG_WriteLong(&send, NETCHAN_GENCHECKSUM(chan->challenge, chan->outgoingSequence));
 
 	// copy the reliable message to the packet first
 	fragmentLength = FRAGMENT_SIZE;
@@ -198,7 +200,8 @@ void Netchan_Transmit( netchan_t *chan, int length, const byte *data ) {
 	if(chan->sock == NS_CLIENT)
 		MSG_WriteShort(&send, qport->integer);
 
-	MSG_WriteLong(&send, NETCHAN_GENCHECKSUM(chan->challenge, chan->outgoingSequence));
+	if ( chan->alternateProtocol == 0 )
+		MSG_WriteLong(&send, NETCHAN_GENCHECKSUM(chan->challenge, chan->outgoingSequence));
 
 	chan->outgoingSequence++;
 
@@ -258,11 +261,14 @@ qboolean Netchan_Process( netchan_t *chan, msg_t *msg ) {
 		MSG_ReadShort( msg );
 	}
 
-	checksum = MSG_ReadLong(msg);
+	if ( chan->alternateProtocol == 0 )
+	{
+		checksum = MSG_ReadLong(msg);
 
-	// UDP spoofing protection
-	if(NETCHAN_GENCHECKSUM(chan->challenge, sequence) != checksum)
-		return qfalse;
+		// UDP spoofing protection
+		if(NETCHAN_GENCHECKSUM(chan->challenge, sequence) != checksum)
+			return qfalse;
+	}
 
 	// read the fragment information
 	if ( fragmented ) {
@@ -655,6 +661,8 @@ int NET_StringToAdr( const char *s, netadr_t *a, netadrtype_t family )
 		
 		search = base;
 	}
+
+	a->alternateProtocol = 0;
 
 	if(!Sys_StringToAdr(search, a, family))
 	{

@@ -60,8 +60,6 @@ void SV_GetChallenge(netadr_t from)
 	int		clientChallenge;
 	challenge_t	*challenge;
 	qboolean wasfound = qfalse;
-	char *gameName;
-	qboolean gameMismatch;
 
 	// Prevent using getchallenge as an amplifier
 	if ( SVC_RateLimitAddress( from, 10, 1000 ) ) {
@@ -74,18 +72,6 @@ void SV_GetChallenge(netadr_t from)
 	// excess outbound bandwidth usage when being flooded inbound
 	if ( SVC_RateLimit( &outboundLeakyBucket, 10, 100 ) ) {
 		Com_DPrintf( "SV_GetChallenge: rate limit exceeded, dropping request\n" );
-		return;
-	}
-
-	gameName = Cmd_Argv(2);
-
-	gameMismatch = !*gameName || strcmp(gameName, com_gamename->string) != 0;
-
-	// reject client if the gamename string sent by the client doesn't match ours
-	if (gameMismatch)
-	{
-		NET_OutOfBandPrint(NS_SERVER, from, "print\nGame mismatch: This is a %s server\n",
-			com_gamename->string);
 		return;
 	}
 
@@ -166,8 +152,8 @@ void SV_DirectConnect( netadr_t from ) {
 	Q_strncpyz( userinfo, Cmd_Argv(1), sizeof(userinfo) );
 
 	version = atoi( Info_ValueForKey( userinfo, "protocol" ) );
-	if ( version != PROTOCOL_VERSION ) {
-		NET_OutOfBandPrint(NS_SERVER, from, "print\nServer uses protocol version %i "
+	if ( version != PROTOCOL_VERSION && version != 70 && version != 69 ) {
+		NET_OutOfBandPrint(NS_SERVER, from, "print\nServer uses either protocol version %i, 70 or 69 "
 					"(yours is %i).\n", PROTOCOL_VERSION, version);
 		Com_DPrintf("    rejected connect from version %i\n", version);
 		return;
@@ -333,11 +319,13 @@ gotnewcl:
 	ent = SV_GentityNum( clientNum );
 	newcl->gentity = ent;
 
+	Cvar_Set( va( "sv_clAltProto%i", clientNum ), ( version == 69 ? "2" : version == 70 ? "1" : "0" ) );
+
 	// save the challenge
 	newcl->challenge = challenge;
 
 	// save the address
-	Netchan_Setup(NS_SERVER, &newcl->netchan, from, qport, challenge);
+	Netchan_Setup((version == 69 ? 2 : version == 70 ? 1 : 0), NS_SERVER, &newcl->netchan, from, qport, challenge);
 	// init the netchan queue
 	newcl->netchan_end_queue = &newcl->netchan_start_queue;
 
@@ -532,7 +520,7 @@ static void SV_SendClientGameState( client_t *client ) {
 			continue;
 		}
 		MSG_WriteByte( &msg, svc_baseline );
-		MSG_WriteDeltaEntity( &msg, &nullstate, base, qtrue );
+		MSG_WriteDeltaEntity( client->netchan.alternateProtocol, &msg, &nullstate, base, qtrue );
 	}
 
 	MSG_WriteByte( &msg, svc_EOF );
@@ -1446,7 +1434,7 @@ static void SV_UserMove( client_t *cl, msg_t *msg, qboolean delta ) {
 	// also use the message acknowledge
 	key ^= cl->messageAcknowledge;
 	// also use the last acknowledged server command in the key
-	key ^= MSG_HashKey(cl->reliableCommands[ cl->reliableAcknowledge & (MAX_RELIABLE_COMMANDS-1) ], 32);
+	key ^= MSG_HashKey(cl->netchan.alternateProtocol, cl->reliableCommands[ cl->reliableAcknowledge & (MAX_RELIABLE_COMMANDS-1) ], 32);
 
 	Com_Memset( &nullcmd, 0, sizeof(nullcmd) );
 	oldcmd = &nullcmd;
@@ -1539,7 +1527,8 @@ void SV_UserVoip(client_t *cl, msg_t *msg, qboolean ignoreData)
 {
 	int sender, generation, sequence, frames, packetsize;
 	uint8_t recips[(MAX_CLIENTS + 7) / 8];
-	int flags;
+	int recip1 = 0, recip2 = 0, recip3 = 0; // silence warning
+	int flags = 0;
 	byte encoded[sizeof(cl->voipPacket[0]->data)];
 	client_t *client = NULL;
 	voipServerPacket_t *packet = NULL;
@@ -1549,8 +1538,14 @@ void SV_UserVoip(client_t *cl, msg_t *msg, qboolean ignoreData)
 	generation = MSG_ReadByte(msg);
 	sequence = MSG_ReadLong(msg);
 	frames = MSG_ReadByte(msg);
-	MSG_ReadData(msg, recips, sizeof(recips));
-	flags = MSG_ReadByte(msg);
+	if (cl->netchan.alternateProtocol == 0) {
+		MSG_ReadData(msg, recips, sizeof(recips));
+		flags = MSG_ReadByte(msg);
+	} else {
+		recip1 = MSG_ReadLong(msg);
+		recip2 = MSG_ReadLong(msg);
+		recip3 = MSG_ReadLong(msg);
+	}
 	packetsize = MSG_ReadShort(msg);
 
 	if (msg->readcount > msg->cursize)
@@ -1593,10 +1588,21 @@ void SV_UserVoip(client_t *cl, msg_t *msg, qboolean ignoreData)
 		else if (*cl->downloadName)   // !!! FIXME: possible to DoS?
 			continue;  // no VoIP allowed if downloading, to save bandwidth.
 
-		if(Com_IsVoipTarget(recips, sizeof(recips), i))
+		if (cl->netchan.alternateProtocol == 0) {
+			if(Com_IsVoipTarget(recips, sizeof(recips), i))
+				flags |= VOIP_DIRECT;
+			else
+				flags &= ~VOIP_DIRECT;
+		} else {
+			if (i < 31 && (recip1 & (1 << (i - 0))) == 0)
+				continue;  // not addressed to this player.
+			else if (i >= 31 && i < 62 && (recip2 & (1 << (i - 31))) == 0)
+				continue;  // not addressed to this player.
+			else if (i >= 62 && (recip3 & (1 << (i - 62))) == 0)
+				continue;  // not addressed to this player.
+
 			flags |= VOIP_DIRECT;
-		else
-			flags &= ~VOIP_DIRECT;
+		}
 
 		if (!(flags & (VOIP_SPATIAL | VOIP_DIRECT)))
 			continue;  // not addressed to this player.
@@ -1708,6 +1714,29 @@ void SV_ExecuteClientMessage( client_t *cl, msg_t *msg ) {
 	// read optional clientCommand strings
 	do {
 		c = MSG_ReadByte( msg );
+
+		if ( cl->netchan.alternateProtocol != 0 ) {
+			// See if this is an extension command after the EOF, which means we
+			//  got data that a legacy server should ignore.
+			if ( c == clc_EOF && MSG_LookaheadByte( msg ) == clc_voipSpeex ) {
+				MSG_ReadByte( msg );  // throw the clc_extension byte away.
+				c = MSG_ReadByte( msg );  // something legacy servers can't do!
+				if ( c == clc_voipSpeex + 1 ) {
+					c = clc_voipSpeex;
+				}
+				// sometimes you get a clc_extension at end of stream...dangling
+				//  bits in the huffman decoder giving a bogus value?
+				if ( c == -1 ) {
+					c = clc_EOF;
+				}
+			}
+
+			if ( c == svc_voipSpeex ) {
+				c = svc_voipSpeex + 1;
+			} else if ( c == svc_voipSpeex + 1 ) {
+				c = svc_voipSpeex;
+			}
+		}
 
 		if ( c == clc_EOF ) {
 			break;

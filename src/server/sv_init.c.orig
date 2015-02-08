@@ -669,12 +669,19 @@ void SV_Init (void)
 	sv_allowDownload = Cvar_Get ("sv_allowDownload", "0", CVAR_SERVERINFO);
 	Cvar_Get ("sv_dlURL", "http://downloads.tremulous.net", CVAR_SERVERINFO | CVAR_ARCHIVE);
 	
+<<<<<<< 7c8585d9bd47e8e835703d67fa3c74fcfa0a6cd1
+	sv_master[0] = Cvar_Get("sv_master1", MASTER_SERVER_NAME, 0);
+	sv_master[1] = Cvar_Get("sv_master2", "master.ioquake3.org", 0);
+	for(index = 2; index < MAX_MASTER_SERVERS; index++)
+		sv_master[index] = Cvar_Get(va("sv_master%d", index + 1), "", CVAR_ARCHIVE);
+=======
 	for (a = 0; a < 3; ++a)
 	{
 		sv_masters[a][0] = Cvar_Get(va("sv_%smaster1", (a == 2 ? "alt2" : a == 1 ? "alt1" : "")), MASTER_SERVER_NAME, 0);
 		for(index = 1; index < MAX_MASTER_SERVERS; index++)
 			sv_masters[a][index] = Cvar_Get(va("sv_%smaster%d", (a == 2 ? "alt2" : a == 1 ? "alt1" : ""), index + 1), "", CVAR_ARCHIVE);
 	}
+>>>>>>> support for serving simultaneously via the current and the alternate protocols (70, 69)
 
 	sv_reconnectlimit = Cvar_Get ("sv_reconnectlimit", "3", 0);
 	sv_showloss = Cvar_Get ("sv_showloss", "0", 0);

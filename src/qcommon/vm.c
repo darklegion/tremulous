@@ -744,6 +744,10 @@ void VM_Forced_Unload_Done(void) {
 	forced_unload = 0;
 }
 
+void VM_ClearCallLevel(vm_t *vm) {
+	vm->callLevel = 0;
+}
+
 void *VM_ArgPtr( intptr_t intValue ) {
 	if ( !intValue ) {
 		return NULL;

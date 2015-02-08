@@ -551,11 +551,15 @@ static void SV_WriteVoipToClient(client_t *cl, msg_t *msg)
 	        		if (totalbytes > (msg->maxsize - msg->cursize) / 2)
 		        		break;
 
+<<<<<<< 7c8585d9bd47e8e835703d67fa3c74fcfa0a6cd1
+        			MSG_WriteByte(msg, svc_voipOpus);
+=======
 				if(cl->netchan.alternateProtocol != 0)
 					MSG_WriteByte(msg, svc_EOF);
 				MSG_WriteByte(msg, svc_voip);
 				if(cl->netchan.alternateProtocol != 0)
 					MSG_WriteByte(msg, svc_voip + 1);
+>>>>>>> support for serving simultaneously via the current and the alternate protocols (70, 69)
         			MSG_WriteShort(msg, packet->sender);
 	        		MSG_WriteByte(msg, (byte) packet->generation);
 		        	MSG_WriteLong(msg, packet->sequence);

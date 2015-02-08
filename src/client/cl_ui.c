@@ -21,9 +21,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+#include <setjmp.h>
 #include "client.h"
 
 vm_t *uivm;
+int uiInterface;
 
 /*
 ====================
@@ -36,7 +38,7 @@ static void GetClientState( uiClientState_t *state ) {
 	Q_strncpyz( state->servername, clc.servername, sizeof( state->servername ) );
 	Q_strncpyz( state->updateInfoString, cls.updateInfoString, sizeof( state->updateInfoString ) );
 	Q_strncpyz( state->messageString, clc.serverMessage, sizeof( state->messageString ) );
-	state->clientNum = cl.snap.ps.clientNum;
+	state->clientNum = ( clc.netchan.alternateProtocol == 2 ? cl.snap.alternatePs.clientNum : cl.snap.ps.clientNum );
 }
 
 /*
@@ -280,6 +282,8 @@ static void LAN_GetServerAddressString( int source, int n, char *buf, int buflen
 		case AS_LOCAL :
 			if (n >= 0 && n < MAX_OTHER_SERVERS) {
 				Q_strncpyz(buf, NET_AdrToStringwPort( cls.localServers[n].adr) , buflen );
+				if (cls.localServers[n].adr.alternateProtocol != 0)
+					Q_strncpyz(buf + (int)strlen(buf), (cls.localServers[n].adr.alternateProtocol == 1 ? " -g" : " -1"), buflen - (int)strlen(buf));
 				return;
 			}
 			break;
@@ -287,12 +291,16 @@ static void LAN_GetServerAddressString( int source, int n, char *buf, int buflen
 		case AS_GLOBAL :
 			if (n >= 0 && n < MAX_GLOBAL_SERVERS) {
 				Q_strncpyz(buf, NET_AdrToStringwPort( cls.globalServers[n].adr) , buflen );
+				if (cls.globalServers[n].adr.alternateProtocol != 0)
+					Q_strncpyz(buf + (int)strlen(buf), (cls.globalServers[n].adr.alternateProtocol == 1 ? " -g" : " -1"), buflen - (int)strlen(buf));
 				return;
 			}
 			break;
 		case AS_FAVORITES :
 			if (n >= 0 && n < MAX_OTHER_SERVERS) {
 				Q_strncpyz(buf, NET_AdrToStringwPort( cls.favoriteServers[n].adr) , buflen );
+				if (cls.favoriteServers[n].adr.alternateProtocol != 0)
+					Q_strncpyz(buf + (int)strlen(buf), (cls.favoriteServers[n].adr.alternateProtocol == 1 ? " -g" : " -1"), buflen - (int)strlen(buf));
 				return;
 			}
 			break;
@@ -329,7 +337,14 @@ static void LAN_GetServerInfo( int source, int n, char *buf, int buflen ) {
 	}
 	if (server && buf) {
 		buf[0] = '\0';
-		Info_SetValueForKey( info, "hostname", server->hostName);
+		if (server->adr.alternateProtocol != 0) {
+			char hn[ MAX_HOSTNAME_LENGTH ];
+			Q_strncpyz(hn, server->hostName, sizeof(hn));
+			Q_strcat(hn, sizeof(hn), (server->adr.alternateProtocol == 1 ? S_COLOR_WHITE " [GPP]" : S_COLOR_WHITE " [1.1]"));
+			Info_SetValueForKey( info, "hostname", hn);
+		} else {
+			Info_SetValueForKey( info, "hostname", server->hostName);
+		}
 		Info_SetValueForKey( info, "mapname", server->mapName);
 		Info_SetValueForKey( info, "label", server->label);
 		Info_SetValueForKey( info, "clients", va("%i",server->clients));
@@ -675,6 +690,9 @@ static int FloatAsInt( float f ) {
 	return fi.i;
 }
 
+static jmp_buf uiProbingJB;
+static qboolean probingUI = qfalse;
+
 /*
 ====================
 CL_UISystemCalls
@@ -683,8 +701,46 @@ The ui module is making a system call
 ====================
 */
 intptr_t CL_UISystemCalls( intptr_t *args ) {
+	if( uiInterface == 2 ) {
+		if( args[0] >= UI_R_SETCLIPREGION && args[0] < UI_MEMSET ) {
+			if( args[0] < UI_S_STOPBACKGROUNDTRACK - 1 ) {
+				args[0] += 1;
+			} else if( args[0] < UI_S_STOPBACKGROUNDTRACK + 4 ) {
+				args[0] += UI_PARSE_ADD_GLOBAL_DEFINE - UI_S_STOPBACKGROUNDTRACK + 1;
+			} else if( args[0] >= UI_PARSE_ADD_GLOBAL_DEFINE + 4 ) {
+				args[0] += UI_GETNEWS - UI_PARSE_ADD_GLOBAL_DEFINE - 5;
+				if( args[0] == UI_PARSE_SOURCE_FILE_AND_LINE || args[0] == UI_GETNEWS )
+					args[0] = UI_PARSE_SOURCE_FILE_AND_LINE - 1337 - args[0];
+			} else {
+				args[0] -= 4;
+			}
+		}
+
+		switch( args[0] ) {
+			case UI_LAN_GETSERVERCOUNT:
+			case UI_LAN_GETSERVERADDRESSSTRING:
+			case UI_LAN_GETSERVERINFO:
+			case UI_LAN_MARKSERVERVISIBLE:
+			case UI_LAN_UPDATEVISIBLEPINGS:
+			case UI_LAN_RESETPINGS:
+			case UI_LAN_ADDSERVER:
+			case UI_LAN_REMOVESERVER:
+			case UI_LAN_GETSERVERPING:
+			case UI_LAN_SERVERISVISIBLE:
+			case UI_LAN_COMPARESERVERS:
+				if( args[1] == AS_GLOBAL ) {
+					args[1] = AS_LOCAL;
+				} else if( args[1] == AS_LOCAL ) {
+					args[1] = AS_GLOBAL;
+				}
+		}
+	}
+
 	switch( args[0] ) {
 	case UI_ERROR:
+		if( probingUI ) {
+			longjmp( uiProbingJB, 1 );
+		}
 		Com_Error( ERR_DROP, "%s", (const char*)VMA(1) );
 		return 0;
 
@@ -1058,40 +1114,66 @@ void CL_ShutdownUI( void ) {
 CL_InitUI
 ====================
 */
-void CL_InitUI( void )
-{
-    int v;
-    vmInterpret_t i = Cvar_VariableValue("vm_ui");
-    if ( cl_connectedToPureServer )
-    {
-        if ( i != VMI_COMPILED && i != VMI_BYTECODE )
-            i = VMI_COMPILED;
-    }
+void CL_InitUI( void ) {
+	int		v;
+	vmInterpret_t		interpret;
 
-    uivm = VM_Create( "ui", CL_UISystemCalls, i );
-    if ( !uivm )
-    {
-        cls.uiStarted = qfalse;
-        Com_Error( ERR_DROP, "VM_Create on UI failed" );
-        return; // CANT GET HERE
-    }
+	// load the dll or bytecode
+	interpret = Cvar_VariableValue("vm_ui");
+	if(cl_connectedToPureServer)
+	{
+		// if sv_pure is set we only allow qvms to be loaded
+		if(interpret != VMI_COMPILED && interpret != VMI_BYTECODE)
+			interpret = VMI_COMPILED;
+	}
 
-    switch ((v = VM_Call( uivm, UI_GETAPIVERSION )))
-    {
-        case UI_API_VERSION:
-            VM_Call( uivm, UI_INIT, (clc.state >= CA_AUTHORIZING && clc.state < CA_ACTIVE) );
-            break;
+	uivm = VM_Create( "ui", CL_UISystemCalls, interpret );
+	if ( !uivm ) {
+		Com_Printf( "Failed to find a valid UI vm. The following paths were searched:\n" );
+		Cmd_ExecuteString( "path /\n" );
+		Com_Error( ERR_FATAL, "VM_Create on UI failed" );
+	}
 
-        default:
-            VM_Free(uivm); // do now, avoid UI_SHUTDOWN later. 
-            uivm = NULL;
-            cls.uiStarted = qfalse;
-            Com_Error( ERR_DROP, "User Interface is version %d, expected %d", v, UI_API_VERSION );
-            return; // CANT GET HERE
-    };
+	// sanity check
+	v = VM_Call( uivm, UI_GETAPIVERSION );
+	if ( v != UI_API_VERSION ) {
+		// Free uivm now, so UI_SHUTDOWN doesn't get called later.
+		VM_Free( uivm );
+		uivm = NULL;
 
-    // FIXIT-L: Get rid of this.
-    clc.newsString[ 0 ] = '\0';
+		cls.uiStarted = qfalse;
+		Com_Error( ERR_DROP, "User Interface is version %d, expected %d", v, UI_API_VERSION );
+	}
+
+	Cmd_TokenizeString( "" );
+	uiInterface = 0;
+	probingUI = qtrue;
+	if ( setjmp( uiProbingJB ) == 0 ) {
+		if ( VM_Call( uivm, UI_CONSOLE_COMMAND, 0 ) < 0 ) {
+			uiInterface = 2;
+		}
+	} else {
+		uiInterface = 2;
+		VM_ClearCallLevel( uivm );
+	}
+	probingUI = qfalse;
+
+	if ( clc.state >= CA_CONNECTED && clc.state <= CA_ACTIVE &&
+	     ( clc.netchan.alternateProtocol == 2 ) != ( uiInterface == 2 ) )
+	{
+		Com_Printf( S_COLOR_YELLOW "WARNING: %s protocol %i, but a ui module using the %s interface was found\n",
+		            ( clc.demoplaying ? "Demo was recorded using" : "Server uses" ),
+		            ( clc.netchan.alternateProtocol == 0 ? PROTOCOL_VERSION : clc.netchan.alternateProtocol == 1 ? 70 : 69 ),
+		            ( uiInterface == 2 ? "1.1" : "non-1.1" ) );
+	}
+
+	// init for this gamestate
+	VM_Call( uivm, UI_INIT, ( clc.state >= CA_AUTHORIZING && clc.state < CA_ACTIVE ) );
+
+	// show where the ui folder was loaded from
+	Cmd_ExecuteString( "which ui/\n" );
+
+	clc.newsString[ 0 ] = '\0';
 }
 
 /*
@@ -1106,5 +1188,5 @@ qboolean UI_GameCommand( void ) {
 		return qfalse;
 	}
 
-	return VM_Call( uivm, UI_CONSOLE_COMMAND, cls.realtime );
+	return VM_Call( uivm, UI_CONSOLE_COMMAND - ( uiInterface == 2 ? 2 : 0 ), cls.realtime );
 }

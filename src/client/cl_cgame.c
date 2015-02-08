@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // cl_cgame.c  -- client system interaction with client game
 
+#include <setjmp.h>
 #include "client.h"
 
 #ifdef USE_MUMBLE
@@ -32,6 +33,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 extern qboolean loadCamera(const char *name);
 extern void startCamera(int time);
 extern qboolean getCameraInfo(int time, vec3_t *origin, vec3_t *angles);
+
+int cgInterface;
 
 /*
 ====================
@@ -98,7 +101,13 @@ qboolean	CL_GetParseEntityState( int parseEntityNumber, entityState_t *state ) {
 		return qfalse;
 	}
 
-	*state = cl.parseEntities[ parseEntityNumber & ( MAX_PARSE_ENTITIES - 1 ) ];
+	if ( cgInterface == 2 ) {
+		entityState_t *es = &cl.parseEntities[ parseEntityNumber & ( MAX_PARSE_ENTITIES - 1 ) ];
+		memcpy( state, es, (size_t)&((entityState_t *)0)->weaponAnim );
+		state->weaponAnim = es->generic1;
+	} else {
+		*state = cl.parseEntities[ parseEntityNumber & ( MAX_PARSE_ENTITIES - 1 ) ];
+	}
 	return qtrue;
 }
 
@@ -144,20 +153,32 @@ qboolean	CL_GetSnapshot( int snapshotNumber, snapshot_t *snapshot ) {
 
 	// write the snapshot
 	snapshot->snapFlags = clSnap->snapFlags;
-	snapshot->serverCommandSequence = clSnap->serverCommandNum;
 	snapshot->ping = clSnap->ping;
 	snapshot->serverTime = clSnap->serverTime;
 	Com_Memcpy( snapshot->areamask, clSnap->areamask, sizeof( snapshot->areamask ) );
-	snapshot->ps = clSnap->ps;
 	count = clSnap->numEntities;
 	if ( count > MAX_ENTITIES_IN_SNAPSHOT ) {
 		Com_DPrintf( "CL_GetSnapshot: truncated %i entities to %i\n", count, MAX_ENTITIES_IN_SNAPSHOT );
 		count = MAX_ENTITIES_IN_SNAPSHOT;
 	}
-	snapshot->numEntities = count;
-	for ( i = 0 ; i < count ; i++ ) {
-		snapshot->entities[i] = 
-			cl.parseEntities[ ( clSnap->parseEntitiesNum + i ) & (MAX_PARSE_ENTITIES-1) ];
+	if ( cgInterface == 2 ) {
+		alternateSnapshot_t *altSnapshot = (alternateSnapshot_t *)snapshot;
+		altSnapshot->ps = clSnap->alternatePs;
+		altSnapshot->serverCommandSequence = clSnap->serverCommandNum;
+		altSnapshot->numEntities = count;
+		for ( i = 0 ; i < count ; i++ ) {
+			entityState_t *es = &cl.parseEntities[ ( clSnap->parseEntitiesNum + i ) & (MAX_PARSE_ENTITIES-1) ];
+			memcpy( &altSnapshot->entities[i], es, (size_t)&((entityState_t *)0)->weaponAnim );
+			altSnapshot->entities[i].generic1 = es->generic1;
+		}
+	} else {
+		snapshot->ps = clSnap->ps;
+		snapshot->serverCommandSequence = clSnap->serverCommandNum;
+		snapshot->numEntities = count;
+		for ( i = 0 ; i < count ; i++ ) {
+			snapshot->entities[i] = 
+				cl.parseEntities[ ( clSnap->parseEntitiesNum + i ) & (MAX_PARSE_ENTITIES-1) ];
+		}
 	}
 
 	// FIXME: configstring changes and server commands!!!
@@ -379,6 +400,9 @@ static int	FloatAsInt( float f ) {
 	return fi.i;
 }
 
+static jmp_buf cgProbingJB;
+static qboolean probingCG = qfalse;
+
 /*
 ====================
 CL_CgameSystemCalls
@@ -387,11 +411,26 @@ The cgame module is making a system call
 ====================
 */
 intptr_t CL_CgameSystemCalls( intptr_t *args ) {
+	if( cgInterface == 2 && args[0] >= CG_R_SETCLIPREGION && args[0] < CG_MEMSET ) {
+		if( args[0] < CG_S_STOPBACKGROUNDTRACK - 1 ) {
+			args[0] += 1;
+		} else if( args[0] < CG_S_STOPBACKGROUNDTRACK + 4 ) {
+			args[0] += CG_PARSE_ADD_GLOBAL_DEFINE - CG_S_STOPBACKGROUNDTRACK + 1;
+		} else if( args[0] < CG_PARSE_ADD_GLOBAL_DEFINE + 4 ) {
+			args[0] -= 4;
+		} else if( args[0] >= CG_PARSE_SOURCE_FILE_AND_LINE && args[0] <= CG_S_SOUNDDURATION ) {
+			args[0] = CG_PARSE_SOURCE_FILE_AND_LINE - 1337 - args[0] ;
+		}
+	}
+
 	switch( args[0] ) {
 	case CG_PRINT:
 		Com_Printf( "%s", (const char*)VMA(1) );
 		return 0;
 	case CG_ERROR:
+		if( probingCG ) {
+			longjmp( cgProbingJB, 1 );
+		}
 		Com_Error( ERR_DROP, "%s", (const char*)VMA(1) );
 		return 0;
 	case CG_MILLISECONDS:
@@ -732,6 +771,7 @@ void CL_InitCGame( void ) {
 	const char			*info;
 	const char			*mapname;
 	int					t1, t2;
+	char				backup[ MAX_STRING_CHARS ];
 	vmInterpret_t		interpret;
 
 	t1 = Sys_Milliseconds();
@@ -755,6 +795,26 @@ void CL_InitCGame( void ) {
 		Com_Error( ERR_DROP, "VM_Create on cgame failed" );
 	}
 	clc.state = CA_LOADING;
+
+	Cvar_VariableStringBuffer( "cl_voipSendTarget", backup, sizeof( backup ) );
+	Cvar_Set( "cl_voipSendTarget", "" );
+	cgInterface = 0;
+	probingCG = qtrue;
+	if ( setjmp( cgProbingJB ) == 0 ) {
+		VM_Call( cgvm, CG_VOIP_STRING );
+	} else {
+		VM_ClearCallLevel( cgvm );
+		cgInterface = 2;
+	}
+	probingCG = qfalse;
+	Cvar_Set( "cl_voipSendTarget", backup );
+
+	if ( ( clc.netchan.alternateProtocol == 2 ) != ( cgInterface == 2 ) ) {
+		Com_Error( ERR_DROP, "%s protocol %i, but a cgame module using the %s interface was found",
+		           ( clc.demoplaying ? "Demo was recorded using" : "Server uses" ),
+		           ( clc.netchan.alternateProtocol == 0 ? PROTOCOL_VERSION : clc.netchan.alternateProtocol == 1 ? 70 : 69 ),
+		           ( cgInterface == 2 ? "1.1" : "non-1.1" ) );
+	}
 
 	// init for this gamestate
 	// use the lastExecutedServerCommand instead of the serverCommandSequence

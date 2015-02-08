@@ -79,7 +79,7 @@ void MSG_WriteFloat (msg_t *sb, float f);
 void MSG_WriteString (msg_t *sb, const char *s);
 void MSG_WriteBigString (msg_t *sb, const char *s);
 void MSG_WriteAngle16 (msg_t *sb, float f);
-int MSG_HashKey(const char *string, int maxlen);
+int MSG_HashKey(int alternateProtocol, const char *string, int maxlen);
 
 void	MSG_BeginReading (msg_t *sb);
 void	MSG_BeginReadingOOB(msg_t *sb);
@@ -101,13 +101,15 @@ int		MSG_LookaheadByte (msg_t *msg);
 void MSG_WriteDeltaUsercmdKey( msg_t *msg, int key, usercmd_t *from, usercmd_t *to );
 void MSG_ReadDeltaUsercmdKey( msg_t *msg, int key, usercmd_t *from, usercmd_t *to );
 
-void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entityState_s *to
+void MSG_WriteDeltaEntity( int alternateProtocol, msg_t *msg, struct entityState_s *from, struct entityState_s *to
 						   , qboolean force );
-void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to, 
+void MSG_ReadDeltaEntity( int alternateProtocol, msg_t *msg, entityState_t *from, entityState_t *to,
 						 int number );
 
-void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct playerState_s *to );
+void MSG_WriteDeltaPlayerstate( int alternateProtocol, msg_t *msg, struct playerState_s *from, struct playerState_s *to );
 void MSG_ReadDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct playerState_s *to );
+struct alternatePlayerState_s;
+void MSG_ReadDeltaAlternatePlayerstate( msg_t *msg, struct alternatePlayerState_s *from, struct alternatePlayerState_s *to );
 
 
 void MSG_ReportChangeVectors_f( void );
@@ -128,6 +130,10 @@ NET
 #define NET_PRIOV6              0x04
 // disables ipv6 multicast support if set.
 #define NET_DISABLEMCAST        0x08
+
+#define NET_ENABLEALT1PROTO      0x01
+#define NET_ENABLEALT2PROTO      0x02
+#define NET_DISABLEPRIMPROTO    0x04
 
 
 #define	PACKET_BACKUP	32	// number of old messages that must be kept on client and
@@ -166,6 +172,8 @@ typedef struct {
 
 	unsigned short	port;
 	unsigned long	scope_id;	// Needed for IPv6 link-local addresses
+
+	int	alternateProtocol;
 } netadr_t;
 
 void		NET_Init( void );
@@ -208,6 +216,7 @@ typedef struct {
 
 	int			dropped;			// between last packet and previous
 
+	int			alternateProtocol;
 	netadr_t	remoteAddress;
 	int			qport;				// qport value to write when transmitting
 
@@ -233,7 +242,7 @@ typedef struct {
 } netchan_t;
 
 void Netchan_Init( int qport );
-void Netchan_Setup(netsrc_t sock, netchan_t *chan, netadr_t adr, int qport, int challenge);
+void Netchan_Setup(int alternateProtocol, netsrc_t sock, netchan_t *chan, netadr_t adr, int qport, int challenge);
 
 void Netchan_Transmit( netchan_t *chan, int length, const byte *data );
 void Netchan_TransmitNextFragment( netchan_t *chan );
@@ -262,6 +271,10 @@ extern int demo_protocols[];
 
 #define	PORT_MASTER			30700
 #define	PORT_SERVER			30720
+#define	ALT1PORT_MASTER			30700
+#define	ALT1PORT_SERVER			30721
+#define	ALT2PORT_MASTER			30710
+#define	ALT2PORT_SERVER			30722
 #define	NUM_SERVER_PORTS	4		// broadcast scan this many ports after
 									// PORT_SERVER so a single machine can
 									// run multiple servers
@@ -347,6 +360,7 @@ void	VM_Free( vm_t *vm );
 void	VM_Clear(void);
 void	VM_Forced_Unload_Start(void);
 void	VM_Forced_Unload_Done(void);
+void	VM_ClearCallLevel(vm_t *vm);
 vm_t	*VM_Restart(vm_t *vm, qboolean unpure);
 
 intptr_t		QDECL VM_Call( vm_t *vm, int callNum, ... );

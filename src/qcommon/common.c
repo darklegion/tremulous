@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 int demo_protocols[] =
-{ PROTOCOL_VERSION, 0 };
+{ PROTOCOL_VERSION, 70, 69, 0 };
 
 #define MAX_NUM_ARGVS	50
 

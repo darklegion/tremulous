@@ -186,11 +186,19 @@ void CL_UpdateMumble(void)
 		return;
 
 	// !!! FIXME: not sure if this is even close to correct.
-	AngleVectors( cl.snap.ps.viewangles, forward, NULL, up);
+	if(clc.netchan.alternateProtocol == 2) {
+		AngleVectors( cl.snap.alternatePs.viewangles, forward, NULL, up);
 
-	pos[0] = cl.snap.ps.origin[0] * scale;
-	pos[1] = cl.snap.ps.origin[2] * scale;
-	pos[2] = cl.snap.ps.origin[1] * scale;
+		pos[0] = cl.snap.alternatePs.origin[0] * scale;
+		pos[1] = cl.snap.alternatePs.origin[2] * scale;
+		pos[2] = cl.snap.alternatePs.origin[1] * scale;
+	} else {
+		AngleVectors( cl.snap.ps.viewangles, forward, NULL, up);
+
+		pos[0] = cl.snap.ps.origin[0] * scale;
+		pos[1] = cl.snap.ps.origin[2] * scale;
+		pos[2] = cl.snap.ps.origin[1] * scale;
+	}
 
 	tmp = forward[1];
 	forward[1] = forward[2];
@@ -783,7 +791,7 @@ void CL_Record_f( void ) {
 			continue;
 		}
 		MSG_WriteByte (&buf, svc_baseline);		
-		MSG_WriteDeltaEntity (&buf, &nullstate, ent, qtrue );
+		MSG_WriteDeltaEntity (clc.netchan.alternateProtocol, &buf, &nullstate, ent, qtrue);
 	}
 
 	MSG_WriteByte( &buf, svc_EOF );
@@ -1097,6 +1105,7 @@ void CL_PlayDemo_f( void ) {
 	clc.state = CA_CONNECTED;
 	clc.demoplaying = qtrue;
 	Q_strncpyz( clc.servername, arg, sizeof( clc.servername ) );
+	clc.netchan.alternateProtocol = ( protocol == 69 ? 2 : protocol == 70 ? 1 : 0 );
 
 	// read demo messages until connected
 	while ( clc.state >= CA_CONNECTED && clc.state < CA_PRIMED ) {
@@ -1422,7 +1431,7 @@ void CL_Disconnect( qboolean showMainMenu ) {
 	}
 
 	if ( uivm && showMainMenu ) {
-		VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_NONE );
+		VM_Call( uivm, UI_SET_ACTIVE_MENU - ( uiInterface == 2 ? 2 : 0 ), UIMENU_NONE );
 	}
 
 	SCR_StopCinematic ();
@@ -1606,15 +1615,28 @@ CL_Connect_f
 */
 void CL_Connect_f( void ) {
 	char	*server;
+	int alternateProtocol;
 	const char	*serverString;
 	int argc = Cmd_Argc();
 	netadrtype_t family = NA_UNSPEC;
 
-	if ( argc != 2 && argc != 3 ) {
-		Com_Printf( "usage: connect [-4|-6] server\n");
+	if ( argc < 2 || argc > 4 ) {
+		Com_Printf( "usage: connect [-4|-6] server [-g|-1]\n");
 		return;	
 	}
 	
+	alternateProtocol = 0;
+	if ( argc == 2 ) {
+	} else if ( !strcmp( Cmd_Argv( argc - 1 ), "-g" ) ) {
+		alternateProtocol = 1;
+		--argc;
+	} else if ( !strcmp( Cmd_Argv( argc - 1 ), "-1" ) ) {
+		alternateProtocol = 2;
+		--argc;
+	} else if ( argc == 4 ) {
+		--argc;
+	}
+
 	if(argc == 2)
 		server = Cmd_Argv(1);
 	else
@@ -1659,6 +1681,7 @@ void CL_Connect_f( void ) {
 	if (clc.serverAddress.port == 0) {
 		clc.serverAddress.port = BigShort( PORT_SERVER );
 	}
+	clc.serverAddress.alternateProtocol = alternateProtocol;
 
 	serverString = NET_AdrToStringwPort(clc.serverAddress);
 
@@ -2364,7 +2387,14 @@ void CL_CheckForResend( void ) {
 		// The challenge request shall be followed by a client challenge so no malicious server can hijack this connection.
 		// Add the gamename so the server knows we're running the correct game or can reject the client
 		// with a meaningful message
-		Com_sprintf(data, sizeof(data), "getchallenge %d %s", clc.challenge, com_gamename->string);
+		if ( clc.serverAddress.alternateProtocol == 2 ) {
+			Com_sprintf(data, sizeof(data), "getchallenge");
+		}
+		else if ( clc.serverAddress.alternateProtocol == 1 ) {
+			Com_sprintf(data, sizeof(data), "getchallenge %d", clc.challenge);
+		}
+		else
+			Com_sprintf(data, sizeof(data), "getchallenge %d %s", clc.challenge, com_gamename->string);
 
 		NET_OutOfBandPrint(NS_CLIENT, clc.serverAddress, "%s", data);
 		break;
@@ -2374,7 +2404,7 @@ void CL_CheckForResend( void ) {
 		port = Cvar_VariableValue ("net_qport");
 
 		Q_strncpyz( info, Cvar_InfoString( CVAR_USERINFO ), sizeof( info ) );
-		Info_SetValueForKey( info, "protocol", va("%i", PROTOCOL_VERSION ) );
+		Info_SetValueForKey( info, "protocol", va("%i", ( clc.serverAddress.alternateProtocol == 0 ? PROTOCOL_VERSION : clc.serverAddress.alternateProtocol == 1 ? 70 : 69 ) ) );
 		Info_SetValueForKey( info, "qport", va("%i", port ) );
 		Info_SetValueForKey( info, "challenge", va("%i", clc.challenge ) );
 		
@@ -2456,7 +2486,7 @@ The sequencing information isn't terribly useful at present (we can skip
 duplicate packets, but we don't bother to make sure we've got all of them).
 ===================
 */
-int CL_GSRSequenceInformation( byte **data )
+int CL_GSRSequenceInformation( int alternateProtocol, byte **data )
 {
 	char *p = (char *)*data, *e;
 	int ind, num;
@@ -2475,16 +2505,17 @@ int CL_GSRSequenceInformation( byte **data )
 	if( num <= 0 || ind <= 0 || ind > num )
 		return -1; // nonsensical response
 
-	if( cls.numMasterPackets > 0 && num != cls.numMasterPackets )
+	if( cls.numAlternateMasterPackets[alternateProtocol] > 0 && num != cls.numAlternateMasterPackets[alternateProtocol] )
 	{
 		// Assume we sent two getservers and somehow they changed in
 		// between - only use the results that arrive later
-		Com_DPrintf( "Master changed its mind about packet count!\n" );
-		cls.receivedMasterPackets = 0;
-		cls.numglobalservers = 0;
-		cls.numGlobalServerAddresses = 0;
+		Com_DPrintf( "Master changed its mind about%s packet count!\n",
+		             ( alternateProtocol == 0 ? "" : alternateProtocol == 1 ? " alternate-1" : " alternate-2" ) );
+		cls.receivedAlternateMasterPackets[alternateProtocol] = 0;
+		//cls.numglobalservers = 0;
+		//cls.numGlobalServerAddresses = 0;
 	}
-	cls.numMasterPackets = num;
+	cls.numAlternateMasterPackets[alternateProtocol] = num;
 
 	// successfully parsed
 	*data = (byte *)p;
@@ -2544,8 +2575,10 @@ void CL_ServersResponsePacket( const netadr_t* from, msg_t *msg, qboolean extend
 		// state to detect lack of servers or lack of response
 		cls.numglobalservers = 0;
 		cls.numGlobalServerAddresses = 0;
-		cls.numMasterPackets = 0;
-		cls.receivedMasterPackets = 0;
+		for (i = 0; i < 3; ++i) {
+			cls.numAlternateMasterPackets[i] = 0;
+			cls.receivedAlternateMasterPackets[i] = 0;
+		}
 	}
 
 	// parse through server response string
@@ -2569,12 +2602,12 @@ void CL_ServersResponsePacket( const netadr_t* from, msg_t *msg, qboolean extend
 
 	if( *buffptr == '\0' )
 	{
-		int ind = CL_GSRSequenceInformation( &buffptr );
+		int ind = CL_GSRSequenceInformation( from->alternateProtocol, &buffptr );
 		if( ind >= 0 )
 		{
 			// this denotes the start of new-syntax stuff
 			// have we already received this packet?
-			if( cls.receivedMasterPackets & ( 1 << ( ind - 1 ) ) )
+			if( cls.receivedAlternateMasterPackets[from->alternateProtocol] & ( 1 << ( ind - 1 ) ) )
 			{
 				Com_DPrintf( "CL_ServersResponsePacket: "
 					"received packet %d again, ignoring\n",
@@ -2583,9 +2616,10 @@ void CL_ServersResponsePacket( const netadr_t* from, msg_t *msg, qboolean extend
 			}
 			// TODO: detect dropped packets and make another
 			// request
-			Com_DPrintf( "CL_ServersResponsePacket: packet "
-				"%d of %d\n", ind, cls.numMasterPackets );
-			cls.receivedMasterPackets |= ( 1 << ( ind - 1 ) );
+			Com_DPrintf( "CL_ServersResponsePacket:%s packet "
+				"%d of %d\n", ( from->alternateProtocol == 0 ? "" : from->alternateProtocol == 1 ? " alternate-1" : " alternate-2" ),
+				ind, cls.numAlternateMasterPackets[from->alternateProtocol] );
+			cls.receivedAlternateMasterPackets[from->alternateProtocol] |= ( 1 << ( ind - 1 ) );
 
 			CL_GSRFeaturedLabel( &buffptr, label, sizeof( label ) );
 		}
@@ -2636,6 +2670,8 @@ void CL_ServersResponsePacket( const netadr_t* from, msg_t *msg, qboolean extend
 		if (*buffptr != '\\' && *buffptr != '/')
 			break;
 	
+		addresses[numservers].alternateProtocol = from->alternateProtocol;
+
 		numservers++;
 		if (numservers >= MAX_SERVERSPERPACKET)
 			break;
@@ -2705,10 +2741,6 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 			return;
 		}
 		
-		c = Cmd_Argv(2);
-		if(*c)
-			challenge = atoi(c);
-
 		strver = Cmd_Argv(3);
 		if(*strver)
 		{
@@ -2720,10 +2752,17 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 						 "Trying anyways.\n", ver, PROTOCOL_VERSION);
 			}
 		}
-		if(!*c || challenge != clc.challenge)
+		if ( clc.serverAddress.alternateProtocol == 0 )
 		{
-			Com_Printf("Bad challenge for challengeResponse. Ignored.\n");
-			return;
+			c = Cmd_Argv(2);
+			if(*c)
+				challenge = atoi(c);
+
+			if(!*c || challenge != clc.challenge)
+			{
+				Com_Printf("Bad challenge for challengeResponse. Ignored.\n");
+				return;
+			}
 		}
 
 		// start sending challenge response instead of challenge request packets
@@ -2754,23 +2793,26 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 			return;
 		}
 
-		c = Cmd_Argv(1);
-
-		if(*c)
-			challenge = atoi(c);
-		else
+		if ( clc.serverAddress.alternateProtocol == 0 )
 		{
-			Com_Printf("Bad connectResponse received. Ignored.\n");
-			return;
-		}
-		
-		if(challenge != clc.challenge)
-		{
-			Com_Printf("ConnectResponse with bad challenge received. Ignored.\n");
-			return;
+			c = Cmd_Argv(1);
+
+			if(*c)
+				challenge = atoi(c);
+			else
+			{
+				Com_Printf("Bad connectResponse received. Ignored.\n");
+				return;
+			}
+
+			if(challenge != clc.challenge)
+			{
+				Com_Printf("ConnectResponse with bad challenge received. Ignored.\n");
+				return;
+			}
 		}
 
-		Netchan_Setup(NS_CLIENT, &clc.netchan, from, Cvar_VariableValue("net_qport"),
+		Netchan_Setup(clc.serverAddress.alternateProtocol, NS_CLIENT, &clc.netchan, from, Cvar_VariableValue("net_qport"),
 			      clc.challenge);
 
 		clc.state = CA_CONNECTED;
@@ -3015,7 +3057,7 @@ void CL_Frame ( int msec ) {
 		&& !com_sv_running->integer && uivm ) {
 		// if disconnected, bring up the menu
 		S_StopAllSounds();
-		VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_MAIN );
+		VM_Call( uivm, UI_SET_ACTIVE_MENU - ( uiInterface == 2 ? 2 : 0 ), UIMENU_MAIN );
 	}
 
 	// if recording an avi, lock to a fixed fps
@@ -3872,20 +3914,23 @@ void CL_ServerInfoPacket( netadr_t from, msg_t *msg ) {
 
 	infoString = MSG_ReadString( msg );
 
-	// if this isn't the correct gamename, ignore it
-	gamename = Info_ValueForKey( infoString, "gamename" );
-
-	gameMismatch = !*gamename || strcmp(gamename, com_gamename->string) != 0;
-
-	if (gameMismatch)
+	if ( from.alternateProtocol == 0 )
 	{
-		Com_DPrintf( "Game mismatch in info packet: %s\n", infoString );
-		return;
+		// if this isn't the correct gamename, ignore it
+		gamename = Info_ValueForKey( infoString, "gamename" );
+
+		gameMismatch = !*gamename || strcmp(gamename, com_gamename->string) != 0;
+
+		if (gameMismatch)
+		{
+			Com_DPrintf( "Game mismatch in info packet: %s\n", infoString );
+			return;
+		}
 	}
 
 	// if this isn't the correct protocol version, ignore it
 	prot = atoi( Info_ValueForKey( infoString, "protocol" ) );
-	if ( prot != PROTOCOL_VERSION ) {
+	if ( prot != ( from.alternateProtocol == 0 ? PROTOCOL_VERSION : from.alternateProtocol == 1 ? 70 : 69 ) ) {
 		Com_DPrintf( "Different protocol info packet: %s\n", infoString );
 		return;
 	}
@@ -4194,6 +4239,7 @@ CL_GlobalServers_f
 ==================
 */
 void CL_GlobalServers_f( void ) {
+	int			netAlternateProtocols, a;
 	netadr_t	to;
 	int			count, i, masterNum;
 	char		command[1024], *masteraddress;
@@ -4204,13 +4250,26 @@ void CL_GlobalServers_f( void ) {
 		return;	
 	}
 
-	sprintf(command, "sv_master%d", masterNum + 1);
+	netAlternateProtocols = Cvar_VariableIntegerValue("net_alternateProtocols");
+
+	for (a = 0; a < 3; ++a)
+	{
+	// indent
+	if(a == 0 && (netAlternateProtocols & NET_DISABLEPRIMPROTO))
+		continue;
+	if(a == 1 && !(netAlternateProtocols & NET_ENABLEALT1PROTO))
+		continue;
+	if(a == 2 && !(netAlternateProtocols & NET_ENABLEALT1PROTO))
+		continue;
+
+	sprintf(command, "sv_%smaster%d", (a == 0 ? "" : a == 1 ? "alt1" : "alt2"), masterNum + 1);
 	masteraddress = Cvar_VariableString(command);
 	
 	if(!*masteraddress)
 	{
-		Com_Printf( "CL_GlobalServers_f: Error: No master server address given.\n");
-		return;	
+		Com_Printf("CL_GlobalServers_f: Error: No%s master server address given.\n",
+		           (a == 0 ? "" : a == 1 ? " alternate-1" : " alternate-2"));
+		continue;
 	}
 
 	// reset the list, waiting for response
@@ -4220,17 +4279,21 @@ void CL_GlobalServers_f( void ) {
 	
 	if(!i)
 	{
-		Com_Printf( "CL_GlobalServers_f: Error: could not resolve address of master %s\n", masteraddress);
-		return;	
+		Com_Printf("CL_GlobalServers_f: Error: could not resolve address of%s master %s\n",
+		           (a == 0 ? "" : a == 1 ? " alternate-1" : " alternate-2"), masteraddress);
+		continue;
 	}
 	else if(i == 2)
-		to.port = BigShort(PORT_MASTER);
+		to.port = BigShort(a == 0 ? PORT_MASTER : a == 1 ? ALT1PORT_MASTER : ALT2PORT_MASTER);
+	to.alternateProtocol = a;
 
-	Com_Printf("Requesting servers from master %s...\n", masteraddress);
+	Com_Printf("Requesting servers from%s master %s...\n",
+	           (a == 0 ? "" : a == 1 ? " alternate-1" : " alternate-2"), masteraddress);
 
 	cls.numglobalservers = -1;
 	cls.pingUpdateSource = AS_GLOBAL;
 
+#if 0
 	// Use the extended query for IPv6 masters
 	if (to.type == NA_IP6 || to.type == NA_MULTICAST6)
 	{
@@ -4252,6 +4315,10 @@ void CL_GlobalServers_f( void ) {
         Com_sprintf(command, sizeof(command), "getservers %d %s",
                PROTOCOL_VERSION, Cmd_Argv(2));
     }
+#endif
+	Com_sprintf(command, sizeof(command), "getserversExt %s %i%s",
+		com_gamename->string, (a == 0 ? PROTOCOL_VERSION : a == 1 ? 70 : 69),
+		(Cvar_VariableIntegerValue("net_enabled") & NET_ENABLEV4 ? "" : " ipv6"));
 
 	for (i=3; i < count; i++)
 	{
@@ -4260,6 +4327,8 @@ void CL_GlobalServers_f( void ) {
 	}
 
 	NET_OutOfBandPrint( NS_SERVER, to, "%s", command );
+	// outdent
+	}
 	CL_RequestMotd();
 }
 
