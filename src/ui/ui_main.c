@@ -3982,7 +3982,7 @@ void UI_ParseResolutions( void )
   p = buf;
   uiInfo.numResolutions = 0;
 
-  while( String_Parse( &p, &out ) )
+  while( uiInfo.numResolutions < MAX_RESOLUTIONS && String_Parse( &p, &out ) )
   {
     Q_strncpyz( w, out, sizeof( w ) );
     s = strchr( w, 'x' );
