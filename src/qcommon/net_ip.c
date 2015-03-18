@@ -214,7 +214,11 @@ static void NetadrToSockadr( netadr_t *a, struct sockaddr *s ) {
 	if( a->type == NA_BROADCAST ) {
 		((struct sockaddr_in *)s)->sin_family = AF_INET;
 		((struct sockaddr_in *)s)->sin_port = a->port;
+#ifdef __FreeBSD__
+		((struct sockaddr_in *)s)->sin_addr.s_addr = INADDR_ANY;
+#else
 		((struct sockaddr_in *)s)->sin_addr.s_addr = INADDR_BROADCAST;
+#endif
 	}
 	else if( a->type == NA_IP ) {
 		((struct sockaddr_in *)s)->sin_family = AF_INET;
