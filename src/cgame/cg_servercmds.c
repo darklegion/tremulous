@@ -896,9 +896,6 @@ static void CG_Say( int clientNum, saymode_t mode, const char *text )
       Com_sprintf( prefix, sizeof( prefix ), "[%s%c" S_COLOR_WHITE "] ",
                    tcolor, toupper( *( BG_TeamName( ci->team ) ) ) );
 
-    if( Com_ClientListContains( &cgs.ignoreList, clientNum ) )
-      ignore = "[skipnotify]";
-
     if( ( mode == SAY_TEAM || mode == SAY_AREA ) &&
         cg.snap->ps.pm_type != PM_INTERMISSION )
     {
@@ -1118,10 +1115,6 @@ static void CG_ParseVoice( void )
 
   // no audio track to play
   if( !track )
-    return;
-
-  // don't play audio track for lamers
-  if( Com_ClientListContains( &cgs.ignoreList, clientNum ) )
     return;
 
   switch( vChan )

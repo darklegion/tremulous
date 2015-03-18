@@ -746,13 +746,6 @@ void CG_NewClientInfo( int clientNum )
   // the old value
   memset( &newInfo, 0, sizeof( newInfo ) );
  
-  // grab our own ignoreList 
-  if( clientNum == cg.predictedPlayerState.clientNum )
-  {
-    v = Info_ValueForKey( configstring, "ig" );
-    Com_ClientListParse( &cgs.ignoreList, v );
-  }
-
   // isolate the player's name
   v = Info_ValueForKey( configstring, "n" );
   Q_strncpyz( newInfo.name, v, sizeof( newInfo.name ) );

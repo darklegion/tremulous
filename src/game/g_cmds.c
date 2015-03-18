@@ -859,6 +859,9 @@ static qboolean G_SayTo( gentity_t *ent, gentity_t *other, saymode_t mode, const
   if( other->client->pers.connected != CON_CONNECTED )
     return qfalse;
 
+  if( Com_ClientListContains( &other->client->sess.ignoreList, (int)( ent - g_entities ) ) )
+    return qfalse;
+
   if( ( ent && !OnSameTeam( ent, other ) ) &&
       ( mode == SAY_TEAM || mode == SAY_AREA || mode == SAY_TPRIVMSG ) )
   {
