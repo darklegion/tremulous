@@ -2507,7 +2507,6 @@ The result is copied to *buf, and *data is advanced as appropriate
 void CL_GSRFeaturedLabel( byte **data, char *buf, int size )
 {
 	char *l = buf;
-	buf[0] = '\0';
 
 	// copy until '\0' which indicates field break
 	// or slash which indicates beginning of server list
@@ -2520,6 +2519,11 @@ void CL_GSRFeaturedLabel( byte **data, char *buf, int size )
 				"CL_GSRFeaturedLabel: overflow\n" );
 		l++, (*data)++;
 	}
+
+	if( l < &buf[ size - 1 ] )
+		*l = '\0';
+	else
+		buf[ size - 1 ] = '\0';
 }
 
 #define MAX_SERVERSPERPACKET	256
