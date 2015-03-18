@@ -1537,6 +1537,7 @@ Com_ClientListParse
 */
 void Com_ClientListParse( clientList_t *list, const char *s )
 {
+  char t[ 9 ];
   if( !list )
     return;
   list->lo = 0;
@@ -1545,5 +1546,7 @@ void Com_ClientListParse( clientList_t *list, const char *s )
     return;
   if( strlen( s ) != 16 )
     return;
-  sscanf( s, "%x%x", &list->hi, &list->lo );
+  Q_strncpyz( t, s, 9 );
+  sscanf( t, "%x", &list->hi );
+  sscanf( s + 8, "%x", &list->lo );
 }
