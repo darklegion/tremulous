@@ -494,8 +494,7 @@ Com_AddStartupCommands
 Adds command line parameters as script statements
 Commands are seperated by + signs
 
-Returns qtrue if any late commands were added, which
-will keep the demoloop from immediately starting
+Returns qtrue if any late commands were added
 =================
 */
 qboolean Com_AddStartupCommands( void ) {
