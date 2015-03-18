@@ -218,6 +218,7 @@ static void Svcmd_LayoutSave_f( void )
   trap_Argv( 1, str, sizeof( str ) );
 
   // sanitize name
+  str2[ 0 ] = '\0';
   s = &str[ 0 ];
   while( *s && i < sizeof( str2 ) - 1 )
   {
