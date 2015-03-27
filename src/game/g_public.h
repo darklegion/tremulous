@@ -31,7 +31,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // special server behaviors
 #define SVF_NOCLIENT            0x00000001  // don't send entity to clients, even if it has effects
 
-#define SVF_CLIENTMASK 0x00000002
+#define SVF_CLIENTMASK          0x00000002  // send to clients specified by these bitmasks:
+                      // entityShared_t->singleClient: low-order bits (0..31)
+                      // entityShared_t->hack.generic1: high-order bits (32..63)
 
 #define SVF_BROADCAST           0x00000020  // send to all connected clients
 #define SVF_PORTAL              0x00000040  // merge a second pvs at origin2 into snapshots
@@ -49,12 +51,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 typedef struct {
-  entityState_t s;        // communicated by server to clients
+  entityState_t hack;     // exists (as padding) to retain ABI compatibility
+                          //  with GPP, but can be used for extension hacks
 
   qboolean  linked;       // qfalse if not in any good cluster
   int     linkcount;
 
-  int     svFlags;      // SVF_NOCLIENT, SVF_BROADCAST, etc
+  int     svFlags;        // SVF_NOCLIENT, SVF_BROADCAST, etc.
   int     singleClient;   // only send to this client when SVF_SINGLECLIENT is set
 
   qboolean  bmodel;       // if false, assume an explicit mins / maxs bounding box
