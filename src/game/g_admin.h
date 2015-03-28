@@ -50,7 +50,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  * IMMUTABLE - admin commands cannot be used on them
  * INCOGNITO - does not show up as an admin in /listplayers
  * ALLFLAGS - all flags (including command flags) apply to this player
- * ADMINCHAT - receieves and can send /a admin messages
+ * ADMINCHAT - receives and can send /a admin messages
  */
 #define ADMF_IMMUNITY        "IMMUNITY"
 #define ADMF_NOCENSORFLOOD   "NOCENSORFLOOD"

@@ -388,11 +388,8 @@ void G_FindTeams( void )
   c = 0;
   c2 = 0;
 
-  for( i = 1, e = g_entities+i; i < level.num_entities; i++, e++ )
+  for( i = MAX_CLIENTS, e = g_entities + i; i < level.num_entities; i++, e++ )
   {
-    if( !e->inuse )
-      continue;
-
     if( !e->team )
       continue;
 
@@ -405,9 +402,6 @@ void G_FindTeams( void )
 
     for( j = i + 1, e2 = e + 1; j < level.num_entities; j++, e2++ )
     {
-      if( !e2->inuse )
-        continue;
-
       if( !e2->team )
         continue;
 
@@ -1667,7 +1661,7 @@ void ExitLevel( void )
     cl->ps.persistant[ PERS_SCORE ] = 0;
   }
 
-  // we need to do this here before chaning to CON_CONNECTING
+  // we need to do this here before changing to CON_CONNECTING
   G_WriteSessionData( );
 
   // change all client states to connecting, so the early players into the

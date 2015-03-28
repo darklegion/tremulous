@@ -116,7 +116,6 @@ struct gentity_s
   int               soundLoop;
   gentity_t         *parent;
   gentity_t         *nextTrain;
-  gentity_t         *prevTrain;
   vec3_t            pos1, pos2;
   float             rotatorAngle;
   gentity_t         *clipBrush;     // clipping brush for model doors
@@ -125,7 +124,6 @@ struct gentity_s
 
   int               timestamp;      // body queue sinking, etc
 
-  float             angle;          // set in editor, -1 = up, -2 = down
   char              *target;
   char              *targetname;
   char              *team;
@@ -154,7 +152,6 @@ struct gentity_s
   void              (*die)( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod );
 
   int               pain_debounce_time;
-  int               fly_sound_debounce_time;  // wind tunnel
   int               last_move_time;
 
   int               health;
@@ -192,7 +189,6 @@ struct gentity_s
   gentity_t         *parentNode;        // for creep and defence/spawn dependencies
   gentity_t         *rangeMarker;
   qboolean          active;             // for power repeater, but could be useful elsewhere
-  qboolean          locked;             // used for turret tracking
   qboolean          powered;            // for human buildables
   struct namelog_s  *builtBy;           // person who built this
   int               dcc;                // number of controlling dccs
@@ -213,7 +209,6 @@ struct gentity_s
   int               credits[ MAX_CLIENTS ];     // human credits for each client
   int               killedBy;                   // clientNum of killer
 
-  gentity_t         *targeted;          // true if the player is currently a valid target of a turret
   vec3_t            turretAim;          // aim vector for turrets
   vec3_t            turretAimRate;      // track turn speed for norfenturrets
   int               turretSpinupTime;   // spinup delay for norfenturrets
@@ -233,8 +228,6 @@ struct gentity_s
 
   int               lastDamageTime;
   int               nextRegenTime;
-
-  qboolean          ownerClear;                     // used for missle tracking
 
   qboolean          pointAgainstWorld;              // don't use the bbox for map collisions
 

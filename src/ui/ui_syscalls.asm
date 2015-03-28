@@ -42,7 +42,7 @@ equ trap_Key_GetOverstrikeMode        -39
 equ trap_Key_SetOverstrikeMode        -40
 equ trap_Key_ClearStates              -41
 equ trap_Key_GetCatcher               -42
-equ trap_Key_SetCatcher               -43        
+equ trap_Key_SetCatcher               -43
 equ trap_GetClipboardData             -44
 equ trap_GetGlconfig                  -45
 equ trap_GetClientState               -46
@@ -99,4 +99,3 @@ equ atan2                             -106
 equ sqrt                              -107
 equ floor                             -108
 equ ceil                              -109
-

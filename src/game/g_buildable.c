@@ -2261,9 +2261,6 @@ void HMGTurret_FindEnemy( gentity_t *self )
   gentity_t *target;
   int       start;
 
-  if( self->enemy )
-    self->enemy->targeted = NULL;
-
   self->enemy = NULL;
     
   // Look for targets in a box around the turret
@@ -2283,7 +2280,6 @@ void HMGTurret_FindEnemy( gentity_t *self )
       continue;
 
     self->enemy = target;
-    self->enemy->targeted = self;
     return;
   }
 }
@@ -4145,7 +4141,6 @@ static void G_LayoutBuildItem( buildable_t buildable, vec3_t origin,
   gentity_t *builder;
 
   builder = G_Spawn( );
-  builder->client = 0;
   VectorCopy( origin, builder->s.pos.trBase );
   VectorCopy( angles, builder->s.angles );
   VectorCopy( origin2, builder->s.origin2 );
@@ -4376,7 +4371,6 @@ void G_BuildLogRevert( int id )
     {
       gentity_t  *builder = G_Spawn();
 
-      builder->client = NULL;
       VectorCopy( log->origin, builder->s.pos.trBase );
       VectorCopy( log->angles, builder->s.angles );
       VectorCopy( log->origin2, builder->s.origin2 );

@@ -12,7 +12,7 @@ equ trap_Argv                         -9
 equ trap_Args                         -10
 equ trap_FS_FOpenFile                 -11
 equ trap_FS_Read                      -12
-equ trap_FS_Write                     -13 
+equ trap_FS_Write                     -13
 equ trap_FS_FCloseFile                -14
 equ trap_SendConsoleCommand           -15
 equ trap_AddCommand                   -16
@@ -118,4 +118,3 @@ equ floor                             -208
 equ ceil                              -209
 equ testPrintInt                      -210
 equ testPrintFloat                    -211
-
