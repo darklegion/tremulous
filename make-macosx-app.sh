@@ -106,10 +106,10 @@ function symlinkArch()
     popd > /dev/null
 }
 
-SEARCH_ARCHS="																	\
-	x86																			\
-	x86_64																		\
-	ppc																			\
+SEARCH_ARCHS=" \
+	x86 \
+	x86_64 \
+	ppc \
 "
 
 HAS_LIPO=`command -v lipo`
@@ -141,16 +141,15 @@ IOQ3_MP_CGAME_ARCHS=""
 IOQ3_MP_GAME_ARCHS=""
 IOQ3_MP_UI_ARCHS=""
 
-BASEDIR="baseq3"
-MISSIONPACKDIR="missionpack"
+BASEDIR="base"
 
 CGAME="cgame"
-GAME="qagame"
+GAME="game"
 UI="ui"
 
 RENDERER_OPENGL="renderer_opengl"
 
-DEDICATED_NAME="ioq3ded"
+DEDICATED_NAME="tremded"
 
 CGAME_NAME="${CGAME}.dylib"
 GAME_NAME="${GAME}.dylib"
@@ -160,18 +159,18 @@ RENDERER_OPENGL1_NAME="${RENDERER_OPENGL}1.dylib"
 RENDERER_OPENGL2_NAME="${RENDERER_OPENGL}2.dylib"
 
 ICNSDIR="misc"
-ICNS="quake3_flat.icns"
+ICNS="Tremulous.icns"
 PKGINFO="APPLIOQ3"
 
 OBJROOT="build"
 #BUILT_PRODUCTS_DIR="${OBJROOT}/${TARGET_NAME}-darwin-${CURRENT_ARCH}"
-PRODUCT_NAME="ioquake3"
+PRODUCT_NAME="Tremulous"
 WRAPPER_EXTENSION="app"
 WRAPPER_NAME="${PRODUCT_NAME}.${WRAPPER_EXTENSION}"
 CONTENTS_FOLDER_PATH="${WRAPPER_NAME}/Contents"
 UNLOCALIZED_RESOURCES_FOLDER_PATH="${CONTENTS_FOLDER_PATH}/Resources"
 EXECUTABLE_FOLDER_PATH="${CONTENTS_FOLDER_PATH}/MacOS"
-EXECUTABLE_NAME="${PRODUCT_NAME}"
+EXECUTABLE_NAME="tremulous"
 
 # loop through the architectures to build string lists for each universal binary
 for ARCH in $SEARCH_ARCHS; do
@@ -220,16 +219,6 @@ for ARCH in $SEARCH_ARCHS; do
 	if [ -e ${BUILT_PRODUCTS_DIR}/${BASEDIR}/${IOQ3_UI} ]; then
 		IOQ3_UI_ARCHS="${BUILT_PRODUCTS_DIR}/${BASEDIR}/${IOQ3_UI} ${IOQ3_UI_ARCHS}"
 	fi
-	# missionpack
-	if [ -e ${BUILT_PRODUCTS_DIR}/${MISSIONPACKDIR}/${IOQ3_CGAME} ]; then
-		IOQ3_MP_CGAME_ARCHS="${BUILT_PRODUCTS_DIR}/${MISSIONPACKDIR}/${IOQ3_CGAME} ${IOQ3_MP_CGAME_ARCHS}"
-	fi
-	if [ -e ${BUILT_PRODUCTS_DIR}/${MISSIONPACKDIR}/${IOQ3_GAME} ]; then
-		IOQ3_MP_GAME_ARCHS="${BUILT_PRODUCTS_DIR}/${MISSIONPACKDIR}/${IOQ3_GAME} ${IOQ3_MP_GAME_ARCHS}"
-	fi
-	if [ -e ${BUILT_PRODUCTS_DIR}/${MISSIONPACKDIR}/${IOQ3_UI} ]; then
-		IOQ3_MP_UI_ARCHS="${BUILT_PRODUCTS_DIR}/${MISSIONPACKDIR}/${IOQ3_UI} ${IOQ3_MP_UI_ARCHS}"
-	fi
 
 	#echo "valid arch: ${ARCH}"
 done
@@ -272,15 +261,12 @@ echo ""
 if [ ! -d ${BUILT_PRODUCTS_DIR}/${EXECUTABLE_FOLDER_PATH}/$BASEDIR ]; then
 	mkdir -p ${BUILT_PRODUCTS_DIR}/${EXECUTABLE_FOLDER_PATH}/$BASEDIR || exit 1;
 fi
-if [ ! -d ${BUILT_PRODUCTS_DIR}/${EXECUTABLE_FOLDER_PATH}/$MISSIONPACKDIR ]; then
-	mkdir -p ${BUILT_PRODUCTS_DIR}/${EXECUTABLE_FOLDER_PATH}/$MISSIONPACKDIR || exit 1;
-fi
 if [ ! -d ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH} ]; then
 	mkdir -p ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH} || exit 1;
 fi
 
 # copy and generate some application bundle resources
-cp code/libs/macosx/*.dylib ${BUILT_PRODUCTS_DIR}/${EXECUTABLE_FOLDER_PATH}
+cp src/libs/macosx/*.dylib ${BUILT_PRODUCTS_DIR}/${EXECUTABLE_FOLDER_PATH}
 cp ${ICNSDIR}/${ICNS} ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/$ICNS || exit 1;
 echo -n ${PKGINFO} > ${BUILT_PRODUCTS_DIR}/${CONTENTS_FOLDER_PATH}/PkgInfo || exit 1;
 echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
@@ -292,7 +278,7 @@ echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
     <key>CFBundleExecutable</key>
     <string>${EXECUTABLE_NAME}</string>
     <key>CFBundleIconFile</key>
-    <string>quake3_flat</string>
+    <string>${ICNS}</string>
     <key>CFBundleIdentifier</key>
     <string>org.ioquake.${PRODUCT_NAME}</string>
     <key>CFBundleInfoDictionaryVersion</key>
@@ -312,7 +298,7 @@ echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
     <key>LSMinimumSystemVersion</key>
     <string>${MACOSX_DEPLOYMENT_TARGET}</string>
     <key>NSHumanReadableCopyright</key>
-    <string>QUAKE III ARENA Copyright © 1999-2000 id Software, Inc. All rights reserved.</string>
+    <string>Copyright © 1999-2015 Id Software LLC, a ZeniMax Media company, ioquake3, Darklegion Development, and Tremulous community contributors.</string>
     <key>NSPrincipalClass</key>
     <string>NSApplication</string>
 </dict>
@@ -365,11 +351,3 @@ action ${BUNDLEBINDIR}/${BASEDIR}/${UI_NAME}			"${IOQ3_UI_ARCHS}"
 symlinkArch "${CGAME}"	"${CGAME}"	""	"${BUNDLEBINDIR}/${BASEDIR}"
 symlinkArch "${GAME}"	"${GAME}"	""	"${BUNDLEBINDIR}/${BASEDIR}"
 symlinkArch "${UI}"		"${UI}"		""	"${BUNDLEBINDIR}/${BASEDIR}"
-
-# missionpack
-action ${BUNDLEBINDIR}/${MISSIONPACKDIR}/${CGAME_NAME}	"${IOQ3_MP_CGAME_ARCHS}"
-action ${BUNDLEBINDIR}/${MISSIONPACKDIR}/${GAME_NAME}	"${IOQ3_MP_GAME_ARCHS}"
-action ${BUNDLEBINDIR}/${MISSIONPACKDIR}/${UI_NAME}		"${IOQ3_MP_UI_ARCHS}"
-symlinkArch "${CGAME}"	"${CGAME}"	""	"${BUNDLEBINDIR}/${MISSIONPACKDIR}"
-symlinkArch "${GAME}"	"${GAME}"	""	"${BUNDLEBINDIR}/${MISSIONPACKDIR}"
-symlinkArch "${UI}"		"${UI}"		""	"${BUNDLEBINDIR}/${MISSIONPACKDIR}"
