@@ -294,7 +294,7 @@
       action
       {
         play "sound/misc/menu1.wav";
-        uiScript ServerSort 1;
+        uiScript ServerSort 4;
 
         setitemcolor grpColumn backcolor 0 0 0 0;
         setitemcolor grpTabs backcolor 0 0 0 0;
@@ -338,7 +338,7 @@
       action
       {
         play "sound/misc/menu1.wav";
-        uiScript ServerSort 2;
+        uiScript ServerSort 1;
 
         setitemcolor grpColumn backcolor 0 0 0 0;
         setitemcolor grpTabs backcolor 0 0 0 0;
@@ -382,7 +382,7 @@
       action
       {
         play "sound/misc/menu1.wav";
-        uiScript ServerSort 3;
+        uiScript ServerSort 2;
 
         setitemcolor grpColumn backcolor 0 0 0 0;
         setitemcolor grpTabs backcolor 0 0 0 0;
@@ -426,7 +426,7 @@
       action
       {
         play "sound/misc/menu1.wav";
-        uiScript ServerSort 4;
+        uiScript ServerSort 3;
 
         setitemcolor grpColumn backcolor 0 0 0 0;
         setitemcolor grpTabs backcolor 0 0 0 0;
