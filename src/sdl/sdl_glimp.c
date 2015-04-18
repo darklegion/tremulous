@@ -261,9 +261,14 @@ static int GLimp_SetMode( qboolean failSafe, qboolean fullscreen, qboolean nobor
 
 	if( !failSafe )
 	{
-		// use desktop video resolution
-		if( desktopMode.h > 0 )
+		if( r_width->integer > 0 && r_height->integer > 0 )
 		{
+			glConfig.vidWidth = r_width->integer;
+			glConfig.vidHeight = r_height->integer;
+		}
+		else if( desktopMode.h > 0 )
+		{
+			// use desktop video resolution
 			glConfig.vidWidth = desktopMode.w;
 			glConfig.vidHeight = desktopMode.h;
 		}
