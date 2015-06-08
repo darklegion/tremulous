@@ -251,7 +251,7 @@ Svcmd_LayoutLoad_f
 layoutload [<name> [<name2> [<name3 [...]]]]
 
 This is just a silly alias for doing:
- set g_layouts "name name2 name3"
+ set g_nextLayout "name name2 name3"
  map_restart
 ===================
 */
@@ -269,7 +269,7 @@ static void Svcmd_LayoutLoad_f( void )
 
   s = ConcatArgs( 1 );
   Q_strncpyz( layouts, s, sizeof( layouts ) );
-  trap_Cvar_Set( "g_layouts", layouts ); 
+  trap_Cvar_Set( "g_nextLayout", layouts );
   trap_Cvar_VariableStringBuffer( "mapname", map, sizeof( map ) );
   G_MapConfigs( map );
   trap_SendConsoleCommand( EXEC_APPEND, "map_restart\n" );

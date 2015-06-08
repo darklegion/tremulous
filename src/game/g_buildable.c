@@ -4051,25 +4051,30 @@ int G_LayoutList( const char *map, char *list, int len )
 ============
 G_LayoutSelect
 
-set level.layout based on g_layouts or g_layoutAuto
+set level.layout based on g_nextLayout, g_layouts or g_layoutAuto
 ============
 */
 void G_LayoutSelect( void )
 {
   char fileName[ MAX_OSPATH ];
-  char layouts[ MAX_CVAR_VALUE_STRING ];
-  char layouts2[ MAX_CVAR_VALUE_STRING ];
+  char layouts[ ( MAX_CVAR_VALUE_STRING - 1 ) * 9 + 1 ];
+  char layouts2[ ( MAX_CVAR_VALUE_STRING - 1 ) * 9 + 1 ];
   char *l;
   char map[ MAX_QPATH ];
   char *s;
   int cnt = 0;
   int layoutNum;
 
-  Q_strncpyz( layouts, g_layouts.string, sizeof( layouts ) );
+  Q_strncpyz( layouts, g_nextLayout.string, sizeof( layouts ) );
+  if( !layouts[ 0 ] )
+  {
+    for( layoutNum = 0; layoutNum < 9; ++layoutNum )
+      Q_strcat( layouts, sizeof( layouts ), g_layouts[ layoutNum ].string );
+  }
   trap_Cvar_VariableStringBuffer( "mapname", map, sizeof( map ) );
 
   // one time use cvar
-  trap_Cvar_Set( "g_layouts", "" );
+  trap_Cvar_Set( "g_nextLayout", "" );
 
   // pick an included layout at random if no list has been provided
   if( !layouts[ 0 ] && g_layoutAuto.integer )

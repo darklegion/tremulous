@@ -863,10 +863,10 @@ static void G_IssueMapChange( int index, int rotation )
   node_t *node = mapRotations.rotations[ rotation ].nodes[ index ];
   map_t  *map = &node->u.map;
 
-  // allow a manually defined g_layouts setting to override the maprotation
-  if( !g_layouts.string[ 0 ] && map->layouts[ 0 ] )
+  // allow a manually defined g_nextLayout setting to override the maprotation
+  if( !g_nextLayout.string[ 0 ] && map->layouts[ 0 ] )
   {
-    trap_Cvar_Set( "g_layouts", map->layouts );
+    trap_Cvar_Set( "g_nextLayout", map->layouts );
   }
 
   G_MapConfigs( map->name );

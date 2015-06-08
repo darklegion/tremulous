@@ -125,7 +125,8 @@ vmCvar_t  g_sayAreaRange;
 vmCvar_t  g_floodMaxDemerits;
 vmCvar_t  g_floodMinTime;
 
-vmCvar_t  g_layouts;
+vmCvar_t  g_nextLayout;
+vmCvar_t  g_layouts[ 9 ];
 vmCvar_t  g_layoutAuto;
 
 vmCvar_t  g_emoticonsAllowedInNames;
@@ -257,7 +258,16 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_mapConfigs, "g_mapConfigs", "", CVAR_ARCHIVE, 0, qfalse  },
   { NULL, "g_mapConfigsLoaded", "0", CVAR_ROM, 0, qfalse  },
 
-  { &g_layouts, "g_layouts", "", CVAR_LATCH, 0, qfalse  },
+  { &g_nextLayout, "g_nextLayout", "", 0, 0, qfalse  },
+  { &g_layouts[ 0 ], "g_layouts", "", 0, 0, qfalse  },
+  { &g_layouts[ 1 ], "g_layouts2", "", 0, 0, qfalse  },
+  { &g_layouts[ 2 ], "g_layouts3", "", 0, 0, qfalse  },
+  { &g_layouts[ 3 ], "g_layouts4", "", 0, 0, qfalse  },
+  { &g_layouts[ 4 ], "g_layouts5", "", 0, 0, qfalse  },
+  { &g_layouts[ 5 ], "g_layouts6", "", 0, 0, qfalse  },
+  { &g_layouts[ 6 ], "g_layouts7", "", 0, 0, qfalse  },
+  { &g_layouts[ 7 ], "g_layouts8", "", 0, 0, qfalse  },
+  { &g_layouts[ 8 ], "g_layouts9", "", 0, 0, qfalse  },
   { &g_layoutAuto, "g_layoutAuto", "1", CVAR_ARCHIVE, 0, qfalse  },
 
   { &g_emoticonsAllowedInNames, "g_emoticonsAllowedInNames", "1", CVAR_LATCH|CVAR_ARCHIVE, 0, qfalse  },

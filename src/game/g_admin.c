@@ -2057,7 +2057,7 @@ qboolean G_admin_changemap( gentity_t *ent )
       trap_FS_FOpenFile( va( "layouts/%s/%s.dat", map, layout ),
         NULL, FS_READ ) > 0 )
     {
-      trap_Cvar_Set( "g_layouts", layout );
+      trap_Cvar_Set( "g_nextLayout", layout );
     }
     else
     {
@@ -2718,7 +2718,7 @@ qboolean G_admin_restart( gentity_t *ent )
           trap_FS_FOpenFile( va( "layouts/%s/%s.dat", map, layout ),
                              NULL, FS_READ ) > 0 )
       {
-        trap_Cvar_Set( "g_layouts", layout );
+        trap_Cvar_Set( "g_nextLayout", layout );
       }
       else
       {

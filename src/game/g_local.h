@@ -1149,7 +1149,8 @@ extern  vmCvar_t  g_shove;
 
 extern  vmCvar_t  g_mapConfigs;
 
-extern  vmCvar_t  g_layouts;
+extern  vmCvar_t  g_nextLayout;
+extern  vmCvar_t  g_layouts[ 9 ];
 extern  vmCvar_t  g_layoutAuto;
 
 extern  vmCvar_t  g_emoticonsAllowedInNames;
