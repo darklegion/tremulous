@@ -1162,7 +1162,8 @@ void Cmd_CallVote_f( gentity_t *ent )
 {
   char   cmd[ MAX_TOKEN_CHARS ],
          vote[ MAX_TOKEN_CHARS ],
-         arg[ MAX_TOKEN_CHARS ];
+         arg[ MAX_TOKEN_CHARS ],
+         extra[ MAX_TOKEN_CHARS ];
   char   name[ MAX_NAME_LENGTH ] = "";
   char   caller[ MAX_NAME_LENGTH ] = "";
   char   reason[ MAX_TOKEN_CHARS ];
@@ -1174,6 +1175,7 @@ void Cmd_CallVote_f( gentity_t *ent )
   trap_Argv( 0, cmd, sizeof( cmd ) );
   trap_Argv( 1, vote, sizeof( vote ) );
   trap_Argv( 2, arg, sizeof( arg ) );
+  trap_Argv( 3, extra, sizeof( extra ) );
   creason = ConcatArgs( 3 );
   G_DecolorString( creason, reason, sizeof( reason ) );
 
@@ -1198,6 +1200,7 @@ void Cmd_CallVote_f( gentity_t *ent )
 
   // protect against the dreaded exploit of '\n'-interpretation inside quotes
   if( strchr( arg, '\n' ) || strchr( arg, '\r' ) ||
+      strchr( extra, '\n' ) || strchr( extra, '\r' ) ||
       strchr( creason, '\n' ) || strchr( creason, '\r' ) )
   {
     trap_SendServerCommand( ent-g_entities, "print \"Invalid vote string\n\"" );
@@ -1340,8 +1343,24 @@ void Cmd_CallVote_f( gentity_t *ent )
     }
     else if( !Q_stricmp( vote, "map_restart" ) )
     {
-      strcpy( level.voteString[ team ], vote );
-      strcpy( level.voteDisplayString[ team ], "Restart current map" );
+      if( arg[ 0 ] )
+      {
+        char map[ MAX_QPATH ];
+        trap_Cvar_VariableStringBuffer( "mapname", map, sizeof( map ) );
+
+        if( !G_LayoutExists( map, arg ) )
+        {
+          trap_SendServerCommand( ent-g_entities,
+            va( "print \"%s: layout '%s' does not exist for map '%s'\n\"",
+              cmd, arg, map ) );
+          return;
+        }
+      }
+
+      Com_sprintf( level.voteDisplayString[ team ], sizeof( level.voteDisplayString[ team ] ),
+        "Restart the current map%s", arg[ 0 ] ? va( " with layout '%s'", arg ) : "" );
+      Com_sprintf( level.voteString[ team ], sizeof( level.voteString[ team ] ),
+        "set g_nextMap \"\" ; set g_nextLayout \"%s\" ; %s", arg, vote );
       // map_restart comes with a default delay
     }
     else if( !Q_stricmp( vote, "map" ) )
@@ -1354,20 +1373,29 @@ void Cmd_CallVote_f( gentity_t *ent )
         return;
       }
 
+      if( extra[ 0 ] && !G_LayoutExists( arg, extra ) )
+      {
+        trap_SendServerCommand( ent-g_entities,
+          va( "print \"%s: layout '%s' does not exist for map '%s'\n\"",
+            cmd, extra, arg ) );
+        return;
+      }
+
       Com_sprintf( level.voteString[ team ], sizeof( level.voteString[ team ] ),
-        "%s \"%s\"", vote, arg );
-      Com_sprintf( level.voteDisplayString[ team ],
-        sizeof( level.voteDisplayString[ team ] ),
-        "Change to map '%s'", arg );
+        "set g_nextMap \"\" ; set g_nextLayout \"%s\" ; %s \"%s\"", extra, vote, arg );
+      Com_sprintf( level.voteDisplayString[ team ], sizeof( level.voteDisplayString[ team ] ),
+        "Change to map '%s'%s", arg, extra[ 0 ] ? va( " with layout '%s'", extra ) : "" );
       level.voteDelay[ team ] = 3000;
     }
     else if( !Q_stricmp( vote, "nextmap" ) )
     {
-      if( G_MapExists( g_nextMap.string ) )
+      if( G_MapExists( g_nextMap.string ) &&
+          ( !g_nextLayout.string[ 0 ] || G_LayoutExists( g_nextMap.string, g_nextLayout.string ) ) )
       {
         trap_SendServerCommand( ent-g_entities,
-          va( "print \"%s: the next map is already set to '%s'\n\"",
-            cmd, g_nextMap.string ) );
+          va( "print \"%s: the next map is already set to '%s'%s\n\"",
+            cmd, g_nextMap.string,
+            g_nextLayout.string[ 0 ] ? va( " with layout '%s'", g_nextLayout.string ) : "" ) );
         return;
       }
 
@@ -1379,11 +1407,18 @@ void Cmd_CallVote_f( gentity_t *ent )
         return;
       }
 
+      if( extra[ 0 ] && !G_LayoutExists( arg, extra ) )
+      {
+        trap_SendServerCommand( ent-g_entities,
+          va( "print \"%s: layout '%s' does not exist for map '%s'\n\"",
+            cmd, extra, arg ) );
+        return;
+      }
+
       Com_sprintf( level.voteString[ team ], sizeof( level.voteString[ team ] ),
-        "set g_nextMap \"%s\"", arg );
-      Com_sprintf( level.voteDisplayString[ team ],
-        sizeof( level.voteDisplayString[ team ] ),
-        "Set the next map to '%s'", arg );
+        "set g_nextMap \"%s\" ; set g_nextLayout \"%s\"", arg, extra );
+      Com_sprintf( level.voteDisplayString[ team ], sizeof( level.voteDisplayString[ team ] ),
+        "Set the next map to '%s'%s", arg, extra[ 0 ] ? va( " with layout '%s'", extra ) : "" );
     }
     else if( !Q_stricmp( vote, "draw" ) )
     {
