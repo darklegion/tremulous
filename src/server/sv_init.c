@@ -145,6 +145,11 @@ void SV_SetConfigstring (int index, const char *val) {
 				Info_SetValueForKey_Big( info, "sv_pakNames", Cvar_VariableString( "sv_alternatePakNames" ) );
 				Info_SetValueForKey_Big( info, "sv_referencedPaks", Cvar_VariableString( "sv_referencedAlternatePaks" ) );
 				Info_SetValueForKey_Big( info, "sv_referencedPakNames", Cvar_VariableString( "sv_referencedAlternatePakNames" ) );
+				Info_SetValueForKey_Big( info, "cl_allowDownload", "1, you should set it yourself" );
+				if ( !( sv_allowDownload->integer & DLF_NO_REDIRECT ) ) {
+					Info_SetValueForKey_Big( info, "sv_wwwBaseURL", Cvar_VariableString( "sv_dlUrl" ) );
+					Info_SetValueForKey_Big( info, "sv_wwwDownload", Cvar_VariableString( "1, you should set it yourself" ) );
+				}
 			}
 
 			if ( strcmp( info, alternateInfos[index][i - 1] ) ) {
