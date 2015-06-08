@@ -185,6 +185,11 @@ g_admin_cmd_t g_admin_cmds[ ] =
       "[^3name|slot#|admin#^7] [^3level^7]"
     },
 
+    {"setnextmap", G_admin_setnextmap, qfalse, "setnextmap",
+      "set the next map (and, optionally, a forced layout)",
+      "[^3mapname^7] (^5layout^7)"
+    },
+
     {"showbans", G_admin_showbans, qtrue, "showbans",
       "display a (partial) list of active bans",
       "(^5name|IP(/mask)^7) (^5start at ban#^7)"
@@ -2788,6 +2793,49 @@ qboolean G_admin_nextmap( gentity_t *ent )
   trap_SetConfigstring( CS_WINNER, "Evacuation" );
   LogExit( va( "nextmap was run by %s",
     ( ent ) ? ent->client->pers.netname : "console" ) );
+  return qtrue;
+}
+
+qboolean G_admin_setnextmap( gentity_t *ent )
+{
+  int argc = trap_Argc();
+  char map[ MAX_QPATH ];
+  char layout[ MAX_QPATH ];
+
+  if( argc < 2 || argc > 3 )
+  {
+    ADMP( "^3setnextmap: ^7usage: setnextmap [map] (layout)\n" );
+    return qfalse;
+  }
+
+  trap_Argv( 1, map, sizeof( map ) );
+
+  if( !G_MapExists( map ) )
+  {
+    ADMP( va( "^3setnextmap: ^7map '%s' does not exist\n", map ) );
+    return qfalse;
+  }
+
+  if( argc > 2 )
+  {
+    trap_Argv( 2, layout, sizeof( layout ) );
+
+    if( !G_LayoutExists( map, layout ) )
+    {
+      ADMP( va( "^3setnextmap: ^7layout '%s' does not exist for map '%s'\n", layout, map ) );
+      return qfalse;
+    }
+
+    trap_Cvar_Set( "g_nextLayout", layout );
+  }
+  else
+    trap_Cvar_Set( "g_nextLayout", "" );
+
+  trap_Cvar_Set( "g_nextMap", map );
+
+  AP( va( "print \"^3setnextmap: ^7%s^7 has set the next map to '%s'%s\n\"",
+          ( ent ) ? ent->client->pers.netname : "console", map,
+          argc > 2 ? va( " with layout '%s'", layout ) : "" ) );
   return qtrue;
 }
 
