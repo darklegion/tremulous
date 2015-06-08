@@ -767,7 +767,7 @@ void CG_RegisterWeapon( int weaponNum )
   Com_sprintf( path, MAX_QPATH, "models/weapons/%s/animation.cfg", BG_Weapon( weaponNum )->name );
 
   if( !CG_ParseWeaponAnimationFile( path, weaponInfo ) )
-    Com_Printf( S_COLOR_RED "ERROR: failed to parse %s\n", path );
+    ; //Com_Printf( S_COLOR_RED "ERROR: failed to parse %s\n", path );
 
   // calc midpoint for rotation
   trap_R_ModelBounds( weaponInfo->weaponModel, mins, maxs );
