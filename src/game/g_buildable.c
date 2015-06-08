@@ -4056,7 +4056,6 @@ set level.layout based on g_nextLayout, g_layouts or g_layoutAuto
 */
 void G_LayoutSelect( void )
 {
-  char fileName[ MAX_OSPATH ];
   char layouts[ ( MAX_CVAR_VALUE_STRING - 1 ) * 9 + 1 ];
   char layouts2[ ( MAX_CVAR_VALUE_STRING - 1 ) * 9 + 1 ];
   char *l;
@@ -4094,16 +4093,7 @@ void G_LayoutSelect( void )
     if( !*s )
       break;
 
-    if( !Q_stricmp( s, "*BUILTIN*" ) )
-    {
-      Q_strcat( layouts, sizeof( layouts ), s );
-      Q_strcat( layouts, sizeof( layouts ), " " );
-      cnt++;
-      continue;
-    }
-
-    Com_sprintf( fileName, sizeof( fileName ), "layouts/%s/%s.dat", map, s );
-    if( trap_FS_FOpenFile( fileName, NULL, FS_READ ) > 0 )
+    if( G_LayoutExists( map, s ) )
     {
       Q_strcat( layouts, sizeof( layouts ), s );
       Q_strcat( layouts, sizeof( layouts ), " " );

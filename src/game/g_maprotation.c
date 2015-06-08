@@ -125,6 +125,18 @@ qboolean G_MapExists( const char *name )
 
 /*
 ===============
+G_LayoutExists
+
+Check if a layout exists for a map
+===============
+*/
+qboolean G_LayoutExists( const char *map, const char *layout )
+{
+  return !Q_stricmp( layout, "*BUILTIN*" ) || trap_FS_FOpenFile( va( "layouts/%s/%s.dat", map, layout ), NULL, FS_READ ) > 0;
+}
+
+/*
+===============
 G_RotationExists
 
 Check if a rotation exists

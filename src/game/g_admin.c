@@ -2053,9 +2053,7 @@ qboolean G_admin_changemap( gentity_t *ent )
   if( trap_Argc( ) > 2 )
   {
     trap_Argv( 2, layout, sizeof( layout ) );
-    if( !Q_stricmp( layout, "*BUILTIN*" ) ||
-      trap_FS_FOpenFile( va( "layouts/%s/%s.dat", map, layout ),
-        NULL, FS_READ ) > 0 )
+    if( G_LayoutExists( map, layout ) )
     {
       trap_Cvar_Set( "g_nextLayout", layout );
     }
@@ -2714,9 +2712,7 @@ qboolean G_admin_restart( gentity_t *ent )
         Q_stricmp( layout, "switchteams" ) &&
         Q_stricmp( layout, "switchteamslock" ) )
     {
-      if( !Q_stricmp( layout, "*BUILTIN*" ) ||
-          trap_FS_FOpenFile( va( "layouts/%s/%s.dat", map, layout ),
-                             NULL, FS_READ ) > 0 )
+      if( G_LayoutExists( map, layout ) )
       {
         trap_Cvar_Set( "g_nextLayout", layout );
       }
