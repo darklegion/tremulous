@@ -3943,13 +3943,74 @@ void G_SpawnBuildable( gentity_t *ent, buildable_t buildable )
   ent->think = G_SpawnBuildableThink;
 }
 
+void G_ParseCSVBuildablePlusList( const char *string, int *buildables, int buildablesSize )
+{
+  char      buffer[ MAX_STRING_CHARS ];
+  int       i = 0;
+  char      *p, *q;
+  qboolean  EOS = qfalse;
+
+  Q_strncpyz( buffer, string, MAX_STRING_CHARS );
+
+  p = q = buffer;
+
+  while( *p != '\0' && i < buildablesSize - 1 )
+  {
+    //skip to first , or EOS
+    while( *p != ',' && *p != '\0' )
+      p++;
+
+    if( *p == '\0' )
+      EOS = qtrue;
+
+    *p = '\0';
+
+    //strip leading whitespace
+    while( *q == ' ' )
+      q++;
+
+    if( !Q_stricmp( q, "alien" ) )
+    {
+      buildable_t b;
+      for( b = BA_A_SPAWN; b <= BA_A_HIVE && i < buildablesSize - 1; ++b )
+        buildables[ i++ ] = b;
+    }
+    else if( !Q_stricmp( q, "human" ) )
+    {
+      buildable_t b;
+      for( b = BA_H_SPAWN; b <= BA_H_REPEATER && i < buildablesSize - 1; ++b )
+        buildables[ i++ ] = b;
+    }
+    else
+    {
+      buildables[ i ] = BG_BuildableByName( q )->number;
+      if( buildables[ i ] == BA_NONE )
+        Com_Printf( S_COLOR_YELLOW "WARNING: unknown buildable or special identifier %s\n", q );
+      else
+        i++;
+    }
+
+    if( !EOS )
+    {
+      p++;
+      q = p;
+    }
+    else
+      break;
+  }
+
+  buildables[ i ] = BA_NONE;
+}
+
 /*
 ============
 G_LayoutSave
 ============
 */
-void G_LayoutSave( char *name )
+void G_LayoutSave( char *lstr )
 {
+  char *lstrPipePtr;
+  qboolean bAllowed[ BA_NUM_BUILDABLES ];
   char map[ MAX_QPATH ];
   char fileName[ MAX_OSPATH ];
   fileHandle_t f;
@@ -3964,7 +4025,22 @@ void G_LayoutSave( char *name )
     G_Printf( "LayoutSave( ): no map is loaded\n" );
     return;
   }
-  Com_sprintf( fileName, sizeof( fileName ), "layouts/%s/%s.dat", map, name );
+
+  if( ( lstrPipePtr = strchr( lstr, '|' ) ) )
+  {
+    int bList[ BA_NUM_BUILDABLES ];
+    *lstrPipePtr = '\0';
+    G_ParseCSVBuildablePlusList( lstr, &bList[ 0 ], sizeof( bList ) / sizeof( bList[ 0 ] ) );
+    memset( bAllowed, 0, sizeof( bAllowed ) );
+    for( i = 0; bList[ i ] != BA_NONE; i++ )
+      bAllowed[ bList[ i ] ] = qtrue;
+    *lstrPipePtr = '|';
+    lstr = lstrPipePtr + 1;
+  }
+  else
+    bAllowed[ BA_NONE ] = qtrue; // allow all
+
+  Com_sprintf( fileName, sizeof( fileName ), "layouts/%s/%s.dat", map, lstr );
 
   len = trap_FS_FOpenFile( fileName, &f, FS_WRITE );
   if( len < 0 )
@@ -3979,6 +4055,9 @@ void G_LayoutSave( char *name )
   {
     ent = &level.gentities[ i ];
     if( ent->s.eType != ET_BUILDABLE )
+      continue;
+
+    if( !bAllowed[ BA_NONE ] && !bAllowed[ ent->s.modelindex ] )
       continue;
 
     s = va( "%s %f %f %f %f %f %f %f %f %f %f %f %f\n",
@@ -4093,7 +4172,7 @@ void G_LayoutSelect( void )
     if( !*s )
       break;
 
-    if( G_LayoutExists( map, s ) )
+    if( strchr( s, '+' ) || strchr( s, '|' ) || G_LayoutExists( map, s ) )
     {
       Q_strcat( layouts, sizeof( layouts ), s );
       Q_strcat( layouts, sizeof( layouts ), " " );
@@ -4148,13 +4227,12 @@ static void G_LayoutBuildItem( buildable_t buildable, vec3_t origin,
 /*
 ============
 G_LayoutLoad
-
-load the layout .dat file indicated by level.layout and spawn buildables
-as if a builder was creating them
 ============
 */
-void G_LayoutLoad( void )
+void G_LayoutLoad( char *lstr )
 {
+  char *lstrPlusPtr, *lstrPipePtr;
+  qboolean bAllowed[ BA_NUM_BUILDABLES ];
   fileHandle_t f;
   int len;
   char *layout, *layoutHead;
@@ -4166,29 +4244,49 @@ void G_LayoutLoad( void )
   vec3_t origin2 = { 0.0f, 0.0f, 0.0f };
   vec3_t angles2 = { 0.0f, 0.0f, 0.0f };
   char line[ MAX_STRING_CHARS ];
-  int i = 0;
+  int i;
 
-  if( !level.layout[ 0 ] || !Q_stricmp( level.layout, "*BUILTIN*" ) )
+  if( !lstr[ 0 ] || !Q_stricmp( lstr, "*BUILTIN*" ) )
     return;
 
+  loadAnotherLayout:
+  lstrPlusPtr = strchr( lstr, '+' );
+  if( lstrPlusPtr )
+    *lstrPlusPtr = '\0';
+
+  if( ( lstrPipePtr = strchr( lstr, '|' ) ) )
+  {
+    int bList[ BA_NUM_BUILDABLES ];
+    *lstrPipePtr = '\0';
+    G_ParseCSVBuildablePlusList( lstr, &bList[ 0 ], sizeof( bList ) / sizeof( bList[ 0 ] ) );
+    memset( bAllowed, 0, sizeof( bAllowed ) );
+    for( i = 0; bList[ i ] != BA_NONE; i++ )
+      bAllowed[ bList[ i ] ] = qtrue;
+    *lstrPipePtr = '|';
+    lstr = lstrPipePtr + 1;
+  }
+  else
+    bAllowed[ BA_NONE ] = qtrue; // allow all
+
   trap_Cvar_VariableStringBuffer( "mapname", map, sizeof( map ) );
-  len = trap_FS_FOpenFile( va( "layouts/%s/%s.dat", map, level.layout ),
+  len = trap_FS_FOpenFile( va( "layouts/%s/%s.dat", map, lstr ),
     &f, FS_READ );
   if( len < 0 )
   {
-    G_Printf( "ERROR: layout %s could not be opened\n", level.layout );
+    G_Printf( "ERROR: layout %s could not be opened\n", lstr );
     return;
   }
   layoutHead = layout = BG_Alloc( len + 1 );
   trap_FS_Read( layout, len, f );
   layout[ len ] = '\0';
   trap_FS_FCloseFile( f );
+  i = 0;
   while( *layout )
   {
     if( i >= sizeof( line ) - 1 )
     {
       G_Printf( S_COLOR_RED "ERROR: line overflow in %s before \"%s\"\n",
-       va( "layouts/%s/%s.dat", map, level.layout ), line );
+       va( "layouts/%s/%s.dat", map, lstr ), line );
       break;
     }
     line[ i++ ] = *layout;
@@ -4208,11 +4306,21 @@ void G_LayoutLoad( void )
         G_Printf( S_COLOR_YELLOW "WARNING: bad buildable name (%s) in layout."
           " skipping\n", buildName );
       else
-        G_LayoutBuildItem( buildable, origin, angles, origin2, angles2 );
+      {
+        if( bAllowed[ BA_NONE ] || bAllowed[ buildable ] )
+          G_LayoutBuildItem( buildable, origin, angles, origin2, angles2 );
+      }
     }
     layout++;
   }
   BG_Free( layoutHead );
+
+  if( lstrPlusPtr )
+  {
+    *lstrPlusPtr = '+';
+    lstr = lstrPlusPtr + 1;
+    goto loadAnotherLayout;
+  }
 }
 
 /*

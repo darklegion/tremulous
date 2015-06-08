@@ -38,6 +38,15 @@ static char g_bfb[ 32000 ];
 // note: list ordered alphabetically
 g_admin_cmd_t g_admin_cmds[ ] =
   {
+    {"addlayout", G_admin_addlayout, qfalse, "addlayout",
+      "place layout elements into the game. the elements are specified by a "
+      "union of filtered layouts. the syntax is demonstrated by an example: "
+      "^5reactor,telenode|westside+alien|sewers^7 will place only the "
+      "reactor and telenodes from the westside layout, and also all alien "
+      "layout elements from the sewers layout",
+      "[^3layoutelements^7]"
+    },
+
     {"adjustban", G_admin_adjustban, qfalse, "ban",
       "change the IP address mask, duration or reason of a ban.  mask is "
       "prefixed with '/'.  duration is specified as numbers followed by units "
@@ -1855,6 +1864,25 @@ qboolean G_admin_unban( gentity_t *ent )
           ( ent ) ? ent->client->pers.netname : "console" ) );
   ban->expires = time;
   admin_writeconfig();
+  return qtrue;
+}
+
+qboolean G_admin_addlayout( gentity_t *ent )
+{
+  char layout[ MAX_QPATH ];
+
+  if( trap_Argc( ) != 2 )
+  {
+    ADMP( "^3addlayout: ^7usage: addlayout <layoutelements>\n" );
+    return qfalse;
+  }
+
+  trap_Argv( 1, layout, sizeof( layout ) );
+
+  G_LayoutLoad( layout );
+
+  AP( va( "print \"^3addlayout: ^7some layout elements have been placed by %s\n\"",
+          ent ? ent->client->pers.netname : "console" ) );
   return qtrue;
 }
 

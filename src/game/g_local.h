@@ -786,7 +786,7 @@ void              FinishSpawningBuildable( gentity_t *ent );
 void              G_LayoutSave( char *name );
 int               G_LayoutList( const char *map, char *list, int len );
 void              G_LayoutSelect( void );
-void              G_LayoutLoad( void );
+void              G_LayoutLoad( char *lstr );
 void              G_BaseSelfDestruct( team_t team );
 int               G_NextQueueTime( int queuedBP, int totalBP, int queueBaseRate );
 void              G_QueueBuildPoints( gentity_t *self );

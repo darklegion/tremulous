@@ -212,6 +212,7 @@ static void Svcmd_LayoutSave_f( void )
   char str2[ MAX_QPATH - 4 ];
   char *s;
   int i = 0;
+  qboolean pipeEncountered = qfalse;
 
   if( trap_Argc( ) != 2 )
   {
@@ -225,10 +226,13 @@ static void Svcmd_LayoutSave_f( void )
   s = &str[ 0 ];
   while( *s && i < sizeof( str2 ) - 1 )
   {
-    if( isalnum( *s ) || *s == '-' || *s == '_' )
+    if( isalnum( *s ) || *s == '-' || *s == '_' ||
+        ( ( *s == '|' || *s == ',' ) && !pipeEncountered ) )
     {
       str2[ i++ ] = *s;
       str2[ i ] = '\0';
+      if( *s == '|' )
+        pipeEncountered = qtrue;
     }
     s++;
   }

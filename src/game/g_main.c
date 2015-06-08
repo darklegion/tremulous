@@ -652,7 +652,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
   G_SpawnEntitiesFromString( );
 
   // load up a custom building layout if there is one
-  G_LayoutLoad( );
+  G_LayoutLoad( level.layout );
 
   // the map might disable some things
   BG_InitAllowedGameElements( );
