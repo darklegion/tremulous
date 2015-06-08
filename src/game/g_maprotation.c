@@ -118,9 +118,9 @@ G_MapExists
 Check if a map exists
 ===============
 */
-qboolean G_MapExists( char *name )
+qboolean G_MapExists( const char *name )
 {
-  return trap_FS_FOpenFile( va( "maps/%s.bsp", name ), NULL, FS_READ );
+  return trap_FS_FOpenFile( va( "maps/%s.bsp", name ), NULL, FS_READ ) > 0;
 }
 
 /*

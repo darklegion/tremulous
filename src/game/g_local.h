@@ -1046,7 +1046,7 @@ void      G_StopMapRotation( void );
 qboolean  G_MapRotationActive( void );
 void      G_InitMapRotations( void );
 void      G_ShutdownMapRotations( void );
-qboolean  G_MapExists( char *name );
+qboolean  G_MapExists( const char *name );
 void      G_ClearRotationStack( void );
 
 //
