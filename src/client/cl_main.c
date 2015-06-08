@@ -974,7 +974,7 @@ CL_WalkDemoExt
 */
 static int CL_WalkDemoExt(char *arg, char *name, int *demofile)
 {
-	int i = 0;
+	int i;
 	*demofile = 0;
 
 	Com_sprintf (name, MAX_OSPATH, "demos/%s.%s%d", arg, DEMOEXT, PROTOCOL_VERSION);
@@ -988,7 +988,7 @@ static int CL_WalkDemoExt(char *arg, char *name, int *demofile)
 
 	Com_Printf("Not found: %s\n", name);
 
-	while(demo_protocols[i])
+	for(i = 0; demo_protocols[i]; ++i)
 	{
 		if(demo_protocols[i] == PROTOCOL_VERSION)
 			continue;
@@ -1003,7 +1003,6 @@ static int CL_WalkDemoExt(char *arg, char *name, int *demofile)
 		}
 		else
 			Com_Printf("Not found: %s\n", name);
-		i++;
 	}
 	
 	return -1;
