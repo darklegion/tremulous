@@ -1058,8 +1058,6 @@ void CL_ShutdownUI( void ) {
 CL_InitUI
 ====================
 */
-#define UI_OLD_API_VERSION	4
-
 void CL_InitUI( void )
 {
     int v;
@@ -1081,7 +1079,6 @@ void CL_InitUI( void )
     switch ((v = VM_Call( uivm, UI_GETAPIVERSION )))
     {
         case UI_API_VERSION:
-        case UI_OLD_API_VERSION: // FIXIT-L: REMOVE ME
             VM_Call( uivm, UI_INIT, (clc.state >= CA_AUTHORIZING && clc.state < CA_ACTIVE) );
             break;
 
