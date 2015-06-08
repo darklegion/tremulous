@@ -2072,7 +2072,8 @@ qboolean G_admin_changemap( gentity_t *ent )
   admin_log( layout );
 
   G_MapConfigs( map );
-  trap_SendConsoleCommand( EXEC_APPEND, va( "map \"%s\"\n", map ) );
+  trap_SendConsoleCommand( EXEC_APPEND, va( "%smap \"%s\"\n",
+                             ( g_cheats.integer ? "dev" : "" ), map ) );
   level.restarted = qtrue;
   AP( va( "print \"^3changemap: ^7map '%s' started by %s^7 %s\n\"", map,
           ( ent ) ? ent->client->pers.netname : "console",

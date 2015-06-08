@@ -1658,7 +1658,8 @@ void ExitLevel( void )
   if ( G_MapExists( g_nextMap.string ) )
   {
     G_MapConfigs( g_nextMap.string );
-    trap_SendConsoleCommand( EXEC_APPEND, va("map \"%s\"\n", g_nextMap.string ) );
+    trap_SendConsoleCommand( EXEC_APPEND, va( "%smap \"%s\"\n",
+      ( g_cheats.integer ? "dev" : "" ), g_nextMap.string ) );
   }
   else if( G_MapRotationActive( ) )
     G_AdvanceMapRotation( 0 );
@@ -2085,7 +2086,8 @@ void G_ExecuteVote( team_t team )
     G_MapConfigs( map );
   }
 
-  trap_SendConsoleCommand( EXEC_APPEND, va( "%s\n",
+  trap_SendConsoleCommand( EXEC_APPEND, va( "%s%s\n",
+    ( !Q_stricmp( level.voteString[ team ], "map" ) && g_cheats.integer ? "dev" : "" ),
     level.voteString[ team ] ) );
 
   if( !Q_stricmpn( level.voteString[ team ], "map", 3 ) )
