@@ -1393,7 +1393,7 @@ int FS_FindVM(void **startSearch, char *found, int foundlen, const char *name, i
 
 	while(search)
 	{
-		if(search->dir && !fs_numServerPaks)
+		if(search->dir && (!fs_numServerPaks || !strcmp(name, "game")))
 		{
 			dir = search->dir;
 
