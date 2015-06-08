@@ -189,6 +189,11 @@ g_admin_cmd_t g_admin_cmds[ ] =
       "[^3on|off^7]"
     },
 
+    {"setivo", G_admin_setivo, qfalse, "setivo",
+      "set an intermission view override",
+      "[^3s|a|h^7]"
+    },
+
     {"setlevel", G_admin_setlevel, qfalse, "setlevel",
       "sets the admin level of a player",
       "[^3name|slot#|admin#^7] [^3level^7]"
@@ -1646,6 +1651,51 @@ qboolean G_admin_kick( gentity_t *ent )
     ( *reason ) ? reason : "kicked by admin" );
   admin_writeconfig();
 
+  return qtrue;
+}
+
+qboolean G_admin_setivo( gentity_t* ent )
+{
+  char arg[ 3 ];
+  const char *cn;
+  gentity_t *spot;
+
+  if( !ent )
+  {
+    ADMP( "^3setivo: ^7the console can't position intermission view overrides\n" );
+    return qfalse;
+  }
+
+  if( trap_Argc() != 2 )
+  {
+    ADMP( "^3setivo: ^7usage: setivo {s|a|h}\n" );
+    return qfalse;
+  }
+  trap_Argv( 1, arg, sizeof( arg ) );
+  if( !Q_stricmp( arg, "s" ) )
+    cn = "info_player_intermission";
+  else if( !Q_stricmp( arg, "a" ) )
+    cn = "info_alien_intermission";
+  else if( !Q_stricmp( arg, "h" ) )
+    cn = "info_human_intermission";
+  else
+  {
+    ADMP( "^3setivo: ^7the argument must be either s, a or h\n" );
+    return qfalse;
+  }
+
+  spot = G_Find( NULL, FOFS( classname ), cn );
+  if( !spot )
+  {
+    spot = G_Spawn();
+    spot->classname = (char *)cn;
+  }
+  spot->count = 1;
+
+  BG_GetClientViewOrigin( &ent->client->ps, spot->r.currentOrigin );
+  VectorCopy( ent->client->ps.viewangles, spot->r.currentAngles );
+
+  ADMP( "^3setivo: ^7intermission view override positioned\n" );
   return qtrue;
 }
 

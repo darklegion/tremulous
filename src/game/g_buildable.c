@@ -3974,13 +3974,25 @@ void G_ParseCSVBuildablePlusList( const char *string, int *buildables, int build
       buildable_t b;
       for( b = BA_A_SPAWN; b <= BA_A_HIVE && i < buildablesSize - 1; ++b )
         buildables[ i++ ] = b;
+
+      if( i < buildablesSize - 1 )
+        buildables[ i++ ] = BA_NUM_BUILDABLES + TEAM_ALIENS;
     }
     else if( !Q_stricmp( q, "human" ) )
     {
       buildable_t b;
       for( b = BA_H_SPAWN; b <= BA_H_REPEATER && i < buildablesSize - 1; ++b )
         buildables[ i++ ] = b;
+
+      if( i < buildablesSize - 1 )
+        buildables[ i++ ] = BA_NUM_BUILDABLES + TEAM_HUMANS;
     }
+    else if( !Q_stricmp( q, "ivo_spectator" ) )
+      buildables[ i++ ] = BA_NUM_BUILDABLES + TEAM_NONE;
+    else if( !Q_stricmp( q, "ivo_alien" ) )
+      buildables[ i++ ] = BA_NUM_BUILDABLES + TEAM_ALIENS;
+    else if( !Q_stricmp( q, "ivo_human" ) )
+      buildables[ i++ ] = BA_NUM_BUILDABLES + TEAM_HUMANS;
     else
     {
       buildables[ i ] = BG_BuildableByName( q )->number;
@@ -4010,7 +4022,7 @@ G_LayoutSave
 void G_LayoutSave( char *lstr )
 {
   char *lstrPipePtr;
-  qboolean bAllowed[ BA_NUM_BUILDABLES ];
+  qboolean bAllowed[ BA_NUM_BUILDABLES + NUM_TEAMS ];
   char map[ MAX_QPATH ];
   char fileName[ MAX_OSPATH ];
   fileHandle_t f;
@@ -4028,7 +4040,7 @@ void G_LayoutSave( char *lstr )
 
   if( ( lstrPipePtr = strchr( lstr, '|' ) ) )
   {
-    int bList[ BA_NUM_BUILDABLES ];
+    int bList[ BA_NUM_BUILDABLES + NUM_TEAMS ];
     *lstrPipePtr = '\0';
     G_ParseCSVBuildablePlusList( lstr, &bList[ 0 ], sizeof( bList ) / sizeof( bList[ 0 ] ) );
     memset( bAllowed, 0, sizeof( bAllowed ) );
@@ -4053,15 +4065,38 @@ void G_LayoutSave( char *lstr )
 
   for( i = MAX_CLIENTS; i < level.num_entities; i++ )
   {
-    ent = &level.gentities[ i ];
-    if( ent->s.eType != ET_BUILDABLE )
-      continue;
+    const char *name;
 
-    if( !bAllowed[ BA_NONE ] && !bAllowed[ ent->s.modelindex ] )
+    ent = &level.gentities[ i ];
+    if( ent->s.eType == ET_BUILDABLE )
+    {
+      if( !bAllowed[ BA_NONE ] && !bAllowed[ ent->s.modelindex ] )
+        continue;
+      name = BG_Buildable( ent->s.modelindex )->name;
+    }
+    else if( ent->count == 1 && !strcmp( ent->classname, "info_player_intermission" ) )
+    {
+      if( !bAllowed[ BA_NONE ] && !bAllowed[ BA_NUM_BUILDABLES + TEAM_NONE ] )
+        continue;
+      name = "ivo_spectator";
+    }
+    else if( ent->count == 1 && !strcmp( ent->classname, "info_alien_intermission" ) )
+    {
+      if( !bAllowed[ BA_NONE ] && !bAllowed[ BA_NUM_BUILDABLES + TEAM_ALIENS ] )
+        continue;
+      name = "ivo_alien";
+    }
+    else if( ent->count == 1 && !strcmp( ent->classname, "info_human_intermission" ) )
+    {
+      if( !bAllowed[ BA_NONE ] && !bAllowed[ BA_NUM_BUILDABLES + TEAM_HUMANS ] )
+        continue;
+      name = "ivo_human";
+    }
+    else
       continue;
 
     s = va( "%s %f %f %f %f %f %f %f %f %f %f %f %f\n",
-      BG_Buildable( ent->s.modelindex )->name,
+      name,
       ent->r.currentOrigin[ 0 ],
       ent->r.currentOrigin[ 1 ],
       ent->r.currentOrigin[ 2 ],
@@ -4224,6 +4259,20 @@ static void G_LayoutBuildItem( buildable_t buildable, vec3_t origin,
   G_SpawnBuildable( builder, buildable );
 }
 
+static void G_SpawnIntermissionViewOverride( char *cn, vec3_t origin, vec3_t angles )
+{
+  gentity_t *spot = G_Find( NULL, FOFS( classname ), cn );
+  if( !spot )
+  {
+    spot = G_Spawn();
+    spot->classname = cn;
+  }
+  spot->count = 1;
+
+  VectorCopy( origin, spot->r.currentOrigin );
+  VectorCopy( angles, spot->r.currentAngles );
+}
+
 /*
 ============
 G_LayoutLoad
@@ -4232,7 +4281,7 @@ G_LayoutLoad
 void G_LayoutLoad( char *lstr )
 {
   char *lstrPlusPtr, *lstrPipePtr;
-  qboolean bAllowed[ BA_NUM_BUILDABLES ];
+  qboolean bAllowed[ BA_NUM_BUILDABLES + NUM_TEAMS ];
   fileHandle_t f;
   int len;
   char *layout, *layoutHead;
@@ -4256,7 +4305,7 @@ void G_LayoutLoad( char *lstr )
 
   if( ( lstrPipePtr = strchr( lstr, '|' ) ) )
   {
-    int bList[ BA_NUM_BUILDABLES ];
+    int bList[ BA_NUM_BUILDABLES + NUM_TEAMS ];
     *lstrPipePtr = '\0';
     G_ParseCSVBuildablePlusList( lstr, &bList[ 0 ], sizeof( bList ) / sizeof( bList[ 0 ] ) );
     memset( bAllowed, 0, sizeof( bAllowed ) );
@@ -4302,7 +4351,22 @@ void G_LayoutLoad( char *lstr )
         &angles2[ 0 ], &angles2[ 1 ], &angles2[ 2 ] );
 
       buildable = BG_BuildableByName( buildName )->number;
-      if( buildable <= BA_NONE || buildable >= BA_NUM_BUILDABLES )
+      if( !Q_stricmp( buildName, "ivo_spectator" ) )
+      {
+        if( bAllowed[ BA_NONE ] || bAllowed[ BA_NUM_BUILDABLES + TEAM_NONE ] )
+          G_SpawnIntermissionViewOverride( "info_player_intermission", origin, angles );
+      }
+      else if( !Q_stricmp( buildName, "ivo_alien" ) )
+      {
+        if( bAllowed[ BA_NONE ] || bAllowed[ BA_NUM_BUILDABLES + TEAM_ALIENS ] )
+          G_SpawnIntermissionViewOverride( "info_alien_intermission", origin, angles );
+      }
+      else if( !Q_stricmp( buildName, "ivo_human" ) )
+      {
+        if( bAllowed[ BA_NONE ] || bAllowed[ BA_NUM_BUILDABLES + TEAM_HUMANS ] )
+          G_SpawnIntermissionViewOverride( "info_human_intermission", origin, angles );
+      }
+      else if( buildable <= BA_NONE || buildable >= BA_NUM_BUILDABLES )
         G_Printf( S_COLOR_YELLOW "WARNING: bad buildable name (%s) in layout."
           " skipping\n", buildName );
       else
