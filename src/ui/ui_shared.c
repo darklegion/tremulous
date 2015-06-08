@@ -1840,7 +1840,7 @@ void Script_Exec( itemDef_t *item, char **args )
   const char *val;
 
   if( String_Parse( args, &val ) )
-    DC->executeText( EXEC_APPEND, va( "%s ; ", val ) );
+    DC->executeText( EXEC_APPEND, va( "%s\n", val ) );
 }
 
 void Script_Play( itemDef_t *item, char **args )

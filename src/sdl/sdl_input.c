@@ -1135,7 +1135,7 @@ static void IN_ProcessEvents( void )
 				break;
 
 			case SDL_QUIT:
-				Cbuf_ExecuteText(EXEC_NOW, "quit Closed window\n");
+				Cbuf_ExecuteText(EXEC_NOW, "quit \"Closed window\"\n");
 				break;
 
 			case SDL_WINDOWEVENT:

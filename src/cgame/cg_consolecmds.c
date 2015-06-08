@@ -168,7 +168,7 @@ void CG_ClientList_f( void )
 
 static void CG_UIMenu_f( void )
 {
-  trap_SendConsoleCommand( va( "menu %s\n", CG_Argv( 1 ) ) );
+  trap_SendConsoleCommand( va( "menu \"%s\"\n", CG_Argv( 1 ) ) );
 }
 
 static consoleCommand_t commands[ ] =

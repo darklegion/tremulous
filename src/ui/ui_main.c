@@ -2862,7 +2862,7 @@ static void UI_RunMenuScript( char **args )
     if( Q_stricmp( name, "StartServer" ) == 0 )
     {
       trap_Cvar_SetValue( "dedicated", Com_Clamp( 0, 2, ui_dedicated.integer ) );
-      trap_Cmd_ExecuteText( EXEC_APPEND, va( "wait ; wait ; map %s\n",
+      trap_Cmd_ExecuteText( EXEC_APPEND, va( "wait ; wait ; map \"%s\"\n",
                             uiInfo.mapList[ui_selectedMap.integer].mapLoadName ) );
     }
     else if( Q_stricmp( name, "resetDefaults" ) == 0 )
@@ -3036,19 +3036,19 @@ static void UI_RunMenuScript( char **args )
       if( uiInfo.previewMovie >= 0 )
         trap_CIN_StopCinematic( uiInfo.previewMovie );
 
-      trap_Cmd_ExecuteText( EXEC_APPEND, va( "cinematic %s.roq 2\n", uiInfo.movieList[uiInfo.movieIndex] ) );
+      trap_Cmd_ExecuteText( EXEC_APPEND, va( "cinematic \"%s.roq\" 2\n", uiInfo.movieList[uiInfo.movieIndex] ) );
     }
     else if( Q_stricmp( name, "RunMod" ) == 0 )
     {
       trap_Cvar_Set( "fs_game", uiInfo.modList[uiInfo.modIndex].modName );
-      trap_Cmd_ExecuteText( EXEC_APPEND, "vid_restart;" );
+      trap_Cmd_ExecuteText( EXEC_APPEND, "vid_restart\n" );
     }
     else if( Q_stricmp( name, "RunDemo" ) == 0 )
-      trap_Cmd_ExecuteText( EXEC_APPEND, va( "demo %s\n", uiInfo.demoList[uiInfo.demoIndex] ) );
+      trap_Cmd_ExecuteText( EXEC_APPEND, va( "demo \"%s\"\n", uiInfo.demoList[uiInfo.demoIndex] ) );
     else if( Q_stricmp( name, "Tremulous" ) == 0 )
     {
       trap_Cvar_Set( "fs_game", "" );
-      trap_Cmd_ExecuteText( EXEC_APPEND, "vid_restart;" );
+      trap_Cmd_ExecuteText( EXEC_APPEND, "vid_restart\n" );
     }
     else if( Q_stricmp( name, "closeJoin" ) == 0 )
     {
@@ -3124,7 +3124,7 @@ static void UI_RunMenuScript( char **args )
       }
     }
     else if( Q_stricmp( name, "Quit" ) == 0 )
-      trap_Cmd_ExecuteText( EXEC_APPEND, "quit" );
+      trap_Cmd_ExecuteText( EXEC_APPEND, "quit\n" );
     else if( Q_stricmp( name, "Leave" ) == 0 )
     {
       trap_Cmd_ExecuteText( EXEC_APPEND, "disconnect\n" );
@@ -3160,7 +3160,7 @@ static void UI_RunMenuScript( char **args )
     {
       if( ui_selectedMap.integer >= 0 && ui_selectedMap.integer < uiInfo.mapCount )
       {
-        trap_Cmd_ExecuteText( EXEC_APPEND, va( "callvote map %s\n",
+        trap_Cmd_ExecuteText( EXEC_APPEND, va( "callvote map \"%s\"\n",
                               uiInfo.mapList[ui_selectedMap.integer].mapLoadName ) );
       }
     }
@@ -3168,7 +3168,7 @@ static void UI_RunMenuScript( char **args )
     {
       if( ui_selectedMap.integer >= 0 && ui_selectedMap.integer < uiInfo.mapCount )
       {
-        trap_Cmd_ExecuteText( EXEC_APPEND, va( "callvote nextmap %s\n",
+        trap_Cmd_ExecuteText( EXEC_APPEND, va( "callvote nextmap \"%s\"\n",
                               uiInfo.mapList[ui_selectedMap.integer].mapLoadName ) );
       }
     }
@@ -3179,9 +3179,9 @@ static void UI_RunMenuScript( char **args )
         char buffer[ MAX_CVAR_VALUE_STRING ];
         trap_Cvar_VariableStringBuffer( "ui_reason", buffer, sizeof( buffer ) ); 
 
-        trap_Cmd_ExecuteText( EXEC_APPEND, va( "callvote kick %d %s\n",
+        trap_Cmd_ExecuteText( EXEC_APPEND, va( "callvote kick %d%s\n",
                                                uiInfo.clientNums[ uiInfo.playerIndex ],
-                                               buffer ) );
+                                               ( buffer[ 0 ] ? va( " \"%s\"", buffer ) : "" ) ) );
         trap_Cvar_Set( "ui_reason", "" );
       }
     }
@@ -3192,9 +3192,9 @@ static void UI_RunMenuScript( char **args )
         char buffer[ MAX_CVAR_VALUE_STRING ];
         trap_Cvar_VariableStringBuffer( "ui_reason", buffer, sizeof( buffer ) ); 
 
-        trap_Cmd_ExecuteText( EXEC_APPEND, va( "callvote mute %d %s\n",
+        trap_Cmd_ExecuteText( EXEC_APPEND, va( "callvote mute %d%s\n",
                                                uiInfo.clientNums[ uiInfo.playerIndex ],
-                                               buffer ) );
+                                               ( buffer[ 0 ] ? va( " \"%s\"", buffer ) : "" ) ) );
         trap_Cvar_Set( "ui_reason", "" );
       }
     }
@@ -3213,9 +3213,9 @@ static void UI_RunMenuScript( char **args )
         char buffer[ MAX_CVAR_VALUE_STRING ];
         trap_Cvar_VariableStringBuffer( "ui_reason", buffer, sizeof( buffer ) ); 
 
-        trap_Cmd_ExecuteText( EXEC_APPEND, va( "callteamvote kick %d %s\n",
+        trap_Cmd_ExecuteText( EXEC_APPEND, va( "callteamvote kick %d%s\n",
                                                uiInfo.teamClientNums[ uiInfo.teamPlayerIndex ],
-                                               buffer ) );
+                                               ( buffer[ 0 ] ? va( " \"%s\"", buffer ) : "" ) ) );
         trap_Cvar_Set( "ui_reason", "" );
       }
     }
@@ -3226,9 +3226,9 @@ static void UI_RunMenuScript( char **args )
         char buffer[ MAX_CVAR_VALUE_STRING ];
         trap_Cvar_VariableStringBuffer( "ui_reason", buffer, sizeof( buffer ) ); 
 
-        trap_Cmd_ExecuteText( EXEC_APPEND, va( "callteamvote denybuild %d %s\n",
+        trap_Cmd_ExecuteText( EXEC_APPEND, va( "callteamvote denybuild %d%s\n",
                                                uiInfo.teamClientNums[ uiInfo.teamPlayerIndex ],
-                                               buffer ) );
+                                               ( buffer[ 0 ] ? va( " \"%s\"", buffer ) : "" ) ) );
         trap_Cvar_Set( "ui_reason", "" );
       }
     }

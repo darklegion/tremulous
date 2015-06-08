@@ -2021,7 +2021,7 @@ qboolean G_admin_changemap( gentity_t *ent )
   admin_log( map );
   admin_log( layout );
 
-  trap_SendConsoleCommand( EXEC_APPEND, va( "map %s", map ) );
+  trap_SendConsoleCommand( EXEC_APPEND, va( "map \"%s\"\n", map ) );
   level.restarted = qtrue;
   AP( va( "print \"^3changemap: ^7map '%s' started by %s^7 %s\n\"", map,
           ( ent ) ? ent->client->pers.netname : "console",
@@ -2724,7 +2724,7 @@ qboolean G_admin_restart( gentity_t *ent )
       !Q_stricmp( teampref, "keepteamslock" ) )
     trap_Cvar_Set( "g_lockTeamsAtStart", "1" );
 
-  trap_SendConsoleCommand( EXEC_APPEND, "map_restart" );
+  trap_SendConsoleCommand( EXEC_APPEND, "map_restart\n" );
 
   AP( va( "print \"^3restart: ^7map restarted by %s %s %s\n\"",
           ( ent ) ? ent->client->pers.netname : "console",
