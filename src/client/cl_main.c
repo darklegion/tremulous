@@ -2034,6 +2034,8 @@ void CL_DownloadsComplete( void ) {
 		// by sending the donedl command we request a new gamestate
 		// so we don't want to load stuff yet
 		return;
+	} else {
+		FS_ClearPakReferences(0);
 	}
 
 	// let the client game init and load data
