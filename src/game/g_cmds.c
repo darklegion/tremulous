@@ -1350,7 +1350,7 @@ void Cmd_CallVote_f( gentity_t *ent )
         return;
       }
 
-      Com_sprintf( level.voteString[ team ], sizeof( level.voteString ),
+      Com_sprintf( level.voteString[ team ], sizeof( level.voteString[ team ] ),
         "%s \"%s\"", vote, arg );
       Com_sprintf( level.voteDisplayString[ team ],
         sizeof( level.voteDisplayString[ team ] ),
