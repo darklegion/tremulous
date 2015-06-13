@@ -1192,6 +1192,14 @@ void Cmd_CallVote_f( gentity_t *ent )
     return;
   }
 
+  // protect against the dreaded exploit of '\n'-interpretation inside quotes
+  if( strchr( arg, '\n' ) || strchr( arg, '\r' ) ||
+      strchr( creason, '\n' ) || strchr( creason, '\r' ) )
+  {
+    trap_SendServerCommand( ent-g_entities, "print \"Invalid vote string\n\"" );
+    return;
+  }
+
   if( level.voteExecuteTime[ team ] )
     G_ExecuteVote( team );
 
