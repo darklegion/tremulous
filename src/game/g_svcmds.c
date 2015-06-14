@@ -334,6 +334,8 @@ static void Svcmd_TeamWin_f( void )
 
 static void Svcmd_Evacuation_f( void )
 {
+  if( level.exited )
+    return;
   trap_SendServerCommand( -1, "print \"Evacuation ordered\n\"" );
   level.lastWin = TEAM_NONE;
   trap_SetConfigstring( CS_WINNER, "Evacuation" );

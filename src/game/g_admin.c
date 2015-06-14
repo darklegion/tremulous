@@ -2866,6 +2866,8 @@ qboolean G_admin_restart( gentity_t *ent )
 
 qboolean G_admin_nextmap( gentity_t *ent )
 {
+  if( level.exited )
+    return qfalse;
   AP( va( "print \"^3nextmap: ^7%s^7 decided to load the next map\n\"",
     ( ent ) ? ent->client->pers.netname : "console" ) );
   level.lastWin = TEAM_NONE;

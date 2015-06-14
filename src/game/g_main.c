@@ -1782,6 +1782,8 @@ void LogExit( const char *string )
   gclient_t   *cl;
   gentity_t   *ent;
 
+  level.exited = qtrue;
+
   G_LogPrintf( "Exit: %s\n", string );
 
   level.intermissionQueued = level.time;
