@@ -812,10 +812,10 @@ void              G_UpdateBuildableRangeMarkers( void );
 qboolean    G_AddressParse( const char *str, addr_t *addr );
 qboolean    G_AddressCompare( const addr_t *a, const addr_t *b );
 
-int         G_ParticleSystemIndex( char *name );
-int         G_ShaderIndex( char *name );
-int         G_ModelIndex( char *name );
-int         G_SoundIndex( char *name );
+int         G_ParticleSystemIndex( const char *name );
+int         G_ShaderIndex( const char *name );
+int         G_ModelIndex( const char *name );
+int         G_SoundIndex( const char *name );
 void        G_KillBox (gentity_t *ent);
 gentity_t   *G_Find (gentity_t *from, int fieldofs, const char *match);
 gentity_t   *G_PickTarget (char *targetname);
@@ -824,7 +824,7 @@ void        G_SetMovedir ( vec3_t angles, vec3_t movedir);
 
 void        G_InitGentity( gentity_t *e );
 gentity_t   *G_Spawn( void );
-gentity_t   *G_TempEntity( vec3_t origin, int event );
+gentity_t   *G_TempEntity( const vec3_t origin, int event );
 void        G_Sound( gentity_t *ent, int channel, int soundIndex );
 void        G_FreeEntity( gentity_t *e );
 qboolean    G_EntitiesFree( void );
@@ -950,14 +950,14 @@ void      G_ClearPlayerZapEffects( gentity_t *player );
 // g_client.c
 //
 void      G_AddCreditToClient( gclient_t *client, short credit, qboolean cap );
-void      G_SetClientViewAngle( gentity_t *ent, vec3_t angle );
+void      G_SetClientViewAngle( gentity_t *ent, const vec3_t angle );
 gentity_t *G_SelectTremulousSpawnPoint( team_t team, vec3_t preference, vec3_t origin, vec3_t angles );
 gentity_t *G_SelectSpawnPoint( vec3_t avoidPoint, vec3_t origin, vec3_t angles );
 gentity_t *G_SelectAlienLockSpawnPoint( vec3_t origin, vec3_t angles );
 gentity_t *G_SelectHumanLockSpawnPoint( vec3_t origin, vec3_t angles );
 void      respawn( gentity_t *ent );
 void      BeginIntermission( void );
-void      ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles );
+void      ClientSpawn( gentity_t *ent, gentity_t *spawn, const vec3_t origin, const vec3_t angles );
 void      player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod );
 qboolean  SpotWouldTelefrag( gentity_t *spot );
 

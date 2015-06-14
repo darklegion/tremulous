@@ -93,7 +93,7 @@ G_FindConfigstringIndex
 
 ================
 */
-int G_FindConfigstringIndex( char *name, int start, int max, qboolean create )
+int G_FindConfigstringIndex( const char *name, int start, int max, qboolean create )
 {
   int   i;
   char  s[ MAX_STRING_CHARS ];
@@ -122,22 +122,22 @@ int G_FindConfigstringIndex( char *name, int start, int max, qboolean create )
   return i;
 }
 
-int G_ParticleSystemIndex( char *name )
+int G_ParticleSystemIndex( const char *name )
 {
   return G_FindConfigstringIndex( name, CS_PARTICLE_SYSTEMS, MAX_GAME_PARTICLE_SYSTEMS, qtrue );
 }
 
-int G_ShaderIndex( char *name )
+int G_ShaderIndex( const char *name )
 {
   return G_FindConfigstringIndex( name, CS_SHADERS, MAX_GAME_SHADERS, qtrue );
 }
 
-int G_ModelIndex( char *name )
+int G_ModelIndex( const char *name )
 {
   return G_FindConfigstringIndex( name, CS_MODELS, MAX_MODELS, qtrue );
 }
 
-int G_SoundIndex( char *name )
+int G_SoundIndex( const char *name )
 {
   return G_FindConfigstringIndex( name, CS_SOUNDS, MAX_SOUNDS, qtrue );
 }
@@ -514,7 +514,7 @@ The origin will be snapped to save net bandwidth, so care
 must be taken if the origin is right on a surface (snap towards start vector first)
 =================
 */
-gentity_t *G_TempEntity( vec3_t origin, int event )
+gentity_t *G_TempEntity( const vec3_t origin, int event )
 {
   gentity_t *e;
   vec3_t    snapped;
