@@ -2913,6 +2913,11 @@ static void PM_Weapon( void )
 
   // Charging up a Lucifer Cannon
   pm->ps->eFlags &= ~EF_WARN_CHARGE;
+
+  // don't allow attack until all buttons are up
+  if( pm->ps->pm_flags & PMF_RESPAWNED )
+    return;
+
   if( pm->ps->weapon == WP_LUCIFER_CANNON )
   {
     // Charging up
@@ -2932,10 +2937,6 @@ static void PM_Weapon( void )
     if( pm->ps->stats[ STAT_MISC ] > LCANNON_CHARGE_TIME_WARN )
       pm->ps->eFlags |= EF_WARN_CHARGE;
   }
-
-  // don't allow attack until all buttons are up
-  if( pm->ps->pm_flags & PMF_RESPAWNED )
-    return;
 
   // no bite during pounce
   if( ( pm->ps->weapon == WP_ALEVEL3 || pm->ps->weapon == WP_ALEVEL3_UPG )
