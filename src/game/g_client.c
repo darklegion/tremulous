@@ -1326,7 +1326,10 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
     client->cliprcontents = CONTENTS_BODY;
   else
     ent->r.contents = CONTENTS_BODY;
-  ent->clipmask = MASK_PLAYERSOLID;
+  if( client->pers.teamSelection == TEAM_NONE )
+    ent->clipmask = MASK_DEADSOLID;
+  else
+    ent->clipmask = MASK_PLAYERSOLID;
   ent->die = player_die;
   ent->waterlevel = 0;
   ent->watertype = 0;

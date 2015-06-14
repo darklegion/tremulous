@@ -474,7 +474,7 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd )
     pm.ps = &client->ps;
     pm.pmext = &client->pmext;
     pm.cmd = *ucmd;
-    pm.tracemask = MASK_DEADSOLID; // spectators can fly through bodies
+    pm.tracemask = ent->clipmask;
     pm.trace = trap_Trace;
     pm.pointcontents = trap_PointContents;
 
@@ -1539,12 +1539,7 @@ void ClientThink_real( gentity_t *ent )
   pm.ps = &client->ps;
   pm.pmext = &client->pmext;
   pm.cmd = *ucmd;
-
-  if( pm.ps->pm_type == PM_DEAD )
-    pm.tracemask = MASK_DEADSOLID;
-  else
-    pm.tracemask = MASK_PLAYERSOLID;
-
+  pm.tracemask = ent->clipmask;
   pm.trace = trap_Trace;
   pm.pointcontents = trap_PointContents;
   pm.debugLevel = g_debugMove.integer;
