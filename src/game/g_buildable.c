@@ -2770,7 +2770,8 @@ void G_BuildableThink( gentity_t *ent, int msec )
   G_BuildableTouchTriggers( ent );
 
   // Fall back on normal physics routines
-  G_Physics( ent, msec );
+  if( msec != 0 )
+    G_Physics( ent, msec );
 }
 
 
@@ -3568,8 +3569,14 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable,
   G_FreeMarkedBuildables( builder, readable, sizeof( readable ),
     buildnums, sizeof( buildnums ) );
 
-  // Spawn the buildable
-  built = G_Spawn();
+  if( builder->client )
+  {
+    // Spawn the buildable
+    built = G_Spawn();
+  }
+  else
+    built = builder;
+
   built->s.eType = ET_BUILDABLE;
   built->killedBy = ENTITYNUM_NONE;
   built->classname = BG_Buildable( buildable )->entityName;
@@ -3926,7 +3933,7 @@ Complete spawning a buildable using its placeholder
 static void G_SpawnBuildableThink( gentity_t *ent )
 {
   G_FinishSpawningBuildable( ent, qfalse );
-  G_FreeEntity( ent );
+  G_BuildableThink( ent, 0 );
 }
 
 /*
@@ -4494,15 +4501,13 @@ void G_BuildLogRevertThink( gentity_t *ent )
   }
 
   built = G_FinishSpawningBuildable( ent, qtrue );
-  if( ( built->deconstruct = ent->deconstruct ) )
-    built->deconstructTime = ent->deconstructTime;
   built->buildTime = built->s.time = 0;
   G_KillBox( built );
 
   G_LogPrintf( "revert: restore %d %s\n",
     (int)( built - g_entities ), BG_Buildable( built->s.modelindex )->name );
 
-  G_FreeEntity( ent );
+  G_BuildableThink( built, 0 );
 }
 
 void G_BuildLogRevert( int id )
