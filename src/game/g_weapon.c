@@ -1010,9 +1010,8 @@ LEVEL2
 
 ======================================================================
 */
-#define MAX_ZAPS MAX_CLIENTS
 
-static zap_t zaps[ MAX_ZAPS ];
+zap_t zaps[ MAX_ZAPS ];
 
 /*
 ===============

@@ -932,6 +932,9 @@ typedef struct zap_s
   gentity_t     *effectChannel;
 } zap_t;
 
+#define MAX_ZAPS MAX_CLIENTS
+extern zap_t zaps[ MAX_ZAPS ];
+
 void      G_ForceWeaponChange( gentity_t *ent, weapon_t weapon );
 void      G_GiveClientMaxAmmo( gentity_t *ent, qboolean buyingEnergyAmmo );
 void      CalcMuzzlePoint( gentity_t *ent, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint );
