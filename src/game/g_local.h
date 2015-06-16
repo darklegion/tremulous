@@ -827,6 +827,7 @@ gentity_t   *G_Spawn( void );
 gentity_t   *G_TempEntity( const vec3_t origin, int event );
 void        G_Sound( gentity_t *ent, int channel, int soundIndex );
 void        G_FreeEntity( gentity_t *e );
+void        G_RemoveEntity( gentity_t *ent );
 qboolean    G_EntitiesFree( void );
 char        *G_CopyString( const char *str );
 
