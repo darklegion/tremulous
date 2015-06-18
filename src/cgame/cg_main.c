@@ -85,8 +85,10 @@ Q_EXPORT intptr_t vmMain( int command, int arg0, int arg1, int arg2, int arg3,
       CG_EventHandling( arg0 );
       return 0;
 
+#ifndef MODULE_INTERFACE_11
     case CG_VOIP_STRING:
       return (intptr_t)CG_VoIPString( );
+#endif
 
     default:
       CG_Error( "vmMain: unknown command %i", command );
@@ -2097,3 +2099,25 @@ qboolean CG_GetRangeMarkerPreferences( qboolean *drawSurface, qboolean *drawInte
   return qfalse;
 }
 
+#ifdef MODULE_INTERFACE_11
+int trap_S_SoundDuration( sfxHandle_t handle )
+{
+  return 1;
+}
+
+void trap_R_SetClipRegion( const float *region )
+{
+}
+
+static qboolean keyOverstrikeMode = qfalse;
+
+void trap_Key_SetOverstrikeMode( qboolean state )
+{
+  keyOverstrikeMode = state;
+}
+
+qboolean trap_Key_GetOverstrikeMode( void )
+{
+  return keyOverstrikeMode;
+}
+#endif

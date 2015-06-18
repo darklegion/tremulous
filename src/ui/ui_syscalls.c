@@ -199,10 +199,12 @@ void trap_R_SetColor( const float *rgba )
   syscall( UI_R_SETCOLOR, rgba );
 }
 
+#ifndef MODULE_INTERFACE_11
 void  trap_R_SetClipRegion( const float *region )
 {
   syscall( UI_R_SETCLIPREGION, region );
 }
+#endif
 
 void trap_R_DrawStretchPic( float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader )
 {
@@ -329,10 +331,12 @@ int trap_LAN_ServerStatus( const char *serverAddress, char *serverStatus, int ma
   return syscall( UI_LAN_SERVERSTATUS, serverAddress, serverStatus, maxLen );
 }
 
+#ifndef MODULE_INTERFACE_11
 qboolean trap_GetNews( qboolean force )
 {
   return syscall( UI_GETNEWS, force );
 }
+#endif
 
 void trap_LAN_SaveCachedServers( void )
 {

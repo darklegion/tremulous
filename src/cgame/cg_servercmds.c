@@ -943,30 +943,58 @@ static void CG_Say( int clientNum, saymode_t mode, const char *text )
       if( cg_teamChatsOnly.integer )
         ignore = "[skipnotify]";
 
+#ifdef MODULE_INTERFACE_11
+      CG_Printf( "%s%s%s" S_COLOR_WHITE "%s " S_COLOR_GREEN "%s\n",
+                 ignore, prefix, name, maybeColon, text );
+#else
       CG_Printf( "%s%s%s" S_COLOR_WHITE "%s %c" S_COLOR_GREEN "%s\n",
                  ignore, prefix, name, maybeColon, INDENT_MARKER, text );
+#endif
       break;
     case SAY_TEAM:
+#ifdef MODULE_INTERFACE_11
+      CG_Printf( "%s%s(%s" S_COLOR_WHITE ")%s%s " S_COLOR_CYAN "%s\n",
+                 ignore, prefix, name, location, maybeColon, text );
+#else
       CG_Printf( "%s%s(%s" S_COLOR_WHITE ")%s%s %c" S_COLOR_CYAN "%s\n",
                  ignore, prefix, name, location, maybeColon, INDENT_MARKER, text );
+#endif
       break;
     case SAY_ADMINS:
     case SAY_ADMINS_PUBLIC:
+#ifdef MODULE_INTERFACE_11
+      CG_Printf( "%s%s%s%s" S_COLOR_WHITE "%s " S_COLOR_MAGENTA "%s\n",
+                 ignore, prefix,
+                 ( mode == SAY_ADMINS ) ? "[ADMIN]" : "[PLAYER]",
+                 name, maybeColon, text );
+#else
       CG_Printf( "%s%s%s%s" S_COLOR_WHITE "%s %c" S_COLOR_MAGENTA "%s\n",
                  ignore, prefix,
                  ( mode == SAY_ADMINS ) ? "[ADMIN]" : "[PLAYER]",
                  name, maybeColon, INDENT_MARKER, text );
+#endif
       break;
     case SAY_AREA:
+#ifdef MODULE_INTERFACE_11
+      CG_Printf( "%s%s<%s" S_COLOR_WHITE ">%s%s " S_COLOR_BLUE "%s\n",
+                 ignore, prefix, name, location, maybeColon, text );
+#else
       CG_Printf( "%s%s<%s" S_COLOR_WHITE ">%s%s %c" S_COLOR_BLUE "%s\n",
                  ignore, prefix, name, location, maybeColon, INDENT_MARKER, text );
+#endif
       break;
     case SAY_PRIVMSG:
     case SAY_TPRIVMSG:
       color = ( mode == SAY_TPRIVMSG ) ? S_COLOR_CYAN : S_COLOR_GREEN;
+#ifdef MODULE_INTERFACE_11
+      CG_Printf( "%s%s[%s" S_COLOR_WHITE " -> %s" S_COLOR_WHITE "]%s %s%s\n",
+                 ignore, prefix, name, cgs.clientinfo[ cg.clientNum ].name,
+                 maybeColon, color, text );
+#else
       CG_Printf( "%s%s[%s" S_COLOR_WHITE " -> %s" S_COLOR_WHITE "]%s %c%s%s\n",
                  ignore, prefix, name, cgs.clientinfo[ cg.clientNum ].name,
                  maybeColon, INDENT_MARKER, color, text );
+#endif
       if( !ignore[0] )
       {
         CG_CenterPrint( va( "%sPrivate message from: " S_COLOR_WHITE "%s", 

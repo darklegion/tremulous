@@ -242,6 +242,55 @@ static void CG_SetNextSnap( snapshot_t *snap )
 }
 
 
+#ifdef MODULE_INTERFACE_11
+static moduleAlternateSnapshot_t moduleAlternateSnapshot;
+
+static qboolean CG_GetModuleAlternateSnapshot( int snapshotNumber, snapshot_t *snap )
+{
+  moduleAlternateSnapshot_t *alt = &moduleAlternateSnapshot;
+  int r = trap_GetSnapshot( snapshotNumber, alt );
+
+  if( r )
+  {
+    int i;
+
+    snap->snapFlags = alt->snapFlags;
+    snap->ping = alt->ping;
+    snap->serverTime = alt->serverTime;
+    snap->numEntities = alt->numEntities;
+    snap->numServerCommands = alt->numServerCommands;
+    snap->serverCommandSequence = alt->serverCommandSequence;
+    memcpy( &snap->areamask, &alt->areamask, sizeof( snap->areamask ) );
+
+#define PSFO(x) ((size_t)&(((playerState_t*)0)->x))
+    memcpy( &snap->ps.commandTime, &alt->ps.commandTime, PSFO(tauntTimer) - PSFO(commandTime) );
+    memcpy( &snap->ps.movementDir, &alt->ps.movementDir, PSFO(ammo) - PSFO(movementDir) );
+    memcpy( &snap->ps.generic1, &alt->ps.generic1, PSFO(entityEventSequence) - PSFO(generic1) );
+
+    snap->ps.weaponAnim = alt->ps.ammo[0] & 0xFF;
+    snap->ps.pm_flags |= ( alt->ps.ammo[0] & 0xFF00 ) << 8;
+    snap->ps.ammo = alt->ps.ammo[1] & 0xFFF;
+    snap->ps.clips = ( alt->ps.ammo[1] & 0xF000 ) >> 12;
+    snap->ps.tauntTimer = alt->ps.ammo[2] & 0xFFF;
+    snap->ps.generic1 |= ( alt->ps.ammo[2] & 0x3000 ) >> 4;
+
+    for( i = 0; i < alt->numEntities; ++i )
+    {
+      entityState_t *s = &snap->entities[ i ];
+      const moduleAlternateEntityState_t *a = &alt->entities[ i ];
+
+#define ESFO(x) ((size_t)&(((entityState_t*)0)->x))
+      memcpy( &s->number, &a->number, ESFO(weaponAnim) - ESFO(number) );
+
+      s->weaponAnim = 0;
+      s->generic1 = a->generic1;
+    }
+  }
+
+  return r;
+}
+#endif
+
 /*
 ========================
 CG_ReadNextSnapshot
@@ -273,7 +322,11 @@ static snapshot_t *CG_ReadNextSnapshot( void )
 
     // try to read the snapshot from the client system
     cgs.processedSnapshotNum++;
+#ifdef MODULE_INTERFACE_11
+    r = CG_GetModuleAlternateSnapshot( cgs.processedSnapshotNum, dest );
+#else
     r = trap_GetSnapshot( cgs.processedSnapshotNum, dest );
+#endif
 
     // FIXME: why would trap_GetSnapshot return a snapshot with the same server time
     if( cg.snap && r && dest->serverTime == cg.snap->serverTime )

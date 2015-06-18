@@ -33,11 +33,24 @@ USER INTERFACE MAIN
 
 uiInfo_t uiInfo;
 
+#ifdef MODULE_INTERFACE_11
+#undef AS_GLOBAL
+#undef AS_LOCAL
+#define AS_GLOBAL                      2
+#define AS_LOCAL                       0
+#endif
+
 static const char *netSources[ ] =
 {
+#ifdef MODULE_INTERFACE_11
+  "LAN",
+  "Mplayer",
+  "Internet",
+#else
   "Internet",
   "Mplayer",
   "LAN",
+#endif
   "Favorites"
 };
 
@@ -163,12 +176,14 @@ Q_EXPORT intptr_t vmMain( int command, int arg0, int arg1, int arg2, int arg3,
       UI_MouseEvent( arg0, arg1 );
       return 0;
 
+#ifndef MODULE_INTERFACE_11
     case UI_MOUSE_POSITION:
       return UI_MousePosition( );
 
     case UI_SET_MOUSE_POSITION:
       UI_SetMousePosition( arg0, arg1 );
       return 0;
+#endif
 
     case UI_REFRESH:
       UI_Refresh( arg0 );
@@ -1113,7 +1128,11 @@ static void UI_StartServerRefresh( qboolean full )
   {
     qboolean global = ui_netSource.integer == AS_GLOBAL;
 
-    trap_Cmd_ExecuteText( EXEC_APPEND, va( "globalservers %d full empty\n",
+#ifdef MODULE_INTERFACE_11
+    trap_Cmd_ExecuteText( EXEC_APPEND, va( "globalservers %d 69 full empty\n",
+#else
+    trap_Cmd_ExecuteText( EXEC_APPEND, va( "globalservers %d 70 full empty\n",
+#endif
                           global ? 0 : 1 ) );
   }
 }
@@ -4630,3 +4649,13 @@ void UI_UpdateNews( qboolean begin )
     uiInfo.newsInfo.refreshActive = qfalse;
 }
 
+#ifdef MODULE_INTERFACE_11
+void trap_R_SetClipRegion( const float *region )
+{
+}
+
+qboolean trap_GetNews( qboolean force )
+{
+  return qtrue;
+}
+#endif
