@@ -322,6 +322,10 @@ ifneq (,$(findstring "$(PLATFORM)", "linux" "gnu_kfreebsd" "kfreebsd-gnu" "gnu")
   else
   ifeq ($(ARCH),s390x)
     LIB=lib64
+  else
+  ifeq ($(ARCH),aarch64)
+    LIB=lib64
+  endif
   endif
   endif
   endif
