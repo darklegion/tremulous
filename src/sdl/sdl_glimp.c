@@ -536,7 +536,7 @@ static qboolean GLimp_StartDriverAndSetMode( qboolean failSafe, qboolean fullscr
 	{
 		const char *driverName;
 
-		if (SDL_Init(SDL_INIT_VIDEO) == -1)
+		if (SDL_Init(SDL_INIT_VIDEO) != 0)
 		{
 			ri.Printf( PRINT_ALL, "SDL_Init( SDL_INIT_VIDEO ) FAILED (%s)\n", SDL_GetError());
 			return qfalse;
