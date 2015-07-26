@@ -366,7 +366,7 @@ static void IN_ActivateMouse( void )
 	if( !mouseActive )
 	{
 		SDL_SetRelativeMouseMode( SDL_TRUE );
-		SDL_SetWindowGrab( SDL_window, 1 );
+		SDL_SetWindowGrab( SDL_window, SDL_TRUE );
 
 		IN_GobbleMotionEvents( );
 	}
@@ -377,9 +377,9 @@ static void IN_ActivateMouse( void )
 		if( in_nograb->modified || !mouseActive )
 		{
 			if( in_nograb->integer )
-				SDL_SetWindowGrab( SDL_window, 0 );
+				SDL_SetWindowGrab( SDL_window, SDL_FALSE );
 			else
-				SDL_SetWindowGrab( SDL_window, 1 );
+				SDL_SetWindowGrab( SDL_window, SDL_TRUE );
 
 			in_nograb->modified = qfalse;
 		}
@@ -416,7 +416,7 @@ static void IN_DeactivateMouse( void )
 	{
 		IN_GobbleMotionEvents( );
 
-		SDL_SetWindowGrab( SDL_window, 0 );
+		SDL_SetWindowGrab( SDL_window, SDL_FALSE );
 		SDL_SetRelativeMouseMode( SDL_FALSE );
 
 		// Don't warp the mouse unless the cursor is within the window
