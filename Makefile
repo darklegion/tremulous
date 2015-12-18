@@ -1558,6 +1558,7 @@ Q3R2OBJ = \
   $(B)/renderergl2/tr_image_pcx.o \
   $(B)/renderergl2/tr_image_png.o \
   $(B)/renderergl2/tr_image_tga.o \
+  $(B)/renderergl2/tr_image_dds.o \
   $(B)/renderergl2/tr_init.o \
   $(B)/renderergl2/tr_light.o \
   $(B)/renderergl2/tr_main.o \
