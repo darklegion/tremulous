@@ -1794,7 +1794,6 @@ extern  cvar_t  *r_specularMapping;
 extern  cvar_t  *r_deluxeMapping;
 extern  cvar_t  *r_parallaxMapping;
 extern  cvar_t  *r_cubeMapping;
-extern  cvar_t  *r_exportCubemaps;
 extern  cvar_t  *r_specularIsMetallic;
 extern  cvar_t  *r_glossIsRoughness;
 extern  cvar_t  *r_baseNormalX;
@@ -2422,6 +2421,10 @@ typedef struct {
 	viewParms_t	viewParms;
 } postProcessCommand_t;
 
+typedef struct {
+	int commandId;
+} exportCubemapsCommand_t;
+
 typedef enum {
 	RC_END_OF_LIST,
 	RC_SET_COLOR,
@@ -2434,7 +2437,8 @@ typedef enum {
 	RC_COLORMASK,
 	RC_CLEARDEPTH,
 	RC_CAPSHADOWMAP,
-	RC_POSTPROCESS
+	RC_POSTPROCESS,
+	RC_EXPORT_CUBEMAPS
 } renderCommand_t;
 
 
