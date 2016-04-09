@@ -55,10 +55,16 @@ typedef unsigned int glIndex_t;
 #define MAX_CALC_PSHADOWS    64
 #define MAX_DRAWN_PSHADOWS    16 // do not increase past 32, because bit flags are used on surfaces
 #define PSHADOW_MAP_SIZE      512
-#define CUBE_MAP_MIPS      7
-#define CUBE_MAP_SIZE      (1 << CUBE_MAP_MIPS)
 
 #define USE_VERT_TANGENT_SPACE
+#define USE_OVERBRIGHT
+
+typedef struct cubemap_s {
+	char name[MAX_QPATH];
+	vec3_t origin;
+	float parallaxRadius;
+	image_t *image;
+} cubemap_t;
 
 typedef struct dlight_s {
 	vec3_t	origin;
@@ -1347,8 +1353,6 @@ typedef struct {
 
 // the renderer front end should never modify glstate_t
 typedef struct {
-	int			currenttextures[NUM_TEXTURE_BUNDLES];
-	int			currenttmu;
 	qboolean	finishCalled;
 	int			texEnv[2];
 	int			faceCulling;
@@ -1358,7 +1362,6 @@ typedef struct {
 	float           vertexAttribsInterpolation;
 	qboolean        vertexAnimation;
 	uint32_t        vertexAttribsEnabled;  // global if no VAOs, tess only otherwise
-	shaderProgram_t *currentProgram;
 	FBO_t          *currentFBO;
 	vao_t          *currentVao;
 	mat4_t        modelview;
@@ -1374,7 +1377,7 @@ typedef enum {
 
 typedef enum {
 	TCR_NONE = 0x0000,
-	TCR_LATC = 0x0001,
+	TCR_RGTC = 0x0001,
 	TCR_BPTC = 0x0002,
 } textureCompressionRef_t;
 
@@ -1398,7 +1401,9 @@ typedef struct {
 	qboolean textureFloat;
 	qboolean halfFloatPixel;
 	qboolean packedDepthStencil;
+	qboolean arbTextureCompression;
 	textureCompressionRef_t textureCompression;
+	qboolean swizzleNormalmap;
 	
 	qboolean framebufferMultisample;
 	qboolean framebufferBlit;
@@ -1414,6 +1419,7 @@ typedef struct {
 
 	qboolean floatLightmap;
 	qboolean vertexArrayObject;
+	qboolean directStateAccess;
 } glRefConfig_t;
 
 
@@ -1515,6 +1521,7 @@ typedef struct {
 	image_t					*sunRaysImage;
 	image_t					*renderDepthImage;
 	image_t					*pshadowMaps[MAX_DRAWN_PSHADOWS];
+	image_t					*screenScratchImage;
 	image_t					*textureScratchImage[2];
 	image_t                 *quarterImage[2];
 	image_t					*calcLevelsImage;
@@ -1533,6 +1540,7 @@ typedef struct {
 	FBO_t					*sunRaysFbo;
 	FBO_t					*depthFbo;
 	FBO_t					*pshadowFbos[MAX_DRAWN_PSHADOWS];
+	FBO_t					*screenScratchFbo;
 	FBO_t					*textureScratchFbo[2];
 	FBO_t                   *quarterFbo[2];
 	FBO_t					*calcLevelsFbo;
@@ -1560,8 +1568,7 @@ typedef struct {
 	int		                fatLightmapStep;
 
 	int                     numCubemaps;
-	vec3_t                  *cubemapOrigins;
-	image_t                 **cubemaps;
+	cubemap_t               *cubemaps;
 
 	trRefEntity_t			*currentEntity;
 	trRefEntity_t			worldEntity;		// point currentEntity at this when rendering world
@@ -1585,7 +1592,7 @@ typedef struct {
 	shaderProgram_t calclevels4xShader[2];
 	shaderProgram_t shadowmaskShader;
 	shaderProgram_t ssaoShader;
-	shaderProgram_t depthBlurShader[2];
+	shaderProgram_t depthBlurShader[4];
 	shaderProgram_t testcubeShader;
 
 
@@ -1714,6 +1721,7 @@ extern  cvar_t  *r_ext_framebuffer_multisample;
 extern  cvar_t  *r_arb_seamless_cube_map;
 extern  cvar_t  *r_arb_vertex_type_2_10_10_10_rev;
 extern  cvar_t  *r_arb_vertex_array_object;
+extern  cvar_t  *r_ext_direct_state_access;
 
 extern	cvar_t	*r_nobind;						// turns off binding to appropriate textures
 extern	cvar_t	*r_singleShader;				// make most world faces use default shader
@@ -1773,11 +1781,6 @@ extern  cvar_t  *r_forceAutoExposureMax;
 
 extern  cvar_t  *r_cameraExposure;
 
-extern  cvar_t  *r_materialGamma;
-extern  cvar_t  *r_lightGamma;
-extern  cvar_t  *r_framebufferGamma;
-extern  cvar_t  *r_tonemapGamma;
-
 extern  cvar_t  *r_depthPrepass;
 extern  cvar_t  *r_ssao;
 
@@ -1786,13 +1789,14 @@ extern  cvar_t  *r_specularMapping;
 extern  cvar_t  *r_deluxeMapping;
 extern  cvar_t  *r_parallaxMapping;
 extern  cvar_t  *r_cubeMapping;
-extern  cvar_t  *r_deluxeSpecular;
-extern  cvar_t  *r_specularIsMetallic;
+extern  cvar_t  *r_cubemapSize;
+extern  cvar_t  *r_pbr;
 extern  cvar_t  *r_baseNormalX;
 extern  cvar_t  *r_baseNormalY;
 extern  cvar_t  *r_baseParallax;
 extern  cvar_t  *r_baseSpecular;
 extern  cvar_t  *r_baseGloss;
+extern  cvar_t  *r_glossType;
 extern  cvar_t  *r_dlightMode;
 extern  cvar_t  *r_pshadowDist;
 extern  cvar_t  *r_mergeLightmaps;
@@ -1808,6 +1812,7 @@ extern  cvar_t  *r_sunlightMode;
 extern  cvar_t  *r_drawSunRays;
 extern  cvar_t  *r_sunShadows;
 extern  cvar_t  *r_shadowFilter;
+extern  cvar_t  *r_shadowBlur;
 extern  cvar_t  *r_shadowMapSize;
 extern  cvar_t  *r_shadowCascadeZNear;
 extern  cvar_t  *r_shadowCascadeZFar;
@@ -1877,17 +1882,14 @@ void R_RotateForEntity( const trRefEntity_t *ent, const viewParms_t *viewParms, 
 /*
 ** GL wrapper/helper functions
 */
-void	GL_Bind( image_t *image );
 void	GL_BindToTMU( image_t *image, int tmu );
 void	GL_SetDefaultState (void);
-void	GL_SelectTexture( int unit );
 void	GL_TextureMode( const char *string );
 void	GL_CheckErrs( char *file, int line );
 #define GL_CheckErrors(...) GL_CheckErrs(__FILE__, __LINE__)
 void	GL_State( unsigned long stateVector );
 void    GL_SetProjectionMatrix(mat4_t matrix);
 void    GL_SetModelviewMatrix(mat4_t matrix);
-void	GL_TexEnv( int env );
 void	GL_Cull( int cullType );
 
 #define GLS_SRCBLEND_ZERO						0x00000001
@@ -2211,7 +2213,6 @@ void GLSL_InitGPUShaders(void);
 void GLSL_ShutdownGPUShaders(void);
 void GLSL_VertexAttribPointers(uint32_t attribBits);
 void GLSL_BindProgram(shaderProgram_t * program);
-void GLSL_BindNullProgram(void);
 
 void GLSL_SetUniformInt(shaderProgram_t *program, int uniformNum, GLint value);
 void GLSL_SetUniformFloat(shaderProgram_t *program, int uniformNum, GLfloat value);
@@ -2277,20 +2278,6 @@ void RB_IQMSurfaceAnim( surfaceType_t *surface );
 int R_IQMLerpTag( orientation_t *tag, iqmData_t *data,
                   int startFrame, int endFrame,
                   float frac, const char *tagName );
-
-/*
-=============================================================
-
-IMAGE LOADERS
-
-=============================================================
-*/
-
-void R_LoadBMP( const char *name, byte **pic, int *width, int *height );
-void R_LoadJPG( const char *name, byte **pic, int *width, int *height );
-void R_LoadPCX( const char *name, byte **pic, int *width, int *height );
-void R_LoadPNG( const char *name, byte **pic, int *width, int *height );
-void R_LoadTGA( const char *name, byte **pic, int *width, int *height );
 
 /*
 =============================================================
@@ -2427,6 +2414,10 @@ typedef struct {
 	viewParms_t	viewParms;
 } postProcessCommand_t;
 
+typedef struct {
+	int commandId;
+} exportCubemapsCommand_t;
+
 typedef enum {
 	RC_END_OF_LIST,
 	RC_SET_COLOR,
@@ -2439,7 +2430,8 @@ typedef enum {
 	RC_COLORMASK,
 	RC_CLEARDEPTH,
 	RC_CAPSHADOWMAP,
-	RC_POSTPROCESS
+	RC_POSTPROCESS,
+	RC_EXPORT_CUBEMAPS
 } renderCommand_t;
 
 
