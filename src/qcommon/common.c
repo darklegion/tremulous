@@ -3535,7 +3535,7 @@ qboolean Com_PlayerNameToFieldString( char *str, int length, const char *name )
 	return qtrue;
 }
 
-void Field_CompletePlayerName( char **names, int nameCount )
+void Field_CompletePlayerName( const char **names, int nameCount )
 {
 	qboolean whitespace;
 
