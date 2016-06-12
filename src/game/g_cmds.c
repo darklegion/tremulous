@@ -2311,7 +2311,7 @@ void Cmd_Sell_f( gentity_t *ent )
 
     //if we have this weapon selected, force a new selection
     if( weapon == selected )
-      G_ForceWeaponChange( ent, WP_NONE );
+      G_ForceWeaponChange( ent, WP_BLASTER );
   }
   else if( upgrade != UP_NONE )
   {
