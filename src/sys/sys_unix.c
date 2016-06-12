@@ -59,11 +59,19 @@ char *Sys_DefaultHomePath(void)
 		if( ( p = getenv( "HOME" ) ) != NULL )
 		{
 			Com_sprintf(homePath, sizeof(homePath), "%s%c", p, PATH_SEP);
-#ifdef MACOS_X
-			Q_strcat( homePath, sizeof( homePath ),
-					"/Library/Application Support/" HOMEPATH_NAME_MACOSX );
+#ifdef __APPLE__
+			Q_strcat(homePath, sizeof(homePath),
+				"Library/Application Support/");
+
+			if(com_homepath->string[0])
+				Q_strcat(homePath, sizeof(homePath), com_homepath->string);
+			else
+				Q_strcat(homePath, sizeof(homePath), HOMEPATH_NAME_MACOSX);
 #else
-			Q_strcat( homePath, sizeof( homePath ), "/" HOMEPATH_NAME_UNIX );
+			if(com_homepath->string[0])
+				Q_strcat(homePath, sizeof(homePath), com_homepath->string);
+			else
+				Q_strcat(homePath, sizeof(homePath), HOMEPATH_NAME_UNIX);
 #endif
 		}
 	}
@@ -542,7 +550,7 @@ void Sys_ErrorDialog( const char *error )
 	close( f );
 }
 
-#ifndef MACOS_X
+#ifndef __APPLE__
 static char execBuffer[ 1024 ];
 static char *execBufferPointer;
 static char *execArgv[ 16 ];
