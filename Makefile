@@ -214,6 +214,10 @@ ifndef USE_RENDERER_DLOPEN
 USE_RENDERER_DLOPEN=1
 endif
 
+ifndef USE_YACC
+USE_YACC=0
+endif
+
 ifndef DEBUG_CFLAGS
 DEBUG_CFLAGS=-ggdb -O0
 endif
@@ -1293,6 +1297,10 @@ ifndef TOOLS_CC
   TOOLS_CC = gcc
 endif
 
+ifndef YACC
+  YACC = yacc
+endif
+
 TOOLS_OPTIMIZE = -g -Wall -fno-strict-aliasing
 TOOLS_CFLAGS += $(TOOLS_OPTIMIZE) \
                 -DTEMPDIR=\"$(TEMPDIR)\" -DSYSTEM=\"\" \
@@ -1304,6 +1312,12 @@ TOOLS_LDFLAGS =
 ifeq ($(GENERATE_DEPENDENCIES),1)
   TOOLS_CFLAGS += -MMD
 endif
+
+define DO_YACC
+$(echo_cmd) "YACC $<"
+$(Q)$(YACC) $<
+$(Q)mv -f y.tab.c $@
+endef
 
 define DO_TOOLS_CC
 $(echo_cmd) "TOOLS_CC $<"
@@ -1325,6 +1339,12 @@ Q3ASM       = $(B)/tools/q3asm$(TOOLS_BINEXT)
 LBURGOBJ= \
   $(B)/tools/lburg/lburg.o \
   $(B)/tools/lburg/gram.o
+
+# override GNU Make built-in rule for converting gram.y to gram.c
+%.c: %.y
+ifeq ($(USE_YACC),1)
+	$(DO_YACC)
+endif
 
 $(B)/tools/lburg/%.o: $(LBURGDIR)/%.c
 	$(DO_TOOLS_CC)
