@@ -3512,8 +3512,14 @@ void RE_LoadWorldMap( const char *name ) {
 
 		if (!tr.numCubemaps)
 		{
-			// use deathmatch spawn points as cubemaps
-			R_LoadCubemapEntities("info_player_deathmatch");
+			// location names are an assured way to get an even distribution
+			R_LoadCubemapEntities("target_location");
+		}
+
+		if (!tr.numCubemaps)
+		{
+			// try misc_models
+			R_LoadCubemapEntities("misc_model");
 		}
 
 		if (tr.numCubemaps)
