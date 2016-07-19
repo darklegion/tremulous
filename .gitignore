@@ -4,6 +4,7 @@ Makefile.local
 *tags
 misc/patches
 misc/last-merged-ioq3-revision.temp
+*~
 
 # OS X
 ####################

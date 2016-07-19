@@ -1728,7 +1728,7 @@ static void CL_CompletePlayerName( char *args, int argNum )
 	if( argNum == 2 )
 	{
 		char		names[MAX_CLIENTS][MAX_NAME_LENGTH];
-		char		*namesPtr[MAX_CLIENTS];
+		const char	*namesPtr[MAX_CLIENTS];
 		int			i;
 		int			clientCount;
 		int			nameCount;
@@ -3620,7 +3620,7 @@ void CL_Init( void ) {
 	Cvar_Get( "com_downloadPromptText", "", CVAR_TEMP );
 
 	cl_conXOffset = Cvar_Get ("cl_conXOffset", "0", 0);
-#ifdef MACOS_X
+#ifdef __APPLE__
 	// In game video is REALLY slow in Mac OS X right now due to driver slowness
 	cl_inGameVideo = Cvar_Get ("r_inGameVideo", "0", CVAR_ARCHIVE);
 #else
@@ -3633,7 +3633,7 @@ void CL_Init( void ) {
 	m_yaw = Cvar_Get ("m_yaw", "0.022", CVAR_ARCHIVE);
 	m_forward = Cvar_Get ("m_forward", "0.25", CVAR_ARCHIVE);
 	m_side = Cvar_Get ("m_side", "0.25", CVAR_ARCHIVE);
-#ifdef MACOS_X
+#ifdef __APPLE__
 	// Input is jittery on OS X w/o this
 	m_filter = Cvar_Get ("m_filter", "1", CVAR_ARCHIVE);
 #else

@@ -176,9 +176,6 @@ void (APIENTRY * qglBlitFramebufferEXT)(GLint srcX0, GLint srcY0, GLint srcX1, G
 void (APIENTRY * qglRenderbufferStorageMultisampleEXT)(GLenum target, GLsizei samples,
 	GLenum internalformat, GLsizei width, GLsizei height);
 
-// GL_ARB_draw_buffers
-void (APIENTRY * qglDrawBuffersARB)(GLsizei n, const GLenum *bufs);
-
 // GL_ARB_vertex_array_object
 void (APIENTRY * qglBindVertexArrayARB)(GLuint array);
 void (APIENTRY * qglDeleteVertexArraysARB)(GLsizei n, const GLuint *arrays);
@@ -471,7 +468,6 @@ void GLimp_InitExtraExtensions()
 
 	// GL_ARB_shading_language_100
 	extension = "GL_ARB_shading_language_100";
-	glRefConfig.textureFloat = qfalse;
 	if( GLimp_HaveExtension( extension ) )
 	{
 		char version[256];
@@ -686,20 +682,6 @@ void GLimp_InitExtraExtensions()
 			glRefConfig.textureCompression |= TCR_BPTC;
 
 		ri.Printf(PRINT_ALL, result[(r_ext_compressed_textures->integer >= 2) ? 1 : 0], extension);
-	}
-	else
-	{
-		ri.Printf(PRINT_ALL, result[2], extension);
-	}
-
-	// GL_ARB_draw_buffers
-	extension = "GL_ARB_draw_buffers";
-	qglDrawBuffersARB = NULL;
-	if( GLimp_HaveExtension( extension ) )
-	{
-		qglDrawBuffersARB = (void *) SDL_GL_GetProcAddress("glDrawBuffersARB");
-
-		ri.Printf(PRINT_ALL, result[1], extension);
 	}
 	else
 	{

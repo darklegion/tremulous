@@ -73,6 +73,9 @@ cvar_t	*com_showtrace;
 cvar_t	*com_version;
 cvar_t	*com_blood;
 cvar_t	*com_buildScript;	// for automated data building scripts
+#ifdef CINEMATICS_INTRO
+cvar_t	*com_introPlayed;
+#endif
 cvar_t	*cl_paused;
 cvar_t	*sv_paused;
 cvar_t  *cl_packetdelay;
@@ -84,7 +87,13 @@ cvar_t	*com_maxfpsUnfocused;
 cvar_t	*com_minimized;
 cvar_t	*com_maxfpsMinimized;
 cvar_t	*com_abnormalExit;
+cvar_t	*com_standalone;
 cvar_t	*com_gamename;
+cvar_t	*com_protocol;
+#ifdef LEGACY_PROTOCOL
+cvar_t	*com_legacyprotocol;
+#endif
+cvar_t	*com_basegame;
 cvar_t  *com_homepath;
 cvar_t	*com_busyWait;
 
@@ -2549,8 +2558,13 @@ void Com_Init( char *commandLine ) {
 	// done early so bind command exists
 	CL_InitKeyCommands();
 
+	com_standalone = Cvar_Get("com_standalone", "0", CVAR_ROM);
+	com_basegame = Cvar_Get("com_basegame", BASEGAME, CVAR_INIT);
 	com_homepath = Cvar_Get("com_homepath", "", CVAR_INIT);
 	
+	if(!com_basegame->string[0])
+		Cvar_ForceReset("com_basegame");
+
 	FS_InitFilesystem ();
 
 	Com_InitJournaling();
@@ -2622,6 +2636,10 @@ void Com_Init( char *commandLine ) {
 	com_busyWait = Cvar_Get("com_busyWait", "0", CVAR_ARCHIVE);
 	Cvar_Get("com_errorMessage", "", CVAR_ROM | CVAR_NORESTART);
 
+#ifdef CINEMATICS_INTRO
+	com_introPlayed = Cvar_Get( "com_introplayed", "0", CVAR_ARCHIVE);
+#endif
+
 	s = va("%s %s %s", Q3_VERSION, PLATFORM_STRING, __DATE__ );
 	com_version = Cvar_Get ("version", s, CVAR_ROM | CVAR_SERVERINFO );
 	Cvar_Get ("protocol", va("%i", PROTOCOL_VERSION), CVAR_SERVERINFO | CVAR_ROM);
@@ -2662,7 +2680,9 @@ void Com_Init( char *commandLine ) {
 	if ( !Com_AddStartupCommands() ) {
 		// if the user didn't give any commands, run default action
 		if ( !com_dedicated->integer ) {
+#ifdef CINEMATICS_LOGO
 			Cbuf_AddText ("cinematic splash.RoQ\n");
+#endif
 		}
 	}
 
@@ -3535,7 +3555,7 @@ qboolean Com_PlayerNameToFieldString( char *str, int length, const char *name )
 	return qtrue;
 }
 
-void Field_CompletePlayerName( char **names, int nameCount )
+void Field_CompletePlayerName( const char **names, int nameCount )
 {
 	qboolean whitespace;
 
