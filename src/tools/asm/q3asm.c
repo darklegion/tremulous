@@ -478,7 +478,7 @@ static unsigned int HashString (const char *key)
     acc = (acc << 2) | (acc >> 30);
     acc &= 0xffffffffU;
     }
-    return abs(acc);
+    return acc;
 }
 
 
@@ -1645,4 +1645,3 @@ Motivation: not wanting to scrollback for pages to find asm error.
 
 	return errorCount;
 }
-
