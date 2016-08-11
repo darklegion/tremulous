@@ -4245,18 +4245,20 @@ void CL_GlobalServers_f( void ) {
 		
 		if(v4enabled)
 		{
-			Com_sprintf(command, sizeof(command), "getserversExt %s %s",
-				com_gamename->string, Cmd_Argv(2));
+			Com_sprintf(command, sizeof(command), "getserversExt %d %s",
+				PROTOCOL_VERSION, Cmd_Argv(2));
 		}
 		else
 		{
-			Com_sprintf(command, sizeof(command), "getserversExt %s %s ipv6",
-				com_gamename->string, Cmd_Argv(2));
+			Com_sprintf(command, sizeof(command), "getserversExt %d %s ipv6",
+				PROTOCOL_VERSION, Cmd_Argv(2));
 		}
 	}
-	else
-		Com_sprintf(command, sizeof(command), "getservers %s %s",
-			com_gamename->string, Cmd_Argv(2));
+    else
+    {
+        Com_sprintf(command, sizeof(command), "getservers %d %s",
+               PROTOCOL_VERSION, Cmd_Argv(2));
+    }
 
 	for (i=3; i < count; i++)
 	{

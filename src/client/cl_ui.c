@@ -1082,6 +1082,7 @@ CL_InitUI
 
 void CL_InitUI( void )
 {
+    int v;
     vmInterpret_t i = Cvar_VariableValue("vm_ui");
     if ( cl_connectedToPureServer )
     {
