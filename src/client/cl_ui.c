@@ -1080,49 +1080,40 @@ CL_InitUI
 */
 #define UI_OLD_API_VERSION	4
 
-void CL_InitUI( void ) {
-	int		v;
-	vmInterpret_t		interpret;
+void CL_InitUI( void )
+{
+    vmInterpret_t i = Cvar_VariableValue("vm_ui");
+    if ( cl_connectedToPureServer )
+    {
+        if ( i != VMI_COMPILED && i != VMI_BYTECODE )
+            i = VMI_COMPILED;
+    }
 
-	// load the dll or bytecode
-	interpret = Cvar_VariableValue("vm_ui");
-	if(cl_connectedToPureServer)
-	{
-		// if sv_pure is set we only allow qvms to be loaded
-		if(interpret != VMI_COMPILED && interpret != VMI_BYTECODE)
-			interpret = VMI_COMPILED;
-	}
+    uivm = VM_Create( "ui", CL_UISystemCalls, i );
+    if ( !uivm )
+    {
+        cls.uiStarted = qfalse;
+        Com_Error( ERR_DROP, "VM_Create on UI failed" );
+        return; // CANT GET HERE
+    }
 
-	uivm = VM_Create( "ui", CL_UISystemCalls, interpret );
-	if ( !uivm ) {
-		Com_Printf( "Failed to find a valid UI vm. The following paths were searched:\n" );
-		Cmd_ExecuteString( "path /\n" );
-		Com_Error( ERR_FATAL, "VM_Create on UI failed" );
-	}
+    switch (VM_Call( uivm, UI_GETAPIVERSION ))
+    {
+        case UI_API_VERSION:
+        case UI_OLD_API_VERSION: // FIXIT-L: REMOVE ME
+            VM_Call( uivm, UI_INIT, (clc.state >= CA_AUTHORIZING && clc.state < CA_ACTIVE) );
+            break;
 
-	// sanity check
-	v = VM_Call( uivm, UI_GETAPIVERSION );
-	if (v == UI_OLD_API_VERSION) {
-		// init for this gamestate
-		VM_Call( uivm, UI_INIT, (clc.state >= CA_AUTHORIZING && clc.state < CA_ACTIVE));
-	}
-	else if (v != UI_API_VERSION) {
-		// Free uivm now, so UI_SHUTDOWN doesn't get called later.
-		VM_Free( uivm );
-		uivm = NULL;
+        default:
+            VM_Free(uivm); // do now, avoid UI_SHUTDOWN later. 
+            uivm = NULL;
+            cls.uiStarted = qfalse;
+            Com_Error( ERR_DROP, "User Interface is version %d, expected %d", v, UI_API_VERSION );
+            return; // CANT GET HERE
+    };
 
-		Com_Error( ERR_DROP, "User Interface is version %d, expected %d", v, UI_API_VERSION );
-		cls.uiStarted = qfalse;
-	}
-	else {
-		// init for this gamestate
-		VM_Call( uivm, UI_INIT, (clc.state >= CA_AUTHORIZING && clc.state < CA_ACTIVE) );
-
-		// show where the ui folder was loaded from
-		Cmd_ExecuteString( "which ui/\n" );
-	}
-
-	clc.newsString[ 0 ] = '\0';
+    // FIXIT-L: Get rid of this.
+    clc.newsString[ 0 ] = '\0';
 }
 
 /*
