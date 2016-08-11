@@ -114,7 +114,8 @@ enum
   FEEDER_TREMHUMANBUILD,       // human buildables
   FEEDER_IGNORE_LIST,          // ignored players
   FEEDER_HELP_LIST,            // help topics
-  FEEDER_RESOLUTIONS           // display resolutions
+  FEEDER_RESOLUTIONS,          // display resolutions
+  FEEDER_TREMVOICECMD          // display resolutions
 };
 
 // display flags
@@ -217,7 +218,9 @@ enum
   UI_HSELLINFOPANE,
   UI_ABUILDINFOPANE,
   UI_HBUILDINFOPANE,
-  UI_HELPINFOPANE
+  UI_HELPINFOPANE,
+
+  UI_VOICECMDINFOPANE
 };
 
 #endif

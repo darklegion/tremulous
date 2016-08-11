@@ -2991,6 +2991,66 @@ void Cmd_ListMaps_f( gentity_t *ent )
 
 /*
 =================
+Cmd_ListVoices_f
+=================
+*/
+void Cmd_ListVoices_f( gentity_t *ent )
+{
+  if ( !level.voices ) {
+    ADMP( "^3listvoices: ^7voice system is not installed on this server\n" );
+    return;
+  }
+
+  if ( !g_voiceChats.integer ) {
+    ADMP( "^3listvoices: ^7voice system administratively disabled on this server\n" );
+    return;
+  }
+
+  if ( trap_Argc() < 2 )
+  {
+    voice_t *v;
+    int i = 0;
+
+    ADMBP_begin();
+    for( v = level.voices; v; v = v->next )
+    {
+      ADMBP(va("%d - %s\n", i+1, v->name));
+      i++;
+    }
+    ADMBP(va("^3listvoices: ^7showing %d voices\n", i));
+    ADMBP("^3listvoices: ^7run 'listvoices <voice>' to see available commands.\n");
+    ADMBP_end();
+    return;
+  }
+  else if ( trap_Argc() >= 2 )
+  {
+    voice_t *v;
+    voiceCmd_t *c;
+    int i = 0;
+
+    char name[ MAX_VOICE_NAME_LEN ];
+    trap_Argv(1, name, sizeof(name));
+
+    v = BG_VoiceByName(level.voices, name);
+    if ( !v )
+    {
+      ADMP(va("^3listvoices: ^7no matching voice \"%s\"\n", name));
+      return;
+    }
+
+    ADMBP_begin();
+    for ( c = v->cmds; c; c = c->next )
+    {
+      ADMBP(va("%d - %s\n", i+1, c->cmd));
+      i++;
+    }
+    ADMBP(va("^3listvoices: ^7showing %d voice commands for %s\n", i, v->name));
+    ADMBP_end();
+  }
+}
+
+/*
+=================
 Cmd_Test_f
 =================
 */
@@ -3095,6 +3155,7 @@ commands_t cmds[ ] = {
   { "kill", CMD_TEAM|CMD_LIVING, Cmd_Kill_f },
   { "levelshot", CMD_CHEAT, Cmd_LevelShot_f },
   { "listmaps", CMD_MESSAGE|CMD_INTERMISSION, Cmd_ListMaps_f },
+  { "listvoices", CMD_MESSAGE|CMD_INTERMISSION, Cmd_ListVoices_f },
   { "m", CMD_MESSAGE|CMD_INTERMISSION, Cmd_PrivateMessage_f },
   { "mt", CMD_MESSAGE|CMD_INTERMISSION, Cmd_PrivateMessage_f },
   { "noclip", CMD_CHEAT_TEAM, Cmd_Noclip_f },
