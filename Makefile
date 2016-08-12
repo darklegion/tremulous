@@ -489,18 +489,25 @@ ifdef MINGW
     ifneq ($(findstring $(strip $(CC)),cc gcc),)
       CC=
     endif
+    ifneq ($(findstring $(strip $(CXX)),c++ g++),)
+      CXX=
+    endif
 
     # We need to figure out the correct gcc and windres
     ifeq ($(ARCH),x86_64)
-      MINGW_PREFIXES=amd64-mingw32msvc x86_64-w64-mingw32
+      MINGW_PREFIXES=x86_64-w64-mingw32
     endif
     ifeq ($(ARCH),x86)
-      MINGW_PREFIXES=i586-mingw32msvc i686-w64-mingw32 i686-pc-mingw32
+      MINGW_PREFIXES=i686-w64-mingw32
     endif
 
     ifndef CC
       CC=$(firstword $(strip $(foreach MINGW_PREFIX, $(MINGW_PREFIXES), \
          $(call bin_path, $(MINGW_PREFIX)-gcc))))
+    endif
+    ifndef CXX
+      CXX=$(firstword $(strip $(foreach MINGW_PREFIX, $(MINGW_PREFIXES), \
+         $(call bin_path, $(MINGW_PREFIX)-g++))))
     endif
 
     ifndef WINDRES
@@ -514,13 +521,20 @@ ifdef MINGW
       CC=gcc
     endif
 
+    ifeq ($(call bin_path, $(CXX)),)
+      CXX=g++
+    endif
+
     ifndef WINDRES
       WINDRES=windres
     endif
   endif
 
   ifeq ($(CC),)
-    $(error Cannot find a suitable cross compiler for $(PLATFORM))
+    $(error Cannot find a suitable cross compiler for $(PLATFORM) CC)
+  endif
+  ifeq ($(CXX),)
+    $(error Cannot find a suitable cross compiler for $(PLATFORM) CXX)
   endif
 
   BASE_CFLAGS = -Wall -fno-strict-aliasing -Wimplicit -Wstrict-prototypes \
@@ -528,6 +542,7 @@ ifdef MINGW
 
   # In the absence of wspiapi.h, require Windows XP or later
   ifeq ($(shell test -e $(CMDIR)/wspiapi.h; echo $$?),1)
+  	# FIXIT-L Update WINVER=_WIN32_WINNT_WIN7 (see https://msdn.microsoft.com/en-us/library/6sehtctf.aspx)
     BASE_CFLAGS += -DWINVER=0x501
   endif
 
@@ -542,11 +557,14 @@ ifdef MINGW
     OPTIMIZEVM = -O3
     OPTIMIZE = $(OPTIMIZEVM) -ffast-math
     HAVE_VM_COMPILED = true
+    BASE_CFLAGS += -m64
   endif
+
   ifeq ($(ARCH),x86)
-    OPTIMIZEVM = -O3 -march=i586
+    OPTIMIZEVM = -O3 -march=i686
     OPTIMIZE = $(OPTIMIZEVM) -ffast-math
     HAVE_VM_COMPILED = true
+    BASE_CFLAGS += -m32
   endif
 
   SHLIBEXT=dll
@@ -592,13 +610,6 @@ ifdef MINGW
     endif
   endif
 
-  ifeq ($(ARCH),x86)
-    # build 32bit
-    BASE_CFLAGS += -m32
-  else
-    BASE_CFLAGS += -m64
-  endif
-
   # libmingw32 must be linked before libSDLmain
   CLIENT_LIBS += -lmingw32
   RENDERER_LIBS += -lmingw32
@@ -606,19 +617,19 @@ ifdef MINGW
   ifeq ($(USE_LOCAL_HEADERS),1)
     CLIENT_CFLAGS += -I$(SDLHDIR)/include
     ifeq ($(ARCH), x86)
-    CLIENT_LIBS += $(LIBSDIR)/win32/libSDL2main.a \
-                      $(LIBSDIR)/win32/libSDL2.dll.a
-    RENDERER_LIBS += $(LIBSDIR)/win32/libSDL2main.a \
-                      $(LIBSDIR)/win32/libSDL2.dll.a
-    SDLDLL=SDL2.dll
-    CLIENT_EXTRA_FILES += $(LIBSDIR)/win32/SDL2.dll
+      CLIENT_LIBS += $(LIBSDIR)/win32/libSDL2main.a \
+                        $(LIBSDIR)/win32/libSDL2.dll.a
+      RENDERER_LIBS += $(LIBSDIR)/win32/libSDL2main.a \
+                        $(LIBSDIR)/win32/libSDL2.dll.a
+      SDLDLL=SDL2.dll
+      CLIENT_EXTRA_FILES += $(LIBSDIR)/win32/SDL2.dll
     else
-    CLIENT_LIBS += $(LIBSDIR)/win64/libSDL264main.a \
-                      $(LIBSDIR)/win64/libSDL264.dll.a
-    RENDERER_LIBS += $(LIBSDIR)/win64/libSDL264main.a \
-                      $(LIBSDIR)/win64/libSDL264.dll.a
-    SDLDLL=SDL264.dll
-    CLIENT_EXTRA_FILES += $(LIBSDIR)/win64/SDL264.dll
+      CLIENT_LIBS += $(LIBSDIR)/win64/libSDL264main.a \
+                        $(LIBSDIR)/win64/libSDL264.dll.a
+      RENDERER_LIBS += $(LIBSDIR)/win64/libSDL264main.a \
+                        $(LIBSDIR)/win64/libSDL264.dll.a
+      SDLDLL=SDL264.dll
+      CLIENT_EXTRA_FILES += $(LIBSDIR)/win64/SDL264.dll
     endif
   else
     CLIENT_CFLAGS += $(SDL_CFLAGS)

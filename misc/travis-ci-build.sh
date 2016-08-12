@@ -3,7 +3,7 @@
 failed=0;
 
 # Default Build
-(make clean debug release) || failed=1;
+(make -k V=1 clean debug release) || failed=1;
 
 if [ $failed -eq 1 ]; then
 	echo "Build failure.";
