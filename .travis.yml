@@ -1,15 +1,15 @@
 language: c
+branches:
+  only:
+    - /^blowfish-.*$/
 env:
   global:
-    - secure: "KVJv0WLpTVIPnO7dB45HOLXyQ2ToC68axKoh0Gt8+pjyX6UcDkf3Bh7ug1ZjAGSbn5CaiNnHaAQBb0n4xoOZmusnrZdr59H/GaxcCbyUW4dhPy9YNoKh+bWLUwlXb5R2z73Eh3mj7r+7YsI/XH5qmiw2BZOUv/Dwkt6ad1IuesVLf1u+DwoPVdnKUiHSF+17QN4knsTucahjkUY7HDlAmhLyxfN65x1zIvoD/uKKNg1k+Q/knC9gJ/VhBsuGznD3ZK7MIf+hRJEHISbOcGx9OIOIks1SXRYT8U4fXM/3Ahrw28ljtH6WC3+vgQZjxuRn1qkE50BjLCp3O8xiCalRT//15g0WQDTgQma2tuLKeqnxKn1rQe2wVF+ENizRiNYeIbYnOqxRJW2zXSqFRMSEEVf/ZX4z+AjEp1sY1vKuB9X30l9ZwQKCMpKJthXRu6zVt1B6+D0C8FTfN1lnhDohAWG4MdRFmHK00tWIyzmRjp5rcp82Ip1IckZis0fwK/yfAnXZDdGGSOOvr1C3aDzdD56/z1WgN4hxrrTewPuq/Sr4S2kOiJSyVL6qX1+PtjGMVEimhlCQA0ntxsXUKCd5hTy7RFeC2m1yWT3kQdm7V766BPTzshlVg7syjKNqXFNbVEOHvqbQi0q/GNqe5qzplCABA7ivhBA/Be07fId0VXs="
+    - secure: KVJv0WLpTVIPnO7dB45HOLXyQ2ToC68axKoh0Gt8+pjyX6UcDkf3Bh7ug1ZjAGSbn5CaiNnHaAQBb0n4xoOZmusnrZdr59H/GaxcCbyUW4dhPy9YNoKh+bWLUwlXb5R2z73Eh3mj7r+7YsI/XH5qmiw2BZOUv/Dwkt6ad1IuesVLf1u+DwoPVdnKUiHSF+17QN4knsTucahjkUY7HDlAmhLyxfN65x1zIvoD/uKKNg1k+Q/knC9gJ/VhBsuGznD3ZK7MIf+hRJEHISbOcGx9OIOIks1SXRYT8U4fXM/3Ahrw28ljtH6WC3+vgQZjxuRn1qkE50BjLCp3O8xiCalRT//15g0WQDTgQma2tuLKeqnxKn1rQe2wVF+ENizRiNYeIbYnOqxRJW2zXSqFRMSEEVf/ZX4z+AjEp1sY1vKuB9X30l9ZwQKCMpKJthXRu6zVt1B6+D0C8FTfN1lnhDohAWG4MdRFmHK00tWIyzmRjp5rcp82Ip1IckZis0fwK/yfAnXZDdGGSOOvr1C3aDzdD56/z1WgN4hxrrTewPuq/Sr4S2kOiJSyVL6qX1+PtjGMVEimhlCQA0ntxsXUKCd5hTy7RFeC2m1yWT3kQdm7V766BPTzshlVg7syjKNqXFNbVEOHvqbQi0q/GNqe5qzplCABA7ivhBA/Be07fId0VXs=
   matrix:
-    # standard builds
     - CXX=clang++ CC=gcc
     - CXX=clang++ CC=clang
-    # extra libs
     - CXX=clang++ CC=gcc USE_CODEC_VORBIS=1 USE_FREETYPE=1
     - CXX=clang++ CC=clang USE_CODEC_VORBIS=1 USE_FREETYPE=1
-    # cross-compile using mingw
     - CXX= CC= PLATFORM="mingw32" ARCH="x86"
     - CXX= CC= PLATFORM="mingw32" ARCH="x86_64"
 script: ./misc/travis-ci-build.sh
@@ -23,9 +23,17 @@ notifications:
 addons:
   coverity_scan:
     project:
-      name: "wtfbbqhax/tremulous"
-      description: "Build submitted via Travis CI"
+      name: wtfbbqhax/tremulous
+      description: Build submitted via Travis CI
     notification_email: blowfish+coverity@badsec.org
-    build_command_prepend: "make clean"
-    build_command: "make release"
-    branch_pattern: blowfish-alpha-1 
+    build_command_prepend: make clean
+    build_command: make release
+    branch_pattern: blowfish-alpha-1
+#deploy:
+#  provider: releases
+#  api_key:
+#    secure: tm8Ie0GVvv7Sdb4vxtewTWGJztrPMSrws9KoXNUHRenbnqujrFusFabef+2YDZbWq2+Ki85ey2SXvYiBWJs3FKVnePc/s2ax0JSVJCUvGntQC1PiD/+xcpWYzy9DACQtqXRdwRx2aURqpj6KXHJACtbo4dUa028xObcwAB1FmIi/SGafUzU0JdyJsggNhFmO+c4hk9Vo6uMXFBrXXhZbMAQT2dFvTqtwX+cWzbMHgCRIXLuevuOpq/oONL6RHQIgErzfLwrnyzbrNt/fftFttZm7blzIKzi4txpI0g5lHEAAgauoYRJngPDfDQtiN0bgTMQNuGhqgf52PKUAr4eZ4QZNn+t/tyLauqRPfPm+m9a7QOYLye34qDhjPt87vYnUUfpdwftCwd5UJs65b3CFNp+grARxU1bRld4DkcyOVKPH4pMQN1nP3FNpmyKNZdFOrq6iq7hrQ7xCfqnL5xuPVIqWJa3cE5qanQsIwHERgyDjEGkwCRjZofAqioCDzSCKBqnTkXVoBczLTm/I4xrsYCnbwfb5cKR3p910wR1IR4JxX2XjIn78vFAlKYr2BOModjLO3oQym76NBOmaf0LO8BP8kJi6q2CxuFGnbK7qlhn8CHJb9vLFh7ZJNeRiGkPSP2lf32xm/MnpFgNuNXGF3mRwxL9M/eKXRaL9feDouYM=
+#  file: ''
+#  on:
+#    repo: wtfbbqhax/tremulous
+#    tags: true
