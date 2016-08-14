@@ -1,21 +1,13 @@
-```
- _____                         _                    ____ ____  ____  
-|_   _| __ ___ _ __ ___  _   _| | ___  _   _ ___   / ___|  _ \|  _ \ 
-  | || '__/ _ \ '_ ` _ \| | | | |/ _ \| | | / __| | |  _| |_) | |_) |
-  | || | |  __/ | | | | | |_| | | (_) | |_| \__ \ | |_| |  __/|  __/ 
-  |_||_|  \___|_| |_| |_|\__,_|_|\___/ \__,_|___/  \____|_|   |_|    
-                                                                     
+# wtfbbqhax/tremulous
 
-```
 [![Build Status](https://travis-ci.org/wtfbbqhax/tremulous.svg?branch=blowfish-alpha-1)](https://travis-ci.org/wtfbbqhax/tremulous)
 [![Coverity Scan](https://img.shields.io/coverity/scan/9866.svg)](https://scan.coverity.com/projects/wtfbbqhax-tremulous)
 
----
-### Workspace for a Modern Tremulous Distribution
+# Where can I download?   
 
-Testing builds are comming soon. 
+The first stable milestone _YELLOW CYBORG_ will be available for download soon!  
 
-Development is done in 2 week sprint cycles; Test builds will be distributed after every cycle.
+See the open Issues targeted to _YELLOW CYBORG_ and track it's progress.
 
 ## Tasks by priority
 
