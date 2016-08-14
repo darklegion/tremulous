@@ -1,15 +1,14 @@
-#!/bin/sh
+#!/bin/bash
+PLATFORM=$(uname | sed -e 's/_.*//' | tr '[:upper:]' '[:lower:]' | sed -e 's/\//_/g')
+failed=0
 
-failed=0;
+(make -k lean release release-${PLATFORM}-${ARCH}.zip) || failed=1
 
-# Default Build
-(make -k V=1 clean debug release) || failed=1;
-
-if [ $failed -eq 1 ]; then
-	echo "Build failure.";
+if [[ $failed -eq 1 ]]; then
+	echo "Build failure."
 else
-	echo "Build successful.";
+	echo "Build successful."
 fi
 
-exit $failed;
+exit $failed
 

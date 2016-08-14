@@ -18,6 +18,8 @@ matrix:
       env: PLATFORM=mingw32 ARCH=x86
     - os: osx
       env: PLATFORM=mingw32 ARCH=x86_64
+    - os: osx
+      compiler: gcc
 env:
   global:
     - secure: KVJv0WLpTVIPnO7dB45HOLXyQ2ToC68axKoh0Gt8+pjyX6UcDkf3Bh7ug1ZjAGSbn5CaiNnHaAQBb0n4xoOZmusnrZdr59H/GaxcCbyUW4dhPy9YNoKh+bWLUwlXb5R2z73Eh3mj7r+7YsI/XH5qmiw2BZOUv/Dwkt6ad1IuesVLf1u+DwoPVdnKUiHSF+17QN4knsTucahjkUY7HDlAmhLyxfN65x1zIvoD/uKKNg1k+Q/knC9gJ/VhBsuGznD3ZK7MIf+hRJEHISbOcGx9OIOIks1SXRYT8U4fXM/3Ahrw28ljtH6WC3+vgQZjxuRn1qkE50BjLCp3O8xiCalRT//15g0WQDTgQma2tuLKeqnxKn1rQe2wVF+ENizRiNYeIbYnOqxRJW2zXSqFRMSEEVf/ZX4z+AjEp1sY1vKuB9X30l9ZwQKCMpKJthXRu6zVt1B6+D0C8FTfN1lnhDohAWG4MdRFmHK00tWIyzmRjp5rcp82Ip1IckZis0fwK/yfAnXZDdGGSOOvr1C3aDzdD56/z1WgN4hxrrTewPuq/Sr4S2kOiJSyVL6qX1+PtjGMVEimhlCQA0ntxsXUKCd5hTy7RFeC2m1yWT3kQdm7V766BPTzshlVg7syjKNqXFNbVEOHvqbQi0q/GNqe5qzplCABA7ivhBA/Be07fId0VXs=
@@ -36,7 +38,7 @@ addons:
     notification_email: blowfish+coverity@badsec.org
     build_command_prepend: make clean
     build_command: make release
-    branch_pattern: blowfish-alpha-1
+    branch_pattern: coverity_scan 
 deploy:
   provider: releases
   api_key:
