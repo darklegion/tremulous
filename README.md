@@ -1,7 +1,7 @@
 ![](https://github.com/wtfbbqhax/tremulous-art/blob/master/branding/tremulous-banner.jpg)
 
-[![Build Status](https://travis-ci.org/wtfbbqhax/tremulous.svg?branch=blowfish-alpha-1)](https://travis-ci.org/wtfbbqhax/tremulous)
-[![Coverity Scan](https://img.shields.io/coverity/scan/9866.svg)](https://scan.coverity.com/projects/wtfbbqhax-tremulous)
+[![Build Status](https://travis-ci.org/wtfbbqhax/tremulous.svg?branch=blowfish-alpha-1?maxAge=1800)](https://travis-ci.org/wtfbbqhax/tremulous)
+[![Coverity Scan](https://img.shields.io/coverity/scan/9866.svg?maxAge=3600)](https://scan.coverity.com/projects/wtfbbqhax-tremulous)
 
 # Where can I download?   
 
