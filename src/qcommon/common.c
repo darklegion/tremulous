@@ -86,7 +86,9 @@ cvar_t	*com_unfocused;
 cvar_t	*com_maxfpsUnfocused;
 cvar_t	*com_minimized;
 cvar_t	*com_maxfpsMinimized;
+#if !defined(DEDICATED) && !defined(DEBUG)
 cvar_t	*com_abnormalExit;
+#endif
 cvar_t	*com_standalone;
 cvar_t	*com_gamename;
 cvar_t	*com_protocol;
@@ -2632,7 +2634,9 @@ void Com_Init( char *commandLine ) {
 	com_maxfpsUnfocused = Cvar_Get( "com_maxfpsUnfocused", "0", CVAR_ARCHIVE );
 	com_minimized = Cvar_Get( "com_minimized", "0", CVAR_ROM );
 	com_maxfpsMinimized = Cvar_Get( "com_maxfpsMinimized", "0", CVAR_ARCHIVE );
+#if !defined(DEDICATED) && !defined(DEBUG)
 	com_abnormalExit = Cvar_Get( "com_abnormalExit", "0", CVAR_ROM );
+#endif
 	com_busyWait = Cvar_Get("com_busyWait", "0", CVAR_ARCHIVE);
 	Cvar_Get("com_errorMessage", "", CVAR_ROM | CVAR_NORESTART);
 
@@ -2648,7 +2652,7 @@ void Com_Init( char *commandLine ) {
 	Sys_Init();
 
 	if( Sys_WritePIDFile( ) ) {
-#ifndef DEDICATED
+#if !defined(DEDICATED) && !defined(DEBUG)
 		const char *message = "The last time " CLIENT_WINDOW_TITLE " ran, "
 			"it didn't exit properly. This may be due to inappropriate video "
 			"settings. Would you like to start with \"safe\" video settings?";
