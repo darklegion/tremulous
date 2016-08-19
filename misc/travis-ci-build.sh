@@ -1,5 +1,6 @@
 #!/bin/bash
-PLATFORM=$(uname | sed -e 's/_.*//' | tr '[:upper:]' '[:lower:]' | sed -e 's/\//_/g')
+P=$(uname | sed -e 's/_.*//' | tr '[:upper:]' '[:lower:]' | sed -e 's/\//_/g')
+PLATFORM=${PLATFORM:-$P}
 failed=0
 
 (make clean release) || failed=1
