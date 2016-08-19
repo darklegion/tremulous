@@ -64,6 +64,16 @@ matrix:
       - brew update
       - brew install freetype --universal
 
+deploy:
+    provider: releases
+    skip_cleanup: true
+    api_key:
+      secure: tm8Ie0GVvv7Sdb4vxtewTWGJztrPMSrws9KoXNUHRenbnqujrFusFabef+2YDZbWq2+Ki85ey2SXvYiBWJs3FKVnePc/s2ax0JSVJCUvGntQC1PiD/+xcpWYzy9DACQtqXRdwRx2aURqpj6KXHJACtbo4dUa028xObcwAB1FmIi/SGafUzU0JdyJsggNhFmO+c4hk9Vo6uMXFBrXXhZbMAQT2dFvTqtwX+cWzbMHgCRIXLuevuOpq/oONL6RHQIgErzfLwrnyzbrNt/fftFttZm7blzIKzi4txpI0g5lHEAAgauoYRJngPDfDQtiN0bgTMQNuGhqgf52PKUAr4eZ4QZNn+t/tyLauqRPfPm+m9a7QOYLye34qDhjPt87vYnUUfpdwftCwd5UJs65b3CFNp+grARxU1bRld4DkcyOVKPH4pMQN1nP3FNpmyKNZdFOrq6iq7hrQ7xCfqnL5xuPVIqWJa3cE5qanQsIwHERgyDjEGkwCRjZofAqioCDzSCKBqnTkXVoBczLTm/I4xrsYCnbwfb5cKR3p910wR1IR4JxX2XjIn78vFAlKYr2BOModjLO3oQym76NBOmaf0LO8BP8kJi6q2CxuFGnbK7qlhn8CHJb9vLFh7ZJNeRiGkPSP2lf32xm/MnpFgNuNXGF3mRwxL9M/eKXRaL9feDouYM=
+    on:
+      tags: true
+    file_glob: true
+    file: "build/*.zip"
+
 # _____ _   _  ____ _  __
 #|  ___| | | |/ ___| |/ /
 #| |_  | | | | |   | ' / 
