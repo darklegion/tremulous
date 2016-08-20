@@ -13,7 +13,6 @@ if [ $# == 0 ] || [ $# -gt 2 ]; then
 	echo "Optional architectures are:"
 	echo " x86"
 	echo " x86_64"
-	echo " ppc"
 	echo
 	exit 1
 fi
@@ -39,14 +38,11 @@ if [ "$2" != "" ]; then
 		CURRENT_ARCH="x86"
 	elif [ "$2" == "x86_64" ]; then
 		CURRENT_ARCH="x86_64"
-	elif [ "$2" == "ppc" ]; then
-		CURRENT_ARCH="ppc"
 	else
 		echo "Invalid architecture: $2"
 		echo "Valid architectures are:"
 		echo " x86"
 		echo " x86_64"
-		echo " ppc"
 		echo
 		exit 1
 	fi
@@ -77,7 +73,6 @@ function symlinkArch()
 
     IS32=`file "${SRCFILE}.${EXT}" | grep "i386"`
     IS64=`file "${SRCFILE}.${EXT}" | grep "x86_64"`
-    ISPPC=`file "${SRCFILE}.${EXT}" | grep "ppc"`
 
     if [ "${IS32}" != "" ]; then
         if [ ! -L "${DSTFILE}x86.${EXT}" ]; then
@@ -95,21 +90,12 @@ function symlinkArch()
         rm "${DSTFILE}x86_64.${EXT}"
     fi
 
-    if [ "${ISPPC}" != "" ]; then
-        if [ ! -L "${DSTFILE}ppc.${EXT}" ]; then
-            ln -s "${SRCFILE}.${EXT}" "${DSTFILE}ppc.${EXT}"
-        fi
-    elif [ -L "${DSTFILE}ppc.${EXT}" ]; then
-        rm "${DSTFILE}ppc.${EXT}"
-    fi
-
     popd > /dev/null
 }
 
 SEARCH_ARCHS=" \
 	x86 \
 	x86_64 \
-	ppc \
 "
 
 HAS_LIPO=`command -v lipo`
@@ -154,6 +140,9 @@ DEDICATED_NAME="tremded"
 CGAME_NAME="${CGAME}.dylib"
 GAME_NAME="${GAME}.dylib"
 UI_NAME="${UI}.dylib"
+
+GIT_REV=$(git show -s --pretty=format:%h-%ad --date=short)
+VMS_PK3="vms-${IOQ3_VERSION}-${GIT_REV}.pk3"
 
 RENDERER_OPENGL1_NAME="${RENDERER_OPENGL}1.dylib"
 RENDERER_OPENGL2_NAME="${RENDERER_OPENGL}2.dylib"
@@ -268,6 +257,7 @@ fi
 # copy and generate some application bundle resources
 cp src/libs/macosx/*.dylib ${BUILT_PRODUCTS_DIR}/${EXECUTABLE_FOLDER_PATH}
 cp ${ICNSDIR}/${ICNS} ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/$ICNS || exit 1;
+cp	"${BUILT_PRODUCTS_DIR}/${BASEDIR}/${VMS_PK3}" "${BUNDLEBINDIR}/${BASEDIR}/${VMS_PK3}"
 echo -n ${PKGINFO} > ${BUILT_PRODUCTS_DIR}/${CONTENTS_FOLDER_PATH}/PkgInfo || exit 1;
 echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 <!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
