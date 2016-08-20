@@ -823,7 +823,7 @@ ParseMesh
 ===============
 */
 static void ParseMesh ( dsurface_t *ds, drawVert_t *verts, float *hdrVertColors, msurface_t *surf ) {
-	srfBspSurface_t	*grid;
+	srfBspSurface_t	*grid = (srfBspSurface_t *)surf->data;
 	int				i, j;
 	int				width, height, numPoints;
 	srfVert_t points[MAX_PATCH_SIZE*MAX_PATCH_SIZE];
@@ -904,8 +904,7 @@ static void ParseMesh ( dsurface_t *ds, drawVert_t *verts, float *hdrVertColors,
 	}
 
 	// pre-tesseleate
-	grid = R_SubdividePatchToGrid( width, height, points );
-	surf->data = (surfaceType_t *)grid;
+	R_SubdividePatchToGrid( grid, width, height, points );
 
 	// copy the level of detail origin, which is the center
 	// of the group of all curves that must subdivide the same
@@ -918,6 +917,12 @@ static void ParseMesh ( dsurface_t *ds, drawVert_t *verts, float *hdrVertColors,
 	VectorScale( bounds[1], 0.5f, grid->lodOrigin );
 	VectorSubtract( bounds[0], grid->lodOrigin, tmpVec );
 	grid->lodRadius = VectorLength( tmpVec );
+
+	surf->cullinfo.type = CULLINFO_BOX | CULLINFO_SPHERE;
+	VectorCopy(grid->cullBounds[0], surf->cullinfo.bounds[0]);
+	VectorCopy(grid->cullBounds[1], surf->cullinfo.bounds[1]);
+	VectorCopy(grid->cullOrigin, surf->cullinfo.localOrigin);
+	surf->cullinfo.radius = grid->cullRadius;
 }
 
 /*
@@ -1078,6 +1083,8 @@ static void ParseFlare( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, int
 		flare->color[i] = LittleFloat( ds->lightmapVecs[0][i] );
 		flare->normal[i] = LittleFloat( ds->lightmapVecs[2][i] );
 	}
+
+	surf->cullinfo.type = CULLINFO_NONE;
 }
 
 
@@ -1322,7 +1329,7 @@ int R_StitchPatches( int grid1num, int grid2num ) {
 					// insert column into grid2 right after after column l
 					if (m) row = grid2->height-1;
 					else row = 0;
-					grid2 = R_GridInsertColumn( grid2, l+1, row,
+					R_GridInsertColumn( grid2, l+1, row,
 									grid1->verts[k + 1 + offset1].xyz, grid1->widthLodError[k+1]);
 					grid2->lodStitched = qfalse;
 					s_worldData.surfaces[grid2num].data = (void *) grid2;
@@ -1366,7 +1373,7 @@ int R_StitchPatches( int grid1num, int grid2num ) {
 					// insert row into grid2 right after after row l
 					if (m) column = grid2->width-1;
 					else column = 0;
-					grid2 = R_GridInsertRow( grid2, l+1, column,
+					R_GridInsertRow( grid2, l+1, column,
 										grid1->verts[k + 1 + offset1].xyz, grid1->widthLodError[k+1]);
 					grid2->lodStitched = qfalse;
 					s_worldData.surfaces[grid2num].data = (void *) grid2;
@@ -1419,7 +1426,7 @@ int R_StitchPatches( int grid1num, int grid2num ) {
 					// insert column into grid2 right after after column l
 					if (m) row = grid2->height-1;
 					else row = 0;
-					grid2 = R_GridInsertColumn( grid2, l+1, row,
+					R_GridInsertColumn( grid2, l+1, row,
 									grid1->verts[grid1->width * (k + 1) + offset1].xyz, grid1->heightLodError[k+1]);
 					grid2->lodStitched = qfalse;
 					s_worldData.surfaces[grid2num].data = (void *) grid2;
@@ -1463,7 +1470,7 @@ int R_StitchPatches( int grid1num, int grid2num ) {
 					// insert row into grid2 right after after row l
 					if (m) column = grid2->width-1;
 					else column = 0;
-					grid2 = R_GridInsertRow( grid2, l+1, column,
+					R_GridInsertRow( grid2, l+1, column,
 									grid1->verts[grid1->width * (k + 1) + offset1].xyz, grid1->heightLodError[k+1]);
 					grid2->lodStitched = qfalse;
 					s_worldData.surfaces[grid2num].data = (void *) grid2;
@@ -1517,7 +1524,7 @@ int R_StitchPatches( int grid1num, int grid2num ) {
 					// insert column into grid2 right after after column l
 					if (m) row = grid2->height-1;
 					else row = 0;
-					grid2 = R_GridInsertColumn( grid2, l+1, row,
+					R_GridInsertColumn( grid2, l+1, row,
 										grid1->verts[k - 1 + offset1].xyz, grid1->widthLodError[k+1]);
 					grid2->lodStitched = qfalse;
 					s_worldData.surfaces[grid2num].data = (void *) grid2;
@@ -1561,7 +1568,7 @@ int R_StitchPatches( int grid1num, int grid2num ) {
 					// insert row into grid2 right after after row l
 					if (m) column = grid2->width-1;
 					else column = 0;
-					grid2 = R_GridInsertRow( grid2, l+1, column,
+					R_GridInsertRow( grid2, l+1, column,
 										grid1->verts[k - 1 + offset1].xyz, grid1->widthLodError[k+1]);
 					if (!grid2)
 						break;
@@ -1616,7 +1623,7 @@ int R_StitchPatches( int grid1num, int grid2num ) {
 					// insert column into grid2 right after after column l
 					if (m) row = grid2->height-1;
 					else row = 0;
-					grid2 = R_GridInsertColumn( grid2, l+1, row,
+					R_GridInsertColumn( grid2, l+1, row,
 										grid1->verts[grid1->width * (k - 1) + offset1].xyz, grid1->heightLodError[k+1]);
 					grid2->lodStitched = qfalse;
 					s_worldData.surfaces[grid2num].data = (void *) grid2;
@@ -1660,7 +1667,7 @@ int R_StitchPatches( int grid1num, int grid2num ) {
 					// insert row into grid2 right after after row l
 					if (m) column = grid2->width-1;
 					else column = 0;
-					grid2 = R_GridInsertRow( grid2, l+1, column,
+					R_GridInsertRow( grid2, l+1, column,
 										grid1->verts[grid1->width * (k - 1) + offset1].xyz, grid1->heightLodError[k+1]);
 					grid2->lodStitched = qfalse;
 					s_worldData.surfaces[grid2num].data = (void *) grid2;
@@ -1750,37 +1757,37 @@ R_MovePatchSurfacesToHunk
 ===============
 */
 void R_MovePatchSurfacesToHunk(void) {
-	int i, size;
-	srfBspSurface_t *grid, *hunkgrid;
+	int i;
+	srfBspSurface_t *grid;
 
 	for ( i = 0; i < s_worldData.numsurfaces; i++ ) {
+		void *copyFrom;
 		//
 		grid = (srfBspSurface_t *) s_worldData.surfaces[i].data;
 		// if this surface is not a grid
 		if ( grid->surfaceType != SF_GRID )
 			continue;
 		//
-		size = sizeof(*grid);
-		hunkgrid = ri.Hunk_Alloc(size, h_low);
-		Com_Memcpy(hunkgrid, grid, size);
 
-		hunkgrid->widthLodError = ri.Hunk_Alloc( grid->width * 4, h_low );
-		Com_Memcpy( hunkgrid->widthLodError, grid->widthLodError, grid->width * 4 );
+		copyFrom = grid->widthLodError;
+		grid->widthLodError = ri.Hunk_Alloc( grid->width * 4, h_low );
+		Com_Memcpy(grid->widthLodError, copyFrom, grid->width * 4);
+		ri.Free(copyFrom);
 
-		hunkgrid->heightLodError = ri.Hunk_Alloc( grid->height * 4, h_low );
-		Com_Memcpy( hunkgrid->heightLodError, grid->heightLodError, grid->height * 4 );
+		copyFrom = grid->heightLodError;
+		grid->heightLodError = ri.Hunk_Alloc(grid->height * 4, h_low);
+		Com_Memcpy(grid->heightLodError, copyFrom, grid->height * 4);
+		ri.Free(copyFrom);
 
-		hunkgrid->numIndexes = grid->numIndexes;
-		hunkgrid->indexes = ri.Hunk_Alloc(grid->numIndexes * sizeof(glIndex_t), h_low);
-		Com_Memcpy(hunkgrid->indexes, grid->indexes, grid->numIndexes * sizeof(glIndex_t));
+		copyFrom = grid->indexes;
+		grid->indexes = ri.Hunk_Alloc(grid->numIndexes * sizeof(glIndex_t), h_low);
+		Com_Memcpy(grid->indexes, copyFrom, grid->numIndexes * sizeof(glIndex_t));
+		ri.Free(copyFrom);
 
-		hunkgrid->numVerts = grid->numVerts;
-		hunkgrid->verts = ri.Hunk_Alloc(grid->numVerts * sizeof(srfVert_t), h_low);
-		Com_Memcpy(hunkgrid->verts, grid->verts, grid->numVerts * sizeof(srfVert_t));
-
-		R_FreeSurfaceGridMesh( grid );
-
-		s_worldData.surfaces[i].data = (void *) hunkgrid;
+		copyFrom = grid->verts;
+		grid->verts = ri.Hunk_Alloc(grid->numVerts * sizeof(srfVert_t), h_low);
+		Com_Memcpy(grid->verts, copyFrom, grid->numVerts * sizeof(srfVert_t));
+		ri.Free(copyFrom);
 	}
 }
 
@@ -2277,7 +2284,7 @@ static	void R_LoadSurfaces( lump_t *surfs, lump_t *verts, lump_t *indexLump ) {
 	for ( i = 0 ; i < count ; i++, in++, out++ ) {
 		switch ( LittleLong( in->surfaceType ) ) {
 			case MST_PATCH:
-				// FIXME: do this
+				out->data = ri.Hunk_Alloc( sizeof(srfBspSurface_t), h_low);
 				break;
 			case MST_TRIANGLE_SOUP:
 				out->data = ri.Hunk_Alloc( sizeof(srfBspSurface_t), h_low);
@@ -2299,15 +2306,6 @@ static	void R_LoadSurfaces( lump_t *surfs, lump_t *verts, lump_t *indexLump ) {
 		switch ( LittleLong( in->surfaceType ) ) {
 		case MST_PATCH:
 			ParseMesh ( in, dv, hdrVertColors, out );
-			{
-				srfBspSurface_t *surface = (srfBspSurface_t *)out->data;
-
-				out->cullinfo.type = CULLINFO_BOX | CULLINFO_SPHERE;
-				VectorCopy(surface->cullBounds[0], out->cullinfo.bounds[0]);
-				VectorCopy(surface->cullBounds[1], out->cullinfo.bounds[1]);
-				VectorCopy(surface->cullOrigin, out->cullinfo.localOrigin);
-				out->cullinfo.radius = surface->cullRadius;
-			}
 			numMeshes++;
 			break;
 		case MST_TRIANGLE_SOUP:
@@ -2320,9 +2318,6 @@ static	void R_LoadSurfaces( lump_t *surfs, lump_t *verts, lump_t *indexLump ) {
 			break;
 		case MST_FLARE:
 			ParseFlare( in, dv, out, indexes );
-			{
-				out->cullinfo.type = CULLINFO_NONE;
-			}
 			numFlares++;
 			break;
 		default:
@@ -3533,7 +3528,7 @@ void RE_LoadWorldMap( const char *name ) {
 	R_BindNullVao();
 
 	// Render or load all cubemaps
-	if (r_cubeMapping->integer && tr.numCubemaps)
+	if (r_cubeMapping->integer && tr.numCubemaps && glRefConfig.framebufferObject)
 	{
 		R_LoadCubemaps();
 		R_RenderMissingCubemaps();
