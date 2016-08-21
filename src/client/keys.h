@@ -20,6 +20,9 @@ along with Tremulous; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+#ifndef _KEYS_H_
+#define _KEYS_H_
+
 #include "keycodes.h"
 
 typedef struct {
@@ -56,3 +59,5 @@ void Key_ClearStates( void );
 int Key_GetKey(const char *binding);
 void Key_KeynumToStringBuf( int keynum, char *buf, int buflen );
 void Key_GetBindingBuf( int keynum, char *buf, int buflen );
+
+#endif

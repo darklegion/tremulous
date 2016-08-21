@@ -20,6 +20,12 @@ along with Tremulous; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+#ifndef _SYS_LOCAL_H_
+#define _SYS_LOCAL_H_
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
@@ -59,3 +65,8 @@ void Sys_AnsiColorPrint( const char *msg );
 
 int Sys_PID( void );
 qboolean Sys_PIDIsRunning( int pid );
+
+#ifdef __cplusplus
+};
+#endif
+#endif

@@ -21,6 +21,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+#ifndef _BG_PUBLIC_H_
+#define _BG_PUBLIC_H_
+
 // bg_public.h -- definitions shared by both the server game and client game modules
 
 //tremulous balance header
@@ -1312,3 +1315,5 @@ typedef struct
   const char *name;
 } dummyCmd_t;
 int cmdcmp( const void *a, const void *b );
+
+#endif

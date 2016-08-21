@@ -24,6 +24,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef _QCOMMON_H_
 #define _QCOMMON_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "../qcommon/cm_public.h"
 
 //Ignore __attribute__ on non-gcc platforms
@@ -753,8 +757,13 @@ MISC
 */
 
 // returned by Sys_GetProcessorFeatures
-typedef enum
-{
+#ifdef __cplusplus
+using cpuFeatures_t = int;
+#else
+typedef int cpuFeatures_t;
+#endif
+enum {
+  CF_NONE       = 0,
   CF_RDTSC      = 1 << 0,
   CF_MMX        = 1 << 1,
   CF_MMX_EXT    = 1 << 2,
@@ -763,7 +772,7 @@ typedef enum
   CF_SSE        = 1 << 5,
   CF_SSE2       = 1 << 6,
   CF_ALTIVEC    = 1 << 7
-} cpuFeatures_t;
+};
 
 // centralized and cleaned, that's the max string you can send to a Com_Printf / Com_DPrintf (above gets truncated)
 #define	MAXPRINTMSG	4096
@@ -1185,4 +1194,7 @@ int		Parse_SourceFileAndLine(int handle, char *filename, int *line);
 #define DLF_NO_UDP 4
 #define DLF_NO_DISCONNECT 8
 
+#ifdef __cplusplus
+};
+#endif
 #endif // _QCOMMON_H_

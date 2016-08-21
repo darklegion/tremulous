@@ -20,6 +20,12 @@ along with Tremulous; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+#ifndef _CM_PUBLIC_H_
+#define _CM_PUBLIC_H_
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "qfiles.h"
 
@@ -73,3 +79,8 @@ int			CM_WriteAreaBits( byte *buffer, int area );
 
 // cm_patch.c
 void CM_DrawDebugSurface( void (*drawPoly)(int color, int numPoints, float *points) );
+
+#ifdef __cplusplus
+};
+#endif
+#endif

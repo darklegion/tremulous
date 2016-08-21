@@ -164,7 +164,11 @@ typedef int intptr_t;
 
 typedef unsigned char 		byte;
 
+#ifdef __cplusplus
+enum qboolean : int {qfalse, qtrue};
+#else
 typedef enum {qfalse, qtrue}	qboolean;
+#endif
 
 typedef union {
 	float f;

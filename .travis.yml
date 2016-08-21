@@ -16,7 +16,7 @@ notifications:
 matrix:
   include: 
     - os: linux
-      env: PLATFORM=mingw32 ARCH=x86_64
+      env: USE_LUAJIT=1 PLATFORM=mingw32 ARCH=x86_64
       compiler: gcc
       before_install:
       - sudo apt-add-repository ppa:zoogie/sdl2-snapshots -y
@@ -32,9 +32,10 @@ matrix:
           - mingw-w64
           - g++-mingw-w64
           - g++-multilib
+          - luajit
 
     - os: linux
-      env: USE_CODEC_VORBIS=1 USE_FREETYPE=1 ARCH=x86_64
+      env: USE_LUAJIT=1 USE_CODEC_VORBIS=1 USE_FREETYPE=1 ARCH=x86_64
       compiler: gcc
       addons:
         apt:
@@ -47,22 +48,25 @@ matrix:
           - libgl1-mesa-dev
           - libsdl2-dev
           - libfreetype6-dev
+          - luajit
 
     - os: osx
       osx_image: xcode7
       compiler: clang
-      env: USE_CODEC_VORBIS=1 USE_FREETYPE=1 ARCH=x86_64
+      env: USE_LUAJIT=1 USE_CODEC_VORBIS=1 USE_FREETYPE=1 ARCH=x86_64
       before_install:
       - brew update
       - brew install freetype --universal
+      - brew install luajit --with-52compat --universal
 
     - os: osx
       osx_image: xcode7
       compiler: clang 
-      env: USE_CODEC_VORBIS=1 USE_FREETYPE=1 ARCH=x86
+      env: USE_LUAJIT=1 USE_CODEC_VORBIS=1 USE_FREETYPE=1 ARCH=x86
       before_install:
       - brew update
       - brew install freetype --universal
+      - brew install luajit --with-52compat --universal
 
 deploy:
     provider: releases

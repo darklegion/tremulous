@@ -973,6 +973,11 @@ ifeq ($(USE_VOIP),1)
   NEED_OPUS=1
 endif
 
+ifeq ($(USE_LUAJIT),1)
+  CLIENT_CFLAGS += $(shell pkg-config --silence-errors --cflags luajit)
+  CLIENT_LIBS += $(shell pkg-config --silence-errors --libs luajit)
+endif
+
 ifeq ($(USE_CODEC_OPUS),1)
   CLIENT_CFLAGS += -DUSE_CODEC_OPUS
   NEED_OPUS=1
@@ -1102,7 +1107,7 @@ endef
 
 define DO_CXX
 $(echo_cmd) "CXX $<"
-$(Q)$(CXX) -std=c++11 -stdlib=libc++ $(DEBUG_CFLAGS) $(NOTSHLIBCFLAGS) $(CFLAGS) $(CLIENT_CFLAGS) $(OPTIMIZE) -o $@ -c $<
+$(Q)$(CXX) -std=c++14 -stdlib=libc++ $(DEBUG_CFLAGS) $(NOTSHLIBCFLAGS) $(CFLAGS) $(CLIENT_CFLAGS) $(OPTIMIZE) -o $@ -c $<
 endef
 
 define DO_REF_CC
@@ -1158,7 +1163,7 @@ endef
 
 define DO_DED_CXX
 $(echo_cmd) "DED_CXX $<"
-$(Q)$(CXX) -std=c++11 -stdlib=libc++ $(DEBUG_CFLAGS) $(NOTSHLIBCFLAGS) -DDEDICATED $(CFLAGS) $(SERVER_CFLAGS) $(OPTIMIZE) -o $@ -c $<
+$(Q)$(CXX) -std=c++14 -stdlib=libc++ $(DEBUG_CFLAGS) $(NOTSHLIBCFLAGS) -DDEDICATED $(CFLAGS) $(SERVER_CFLAGS) $(OPTIMIZE) -o $@ -c $<
 endef
 
 define DO_WINDRES
@@ -1974,9 +1979,14 @@ endif
 ifneq ($(USE_RENDERER_DLOPEN),0)
 $(B)/$(CLIENTBIN)$(FULLBINEXT): $(Q3OBJ) $(LIBSDLMAIN)
 	$(echo_cmd) "LD $@"
-	$(Q)$(CXX) $(CLIENT_CFLAGS) $(CFLAGS) $(CLIENT_LDFLAGS) $(LDFLAGS) \
-		-o $@ $(Q3OBJ) \
-		$(LIBSDLMAIN) $(CLIENT_LIBS) $(LIBS)
+	@echo "CLIENT_CFLAGS  $(CLIENT_CFLAGS)"
+	@echo "CFLAGS 	      $(CFLAGS)"
+	@echo "CLIENT_LDFLAGS $(CLIENT_LDFLAGS)"
+	@echo "LDFLAGS        $(LDFLAGS)"
+	@echo "LIBSDLMAIN     $(LIBSDLMAIN)"
+	@echo "CLIENT_LIBS    $(CLIENT_LIBS)"
+	@echo "LIBS        	  $(LIBS)"
+	$(Q)$(CXX) $(CLIENT_LIBS) $(CLIENT_LDFLAGS) $(LDFLAGS) $(LIBSDLMAIN) $(LIBS) -o $@ $(Q3OBJ)
 
 $(B)/renderer_opengl1_$(SHLIBNAME): $(Q3ROBJ) $(JPGOBJ)
 	$(echo_cmd) "LD $@"
@@ -2264,6 +2274,9 @@ $(B)/client/%.o: $(CDIR)/%.c
 $(B)/client/%.o: $(SDIR)/%.c
 	$(DO_CC)
 
+$(B)/client/%.o: $(CDIR)/%.cpp
+	$(DO_CXX)
+
 $(B)/client/%.o: $(SDIR)/%.cpp
 	$(DO_CXX)
 
@@ -2302,6 +2315,9 @@ $(B)/client/%.o: $(SDLDIR)/%.c
 
 $(B)/client/%.o: $(SYSDIR)/%.c
 	$(DO_CC)
+
+$(B)/client/%.o: $(SYSDIR)/%.cpp
+	$(DO_CXX)
 
 $(B)/client/%.o: $(SYSDIR)/%.m
 	$(DO_CC)
@@ -2359,6 +2375,9 @@ $(B)/ded/%.o: $(ZDIR)/%.c
 
 $(B)/ded/%.o: $(SYSDIR)/%.c
 	$(DO_DED_CC)
+
+$(B)/ded/%.o: $(SYSDIR)/%.cpp
+	$(DO_DED_CXX)
 
 $(B)/ded/%.o: $(SYSDIR)/%.m
 	$(DO_DED_CC)

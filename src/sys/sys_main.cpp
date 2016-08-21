@@ -21,6 +21,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+#include <iostream>
+#include "../sol-v2.11.5/sol.hpp"
+
 #include <signal.h>
 #include <stdlib.h>
 #include <limits.h>
@@ -47,6 +50,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
+
+sol::state lua;
 
 static char binaryPath[ MAX_OSPATH ] = { 0 };
 static char installPath[ MAX_OSPATH ] = { 0 };
@@ -145,7 +150,7 @@ char *Sys_GetClipboardData(void)
 		if ( cliptext[0] != '\0' ) {
 			size_t bufsize = strlen( cliptext ) + 1;
 
-			data = Z_Malloc( bufsize );
+			data = (char*)Z_Malloc( bufsize );
 			Q_strncpyz( data, cliptext, bufsize );
 
 			// find first listed char and set to '\0'
@@ -168,14 +173,19 @@ char *Sys_GetClipboardData(void)
 Sys_PIDFileName
 =================
 */
-static char *Sys_PIDFileName( void )
+static std::string Sys_PIDFileName( void )
 {
 	const char *homePath = Cvar_VariableString( "fs_homepath" );
+    std::string pidfile;
 
 	if( *homePath != '\0' )
-		return va( "%s/%s", homePath, PID_FILENAME );
+    {
+        pidfile += homePath;
+        pidfile += "/";
+        pidfile += PID_FILENAME;
+    }
 
-	return NULL;
+	return pidfile;
 }
 
 /*
@@ -187,8 +197,8 @@ Return qtrue if there is an existing stale PID file
 */
 qboolean Sys_WritePIDFile( void )
 {
-	char      *pidFile = Sys_PIDFileName( );
-	FILE      *f;
+	const char *pidFile = Sys_PIDFileName( ).c_str();
+	FILE *f;
 	qboolean  stale = qfalse;
 
 	if( pidFile == NULL )
@@ -242,7 +252,7 @@ static __attribute__ ((noreturn)) void Sys_Exit( int exitCode )
 	if( exitCode < 2 )
 	{
 		// Normal exit
-		char *pidFile = Sys_PIDFileName( );
+	    const char *pidFile = Sys_PIDFileName( ).c_str();
 
 		if( pidFile != NULL )
 			remove( pidFile );
@@ -272,7 +282,7 @@ Sys_GetProcessorFeatures
 */
 cpuFeatures_t Sys_GetProcessorFeatures( void )
 {
-	cpuFeatures_t features = 0;
+	cpuFeatures_t features = CF_NONE;
 
 #ifndef DEDICATED
 	if( SDL_HasRDTSC( ) )      features |= CF_RDTSC;
@@ -286,6 +296,11 @@ cpuFeatures_t Sys_GetProcessorFeatures( void )
 	return features;
 }
 
+void Sys_Script_f( void )
+{
+    std::string args = Cmd_Args();
+    lua.script(args);
+}
 /*
 =================
 Sys_Init
@@ -294,6 +309,7 @@ Sys_Init
 void Sys_Init(void)
 {
 	Cmd_AddCommand( "in_restart", Sys_In_Restart_f );
+    Cmd_AddCommand( "script", Sys_Script_f );
 	Cvar_Set( "arch", OS_STRING " " ARCH_STRING );
 	Cvar_Set( "username", Sys_GetCurrentUser( ) );
 }
@@ -507,12 +523,13 @@ Sys_LoadGameDll
 Used to load a development dll instead of a virtual machine
 =================
 */
-void *Sys_LoadGameDll(const char *name,
-	intptr_t (QDECL **entryPoint)(int, ...),
-	intptr_t (*systemcalls)(intptr_t, ...))
+using Entry = void (*)(intptr_t (*syscallptr)(intptr_t, ...));
+using EntryPoint = intptr_t (QDECL *)(int, ...);
+using SysCalls = intptr_t (*)(intptr_t, ...);
+
+void *Sys_LoadGameDll(const char *name, EntryPoint* entryPoint, SysCalls systemcalls)
 {
 	void *libHandle;
-	void (*dllEntry)(intptr_t (*syscallptr)(intptr_t, ...));
 
 	assert(name);
 
@@ -525,19 +542,18 @@ void *Sys_LoadGameDll(const char *name,
 		return NULL;
 	}
 
-	dllEntry = Sys_LoadFunction( libHandle, "dllEntry" );
-	*entryPoint = Sys_LoadFunction( libHandle, "vmMain" );
+	Entry entry = (Entry)Sys_LoadFunction( libHandle, "dllEntry" );
+	*entryPoint = (EntryPoint)Sys_LoadFunction( libHandle, "vmMain" );
 
-	if ( !*entryPoint || !dllEntry )
+	if ( !*entryPoint || !entry )
 	{
 		Com_Printf ( "Sys_LoadGameDll(%s) failed to find vmMain function:\n\"%s\" !\n", name, Sys_LibraryError( ) );
 		Sys_UnloadLibrary(libHandle);
-
 		return NULL;
 	}
 
 	Com_Printf ( "Sys_LoadGameDll(%s) found vmMain function at %p\n", name, *entryPoint );
-	dllEntry( systemcalls );
+	entry( systemcalls );
 
 	return libHandle;
 }
@@ -594,7 +610,7 @@ void Sys_SigHandler( int signal )
 #ifndef DEDICATED
 		CL_Shutdown(va("Received signal %d", signal), qtrue, qtrue);
 #endif
-		SV_Shutdown(va("Received signal %d", signal) );
+		SV_Shutdown("Recieved signal");
 		VM_Forced_Unload_Done();
 	}
 
@@ -660,7 +676,7 @@ int main( int argc, char **argv )
 	// Concatenate the command line for passing to Com_Init
 	for( i = 1; i < argc; i++ )
 	{
-		const qboolean containsSpaces = strchr(argv[i], ' ') != NULL;
+		const qboolean containsSpaces = strchr(argv[i], ' ') ? qtrue : qfalse;
 		if (containsSpaces)
 			Q_strcat( commandLine, sizeof( commandLine ), "\"" );
 
@@ -682,6 +698,10 @@ int main( int argc, char **argv )
 	signal( SIGSEGV, Sys_SigHandler );
 	signal( SIGTERM, Sys_SigHandler );
 	signal( SIGINT, Sys_SigHandler );
+
+    lua.create_named_table("console",
+            "log", Com_Printf
+            );
 
 	while( 1 )
 	{

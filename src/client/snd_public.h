@@ -21,6 +21,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+#ifndef _SND_PUBLIC_H_
+#define _SND_PUBLIC_H_
 
 void S_Init( void );
 void S_Shutdown( void );
@@ -82,4 +84,4 @@ void S_Capture( int samples, byte *data );
 void S_StopCapture( void );
 void S_MasterGain( float gain );
 #endif
-
+#endif
