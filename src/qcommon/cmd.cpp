@@ -111,6 +111,37 @@ Adds command text immediately after the current command
 Adds a \n to the text
 ============
 */
+void Cbuf_InsertFmtText( const char *fmt, ... ) {
+	int		len;
+	int		i;
+
+	char text[MAXPRINTMSG];
+
+    va_list args;
+    va_start(args, fmt);
+    Q_vsnprintf(text, sizeof(text), fmt, args);
+    va_end(args);
+
+	len = strlen( text ) + 1;
+	if ( len + cmd_text.cursize > cmd_text.maxsize ) {
+		Com_Printf( "Cbuf_InsertText overflowed\n" );
+		return;
+	}
+
+	// move the existing command text
+	for ( i = cmd_text.cursize - 1 ; i >= 0 ; i-- ) {
+		cmd_text.data[ i + len ] = cmd_text.data[ i ];
+	}
+
+	// copy the new text in
+	Com_Memcpy( cmd_text.data, text, len - 1 );
+
+	// add a \n
+	cmd_text.data[ len - 1 ] = '\n';
+
+	cmd_text.cursize += len;
+}
+
 void Cbuf_InsertText( const char *text ) {
 	int		len;
 	int		i;
@@ -134,7 +165,6 @@ void Cbuf_InsertText( const char *text ) {
 
 	cmd_text.cursize += len;
 }
-
 
 /*
 ============
@@ -266,7 +296,7 @@ Cmd_Exec_f
 ===============
 */
 void Cmd_Exec_f( void ) {
-	qboolean quiet;
+	bool quiet;
 	union {
 		char	*c;
 		void	*v;
@@ -307,13 +337,13 @@ Inserts the current value of a variable as command text
 void Cmd_Vstr_f( void ) {
 	char	*v;
 
-	if (Cmd_Argc () != 2) {
+	if (Cmd_Argc() != 2) {
 		Com_Printf ("vstr <variablename> : execute a variable command\n");
 		return;
 	}
 
 	v = Cvar_VariableString( Cmd_Argv( 1 ) );
-	Cbuf_InsertText( va("%s\n", v ) );
+	Cbuf_InsertFmtText( "%s\n", v );
 }
 
 
@@ -338,13 +368,13 @@ void Cmd_Echo_f (void)
 =============================================================================
 */
 
-typedef struct cmd_function_s
+struct cmd_function_t
 {
-	struct cmd_function_s	*next;
-	char					*name;
-	xcommand_t				function;
-	completionFunc_t	complete;
-} cmd_function_t;
+	cmd_function_t	*next;
+	char			*name;
+	xcommand_t		function;
+	completionFunc_t complete;
+};
 
 
 typedef struct cmdContext_s
@@ -395,7 +425,7 @@ Cmd_Argv
 */
 char	*Cmd_Argv( int arg ) {
 	if ( (unsigned)arg >= cmd.argc ) {
-		return "";
+		return (char*)"\0";
 	}
 	return cmd.argv[arg];	
 }
@@ -687,7 +717,8 @@ void	Cmd_AddCommand( const char *cmd_name, xcommand_t function ) {
 	}
 
 	// use a small malloc to avoid zone fragmentation
-	cmd = S_Malloc (sizeof(cmd_function_t));
+	//cmd = (cmd_function_t*) S_Malloc(sizeof(cmd_function_t));
+	cmd = new cmd_function_t;
 	cmd->name = CopyString( cmd_name );
 	cmd->function = function;
 	cmd->complete = NULL;

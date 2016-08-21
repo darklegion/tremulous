@@ -1115,6 +1115,11 @@ $(echo_cmd) "REF_CC $<"
 $(Q)$(CC) $(SHLIBCFLAGS) $(CFLAGS) $(CLIENT_CFLAGS) $(OPTIMIZE) -o $@ -c $<
 endef
 
+define DO_REF_CXX
+$(echo_cmd) "REF_CXX $<"
+$(Q)$(CXX) $(SHLIBCFLAGS) $(CFLAGS) $(CLIENT_CFLAGS) $(OPTIMIZE) -o $@ -c $<
+endef
+
 define DO_REF_STR
 $(echo_cmd) "REF_STR $<"
 $(Q)rm -f $@
@@ -2274,14 +2279,17 @@ $(B)/client/%.o: $(CDIR)/%.c
 $(B)/client/%.o: $(SDIR)/%.c
 	$(DO_CC)
 
+$(B)/client/%.o: $(CMDIR)/%.c
+	$(DO_CC)
+
 $(B)/client/%.o: $(CDIR)/%.cpp
 	$(DO_CXX)
 
 $(B)/client/%.o: $(SDIR)/%.cpp
 	$(DO_CXX)
 
-$(B)/client/%.o: $(CMDIR)/%.c
-	$(DO_CC)
+$(B)/client/%.o: $(CMDIR)/%.cpp
+	$(DO_CXX)
 
 $(B)/client/%.o: $(SPEEXDIR)/%.c
 	$(DO_CC)
@@ -2329,6 +2337,12 @@ $(B)/client/%.o: $(SYSDIR)/%.rc
 $(B)/renderergl1/%.o: $(CMDIR)/%.c
 	$(DO_REF_CC)
 
+$(B)/renderergl1/%.o: $(CMDIR)/%.c
+	$(DO_REF_CC)
+
+$(B)/renderergl1/%.o: $(CMDIR)/%.cpp
+	$(DO_REF_CXX)
+
 $(B)/renderergl1/%.o: $(SDLDIR)/%.c
 	$(DO_REF_CC)
 
@@ -2369,6 +2383,9 @@ $(B)/ded/%.o: $(SDIR)/%.cpp
 
 $(B)/ded/%.o: $(CMDIR)/%.c
 	$(DO_DED_CC)
+
+$(B)/ded/%.o: $(CMDIR)/%.cpp
+	$(DO_DED_CXX)
 
 $(B)/ded/%.o: $(ZDIR)/%.c
 	$(DO_DED_CC)
