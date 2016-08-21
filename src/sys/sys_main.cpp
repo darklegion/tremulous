@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <string.h>
 #include <ctype.h>
 #include <errno.h>
+#include <setjmp.h>
 
 #ifndef DEDICATED
 #ifdef USE_LOCAL_HEADERS
@@ -52,6 +53,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/qcommon.h"
 
 sol::state lua;
+jmp_buf nodie;
 
 static char binaryPath[ MAX_OSPATH ] = { 0 };
 static char installPath[ MAX_OSPATH ] = { 0 };
@@ -296,8 +298,21 @@ cpuFeatures_t Sys_GetProcessorFeatures( void )
 	return features;
 }
 
+int script_panic_func( lua_State* L )
+{
+    const char* message = lua_tostring(L, -1);
+    const char* err = message
+                    ? message 
+                    : "An unexpected error occurred and forced the lua state to call atpanic";
+    Com_Printf("^3script: %s\n", err);
+    longjmp(nodie, -1);
+}
+
 void Sys_Script_f( void )
 {
+	if ( setjmp(nodie) )
+		return;
+
     std::string args = Cmd_Args();
     lua.script(args);
 }
@@ -699,9 +714,15 @@ int main( int argc, char **argv )
 	signal( SIGTERM, Sys_SigHandler );
 	signal( SIGINT, Sys_SigHandler );
 
-    lua.create_named_table("console",
-            "log", Com_Printf
-            );
+    sol::state lua(script_panic_func);
+    lua.open_libraries(sol::lib::base, sol::lib::package);
+    lua.create_named_table("console", "log", Com_Printf);
+
+    lua.create_named_table("cvar", "string", 
+            [](char*name) -> std::shared_ptr<char*> {
+            return std::make_shared<char*>(Cvar_VariableString(name));
+            } 
+        );
 
 	while( 1 )
 	{

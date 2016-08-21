@@ -762,7 +762,7 @@ void	Cmd_RemoveCommand( const char *cmd_name ) {
 			if (cmd->name) {
 				Z_Free(cmd->name);
 			}
-			Z_Free (cmd);
+			delete cmd;
 			return;
 		}
 		back = &cmd->next;

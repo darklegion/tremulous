@@ -17,11 +17,12 @@
 #include "client.h"
 
 #include "../sol-v2.11.5/sol.hpp"
-#include "module.hpp"
 
 // The global lua state
-sol::state lua;
+extern sol::state* glua;
 
+#if 0
+#include "module.hpp"
 class LuaModule : public Module
 {
 public:
@@ -47,3 +48,4 @@ bool LuaModule::end()
     lua.script(R"(print "LuaModule::end")");
     return true;
 }
+#endif
