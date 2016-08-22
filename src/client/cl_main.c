@@ -1095,8 +1095,6 @@ void CL_PlayDemo_f( void ) {
 	}
 	Q_strncpyz( clc.demoName, arg, sizeof( clc.demoName ) );
 
-	Con_Close();
-
 	clc.state = CA_CONNECTED;
 	clc.demoplaying = qtrue;
 	Q_strncpyz( clc.servername, arg, sizeof( clc.servername ) );
@@ -1121,7 +1119,7 @@ Closing the main menu will restart the demo loop
 void CL_StartDemoLoop( void ) {
 	// start the demo loop again
 	Cbuf_AddText ("d1\n");
-	Key_SetCatcher( 0 );
+	Key_SetCatcher( Key_GetCatcher() & KEYCATCH_CONSOLE );
 }
 
 /*
@@ -1292,8 +1290,7 @@ void CL_MapLoading( void ) {
 		return;
 	}
 
-	Con_Close();
-	Key_SetCatcher( 0 );
+	Key_SetCatcher( Key_GetCatcher() & KEYCATCH_CONSOLE );
 
 	// if we are already connected to the local host, stay connected
 	if ( clc.state >= CA_CONNECTED && !Q_stricmp( clc.servername, "localhost" ) ) {
@@ -1657,7 +1654,6 @@ void CL_Connect_f( void ) {
 
 	noGameRestart = qtrue;
 	CL_Disconnect( qtrue );
-	Con_Close();
 
 	Q_strncpyz( clc.servername, server, sizeof(clc.servername) );
 
@@ -1691,7 +1687,7 @@ void CL_Connect_f( void ) {
 		clc.challenge = ((rand() << 16) ^ rand()) ^ Com_Milliseconds();
 	}
 
-	Key_SetCatcher( 0 );
+	Key_SetCatcher( Key_GetCatcher() & KEYCATCH_CONSOLE );
 	clc.connectTime = -99999;	// CL_CheckForResend() will fire immediately
 	clc.connectPacketCount = 0;
 

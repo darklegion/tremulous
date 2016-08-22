@@ -314,12 +314,15 @@ Con_Linefeed
 */
 void Con_Linefeed (qboolean skipnotify)
 {
-	int		i;
+	int	i;
 
 	con.x = 0;
+
 	if (con.display == con.current)
 		con.display++;
+
 	con.current++;
+
 	for(i=0; i<con.linewidth; i++)
 		con.text[(con.current%con.totallines)*con.linewidth+i] = (ColorIndex(COLOR_WHITE)<<8) | ' ';
 }
@@ -361,7 +364,8 @@ void CL_ConsolePrint( char *txt ) {
 		con.initialized = qtrue;
 	}
 
-	if( !skipnotify && !( Key_GetCatcher( ) & KEYCATCH_CONSOLE ) ) {
+	if( !skipnotify && !( Key_GetCatcher( ) & KEYCATCH_CONSOLE ) )
+    {
 		Cmd_SaveCmdContext( );
 
 		// feed the text to cgame
@@ -373,26 +377,25 @@ void CL_ConsolePrint( char *txt ) {
 
 	color = ColorIndex(COLOR_WHITE);
 
-	while ( (c = *((unsigned char *) txt)) != 0 ) {
-		if ( Q_IsColorString( txt ) ) {
+	while ( (c = *((unsigned char *) txt)) != 0 )
+    {
+		if ( Q_IsColorString( txt ) )
+        {
 			color = ColorIndex( *(txt+1) );
 			txt += 2;
 			continue;
 		}
 
 		// count word length
-		for (l=0 ; l< con.linewidth ; l++) {
-			if ( txt[l] <= ' ') {
+		for (l=0 ; l< con.linewidth ; l++)
+        {
+			if ( txt[l] <= ' ')
 				break;
-			}
-
 		}
 
 		// word wrap
-		if (l != con.linewidth && (con.x + l >= con.linewidth) ) {
+		if (l != con.linewidth && (con.x + l >= con.linewidth) )
 			Con_Linefeed(skipnotify);
-
-		}
 
 		txt++;
 
