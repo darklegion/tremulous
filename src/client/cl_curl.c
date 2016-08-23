@@ -56,6 +56,8 @@ CURLMcode (*qcurl_multi_cleanup)(CURLM *multi_handle);
 CURLMsg *(*qcurl_multi_info_read)(CURLM *multi_handle,
                                                 int *msgs_in_queue);
 const char *(*qcurl_multi_strerror)(CURLMcode);
+struct curl_slist* (*qcurl_slist_append)(struct curl_slist *, const char *);
+void         (*qcurl_slist_free_all)(struct curl_slist *);
 
 static void *cURLLib = NULL;
 
@@ -91,9 +93,10 @@ CL_cURL_Init
 qboolean CL_cURL_Init()
 {
 #ifdef USE_CURL_DLOPEN
+	cl_cURLLib = Cvar_Get("cl_cURLLib", DEFAULT_CURL_LIB, CVAR_ARCHIVE);
+
 	if(cURLLib)
 		return qtrue;
-
 
 	Com_Printf("Loading \"%s\"...", cl_cURLLib->string);
 	if(!(cURLLib = Sys_LoadDll(cl_cURLLib->string, qtrue)))
@@ -126,6 +129,8 @@ qboolean CL_cURL_Init()
 	qcurl_multi_cleanup = GPA("curl_multi_cleanup");
 	qcurl_multi_info_read = GPA("curl_multi_info_read");
 	qcurl_multi_strerror = GPA("curl_multi_strerror");
+    qcurl_slist_append = GPA("curl_slist_append");
+    qcurl_slist_free_all = GPA("curl_slist_free_all");
 
 	if(!clc.cURLEnabled)
 	{

@@ -33,6 +33,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "q_shared.h"
 #include "qcommon.h"
 #include "unzip.h"
+#ifndef DEDICATED
+#include <string.h>
+#include "cl_rest.h"
+#endif
 
 /*
 =============================================================================
@@ -3611,14 +3615,33 @@ void FS_InitFilesystem( void ) {
 	if(!FS_FilenameCompare(Cvar_VariableString("fs_game"), BASEGAME))
 		Cvar_Set("fs_game", "");
 
+#ifndef DEDICATED
+    char dir[1024];
+    dir[0] = '\0';
+
+    strncat(dir, Sys_DefaultInstallPath(), sizeof(dir) - (1 + strlen(BASEGAME)));
+#ifndef _WIN32
+    strncat(dir, "/", sizeof(dir)-1);
+#else
+    strncat(dir, "\\", sizeof(dir)-1);
+#endif
+    //strncat(dir, BASEGAME, sizeof(dir)-1);
+    strncat(dir, "tremulous", sizeof(dir)-1);
+#endif
 	// try to start up normally
 	FS_Startup( BASEGAME );
 
 	// if we can't find default.cfg, assume that the paths are
 	// busted and error out now, rather than getting an unreadable
 	// graphics screen when the font fails to load
-	if ( FS_ReadFile( "default.cfg", NULL ) <= 0 ) {
-		Com_Error( ERR_FATAL, "Couldn't load default.cfg" );
+	if ( FS_ReadFile( "default.cfg", NULL ) <= 0 )
+    {
+#ifndef DEDICATED
+        GetTremulousPk3s(Sys_DefaultInstallPath(), BASEGAME);
+        FS_Restart(0);
+	    if ( FS_ReadFile("default.cfg", NULL) <= 0 )
+#endif
+		    Com_Error(ERR_FATAL, "Couldn't load default.cfg");
 	}
 
 	Q_strncpyz(lastValidBase, fs_basepath->string, sizeof(lastValidBase));
