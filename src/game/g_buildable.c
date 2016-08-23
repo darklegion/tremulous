@@ -2237,9 +2237,9 @@ qboolean HMGTurret_TrackEnemy( gentity_t *self )
   vectoangles( dirToTarget, self->turretAim );
 
   //fire if target is within accuracy
-  return ( abs( angularDiff[ YAW ] ) - MGTURRET_ANGULARSPEED <=
+  return ( fabs( angularDiff[ YAW ] ) - MGTURRET_ANGULARSPEED <=
            MGTURRET_ACCURACY_TO_FIRE ) &&
-         ( abs( angularDiff[ PITCH ] ) - MGTURRET_ANGULARSPEED <=
+         ( fabs( angularDiff[ PITCH ] ) - MGTURRET_ANGULARSPEED <=
            MGTURRET_ACCURACY_TO_FIRE );
 }
 
@@ -3907,7 +3907,7 @@ void G_LayoutSave( char *name )
   int len;
   int i;
   gentity_t *ent;
-  char *s;
+  const char *s;
 
   trap_Cvar_VariableStringBuffer( "mapname", map, sizeof( map ) );
   if( !map[ 0 ] )

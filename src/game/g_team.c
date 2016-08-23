@@ -48,7 +48,7 @@ G_TeamCommand
 Broadcasts a command to only a specific team
 ================
 */
-void G_TeamCommand( team_t team, char *cmd )
+void G_TeamCommand( team_t team, const char *cmd )
 {
   int   i;
 

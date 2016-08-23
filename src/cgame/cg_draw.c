@@ -663,7 +663,7 @@ static void CG_DrawPlayerAmmoValue( rectDef_t *rect, vec4_t color )
   if( value > -1 )
   {
     float tx, ty;
-    char *text;
+    const char *text;
     float scale;
     int len;
 
@@ -1403,7 +1403,7 @@ static void CG_DrawTeamLabel( rectDef_t *rect, team_t team, float text_x, float 
 {
   char  *t;
   char  stage[ MAX_TOKEN_CHARS ];
-  char  *s;
+  const char  *s;
   float tx, ty;
 
   stage[ 0 ] = '\0';
@@ -1509,7 +1509,7 @@ static void CG_DrawFPS( rectDef_t *rect, float text_x, float text_y,
                         int textalign, int textvalign, int textStyle,
                         qboolean scalableText )
 {
-  char        *s;
+  const char *s;
   float       tx, ty;
   float       w, h, totalWidth;
   int         strLength;
@@ -1636,7 +1636,7 @@ static void CG_DrawTimer( rectDef_t *rect, float text_x, float text_y,
                           float scale, vec4_t color,
                           int textalign, int textvalign, int textStyle )
 {
-  char    *s;
+  const char    *s;
   float   tx, ty;
   int     i, strLength;
   float   w, h, totalWidth;
@@ -1727,7 +1727,7 @@ static int QDECL SortWeaponClass( const void *a, const void *b )
 
 static void CG_DrawTeamOverlay( rectDef_t *rect, float scale, vec4_t color )
 {
-  char              *s;
+  const char              *s;
   int               i;
   float             x = rect->x;
   float             y;
@@ -1916,7 +1916,7 @@ static void CG_DrawClock( rectDef_t *rect, float text_x, float text_y,
                           float scale, vec4_t color,
                           int textalign, int textvalign, int textStyle )
 {
-  char    *s;
+  const char    *s;
   float   tx, ty;
   int     i, strLength;
   float   w, h, totalWidth;
@@ -1976,7 +1976,7 @@ static void CG_DrawSnapshot( rectDef_t *rect, float text_x, float text_y,
                              float scale, vec4_t color,
                              int textalign, int textvalign, int textStyle )
 {
-  char    *s;
+  const char    *s;
   float   tx, ty;
 
   if( !cg_drawSnapshot.integer )
@@ -2129,7 +2129,7 @@ static void CG_DrawLagometer( rectDef_t *rect, float text_x, float text_y,
   int     color;
   vec4_t  adjustedColor;
   float   vscale;
-  char    *ping;
+  const char    *ping;
 
   if( cg.snap->ps.pm_type == PM_INTERMISSION )
     return;
@@ -2673,7 +2673,7 @@ CG_DrawCrosshairNames
 static void CG_DrawCrosshairNames( rectDef_t *rect, float scale, int textStyle )
 {
   float   *color;
-  char    *name;
+  const char    *name;
   float   w, x;
 
   if( !cg_drawCrosshairNames.integer )
@@ -3191,7 +3191,7 @@ CG_DrawVote
 */
 static void CG_DrawVote( team_t team )
 {
-  char    *s;
+  const char    *s;
   int     sec;
   int     offset = 0;
   vec4_t  white = { 1.0f, 1.0f, 1.0f, 1.0f };

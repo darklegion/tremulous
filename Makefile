@@ -973,9 +973,14 @@ ifeq ($(USE_VOIP),1)
   NEED_OPUS=1
 endif
 
+ifeq ($(USE_LUA),1)
+  CLIENT_CFLAGS += $(shell pkg-config --silence-errors --cflags lua)
+  CLIENT_LIBS += $(shell pkg-config --silence-errors --libs lua)
+else
 ifeq ($(USE_LUAJIT),1)
   CLIENT_CFLAGS += $(shell pkg-config --silence-errors --cflags luajit)
   CLIENT_LIBS += $(shell pkg-config --silence-errors --libs luajit)
+endif
 endif
 
 ifeq ($(USE_CODEC_OPUS),1)

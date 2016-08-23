@@ -1559,7 +1559,7 @@ void        CG_SetScoreSelection( void *menu );
 qboolean    CG_ClientIsReady( int clientNum );
 void        CG_BuildSpectatorString( void );
 
-qboolean    CG_FileExists( char *filename );
+qboolean    CG_FileExists( const char *filename );
 void        CG_RemoveNotifyLine( void );
 void        CG_AddNotifyText( void );
 

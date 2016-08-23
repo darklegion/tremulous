@@ -345,7 +345,7 @@ char *ConcatArgsPrintable( int start )
   static char line[ MAX_STRING_CHARS ];
   int         len;
   char        arg[ MAX_STRING_CHARS + 2 ];
-  char        *printArg;
+  const char* printArg;
 
   len = 0;
   c = trap_Argc( );
@@ -3236,7 +3236,7 @@ void G_ListCommands( gentity_t *ent )
   G_admin_cmdlist( ent );
 }
 
-void G_DecolorString( char *in, char *out, int len )
+void G_DecolorString( const char *in, char *out, int len )
 {
   qboolean decolor = qtrue;
 

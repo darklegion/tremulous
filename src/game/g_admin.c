@@ -2537,7 +2537,7 @@ qboolean G_admin_endvote( gentity_t *ent )
   char command[ MAX_ADMIN_CMD_LEN ];
   team_t team;
   qboolean cancel;
-  char *msg;
+  const char *msg;
 
   trap_Argv( 0, command, sizeof( command ) );
   cancel = !Q_stricmp( command, "cancelvote" );
@@ -3243,7 +3243,7 @@ qboolean G_admin_revert( gentity_t *ent )
  that it prints the message to the server console if ent is not defined.
 ================
 */
-void G_admin_print( gentity_t *ent, char *m )
+void G_admin_print( gentity_t *ent, const char *m )
 {
   if( ent )
     trap_SendServerCommand( ent - level.gentities, va( "print \"%s\"", m ) );
@@ -3270,7 +3270,7 @@ void G_admin_buffer_end( gentity_t *ent )
   ADMP( g_bfb );
 }
 
-void G_admin_buffer_print( gentity_t *ent, char *m )
+void G_admin_buffer_print( gentity_t *ent, const char *m )
 {
   // 1022 - strlen("print 64 \"\"") - 1
   if( strlen( m ) + strlen( g_bfb ) >= 1009 )

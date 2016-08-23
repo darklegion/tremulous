@@ -434,7 +434,7 @@ void Cmd_CompleteArgument( const char *command, char *args, int argNum );
 void Cmd_CompleteCfgName( char *args, int argNum );
 
 int		Cmd_Argc (void);
-char	*Cmd_Argv (int arg);
+const char *Cmd_Argv(int arg);
 void	Cmd_ArgvBuffer( int arg, char *buffer, int bufferLength );
 char	*Cmd_Args (void);
 char	*Cmd_ArgsFrom( int arg );
@@ -517,7 +517,7 @@ float	Cvar_VariableValue( const char *var_name );
 int		Cvar_VariableIntegerValue( const char *var_name );
 // returns 0 if not defined or non numeric
 
-char	*Cvar_VariableString( const char *var_name );
+const char	*Cvar_VariableString( const char *var_name );
 void	Cvar_VariableStringBuffer( const char *var_name, char *buffer, int bufsize );
 // returns an empty string if not defined
 
@@ -817,7 +817,7 @@ void		Com_GameRestart(int checksumFeed, qboolean disconnect);
 int			Com_Milliseconds( void );	// will be journaled properly
 unsigned	Com_BlockChecksum( const void *buffer, int length );
 char		*Com_MD5File(const char *filename, int length, const char *prefix, int prefix_len);
-int			Com_Filter(char *filter, char *name, int casesensitive);
+int			Com_Filter(const char* filter, char *name, int casesensitive);
 int			Com_FilterPath(char *filter, char *name, int casesensitive);
 int			Com_RealTime(qtime_t *qtime);
 qboolean	Com_SafeMode( void );
@@ -960,7 +960,7 @@ void CL_InitKeyCommands( void );
 
 void CL_Init( void );
 void CL_Disconnect( qboolean showMainMenu );
-void CL_Shutdown(char *finalmsg, qboolean disconnect, qboolean quit);
+void CL_Shutdown(const char *finalmsg, qboolean disconnect, qboolean quit);
 void CL_Frame( int msec );
 qboolean CL_GameCommand( void );
 void CL_KeyEvent (int key, qboolean down, unsigned time);
@@ -1023,7 +1023,7 @@ void SCR_DebugGraph (float value);	// FIXME: move logging to common?
 // server interface
 //
 void SV_Init( void );
-void SV_Shutdown( char *finalmsg );
+void SV_Shutdown( const char *finalmsg );
 void SV_Frame( int msec );
 void SV_PacketEvent( netadr_t from, msg_t *msg );
 int SV_FrameMsec(void);

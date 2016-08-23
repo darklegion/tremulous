@@ -590,7 +590,7 @@ CG_FileExists
 Test if a specific file exists or not
 =================
 */
-qboolean CG_FileExists( char *filename )
+qboolean CG_FileExists( const char *filename )
 {
   return trap_FS_FOpenFile( filename, NULL, FS_READ );
 }

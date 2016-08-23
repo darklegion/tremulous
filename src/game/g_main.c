@@ -2144,7 +2144,7 @@ void G_CheckVote( team_t team )
 {
   float    votePassThreshold = (float)level.voteThreshold[ team ] / 100.0f;
   qboolean pass = qfalse;
-  char     *msg;
+  const char *msg;
   int      i;
 
   if( level.voteExecuteTime[ team ] &&

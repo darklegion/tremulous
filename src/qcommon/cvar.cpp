@@ -25,15 +25,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "q_shared.h"
 #include "qcommon.h"
 
-cvar_t		*cvar_vars = NULL;
-cvar_t		*cvar_cheats;
-int			cvar_modifiedFlags;
+static cvar_t *cvar_vars = nullptr;
+static cvar_t *cvar_cheats;
+int cvar_modifiedFlags = 0;
 
-#define	MAX_CVARS	2048
-cvar_t		cvar_indexes[MAX_CVARS];
-int			cvar_numIndexes;
+#define	MAX_CVARS 2048
+static cvar_t cvar_indexes[MAX_CVARS];
+static int cvar_numIndexes;
 
-#define FILE_HASH_SIZE		256
+#define FILE_HASH_SIZE 256
 static	cvar_t	*hashTable[FILE_HASH_SIZE];
 
 /*
@@ -95,7 +95,7 @@ static cvar_t *Cvar_FindVar( const char *var_name ) {
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -118,10 +118,9 @@ float Cvar_VariableValue( const char *var_name ) {
 Cvar_VariableIntegerValue
 ============
 */
-int Cvar_VariableIntegerValue( const char *var_name ) {
-	cvar_t	*var;
-	
-	var = Cvar_FindVar (var_name);
+int Cvar_VariableIntegerValue( const char *var_name )
+{
+	cvar_t* var = Cvar_FindVar(var_name);
 	if (!var)
 		return 0;
 	return var->integer;
@@ -133,15 +132,12 @@ int Cvar_VariableIntegerValue( const char *var_name ) {
 Cvar_VariableString
 ============
 */
-char *Cvar_VariableString( const char *var_name ) {
-	cvar_t *var;
-	
-	var = Cvar_FindVar (var_name);
+const char *Cvar_VariableString( const char *var_name ) {
+	cvar_t* var = Cvar_FindVar(var_name);
 	if (!var)
 		return "";
 	return var->string;
 }
-
 
 /*
 ============
@@ -314,7 +310,7 @@ cvar_t *Cvar_Get( const char *var_name, const char *var_value, int flags ) {
 	int	index;
 
 	if ( !var_name || ! var_value ) {
-		Com_Error( ERR_FATAL, "Cvar_Get: NULL parameter" );
+		Com_Error( ERR_FATAL, "Cvar_Get: nullptr parameter" );
 	}
 
 	if ( !Cvar_ValidateString( var_name ) ) {
@@ -395,7 +391,7 @@ cvar_t *Cvar_Get( const char *var_name, const char *var_value, int flags ) {
 			char *s;
 
 			s = var->latchedString;
-			var->latchedString = NULL;	// otherwise cvar_set2 would free it
+			var->latchedString = nullptr;	// otherwise cvar_set2 would free it
 			Cvar_Set2( var_name, s, qtrue );
 			Z_Free( s );
 		}
@@ -423,7 +419,7 @@ cvar_t *Cvar_Get( const char *var_name, const char *var_value, int flags ) {
 		if(!com_errorEntered)
 			Com_Error(ERR_FATAL, "Error: Too many cvars, cannot create a new one!");
 
-		return NULL;
+		return nullptr;
 	}
 	
 	var = &cvar_indexes[index];
@@ -439,14 +435,14 @@ cvar_t *Cvar_Get( const char *var_name, const char *var_value, int flags ) {
 	var->integer = atoi(var->string);
 	var->resetString = CopyString( var_value );
 	var->validate = qfalse;
-	var->description = NULL;
+	var->description = nullptr;
 
 	// link the variable in
 	var->next = cvar_vars;
 	if(cvar_vars)
 		cvar_vars->prev = var;
 
-	var->prev = NULL;
+	var->prev = nullptr;
 	cvar_vars = var;
 
 	var->flags = flags;
@@ -460,7 +456,7 @@ cvar_t *Cvar_Get( const char *var_name, const char *var_value, int flags ) {
 	if(hashTable[hash])
 		hashTable[hash]->hashPrev = var;
 
-	var->hashPrev = NULL;
+	var->hashPrev = nullptr;
 	hashTable[hash] = var;
 
 	return var;
@@ -522,7 +518,7 @@ cvar_t *Cvar_Set2( const char *var_name, const char *value, qboolean force ) {
 	var = Cvar_FindVar (var_name);
 	if (!var) {
 		if ( !value ) {
-			return NULL;
+			return nullptr;
 		}
 		// create it
 		if ( !force ) {
@@ -543,7 +539,7 @@ cvar_t *Cvar_Set2( const char *var_name, const char *value, qboolean force ) {
 		if(!strcmp(value, var->string))
 		{
 			Z_Free(var->latchedString);
-			var->latchedString = NULL;
+			var->latchedString = nullptr;
 			return var;
 		}
 
@@ -603,7 +599,7 @@ cvar_t *Cvar_Set2( const char *var_name, const char *value, qboolean force ) {
 		if (var->latchedString)
 		{
 			Z_Free (var->latchedString);
-			var->latchedString = NULL;
+			var->latchedString = nullptr;
 		}
 	}
 
@@ -700,7 +696,7 @@ Cvar_Reset
 ============
 */
 void Cvar_Reset( const char *var_name ) {
-	Cvar_Set2( var_name, NULL, qfalse );
+	Cvar_Set2( var_name, nullptr, qfalse );
 }
 
 /*
@@ -710,7 +706,7 @@ Cvar_ForceReset
 */
 void Cvar_ForceReset(const char *var_name)
 {
-	Cvar_Set2(var_name, NULL, qtrue);
+	Cvar_Set2(var_name, nullptr, qtrue);
 }
 
 /*
@@ -734,7 +730,7 @@ void Cvar_SetCheatState(void)
 			if (var->latchedString)
 			{
 				Z_Free(var->latchedString);
-				var->latchedString = NULL;
+				var->latchedString = nullptr;
 			}
 			if (strcmp(var->resetString,var->string))
 				Cvar_Set(var->name, var->resetString);
@@ -753,7 +749,7 @@ qboolean Cvar_Command( void ) {
 	cvar_t	*v;
 
 	// check variables
-	v = Cvar_FindVar (Cmd_Argv(0));
+	v = Cvar_FindVar(Cmd_Argv(0));
 	if (!v) {
 		return qfalse;
 	}
@@ -780,7 +776,6 @@ Prints the contents of a cvar
 */
 void Cvar_Print_f(void)
 {
-	char *name;
 	cvar_t *cv;
 	
 	if(Cmd_Argc() != 2)
@@ -789,7 +784,7 @@ void Cvar_Print_f(void)
 		return;
 	}
 
-	name = Cmd_Argv(1);
+	const char* name = Cmd_Argv(1);
 
 	cv = Cvar_FindVar(name);
 	
@@ -809,7 +804,6 @@ given values
 */
 void Cvar_Toggle_f( void ) {
 	int		i, c = Cmd_Argc();
-	char		*curval;
 
 	if(c < 2) {
 		Com_Printf("usage: toggle <variable> [value1, value2, ...]\n");
@@ -817,9 +811,7 @@ void Cvar_Toggle_f( void ) {
 	}
 
 	if(c == 2) {
-		Cvar_Set2(Cmd_Argv(1), va("%d", 
-			!Cvar_VariableValue(Cmd_Argv(1))), 
-			qfalse);
+		Cvar_Set2(Cmd_Argv(1), va("%d", !Cvar_VariableValue(Cmd_Argv(1))), qfalse);
 		return;
 	}
 
@@ -828,7 +820,7 @@ void Cvar_Toggle_f( void ) {
 		return;
 	}
 
-	curval = Cvar_VariableString(Cmd_Argv(1));
+	const char* curval = Cvar_VariableString(Cmd_Argv(1));
 
 	// don't bother checking the last arg for a match since the desired
 	// behaviour is the same as no match (set to the first argument)
@@ -852,12 +844,9 @@ weren't declared in C code.
 ============
 */
 void Cvar_Set_f( void ) {
-	int		c;
-	char	*cmd;
-	cvar_t	*v;
 
-	c = Cmd_Argc();
-	cmd = Cmd_Argv(0);
+	int c = Cmd_Argc();
+	const char* cmd = Cmd_Argv(0);
 
 	if ( c < 2 ) {
 		Com_Printf ("usage: %s <variable> <value>\n", cmd);
@@ -868,7 +857,7 @@ void Cvar_Set_f( void ) {
 		return;
 	}
 
-	v = Cvar_Set2 (Cmd_Argv(1), Cmd_ArgsFrom(2), qfalse);
+	cvar_t* v = Cvar_Set2 (Cmd_Argv(1), Cmd_ArgsFrom(2), qfalse);
 	if( !v ) {
 		return;
 	}
@@ -953,14 +942,14 @@ Cvar_List_f
 ============
 */
 void Cvar_List_f( void ) {
-	cvar_t	*var;
-	int		i;
-	char	*match;
+	cvar_t* var;
+	int i;
+	const char* match;
 
 	if ( Cmd_Argc() > 1 ) {
 		match = Cmd_Argv( 1 );
 	} else {
-		match = NULL;
+		match = nullptr;
 	}
 
 	i = 0;
@@ -1028,15 +1017,15 @@ Cvar_ListModified_f
 ============
 */
 void Cvar_ListModified_f( void ) {
-	cvar_t	*var;
-	int		totalModified;
-	char	*value;
-	char	*match;
+	cvar_t* var;
+	int totalModified;
+	char* value;
+	const char* match;
 
 	if ( Cmd_Argc() > 1 ) {
 		match = Cmd_Argv( 1 );
 	} else {
-		match = NULL;
+		match = nullptr;
 	}
 
 	totalModified = 0;
@@ -1309,7 +1298,7 @@ void Cvar_SetDescription( cvar_t *var, const char *var_description )
 {
 	if( var_description && var_description[0] != '\0' )
 	{
-		if( var->description != NULL )
+		if( var->description != nullptr )
 		{
 			Z_Free( var->description );
 		}
@@ -1357,7 +1346,7 @@ updates an interpreted modules' version of a cvar
 =====================
 */
 void	Cvar_Update( vmCvar_t *vmCvar ) {
-	cvar_t	*cv = NULL;
+	cvar_t	*cv = nullptr;
 	assert(vmCvar);
 
 	if ( (unsigned)vmCvar->handle >= cvar_numIndexes ) {
@@ -1407,7 +1396,7 @@ Cvar_Init
 Reads in all archived cvars
 ============
 */
-void Cvar_Init (void)
+void Cvar_Init(void)
 {
 	Com_Memset(cvar_indexes, '\0', sizeof(cvar_indexes));
 	Com_Memset(hashTable, '\0', sizeof(hashTable));

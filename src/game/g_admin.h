@@ -183,8 +183,8 @@ qboolean G_admin_builder( gentity_t *ent );
 qboolean G_admin_buildlog( gentity_t *ent );
 qboolean G_admin_revert( gentity_t *ent );
 
-void G_admin_print( gentity_t *ent, char *m );
-void G_admin_buffer_print( gentity_t *ent, char *m );
+void G_admin_print( gentity_t *ent, const char *m );
+void G_admin_buffer_print( gentity_t *ent, const char *m );
 void G_admin_buffer_begin( void );
 void G_admin_buffer_end( gentity_t *ent );
 

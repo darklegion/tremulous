@@ -727,7 +727,7 @@ int       G_ClientNumbersFromString( char *s, int *plist, int max );
 char      *ConcatArgs( int start );
 char      *ConcatArgsPrintable( int start );
 void      G_Say( gentity_t *ent, saymode_t mode, const char *chatText );
-void      G_DecolorString( char *in, char *out, int len );
+void      G_DecolorString( const char *in, char *out, int len );
 void      G_UnEscapeString( char *in, char *out, int len );
 void      G_SanitiseString( char *in, char *out, int len );
 void      Cmd_PrivateMessage_f( gentity_t *ent );
@@ -1011,7 +1011,7 @@ int  G_TimeTilSuddenDeath( void );
 //
 // g_client.c
 //
-char *ClientConnect( int clientNum, qboolean firstTime );
+const char *ClientConnect( int clientNum, qboolean firstTime );
 char *ClientUserinfoChanged( int clientNum, qboolean forceName );
 void ClientDisconnect( int clientNum );
 void ClientBegin( int clientNum );
@@ -1033,7 +1033,7 @@ void G_RunClient( gentity_t *ent );
 // g_team.c
 //
 team_t    G_TeamFromString( char *str );
-void      G_TeamCommand( team_t team, char *cmd );
+void      G_TeamCommand( team_t team, const char *cmd );
 qboolean  OnSameTeam( gentity_t *ent1, gentity_t *ent2 );
 void      G_LeaveTeam( gentity_t *self );
 void      G_ChangeTeam( gentity_t *ent, team_t newTeam );

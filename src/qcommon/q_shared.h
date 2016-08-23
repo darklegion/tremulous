@@ -820,7 +820,7 @@ int Com_HexStrToInt( const char *str );
 
 int QDECL Com_sprintf (char *dest, int size, const char *fmt, ...) __attribute__ ((format (printf, 3, 4)));
 
-char *Com_SkipTokens( char *s, int numTokens, char *sep );
+char *Com_SkipTokens( char *s, int numTokens, const char *sep );
 char *Com_SkipCharset( char *s, char *sep );
 
 void Com_RandomBytes( byte *string, int len );
@@ -910,7 +910,7 @@ float	LittleFloat (const float *l);
 
 void	Swap_Init (void);
 */
-char	* QDECL va(char *format, ...) __attribute__ ((format (printf, 1, 2)));
+const char	* QDECL va(const char *format, ...) __attribute__ ((format (printf, 1, 2)));
 
 #define TRUNCATE_LENGTH	64
 void Com_TruncateLongString( char *buffer, const char *s );

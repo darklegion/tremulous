@@ -3755,7 +3755,7 @@ CL_Shutdown
 
 ===============
 */
-void CL_Shutdown(char *finalmsg, qboolean disconnect, qboolean quit)
+void CL_Shutdown(const char *finalmsg, qboolean disconnect, qboolean quit)
 {
 	static qboolean recursive = qfalse;
 	

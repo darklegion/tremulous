@@ -335,14 +335,12 @@ Inserts the current value of a variable as command text
 ===============
 */
 void Cmd_Vstr_f( void ) {
-	char	*v;
-
 	if (Cmd_Argc() != 2) {
 		Com_Printf ("vstr <variablename> : execute a variable command\n");
 		return;
 	}
 
-	v = Cvar_VariableString( Cmd_Argv( 1 ) );
+	const char* v = Cvar_VariableString( Cmd_Argv( 1 ) );
 	Cbuf_InsertFmtText( "%s\n", v );
 }
 
@@ -423,7 +421,7 @@ int		Cmd_Argc( void ) {
 Cmd_Argv
 ============
 */
-char	*Cmd_Argv( int arg ) {
+const char* Cmd_Argv( int arg ) {
 	if ( (unsigned)arg >= cmd.argc ) {
 		return (char*)"\0";
 	}
@@ -893,9 +891,9 @@ Cmd_List_f
 */
 void Cmd_List_f (void)
 {
-	cmd_function_t	*cmd;
-	int				i;
-	char			*match;
+	cmd_function_t* cmd;
+	int i;
+	const char* match;
 
 	if ( Cmd_Argc() > 1 ) {
 		match = Cmd_Argv( 1 );
