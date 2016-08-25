@@ -25,6 +25,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __QCURL_H__
 #define __QCURL_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
 
@@ -65,7 +69,9 @@ extern CURLMsg*     (*qcurl_multi_info_read)(CURLM *multi_handle, int *msgs_in_q
 extern const char*  (*qcurl_multi_strerror)(CURLMcode);
 extern struct curl_slist* (*qcurl_slist_append)(struct curl_slist *, const char *);
 extern void         (*qcurl_slist_free_all)(struct curl_slist *);
-
+extern CURLcode     (*qcurl_global_init)(long flags);
+extern void         (*qcurl_global_cleanup)(void);
+  
 #else
 #define qcurl_version curl_version
 #define qcurl_easy_init curl_easy_init
@@ -84,6 +90,10 @@ extern void         (*qcurl_slist_free_all)(struct curl_slist *);
 #define qcurl_multi_cleanup curl_multi_cleanup
 #define qcurl_multi_info_read curl_multi_info_read
 #define qcurl_multi_strerror curl_multi_strerror
+#define qcurl_slist_append curl_slist_append
+#define qcurl_slist_free_all curl_slist_free_all
+#define qcurl_global_init curl_global_init
+#define qcurl_global_cleanup curl_global_cleanup
 #endif
 
 qboolean CL_cURL_Init( void );
@@ -91,4 +101,9 @@ void CL_cURL_Shutdown( void );
 void CL_cURL_BeginDownload( const char *localName, const char *remoteURL );
 void CL_cURL_PerformDownload( void );
 void CL_cURL_Cleanup( void );
+
+#ifdef __cplusplus
+};
+#endif
+
 #endif	// __QCURL_H__
