@@ -16,6 +16,8 @@
 
 #include "restclient.h"
 
+extern "C" int FS_CreatePath(const char*);
+
 static bool is_good(std::string filename, int permissions = (R_OK|W_OK))
 {
     int ret = access(filename.c_str(), permissions);
@@ -23,6 +25,17 @@ static bool is_good(std::string filename, int permissions = (R_OK|W_OK))
         std::cerr << filename << ": " << strerror(errno) << std::endl;
 
     return !ret;
+}
+
+bool MakeDir(std::string destdir, std::string basegame)
+{
+    std::string destpath(destdir);
+    destpath += '/';
+    destpath += basegame;
+    destpath += '/'; // XXX FS_CreatePath requires a trailing slash. 
+            // Maybe the assumption is that a file listing might be included?
+    FS_CreatePath(destpath.c_str());
+    return true;
 }
 
 bool GetTremulousPk3s(const char* destdir, const char* basegame)
@@ -42,6 +55,8 @@ bool GetTremulousPk3s(const char* destdir, const char* basegame)
 
     RestClient::init();
 
+    MakeDir(destdir, basegame);
+
     for (auto f : files )
     {
         std::string destpath(destdir);
@@ -54,11 +69,16 @@ bool GetTremulousPk3s(const char* destdir, const char* basegame)
             continue;
 
         std::cout << "Downloading " << baseuri << f << std::endl;
+        std::ofstream dl(destpath);
+        //dl.open(destpath);
+        if ( dl.fail() )
+        {
+            std::cerr << "Error " << strerror(errno) << "\n";
+            continue;
+        }
 
         RestClient::Response resp = RestClient::get(baseuri + f);
 
-        std::ofstream dl;
-        dl.open(destpath);
         dl << resp.body;
         dl.close();
     }
