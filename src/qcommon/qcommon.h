@@ -606,7 +606,7 @@ void	FS_FreeFileList( char **list );
 
 qboolean FS_FileExists( const char *file );
 
-qboolean FS_CreatePath (char *OSPath);
+int FS_CreatePath(const char *OSPath);
 
 int FS_FindVM(void **startSearch, char *found, int foundlen, const char *name, int enableDll);
 

@@ -227,6 +227,7 @@ typedef struct searchpath_s {
 static	char		fs_gamedir[MAX_OSPATH];	// this will be a single file name with no separators
 static	cvar_t		*fs_debug;
 static	cvar_t		*fs_homepath;
+static  cvar_t*      fs_readonly_path;
 
 #ifdef __APPLE__
 // Also search the .app bundle for .pk3 files
@@ -499,7 +500,7 @@ FS_CreatePath
 Creates any directories needed to store the given filename
 ============
 */
-qboolean FS_CreatePath (char *OSPath) {
+int FS_CreatePath(const char *OSPath) {
 	char	*ofs;
 	char	path[MAX_OSPATH];
 	
@@ -3202,12 +3203,18 @@ static void FS_Startup( const char *gameName )
 	fs_debug = Cvar_Get( "fs_debug", "0", 0 );
 	fs_basepath = Cvar_Get ("fs_basepath", Sys_DefaultInstallPath(), CVAR_INIT|CVAR_PROTECTED );
 	fs_basegame = Cvar_Get ("fs_basegame", "", CVAR_INIT );
+
 	homePath = Sys_DefaultHomePath();
 	if (!homePath || !homePath[0]) {
 		homePath = fs_basepath->string;
 	}
+    fs_readonly_path = Cvar_Get( "fs_readonly_path", va( "%s/readonly", Sys_DefaultHomePath()), CVAR_INIT|CVAR_PROTECTED);
 	fs_homepath = Cvar_Get ("fs_homepath", homePath, CVAR_INIT|CVAR_PROTECTED );
 	fs_gamedirvar = Cvar_Get ("fs_game", "", CVAR_INIT|CVAR_SYSTEMINFO );
+
+    // For pk3 boostrapped data
+    if (fs_readonly_path->string[0]) 
+        FS_AddGameDirectory(fs_readonly_path->string, gameName);
 
 	// add search path elements in reverse priority order
 	if (fs_basepath->string[0]) {
@@ -3611,6 +3618,7 @@ void FS_InitFilesystem( void ) {
 	Com_StartupVariable("fs_basepath");
 	Com_StartupVariable("fs_homepath");
 	Com_StartupVariable("fs_game");
+    Com_StartupVariable("fs_readonly_path");
 
 	if(!FS_FilenameCompare(Cvar_VariableString("fs_game"), BASEGAME))
 		Cvar_Set("fs_game", "");
@@ -3623,10 +3631,8 @@ void FS_InitFilesystem( void ) {
 	// graphics screen when the font fails to load
 	if ( FS_ReadFile( "default.cfg", NULL ) <= 0 )
     {
-        // I'm a client, download the missing packages. Maybe I want this
-        // if I am a server too.
-#if !defined(DEDICATED) && defined(USE_RESTCLIENT)
-        GetTremulousPk3s(Sys_DefaultInstallPath(), BASEGAME);
+#ifdef USE_RESTCLIENT
+        GetTremulousPk3s(Sys_DefaultHomePath(), BASEGAME);
         FS_Restart(0);
 	    if ( FS_ReadFile("default.cfg", NULL) <= 0 )
 #endif
