@@ -549,6 +549,9 @@ ifdef MINGW
     $(error Cannot find a suitable cross compiler for $(PLATFORM) CXX)
   endif
 
+  CFLAGS += -static-libgcc -static-libstdc++
+  CXXFLAGS += -static-libgcc -static-libstdc++
+  LDFLAGS += -static-libgcc -static-libstdc++
   BASE_CFLAGS = -Wall -fno-strict-aliasing -Wimplicit -Wstrict-prototypes \
     -DUSE_ICON
 
