@@ -952,7 +952,7 @@ default values.
 #define	CVAR_ROM		0x0040	// display only, cannot be set by user at all
 #define	CVAR_USER_CREATED	0x0080	// created by a set command
 #define	CVAR_TEMP		0x0100	// can be set even when cheats are disabled, but is not archived
-#define CVAR_CHEAT		0x0200	// can not be changed if cheats are disabled
+#define CVAR_CHEAT		0x0000	// can not be changed if cheats are disabled
 #define CVAR_NORESTART		0x0400	// do not clear when a cvar_restart is issued
 
 #define CVAR_SERVER_CREATED	0x0800	// cvar was created by a server the client connected to.
