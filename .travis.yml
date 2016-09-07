@@ -26,8 +26,6 @@ matrix:
             - ubuntu-toolchain-r-test
             - zoogie/sdl2-snapshots
           packages:
-            - gcc-6
-            - g++-6
             - libgl1-mesa-dev
             - libsdl2-dev
             - libfreetype6-dev
@@ -44,8 +42,6 @@ matrix:
             - ubuntu-toolchain-r-test
             - zoogie/sdl2-snapshots
           packages:
-            - gcc-6
-            - g++-6
             - libgl1-mesa-dev
             - libsdl2-dev
             - libfreetype6-dev
