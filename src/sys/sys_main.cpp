@@ -22,7 +22,8 @@
    */
 
 #include <iostream>
-#include "../sol-v2.11.5/sol.hpp"
+#include <lua.hpp>
+#include "../sol/sol.hpp"
 
 #include <signal.h>
 #include <stdlib.h>
@@ -51,7 +52,6 @@
 
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
-
 sol::state lua;
 jmp_buf nodie;
 

@@ -208,6 +208,10 @@ ifndef USE_INTERNAL_JPEG
 USE_INTERNAL_JPEG=$(USE_INTERNAL_LIBS)
 endif
 
+ifndef USE_INTERNAL_LUA
+USE_INTERNAL_LUA=$(USE_INTERNAL_LIBS)
+endif
+
 ifndef USE_LOCAL_HEADERS
 USE_LOCAL_HEADERS=$(USE_INTERNAL_LIBS)
 endif
@@ -251,6 +255,7 @@ VORBISDIR=$(MOUNT_DIR)/libvorbis-1.3.4
 OPUSDIR=$(MOUNT_DIR)/opus-1.1
 OPUSFILEDIR=$(MOUNT_DIR)/opusfile-0.5
 ZDIR=$(MOUNT_DIR)/zlib
+LUADIR=$(BUILD_DIR)/lua-5.3.3
 RESTDIR=$(MOUNT_DIR)/restclient
 Q3ASMDIR=$(MOUNT_DIR)/tools/asm
 LBURGDIR=$(MOUNT_DIR)/tools/lcc/lburg
@@ -401,7 +406,8 @@ ifeq ($(PLATFORM),darwin)
   OPTIMIZEVM=
   CXXFLAGS=-stdlib=libc++
 
-  BASE_CFLAGS += -mmacosx-version-min=10.7 -DMAC_OS_X_VERSION_MIN_REQUIRED=1070
+  # FIXME This is probably bad idea to comment this out 
+  #BASE_CFLAGS += -mmacosx-version-min=10.7 -DMAC_OS_X_VERSION_MIN_REQUIRED=1070
 
   ifeq ($(USE_RESTCLIENT),1)
     CLIENT_LIBS += -framework Security
@@ -989,16 +995,6 @@ ifeq ($(USE_VOIP),1)
   NEED_OPUS=1
 endif
 
-ifeq ($(USE_LUA),1)
-  CLIENT_CFLAGS += $(shell pkg-config --silence-errors --cflags lua)
-  CLIENT_LIBS += $(shell pkg-config --silence-errors --libs lua)
-else
-ifeq ($(USE_LUAJIT),1)
-  CLIENT_CFLAGS += $(shell pkg-config --silence-errors --cflags luajit)
-  CLIENT_LIBS += $(shell pkg-config --silence-errors --libs luajit)
-endif
-endif
-
 ifeq ($(USE_CODEC_OPUS),1)
   CLIENT_CFLAGS += -DUSE_CODEC_OPUS
   NEED_OPUS=1
@@ -1084,6 +1080,29 @@ ifeq ($(USE_FREETYPE),1)
   RENDERER_LIBS += $(FREETYPE_LIBS)
 endif
 
+# -bbq LUADIR really needs to be built in build/$(PLATFORM) etc.. 
+#  Should try to drive this with PKG_CONFIG_PATH and *.pc files,
+#  trivializing  USE_INTERNAL_LIBS
+ifeq ($(USE_INTERNAL_LUA),1)
+  CXXFLAGS += -DUSE_INTERNAL_LUA -I$(LUADIR)/include
+  CFLAGS += -DUSE_INTERNAL_LUA -I$(LUADIR)/include
+  LDFLAGS += $(LUADIR)/lib/liblua.a
+else
+  ifeq ($(USE_LUA),1)
+    LUA_CFLAGS += $(shell pkg-config --silence-errors --cflags lua)
+    LUA_LIBS += $(shell pkg-config --silence-errors --libs lua)
+  else
+  ifeq ($(USE_LUAJIT),1)
+    LUA_CFLAGS += $(shell pkg-config --silence-errors --cflags luajit)
+    LUA_LIBS += $(shell pkg-config --silence-errors --libs luajit)
+  endif
+  endif
+  CFLAGS += $(LUA_CFLAGS)
+  CXXFLAGS += $(LUA_CFLAGS)
+  LDFLAGS += $(LUA_LIBS)
+  #RENDERER_LIBS += $(LUA_LIBS)
+endif
+
 ifeq ("$(CC)", $(findstring "$(CC)", "clang" "clang++"))
   BASE_CFLAGS += -Qunused-arguments
 endif
@@ -1133,7 +1152,7 @@ endef
 
 define DO_CXX
 $(echo_cmd) "CXX $<"
-$(Q)$(CXX) -std=c++1y $(CXXFLAGS) $(NOTSHLIBCFLAGS) $(CFLAGS) $(CLIENT_CFLAGS) $(OPTIMIZE) -o $@ -c $<
+$(Q)$(CXX) -std=c++14 $(CXXFLAGS) $(NOTSHLIBCFLAGS) $(CFLAGS) $(CLIENT_CFLAGS) $(OPTIMIZE) -o $@ -c $<
 endef
 
 define DO_REF_CC
@@ -1194,7 +1213,7 @@ endef
 
 define DO_DED_CXX
 $(echo_cmd) "DED_CXX $<"
-$(Q)$(CXX) -std=c++1y $(CXXFLAGS) $(NOTSHLIBCFLAGS) -DDEDICATED $(CFLAGS) $(SERVER_CFLAGS) $(OPTIMIZE) -o $@ -c $<
+$(Q)$(CXX) -std=c++14 $(CXXFLAGS) $(NOTSHLIBCFLAGS) -DDEDICATED $(CFLAGS) $(SERVER_CFLAGS) $(OPTIMIZE) -o $@ -c $<
 endef
 
 define DO_WINDRES
@@ -1289,11 +1308,20 @@ endif
 	@echo "  CFLAGS:"
 	$(call print_wrapped, $(CFLAGS) $(OPTIMIZE))
 	@echo ""
+	@echo "  CXXFLAGS:"
+	$(call print_wrapped, $(CXXFLAGS) $(OPTIMIZE))
+	@echo ""
 	@echo "  CLIENT_CFLAGS:"
 	$(call print_wrapped, $(CLIENT_CFLAGS))
 	@echo ""
+	@echo "  CLIENT_CXXFLAGS:"
+	$(call print_wrapped, $(CLIENT_CXXFLAGS))
+	@echo ""
 	@echo "  SERVER_CFLAGS:"
 	$(call print_wrapped, $(SERVER_CFLAGS))
+	@echo ""
+	@echo "  SERVER_CXXFLAGS:"
+	$(call print_wrapped, $(SERVER_CXXFLAGS))
 	@echo ""
 	@echo "  LDFLAGS:"
 	$(call print_wrapped, $(LDFLAGS))
@@ -1307,6 +1335,7 @@ endif
 	@echo "  Output:"
 	$(call print_list, $(NAKED_TARGETS))
 	@echo ""
+	@$(MAKE) $(LUADIR)/include/lua.hpp
 	@$(MAKE) $(TARGETS) $(B).zip V=$(V)
 
 $(B).zip: $(TARGETS)
@@ -1512,6 +1541,18 @@ $(B)/tools/asm/%.o: $(Q3ASMDIR)/%.c
 $(Q3ASM): $(Q3ASMOBJ)
 	$(echo_cmd) "LD $@"
 	$(Q)$(TOOLS_CC) $(TOOLS_CFLAGS) $(TOOLS_LDFLAGS) -o $@ $^ $(TOOLS_LIBS)
+
+$(LUADIR)/include/lua.hpp: src/lua-5.3.3/Makefile
+	@cp -r src/lua-5.3.3 $(LUADIR)
+ifeq ($(PLATFORM),darwin)
+	@make -C $(LUADIR) macosx
+else
+ifeq ($(PLATFORM),linux)
+	@make -C $(LUADIR) linux
+else
+	@make -C $(LUADIR) $(PLATFORM)
+endif
+endif
 
 
 #############################################################################
@@ -2022,7 +2063,7 @@ endif
 ifneq ($(USE_RENDERER_DLOPEN),0)
 $(B)/$(CLIENTBIN)$(FULLBINEXT): $(Q3OBJ) $(LIBSDLMAIN)
 	$(echo_cmd) "LD $@"
-	$(Q)$(CXX) -std=c++1y $(CXXFLAGS) $(CLIENT_LDFLAGS) $(LDFLAGS) $(Q3OBJ) $(LIBSDLMAIN) $(CLIENT_LIBS) $(LIBS) -o $@ 
+	$(Q)$(CXX) -std=c++14 $(CXXFLAGS) $(CLIENT_LDFLAGS) $(LDFLAGS) $(Q3OBJ) $(LIBSDLMAIN) $(CLIENT_LIBS) $(LIBS) -o $@ 
 
 $(B)/renderer_opengl1_$(SHLIBNAME): $(Q3ROBJ) $(JPGOBJ)
 	$(echo_cmd) "LD $@"
@@ -2036,13 +2077,13 @@ $(B)/renderer_opengl2_$(SHLIBNAME): $(Q3R2OBJ) $(Q3R2STRINGOBJ) $(JPGOBJ)
 else
 $(B)/$(CLIENTBIN)$(FULLBINEXT): $(Q3OBJ) $(Q3ROBJ) $(JPGOBJ) $(LIBSDLMAIN)
 	$(echo_cmd) "LD $@"
-	$(Q)$(CXX) -std=c++1y $(CXXFLAGS) $(CLIENT_CFLAGS) $(CFLAGS) $(CLIENT_LDFLAGS) $(LDFLAGS) \
+	$(Q)$(CXX) -std=c++14 $(CXXFLAGS) $(CLIENT_CFLAGS) $(CFLAGS) $(CLIENT_LDFLAGS) $(LDFLAGS) \
 		-o $@ $(Q3OBJ) $(Q3ROBJ) $(JPGOBJ) \
 		$(LIBSDLMAIN) $(CLIENT_LIBS) $(RENDERER_LIBS) $(LIBS)
 
 $(B)/$(CLIENTBIN)_opengl2$(FULLBINEXT): $(Q3OBJ) $(Q3R2OBJ) $(Q3R2STRINGOBJ) $(JPGOBJ) $(LIBSDLMAIN)
 	$(echo_cmd) "LD $@"
-	$(Q)$(CXX) -std=c++1y $(CXXFLAGS) $(CLIENT_CFLAGS) $(CFLAGS) $(CLIENT_LDFLAGS) $(LDFLAGS) \
+	$(Q)$(CXX) -std=c++14 $(CXXFLAGS) $(CLIENT_CFLAGS) $(CFLAGS) $(CLIENT_LDFLAGS) $(LDFLAGS) \
 		-o $@ $(Q3OBJ) $(Q3R2OBJ) $(Q3R2STRINGOBJ) $(JPGOBJ) \
 		$(LIBSDLMAIN) $(CLIENT_LIBS) $(RENDERER_LIBS) $(LIBS)
 endif
@@ -2522,6 +2563,7 @@ clean2:
 	@rm -f $(OBJ_D_FILES)
 	@rm -f $(STRINGOBJ)
 	@rm -f $(TARGETS)
+	@rm -rf $(LUADIR)
 
 toolsclean: toolsclean-debug toolsclean-release
 

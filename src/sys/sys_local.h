@@ -25,8 +25,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #ifdef __cplusplus
 extern "C" {
-
-extern sol::state* glua;
 #endif
 
 #include "../qcommon/q_shared.h"

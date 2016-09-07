@@ -3213,8 +3213,8 @@ static void FS_Startup( const char *gameName )
 	fs_gamedirvar = Cvar_Get ("fs_game", "", CVAR_INIT|CVAR_SYSTEMINFO );
 
     // For pk3 boostrapped data
-    if (fs_readonly_path->string[0]) 
-        FS_AddGameDirectory(fs_readonly_path->string, gameName);
+    //if (fs_readonly_path->string[0]) 
+    //    FS_AddGameDirectory(fs_readonly_path->string, gameName);
 
 	// add search path elements in reverse priority order
 	if (fs_basepath->string[0]) {
