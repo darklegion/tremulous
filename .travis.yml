@@ -26,6 +26,8 @@ matrix:
             - ubuntu-toolchain-r-test
             - zoogie/sdl2-snapshots
           packages:
+            - gcc-6
+            - g++-6
             - libgl1-mesa-dev
             - libsdl2-dev
             - libfreetype6-dev
@@ -34,7 +36,7 @@ matrix:
             - g++-multilib
 
     - os: linux
-      env: USE_RESTCLIENT=1 USE_CODEC_VORBIS=1 USE_FREETYPE=1 ARCH=x86_64
+      env: CC=gcc-6 CXX=g++-6 USE_RESTCLIENT=1 USE_CODEC_VORBIS=1 USE_FREETYPE=1 ARCH=x86_64
       compiler: gcc
       addons:
         apt:
@@ -42,8 +44,8 @@ matrix:
             - ubuntu-toolchain-r-test
             - zoogie/sdl2-snapshots
           packages:
-            - gcc-5
-            - g++-5
+            - gcc-6
+            - g++-6
             - libgl1-mesa-dev
             - libsdl2-dev
             - libfreetype6-dev
