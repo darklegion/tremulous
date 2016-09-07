@@ -167,13 +167,10 @@ int Cvar_Flags(const char *var_name)
 	
 	if(!(var = Cvar_FindVar(var_name)))
 		return CVAR_NONEXISTENT;
-	else
-	{
-		if(var->modified)
-			return var->flags | CVAR_MODIFIED;
-		else
-			return var->flags;
-	}
+    else if ( var->modified )
+        return var->flags | CVAR_MODIFIED;
+    
+    return var->flags;
 }
 
 /*

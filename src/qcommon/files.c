@@ -2672,7 +2672,7 @@ FS_NewDir_f
 ================
 */
 void FS_NewDir_f( void ) {
-	char	*filter;
+	const char	*filter;
 	char	**dirnames;
 	int		ndirs;
 	int		i;
@@ -2787,7 +2787,7 @@ FS_Which_f
 */
 void FS_Which_f( void ) {
 	searchpath_t	*search;
-	char		*filename;
+	const char		*filename;
 
 	filename = Cmd_Argv(1);
 
