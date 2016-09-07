@@ -16,7 +16,7 @@ notifications:
 matrix:
   include: 
     - os: linux
-      env: USE_RESTCLIENT=1 PLATFORM=mingw32 ARCH=x86_64
+      env: USE_RESTCLIENT=1 PLATFORM=mingw32 ARCH=x86_64 BUILD_SERVER=0
       compiler: gcc
       before_install:
         - sudo apt-add-repository ppa:zoogie/sdl2-snapshots -y
@@ -34,7 +34,7 @@ matrix:
             - g++-multilib
 
     - os: linux
-      env: CC=gcc-6 CXX=g++-6 USE_RESTCLIENT=1 USE_CODEC_VORBIS=1 USE_FREETYPE=1 ARCH=x86_64
+      env: CC=gcc-6 CXX=g++-6 USE_RESTCLIENT=1 USE_CODEC_VORBIS=1 USE_FREETYPE=1 ARCH=x86_64 BUILD_SERVER=0
       compiler: gcc
       addons:
         apt:
@@ -49,7 +49,7 @@ matrix:
     - os: osx
       osx_image: xcode8
       compiler: clang
-      env: USE_RESTCLIENT=1 USE_CODEC_VORBIS=1 USE_FREETYPE=1 ARCH=x86_64
+      env: USE_RESTCLIENT=1 USE_CODEC_VORBIS=1 USE_FREETYPE=1 ARCH=x86_64 BUILD_SERVER=0
       before_install:
         - brew update
         - brew install freetype --universal
@@ -57,7 +57,7 @@ matrix:
     - os: osx
       osx_image: xcode8
       compiler: clang 
-      env: USE_RESTCLIENT=1 USE_CODEC_VORBIS=1 USE_FREETYPE=1 ARCH=x86
+      env: USE_RESTCLIENT=1 USE_CODEC_VORBIS=1 USE_FREETYPE=1 ARCH=x86 BUILD_SERVER=0
       before_install:
         - brew update
         - brew install freetype --universal
