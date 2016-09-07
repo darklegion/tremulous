@@ -146,6 +146,12 @@ ifndef USE_OPENAL_DLOPEN
 USE_OPENAL_DLOPEN=1
 endif
 
+ifndef USE_RESTCLIENT
+USE_RESTCLIENT=1
+USE_CURL=1
+USE_CURL_DLOPEN=0
+endif
+
 ifndef USE_CURL
 USE_CURL=1
 endif
@@ -245,6 +251,7 @@ VORBISDIR=$(MOUNT_DIR)/libvorbis-1.3.4
 OPUSDIR=$(MOUNT_DIR)/opus-1.1
 OPUSFILEDIR=$(MOUNT_DIR)/opusfile-0.5
 ZDIR=$(MOUNT_DIR)/zlib
+RESTDIR=$(MOUNT_DIR)/restclient
 Q3ASMDIR=$(MOUNT_DIR)/tools/asm
 LBURGDIR=$(MOUNT_DIR)/tools/lcc/lburg
 Q3CPPDIR=$(MOUNT_DIR)/tools/lcc/cpp
@@ -392,8 +399,13 @@ ifeq ($(PLATFORM),darwin)
   CLIENT_LIBS=
   RENDERER_LIBS=
   OPTIMIZEVM=
+  CXXFLAGS=-stdlib=libc++
 
   BASE_CFLAGS += -mmacosx-version-min=10.7 -DMAC_OS_X_VERSION_MIN_REQUIRED=1070
+
+  ifeq ($(USE_RESTCLIENT),1)
+    CLIENT_LIBS += -framework Security
+  endif
 
   ifeq ($(ARCH),ppc)
     BASE_CFLAGS += -arch ppc -faltivec
@@ -536,6 +548,10 @@ ifdef MINGW
   ifeq ($(CXX),)
     $(error Cannot find a suitable cross compiler for $(PLATFORM) CXX)
   endif
+
+  CFLAGS += -static -static-libgcc -static-libstdc++
+  CXXFLAGS += -static -static-libgcc -static-libstdc++
+  LDFLAGS += -static -static-libgcc -static-libstdc++
 
   BASE_CFLAGS = -Wall -fno-strict-aliasing -Wimplicit -Wstrict-prototypes \
     -DUSE_ICON
@@ -1015,6 +1031,11 @@ ifeq ($(USE_CODEC_VORBIS),1)
   NEED_OGG=1
 endif
 
+#-bbq
+ifeq ($(USE_RESTCLIENT),1)
+  CLIENT_CFLAGS += -DUSE_RESTCLIENT -I$(RESTDIR)
+endif
+
 ifeq ($(NEED_OGG),1)
   ifeq ($(USE_INTERNAL_OGG),1)
     OGG_CFLAGS = -I$(OGGDIR)/include
@@ -1112,7 +1133,7 @@ endef
 
 define DO_CXX
 $(echo_cmd) "CXX $<"
-$(Q)$(CXX) -std=c++14 -stdlib=libc++ $(DEBUG_CFLAGS) $(NOTSHLIBCFLAGS) $(CFLAGS) $(CLIENT_CFLAGS) $(OPTIMIZE) -o $@ -c $<
+$(Q)$(CXX) -std=c++1y $(CXXFLAGS) $(NOTSHLIBCFLAGS) $(CFLAGS) $(CLIENT_CFLAGS) $(OPTIMIZE) -o $@ -c $<
 endef
 
 define DO_REF_CC
@@ -1173,7 +1194,7 @@ endef
 
 define DO_DED_CXX
 $(echo_cmd) "DED_CXX $<"
-$(Q)$(CXX) -std=c++14 -stdlib=libc++ $(DEBUG_CFLAGS) $(NOTSHLIBCFLAGS) -DDEDICATED $(CFLAGS) $(SERVER_CFLAGS) $(OPTIMIZE) -o $@ -c $<
+$(Q)$(CXX) -std=c++1y $(CXXFLAGS) $(NOTSHLIBCFLAGS) -DDEDICATED $(CFLAGS) $(SERVER_CFLAGS) $(OPTIMIZE) -o $@ -c $<
 endef
 
 define DO_WINDRES
@@ -1191,6 +1212,7 @@ all: debug release
 
 debug:
 	@$(MAKE) targets B=$(BD) CFLAGS="$(CFLAGS) $(BASE_CFLAGS) $(DEPEND_CFLAGS)" \
+      CXXFLAGS="$(BASE_CFLAGS) $(CXXFLAGS)" \
 	  OPTIMIZE="$(DEBUG_CFLAGS)" OPTIMIZEVM="$(DEBUG_CFLAGS)" \
 	  CLIENT_CFLAGS="$(CLIENT_CFLAGS)" SERVER_CFLAGS="$(SERVER_CFLAGS)" V=$(V)
 ifeq ($(BUILD_MASTER_SERVER),1)
@@ -1199,6 +1221,7 @@ endif
 
 release:
 	@$(MAKE) targets B=$(BR) CFLAGS="$(CFLAGS) $(BASE_CFLAGS) $(DEPEND_CFLAGS)" \
+      CXXFLAGS="$(BASE_CFLAGS) $(CXXFLAGS)" \
 	  OPTIMIZE="-DNDEBUG $(OPTIMIZE)" OPTIMIZEVM="-DNDEBUG $(OPTIMIZEVM)" \
 	  CLIENT_CFLAGS="$(CLIENT_CFLAGS)" SERVER_CFLAGS="$(SERVER_CFLAGS)" V=$(V)
 ifeq ($(BUILD_MASTER_SERVER),1)
@@ -1300,6 +1323,7 @@ makedirs:
 	@if [ ! -d $(B)/client ];then $(MKDIR) $(B)/client;fi
 	@if [ ! -d $(B)/client/opus ];then $(MKDIR) $(B)/client/opus;fi
 	@if [ ! -d $(B)/client/vorbis ];then $(MKDIR) $(B)/client/vorbis;fi
+	@if [ ! -d $(B)/client/restclient ];then $(MKDIR) $(B)/client/restclient;fi
 	@if [ ! -d $(B)/renderergl1 ];then $(MKDIR) $(B)/renderergl1;fi
 	@if [ ! -d $(B)/renderergl2 ];then $(MKDIR) $(B)/renderergl2;fi
 	@if [ ! -d $(B)/renderergl2/glsl ];then $(MKDIR) $(B)/renderergl2/glsl;fi
@@ -1954,6 +1978,15 @@ Q3OBJ += \
   $(B)/client/zutil.o
 endif
 
+#-bbq
+ifeq ($(USE_RESTCLIENT),1)
+  Q3OBJ += \
+  	$(B)/client/restclient/connection.o \
+  	$(B)/client/restclient/helpers.o \
+  	$(B)/client/restclient/restclient.o \
+  	$(B)/client/restclient/cl_rest.o
+endif
+
 ifeq ($(HAVE_VM_COMPILED),true)
   ifneq ($(findstring $(ARCH),x86 x86_64),)
     Q3OBJ += \
@@ -1989,14 +2022,7 @@ endif
 ifneq ($(USE_RENDERER_DLOPEN),0)
 $(B)/$(CLIENTBIN)$(FULLBINEXT): $(Q3OBJ) $(LIBSDLMAIN)
 	$(echo_cmd) "LD $@"
-	@echo "CLIENT_CFLAGS  $(CLIENT_CFLAGS)"
-	@echo "CFLAGS 	      $(CFLAGS)"
-	@echo "CLIENT_LDFLAGS $(CLIENT_LDFLAGS)"
-	@echo "LDFLAGS        $(LDFLAGS)"
-	@echo "LIBSDLMAIN     $(LIBSDLMAIN)"
-	@echo "CLIENT_LIBS    $(CLIENT_LIBS)"
-	@echo "LIBS        	  $(LIBS)"
-	$(Q)$(CXX) $(CLIENT_LIBS) $(CLIENT_LDFLAGS) $(LDFLAGS) $(LIBSDLMAIN) $(LIBS) -o $@ $(Q3OBJ)
+	$(Q)$(CXX) -std=c++1y $(CXXFLAGS) $(CLIENT_LDFLAGS) $(LDFLAGS) $(Q3OBJ) $(LIBSDLMAIN) $(CLIENT_LIBS) $(LIBS) -o $@ 
 
 $(B)/renderer_opengl1_$(SHLIBNAME): $(Q3ROBJ) $(JPGOBJ)
 	$(echo_cmd) "LD $@"
@@ -2010,13 +2036,13 @@ $(B)/renderer_opengl2_$(SHLIBNAME): $(Q3R2OBJ) $(Q3R2STRINGOBJ) $(JPGOBJ)
 else
 $(B)/$(CLIENTBIN)$(FULLBINEXT): $(Q3OBJ) $(Q3ROBJ) $(JPGOBJ) $(LIBSDLMAIN)
 	$(echo_cmd) "LD $@"
-	$(Q)$(CXX) $(CLIENT_CFLAGS) $(CFLAGS) $(CLIENT_LDFLAGS) $(LDFLAGS) \
+	$(Q)$(CXX) -std=c++1y $(CXXFLAGS) $(CLIENT_CFLAGS) $(CFLAGS) $(CLIENT_LDFLAGS) $(LDFLAGS) \
 		-o $@ $(Q3OBJ) $(Q3ROBJ) $(JPGOBJ) \
 		$(LIBSDLMAIN) $(CLIENT_LIBS) $(RENDERER_LIBS) $(LIBS)
 
 $(B)/$(CLIENTBIN)_opengl2$(FULLBINEXT): $(Q3OBJ) $(Q3R2OBJ) $(Q3R2STRINGOBJ) $(JPGOBJ) $(LIBSDLMAIN)
 	$(echo_cmd) "LD $@"
-	$(Q)$(CXX) $(CLIENT_CFLAGS) $(CFLAGS) $(CLIENT_LDFLAGS) $(LDFLAGS) \
+	$(Q)$(CXX) -std=c++1y $(CXXFLAGS) $(CLIENT_CFLAGS) $(CFLAGS) $(CLIENT_LDFLAGS) $(LDFLAGS) \
 		-o $@ $(Q3OBJ) $(Q3R2OBJ) $(Q3R2STRINGOBJ) $(JPGOBJ) \
 		$(LIBSDLMAIN) $(CLIENT_LIBS) $(RENDERER_LIBS) $(LIBS)
 endif
@@ -2335,9 +2361,12 @@ $(B)/client/%.o: $(SYSDIR)/%.cpp
 $(B)/client/%.o: $(SYSDIR)/%.m
 	$(DO_CC)
 
+#-wtf
+$(B)/client/restclient/%.o: $(RESTDIR)/%.cpp
+	$(DO_CXX)
+
 $(B)/client/%.o: $(SYSDIR)/%.rc
 	$(DO_WINDRES)
-
 
 $(B)/renderergl1/%.o: $(CMDIR)/%.c
 	$(DO_REF_CC)
