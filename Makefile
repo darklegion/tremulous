@@ -1123,7 +1123,7 @@ endef
 
 define DO_CXX
 $(echo_cmd) "CXX $<"
-$(Q)$(CXX) -std=c++11 $(CXXFLAGS) $(NOTSHLIBCFLAGS) $(CFLAGS) $(CLIENT_CFLAGS) $(OPTIMIZE) -o $@ -c $<
+$(Q)$(CXX) -std=c++14 $(CXXFLAGS) $(NOTSHLIBCFLAGS) $(CFLAGS) $(CLIENT_CFLAGS) $(OPTIMIZE) -o $@ -c $<
 endef
 
 define DO_REF_CC
@@ -1179,7 +1179,7 @@ endef
 
 define DO_DED_CXX
 $(echo_cmd) "DED_CXX $<"
-$(Q)$(CXX) -std=c++11 $(CXXFLAGS) $(NOTSHLIBCFLAGS) -DDEDICATED $(CFLAGS) $(SERVER_CFLAGS) $(OPTIMIZE) -o $@ -c $<
+$(Q)$(CXX) -std=c++14 $(CXXFLAGS) $(NOTSHLIBCFLAGS) -DDEDICATED $(CFLAGS) $(SERVER_CFLAGS) $(OPTIMIZE) -o $@ -c $<
 endef
 
 define DO_WINDRES
@@ -2007,7 +2007,7 @@ endif
 ifneq ($(USE_RENDERER_DLOPEN),0)
 $(B)/$(CLIENTBIN)$(FULLBINEXT): $(Q3OBJ) $(LIBSDLMAIN)
 	$(echo_cmd) "LD $@"
-	$(Q)$(CXX) -std=c++11 $(CXXFLAGS) $(CLIENT_LDFLAGS) $(LDFLAGS) $(Q3OBJ) $(LIBSDLMAIN) $(CLIENT_LIBS) $(LIBS) -o $@ 
+	$(Q)$(CXX) -std=c++14 $(CXXFLAGS) $(CLIENT_LDFLAGS) $(LDFLAGS) $(Q3OBJ) $(LIBSDLMAIN) $(CLIENT_LIBS) $(LIBS) -o $@ 
 
 $(B)/renderer_opengl1_$(SHLIBNAME): $(Q3ROBJ) $(JPGOBJ)
 	$(echo_cmd) "LD $@"
@@ -2021,13 +2021,13 @@ $(B)/renderer_opengl2_$(SHLIBNAME): $(Q3R2OBJ) $(Q3R2STRINGOBJ) $(JPGOBJ)
 else
 $(B)/$(CLIENTBIN)$(FULLBINEXT): $(Q3OBJ) $(Q3ROBJ) $(JPGOBJ) $(LIBSDLMAIN)
 	$(echo_cmd) "LD $@"
-	$(Q)$(CXX) -std=c++11 $(CXXFLAGS) $(CLIENT_CFLAGS) $(CFLAGS) $(CLIENT_LDFLAGS) $(LDFLAGS) \
+	$(Q)$(CXX) -std=c++14 $(CXXFLAGS) $(CLIENT_CFLAGS) $(CFLAGS) $(CLIENT_LDFLAGS) $(LDFLAGS) \
 		-o $@ $(Q3OBJ) $(Q3ROBJ) $(JPGOBJ) \
 		$(LIBSDLMAIN) $(CLIENT_LIBS) $(RENDERER_LIBS) $(LIBS)
 
 $(B)/$(CLIENTBIN)_opengl2$(FULLBINEXT): $(Q3OBJ) $(Q3R2OBJ) $(Q3R2STRINGOBJ) $(JPGOBJ) $(LIBSDLMAIN)
 	$(echo_cmd) "LD $@"
-	$(Q)$(CXX) -std=c++11 $(CXXFLAGS) $(CLIENT_CFLAGS) $(CFLAGS) $(CLIENT_LDFLAGS) $(LDFLAGS) \
+	$(Q)$(CXX) -std=c++14 $(CXXFLAGS) $(CLIENT_CFLAGS) $(CFLAGS) $(CLIENT_LDFLAGS) $(LDFLAGS) \
 		-o $@ $(Q3OBJ) $(Q3R2OBJ) $(Q3R2STRINGOBJ) $(JPGOBJ) \
 		$(LIBSDLMAIN) $(CLIENT_LIBS) $(RENDERER_LIBS) $(LIBS)
 endif
