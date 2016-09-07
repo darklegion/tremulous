@@ -1550,7 +1550,9 @@ else
 ifeq ($(PLATFORM),linux)
 	@make -C $(LUADIR) linux
 else
-	@make -C $(LUADIR) $(PLATFORM)
+ifeq ($(PLATFORM),mingw32)
+	@make -C $(LUADIR) mingw
+endif
 endif
 endif
 
