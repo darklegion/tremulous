@@ -1098,7 +1098,7 @@ void CL_InitUI( void )
         return; // CANT GET HERE
     }
 
-    switch (VM_Call( uivm, UI_GETAPIVERSION ))
+    switch ((v = VM_Call( uivm, UI_GETAPIVERSION )))
     {
         case UI_API_VERSION:
         case UI_OLD_API_VERSION: // FIXIT-L: REMOVE ME
