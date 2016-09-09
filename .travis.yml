@@ -19,7 +19,7 @@ matrix:
       env: USE_RESTCLIENT=1 PLATFORM=mingw32 ARCH=x86_64
       compiler: gcc
       before_install:
-        - sudo apt-add-repository ppa:zoogie/sdl2-snapshots -y
+        - rm -rf build
       addons:
         apt:
           sources:
@@ -36,6 +36,8 @@ matrix:
     - os: linux
       env: USE_RESTCLIENT=1 USE_CODEC_VORBIS=1 USE_FREETYPE=1 ARCH=x86_64
       compiler: gcc
+      before_install:
+        - rm -rf build
       addons:
         apt:
           sources:
@@ -53,6 +55,7 @@ matrix:
       before_install:
         - brew update
         - brew install freetype --universal
+        - rm -rf build
 
     - os: osx
       osx_image: xcode8
@@ -61,6 +64,7 @@ matrix:
       before_install:
         - brew update
         - brew install freetype --universal
+        - rm -rf build
 
 deploy:
     provider: releases

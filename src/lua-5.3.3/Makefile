@@ -11,7 +11,6 @@ PLAT= none
 # You may want to make INSTALL_LMOD and INSTALL_CMOD consistent with
 # LUA_ROOT, LUA_LDIR, and LUA_CDIR in luaconf.h.
 INSTALL_TOP ?= $(shell pwd)
-INSTALL_BIN= $(INSTALL_TOP)/bin
 INSTALL_INC= $(INSTALL_TOP)/include
 INSTALL_LIB= $(INSTALL_TOP)/lib
 INSTALL_MAN= $(INSTALL_TOP)/man/man1
@@ -39,7 +38,6 @@ RM= rm -f
 PLATS= aix bsd c89 freebsd generic linux macosx mingw posix solaris
 
 # What to install.
-TO_BIN= lua luac
 TO_INC= lua.h luaconf.h lualib.h lauxlib.h lua.hpp
 TO_LIB= liblua.a
 TO_MAN= lua.1 luac.1
@@ -58,14 +56,12 @@ test:	dummy
 	src/lua -v
 
 install: dummy
-	cd src && $(MKDIR) $(INSTALL_BIN) $(INSTALL_INC) $(INSTALL_LIB) $(INSTALL_MAN) $(INSTALL_LMOD) $(INSTALL_CMOD)
-	cd src && $(INSTALL_EXEC) $(TO_BIN) $(INSTALL_BIN)
+	cd src && $(MKDIR) $(INSTALL_INC) $(INSTALL_LIB) $(INSTALL_MAN) $(INSTALL_LMOD) $(INSTALL_CMOD)
 	cd src && $(INSTALL_DATA) $(TO_INC) $(INSTALL_INC)
 	cd src && $(INSTALL_DATA) $(TO_LIB) $(INSTALL_LIB)
 	cd doc && $(INSTALL_DATA) $(TO_MAN) $(INSTALL_MAN)
 
 uninstall:
-	cd src && cd $(INSTALL_BIN) && $(RM) $(TO_BIN)
 	cd src && cd $(INSTALL_INC) && $(RM) $(TO_INC)
 	cd src && cd $(INSTALL_LIB) && $(RM) $(TO_LIB)
 	cd doc && cd $(INSTALL_MAN) && $(RM) $(TO_MAN)
@@ -87,12 +83,10 @@ echo:
 	@echo "PLAT= $(PLAT)"
 	@echo "V= $V"
 	@echo "R= $R"
-	@echo "TO_BIN= $(TO_BIN)"
 	@echo "TO_INC= $(TO_INC)"
 	@echo "TO_LIB= $(TO_LIB)"
 	@echo "TO_MAN= $(TO_MAN)"
 	@echo "INSTALL_TOP= $(INSTALL_TOP)"
-	@echo "INSTALL_BIN= $(INSTALL_BIN)"
 	@echo "INSTALL_INC= $(INSTALL_INC)"
 	@echo "INSTALL_LIB= $(INSTALL_LIB)"
 	@echo "INSTALL_MAN= $(INSTALL_MAN)"

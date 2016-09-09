@@ -1080,9 +1080,13 @@ ifeq ($(USE_FREETYPE),1)
   RENDERER_LIBS += $(FREETYPE_LIBS)
 endif
 
+#
 # -bbq LUADIR really needs to be built in build/$(PLATFORM) etc.. 
 #  Should try to drive this with PKG_CONFIG_PATH and *.pc files,
 #  trivializing  USE_INTERNAL_LIBS
+#
+# Might also want to package windows + macosx dll's instead of
+# building every time
 ifeq ($(USE_INTERNAL_LUA),1)
   CXXFLAGS += -DUSE_INTERNAL_LUA -I$(LUADIR)/include
   CFLAGS += -DUSE_INTERNAL_LUA -I$(LUADIR)/include
@@ -1100,7 +1104,6 @@ else
   CFLAGS += $(LUA_CFLAGS)
   CXXFLAGS += $(LUA_CFLAGS)
   LDFLAGS += $(LUA_LIBS)
-  #RENDERER_LIBS += $(LUA_LIBS)
 endif
 
 ifeq ("$(CC)", $(findstring "$(CC)", "clang" "clang++"))
@@ -2199,8 +2202,6 @@ endif
 $(B)/$(SERVERBIN)$(FULLBINEXT): $(Q3DOBJ)
 	$(echo_cmd) "LD $@"
 	$(Q)$(CXX) $(CFLAGS) $(LDFLAGS) -o $@ $(Q3DOBJ) $(LIBS)
-
-
 
 #############################################################################
 ## TREMULOUS CGAME
