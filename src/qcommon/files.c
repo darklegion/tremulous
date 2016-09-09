@@ -3212,7 +3212,7 @@ static void FS_Startup( const char *gameName )
 	fs_homepath = Cvar_Get ("fs_homepath", homePath, CVAR_INIT|CVAR_PROTECTED );
 	fs_gamedirvar = Cvar_Get ("fs_game", "", CVAR_INIT|CVAR_SYSTEMINFO );
 
-    // For pk3 boostrapped data
+    // FIXME For pk3 boostrapped data
     //if (fs_readonly_path->string[0]) 
     //    FS_AddGameDirectory(fs_readonly_path->string, gameName);
 
