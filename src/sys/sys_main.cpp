@@ -22,7 +22,7 @@
    */
 
 #include <iostream>
-#include <lua.hpp>
+#include "../lua-5.3.3/include/lua.hpp"
 #include "../sol/sol.hpp"
 
 #include <signal.h>

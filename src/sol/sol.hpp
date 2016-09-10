@@ -1799,7 +1799,7 @@ namespace sol {
 
 // beginning of sol/compatibility/version.hpp
 
-#include <lua.hpp>
+#include "../lua-5.3.3/include/lua.hpp"
 
 #if defined(_WIN32) || defined(_MSC_VER)  || defined(__MINGW32__)
 #ifndef SOL_CODECVT_SUPPORT
