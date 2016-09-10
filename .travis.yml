@@ -24,7 +24,6 @@ matrix:
         apt:
           sources:
             - ubuntu-toolchain-r-test
-            - zoogie/sdl2-snapshots
           packages:
             - libgl1-mesa-dev
             - libsdl2-dev
@@ -42,7 +41,6 @@ matrix:
         apt:
           sources:
             - ubuntu-toolchain-r-test
-            - zoogie/sdl2-snapshots
           packages:
             - libgl1-mesa-dev
             - libsdl2-dev
