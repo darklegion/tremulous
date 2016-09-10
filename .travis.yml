@@ -33,15 +33,6 @@ matrix:
         - brew install freetype --universal
         - rm -rf build
 
-    - os: osx
-      osx_image: xcode8
-      compiler: clang 
-      env: USE_RESTCLIENT=1 USE_CODEC_VORBIS=1 USE_FREETYPE=1 ARCH=x86
-      before_install:
-        - brew update
-        - brew install freetype --universal
-        - rm -rf build
-
 deploy:
     provider: releases
     skip_cleanup: true
