@@ -947,10 +947,6 @@ ifndef SHLIBNAME
   SHLIBNAME=$(ARCH).$(SHLIBEXT)
 endif
 
-ifeq ($(USE_INTERNAL_LUA),1)
-  TARGETS += $(B)/liblua.$(SHLIBEXT)
-endif
-
 ifneq ($(BUILD_SERVER),0)
   TARGETS += $(B)/$(SERVERBIN)$(FULLBINEXT)
 endif
@@ -1556,22 +1552,6 @@ $(Q3ASM): $(Q3ASMOBJ)
 	$(echo_cmd) "LD $@"
 	$(Q)$(TOOLS_CC) $(TOOLS_CFLAGS) $(TOOLS_LDFLAGS) -o $@ $^ $(TOOLS_LIBS)
 
-$(LUADIR)/include/lua.hpp: src/lua-5.3.3/Makefile
-ifeq ($(USE_INTERNAL_LUA),1)
-ifeq ($(PLATFORM),darwin)
-	@make -C $(LUADIR) macosx
-else
-ifeq ($(PLATFORM),linux)
-	@make -C $(LUADIR) linux
-else
-ifeq ($(PLATFORM),mingw32)
-	@make -C $(LUADIR) mingw
-endif
-endif
-endif
-	@make -C $(LUADIR) install INSTALL_TOP=$(LUADIR)
-endif
-
 #############################################################################
 # LUA
 #############################################################################
@@ -1589,39 +1569,43 @@ define DO_LUA_LD
 endef
 
 LUAOBJ = \
-	$(B)/lua/lapi.o \
-	$(B)/lua/lcode.o \
-	$(B)/lua/lctype.o \
-	$(B)/lua/ldebug.o \
-	$(B)/lua/ldo.o \
-	$(B)/lua/ldump.o \
-	$(B)/lua/lfunc.o \
-	$(B)/lua/lgc.o \
-	$(B)/lua/llex.o \
-	$(B)/lua/lmem.o \
-	$(B)/lua/lobject.o \
-	$(B)/lua/lopcodes.o \
-	$(B)/lua/lparser.o \
-	$(B)/lua/lstate.o \
-	$(B)/lua/lstring.o \
-	$(B)/lua/ltable.o \
-	$(B)/lua/ltm.o \
-	$(B)/lua/lundump.o \
-	$(B)/lua/lvm.o \
-	$(B)/lua/lzio.o \
-	$(B)/lua/lauxlib.o \
-	$(B)/lua/lbaselib.o \
-	$(B)/lua/lbitlib.o \
-	$(B)/lua/lcorolib.o \
-	$(B)/lua/ldblib.o \
-	$(B)/lua/liolib.o \
-	$(B)/lua/lmathlib.o \
-	$(B)/lua/loslib.o \
-	$(B)/lua/lstrlib.o \
-	$(B)/lua/ltablib.o \
-	$(B)/lua/lutf8lib.o \
-	$(B)/lua/loadlib.o \
-	$(B)/lua/linit.o
+  $(B)/lua/lapi.o \
+  $(B)/lua/lcode.o \
+  $(B)/lua/lctype.o \
+  $(B)/lua/ldebug.o \
+  $(B)/lua/ldo.o \
+  $(B)/lua/ldump.o \
+  $(B)/lua/lfunc.o \
+  $(B)/lua/lgc.o \
+  $(B)/lua/llex.o \
+  $(B)/lua/lmem.o \
+  $(B)/lua/lobject.o \
+  $(B)/lua/lopcodes.o \
+  $(B)/lua/lparser.o \
+  $(B)/lua/lstate.o \
+  $(B)/lua/lstring.o \
+  $(B)/lua/ltable.o \
+  $(B)/lua/ltm.o \
+  $(B)/lua/lundump.o \
+  $(B)/lua/lvm.o \
+  $(B)/lua/lzio.o \
+  $(B)/lua/lauxlib.o \
+  $(B)/lua/lbaselib.o \
+  $(B)/lua/lbitlib.o \
+  $(B)/lua/lcorolib.o \
+  $(B)/lua/ldblib.o \
+  $(B)/lua/liolib.o \
+  $(B)/lua/lmathlib.o \
+  $(B)/lua/loslib.o \
+  $(B)/lua/lstrlib.o \
+  $(B)/lua/ltablib.o \
+  $(B)/lua/lutf8lib.o \
+  $(B)/lua/loadlib.o \
+  $(B)/lua/linit.o
+
+LUACFLAGS= -I$(MOUNT_DIR)/lua-5.3.3/include
+CFLAGS += $(LUACFLAGS)
+CXXFLAGS += $(LUACFLAGS)
 
 $(B)/lua/%.o: $(LUADIR)/%.c
 	$(DO_LUA_CC)
