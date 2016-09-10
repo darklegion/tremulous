@@ -722,19 +722,16 @@ int main( int argc, char **argv )
     //         } 
     //     );
 
-    try
-    { 
-        for ( ;; )
-        {
+    for ( ;; )
+        try
+        { 
             IN_Frame( );
             Com_Frame( );
+        } 
+        catch (sol::error& e)
+        {
+            Com_Printf("Error: %s\n", e.what());
         }
-    } 
-    catch (sol::error& e)
-    {
-        Com_Printf("Error: %s\n", e.what());
-        exit(1);
-    }
 
     return 0;
 }
