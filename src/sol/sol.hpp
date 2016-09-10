@@ -1803,12 +1803,12 @@ namespace sol {
 
 #if defined(_WIN32) || defined(_MSC_VER)  || defined(__MINGW32__)
 #ifndef SOL_CODECVT_SUPPORT
-#define SOL_CODECVT_SUPPORT 1
+//#define SOL_CODECVT_SUPPORT 1
 #endif // sol codecvt support
 #elif defined(__GNUC__)
 #if __GNUC__ >= 5
 #ifndef SOL_CODECVT_SUPPORT
-#define SOL_CODECVT_SUPPORT 1
+//#define SOL_CODECVT_SUPPORT 1
 #endif // codecvt support
 #endif // g++ 5.x.x
 #else
