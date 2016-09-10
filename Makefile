@@ -255,7 +255,7 @@ VORBISDIR=$(MOUNT_DIR)/libvorbis-1.3.4
 OPUSDIR=$(MOUNT_DIR)/opus-1.1
 OPUSFILEDIR=$(MOUNT_DIR)/opusfile-0.5
 ZDIR=$(MOUNT_DIR)/zlib
-LUADIR=$(BUILD_DIR)/lua-5.3.3
+LUADIR=$(MOUNT_DIR)/lua-5.3.3/src
 RESTDIR=$(MOUNT_DIR)/restclient
 Q3ASMDIR=$(MOUNT_DIR)/tools/asm
 LBURGDIR=$(MOUNT_DIR)/tools/lcc/lburg
@@ -359,7 +359,8 @@ ifneq (,$(findstring "$(PLATFORM)", "linux" "gnu_kfreebsd" "kfreebsd-gnu" "gnu")
 
   SHLIBEXT=so
   SHLIBCFLAGS=-fPIC -fvisibility=hidden
-  SHLIBLDFLAGS=-shared $(LDFLAGS)
+  SHLIBLDFLAGS=-shared
+  #$(LDFLAGS)
 
   THREAD_LIBS=-lpthread
   LIBS=-ldl -lm
@@ -488,8 +489,9 @@ ifeq ($(PLATFORM),darwin)
 
   SHLIBEXT=dylib
   SHLIBCFLAGS=-fPIC -fno-common
-  SHLIBLDFLAGS=-dynamiclib $(LDFLAGS) -Wl,-U,_com_altivec
-
+  #SHLIBLDFLAGS=-dynamiclib $(LDFLAGS) -Wl,-U,_com_altivec
+  SHLIBLDFLAGS=-dynamiclib -Wl,-U,_com_altivec
+ 
   NOTSHLIBCFLAGS=-mdynamic-no-pic
 
 else # ifeq darwin
@@ -591,7 +593,8 @@ ifdef MINGW
 
   SHLIBEXT=dll
   SHLIBCFLAGS=
-  SHLIBLDFLAGS=-shared $(LDFLAGS)
+  #SHLIBLDFLAGS=-shared $(LDFLAGS)
+  SHLIBLDFLAGS=-shared
 
   BINEXT=.exe
 
@@ -680,7 +683,8 @@ ifeq ($(PLATFORM),freebsd)
 
   SHLIBEXT=so
   SHLIBCFLAGS=-fPIC
-  SHLIBLDFLAGS=-shared $(LDFLAGS)
+  #SHLIBLDFLAGS=-shared $(LDFLAGS)
+  SHLIBLDFLAGS=-shared
 
   THREAD_LIBS=-lpthread
   # don't need -ldl (FreeBSD)
@@ -772,7 +776,8 @@ ifeq ($(PLATFORM),openbsd)
 
   SHLIBEXT=so
   SHLIBCFLAGS=-fPIC
-  SHLIBLDFLAGS=-shared $(LDFLAGS)
+  #SHLIBLDFLAGS=-shared $(LDFLAGS)
+  SHLIBLDFLAGS=-shared 
 
   THREAD_LIBS=-lpthread
   LIBS=-lm
@@ -942,6 +947,10 @@ ifndef SHLIBNAME
   SHLIBNAME=$(ARCH).$(SHLIBEXT)
 endif
 
+ifeq ($(USE_INTERNAL_LUA),1)
+  TARGETS += $(B)/liblua.$(SHLIBEXT)
+endif
+
 ifneq ($(BUILD_SERVER),0)
   TARGETS += $(B)/$(SERVERBIN)$(FULLBINEXT)
 endif
@@ -1087,24 +1096,26 @@ endif
 #
 # Might also want to package windows + macosx dll's instead of
 # building every time
-ifeq ($(USE_INTERNAL_LUA),1)
-  CXXFLAGS += -DUSE_INTERNAL_LUA -I$(LUADIR)/include
-  CFLAGS += -DUSE_INTERNAL_LUA -I$(LUADIR)/include
-  LDFLAGS += $(LUADIR)/lib/liblua.a
-else
-  ifeq ($(USE_LUA),1)
-    LUA_CFLAGS += $(shell pkg-config --silence-errors --cflags lua)
-    LUA_LIBS += $(shell pkg-config --silence-errors --libs lua)
-  else
-  ifeq ($(USE_LUAJIT),1)
-    LUA_CFLAGS += $(shell pkg-config --silence-errors --cflags luajit)
-    LUA_LIBS += $(shell pkg-config --silence-errors --libs luajit)
-  endif
-  endif
-  CFLAGS += $(LUA_CFLAGS)
-  CXXFLAGS += $(LUA_CFLAGS)
-  LDFLAGS += $(LUA_LIBS)
-endif
+#ifeq ($(USE_INTERNAL_LUA),1)
+#LDFLAGS += -l $(B)/liblua.$(SHLIBEXT)
+#endif
+#  CXXFLAGS += -DUSE_INTERNAL_LUA -I$(LUADIR)/include
+#  CFLAGS += -DUSE_INTERNAL_LUA -I$(LUADIR)/include
+#  LDFLAGS += $(LUADIR)/lib/liblua.a
+#else
+#  ifeq ($(USE_LUA),1)
+#    LUA_CFLAGS += $(shell pkg-config --silence-errors --cflags lua)
+#    LUA_LIBS += $(shell pkg-config --silence-errors --libs lua)
+#  else
+#  ifeq ($(USE_LUAJIT),1)
+#    LUA_CFLAGS += $(shell pkg-config --silence-errors --cflags luajit)
+#    LUA_LIBS += $(shell pkg-config --silence-errors --libs luajit)
+#  endif
+#  endif
+#  CFLAGS += $(LUA_CFLAGS)
+#  CXXFLAGS += $(LUA_CFLAGS)
+#  LDFLAGS += $(LUA_LIBS)
+#endif
 
 ifeq ("$(CC)", $(findstring "$(CC)", "clang" "clang++"))
   BASE_CFLAGS += -Qunused-arguments
@@ -1338,7 +1349,6 @@ endif
 	@echo "  Output:"
 	$(call print_list, $(NAKED_TARGETS))
 	@echo ""
-	@$(MAKE) $(LUADIR)/include/lua.hpp
 	@$(MAKE) $(TARGETS) $(B).zip V=$(V)
 
 $(B).zip: $(TARGETS)
@@ -1352,14 +1362,15 @@ endif
 makedirs:
 	@if [ ! -d $(BUILD_DIR) ];then $(MKDIR) $(BUILD_DIR);fi
 	@if [ ! -d $(B) ];then $(MKDIR) $(B);fi
+	@if [ ! -d $(B)/lua ]; then $(MKDIR) $(B)/lua;fi
 	@if [ ! -d $(B)/client ];then $(MKDIR) $(B)/client;fi
 	@if [ ! -d $(B)/client/opus ];then $(MKDIR) $(B)/client/opus;fi
 	@if [ ! -d $(B)/client/vorbis ];then $(MKDIR) $(B)/client/vorbis;fi
 	@if [ ! -d $(B)/client/restclient ];then $(MKDIR) $(B)/client/restclient;fi
+	@if [ ! -d $(B)/ded ];then $(MKDIR) $(B)/ded;fi
 	@if [ ! -d $(B)/renderergl1 ];then $(MKDIR) $(B)/renderergl1;fi
 	@if [ ! -d $(B)/renderergl2 ];then $(MKDIR) $(B)/renderergl2;fi
 	@if [ ! -d $(B)/renderergl2/glsl ];then $(MKDIR) $(B)/renderergl2/glsl;fi
-	@if [ ! -d $(B)/ded ];then $(MKDIR) $(B)/ded;fi
 	@if [ ! -d $(B)/$(BASEGAME) ];then $(MKDIR) $(B)/$(BASEGAME);fi
 	@if [ ! -d $(B)/$(BASEGAME)/cgame ];then $(MKDIR) $(B)/$(BASEGAME)/cgame;fi
 	@if [ ! -d $(B)/$(BASEGAME)/game ];then $(MKDIR) $(B)/$(BASEGAME)/game;fi
@@ -1546,7 +1557,7 @@ $(Q3ASM): $(Q3ASMOBJ)
 	$(Q)$(TOOLS_CC) $(TOOLS_CFLAGS) $(TOOLS_LDFLAGS) -o $@ $^ $(TOOLS_LIBS)
 
 $(LUADIR)/include/lua.hpp: src/lua-5.3.3/Makefile
-	@cp -r src/lua-5.3.3 $(LUADIR)
+ifeq ($(USE_INTERNAL_LUA),1)
 ifeq ($(PLATFORM),darwin)
 	@make -C $(LUADIR) macosx
 else
@@ -1558,7 +1569,65 @@ ifeq ($(PLATFORM),mingw32)
 endif
 endif
 endif
+	@make -C $(LUADIR) install INSTALL_TOP=$(LUADIR)
+endif
 
+#############################################################################
+# LUA
+#############################################################################
+
+LUACFLAGS=-Wall -Wextra -DLUA_COMPAT_5_2 -DLUA_USE_MACOSX -fPIC -fpic
+
+define DO_LUA_CC
+  $(echo_cmd) "LUA_CC $<"
+  $(Q)$(CC) $(LUACFLAGS) $(OPTIMIZE) -o $@ -c $<
+endef
+
+define DO_LUA_LD
+  $(echo_cmd) "LUA_LD $<"
+  $(Q)$(CC) $(SHLIBLDFLAGS) -o $@ $^
+endef
+
+LUAOBJ = \
+	$(B)/lua/lapi.o \
+	$(B)/lua/lcode.o \
+	$(B)/lua/lctype.o \
+	$(B)/lua/ldebug.o \
+	$(B)/lua/ldo.o \
+	$(B)/lua/ldump.o \
+	$(B)/lua/lfunc.o \
+	$(B)/lua/lgc.o \
+	$(B)/lua/llex.o \
+	$(B)/lua/lmem.o \
+	$(B)/lua/lobject.o \
+	$(B)/lua/lopcodes.o \
+	$(B)/lua/lparser.o \
+	$(B)/lua/lstate.o \
+	$(B)/lua/lstring.o \
+	$(B)/lua/ltable.o \
+	$(B)/lua/ltm.o \
+	$(B)/lua/lundump.o \
+	$(B)/lua/lvm.o \
+	$(B)/lua/lzio.o \
+	$(B)/lua/lauxlib.o \
+	$(B)/lua/lbaselib.o \
+	$(B)/lua/lbitlib.o \
+	$(B)/lua/lcorolib.o \
+	$(B)/lua/ldblib.o \
+	$(B)/lua/liolib.o \
+	$(B)/lua/lmathlib.o \
+	$(B)/lua/loslib.o \
+	$(B)/lua/lstrlib.o \
+	$(B)/lua/ltablib.o \
+	$(B)/lua/lutf8lib.o \
+	$(B)/lua/loadlib.o \
+	$(B)/lua/linit.o
+
+$(B)/lua/%.o: $(LUADIR)/%.c
+	$(DO_LUA_CC)
+
+$(B)/liblua.$(SHLIBEXT): $(LUAOBJ)
+	$(DO_LUA_LD)
 
 #############################################################################
 # CLIENT/SERVER
@@ -1644,6 +1713,8 @@ else
   Q3OBJ += \
     $(B)/client/con_tty.o
 endif
+
+Q3OBJ += $(LUAOBJ)
 
 Q3R2OBJ = \
   $(B)/renderergl2/tr_animation.o \
@@ -2068,17 +2139,18 @@ endif
 ifneq ($(USE_RENDERER_DLOPEN),0)
 $(B)/$(CLIENTBIN)$(FULLBINEXT): $(Q3OBJ) $(LIBSDLMAIN)
 	$(echo_cmd) "LD $@"
-	$(Q)$(CXX) -std=c++1y $(CXXFLAGS) $(CLIENT_LDFLAGS) $(LDFLAGS) $(Q3OBJ) $(LIBSDLMAIN) $(CLIENT_LIBS) $(LIBS) -o $@ 
+	$(Q)$(CXX) -std=c++1y $(CXXFLAGS) $(CLIENT_LDFLAGS) $(LDFLAGS) $(Q3OBJ) \
+		$(LIBSDLMAIN) $(CLIENT_LIBS) $(LIBS) -o $@ 
 
 $(B)/renderer_opengl1_$(SHLIBNAME): $(Q3ROBJ) $(JPGOBJ)
 	$(echo_cmd) "LD $@"
-	$(Q)$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(Q3ROBJ) $(JPGOBJ) \
-		$(THREAD_LIBS) $(LIBSDLMAIN) $(RENDERER_LIBS) $(LIBS)
+	$(Q)$(CC) $(SHLIBLDFLAGS) -o $@ $(Q3ROBJ) $(JPGOBJ) \
+		$(THREAD_LIBS) $(LIBSDLMAIN) $(RENDERER_LIBS)
 
 $(B)/renderer_opengl2_$(SHLIBNAME): $(Q3R2OBJ) $(Q3R2STRINGOBJ) $(JPGOBJ)
 	$(echo_cmd) "LD $@"
-	$(Q)$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(Q3R2OBJ) $(Q3R2STRINGOBJ) $(JPGOBJ) \
-		$(THREAD_LIBS) $(LIBSDLMAIN) $(RENDERER_LIBS) $(LIBS)
+	$(Q)$(CC) $(SHLIBLDFLAGS) -o $@ $(Q3R2OBJ) $(Q3R2STRINGOBJ) $(JPGOBJ) \
+		$(THREAD_LIBS) $(LIBSDLMAIN) $(RENDERER_LIBS)
 else
 $(B)/$(CLIENTBIN)$(FULLBINEXT): $(Q3OBJ) $(Q3ROBJ) $(JPGOBJ) $(LIBSDLMAIN)
 	$(echo_cmd) "LD $@"
@@ -2159,6 +2231,8 @@ ifeq ($(ARCH),x86_64)
       $(B)/ded/snapvector.o \
       $(B)/ded/ftola.o
 endif
+
+Q3DOBJ += $(LUAOBJ)
 
 ifeq ($(USE_INTERNAL_ZLIB),1)
 Q3DOBJ += \
@@ -2246,7 +2320,7 @@ CGVMOBJ = $(CGOBJ_:%.o=%.asm)
 
 $(B)/$(BASEGAME)/cgame$(SHLIBNAME): $(CGOBJ)
 	$(echo_cmd) "LD $@"
-	$(Q)$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(CGOBJ)
+	$(Q)$(CC) $(SHLIBLDFLAGS) -o $@ $(CGOBJ)
 
 $(B)/$(BASEGAME)/vm/cgame.qvm: $(CGVMOBJ) $(CGDIR)/cg_syscalls.asm $(Q3ASM)
 	$(echo_cmd) "Q3ASM $@"
@@ -2295,7 +2369,7 @@ GVMOBJ = $(GOBJ_:%.o=%.asm)
 
 $(B)/$(BASEGAME)/game$(SHLIBNAME): $(GOBJ)
 	$(echo_cmd) "LD $@"
-	$(Q)$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(GOBJ)
+	$(Q)$(CC) $(SHLIBLDFLAGS) -o $@ $(GOBJ)
 
 $(B)/$(BASEGAME)/vm/game.qvm: $(GVMOBJ) $(GDIR)/g_syscalls.asm $(Q3ASM)
 	$(echo_cmd) "Q3ASM $@"
@@ -2323,7 +2397,7 @@ UIVMOBJ = $(UIOBJ_:%.o=%.asm)
 
 $(B)/$(BASEGAME)/ui$(SHLIBNAME): $(UIOBJ)
 	$(echo_cmd) "LD $@"
-	$(Q)$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(UIOBJ)
+	$(Q)$(CC) $(SHLIBLDFLAGS) -o $@ $(UIOBJ)
 
 $(B)/$(BASEGAME)/vm/ui.qvm: $(UIVMOBJ) $(UIDIR)/ui_syscalls.asm $(Q3ASM)
 	$(echo_cmd) "Q3ASM $@"
@@ -2546,7 +2620,7 @@ $(B)/$(BASEGAME)/qcommon/%.asm: $(CMDIR)/%.c $(Q3LCC)
 #############################################################################
 
 OBJ = $(Q3OBJ) $(Q3ROBJ) $(Q3R2OBJ) $(Q3DOBJ) $(JPGOBJ) \
-  $(GOBJ) $(CGOBJ) $(UIOBJ) \
+  $(GOBJ) $(CGOBJ) $(UIOBJ) $(LUAOBJ)\
   $(GVMOBJ) $(CGVMOBJ) $(UIVMOBJ)
 TOOLSOBJ = $(LBURGOBJ) $(Q3CPPOBJ) $(Q3RCCOBJ) $(Q3LCCOBJ) $(Q3ASMOBJ)
 STRINGOBJ = $(Q3R2STRINGOBJ)
@@ -2566,7 +2640,6 @@ clean2:
 	@rm -f $(OBJ_D_FILES)
 	@rm -f $(STRINGOBJ)
 	@rm -f $(TARGETS)
-	@rm -rf $(LUADIR)
 
 toolsclean: toolsclean-debug toolsclean-release
 
