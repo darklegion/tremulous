@@ -1,25 +1,25 @@
 /*
-   ===========================================================================
-   Copyright (C) 1999-2005 Id Software, Inc.
-   Copyright (C) 2000-2013 Darklegion Development
+===========================================================================
+Copyright (C) 1999-2005 Id Software, Inc.
+Copyright (C) 2000-2013 Darklegion Development
 
-   This file is part of Tremulous.
+This file is part of Tremulous.
 
-   Tremulous is free software; you can redistribute it
-   and/or modify it under the terms of the GNU General Public License as
-   published by the Free Software Foundation; either version 2 of the License,
-   or (at your option) any later version.
+Tremulous is free software; you can redistribute it
+and/or modify it under the terms of the GNU General Public License as
+published by the Free Software Foundation; either version 2 of the License,
+or (at your option) any later version.
 
-   Tremulous is distributed in the hope that it will be
-   useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+Tremulous is distributed in the hope that it will be
+useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
-   along with Tremulous; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-   ===========================================================================
-   */
+You should have received a copy of the GNU General Public License
+along with Tremulous; if not, write to the Free Software
+Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+===========================================================================
+*/
 
 #include <iostream>
 #include "../lua-5.3.3/include/lua.hpp"
@@ -39,11 +39,11 @@
 
 #ifndef DEDICATED
 #ifdef USE_LOCAL_HEADERS
-#       include "SDL.h"
-#       include "SDL_cpuinfo.h"
+# include "SDL.h"
+# include "SDL_cpuinfo.h"
 #else
-#       include <SDL.h>
-#       include <SDL_cpuinfo.h>
+# include <SDL.h>
+# include <SDL_cpuinfo.h>
 #endif
 #endif
 
@@ -53,46 +53,45 @@
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
 sol::state lua;
-jmp_buf nodie;
 
 static char binaryPath[ MAX_OSPATH ] = { 0 };
 static char installPath[ MAX_OSPATH ] = { 0 };
 
 /*
-   =================
-   Sys_SetBinaryPath
-   =================
-   */
+=================
+Sys_SetBinaryPath
+=================
+*/
 void Sys_SetBinaryPath(const char *path)
 {
     Q_strncpyz(binaryPath, path, sizeof(binaryPath));
 }
 
 /*
-   =================
-   Sys_BinaryPath
-   =================
-   */
+=================
+Sys_BinaryPath
+=================
+*/
 char *Sys_BinaryPath(void)
 {
     return binaryPath;
 }
 
 /*
-   =================
-   Sys_SetDefaultInstallPath
-   =================
-   */
+=================
+Sys_SetDefaultInstallPath
+=================
+*/
 void Sys_SetDefaultInstallPath(const char *path)
 {
     Q_strncpyz(installPath, path, sizeof(installPath));
 }
 
 /*
-   =================
-   Sys_DefaultInstallPath
-   =================
-   */
+=================
+Sys_DefaultInstallPath
+=================
+*/
 char *Sys_DefaultInstallPath(void)
 {
     if (*installPath)
@@ -102,50 +101,48 @@ char *Sys_DefaultInstallPath(void)
 }
 
 /*
-   =================
-   Sys_DefaultAppPath
-   =================
-   */
+=================
+Sys_DefaultAppPath
+=================
+*/
 char *Sys_DefaultAppPath(void)
 {
     return Sys_BinaryPath();
 }
 
 /*
-   =================
-   Sys_In_Restart_f
+=================
+Sys_In_Restart_f
 
-   Restart the input subsystem
-   =================
-   */
+Restart the input subsystem
+=================
+*/
 void Sys_In_Restart_f( void )
 {
     IN_Restart( );
 }
 
 /*
-   =================
-   Sys_ConsoleInput
+=================
+Sys_ConsoleInput
 
-   Handle new console input
-   =================
-   */
+Handle new console input
+=================
+*/
 char *Sys_ConsoleInput(void)
 {
     return CON_Input( );
 }
 
 /*
-   ==================
-   Sys_GetClipboardData
-   ==================
-   */
+==================
+Sys_GetClipboardData
+==================
+*/
 char *Sys_GetClipboardData(void)
 {
-#ifdef DEDICATED
-    return NULL;
-#else
     char *data = NULL;
+#ifndef DEDICATED
     char *cliptext;
 
     if ( ( cliptext = SDL_GetClipboardText() ) != NULL ) {
@@ -160,21 +157,21 @@ char *Sys_GetClipboardData(void)
         }
         SDL_free( cliptext );
     }
-    return data;
 #endif
+    return data;
 }
 
 #ifdef DEDICATED
-#       define PID_FILENAME PRODUCT_NAME "_server.pid"
+# define PID_FILENAME PRODUCT_NAME "_server.pid"
 #else
-#       define PID_FILENAME PRODUCT_NAME ".pid"
+# define PID_FILENAME PRODUCT_NAME ".pid"
 #endif
 
 /*
-   =================
-   Sys_PIDFileName
-   =================
-   */
+=================
+Sys_PIDFileName
+=================
+*/
 static std::string Sys_PIDFileName( void )
 {
     const char *homePath = Cvar_VariableString( "fs_homepath" );
@@ -191,12 +188,12 @@ static std::string Sys_PIDFileName( void )
 }
 
 /*
-   =================
-   Sys_WritePIDFile
+=================
+Sys_WritePIDFile
 
-   Return qtrue if there is an existing stale PID file
-   =================
-   */
+Return qtrue if there is an existing stale PID file
+=================
+*/
 qboolean Sys_WritePIDFile( void )
 {
     const char *pidFile = Sys_PIDFileName( ).c_str();
@@ -237,12 +234,12 @@ qboolean Sys_WritePIDFile( void )
 }
 
 /*
-   =================
-   Sys_Exit
+=================
+Sys_Exit
 
-   Single exit point (regular exit or in case of error)
-   =================
-   */
+Single exit point (regular exit or in case of error)
+=================
+*/
 static __attribute__ ((noreturn)) void Sys_Exit( int exitCode )
 {
     CON_Shutdown( );
@@ -255,7 +252,6 @@ static __attribute__ ((noreturn)) void Sys_Exit( int exitCode )
     {
         // Normal exit
         const char *pidFile = Sys_PIDFileName( ).c_str();
-
         if( pidFile != NULL )
             remove( pidFile );
     }
@@ -268,20 +264,20 @@ static __attribute__ ((noreturn)) void Sys_Exit( int exitCode )
 }
 
 /*
-   =================
-   Sys_Quit
-   =================
-   */
+=================
+Sys_Quit
+=================
+*/
 void Sys_Quit( void )
 {
     Sys_Exit( 0 );
 }
 
 /*
-   =================
-   Sys_GetProcessorFeatures
-   =================
-   */
+=================
+Sys_GetProcessorFeatures
+=================
+*/
 cpuFeatures_t Sys_GetProcessorFeatures( void )
 {
     cpuFeatures_t features = CF_NONE;
@@ -298,29 +294,16 @@ cpuFeatures_t Sys_GetProcessorFeatures( void )
     return features;
 }
 
-int script_panic_func( lua_State* L )
-{
-    const char* message = lua_tostring(L, -1);
-    const char* err = message
-        ? message 
-        : "An unexpected error occurred and forced the lua state to call atpanic";
-    Com_Printf("^3script: %s\n", err);
-    longjmp(nodie, -1);
-}
-
 void Sys_Script_f( void )
 {
-    if ( setjmp(nodie) )
-        return;
-
     std::string args = Cmd_Args();
     lua.script(args);
 }
 /*
-   =================
-   Sys_Init
-   =================
-   */
+=================
+Sys_Init
+=================
+*/
 void Sys_Init(void)
 {
     Cmd_AddCommand( "in_restart", Sys_In_Restart_f );
@@ -330,12 +313,12 @@ void Sys_Init(void)
 }
 
 /*
-   =================
-   Sys_AnsiColorPrint
-
-   Transform Q3 colour codes to ANSI escape sequences
-   =================
-   */
+=================
+Sys_AnsiColorPrint
+Transform Q3 colour codes to ANSI escape sequences
+=================
+*/
+// FIXME -bbq This could be more extensible
 void Sys_AnsiColorPrint( const char *msg )
 {
     static char buffer[ MAXPRINTMSG ];
@@ -399,10 +382,10 @@ void Sys_AnsiColorPrint( const char *msg )
 }
 
 /*
-   =================
-   Sys_Print
-   =================
-   */
+=================
+Sys_Print
+=================
+*/
 void Sys_Print( const char *msg )
 {
     CON_LogWrite( msg );
@@ -410,10 +393,10 @@ void Sys_Print( const char *msg )
 }
 
 /*
-   =================
-   Sys_Error
-   =================
-   */
+=================
+Sys_Error
+=================
+*/
 void Sys_Error( const char *error, ... )
 {
     va_list argptr;
@@ -428,32 +411,13 @@ void Sys_Error( const char *error, ... )
     Sys_Exit( 3 );
 }
 
-#if 0
 /*
-   =================
-   Sys_Warn
-   =================
-   */
-static __attribute__ ((format (printf, 1, 2))) void Sys_Warn( char *warning, ... )
-{
-    va_list argptr;
-    char    string[1024];
+============
+Sys_FileTime
 
-    va_start (argptr,warning);
-    Q_vsnprintf (string, sizeof(string), warning, argptr);
-    va_end (argptr);
-
-    CON_Print( va( "Warning: %s", string ) );
-}
-#endif
-
-/*
-   ============
-   Sys_FileTime
-
-   returns -1 if not present
-   ============
-   */
+returns -1 if not present
+============
+*/
 int Sys_FileTime( char *path )
 {
     struct stat buf;
@@ -465,10 +429,10 @@ int Sys_FileTime( char *path )
 }
 
 /*
-   =================
-   Sys_UnloadDll
-   =================
-   */
+=================
+Sys_UnloadDll
+=================
+*/
 void Sys_UnloadDll( void *dllHandle )
 {
     if( !dllHandle )
@@ -481,14 +445,13 @@ void Sys_UnloadDll( void *dllHandle )
 }
 
 /*
-   =================
-   Sys_LoadDll
+=================
+Sys_LoadDll
 
-   First try to load library name from system library path,
-   from executable path, then fs_basepath.
-   =================
-   */
-
+First try to load library name from system library path,
+from executable path, then fs_basepath.
+=================
+*/
 void *Sys_LoadDll(const char *name, qboolean useSystemLib)
 {
     void *dllhandle;
@@ -532,12 +495,12 @@ void *Sys_LoadDll(const char *name, qboolean useSystemLib)
 }
 
 /*
-   =================
-   Sys_LoadGameDll
+=================
+Sys_LoadGameDll
 
-   Used to load a development dll instead of a virtual machine
-   =================
-   */
+Used to load a development dll instead of a virtual machine
+=================
+*/
 using Entry = void (*)(intptr_t (*syscallptr)(intptr_t, ...));
 using EntryPoint = intptr_t (QDECL *)(int, ...);
 using SysCalls = intptr_t (*)(intptr_t, ...);
@@ -574,10 +537,10 @@ void *Sys_LoadGameDll(const char *name, EntryPoint* entryPoint, SysCalls systemc
 }
 
 /*
-   =================
-   Sys_ParseArgs
-   =================
-   */
+=================
+Sys_ParseArgs
+=================
+*/
 void Sys_ParseArgs( int argc, char **argv )
 {
     if( argc == 2 )
@@ -596,19 +559,11 @@ void Sys_ParseArgs( int argc, char **argv )
     }
 }
 
-#ifndef DEFAULT_BASEDIR
-#       ifdef __APPLE__
-#               define DEFAULT_BASEDIR Sys_StripAppBundle(Sys_BinaryPath())
-#       else
-#               define DEFAULT_BASEDIR Sys_BinaryPath()
-#       endif
-#endif
-
 /*
-   =================
-   Sys_SigHandler
-   =================
-   */
+=================
+Sys_SigHandler
+=================
+*/
 void Sys_SigHandler( int signal )
 {
     static qboolean signalcaught = qfalse;
@@ -637,7 +592,16 @@ void Sys_SigHandler( int signal )
     Sys_Exit( 2 );
 }
 
+#ifndef DEFAULT_BASEDIR
+# ifdef __APPLE__
+#  define DEFAULT_BASEDIR Sys_StripAppBundle(Sys_BinaryPath())
+# else
+#  define DEFAULT_BASEDIR Sys_BinaryPath()
+# endif
+#endif
+
 #ifndef DEDICATED
+
 void SDLVersionCheck()
 {
 #if !SDL_VERSION_ATLEAST(MINSDL_MAJOR,MINSDL_MINOR,MINSDL_PATCH)
@@ -658,8 +622,6 @@ void SDLVersionCheck()
     }
 }
 #endif
-
-//inline std::string Cvar_Variable(std::string var) { return Cvar_VariableString(var.c_str()); }
 
 /*
 =================
@@ -705,24 +667,12 @@ int main( int argc, char **argv )
     NET_Init( );
     CON_Init( );
 
-    signal( SIGILL, Sys_SigHandler );
-    signal( SIGFPE, Sys_SigHandler );
-    signal( SIGSEGV, Sys_SigHandler );
-    signal( SIGTERM, Sys_SigHandler );
-    signal( SIGINT, Sys_SigHandler );
-
     lua.open_libraries(sol::lib::base, sol::lib::package);
     lua.set_function("print", Com_Printf);
     lua.set_function("cvar_variable", Cvar_VariableString);
 
-    //lua.create_named_table("console", "log", Com_Printf);
-    // lua.create_named_table("cvar", "string", 
-    //         [](char*name) -> std::shared_ptr<char*> {
-    //         return std::make_shared<char*>(Cvar_VariableString(name));
-    //         } 
-    //     );
-
     for ( ;; )
+    {
         try
         { 
             IN_Frame( );
@@ -732,6 +682,7 @@ int main( int argc, char **argv )
         {
             Com_Printf("Error: %s\n", e.what());
         }
+    }
 
     return 0;
 }

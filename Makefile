@@ -422,7 +422,7 @@ ifeq ($(PLATFORM),darwin)
     BASE_CFLAGS += -arch ppc64 -faltivec
   endif
   ifeq ($(ARCH),x86)
-    OPTIMIZEVM += -mfpmath=sse
+    OPTIMIZEVM += -march=prescott -mfpmath=sse
     # x86 vm will crash without -mstackrealign since MMX instructions will be
     # used no matter what and they corrupt the frame pointer in VM calls
     BASE_CFLAGS += -arch i386 -m32 -mstackrealign
