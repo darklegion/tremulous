@@ -1471,4 +1471,11 @@ void CG_Buildable( centity_t *cent )
 
   //smoke etc for damaged buildables
   CG_BuildableParticleEffects( cent );
+
+  if ( cg_rangeMarkerForBlueprint.integer )
+  {
+    // only light up the powered buildables.
+    if ( es->eFlags & EF_B_POWERED )
+      CG_GhostBuildableRangeMarker( es->modelindex, ent.origin, surfNormal );
+  }
 }

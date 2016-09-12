@@ -190,6 +190,16 @@ vmCvar_t  cg_disableCommandDialogs;
 vmCvar_t  cg_disableScannerPlane;
 vmCvar_t  cg_tutorial;
 
+vmCvar_t  cg_rangeMarkerDrawSurface;
+vmCvar_t  cg_rangeMarkerDrawIntersection;
+vmCvar_t  cg_rangeMarkerDrawFrontline;
+vmCvar_t  cg_rangeMarkerSurfaceOpacity;
+vmCvar_t  cg_rangeMarkerLineOpacity;
+vmCvar_t  cg_rangeMarkerLineThickness;
+vmCvar_t  cg_rangeMarkerForBlueprint;
+vmCvar_t  cg_rangeMarkerBuildableTypes;
+vmCvar_t  cg_binaryShaderScreenScale;
+
 vmCvar_t  cg_painBlendUpRate;
 vmCvar_t  cg_painBlendDownRate;
 vmCvar_t  cg_painBlendMax;
@@ -311,6 +321,18 @@ static cvarTable_t cvarTable[ ] =
   { &cg_disableCommandDialogs, "cg_disableCommandDialogs", "0", CVAR_ARCHIVE },
   { &cg_disableScannerPlane, "cg_disableScannerPlane", "0", CVAR_ARCHIVE },
   { &cg_tutorial, "cg_tutorial", "1", CVAR_ARCHIVE },
+
+  { &cg_rangeMarkerDrawSurface, "cg_rangeMarkerDrawSurface", "1", CVAR_ARCHIVE },
+  { &cg_rangeMarkerDrawIntersection, "cg_rangeMarkerDrawIntersection", "1", CVAR_ARCHIVE },
+  { &cg_rangeMarkerDrawFrontline, "cg_rangeMarkerDrawFrontline", "1", CVAR_ARCHIVE },
+  { &cg_rangeMarkerSurfaceOpacity, "cg_rangeMarkerSurfaceOpacity", "0.08", CVAR_ARCHIVE },
+  { &cg_rangeMarkerLineOpacity, "cg_rangeMarkerLineOpacity", "0.4", CVAR_ARCHIVE },
+  { &cg_rangeMarkerLineThickness, "cg_rangeMarkerLineThickness", "4.0", CVAR_ARCHIVE },
+  { &cg_rangeMarkerForBlueprint, "cg_rangeMarkerForBlueprint", "1", CVAR_ARCHIVE },
+  { &cg_rangeMarkerBuildableTypes, "cg_rangeMarkerBuildableTypes", "support", CVAR_ARCHIVE },
+  //{ NULL, "cg_buildableRangeMarkerMask", "", CVAR_USERINFO },
+  { &cg_binaryShaderScreenScale, "cg_binaryShaderScreenScale", "1.0", CVAR_ARCHIVE },
+
   { &cg_hudFiles, "cg_hudFiles", "ui/hud.txt", CVAR_ARCHIVE},
   { NULL, "cg_alienConfig", "", CVAR_ARCHIVE },
   { NULL, "cg_humanConfig", "", CVAR_ARCHIVE },
@@ -442,6 +464,7 @@ void CG_UpdateCvars( void )
 
   CG_SetUIVars( );
 
+  //CG_UpdateBuildableRangeMarkerMask( );
 }
 
 
@@ -816,6 +839,23 @@ static void CG_RegisterGraphics( void )
 
   cgs.media.alienBleedPS              = CG_RegisterParticleSystem( "alienBleedPS" );
   cgs.media.humanBleedPS              = CG_RegisterParticleSystem( "humanBleedPS" );
+
+  cgs.media.sphereModel               = trap_R_RegisterModel( "models/generic/sphere" );
+  cgs.media.sphericalCone64Model      = trap_R_RegisterModel( "models/generic/sphericalCone64" );
+  cgs.media.sphericalCone240Model     = trap_R_RegisterModel( "models/generic/sphericalCone240" );
+
+  cgs.media.plainColorShader          = trap_R_RegisterShader( "gfx/plainColor" );
+  cgs.media.binaryAlpha1Shader        = trap_R_RegisterShader( "gfx/binary/alpha1" );
+
+  for( i = 0; i < NUM_BINARY_SHADERS; ++i )
+  {
+    cgs.media.binaryShaders[ i ].f1 = trap_R_RegisterShader( va( "gfx/binary/%03i_F1", i ) );
+    cgs.media.binaryShaders[ i ].f2 = trap_R_RegisterShader( va( "gfx/binary/%03i_F2", i ) );
+    cgs.media.binaryShaders[ i ].f3 = trap_R_RegisterShader( va( "gfx/binary/%03i_F3", i ) );
+    cgs.media.binaryShaders[ i ].b1 = trap_R_RegisterShader( va( "gfx/binary/%03i_B1", i ) );
+    cgs.media.binaryShaders[ i ].b2 = trap_R_RegisterShader( va( "gfx/binary/%03i_B2", i ) );
+    cgs.media.binaryShaders[ i ].b3 = trap_R_RegisterShader( va( "gfx/binary/%03i_B3", i ) );
+  }
 
   CG_BuildableStatusParse( "ui/assets/human/buildstat.cfg", &cgs.humanBuildStat );
   CG_BuildableStatusParse( "ui/assets/alien/buildstat.cfg", &cgs.alienBuildStat );
