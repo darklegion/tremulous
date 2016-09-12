@@ -8,6 +8,11 @@
 #define CONSOLE_H 180
 #define MAIN_W    (W-(2*BORDER))
 
+#define TUTORIAL_X (W-(BORDER*MAIN_W))
+
+#define KILLFEED_X (BORDER)
+#define KILLFEED_Y (410)
+
 //CONSOLE
 itemDef
 {
@@ -29,7 +34,7 @@ itemDef
 itemDef
 {
   name "tutorial"
-  rect BORDER 275 MAIN_W 130
+  rect TUTORIAL_X 275 MAIN_W 130
   aspectBias ALIGN_LEFT
   style WINDOW_STYLE_EMPTY
   visible MENU_TRUE
@@ -220,5 +225,22 @@ itemDef
     textScale .7
     textStyle ITEM_TEXTSTYLE_SHADOWED
     ownerdraw CG_FOLLOW
+}
+
+//KILLFEED
+itemDef
+{
+  name "killfeed"
+  rect KILLFEED_X KILLFEED_Y 0 0
+  aspectBias ALIGN_LEFT
+  style WINDOW_STYLE_EMPTY
+  visible MENU_TRUE
+  decoration
+  forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 1
+  textalign ALIGN_LEFT
+  textvalign VALIGN_CENTER
+  textscale 0.3
+  textstyle ITEM_TEXTSTYLE_SHADOWED
+  ownerdraw CG_KILLFEED
 }
 

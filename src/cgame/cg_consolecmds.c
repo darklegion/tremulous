@@ -171,6 +171,15 @@ static void CG_UIMenu_f( void )
   trap_SendConsoleCommand( va( "menu %s\n", CG_Argv( 1 ) ) );
 }
 
+static void CG_KillMessage_f( void )
+{
+  char msg1[ 33 * 3 + 1]; 
+  char msg2[ 33 * 3 + 1 ];
+  trap_Argv( 1, msg1, sizeof(msg1) );
+  trap_Argv( 2, msg2, sizeof(msg2) );
+  CG_AddToKillMsg(msg1, msg2, WP_GRENADE);
+}
+
 static consoleCommand_t commands[ ] =
 {
   { "+scores", CG_ScoresDown_f },
@@ -195,7 +204,9 @@ static consoleCommand_t commands[ ] =
   { "viewpos", CG_Viewpos_f },
   { "weapnext", CG_NextWeapon_f },
   { "weapon", CG_Weapon_f },
-  { "weapprev", CG_PrevWeapon_f }
+  { "weapprev", CG_PrevWeapon_f },
+  { "zcp", CG_CenterPrint_f },
+  { "zkill", CG_KillMessage_f }
 };
 
 /*

@@ -221,6 +221,10 @@ vmCvar_t  cg_emoticons;
 
 vmCvar_t  cg_chatTeamPrefix;
 
+vmCvar_t  cg_killMsg;
+vmCvar_t  cg_killMsgTime;
+vmCvar_t  cg_killMsgHeight;
+
 typedef struct
 {
   vmCvar_t  *vmCvar;
@@ -354,7 +358,11 @@ static cvarTable_t cvarTable[ ] =
 
   { &cg_emoticons, "cg_emoticons", "1", CVAR_LATCH|CVAR_ARCHIVE},
 
-  { &cg_chatTeamPrefix, "cg_chatTeamPrefix", "1", CVAR_ARCHIVE}
+  { &cg_chatTeamPrefix, "cg_chatTeamPrefix", "1", CVAR_ARCHIVE},
+
+  { &cg_killMsg, "cg_killMsg", "1", CVAR_ARCHIVE },
+  { &cg_killMsgTime, "cg_killMsgTime", "4000", CVAR_ARCHIVE },
+  { &cg_killMsgHeight, "cg_killMsgHeight", "7", CVAR_ARCHIVE }
 };
 
 static size_t cvarTableSize = ARRAY_LEN( cvarTable );

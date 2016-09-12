@@ -27,6 +27,119 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "cg_local.h"
 
 /*
+=======================
+CG_AddToKillMsg
+
+=======================
+*/
+void CG_AddToKillMsg( const char* killername, const char* victimname, int icon )
+{
+  int   klen, vlen, index;
+  char  *kls, *vls;
+  char  *k, *v;
+  int   lastcolor;
+  int   chatHeight;
+
+  if( cg_killMsgHeight.integer < TEAMCHAT_HEIGHT )
+    chatHeight = cg_killMsgHeight.integer;
+  else
+    chatHeight = TEAMCHAT_HEIGHT;
+
+  if( chatHeight <= 0 || cg_killMsgTime.integer <= 0 ) {
+    cgs.killMsgPos = cgs.killMsgLastPos = 0;
+    return;
+  }
+
+  index = cgs.killMsgPos % chatHeight;
+  klen = vlen = 0;
+
+  k = cgs.killMsgKillers[ index ]; *k=0;
+  v = cgs.killMsgVictims[ index ]; *v=0;
+  cgs.killMsgWeapons[ index ] = icon;
+
+  memset( k, '\0', sizeof(cgs.killMsgKillers[index]));
+  memset( v, '\0', sizeof(cgs.killMsgVictims[index]));
+  kls = vls = NULL;
+
+  lastcolor = '7';
+
+  // Killers name
+  while( *killername )
+  {
+    if( klen > TEAMCHAT_WIDTH-1 ) {
+      if( kls ) {
+        killername -= ( k - kls );
+        killername ++;
+        k -= ( k - kls );
+      }
+      *k = 0;
+
+//      cgs.killMsgMsgTimes[index] = cg.time;
+      k = cgs.killMsgKillers[index];
+      *k = 0;
+      *k++ = Q_COLOR_ESCAPE;
+      *k++ = lastcolor;
+      klen = 0;
+      kls = NULL;
+    }
+
+    if( Q_IsColorString( killername ) )
+    {
+      *k++ = *killername++;
+      lastcolor = *killername;
+      *k++ = *killername++;
+      continue;
+    }
+
+    if( *killername == ' ' )
+      kls = k;
+
+    *k++ = *killername++;
+    klen++;
+  }
+
+  // Victims name
+  while( *victimname )
+  {
+    if( vlen > TEAMCHAT_WIDTH-1 ) {
+      if( vls ) {
+        victimname -= ( v - vls );
+        victimname ++;
+        v -= ( v - vls );
+      }
+      *v = 0;
+
+      v = cgs.killMsgVictims[index];
+      *v = 0;
+      *v++ = Q_COLOR_ESCAPE;
+      *v++ = lastcolor;
+      vlen = 0;
+      vls = NULL;
+    }
+
+    if( Q_IsColorString( victimname ) )
+    {
+      *v++ = *victimname++;
+      lastcolor = *victimname;
+      *v++ = *victimname++;
+      continue;
+    }
+
+    if( *victimname == ' ' )
+      vls = v;
+
+    *v++ = *victimname++;
+    vlen++;
+  }
+
+  cgs.killMsgMsgTimes[ index ] = cg.time;
+  cgs.killMsgPos++;
+
+  if( cgs.killMsgPos - cgs.killMsgLastPos > chatHeight )
+    cgs.killMsgLastPos = cgs.killMsgPos - chatHeight;
+}
+
+/*
 =============
 CG_Obituary
 =============
@@ -45,6 +158,7 @@ static void CG_Obituary( entityState_t *ent )
   gender_t      gender;
   clientInfo_t  *ci;
   qboolean      teamKill = qfalse;
+  int           icon = WP_NONE;
 
   target = ent->otherEntityNum;
   attacker = ent->otherEntityNum2;
@@ -192,12 +306,12 @@ static void CG_Obituary( entityState_t *ent )
           message = "killed himself";
         break;
     }
-  }
 
-  if( message )
-  {
-    CG_Printf( "%s" S_COLOR_WHITE " %s\n", targetName, message );
-    return;
+    if ( cg_killMsg.integer == 2)
+    {
+      CG_AddToKillMsg(va("%s ^7%s", targetName, message), NULL, WP_NONE);
+      return;
+    }
   }
 
   // check for double client messages
@@ -218,123 +332,141 @@ static void CG_Obituary( entityState_t *ent )
   {
     switch( mod )
     {
+      // 
+      // HUMANS
+      //
       case MOD_PAINSAW:
+        icon = WP_PAIN_SAW;
         message = "was sawn by";
         break;
       case MOD_BLASTER:
+        icon = WP_BLASTER;
         message = "was blasted by";
         break;
       case MOD_MACHINEGUN:
+        icon = WP_MACHINEGUN;
         message = "was machinegunned by";
         break;
       case MOD_CHAINGUN:
+        icon = WP_CHAINGUN;
         message = "was chaingunned by";
         break;
       case MOD_SHOTGUN:
+        icon = WP_SHOTGUN;
         message = "was gunned down by";
         break;
       case MOD_PRIFLE:
+        icon = WP_PULSE_RIFLE;
         message = "was pulse rifled by";
         break;
       case MOD_MDRIVER:
+        icon = WP_MASS_DRIVER;
         message = "was mass driven by";
         break;
       case MOD_LASGUN:
+        icon = WP_LAS_GUN;
         message = "was lasgunned by";
         break;
       case MOD_FLAMER:
+      case MOD_FLAMER_SPLASH:
+        icon = WP_FLAMER;
         message = "was grilled by";
         message2 = "'s flamer";
         break;
-      case MOD_FLAMER_SPLASH:
-        message = "was toasted by";
-        message2 = "'s flamer";
-        break;
       case MOD_LCANNON:
+        icon = WP_LUCIFER_CANNON;
         message = "felt the full force of";
         message2 = "'s lucifer cannon";
         break;
       case MOD_LCANNON_SPLASH:
+        icon = WP_LUCIFER_CANNON;
         message = "was caught in the fallout of";
         message2 = "'s lucifer cannon";
         break;
       case MOD_GRENADE:
+        icon = WP_GRENADE;
         message = "couldn't escape";
         message2 = "'s grenade";
         break;
 
+      // 
+      // ALIENS
+      //
       case MOD_ABUILDER_CLAW:
+        icon = WP_ABUILD;
         message = "should leave";
         message2 = "'s buildings alone";
         break;
       case MOD_LEVEL0_BITE:
+        icon = WP_ALEVEL0;
         message = "was bitten by";
         break;
       case MOD_LEVEL1_CLAW:
+        icon = WP_ALEVEL1;
         message = "was swiped by";
-        Com_sprintf( className, 64, "'s %s",
-            BG_ClassConfig( PCL_ALIEN_LEVEL1 )->humanName );
+        Com_sprintf( className, 64, "'s %s", BG_ClassConfig( PCL_ALIEN_LEVEL1 )->humanName );
+        message2 = className;
+        break;
+      case MOD_LEVEL1_PCLOUD:
+        icon = WP_ALEVEL1;
+        message = "was gassed by";
+        Com_sprintf( className, 64, "'s %s", BG_ClassConfig( PCL_ALIEN_LEVEL1 )->humanName );
         message2 = className;
         break;
       case MOD_LEVEL2_CLAW:
+        icon = WP_ALEVEL2;
         message = "was clawed by";
-        Com_sprintf( className, 64, "'s %s",
-            BG_ClassConfig( PCL_ALIEN_LEVEL2 )->humanName );
+        Com_sprintf( className, 64, "'s %s", BG_ClassConfig( PCL_ALIEN_LEVEL2 )->humanName );
         message2 = className;
         break;
       case MOD_LEVEL2_ZAP:
+        icon = WP_ALEVEL2;
         message = "was zapped by";
-        Com_sprintf( className, 64, "'s %s",
-            BG_ClassConfig( PCL_ALIEN_LEVEL2 )->humanName );
+        Com_sprintf( className, 64, "'s %s", BG_ClassConfig( PCL_ALIEN_LEVEL2 )->humanName );
         message2 = className;
         break;
       case MOD_LEVEL3_CLAW:
+        icon = WP_ALEVEL3;
         message = "was chomped by";
-        Com_sprintf( className, 64, "'s %s",
-            BG_ClassConfig( PCL_ALIEN_LEVEL3 )->humanName );
+        Com_sprintf( className, 64, "'s %s", BG_ClassConfig( PCL_ALIEN_LEVEL3 )->humanName );
         message2 = className;
         break;
       case MOD_LEVEL3_POUNCE:
+        icon = WP_ALEVEL3;
         message = "was pounced upon by";
-        Com_sprintf( className, 64, "'s %s",
-            BG_ClassConfig( PCL_ALIEN_LEVEL3 )->humanName );
+        Com_sprintf( className, 64, "'s %s", BG_ClassConfig( PCL_ALIEN_LEVEL3 )->humanName );
         message2 = className;
         break;
       case MOD_LEVEL3_BOUNCEBALL:
+        icon = WP_ALEVEL3;
         message = "was sniped by";
-        Com_sprintf( className, 64, "'s %s",
-            BG_ClassConfig( PCL_ALIEN_LEVEL3 )->humanName );
+        Com_sprintf( className, 64, "'s %s", BG_ClassConfig( PCL_ALIEN_LEVEL3 )->humanName );
         message2 = className;
         break;
       case MOD_LEVEL4_CLAW:
+        icon = WP_ALEVEL4;
         message = "was mauled by";
-        Com_sprintf( className, 64, "'s %s",
-            BG_ClassConfig( PCL_ALIEN_LEVEL4 )->humanName );
+        Com_sprintf( className, 64, "'s %s", BG_ClassConfig( PCL_ALIEN_LEVEL4 )->humanName );
         message2 = className;
         break;
       case MOD_LEVEL4_TRAMPLE:
+        icon = WP_ALEVEL4;
         message = "should have gotten out of the way of";
-        Com_sprintf( className, 64, "'s %s",
-            BG_ClassConfig( PCL_ALIEN_LEVEL4 )->humanName );
+        Com_sprintf( className, 64, "'s %s", BG_ClassConfig( PCL_ALIEN_LEVEL4 )->humanName );
         message2 = className;
         break;
       case MOD_LEVEL4_CRUSH:
         message = "was crushed under";
         message2 = "'s weight";
         break;
-
       case MOD_POISON:
         message = "should have used a medkit against";
         message2 = "'s poison";
         break;
-      case MOD_LEVEL1_PCLOUD:
-        message = "was gassed by";
-        Com_sprintf( className, 64, "'s %s",
-            BG_ClassConfig( PCL_ALIEN_LEVEL1 )->humanName );
-        message2 = className;
-        break;
 
-
+      //
+      // MISC..
+      //
       case MOD_TELEFRAG:
         message = "tried to invade";
         message2 = "'s personal space";
@@ -344,27 +476,56 @@ static void CG_Obituary( entityState_t *ent )
         break;
     }
 
-    if( message )
+    if ( cg_killMsg.integer == 1)
+    {
+      char killMessage[80];
+      if( icon > WP_NONE )
+      {
+        Com_sprintf(killMessage, sizeof(killMessage), "%s%s",
+                    teamKill ? S_COLOR_RED"TEAMMATE "S_COLOR_WHITE:"",
+                    targetName);
+        CG_AddToKillMsg(attackerName, killMessage, icon);
+      }
+    }
+    else if( message )
     {
       CG_Printf( "%s" S_COLOR_WHITE " %s %s%s" S_COLOR_WHITE "%s\n",
-        targetName, message,
-        ( teamKill ) ? S_COLOR_RED "TEAMMATE " S_COLOR_WHITE : "",
-        attackerName, message2 );
-      if( teamKill && attacker == cg.clientNum )
-      {
-        CG_CenterPrint( va ( "You killed " S_COLOR_RED "TEAMMATE "
-          S_COLOR_WHITE "%s", targetName ),
-          SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
-      }
-      return;
+              targetName,
+              message,
+              teamKill ? S_COLOR_RED "TEAMMATE " S_COLOR_WHITE : "",
+              attackerName,
+              message2 );
     }
+
+    if( attacker == cg.clientNum )
+    {
+        CG_CenterPrint(va("You killed %s%s", teamKill ? S_COLOR_RED"TEAMMATE "S_COLOR_WHITE:"",
+                            targetName), SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
+    }
+    if ( cg_killMsg.integer != 1)
+        return;
   }
 
+#if 0
+  switch (mod) {
+      case MOD_SLAP:
+          message = "was slapped to death";
+          break;
+      default:
+          break;
+  }
+#endif
+
   // we don't know what it was
-  CG_Printf( "%s" S_COLOR_WHITE " died\n", targetName );
+  if ( cg_killMsg.integer )
+  {
+    CG_AddToKillMsg(va("%s ^7%s", targetName, message), NULL, WP_NONE);
+  }
+  else
+  {
+    CG_Printf( "%s" S_COLOR_WHITE " %s\n", targetName, message );
+  }
 }
-
-
 
 //==========================================================================
 
