@@ -535,6 +535,7 @@ typedef struct
 #define MAX_SPAWN_VARS      64
 #define MAX_SPAWN_VARS_CHARS  4096
 #define MAX_BUILDLOG          128
+#define MAX_PLAYER_MODEL      256
 
 typedef struct
 {
@@ -674,6 +675,9 @@ typedef struct
 
   emoticon_t        emoticons[ MAX_EMOTICONS ];
   int               emoticonCount;
+  
+  char              *playerModel[ MAX_PLAYER_MODEL ];
+  int               playerModelCount;
 
   namelog_t         *namelogs;
 
@@ -925,6 +929,15 @@ void G_Checktrigger_stages( team_t team, stage_t stage );
 // g_misc.c
 //
 void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles );
+
+//
+// g_playermodel.c
+//
+void G_InitPlayerModel(void);
+qboolean G_IsValidPlayerModel(const char *model);
+void G_FreePlayerModel(void);
+void G_GetPlayerModelSkins( const char *modelname, char skins[][ 64 ], int maxskins, int *numskins );
+char *GetSkin( char *modelname, char *wish );
 
 //
 // g_weapon.c
@@ -1230,3 +1243,4 @@ void      trap_SendGameStat( const char *data );
 
 void      trap_AddCommand( const char *cmdName );
 void      trap_RemoveCommand( const char *cmdName );
+int       trap_FS_GetFilteredFiles( const char *path, const char *extension, char *filter, char *listbuf, int bufsize );

@@ -2991,6 +2991,59 @@ void Cmd_ListMaps_f( gentity_t *ent )
 
 /*
 =================
+Cmd_ListModels_f
+
+List all the available player models installed on the server.
+=================
+*/
+void Cmd_ListModels_f( gentity_t *ent )
+{
+    int i;
+
+    ADMBP_begin();
+    for (i = 0; i < level.playerModelCount; i++)
+    {
+        ADMBP(va("%d - %s\n", i+1, level.playerModel[i]));
+    }
+    ADMBP(va("^3listmodels: ^7showing %d player models\n", level.playerModelCount));
+    ADMBP_end();
+
+}
+
+/*
+=================
+Cmd_ListSkins_f
+=================
+*/
+void Cmd_ListSkins_f( gentity_t *ent )
+{
+    char modelname[ 64 ];
+    char skins[ MAX_PLAYER_MODEL ][ 64 ];
+    int numskins;
+    int i;
+
+    if ( trap_Argc() < 2 )
+    {
+        ADMP("^3listskins: ^7usage: listskins <model>\n");
+        return;
+    }
+
+    trap_Argv(1, modelname, sizeof(modelname));
+
+    G_GetPlayerModelSkins(modelname, skins, MAX_PLAYER_MODEL, &numskins);
+
+    ADMBP_begin();
+    for (i = 0; i < numskins; i++)
+    {
+        ADMBP(va("%d - %s\n", i+1, skins[i]));
+    }
+    ADMBP(va("^3listskins: ^7default skin ^2%s\n", GetSkin(modelname, "default")));
+    ADMBP(va("^3listskins: ^7showing %d skins for %s\n", numskins, modelname));
+    ADMBP_end();
+}
+
+/*
+=================
 Cmd_Test_f
 =================
 */
@@ -3095,6 +3148,8 @@ commands_t cmds[ ] = {
   { "kill", CMD_TEAM|CMD_LIVING, Cmd_Kill_f },
   { "levelshot", CMD_CHEAT, Cmd_LevelShot_f },
   { "listmaps", CMD_MESSAGE|CMD_INTERMISSION, Cmd_ListMaps_f },
+  { "listmodels", CMD_MESSAGE|CMD_INTERMISSION, Cmd_ListModels_f },
+  { "listskins", CMD_MESSAGE|CMD_INTERMISSION, Cmd_ListSkins_f },
   { "m", CMD_MESSAGE|CMD_INTERMISSION, Cmd_PrivateMessage_f },
   { "mt", CMD_MESSAGE|CMD_INTERMISSION, Cmd_PrivateMessage_f },
   { "noclip", CMD_CHEAT_TEAM, Cmd_Noclip_f },

@@ -2369,6 +2369,43 @@ int	FS_GetFileList(  const char *path, const char *extension, char *listbuf, int
 }
 
 /*
+================
+FS_GetFilteredFiles
+================
+*/
+int	FS_GetFilteredFiles( const char *path, const char *extension, char *filter, char *listbuf, int bufsize )
+{
+    int nFiles, i, nTotal, nLen;
+    char **pFiles;
+
+	*listbuf = 0;
+	nFiles = 0;
+	nTotal = 0;
+
+	pFiles = FS_ListFilteredFiles( path, extension, filter, &nFiles, qfalse );
+
+	for (i =0; i < nFiles; i++)
+    {
+		nLen = strlen(pFiles[i]) + 1;
+		if (nTotal + nLen + 1 < bufsize)
+        {
+			strcpy(listbuf, pFiles[i]);
+			listbuf += nLen;
+			nTotal += nLen;
+		}
+		else {
+			nFiles = i;
+			break;
+		}
+	}
+
+	FS_FreeFileList(pFiles);
+
+	return nFiles;
+}
+
+
+/*
 =======================
 Sys_ConcatenateFileLists
 

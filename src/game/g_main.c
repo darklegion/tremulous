@@ -626,6 +626,8 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
 
   trap_SetConfigstring( CS_INTERMISSION, "0" );
 
+  G_InitPlayerModel();
+
   // test to see if a custom buildable layout will be loaded
   G_LayoutSelect( );
 
@@ -725,6 +727,7 @@ void G_ShutdownGame( int restart )
   G_namelog_cleanup( );
   G_UnregisterCommands( );
 
+  G_FreePlayerModel( );
   G_ShutdownMapRotations( );
 
   level.restarted = qfalse;
