@@ -74,6 +74,12 @@ typedef enum
 
 #define SP_PODIUM_MODEL   "models/mapobjects/podium/podium4.md3"
 
+typedef struct gitem_s
+{
+  int  ammo; // ammo held
+  int  clips; // clips held
+} gitem_t;
+
 //============================================================================
 
 struct gentity_s
@@ -86,6 +92,7 @@ struct gentity_s
   //================================
 
   struct gclient_s  *client;        // NULL if not a client
+  gitem_t    item;
 
   qboolean          inuse;
 
@@ -447,7 +454,6 @@ struct gclient_s
   int                 lastCrushTime;        // Tyrant crush
   int                 lastDropTime;         // Weapon drop with /drop
 };
-
 
 typedef struct spawnQueue_s
 {
@@ -993,7 +999,7 @@ void FireWeapon3( gentity_t *ent );
 //
 // g_weapondrop.c
 //
-gentity_t *LaunchWeapon( weapon_t weap, vec3_t origin, vec3_t velocity );
+gentity_t *LaunchWeapon( gentity_t *client, weapon_t weap, vec3_t origin, vec3_t velocity );
 gentity_t *G_DropWeapon( gentity_t *ent, weapon_t w, float angle );
 void G_RunWeaponDrop(gentity_t *ent);
 

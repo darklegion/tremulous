@@ -22,8 +22,8 @@ void Pickup_Weapon (gentity_t *ent, gentity_t *other)
     return;
 
   other->client->ps.stats[ STAT_WEAPON ] = w;
-  other->client->ps.ammo = BG_Weapon( w )->maxAmmo;
-  other->client->ps.clips = BG_Weapon( w )->maxClips;
+  other->client->ps.ammo = ent->item.ammo;
+  other->client->ps.clips = ent->item.clips;
   G_ForceWeaponChange( other, w );
 }
 
@@ -68,7 +68,7 @@ void Touch_Weapon (gentity_t *ent, gentity_t *other, trace_t *trace)
 //
 // Spawn a weapon and toss it into the world.
 //
-gentity_t *LaunchWeapon (weapon_t weap, vec3_t origin, vec3_t velocity)
+gentity_t *LaunchWeapon (gentity_t* client, weapon_t weap, vec3_t origin, vec3_t velocity)
 {
     gentity_t   *dropped;
 
@@ -82,6 +82,9 @@ gentity_t *LaunchWeapon (weapon_t weap, vec3_t origin, vec3_t velocity)
     VectorSet (dropped->r.mins, -ITEM_RADIUS, -ITEM_RADIUS, -ITEM_RADIUS);
     VectorSet (dropped->r.maxs, ITEM_RADIUS, ITEM_RADIUS, ITEM_RADIUS);
     dropped->r.contents = CONTENTS_TRIGGER;
+
+    dropped->item.ammo = client->client->ps.ammo;
+    dropped->item.clips = client->client->ps.clips;
 
     dropped->touch = Touch_Weapon;
 
@@ -121,7 +124,7 @@ gentity_t *G_DropWeapon (gentity_t *ent, weapon_t w, float angle)
     velocity[2] += 200 + crandom() * 50;
 
     ent->client->lastDropTime = level.time;
-    return LaunchWeapon( w, ent->s.pos.trBase, velocity );
+    return LaunchWeapon( ent, w, ent->s.pos.trBase, velocity );
 }
 
 //
