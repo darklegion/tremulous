@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "g_local.h"
 
+static qboolean G_RoomForClassChange( gentity_t*, class_t, vec3_t );
+
 /*
 ==================
 G_SanitiseString
@@ -379,6 +381,74 @@ char *ConcatArgsPrintable( int start )
   return line;
 }
 
+static void Give_Class( gentity_t *ent, char *s )
+{
+  class_t currentClass = ent->client->pers.classSelection;
+  int clientNum = ent->client - level.clients;
+  vec3_t infestOrigin;
+  vec3_t oldVel;
+  int oldBoostTime = -1;
+  int newClass = BG_ClassByName( s )->number;
+
+  if( newClass == PCL_NONE )
+    return;
+
+  if( !G_RoomForClassChange( ent, newClass, infestOrigin ) )
+  {
+    ADMP("give: not enough room to evolve\n");
+    return;
+  }
+
+  ent->client->pers.evolveHealthFraction 
+      = (float)ent->client->ps.stats[ STAT_HEALTH ] 
+      / (float)BG_Class( currentClass )->health;
+
+  if( ent->client->pers.evolveHealthFraction < 0.0f )
+    ent->client->pers.evolveHealthFraction = 0.0f;
+  else if( ent->client->pers.evolveHealthFraction > 1.0f )
+    ent->client->pers.evolveHealthFraction = 1.0f;
+
+  //remove credit
+  //G_AddCreditToClient( ent->client, -cost, qtrue );
+  ent->client->pers.classSelection = newClass;
+  ClientUserinfoChanged( clientNum, qfalse );
+  VectorCopy( infestOrigin, ent->s.pos.trBase );
+  VectorCopy( ent->client->ps.velocity, oldVel );
+
+  if( ent->client->ps.stats[ STAT_STATE ] & SS_BOOSTED )
+    oldBoostTime = ent->client->boostedTime;
+
+  ClientSpawn( ent, ent, ent->s.pos.trBase, ent->s.apos.trBase );
+
+  VectorCopy( oldVel, ent->client->ps.velocity );
+  if( oldBoostTime > 0 )
+  {
+    ent->client->boostedTime = oldBoostTime;
+    ent->client->ps.stats[ STAT_STATE ] |= SS_BOOSTED;
+  }
+}
+
+static void Give_Gun( gentity_t *ent, char *s )
+{
+  int w = BG_WeaponByName( s )->number;
+
+  if ( w == WP_NONE )
+    return;
+
+  //if( !BG_Weapon( w )->purchasable )
+  //    return;
+
+  ent->client->ps.stats[ STAT_WEAPON ] = w;
+  ent->client->ps.ammo = BG_Weapon( w )->maxAmmo;
+  ent->client->ps.clips = BG_Weapon( w )->maxClips;
+  G_ForceWeaponChange( ent, w );
+}
+
+static void Give_Upgrade( gentity_t *ent, char *s )
+{
+    int u = BG_UpgradeByName( s )->number;
+    BG_AddUpgradeToInventory( u, ent->client->ps.stats );
+}
 
 /*
 ==================
@@ -394,9 +464,13 @@ void Cmd_Give_f( gentity_t *ent )
 
   if( trap_Argc( ) < 2 )
   {
-    ADMP( "usage: give [what]\n" );
-    ADMP( "usage: valid choices are: all, health, funds [amount], stamina, "
-          "poison, gas, ammo\n" );
+    ADMP( "^3give: ^7usage: give [what]\n"
+          "health, funds <amount>, stamina, poison, gas, ammo, " 
+          "^3level0, level1, level1upg, level2, level2upg, level3, level3upg, level4, builder, builderupg, "
+          "human_base, human_bsuit, "
+          "^5blaster, rifle, psaw, shotgun, lgun, mdriver, chaingun, flamer, prifle, grenade, lockblob, "
+          "hive, teslagen, mgturret, abuild, abuildupg, portalgun, proximity, smokecan, "
+          "^2larmour, helmet, medkit, battpak, jetpack, bsuit, gren \n" );
     return;
   }
 
@@ -435,6 +509,16 @@ void Cmd_Give_f( gentity_t *ent )
   if( give_all || Q_stricmp( name, "stamina" ) == 0 )
     ent->client->ps.stats[ STAT_STAMINA ] = STAMINA_MAX;
 
+  // Adding guns
+  Give_Gun(ent, name);
+
+  // Adding upgrades
+  Give_Upgrade( ent, name);
+
+  // Change class- this allows you to be any alien class on TEAM_HUMAN and the
+  // otherway round.
+  Give_Class(ent, name);
+
   if( Q_stricmp( name, "poison" ) == 0 )
   {
     if( ent->client->pers.teamSelection == TEAM_HUMANS )
@@ -454,8 +538,7 @@ void Cmd_Give_f( gentity_t *ent )
   {
     ent->client->ps.eFlags |= EF_POISONCLOUDED;
     ent->client->lastPoisonCloudedTime = level.time;
-    trap_SendServerCommand( ent->client->ps.clientNum,
-                              "poisoncloud" );
+    trap_SendServerCommand( ent->client->ps.clientNum, "poisoncloud" );
   }
 
   if( give_all || Q_stricmp( name, "ammo" ) == 0 )
@@ -474,7 +557,6 @@ void Cmd_Give_f( gentity_t *ent )
       client->ps.ammo = (int)( (float)client->ps.ammo * BATTPACK_MODIFIER );
   }
 }
-
 
 /*
 ==================
