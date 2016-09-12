@@ -356,3 +356,127 @@ void CG_Scanner( rectDef_t *rect, qhandle_t shader, vec4_t color )
       CG_DrawBlips( rect, relOrigin, aIabove );
   }
 }
+
+void THZ_DrawScanner( rectDef_t *rect )
+{
+    vec4_t colorB = { 0.0f, 0.0f, 0.0f, 0.5f };
+    vec4_t color  = { 1.0f, 1.0f, 1.0f, 0.2f };
+
+    vec4_t aliencolor = { 1.0f, 0.0f, 0.0f, 0.8f };
+    vec4_t humancolor = { 0.0f, 0.0f, 1.0f, 0.8f };
+    vec4_t buildcolor = { 0.0f, 1.0f, 1.0f, 0.8f };
+    vec4_t buildcolor2 = { 1.0f, 1.0f, 0.0f, 0.8f };
+
+    vec3_t drawOrigin = { 0.0f, 0.0f, 0.0f };
+    vec3_t origin     = { 0.0f, 0.0f, 0.0f };
+    vec3_t relOrigin  = { 0.0f, 0.0f, 0.0f };
+
+    static vec3_t up  = { 0.0f, 0.0f, 1.0f };
+
+    int i;
+
+    if( !thz_radar.integer )
+        return;
+
+    //CG_FillRect( rect->x, rect->y, rect->w, rect->h, colorB );
+
+    // Draw cross
+    CG_FillRect( rect->x + (rect->w/2),
+                 rect->y, 
+                 1,
+                 rect->h,
+                 color );
+    CG_FillRect( rect->x,
+                 rect->y+(rect->h/2),
+                 rect->w,
+                 1,
+                 color );
+
+    // update the player positions
+    CG_UpdateEntityPositions( );
+
+    // blips
+    VectorCopy( entityPositions.origin, origin );
+
+     // human buildables
+    for( i = 0; i < entityPositions.numHumanBuildables; i++ )
+    {
+        VectorClear( relOrigin );
+        VectorSubtract( entityPositions.humanBuildablePos[ i ], origin, relOrigin );
+
+        if( VectorLength( relOrigin ) < thz_radarrange.integer )
+        {
+        RotatePointAroundVector( drawOrigin, up, relOrigin, -entityPositions.vangles[ 1 ] - 90 );
+
+        drawOrigin[ 0 ] /= ((float)(1.25f * (float)thz_radarrange.integer) / (float)rect->w);
+        drawOrigin[ 1 ] /= ((float)(1.25f * (float)thz_radarrange.integer) / (float)rect->h);
+        drawOrigin[ 2 ] /= ((float)(1.25f * (float)thz_radarrange.integer) / (float)rect->w);
+
+        CG_FillRect( rect->x + (rect->w / 2) + -drawOrigin[0] - 5,
+                     rect->y + (rect->h / 2) + drawOrigin[1] - 5,
+                     10, 10, buildcolor );
+        }
+    }
+
+    // humans
+    for( i = 0; i < entityPositions.numHumanClients; i++ )
+    {
+        VectorClear( relOrigin );
+        VectorSubtract( entityPositions.humanClientPos[ i ], origin, relOrigin );
+
+        if( VectorLength( relOrigin ) < thz_radarrange.integer )
+        {
+        RotatePointAroundVector( drawOrigin, up, relOrigin, -entityPositions.vangles[ 1 ] - 90 );
+
+        drawOrigin[ 0 ] /= ((float)(1.25f * (float)thz_radarrange.integer) / (float)rect->w);
+        drawOrigin[ 1 ] /= ((float)(1.25f * (float)thz_radarrange.integer) / (float)rect->h);
+        drawOrigin[ 2 ] /= ((float)(1.25f * (float)thz_radarrange.integer) / (float)rect->w);
+
+        CG_FillRect( rect->x + (rect->w / 2) + -drawOrigin[0] -3,
+                     rect->y + (rect->h / 2) + drawOrigin[1] -3,
+                     6, 6, humancolor );
+        }
+    }
+
+    // alien structures
+    for( i = 0; i < entityPositions.numAlienBuildables; i++ )
+    {
+        VectorClear( relOrigin );
+        VectorSubtract( entityPositions.alienBuildablePos[ i ], origin, relOrigin );
+
+        if( VectorLength( relOrigin ) < thz_radarrange.integer )
+        {
+        RotatePointAroundVector( drawOrigin, up, relOrigin, -entityPositions.vangles[ 1 ] - 90 );
+
+        drawOrigin[ 0 ] /= ((float)(1.25f * (float)thz_radarrange.integer) / (float)rect->w);
+        drawOrigin[ 1 ] /= ((float)(1.25f * (float)thz_radarrange.integer) / (float)rect->h);
+        drawOrigin[ 2 ] /= ((float)(1.25f * (float)thz_radarrange.integer) / (float)rect->w);
+
+        CG_FillRect( rect->x + (rect->w / 2) + -drawOrigin[0] - 5,
+                     rect->y + (rect->h / 2) + drawOrigin[1] - 5,
+                     10, 10, buildcolor2 );
+        }
+    }
+
+    // aliens
+    for( i = 0; i < entityPositions.numAlienClients; i++ )
+    {
+        VectorClear( relOrigin );
+        VectorSubtract( entityPositions.alienClientPos[ i ], origin, relOrigin );
+
+        if( VectorLength( relOrigin ) < thz_radarrange.integer )
+        {
+        RotatePointAroundVector( drawOrigin, up, relOrigin, -entityPositions.vangles[ 1 ] - 90 );
+
+        drawOrigin[ 0 ] /= ((float)(1.25f * (float)thz_radarrange.integer) / (float)rect->w);
+        drawOrigin[ 1 ] /= ((float)(1.25f * (float)thz_radarrange.integer) / (float)rect->h);
+        drawOrigin[ 2 ] /= ((float)(1.25f * (float)thz_radarrange.integer) / (float)rect->w);
+
+        CG_FillRect( rect->x + (rect->w / 2) + -drawOrigin[0] -3,
+                     rect->y + (rect->h / 2) + drawOrigin[1] -3,
+                     6, 6, aliencolor );
+        }
+    }
+}
+
+
