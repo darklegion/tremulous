@@ -2232,8 +2232,10 @@ UIOBJ_ = \
   $(B)/$(BASEGAME)/ui/ui_shared.o \
   $(B)/$(BASEGAME)/ui/ui_gameinfo.o \
   \
+  $(B)/$(BASEGAME)/ui/bg_alloc.o \
   $(B)/$(BASEGAME)/ui/bg_misc.o \
   $(B)/$(BASEGAME)/ui/bg_lib.o \
+  $(B)/$(BASEGAME)/ui/bg_voice.o \
   $(B)/$(BASEGAME)/qcommon/q_math.o \
   $(B)/$(BASEGAME)/qcommon/q_shared.o
 

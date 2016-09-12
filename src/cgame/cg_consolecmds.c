@@ -166,6 +166,28 @@ void CG_ClientList_f( void )
   Com_Printf( "Listed %2d clients\n", count );
 }
 
+static void CG_VoiceMenu_f( void )
+{
+  char cmd[sizeof("voicemenu3")];
+
+  trap_Argv(0, cmd, sizeof(cmd));
+
+  switch (cmd[9]) {
+    default:
+    case '\0':
+      trap_Cvar_Set("ui_voicemenu", "1");
+      break;
+    case '2':
+      trap_Cvar_Set("ui_voicemenu", "2");
+      break;
+    case '3':
+      trap_Cvar_Set("ui_voicemenu", "3");
+      break;
+  };
+
+  trap_SendConsoleCommand("menu tremulous_voicecmd\n");
+}
+
 static void CG_UIMenu_f( void )
 {
   trap_SendConsoleCommand( va( "menu %s\n", CG_Argv( 1 ) ) );
@@ -202,6 +224,9 @@ static consoleCommand_t commands[ ] =
   { "testTS", CG_TestTS_f },
   { "ui_menu", CG_UIMenu_f },
   { "viewpos", CG_Viewpos_f },
+  { "voicemenu", CG_VoiceMenu_f },
+  { "voicemenu2", CG_VoiceMenu_f },
+  { "voicemenu3", CG_VoiceMenu_f },
   { "weapnext", CG_NextWeapon_f },
   { "weapon", CG_Weapon_f },
   { "weapprev", CG_PrevWeapon_f },
