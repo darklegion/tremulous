@@ -126,6 +126,10 @@ ifndef MOUNT_DIR
 MOUNT_DIR=src
 endif
 
+ifndef ASSETS_DIR
+ASSETS_DIR=assets
+endif
+
 ifndef BUILD_DIR
 BUILD_DIR=build
 endif
@@ -951,6 +955,11 @@ ifneq ($(BUILD_GAME_QVM),0)
     $(B)/$(BASEGAME)/vm/game.qvm \
     $(B)/$(BASEGAME)/vm/ui.qvm \
 	$(B)/$(BASEGAME)/vms-$(VERSION).pk3
+endif
+
+ifneq ($(BUILD_DATA_PK3),0)
+  TARGETS += \
+    $(B)/$(BASEGAME)/data-$(VERSION).pk3
 endif
 
 ifeq ($(USE_OPENAL),1)
@@ -2246,6 +2255,14 @@ $(B)/$(BASEGAME)/vm/ui.qvm: $(UIVMOBJ) $(UIDIR)/ui_syscalls.asm $(Q3ASM)
 
 $(B)/$(BASEGAME)/vms-$(VERSION).pk3: $(B)/$(BASEGAME)/vm/ui.qvm $(B)/$(BASEGAME)/vm/cgame.qvm $(B)/$(BASEGAME)/vm/game.qvm
 	@(cd $(B)/$(BASEGAME) && zip -r vms-$(VERSION).pk3 vm/)
+
+#############################################################################
+## Assets Package
+#############################################################################
+
+$(B)/$(BASEGAME)/data-$(VERSION).pk3: $(ASSETS_DIR)/ui/menudef.h
+	@(cd $(ASSETS_DIR) && zip -r data-$(VERSION).pk3 *)
+	@mv $(ASSETS_DIR)/data-$(VERSION).pk3 $(B)/$(BASEGAME)
 
 #############################################################################
 ## CLIENT/SERVER RULES
