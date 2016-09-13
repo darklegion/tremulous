@@ -804,9 +804,9 @@ void CL_WritePacket( void ) {
 			if ( clc.netchan.alternateProtocol != 0 ) {
 				MSG_WriteByte (&buf, clc_EOF);
 			}
-			MSG_WriteByte (&buf, clc_voip);
+			MSG_WriteByte (&buf, clc_voipSpeex);
 			if ( clc.netchan.alternateProtocol != 0 ) {
-				MSG_WriteByte (&buf, clc_voip + 1);
+				MSG_WriteByte (&buf, clc_voipSpeex + 1);
 			}
 			MSG_WriteByte (&buf, clc.voipOutgoingGeneration);
 			MSG_WriteLong (&buf, clc.voipOutgoingSequence);

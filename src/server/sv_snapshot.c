@@ -553,9 +553,9 @@ static void SV_WriteVoipToClient(client_t *cl, msg_t *msg)
 
 				if(cl->netchan.alternateProtocol != 0)
 					MSG_WriteByte(msg, svc_EOF);
-				MSG_WriteByte(msg, svc_voip);
+				MSG_WriteByte(msg, svc_voipSpeex);
 				if(cl->netchan.alternateProtocol != 0)
-					MSG_WriteByte(msg, svc_voip + 1);
+					MSG_WriteByte(msg, svc_voipSpeex + 1);
         			MSG_WriteShort(msg, packet->sender);
 	        		MSG_WriteByte(msg, (byte) packet->generation);
 		        	MSG_WriteLong(msg, packet->sequence);
