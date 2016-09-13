@@ -26,6 +26,9 @@ endif
 ifndef BUILD_GAME_QVM
   BUILD_GAME_QVM   =
 endif
+ifndef BUILD_GAME_QVM_11
+  BUILD_GAME_QVM_11 =
+endif
 ifndef BUILD_RENDERER_OPENGL2
   BUILD_RENDERER_OPENGL2=
 endif
@@ -104,6 +107,10 @@ endif
 
 ifndef SERVERBIN
 SERVERBIN=tremded
+endif
+
+ifndef BASEGAME
+BASEGAME=base
 endif
 
 ifndef BASEGAME
@@ -980,6 +987,13 @@ ifneq ($(BUILD_GAME_QVM),0)
 	$(B)/$(BASEGAME)/vms-$(VERSION).pk3
 endif
 
+ifneq ($(BUILD_GAME_QVM_11),0)
+  TARGETS += \
+    $(B)/$(BASEGAME)_11/vm/cgame.qvm \
+    $(B)/$(BASEGAME)_11/vm/ui.qvm \
+	$(B)/$(BASEGAME)_11/vms-$(VERSION).pk3
+endif
+
 ifeq ($(USE_OPENAL),1)
   CLIENT_CFLAGS += -DUSE_OPENAL
   ifeq ($(USE_OPENAL_DLOPEN),1)
@@ -1372,7 +1386,12 @@ makedirs:
 	@if [ ! -d $(B)/$(BASEGAME)/game ];then $(MKDIR) $(B)/$(BASEGAME)/game;fi
 	@if [ ! -d $(B)/$(BASEGAME)/ui ];then $(MKDIR) $(B)/$(BASEGAME)/ui;fi
 	@if [ ! -d $(B)/$(BASEGAME)/qcommon ];then $(MKDIR) $(B)/$(BASEGAME)/qcommon;fi
+	@if [ ! -d $(B)/$(BASEGAME)/11 ];then $(MKDIR) $(B)/$(BASEGAME)/11;fi
+	@if [ ! -d $(B)/$(BASEGAME)/11/cgame ];then $(MKDIR) $(B)/$(BASEGAME)/11/cgame;fi
+	@if [ ! -d $(B)/$(BASEGAME)/11/ui ];then $(MKDIR) $(B)/$(BASEGAME)/11/ui;fi
 	@if [ ! -d $(B)/$(BASEGAME)/vm ];then $(MKDIR) $(B)/$(BASEGAME)/vm;fi
+	@if [ ! -d $(B)/$(BASEGAME)_11 ];then $(MKDIR) $(B)/$(BASEGAME)_11;fi
+	@if [ ! -d $(B)/$(BASEGAME)_11/vm ];then $(MKDIR) $(B)/$(BASEGAME)_11/vm;fi
 	@if [ ! -d $(B)/tools ];then $(MKDIR) $(B)/tools;fi
 	@if [ ! -d $(B)/tools/asm ];then $(MKDIR) $(B)/tools/asm;fi
 	@if [ ! -d $(B)/tools/etc ];then $(MKDIR) $(B)/tools/etc;fi
@@ -1539,6 +1558,17 @@ define DO_UI_Q3LCC
 $(echo_cmd) "UI_Q3LCC $<"
 $(Q)$(Q3LCC) $(BASEGAME_CFLAGS) -DUI -o $@ $<
 endef
+
+define DO_CGAME_Q3LCC_11
+$(echo_cmd) "CGAME_Q3LCC_11 $<"
+$(Q)$(Q3LCC) $(BASEGAME_CFLAGS) -DMODULE_INTERFACE_11 -DCGAME -o $@ $<
+endef
+
+define DO_UI_Q3LCC_11
+$(echo_cmd) "UI_Q3LCC_11 $<"
+$(Q)$(Q3LCC) $(BASEGAME_CFLAGS) -DMODULE_INTERFACE_11 -DUI -o $@ $<
+endef
+
 
 
 Q3ASMOBJ = \
@@ -2321,7 +2351,49 @@ $(B)/$(BASEGAME)/vm/cgame.qvm: $(CGVMOBJ) $(CGDIR)/cg_syscalls.asm $(Q3ASM)
 	$(echo_cmd) "Q3ASM $@"
 	$(Q)$(Q3ASM) -o $@ $(CGVMOBJ) $(CGDIR)/cg_syscalls.asm
 
+#############################################################################
+## TREMULOUS CGAME (1.1 COMPATIBLE)
+#############################################################################
 
+CGOBJ11_ = \
+  $(B)/$(BASEGAME)/11/cgame/cg_main.o \
+  $(B)/$(BASEGAME)/cgame/bg_misc.o \
+  $(B)/$(BASEGAME)/cgame/bg_pmove.o \
+  $(B)/$(BASEGAME)/cgame/bg_slidemove.o \
+  $(B)/$(BASEGAME)/cgame/bg_lib.o \
+  $(B)/$(BASEGAME)/cgame/bg_alloc.o \
+  $(B)/$(BASEGAME)/cgame/bg_voice.o \
+  $(B)/$(BASEGAME)/cgame/cg_consolecmds.o \
+  $(B)/$(BASEGAME)/cgame/cg_buildable.o \
+  $(B)/$(BASEGAME)/cgame/cg_animation.o \
+  $(B)/$(BASEGAME)/cgame/cg_animmapobj.o \
+  $(B)/$(BASEGAME)/cgame/cg_draw.o \
+  $(B)/$(BASEGAME)/cgame/cg_drawtools.o \
+  $(B)/$(BASEGAME)/cgame/cg_ents.o \
+  $(B)/$(BASEGAME)/cgame/cg_event.o \
+  $(B)/$(BASEGAME)/cgame/cg_marks.o \
+  $(B)/$(BASEGAME)/cgame/cg_players.o \
+  $(B)/$(BASEGAME)/cgame/cg_playerstate.o \
+  $(B)/$(BASEGAME)/cgame/cg_predict.o \
+  $(B)/$(BASEGAME)/11/cgame/cg_servercmds.o \
+  $(B)/$(BASEGAME)/11/cgame/cg_snapshot.o \
+  $(B)/$(BASEGAME)/cgame/cg_view.o \
+  $(B)/$(BASEGAME)/cgame/cg_weapons.o \
+  $(B)/$(BASEGAME)/cgame/cg_scanner.o \
+  $(B)/$(BASEGAME)/cgame/cg_attachment.o \
+  $(B)/$(BASEGAME)/cgame/cg_trails.o \
+  $(B)/$(BASEGAME)/cgame/cg_particles.o \
+  $(B)/$(BASEGAME)/cgame/cg_tutorial.o \
+  $(B)/$(BASEGAME)/cgame/ui_shared.o \
+  \
+  $(B)/$(BASEGAME)/qcommon/q_math.o \
+  $(B)/$(BASEGAME)/qcommon/q_shared.o
+
+CGVMOBJ11 = $(CGOBJ11_:%.o=%.asm)
+
+$(B)/$(BASEGAME)_11/vm/cgame.qvm: $(CGVMOBJ11) $(CGDIR)/cg_syscalls_11.asm $(Q3ASM)
+	$(echo_cmd) "Q3ASM_11 $@"
+	$(Q)$(Q3ASM) -o $@ $(CGVMOBJ11) $(CGDIR)/cg_syscalls_11.asm
 
 #############################################################################
 ## TREMULOUS GAME
@@ -2398,6 +2470,21 @@ $(B)/$(BASEGAME)/vm/ui.qvm: $(UIVMOBJ) $(UIDIR)/ui_syscalls.asm $(Q3ASM)
 	$(echo_cmd) "Q3ASM $@"
 	$(Q)$(Q3ASM) -o $@ $(UIVMOBJ) $(UIDIR)/ui_syscalls.asm
 
+##
+UIOBJ11_ = \
+  $(B)/$(BASEGAME)/11/ui/ui_main.o \
+  $(B)/$(BASEGAME)/ui/ui_atoms.o \
+  $(B)/$(BASEGAME)/ui/ui_shared.o \
+  $(B)/$(BASEGAME)/ui/ui_gameinfo.o \
+  \
+  $(B)/$(BASEGAME)/ui/bg_misc.o \
+  $(B)/$(BASEGAME)/ui/bg_lib.o \
+  $(B)/$(BASEGAME)/qcommon/q_math.o \
+  $(B)/$(BASEGAME)/qcommon/q_shared.o
+UIVMOBJ11 = $(UIOBJ11_:%.o=%.asm)
+$(B)/$(BASEGAME)_11/vm/ui.qvm: $(UIVMOBJ11) $(UIDIR)/ui_syscalls_11.asm $(Q3ASM)
+	$(echo_cmd) "Q3ASM $@"
+	$(Q)$(Q3ASM) -o $@ $(UIVMOBJ11) $(UIDIR)/ui_syscalls_11.asm
 
 #############################################################################
 ## QVM Package
@@ -2405,6 +2492,10 @@ $(B)/$(BASEGAME)/vm/ui.qvm: $(UIVMOBJ) $(UIDIR)/ui_syscalls.asm $(Q3ASM)
 
 $(B)/$(BASEGAME)/vms-$(VERSION).pk3: $(B)/$(BASEGAME)/vm/ui.qvm $(B)/$(BASEGAME)/vm/cgame.qvm $(B)/$(BASEGAME)/vm/game.qvm
 	@(cd $(B)/$(BASEGAME) && zip -r vms-$(VERSION).pk3 vm/)
+
+$(B)/$(BASEGAME)_11/vms-$(VERSION).pk3: $(B)/$(BASEGAME)_11/vm/ui.qvm $(B)/$(BASEGAME)_11/vm/cgame.qvm 
+	@(cd $(B)/$(BASEGAME)_11 && zip -r vms-$(VERSION).pk3 vm/)
+
 
 #############################################################################
 ## CLIENT/SERVER RULES
@@ -2564,6 +2655,7 @@ endif
 ## GAME MODULE RULES
 #############################################################################
 
+# CGAME
 $(B)/$(BASEGAME)/cgame/bg_%.o: $(GDIR)/bg_%.c
 	$(DO_CGAME_CC)
 
@@ -2582,14 +2674,27 @@ $(B)/$(BASEGAME)/cgame/ui_%.asm: $(UIDIR)/ui_%.c $(Q3LCC)
 $(B)/$(BASEGAME)/cgame/%.asm: $(CGDIR)/%.c $(Q3LCC)
 	$(DO_CGAME_Q3LCC)
 
+# CGAME (1.1 COMPATIBLE)
+#$(B)/$(BASEGAME)_11/cgame/bg_%.o: $(GDIR)/bg_%.c
+#	$(DO_CGAME_CC_11)
+#
+#$(B)/$(BASEGAME)_11/cgame/ui_%.o: $(UIDIR)/ui_%.c
+#	$(DO_CGAME_CC_11)
+#
+#$(B)/$(BASEGAME)_11/cgame/%.o: $(CGDIR)/%.c
+#	$(DO_CGAME_CC_11)
 
+$(B)/$(BASEGAME)/11/cgame/%.asm: $(CGDIR)/%.c $(Q3LCC)
+	$(DO_CGAME_Q3LCC_11)
+
+# GAME
 $(B)/$(BASEGAME)/game/%.o: $(GDIR)/%.c
 	$(DO_GAME_CC)
 
 $(B)/$(BASEGAME)/game/%.asm: $(GDIR)/%.c $(Q3LCC)
 	$(DO_GAME_Q3LCC)
 
-
+# UI
 $(B)/$(BASEGAME)/ui/bg_%.o: $(GDIR)/bg_%.c
 	$(DO_UI_CC)
 
@@ -2602,6 +2707,9 @@ $(B)/$(BASEGAME)/ui/bg_%.asm: $(GDIR)/bg_%.c $(Q3LCC)
 $(B)/$(BASEGAME)/ui/%.asm: $(UIDIR)/%.c $(Q3LCC)
 	$(DO_UI_Q3LCC)
 
+# UI (1.1 COMPATIBLE)
+$(B)/$(BASEGAME)/11/ui/%.asm: $(UIDIR)/%.c $(Q3LCC)
+	$(DO_UI_Q3LCC_11)
 
 $(B)/$(BASEGAME)/qcommon/%.o: $(CMDIR)/%.c
 	$(DO_SHLIB_CC)
