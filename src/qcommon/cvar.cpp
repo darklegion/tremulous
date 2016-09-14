@@ -301,7 +301,8 @@ If the variable already exists, the value will not be set unless CVAR_ROM
 The flags will be or'ed in if the variable exists.
 ============
 */
-cvar_t *Cvar_Get( const char *var_name, const char *var_value, int flags ) {
+cvar_t *Cvar_Get( const char *var_name, const char *var_value, int flags )
+{
 	cvar_t	*var;
 	long	hash;
 	int	index;
@@ -466,7 +467,8 @@ Cvar_Print
 Prints the value, default, and latched string of the given variable
 ============
 */
-void Cvar_Print( cvar_t *v ) {
+void Cvar_Print( cvar_t *v )
+{
 	Com_Printf ("\"%s\" is:\"%s" S_COLOR_WHITE "\"",
 			v->name, v->string );
 
@@ -495,7 +497,8 @@ void Cvar_Print( cvar_t *v ) {
 Cvar_Set2
 ============
 */
-cvar_t *Cvar_Set2( const char *var_name, const char *value, qboolean force ) {
+cvar_t *Cvar_Set2( const char *var_name, const char *value, qboolean force )
+{
 	cvar_t	*var;
 
 //	Com_DPrintf( "Cvar_Set2: %s %s\n", var_name, value );
@@ -620,7 +623,8 @@ cvar_t *Cvar_Set2( const char *var_name, const char *value, qboolean force ) {
 Cvar_Set
 ============
 */
-void Cvar_Set( const char *var_name, const char *value) {
+void Cvar_Set( const char *var_name, const char *value)
+{
 	Cvar_Set2 (var_name, value, qtrue);
 }
 
@@ -651,7 +655,8 @@ void Cvar_SetSafe( const char *var_name, const char *value )
 Cvar_SetLatched
 ============
 */
-void Cvar_SetLatched( const char *var_name, const char *value) {
+void Cvar_SetLatched( const char *var_name, const char *value)
+{
 	Cvar_Set2 (var_name, value, qfalse);
 }
 
@@ -660,7 +665,8 @@ void Cvar_SetLatched( const char *var_name, const char *value) {
 Cvar_SetValue
 ============
 */
-void Cvar_SetValue( const char *var_name, float value) {
+void Cvar_SetValue( const char *var_name, float value)
+{
 	char	val[32];
 
 	if ( value == (int)value ) {

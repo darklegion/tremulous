@@ -24,6 +24,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <iostream>
 #include "../lua-5.3.3/include/lua.hpp"
 #include "../sol/sol.hpp"
+#include "../script/script.h"
+#include "../script/cvar.h"
 
 #include <signal.h>
 #include <stdlib.h>
@@ -52,6 +54,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
+
 sol::state lua;
 
 static char binaryPath[ MAX_OSPATH ] = { 0 };
@@ -669,7 +672,8 @@ int main( int argc, char **argv )
 
     lua.open_libraries(sol::lib::base, sol::lib::package);
     lua.set_function("print", Com_Printf);
-    lua.set_function("cvar_variable", Cvar_VariableString);
+    CvarApi::init(&lua);
+    //lua.set_function("cvar_variable", Cvar_VariableString);
 
     for ( ;; )
     {

@@ -245,6 +245,7 @@ CMDIR=$(MOUNT_DIR)/qcommon
 SDLDIR=$(MOUNT_DIR)/sdl
 ASMDIR=$(MOUNT_DIR)/asm
 SYSDIR=$(MOUNT_DIR)/sys
+SCRIPTDIR=$(MOUNT_DIR)/script
 GDIR=$(MOUNT_DIR)/game
 CGDIR=$(MOUNT_DIR)/cgame
 NDIR=$(MOUNT_DIR)/null
@@ -1085,34 +1086,6 @@ ifeq ($(USE_FREETYPE),1)
   RENDERER_LIBS += $(FREETYPE_LIBS)
 endif
 
-#
-# -bbq LUADIR really needs to be built in build/$(PLATFORM) etc.. 
-#  Should try to drive this with PKG_CONFIG_PATH and *.pc files,
-#  trivializing  USE_INTERNAL_LIBS
-#
-# Might also want to package windows + macosx dll's instead of
-# building every time
-#ifeq ($(USE_INTERNAL_LUA),1)
-#LDFLAGS += -l $(B)/liblua.$(SHLIBEXT)
-#endif
-#  CXXFLAGS += -DUSE_INTERNAL_LUA -I$(LUADIR)/include
-#  CFLAGS += -DUSE_INTERNAL_LUA -I$(LUADIR)/include
-#  LDFLAGS += $(LUADIR)/lib/liblua.a
-#else
-#  ifeq ($(USE_LUA),1)
-#    LUA_CFLAGS += $(shell pkg-config --silence-errors --cflags lua)
-#    LUA_LIBS += $(shell pkg-config --silence-errors --libs lua)
-#  else
-#  ifeq ($(USE_LUAJIT),1)
-#    LUA_CFLAGS += $(shell pkg-config --silence-errors --cflags luajit)
-#    LUA_LIBS += $(shell pkg-config --silence-errors --libs luajit)
-#  endif
-#  endif
-#  CFLAGS += $(LUA_CFLAGS)
-#  CXXFLAGS += $(LUA_CFLAGS)
-#  LDFLAGS += $(LUA_LIBS)
-#endif
-
 ifeq ("$(CC)", $(findstring "$(CC)", "clang" "clang++"))
   BASE_CFLAGS += -Qunused-arguments
 endif
@@ -1359,6 +1332,7 @@ makedirs:
 	@if [ ! -d $(BUILD_DIR) ];then $(MKDIR) $(BUILD_DIR);fi
 	@if [ ! -d $(B) ];then $(MKDIR) $(B);fi
 	@if [ ! -d $(B)/lua ]; then $(MKDIR) $(B)/lua;fi
+	@if [ ! -d $(B)/script ]; then $(MKDIR) $(B)/script;fi
 	@if [ ! -d $(B)/client ];then $(MKDIR) $(B)/client;fi
 	@if [ ! -d $(B)/client/opus ];then $(MKDIR) $(B)/client/opus;fi
 	@if [ ! -d $(B)/client/vorbis ];then $(MKDIR) $(B)/client/vorbis;fi
@@ -1621,8 +1595,27 @@ CXXFLAGS += $(LUACFLAGS)
 $(B)/lua/%.o: $(LUADIR)/%.c
 	$(DO_LUA_CC)
 
-$(B)/liblua.$(SHLIBEXT): $(LUAOBJ)
-	$(DO_LUA_LD)
+# FIXME Provide a way to dlopen liblua.dll?
+#$(B)/liblua.$(SHLIBEXT): $(LUAOBJ)
+#	$(DO_LUA_LD)
+
+#############################################################################
+# Script API
+#############################################################################
+
+define DO_SCRIPT_CXX
+  $(echo_cmd) "SCRIPT_CXX $<"
+  $(Q)$(CXX) -std=c++1y $(NOTSHLIBCFLAGS) $(CXXFLAGS) $(OPTIMIZE) -o $@ -c $<
+endef
+
+SCRIPTOBJ = $(B)/script/cvar.o
+
+#SCRIPTCFLAGS= -I$(SCRIPTDIR)
+#CFLAGS += $(SCRIPTCFLAGS)
+#CXXFLAGS += $(SCRIPTCFLAGS)
+
+$(B)/script/%.o: $(SCRIPTDIR)/%.cpp
+	$(DO_SCRIPT_CXX)
 
 #############################################################################
 # CLIENT/SERVER
@@ -1709,7 +1702,7 @@ else
     $(B)/client/con_tty.o
 endif
 
-Q3OBJ += $(LUAOBJ)
+Q3OBJ += $(LUAOBJ) $(SCRIPTOBJ)
 
 Q3R2OBJ = \
   $(B)/renderergl2/tr_animation.o \
@@ -2227,7 +2220,7 @@ ifeq ($(ARCH),x86_64)
       $(B)/ded/ftola.o
 endif
 
-Q3DOBJ += $(LUAOBJ)
+Q3DOBJ += $(LUAOBJ) $(SCRIPTOBJ)
 
 ifeq ($(USE_INTERNAL_ZLIB),1)
 Q3DOBJ += \
@@ -2615,7 +2608,7 @@ $(B)/$(BASEGAME)/qcommon/%.asm: $(CMDIR)/%.c $(Q3LCC)
 #############################################################################
 
 OBJ = $(Q3OBJ) $(Q3ROBJ) $(Q3R2OBJ) $(Q3DOBJ) $(JPGOBJ) \
-  $(GOBJ) $(CGOBJ) $(UIOBJ) $(LUAOBJ)\
+  $(GOBJ) $(CGOBJ) $(UIOBJ) $(LUAOBJ) $(SCRIPTOBJ) \
   $(GVMOBJ) $(CGVMOBJ) $(UIVMOBJ)
 TOOLSOBJ = $(LBURGOBJ) $(Q3CPPOBJ) $(Q3RCCOBJ) $(Q3LCCOBJ) $(Q3ASMOBJ)
 STRINGOBJ = $(Q3R2STRINGOBJ)
