@@ -14,6 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, see <http://www.gnu.org/licenses/>.
 
+// It's quite possible this is _way over the top_ but I've been toying
+// with several ideas. -Victor
+
 #ifndef __cplusplus
 #error __file__ " is only available to C++"
 #endif
@@ -146,16 +149,20 @@ namespace script
 
         std::string get_value()
         { return my->string; }
+
+        std::string get_key()
+        { return my->name; }
     };
     
-    namespace cvar_api {
+    namespace cvar {
         static inline void init(sol::state* lua)
         {
             lua->new_usertype<Cvar>(
                     "cvar", sol::constructors<sol::types<std::string>,
     								  sol::types<std::string, std::string>,
     								  sol::types<std::string, std::string, int>>(),
-                    "value", sol::property(&Cvar::get_value, &Cvar::set_value)
+                    "value", sol::property(&Cvar::get_value, &Cvar::set_value),
+                    "key", sol::property(&Cvar::get_key)
             );
         }
     };

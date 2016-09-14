@@ -671,7 +671,7 @@ int main( int argc, char **argv )
     CON_Init( );
 
     lua.open_libraries(sol::lib::base, sol::lib::package);
-    script::cvar_api::init(&lua);
+    script::cvar::init(&lua);
 
     for ( ;; )
     {
