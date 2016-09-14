@@ -1131,7 +1131,7 @@ void CL_InitUI( void ) {
 	if ( !uivm ) {
 		Com_Printf( "Failed to find a valid UI vm. The following paths were searched:\n" );
 		Cmd_ExecuteString( "path /\n" );
-		Com_Error( ERR_FATAL, "VM_Create on UI failed" );
+		Com_Error( ERR_DROP, "VM_Create on UI failed" );
 	}
 
 	// sanity check
