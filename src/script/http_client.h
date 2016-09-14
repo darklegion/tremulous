@@ -75,10 +75,10 @@ namespace script
                 );
 
             lua->new_usertype<HttpClient>( "HttpClient",
-                    "get", &HttpClient::get,
-                    "post", &HttpClient::post,
-                    "put", &HttpClient::put,
-                    "delete", &HttpClient::del
+                    "get", &RestClient::get,
+                    "post", &RestClient::post,
+                    "put", &RestClient::put,
+                    "delete", &RestClient::del
                 );
         }
     };
