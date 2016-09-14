@@ -22,10 +22,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include <iostream>
+
 #include "../lua-5.3.3/include/lua.hpp"
 #include "../sol/sol.hpp"
-#include "../script/script.h"
+
+//#include "../script/script.h"
 #include "../script/cvar.h"
+#ifndef DEDICATED
+#include "../script/http_client.h"
+#endif
 
 #include <signal.h>
 #include <stdlib.h>
@@ -672,6 +677,9 @@ int main( int argc, char **argv )
 
     lua.open_libraries(sol::lib::base, sol::lib::package);
     script::cvar::init(&lua);
+#ifndef DEDICATED
+    script::http_client::init(&lua);
+#endif
 
     for ( ;; )
     {
