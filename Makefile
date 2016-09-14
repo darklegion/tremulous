@@ -1548,9 +1548,9 @@ define DO_LUA_CC
   $(Q)$(CC) $(LUACFLAGS) $(OPTIMIZE) -o $@ -c $<
 endef
 
-define DO_LUA_LD
-  $(echo_cmd) "LUA_LD $<"
-  $(Q)$(CC) $(SHLIBLDFLAGS) -o $@ $^
+define DO_LUA_CPP
+  $(echo_cmd) "LUA_CPP $<"
+  $(Q)$(CXX) -std=c++1y $(LUACFLAGS) $(OPTIMIZE) -o $@ -c $<
 endef
 
 LUAOBJ = \
@@ -1595,6 +1595,9 @@ CXXFLAGS += $(LUACFLAGS)
 $(B)/lua/%.o: $(LUADIR)/%.c
 	$(DO_LUA_CC)
 
+#$(B)/lua/%.o: $(LUADIR)/%.cpp
+#	$(DO_LUA_CPP)
+
 #############################################################################
 # Script API
 # FIXME Disabled for the time being
@@ -1631,6 +1634,8 @@ Q3OBJ = \
   $(B)/client/cl_scrn.o \
   $(B)/client/cl_ui.o \
   $(B)/client/cl_avi.o \
+  \
+  $(B)/client/q3_lauxlib.o \
   \
   $(B)/client/cm_load.o \
   $(B)/client/cm_patch.o \
@@ -2174,6 +2179,8 @@ Q3DOBJ = \
   $(B)/ded/sv_net_chan.o \
   $(B)/ded/sv_snapshot.o \
   $(B)/ded/sv_world.o \
+  \
+  $(B)/ded/q3_lauxlib.o \
   \
   $(B)/ded/cm_load.o \
   $(B)/ded/cm_patch.o \

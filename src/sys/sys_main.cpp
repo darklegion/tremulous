@@ -671,10 +671,7 @@ int main( int argc, char **argv )
     CON_Init( );
 
     lua.open_libraries(sol::lib::base, sol::lib::package);
-    lua.set_function("print", Com_Printf);
     script::cvar_api::init(&lua);
-
-    //lua.set_function("cvar_variable", Cvar_VariableString);
 
     for ( ;; )
     {

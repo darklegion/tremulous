@@ -13,6 +13,7 @@
 #include <stdio.h>
 
 #include "lua.h"
+#include "../../qcommon/q3_lauxlib.h"
 
 
 
@@ -204,6 +205,8 @@ LUALIB_API void (luaL_openlib) (lua_State *L, const char *libname,
 #endif
 
 
+// XXX -bbq Check q3_lauxlib.h for the overrides
+#if 0
 /*
 ** {==================================================================
 ** "Abstraction Layer" for basic report of messages and errors
@@ -228,6 +231,7 @@ LUALIB_API void (luaL_openlib) (lua_State *L, const char *libname,
 
 /* }================================================================== */
 
+#endif
 
 /*
 ** {============================================================
