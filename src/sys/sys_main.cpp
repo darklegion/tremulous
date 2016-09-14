@@ -672,7 +672,8 @@ int main( int argc, char **argv )
 
     lua.open_libraries(sol::lib::base, sol::lib::package);
     lua.set_function("print", Com_Printf);
-    CvarApi::init(&lua);
+    script::cvar_api::init(&lua);
+
     //lua.set_function("cvar_variable", Cvar_VariableString);
 
     for ( ;; )
@@ -684,7 +685,7 @@ int main( int argc, char **argv )
         } 
         catch (sol::error& e)
         {
-            Com_Printf("Error: %s\n", e.what());
+            Com_Printf(S_COLOR_YELLOW "%s\n", e.what());
         }
     }
 

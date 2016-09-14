@@ -1595,12 +1595,9 @@ CXXFLAGS += $(LUACFLAGS)
 $(B)/lua/%.o: $(LUADIR)/%.c
 	$(DO_LUA_CC)
 
-# FIXME Provide a way to dlopen liblua.dll?
-#$(B)/liblua.$(SHLIBEXT): $(LUAOBJ)
-#	$(DO_LUA_LD)
-
 #############################################################################
 # Script API
+# FIXME Disabled for the time being
 #############################################################################
 
 define DO_SCRIPT_CXX
@@ -1608,7 +1605,8 @@ define DO_SCRIPT_CXX
   $(Q)$(CXX) -std=c++1y $(NOTSHLIBCFLAGS) $(CXXFLAGS) $(OPTIMIZE) -o $@ -c $<
 endef
 
-SCRIPTOBJ = $(B)/script/cvar.o
+#SCRIPTOBJ = $(B)/script/cvar.o
+SCRIPTOBJ =
 
 #SCRIPTCFLAGS= -I$(SCRIPTDIR)
 #CFLAGS += $(SCRIPTCFLAGS)

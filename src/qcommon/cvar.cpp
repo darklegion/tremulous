@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "qcommon.h"
 
 static cvar_t *cvar_vars = nullptr;
-static cvar_t *cvar_cheats;
+cvar_t *cvar_cheats;
 int cvar_modifiedFlags = 0;
 
 #define	MAX_CVARS 2048
@@ -62,7 +62,7 @@ static long generateHashValue( const char *fname ) {
 Cvar_ValidateString
 ============
 */
-static qboolean Cvar_ValidateString( const char *s ) {
+qboolean Cvar_ValidateString( const char *s ) {
 	if ( !s ) {
 		return qfalse;
 	}
@@ -83,17 +83,16 @@ static qboolean Cvar_ValidateString( const char *s ) {
 Cvar_FindVar
 ============
 */
-static cvar_t *Cvar_FindVar( const char *var_name ) {
+cvar_t *Cvar_FindVar( const char *var_name )
+{
 	cvar_t	*var;
 	long hash;
 
 	hash = generateHashValue(var_name);
 	
-	for (var=hashTable[hash] ; var ; var=var->hashNext) {
-		if (!Q_stricmp(var_name, var->name)) {
+	for (var = hashTable[hash]; var; var = var->hashNext)
+		if (!Q_stricmp(var_name, var->name))
 			return var;
-		}
-	}
 
 	return nullptr;
 }
@@ -194,7 +193,7 @@ void Cvar_CommandCompletion(void (*callback)(const char *s))
 Cvar_Validate
 ============
 */
-static const char *Cvar_Validate( cvar_t *var,
+const char *Cvar_Validate( cvar_t *var,
     const char *value, qboolean warn )
 {
 	static char s[ MAX_CVAR_VALUE_STRING ];
@@ -205,7 +204,7 @@ static const char *Cvar_Validate( cvar_t *var,
 		return value;
 
 	if( !value )
-		return value;
+		return nullptr;
 
 	if( Q_isanumber( value ) )
 	{
@@ -288,8 +287,8 @@ static const char *Cvar_Validate( cvar_t *var,
 
 		return s;
 	}
-	else
-		return value;
+	
+    return value;
 }
 
 
@@ -516,21 +515,19 @@ cvar_t *Cvar_Set2( const char *var_name, const char *value, qboolean force )
 #endif
 
 	var = Cvar_FindVar (var_name);
-	if (!var) {
-		if ( !value ) {
+	if (!var)
+    {
+		if ( !value )
 			return nullptr;
-		}
-		// create it
-		if ( !force ) {
+
+		if ( !force )
 			return Cvar_Get( var_name, value, CVAR_USER_CREATED );
-		} else {
-			return Cvar_Get (var_name, value, 0);
-		}
+
+		return Cvar_Get (var_name, value, 0);
 	}
 
-	if (!value ) {
+	if (!value )
 		value = var->resetString;
-	}
 
 	value = Cvar_Validate(var, value, qtrue);
 
@@ -573,6 +570,7 @@ cvar_t *Cvar_Set2( const char *var_name, const char *value, qboolean force )
 				if (strcmp(value, var->latchedString) == 0)
 					return var;
 				Z_Free (var->latchedString);
+                var->latchedString = nullptr;
 			}
 			else
 			{
