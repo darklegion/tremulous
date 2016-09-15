@@ -35,33 +35,9 @@ namespace sol
 namespace script
 {
     // No Exceptions at this time
-    // FIXME: Do I even need this struct??
-    // I am affraid that I needs a "type" which actually corresponds
-    // to the member functions, though it doesn't seem to matter.
+
     struct HttpClient
-    {
-        RestClient::Response get(const std::string& url)
-        { return RestClient::get(url); }
-
-        RestClient::Response post(const std::string& url,
-                                  const std::string& content_type,
-                                  const std::string& data)
-        {
-            return RestClient::post(url, content_type, data);
-        }
-
-        RestClient::Response put( const std::string& url, 
-                                  const std::string& content_type,
-                                  const std::string& data)
-        {
-            return RestClient::put(url, content_type, data);
-        }
-
-        RestClient::Response del(const std::string& url)
-        {
-            return RestClient::del(url);
-        }
-    };
+    { };
 
     namespace http_client
     {
