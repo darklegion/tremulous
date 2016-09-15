@@ -107,7 +107,7 @@ SERVERBIN=tremded
 endif
 
 ifndef BASEGAME
-BASEGAME=base
+BASEGAME=gpp
 endif
 
 ifndef BASEGAME_CFLAGS
