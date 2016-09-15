@@ -96,32 +96,6 @@ namespace script
         Cvar(std::string name, std::string value, int flags)
         { my = Cvar_Get(name.c_str(), value.c_str(), flags); }
     
-    	static Cvar set(std::string name, const char* value, bool force)
-        {
-            if ( !Cvar_ValidateString(name.c_str()) )
-                throw CvarInvalidName();
-
-            cvar_s *my = Cvar_FindVar(name.c_str());
-            if ( !my )
-                throw CvarNotFound();
-            else if ( my->flags & CVAR_ROM )
-                throw CvarReadOnly();
-            else if ( my->flags & CVAR_INIT )
-                throw CvarWriteProtected();
-            else if ( my->flags & CVAR_CHEAT && !cvar_cheats->integer )
-                throw CvarCheatProtected();
-            else if ( (my->flags & CVAR_LATCH) )
-                throw CvarLatchedUnsupported();
-            else if ( !value )
-                value = my->resetString;
-            value = Cvar_Validate(my, value, qfalse);
-            cvar_modifiedFlags |= my->flags;
-            
-            // FIXME Set the value
-
-            return Cvar(my);
-        }
-
         void set_value(const char*value)
         {
             if ( !my )
@@ -159,8 +133,8 @@ namespace script
         {
             lua->new_usertype<Cvar>(
                     "cvar", sol::constructors<sol::types<std::string>,
-    								  sol::types<std::string, std::string>,
-    								  sol::types<std::string, std::string, int>>(),
+                            sol::types<std::string, std::string>,
+                            sol::types<std::string, std::string, int>>(),
                     "value", sol::property(&Cvar::get_value, &Cvar::set_value),
                     "key", sol::property(&Cvar::get_key)
             );
