@@ -3208,16 +3208,12 @@ static void FS_Startup( const char *gameName )
 	if (!homePath || !homePath[0]) {
 		homePath = fs_basepath->string;
 	}
-    fs_readonly_path = Cvar_Get( "fs_readonly_path", va( "%s/readonly", Sys_DefaultHomePath()), CVAR_INIT|CVAR_PROTECTED);
 	fs_homepath = Cvar_Get ("fs_homepath", homePath, CVAR_INIT|CVAR_PROTECTED );
 	fs_gamedirvar = Cvar_Get ("fs_game", "", CVAR_INIT|CVAR_SYSTEMINFO );
 
-    // FIXME For pk3 boostrapped data
-    //if (fs_readonly_path->string[0]) 
-    //    FS_AddGameDirectory(fs_readonly_path->string, gameName);
-
 	// add search path elements in reverse priority order
 	if (fs_basepath->string[0]) {
+		FS_AddGameDirectory( fs_basepath->string, "base" );
 		FS_AddGameDirectory( fs_basepath->string, gameName );
 	}
 	// fs_homepath is somewhat particular to *nix systems, only add if relevant
@@ -3226,12 +3222,16 @@ static void FS_Startup( const char *gameName )
 	fs_apppath = Cvar_Get ("fs_apppath", Sys_DefaultAppPath(), CVAR_INIT|CVAR_PROTECTED );
 	// Make MacOSX also include the base path included with the .app bundle
 	if (fs_apppath->string[0])
-		FS_AddGameDirectory(fs_apppath->string, gameName);
+    {
+		FS_AddGameDirectory( fs_apppath->string, "base" );
+		FS_AddGameDirectory( fs_apppath->string, gameName );
+    }
 #endif
 
 	// NOTE: same filtering below for mods and basegame
 	if (fs_homepath->string[0] && Q_stricmp(fs_homepath->string,fs_basepath->string)) {
 		FS_CreatePath ( fs_homepath->string );
+		FS_AddGameDirectory( fs_homepath->string, "base" );
 		FS_AddGameDirectory ( fs_homepath->string, gameName );
 	}
 
