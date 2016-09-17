@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../script/cvar.h"
 #ifndef DEDICATED
 #include "../script/http_client.h"
+#include "../script/client.h"
 #endif
 
 #include <signal.h>
@@ -678,6 +679,10 @@ int main( int argc, char **argv )
     lua.open_libraries(sol::lib::base, sol::lib::package);
     script::cvar::init(&lua);
 #ifndef DEDICATED
+    script::client::init(&lua);
+#endif
+
+#ifndef DEDICATED // This one should be made to work with tremded
     script::http_client::init(&lua);
 #endif
 
