@@ -27,7 +27,7 @@ static bool is_good(std::string filename, int permissions = (R_OK|W_OK))
     return !ret;
 }
 
-bool MakeDir(std::string destdir, std::string basegame)
+static bool MakeDir(std::string destdir, std::string basegame)
 {
     std::string destpath(destdir);
     destpath += '/';
@@ -36,6 +36,24 @@ bool MakeDir(std::string destdir, std::string basegame)
             // Maybe the assumption is that a file listing might be included?
     FS_CreatePath(destpath.c_str());
     return true;
+}
+
+#include "../qcommon/dialog.h"
+static bool PromptDownloadPk3s(std::string basegame, const std::vector<std::string>& missing)
+{
+    std::string msg;
+        
+    msg = "The following files must be downloaded to complete the installation.\n\n";
+    for ( auto f : missing )
+        msg += "\t" + basegame + "/" + f + "\n";
+
+    msg += "\n";
+    msg += "Yes to continue, No to quit the game.";
+
+    if( Sys_Dialog( DT_YES_NO, msg.c_str(), "You're almost ready!" ) == DR_YES )
+        return true;
+
+    return false;
 }
 
 bool GetTremulousPk3s(const char* destdir, const char* basegame)
@@ -57,6 +75,9 @@ bool GetTremulousPk3s(const char* destdir, const char* basegame)
 
     MakeDir(destdir, basegame);
 
+    if (!PromptDownloadPk3s(basegame, files))
+        return false;
+
     for (auto f : files )
     {
         std::string destpath(destdir);
@@ -66,7 +87,9 @@ bool GetTremulousPk3s(const char* destdir, const char* basegame)
         destpath += f;
 
         if ( is_good(destpath) )
-            continue;
+        {
+            return false;
+        }
 
         std::cout << "Downloading " << baseuri << f << std::endl;
         std::ofstream dl(destpath);
