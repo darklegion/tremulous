@@ -25,8 +25,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "../lua-5.3.3/include/lua.hpp"
 #include "../sol/sol.hpp"
-
-//#include "../script/script.h"
 #include "../script/cvar.h"
 #ifndef DEDICATED
 #include "../script/http_client.h"
