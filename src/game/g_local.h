@@ -1258,4 +1258,4 @@ void      trap_SendGameStat( const char *data );
 
 void      trap_AddCommand( const char *cmdName );
 void      trap_RemoveCommand( const char *cmdName );
-int       trap_FS_GetFilteredFiles( const char *path, const char *extension, char *filter, char *listbuf, int bufsize );
+int       trap_FS_GetFilteredFiles( const char *path, const char *extension, const char *filter, char *listbuf, int bufsize );

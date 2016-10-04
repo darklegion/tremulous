@@ -297,7 +297,7 @@ void trap_RemoveCommand( const char *cmdName )
   syscall( G_REMOVECOMMAND, cmdName );
 }
 
-int trap_FS_GetFilteredFiles( const char *path, const char *extension, char *filter, char *listbuf, int bufsize )
+int trap_FS_GetFilteredFiles( const char *path, const char *extension, const char *filter, char *listbuf, int bufsize )
 {
   return syscall( G_FS_GETFILTEREDFILES, path, extension, filter, listbuf, bufsize );
 }
