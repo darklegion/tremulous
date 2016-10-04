@@ -1317,8 +1317,6 @@ typedef struct
 } dummyCmd_t;
 int cmdcmp( const void *a, const void *b );
 
-<<<<<<< HEAD
 char *G_CopyString( const char *str );
-=======
+
 #endif
->>>>>>> lua

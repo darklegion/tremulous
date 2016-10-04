@@ -1713,10 +1713,6 @@ static void UI_DrawInfoPane( menuItem_t *item, rectDef_t *rect, float text_x, fl
       }
 
       break;
-
-    case INFOTYPE_VOICECMD:
-      s = item->v.text;
-      break;
   }
 
   UI_DrawTextBlock( rect, text_x, text_y, color, scale,
