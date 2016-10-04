@@ -467,7 +467,6 @@ be after execing the config and default.
 */
 void Com_StartupVariable( const char *match ) {
 	int		i;
-	char	*s;
 
 	for (i=0 ; i < com_numConsoleLines ; i++) {
 		Cmd_TokenizeString( com_consoleLines[i] );
@@ -475,7 +474,7 @@ void Com_StartupVariable( const char *match ) {
 			continue;
 		}
 
-		s = Cmd_Argv(1);
+		const char* s = Cmd_Argv(1);
 		
 		if(!match || !strcmp(s, match))
 		{
@@ -602,7 +601,7 @@ char *Com_StringContains(char *str1, char *str2, int casesensitive) {
 Com_Filter
 ============
 */
-int Com_Filter(char *filter, char *name, int casesensitive)
+int Com_Filter(const char* filter, char *name, int casesensitive)
 {
 	char buf[MAX_TOKEN_CHARS];
 	char *ptr;
@@ -2312,7 +2311,7 @@ For controlling environment variables
 void Com_Setenv_f(void)
 {
 	int argc = Cmd_Argc();
-	char *arg1 = Cmd_Argv(1);
+	const char *arg1 = Cmd_Argv(1);
 
 	if(argc > 2)
 	{
@@ -2518,7 +2517,6 @@ Com_Init
 =================
 */
 void Com_Init( char *commandLine ) {
-	char	*s;
 	int	qport;
 
 	Com_Printf( "%s %s %s\n", Q3_VERSION, PLATFORM_STRING, __DATE__ );
@@ -2537,7 +2535,7 @@ void Com_Init( char *commandLine ) {
 	Com_InitPushEvent();
 
 	Com_InitSmallZoneMemory();
-	Cvar_Init ();
+	Cvar_Init();
 
 	// prepare enough of the subsystems to handle
 	// cvar and command buffer management
@@ -2644,7 +2642,7 @@ void Com_Init( char *commandLine ) {
 	com_introPlayed = Cvar_Get( "com_introplayed", "0", CVAR_ARCHIVE);
 #endif
 
-	s = va("%s %s %s", Q3_VERSION, PLATFORM_STRING, __DATE__ );
+	const char* s = va("%s %s %s", Q3_VERSION, PLATFORM_STRING, __DATE__ );
 	com_version = Cvar_Get ("version", s, CVAR_ROM | CVAR_SERVERINFO );
 	Cvar_Get ("protocol", va("%i", PROTOCOL_VERSION), CVAR_SERVERINFO | CVAR_ROM);
 	com_gamename = Cvar_Get("com_gamename", GAMENAME_FOR_MASTER, CVAR_SERVERINFO | CVAR_INIT);

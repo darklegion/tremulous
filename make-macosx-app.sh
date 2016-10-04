@@ -127,7 +127,7 @@ IOQ3_MP_CGAME_ARCHS=""
 IOQ3_MP_GAME_ARCHS=""
 IOQ3_MP_UI_ARCHS=""
 
-BASEDIR="base"
+BASEDIR="gpp"
 
 CGAME="cgame"
 GAME="game"

@@ -881,8 +881,8 @@ intptr_t CL_UISystemCalls( intptr_t *args ) {
 
 	case UI_KEY_SETCATCHER:
 		// Don't allow the ui module to close the console
-		Key_SetCatcher( args[1] | ( Key_GetCatcher( ) & KEYCATCH_CONSOLE ) );
-		return 0;
+        Key_SetCatcher( args[1] | ( Key_GetCatcher( ) & KEYCATCH_CONSOLE ) );
+        return 0;
 
 	case UI_GETCLIPBOARDDATA:
 		CL_GetClipboardData( VMA(1), args[2] );

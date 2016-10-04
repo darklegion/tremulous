@@ -20,6 +20,8 @@
   3. This notice may not be removed or altered from any source distribution.
 
 */
+#ifndef _LIBMUMBLELINK_H_
+#define _LIBMUMBLELINK_H_
 
 int mumble_link(const char* name);
 int mumble_islinked(void);
@@ -34,3 +36,5 @@ void mumble_set_context(const unsigned char* context, size_t len);
 void mumble_set_identity(const char* identity);
 
 void mumble_unlink(void);
+
+#endif

@@ -876,7 +876,7 @@ static void CG_Say( int clientNum, saymode_t mode, const char *text )
   char *name;
   char prefix[ 11 ] = "";
   char *ignore = "";
-  char *location = "";
+  const char *location = "";
   char *color;
   char *maybeColon;
 

@@ -300,7 +300,7 @@ in site, closest in distance
 void SP_target_location( gentity_t *self )
 {
   static int n = 1;
-  char *message;
+  const char *message;
   self->s.eType = ET_LOCATION;
   self->r.svFlags = SVF_BROADCAST;
   trap_LinkEntity( self ); // make the server send them to the clients

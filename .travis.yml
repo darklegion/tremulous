@@ -2,6 +2,9 @@ language: cpp
 sudo: required
 dist: trusty
 
+services:
+   - docker
+
 git:
     depth: 5
 
@@ -10,59 +13,25 @@ script:
 
 notifications:
     email:
-        on_success: change
-        on_failure: change
+      on_success: change
+      on_failure: change
 
 matrix:
   include: 
     - os: linux
-      env: PLATFORM=mingw32 ARCH=x86_64
       compiler: gcc
       before_install:
-      - sudo apt-add-repository ppa:zoogie/sdl2-snapshots -y
-      addons:
-        apt:
-          sources:
-          - ubuntu-toolchain-r-test
-          - zoogie/sdl2-snapshots
-          packages:
-          - libgl1-mesa-dev
-          - libsdl2-dev
-          - libfreetype6-dev
-          - mingw-w64
-          - g++-mingw-w64
-          - g++-multilib
-
-    - os: linux
-      env: USE_CODEC_VORBIS=1 USE_FREETYPE=1 ARCH=x86_64
-      compiler: gcc
-      addons:
-        apt:
-          sources:
-          - ubuntu-toolchain-r-test
-          - zoogie/sdl2-snapshots
-          packages:
-          - gcc-5
-          - g++-5
-          - libgl1-mesa-dev
-          - libsdl2-dev
-          - libfreetype6-dev
+          - docker build -t wtfbbqhax/tremulous:v1 .
+          - docker run -v $(pwd)/build:/usr/src/build wtfbbqhax/tremulous:v1 ./misc/docker-build.sh
 
     - os: osx
-      osx_image: xcode7
+      osx_image: xcode8
       compiler: clang
-      env: USE_CODEC_VORBIS=1 USE_FREETYPE=1 ARCH=x86_64
+      env: USE_RESTCLIENT=1 USE_CODEC_VORBIS=1 USE_FREETYPE=1 ARCH=x86_64
       before_install:
-      - brew update
-      - brew install freetype --universal
-
-    - os: osx
-      osx_image: xcode7
-      compiler: clang 
-      env: USE_CODEC_VORBIS=1 USE_FREETYPE=1 ARCH=x86
-      before_install:
-      - brew update
-      - brew install freetype --universal
+        - brew update
+        - brew install freetype --universal
+        - rm -rf build
 
 deploy:
     provider: releases
@@ -73,40 +42,3 @@ deploy:
       tags: true
     file_glob: true
     file: "build/*.zip"
-
-# _____ _   _  ____ _  __
-#|  ___| | | |/ ___| |/ /
-#| |_  | | | | |   | ' / 
-#|  _| | |_| | |___| . \ 
-#|_|    \___/ \____|_|\_\
-#
-
-#    - os: linux
-#      env: PLATFORM=mingw32 ARCH=x86
-#      compiler: gcc
-#      before_install:
-#      - sudo apt-add-repository ppa:zoogie/sdl2-snapshots -y
-#      - sudo dpkg --add-architecture i386
-#      - sudo apt-get update
-#      - sudo -E apt-get -yq --no-install-suggests --no-install-recommends --force-yes upgrade gcc-multilib g++-multilib mingw-w64 mingw-w64 gcc-mingw-w64 g++-mingw-w64 libgl1-mesa-dev libsdl2-dev libfreetype6-dev
-#      addons:
-#        apt:
-#          sources:
-#          - ubuntu-toolchain-r-test
-
-#    - os: linux
-#      env: USE_CODEC_VORBIS=1 USE_FREETYPE=1 ARCH=x86
-#      compiler: gcc
-#      addons:
-#        apt:
-#          sources:
-#          - ubuntu-toolchain-r-test
-#          - zoogie/sdl2-snapshots
-#          packages:
-#          - gcc-5-multilib
-#          - g++-5-multilib
-#          - libgl1-mesa-dev
-#          - libsdl2-dev
-#          - libfreetype6-dev
-
-

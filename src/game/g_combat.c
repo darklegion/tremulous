@@ -237,7 +237,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   int       anim;
   int       killer;
   int       i;
-  char      *killerName, *obit;
+  const char      *killerName, *obit;
 
   if( self->client->ps.pm_type == PM_DEAD )
     return;

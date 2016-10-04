@@ -1095,8 +1095,6 @@ void CL_PlayDemo_f( void ) {
 	}
 	Q_strncpyz( clc.demoName, arg, sizeof( clc.demoName ) );
 
-	Con_Close();
-
 	clc.state = CA_CONNECTED;
 	clc.demoplaying = qtrue;
 	Q_strncpyz( clc.servername, arg, sizeof( clc.servername ) );
@@ -1121,7 +1119,7 @@ Closing the main menu will restart the demo loop
 void CL_StartDemoLoop( void ) {
 	// start the demo loop again
 	Cbuf_AddText ("d1\n");
-	Key_SetCatcher( 0 );
+	Key_SetCatcher( Key_GetCatcher() & KEYCATCH_CONSOLE );
 }
 
 /*
@@ -1292,8 +1290,7 @@ void CL_MapLoading( void ) {
 		return;
 	}
 
-	Con_Close();
-	Key_SetCatcher( 0 );
+	Key_SetCatcher( Key_GetCatcher() & KEYCATCH_CONSOLE );
 
 	// if we are already connected to the local host, stay connected
 	if ( clc.state >= CA_CONNECTED && !Q_stricmp( clc.servername, "localhost" ) ) {
@@ -1657,7 +1654,6 @@ void CL_Connect_f( void ) {
 
 	noGameRestart = qtrue;
 	CL_Disconnect( qtrue );
-	Con_Close();
 
 	Q_strncpyz( clc.servername, server, sizeof(clc.servername) );
 
@@ -1691,7 +1687,7 @@ void CL_Connect_f( void ) {
 		clc.challenge = ((rand() << 16) ^ rand()) ^ Com_Milliseconds();
 	}
 
-	Key_SetCatcher( 0 );
+	Key_SetCatcher( Key_GetCatcher() & KEYCATCH_CONSOLE );
 	clc.connectTime = -99999;	// CL_CheckForResend() will fire immediately
 	clc.connectPacketCount = 0;
 
@@ -3613,9 +3609,6 @@ void CL_Init( void ) {
 	cl_showMouseRate = Cvar_Get ("cl_showmouserate", "0", 0);
 
 	cl_allowDownload = Cvar_Get ("cl_allowDownload", "0", CVAR_ARCHIVE);
-#ifdef USE_CURL_DLOPEN
-	cl_cURLLib = Cvar_Get("cl_cURLLib", DEFAULT_CURL_LIB, CVAR_ARCHIVE);
-#endif
 	com_downloadPrompt = Cvar_Get ("com_downloadPrompt", "0", CVAR_ROM);
 	Cvar_Get( "com_downloadPromptText", "", CVAR_TEMP );
 
@@ -3759,7 +3752,7 @@ CL_Shutdown
 
 ===============
 */
-void CL_Shutdown(char *finalmsg, qboolean disconnect, qboolean quit)
+void CL_Shutdown(const char *finalmsg, qboolean disconnect, qboolean quit)
 {
 	static qboolean recursive = qfalse;
 	
@@ -4644,3 +4637,5 @@ CL_ShowIP_f
 void CL_ShowIP_f(void) {
 	Sys_ShowIP();
 }
+
+

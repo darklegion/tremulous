@@ -1071,7 +1071,7 @@ to the server machine, but qfalse on map changes and tournement
 restarts.
 ============
 */
-char *ClientConnect( int clientNum, qboolean firstTime )
+const char *ClientConnect( int clientNum, qboolean firstTime )
 {
   char      *value;
   char      *userInfoError;

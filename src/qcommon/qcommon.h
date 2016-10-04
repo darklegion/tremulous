@@ -24,6 +24,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef _QCOMMON_H_
 #define _QCOMMON_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "../qcommon/cm_public.h"
 
 //Ignore __attribute__ on non-gcc platforms
@@ -430,7 +434,7 @@ void Cmd_CompleteArgument( const char *command, char *args, int argNum );
 void Cmd_CompleteCfgName( char *args, int argNum );
 
 int		Cmd_Argc (void);
-char	*Cmd_Argv (int arg);
+const char *Cmd_Argv(int arg);
 void	Cmd_ArgvBuffer( int arg, char *buffer, int bufferLength );
 char	*Cmd_Args (void);
 char	*Cmd_ArgsFrom( int arg );
@@ -509,11 +513,17 @@ void	Cvar_SetValue( const char *var_name, float value );
 void	Cvar_SetValueSafe( const char *var_name, float value );
 // expands value to a string and calls Cvar_Set/Cvar_SetSafe
 
+// Validate String used to validate cvar names
+qboolean Cvar_ValidateString( const char *s );
+cvar_t *Cvar_FindVar( const char *var_name );
+const char *Cvar_Validate( cvar_t *var, const char *value, qboolean warn );
+void Cvar_Print( cvar_t *v );
+
 float	Cvar_VariableValue( const char *var_name );
 int		Cvar_VariableIntegerValue( const char *var_name );
 // returns 0 if not defined or non numeric
 
-char	*Cvar_VariableString( const char *var_name );
+const char	*Cvar_VariableString( const char *var_name );
 void	Cvar_VariableStringBuffer( const char *var_name, char *buffer, int bufsize );
 // returns an empty string if not defined
 
@@ -578,7 +588,7 @@ issues.
 
 #define	MAX_FILE_HANDLES	64
 
-#define BASEGAME "base"
+#define BASEGAME "gpp"
 
 #ifdef DEDICATED
 #	define Q3CONFIG_CFG "autogen_server.cfg"
@@ -606,7 +616,7 @@ void	FS_FreeFileList( char **list );
 
 qboolean FS_FileExists( const char *file );
 
-qboolean FS_CreatePath (char *OSPath);
+int FS_CreatePath(const char *OSPath);
 
 int FS_FindVM(void **startSearch, char *found, int foundlen, const char *name, int enableDll);
 
@@ -754,8 +764,13 @@ MISC
 */
 
 // returned by Sys_GetProcessorFeatures
-typedef enum
-{
+#ifdef __cplusplus
+using cpuFeatures_t = int;
+#else
+typedef int cpuFeatures_t;
+#endif
+enum {
+  CF_NONE       = 0,
   CF_RDTSC      = 1 << 0,
   CF_MMX        = 1 << 1,
   CF_MMX_EXT    = 1 << 2,
@@ -764,7 +779,7 @@ typedef enum
   CF_SSE        = 1 << 5,
   CF_SSE2       = 1 << 6,
   CF_ALTIVEC    = 1 << 7
-} cpuFeatures_t;
+};
 
 // centralized and cleaned, that's the max string you can send to a Com_Printf / Com_DPrintf (above gets truncated)
 #define	MAXPRINTMSG	4096
@@ -797,16 +812,19 @@ void		Info_Print( const char *s );
 
 void		Com_BeginRedirect (char *buffer, int buffersize, void (*flush)(char *));
 void		Com_EndRedirect( void );
+
+//#ifndef __Q_SHARED_H
 void 		QDECL Com_Printf( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
-void 		QDECL Com_DPrintf( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
 void 		QDECL Com_Error( int code, const char *fmt, ... ) __attribute__ ((noreturn, format(printf, 2, 3)));
+//#endif
+void 		QDECL Com_DPrintf( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
 void 		Com_Quit_f( void ) __attribute__ ((noreturn));
 void		Com_GameRestart(int checksumFeed, qboolean disconnect);
 
 int			Com_Milliseconds( void );	// will be journaled properly
 unsigned	Com_BlockChecksum( const void *buffer, int length );
 char		*Com_MD5File(const char *filename, int length, const char *prefix, int prefix_len);
-int			Com_Filter(char *filter, char *name, int casesensitive);
+int			Com_Filter(const char* filter, char *name, int casesensitive);
 int			Com_FilterPath(char *filter, char *name, int casesensitive);
 int			Com_RealTime(qtime_t *qtime);
 qboolean	Com_SafeMode( void );
@@ -949,7 +967,7 @@ void CL_InitKeyCommands( void );
 
 void CL_Init( void );
 void CL_Disconnect( qboolean showMainMenu );
-void CL_Shutdown(char *finalmsg, qboolean disconnect, qboolean quit);
+void CL_Shutdown(const char *finalmsg, qboolean disconnect, qboolean quit);
 void CL_Frame( int msec );
 qboolean CL_GameCommand( void );
 void CL_KeyEvent (int key, qboolean down, unsigned time);
@@ -963,7 +981,7 @@ void CL_JoystickEvent( int axis, int value, int time );
 
 void CL_PacketEvent( netadr_t from, msg_t *msg );
 
-void CL_ConsolePrint( char *text );
+void CL_ConsolePrint( const char *text );
 
 void CL_MapLoading( void );
 // do a screen update before starting to load a map
@@ -1012,7 +1030,7 @@ void SCR_DebugGraph (float value);	// FIXME: move logging to common?
 // server interface
 //
 void SV_Init( void );
-void SV_Shutdown( char *finalmsg );
+void SV_Shutdown( const char *finalmsg );
 void SV_Frame( int msec );
 void SV_PacketEvent( netadr_t from, msg_t *msg );
 int SV_FrameMsec(void);
@@ -1095,24 +1113,7 @@ qboolean Sys_LowPhysicalMemory( void );
 
 void Sys_SetEnv(const char *name, const char *value);
 
-typedef enum
-{
-	DR_YES = 0,
-	DR_NO = 1,
-	DR_OK = 0,
-	DR_CANCEL = 1
-} dialogResult_t;
-
-typedef enum
-{
-	DT_INFO,
-	DT_WARNING,
-	DT_ERROR,
-	DT_YES_NO,
-	DT_OK_CANCEL
-} dialogType_t;
-
-dialogResult_t Sys_Dialog( dialogType_t type, const char *message, const char *title );
+#include "dialog.h"
 
 qboolean Sys_WritePIDFile( void );
 
@@ -1186,4 +1187,7 @@ int		Parse_SourceFileAndLine(int handle, char *filename, int *line);
 #define DLF_NO_UDP 4
 #define DLF_NO_DISCONNECT 8
 
+#ifdef __cplusplus
+};
+#endif
 #endif // _QCOMMON_H_
