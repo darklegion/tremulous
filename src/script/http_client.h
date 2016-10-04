@@ -41,7 +41,7 @@ namespace script
 
     namespace http_client
     {
-        using namespace RestClient;
+        //using namespace RestClient;
         static inline void init(sol::state* lua)
         {
             lua->new_usertype<RestClient::Response>( "HttpResponse",

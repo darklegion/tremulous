@@ -8,10 +8,10 @@
 
 size_t lua_writestring(char* string, size_t n)
 {
-    if ( n > MAXPRINTMSG ) {
-         n = MAXPRINTMSG;
-        string[n] = '\0';
-    }
+    //if ( n > MAXPRINTMSG ) {
+    //     n -= MAXPRINTMSG;
+    //    string[MAXPRINTMSG] = '\0';
+    //}
 #ifndef DEDICATED
     CL_ConsolePrint( string );
 #endif
