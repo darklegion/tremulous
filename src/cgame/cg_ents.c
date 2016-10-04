@@ -311,6 +311,136 @@ static void CG_General( centity_t *cent )
 
 /*
 ==================
+CG_WeaponDrop
+==================
+*/
+static void CG_WeaponDrop( centity_t *cent )
+{
+	refEntity_t		ent;
+	entityState_t	*es;
+	int				msec;
+	float			frac;
+	float			scale;
+	weaponInfo_t	*wi;
+
+	es = &cent->currentState;
+
+    if (BG_Weapon(es->modelindex) == WP_NONE)
+    {
+        CG_Printf("Bad weapon index %i on entity", es->modelindex);
+        return;
+    }
+
+	// if set to invisible, skip
+	if (es->eFlags & EF_NODRAW)
+		return;
+
+
+	// items bob up and down continuously
+	scale = 0.005 + cent->currentState.number * 0.00001;
+	cent->lerpOrigin[2] += 4 + cos( ( cg.time + 1000 ) *  scale ) * 4;
+
+	memset (&ent, 0, sizeof(ent));
+
+	// autorotate at one of two speeds
+	VectorCopy( cg.autoAnglesFast, cent->lerpAngles );
+	AxisCopy( cg.autoAxisFast, ent.axis );
+//		VectorCopy( cg.autoAngles, cent->lerpAngles );
+//		AxisCopy( cg.autoAxis, ent.axis );
+
+    wi = &cg_weapons[ es->modelindex ];
+
+	// the weapons have their origin where they attatch to player
+	// models, so we need to offset them or they will rotate
+	// eccentricly
+
+	cent->lerpOrigin[0] -= wi->weaponMidpoint[0] * ent.axis[0][0]
+                         + wi->weaponMidpoint[1] * ent.axis[1][0]
+                         + wi->weaponMidpoint[2] * ent.axis[2][0];
+	cent->lerpOrigin[1] -= wi->weaponMidpoint[0] * ent.axis[0][1]
+               			 + wi->weaponMidpoint[1] * ent.axis[1][1]
+               			 + wi->weaponMidpoint[2] * ent.axis[2][1];
+	cent->lerpOrigin[2] -= wi->weaponMidpoint[0] * ent.axis[0][2]
+            			 + wi->weaponMidpoint[1] * ent.axis[1][2]
+            			 + wi->weaponMidpoint[2] * ent.axis[2][2];
+	cent->lerpOrigin[2] += 8;	// an extra height boost
+	
+#if 0
+	if( item->giType == IT_WEAPON && item->giTag == WP_RAILGUN ) {
+		clientInfo_t *ci = &cgs.clientinfo[cg.snap->ps.clientNum];
+		Byte4Copy( ci->c1RGBA, ent.shaderRGBA );
+	}
+#endif
+
+	ent.hModel = wi->weaponModel;
+
+	VectorCopy( cent->lerpOrigin, ent.origin);
+	VectorCopy( cent->lerpOrigin, ent.oldorigin);
+
+	ent.nonNormalizedAxes = qfalse;
+
+	// if just respawned, slowly scale up
+	msec = cg.time - cent->miscTime;
+	if ( msec >= 0 && msec < ITEM_SCALEUP_TIME )
+    {
+		frac = (float)msec / ITEM_SCALEUP_TIME;
+		VectorScale( ent.axis[0], frac, ent.axis[0] );
+		VectorScale( ent.axis[1], frac, ent.axis[1] );
+		VectorScale( ent.axis[2], frac, ent.axis[2] );
+		ent.nonNormalizedAxes = qtrue;
+	}
+    else
+    {
+		frac = 1.0;
+	}
+
+	// items without glow textures need to keep a minimum light value
+	// so they are always visible
+	ent.renderfx |= RF_MINLIGHT;
+
+	// increase the size of the weapons when they are presented as items
+	VectorScale( ent.axis[0], 1.5, ent.axis[0] );
+	VectorScale( ent.axis[1], 1.5, ent.axis[1] );
+	VectorScale( ent.axis[2], 1.5, ent.axis[2] );
+	ent.nonNormalizedAxes = qtrue;
+#ifdef MISSIONPACK
+	trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, cgs.media.weaponHoverSound );
+#endif
+
+	// add to refresh list
+	trap_R_AddRefEntityToScene(&ent);
+
+#if 0
+	if ( item->giType == IT_WEAPON && wi && wi->barrelModel )
+    {
+		refEntity_t	barrel;
+		vec3_t		angles;
+
+		memset( &barrel, 0, sizeof( barrel ) );
+
+		barrel.hModel = wi->barrelModel;
+
+		VectorCopy( ent.lightingOrigin, barrel.lightingOrigin );
+		barrel.shadowPlane = ent.shadowPlane;
+		barrel.renderfx = ent.renderfx;
+
+		angles[YAW] = 0;
+		angles[PITCH] = 0;
+		angles[ROLL] = 0;
+		AnglesToAxis( angles, barrel.axis );
+
+		CG_PositionRotatedEntityOnTag( &barrel, &ent, wi->weaponModel, "tag_barrel" );
+
+		barrel.nonNormalizedAxes = ent.nonNormalizedAxes;
+
+		trap_R_AddRefEntityToScene( &barrel );
+	}
+#endif
+}
+
+
+/*
+==================
 CG_Speaker
 
 Speaker entities can automatically play sounds
@@ -1075,6 +1205,10 @@ static void CG_AddCEntity( centity_t *cent )
 
     case ET_GENERAL:
       CG_General( cent );
+      break;
+
+    case ET_WEAPON_DROP:
+      CG_WeaponDrop( cent );
       break;
 
     case ET_CORPSE:

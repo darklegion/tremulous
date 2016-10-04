@@ -559,6 +559,46 @@ void Cmd_Give_f( gentity_t *ent )
 }
 
 /*
+Cmd_Drop_f
+Drop a weapon onto the ground
+*/
+void Cmd_Drop_f( gentity_t *ent )
+{
+  char t[ MAX_TOKEN_CHARS ];
+  char angle[ MAX_TOKEN_CHARS ];
+  float ang = 0.0f;
+  int i;
+
+  if( trap_Argc( ) < 2 )
+  {
+      ADMP("^3drop: ^7usage: drop <weapon> [angle]\n");
+      return;
+  }
+
+  trap_Argv( 1, t, sizeof(t) );
+
+  if ( trap_Argc() > 2 )
+  {
+    trap_Argv( 2, angle, sizeof(angle) );
+    ang = atof( angle );
+  }
+
+  switch ((i = BG_WeaponByName( t )->number))
+  {
+    case WP_NONE:
+      ADMP("^3drop: ^7usage: drop <weapon> [angle]\n");
+      break;
+
+    default:
+      G_DropWeapon( ent, i, ang );
+      break;
+  };
+
+
+}
+
+
+/*
 ==================
 Cmd_God_f
 
@@ -3279,6 +3319,7 @@ commands_t cmds[ ] = {
   { "damage", CMD_CHEAT|CMD_LIVING, Cmd_Damage_f },
   { "deconstruct", CMD_TEAM|CMD_LIVING, Cmd_Destroy_f },
   { "destroy", CMD_CHEAT|CMD_TEAM|CMD_LIVING, Cmd_Destroy_f },
+  { "drop", CMD_HUMAN|CMD_CHEAT, Cmd_Drop_f },
   { "follow", CMD_SPEC, Cmd_Follow_f },
   { "follownext", CMD_SPEC, Cmd_FollowCycle_f },
   { "followprev", CMD_SPEC, Cmd_FollowCycle_f },

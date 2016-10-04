@@ -2204,6 +2204,7 @@ GOBJ_ = \
   $(B)/$(BASEGAME)/game/g_maprotation.o \
   $(B)/$(BASEGAME)/game/g_playermodel.o \
   $(B)/$(BASEGAME)/game/g_weapon.o \
+  $(B)/$(BASEGAME)/game/g_weapondrop.o \
   $(B)/$(BASEGAME)/game/g_admin.o \
   $(B)/$(BASEGAME)/game/g_namelog.o \
   \

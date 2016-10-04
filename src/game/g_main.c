@@ -2433,6 +2433,12 @@ void G_RunFrame( int levelTime )
       continue;
     }
 
+    if ( ent->s.eType == ET_WEAPON_DROP )
+    {
+      G_RunWeaponDrop( ent );
+      continue;
+    }
+
     if( ent->s.eType == ET_BUILDABLE )
     {
       G_BuildableThink( ent, msec );
