@@ -1618,6 +1618,7 @@ static void UI_DrawInfoPane( menuItem_t *item, rectDef_t *rect, float text_x, fl
   switch( item->type )
   {
     case INFOTYPE_TEXT:
+    case INFOTYPE_VOICECMD:
       s = item->v.text;
       break;
 
@@ -1960,6 +1961,7 @@ static void UI_OwnerDraw( float x, float y, float w, float h,
     case UI_VOICECMDINFOPANE:
       UI_DrawInfoPane( &uiInfo.voiceCmdList[ uiInfo.voiceCmdIndex ],
                        &rect, text_x, text_y, scale, textalign, textvalign, foreColor, textStyle );
+      break;
 
     case UI_ACLASSINFOPANE:
       UI_DrawInfoPane( &uiInfo.alienClassList[ uiInfo.alienClassIndex ],
@@ -4088,7 +4090,7 @@ void UI_Init( qboolean inGameLoad )
 
   UI_RegisterCvars();
   UI_InitMemory();
-  BG_InitMemory(); // Shouldn't really have 2 of these but whatev for now
+  BG_InitMemory(); // FIXIT-M: Merge with UI_InitMemory or something
 
 
   // cache redundant calulations
