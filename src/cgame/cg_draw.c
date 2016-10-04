@@ -2992,6 +2992,10 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
       CG_DrawKillMsg( &rect, text_x, text_y, scale, foreColor, textalign, textvalign, textStyle );
       break;
 
+    case CG_PLAYER_THZ_SCANNER:
+      THZ_DrawScanner( &rect );
+      break;
+
     default:
       break;
   }
@@ -3494,8 +3498,9 @@ static void CG_Draw2D( void )
     return;
   }
 
-  if( cg.snap->ps.persistant[ PERS_SPECSTATE ] == SPECTATOR_NOT &&
-      cg.snap->ps.stats[ STAT_HEALTH ] > 0 )
+  if ( cg.snap->ps.stats[ STAT_TEAM ] == TEAM_NONE
+      || (cg.snap->ps.persistant[ PERS_SPECSTATE ] == SPECTATOR_NOT
+      && cg.snap->ps.stats[ STAT_HEALTH ] > 0 ))
   {
     menu = Menus_FindByName( BG_ClassConfig(
       cg.predictedPlayerState.stats[ STAT_CLASS ] )->hudName );

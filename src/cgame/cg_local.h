@@ -1550,6 +1550,12 @@ extern  vmCvar_t    cg_killMsg;
 extern  vmCvar_t    cg_killMsgTime;
 extern  vmCvar_t    cg_killMsgHeight;
 
+extern  vmCvar_t    cg_killMsgTime;
+extern  vmCvar_t    cg_killMsgHeight;
+
+extern  vmCvar_t    thz_radar;
+extern  vmCvar_t    thz_radarrange;
+
 //
 // cg_main.c
 //
@@ -1754,6 +1760,7 @@ void        CG_DrawItemSelectText( rectDef_t *rect, float scale, int textStyle )
 void        CG_UpdateEntityPositions( void );
 void        CG_Scanner( rectDef_t *rect, qhandle_t shader, vec4_t color );
 void        CG_AlienSense( rectDef_t *rect );
+void        THZ_DrawScanner( rectDef_t *rect );
 
 //
 // cg_marks.c

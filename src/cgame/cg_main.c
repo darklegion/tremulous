@@ -225,6 +225,9 @@ vmCvar_t  cg_killMsg;
 vmCvar_t  cg_killMsgTime;
 vmCvar_t  cg_killMsgHeight;
 
+vmCvar_t  thz_radar;
+vmCvar_t  thz_radarrange;
+
 typedef struct
 {
   vmCvar_t  *vmCvar;
@@ -309,7 +312,7 @@ static cvarTable_t cvarTable[ ] =
   { &cg_disableUpgradeDialogs, "cg_disableUpgradeDialogs", "0", CVAR_ARCHIVE },
   { &cg_disableBuildDialogs, "cg_disableBuildDialogs", "0", CVAR_ARCHIVE },
   { &cg_disableCommandDialogs, "cg_disableCommandDialogs", "0", CVAR_ARCHIVE },
-  { &cg_disableScannerPlane, "cg_disableScannerPlane", "0", CVAR_ARCHIVE },
+  { &cg_disableScannerPlane, "cg_disableScannerPlane", "1", CVAR_ARCHIVE },
   { &cg_tutorial, "cg_tutorial", "1", CVAR_ARCHIVE },
   { &cg_hudFiles, "cg_hudFiles", "ui/hud.txt", CVAR_ARCHIVE},
   { NULL, "cg_alienConfig", "", CVAR_ARCHIVE },
@@ -362,7 +365,12 @@ static cvarTable_t cvarTable[ ] =
 
   { &cg_killMsg, "cg_killMsg", "1", CVAR_ARCHIVE },
   { &cg_killMsgTime, "cg_killMsgTime", "4000", CVAR_ARCHIVE },
-  { &cg_killMsgHeight, "cg_killMsgHeight", "7", CVAR_ARCHIVE }
+  { &cg_killMsgHeight, "cg_killMsgHeight", "7", CVAR_ARCHIVE },
+
+  // Old school thz stuff
+  { &thz_radar, "thz_radar", "0", CVAR_CHEAT},
+  { &thz_radarrange, "thz_radarrange", "600", CVAR_ARCHIVE},
+
 };
 
 static size_t cvarTableSize = ARRAY_LEN( cvarTable );
