@@ -15,6 +15,6 @@
   loadMenu { "ui/tremulous_aliendialogs.menu" }
 
   loadMenu { "ui/tremulous_alienupgrade.menu" }
-
+  loadMenu { "ui/tremulous_voicecmd.menu" }
   loadMenu { "ui/say.menu" }
 }

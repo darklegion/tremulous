@@ -3901,3 +3901,11 @@ int cmdcmp( const void *a, const void *b )
 {
   return Q_stricmp( (const char *)a, ((dummyCmd_t *)b)->name );
 }
+
+char *G_CopyString( const char *str )
+{
+  size_t size = strlen( str ) + 1;
+  char *cp = BG_Alloc( size );
+  memcpy( cp, str, size );
+  return cp;
+}

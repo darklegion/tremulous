@@ -616,6 +616,7 @@ qboolean FS_CompareZipChecksum(const char *zipfile);
 int		FS_LoadStack( void );
 
 int		FS_GetFileList(  const char *path, const char *extension, char *listbuf, int bufsize );
+int	    FS_GetFilteredFiles( const char *path, const char *extension, char *filter, char *listbuf, int bufsize );
 int		FS_GetModList(  char *listbuf, int bufsize );
 
 fileHandle_t	FS_FOpenFileWrite( const char *qpath );

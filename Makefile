@@ -2202,6 +2202,7 @@ GOBJ_ = \
   $(B)/$(BASEGAME)/game/g_trigger.o \
   $(B)/$(BASEGAME)/game/g_utils.o \
   $(B)/$(BASEGAME)/game/g_maprotation.o \
+  $(B)/$(BASEGAME)/game/g_playermodel.o \
   $(B)/$(BASEGAME)/game/g_weapon.o \
   $(B)/$(BASEGAME)/game/g_admin.o \
   $(B)/$(BASEGAME)/game/g_namelog.o \
@@ -2232,8 +2233,10 @@ UIOBJ_ = \
   $(B)/$(BASEGAME)/ui/ui_shared.o \
   $(B)/$(BASEGAME)/ui/ui_gameinfo.o \
   \
+  $(B)/$(BASEGAME)/ui/bg_alloc.o \
   $(B)/$(BASEGAME)/ui/bg_misc.o \
   $(B)/$(BASEGAME)/ui/bg_lib.o \
+  $(B)/$(BASEGAME)/ui/bg_voice.o \
   $(B)/$(BASEGAME)/qcommon/q_math.o \
   $(B)/$(BASEGAME)/qcommon/q_shared.o
 

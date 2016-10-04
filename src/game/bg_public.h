@@ -1312,3 +1312,5 @@ typedef struct
   const char *name;
 } dummyCmd_t;
 int cmdcmp( const void *a, const void *b );
+
+char *G_CopyString( const char *str );
