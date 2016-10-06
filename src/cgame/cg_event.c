@@ -99,38 +99,39 @@ void CG_AddToKillMsg( const char* killername, const char* victimname, int icon )
   }
 
   // Victims name
-  while( *victimname )
-  {
-    if( vlen > TEAMCHAT_WIDTH-1 ) {
-      if( vls ) {
-        victimname -= ( v - vls );
-        victimname ++;
-        v -= ( v - vls );
+  if (victimname)
+      while( *victimname )
+      {
+        if( vlen > TEAMCHAT_WIDTH-1 ) {
+          if( vls ) {
+            victimname -= ( v - vls );
+            victimname ++;
+            v -= ( v - vls );
+          }
+          *v = 0;
+
+          v = cgs.killMsgVictims[index];
+          *v = 0;
+          *v++ = Q_COLOR_ESCAPE;
+          *v++ = lastcolor;
+          vlen = 0;
+          vls = NULL;
+        }
+
+        if( Q_IsColorString( victimname ) )
+        {
+          *v++ = *victimname++;
+          lastcolor = *victimname;
+          *v++ = *victimname++;
+          continue;
+        }
+
+        if( *victimname == ' ' )
+          vls = v;
+
+        *v++ = *victimname++;
+        vlen++;
       }
-      *v = 0;
-
-      v = cgs.killMsgVictims[index];
-      *v = 0;
-      *v++ = Q_COLOR_ESCAPE;
-      *v++ = lastcolor;
-      vlen = 0;
-      vls = NULL;
-    }
-
-    if( Q_IsColorString( victimname ) )
-    {
-      *v++ = *victimname++;
-      lastcolor = *victimname;
-      *v++ = *victimname++;
-      continue;
-    }
-
-    if( *victimname == ' ' )
-      vls = v;
-
-    *v++ = *victimname++;
-    vlen++;
-  }
 
   cgs.killMsgMsgTimes[ index ] = cg.time;
   cgs.killMsgPos++;
