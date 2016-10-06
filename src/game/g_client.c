@@ -814,8 +814,8 @@ char *ClientUserinfoChanged( int clientNum, qboolean forceName )
 {
   gentity_t *ent;
   char *s, *s2;
-  char      model[ MAX_QPATH ];
-  char      buffer[ MAX_QPATH ];
+  char      model[ MAX_QPATH] = { '\0' };
+  char      buffer[ MAX_QPATH ] = { '\0' };
   char      filename[ MAX_QPATH ];
   char      oldname[ MAX_NAME_LENGTH ];
   char      newname[ MAX_NAME_LENGTH ];
@@ -939,6 +939,10 @@ char *ClientUserinfoChanged( int clientNum, qboolean forceName )
       s2 = Info_ValueForKey(userinfo, "skin");
       s2 = GetSkin(s, s2);
     }
+  }
+  else
+  {
+      s = NULL;
   }
 
   if( client->pers.classSelection == PCL_NONE )
