@@ -2649,18 +2649,6 @@ void Com_Init( char *commandLine ) {
 
 	Sys_Init();
 
-	if( Sys_WritePIDFile( ) ) {
-#if !defined(DEDICATED) && !defined(DEBUG)
-		const char *message = "The last time " CLIENT_WINDOW_TITLE " ran, "
-			"it didn't exit properly. This may be due to inappropriate video "
-			"settings. Would you like to start with \"safe\" video settings?";
-
-		if( Sys_Dialog( DT_YES_NO, message, "Abnormal Exit" ) == DR_YES ) {
-			Cvar_Set( "com_abnormalExit", "1" );
-		}
-#endif
-	}
-
 	// Pick a random port value
 	Com_RandomBytes( (byte*)&qport, sizeof(int) );
 	Netchan_Init( qport & 0xffff );
