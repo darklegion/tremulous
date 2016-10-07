@@ -22,8 +22,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include <iostream>
+
 #include "../lua-5.3.3/include/lua.hpp"
 #include "../sol/sol.hpp"
+#include "../script/cvar.h"
+#ifndef DEDICATED
+#include "../script/http_client.h"
+#include "../script/client.h"
+#endif
 
 #include <signal.h>
 #include <stdlib.h>
@@ -52,6 +58,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
+
 sol::state lua;
 
 static char binaryPath[ MAX_OSPATH ] = { 0 };
@@ -665,8 +672,14 @@ int main( int argc, char **argv )
     CON_Init( );
 
     lua.open_libraries(sol::lib::base, sol::lib::package);
-    lua.set_function("print", Com_Printf);
-    lua.set_function("cvar_variable", Cvar_VariableString);
+    script::cvar::init(&lua);
+#ifndef DEDICATED
+    script::client::init(&lua);
+#endif
+
+#ifndef DEDICATED // This one should be made to work with tremded
+    script::http_client::init(&lua);
+#endif
 
     for ( ;; )
     {
@@ -677,7 +690,7 @@ int main( int argc, char **argv )
         } 
         catch (sol::error& e)
         {
-            Com_Printf("Error: %s\n", e.what());
+            Com_Printf(S_COLOR_YELLOW "%s\n", e.what());
         }
     }
 

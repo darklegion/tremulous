@@ -1993,6 +1993,73 @@ static void CG_DrawSnapshot( rectDef_t *rect, float text_x, float text_y,
 /*
 ===============================================================================
 
+KILLL MESSAGE
+
+===============================================================================
+*/
+
+/*
+==================
+CG_DrawKillMsg
+==================
+*/
+static void CG_DrawKillMsg( rectDef_t *rect, float text_x, float text_y,
+                           float scale, vec4_t color,
+                           int textalign, int textvalign, int textStyle )
+{
+   int     i;
+   vec4_t  hcolor;
+   int     chatHeight;
+
+   if (cg_killMsgHeight.integer < TEAMCHAT_HEIGHT)
+       chatHeight = cg_killMsgHeight.integer;
+   else
+       chatHeight = TEAMCHAT_HEIGHT;
+
+   if (chatHeight <= 0)
+       return; // disabled
+
+   if (cgs.killMsgLastPos != cgs.killMsgPos)
+   {
+       if (cg.time - cgs.killMsgMsgTimes[cgs.killMsgLastPos % chatHeight] > cg_killMsgTime.integer)
+           cgs.killMsgLastPos++;
+
+       hcolor[0] = hcolor[1] = hcolor[2] = hcolor[3] = 1.0f;
+
+       for ( i = cgs.killMsgPos - 1; i >= cgs.killMsgLastPos; i-- )
+       {
+            int x = 0, w;
+            int j = i % chatHeight;
+
+            w = UI_Text_Width( cgs.killMsgKillers[j], scale );
+            UI_Text_Paint( rect->x + TINYCHAR_WIDTH,
+                           rect->y - (cgs.killMsgPos - i)*20,
+                           scale, color, cgs.killMsgKillers[j],
+                           0, 0, textStyle );
+            x += w + 3;
+
+            if ( cg_weapons[cgs.killMsgWeapons[j]].weaponIcon != WP_NONE )
+            {
+                CG_DrawPic( rect->x + TINYCHAR_WIDTH + x,
+                            rect->y - (cgs.killMsgPos - i)*20-15,
+                            16, 16,
+                            cg_weapons[cgs.killMsgWeapons[j]].weaponIcon );
+                x += 16 + 2;
+
+                w = UI_Text_Width( cgs.killMsgVictims[j], scale );
+                UI_Text_Paint( rect->x + TINYCHAR_WIDTH + x,
+                               rect->y - (cgs.killMsgPos - i)*20,
+                               scale, color, cgs.killMsgVictims[j],
+                               0, 0, textStyle );
+            }
+       }
+   }
+}
+
+
+/*
+===============================================================================
+
 LAGOMETER
 
 ===============================================================================
@@ -2489,7 +2556,6 @@ void CG_DrawWeaponIcon( rectDef_t *rect, vec4_t color )
 
   if( weapon <= WP_NONE || weapon >= WP_NUM_WEAPONS )
   {
-    CG_Error( "CG_DrawWeaponIcon: weapon out of range: %d", weapon );
     return;
   }
 
@@ -2671,9 +2737,10 @@ static void CG_DrawLocation( rectDef_t *rect, float scale, int textalign, vec4_t
   maxX = rect->x + rect->w;
 
   locent = CG_GetPlayerLocation( );
-  if( !locent )
-    return;
-  location = CG_ConfigString( CS_LOCATIONS + locent->currentState.generic1 );
+  if( locent )
+    location = CG_ConfigString( CS_LOCATIONS + locent->currentState.generic1 );
+  else
+    location = CG_ConfigString( CS_LOCATIONS );
 
   // need to skip horiz. align if it's too long, but valign must be run either way
   if( UI_Text_Width( location, scale ) < rect->w )
@@ -2945,6 +3012,14 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
 
     case CG_TUTORIAL:
       CG_DrawTutorial( &rect, text_x, text_y, foreColor, scale, textalign, textvalign, textStyle );
+      break;
+
+    case CG_KILLFEED:
+      CG_DrawKillMsg( &rect, text_x, text_y, scale, foreColor, textalign, textvalign, textStyle );
+      break;
+
+    case CG_PLAYER_THZ_SCANNER:
+      THZ_DrawScanner( &rect );
       break;
 
     default:
@@ -3445,8 +3520,9 @@ static void CG_Draw2D( void )
     return;
   }
 
-  if( cg.snap->ps.persistant[ PERS_SPECSTATE ] == SPECTATOR_NOT &&
-      cg.snap->ps.stats[ STAT_HEALTH ] > 0 )
+  if ( cg.snap->ps.stats[ STAT_TEAM ] == TEAM_NONE
+      || (cg.snap->ps.persistant[ PERS_SPECSTATE ] == SPECTATOR_NOT
+      && cg.snap->ps.stats[ STAT_HEALTH ] > 0 ))
   {
     menu = Menus_FindByName( BG_ClassConfig(
       cg.predictedPlayerState.stats[ STAT_CLASS ] )->hudName );

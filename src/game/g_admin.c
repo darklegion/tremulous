@@ -216,6 +216,10 @@ g_admin_cmd_t g_admin_cmds[ ] =
     {"time", G_admin_time, qtrue, "time",
       "show the current local server time",
       ""},
+    {"transform", G_admin_transform, qfalse, "magic",
+      "change a human player to a different player model",
+      "[^3name|slot#^7] [^3player model^7]"
+    },
 
     {"unban", G_admin_unban, qfalse, "ban",
       "unbans a player specified by the slot as seen in showbans",
@@ -2726,6 +2730,76 @@ qboolean G_admin_spec999( gentity_t *ent )
         vic->client->pers.netname ) );
     }
   }
+  return qtrue;
+}
+ 
+qboolean G_admin_transform( gentity_t *ent )
+{
+  int pid;
+  char name[ MAX_NAME_LENGTH ];
+  char modelname[ MAX_NAME_LENGTH ];
+  char skin[ MAX_NAME_LENGTH ];
+  char err[ MAX_STRING_CHARS ];
+  char userinfo[ MAX_INFO_STRING ];
+  gentity_t *victim = NULL;
+  int i;
+  qboolean found = qfalse;
+
+  if (trap_Argc() < 3)
+  {
+    ADMP("^3transform: ^7usage: transform [name|slot#] [model] <skin>\n");
+    return qfalse;
+  }
+
+  trap_Argv(1, name, sizeof(name));
+  trap_Argv(2, modelname, sizeof(modelname));
+
+  strcpy(skin, "default");
+  if (trap_Argc() >= 4)
+  {
+      trap_Argv(1, skin, sizeof(skin));
+  }
+
+  pid = G_ClientNumberFromString(name, err, sizeof(err));
+  if (pid == -1)
+  {
+    ADMP(va("^3transform: ^7%s", err));
+    return qfalse;
+  }
+
+  victim = &g_entities[ pid ];
+  if (victim->client->pers.connected != CON_CONNECTED)
+  {
+    ADMP("^3transform: ^7sorry, but your intended victim is still connecting\n");
+    return qfalse;
+  }
+
+  for ( i = 0; i < level.playerModelCount; i++ )
+  {
+    if ( !strcmp(modelname, level.playerModel[i]) )
+    {
+      found = qtrue;
+      break;
+    }
+  }
+
+  if (!found)
+  {
+    ADMP(va("^3transform: ^7no matching model %s\n", modelname));
+    return qfalse;
+  }
+
+  trap_GetUserinfo(pid, userinfo, sizeof(userinfo));
+  AP( va("print \"^3transform: ^7%s^7 has been changed into %s^7 by %s\n\"",
+         victim->client->pers.netname, modelname,
+         (ent ? ent->client->pers.netname : "console")) );
+
+  Info_SetValueForKey( userinfo, "model", modelname );
+  Info_SetValueForKey( userinfo, "skin", GetSkin(modelname, skin));
+  Info_SetValueForKey( userinfo, "voice", modelname );
+  trap_SetUserinfo( pid, userinfo );
+  ClientUserinfoChanged( pid, qtrue );
+
   return qtrue;
 }
 

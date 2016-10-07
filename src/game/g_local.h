@@ -69,6 +69,14 @@ typedef enum
   MODEL_2TO1
 } moverState_t;
 
+#define SP_PODIUM_MODEL   "models/mapobjects/podium/podium4.md3"
+
+typedef struct gitem_s
+{
+  int  ammo; // ammo held
+  int  clips; // clips held
+} gitem_t;
+
 //============================================================================
 
 struct gentity_s
@@ -81,6 +89,7 @@ struct gentity_s
   //================================
 
   struct gclient_s  *client;        // NULL if not a client
+  gitem_t    item;
 
   qboolean          inuse;
 
@@ -434,8 +443,8 @@ struct gclient_s
   int                 trampleBuildablesHit[ MAX_TRAMPLE_BUILDABLES_TRACKED ];
 
   int                 lastCrushTime;        // Tyrant crush
+  int                 lastDropTime;         // Weapon drop with /drop
 };
-
 
 typedef struct spawnQueue_s
 {
@@ -523,7 +532,8 @@ typedef struct
 //
 #define MAX_SPAWN_VARS      64
 #define MAX_SPAWN_VARS_CHARS  4096
-#define MAX_BUILDLOG          1024
+#define MAX_BUILDLOG          128
+#define MAX_PLAYER_MODEL      256
 
 typedef struct
 {
@@ -664,6 +674,9 @@ typedef struct
 
   emoticon_t        emoticons[ MAX_EMOTICONS ];
   int               emoticonCount;
+  
+  char              *playerModel[ MAX_PLAYER_MODEL ];
+  int               playerModelCount;
 
   namelog_t         *namelogs;
 
@@ -885,6 +898,7 @@ void      G_InitDamageLocations( void );
 //
 // g_missile.c
 //
+void      G_BounceMissile( gentity_t *ent, trace_t *trace );
 void      G_RunMissile( gentity_t *ent );
 
 gentity_t *fire_flamer( gentity_t *self, vec3_t start, vec3_t aimdir );
@@ -917,6 +931,15 @@ void G_Checktrigger_stages( team_t team, stage_t stage );
 // g_misc.c
 //
 void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles, float speed );
+
+//
+// g_playermodel.c
+//
+void G_InitPlayerModel(void);
+qboolean G_IsValidPlayerModel(const char *model);
+void G_FreePlayerModel(void);
+void G_GetPlayerModelSkins( const char *modelname, char skins[][ 64 ], int maxskins, int *numskins );
+char *GetSkin( char *modelname, char *wish );
 
 //
 // g_weapon.c
@@ -981,6 +1004,13 @@ void      G_UnregisterCommands( void );
 void FireWeapon( gentity_t *ent );
 void FireWeapon2( gentity_t *ent );
 void FireWeapon3( gentity_t *ent );
+
+//
+// g_weapondrop.c
+//
+gentity_t *LaunchWeapon( gentity_t *client, weapon_t weap, vec3_t origin, vec3_t velocity );
+gentity_t *G_DropWeapon( gentity_t *ent, weapon_t w, float angle );
+void G_RunWeaponDrop(gentity_t *ent);
 
 //
 // g_main.c
@@ -1223,3 +1253,4 @@ void      trap_SnapVector( float *v );
 
 void      trap_AddCommand( const char *cmdName );
 void      trap_RemoveCommand( const char *cmdName );
+int       trap_FS_GetFilteredFiles( const char *path, const char *extension, const char *filter, char *listbuf, int bufsize );

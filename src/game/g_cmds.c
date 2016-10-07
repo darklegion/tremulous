@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "g_local.h"
 
+static qboolean G_RoomForClassChange( gentity_t*, class_t, vec3_t );
+
 /*
 ==================
 G_SanitiseString
@@ -379,6 +381,74 @@ char *ConcatArgsPrintable( int start )
   return line;
 }
 
+static void Give_Class( gentity_t *ent, char *s )
+{
+  class_t currentClass = ent->client->pers.classSelection;
+  int clientNum = ent->client - level.clients;
+  vec3_t infestOrigin;
+  vec3_t oldVel;
+  int oldBoostTime = -1;
+  int newClass = BG_ClassByName( s )->number;
+
+  if( newClass == PCL_NONE )
+    return;
+
+  if( !G_RoomForClassChange( ent, newClass, infestOrigin ) )
+  {
+    ADMP("give: not enough room to evolve\n");
+    return;
+  }
+
+  ent->client->pers.evolveHealthFraction 
+      = (float)ent->client->ps.stats[ STAT_HEALTH ] 
+      / (float)BG_Class( currentClass )->health;
+
+  if( ent->client->pers.evolveHealthFraction < 0.0f )
+    ent->client->pers.evolveHealthFraction = 0.0f;
+  else if( ent->client->pers.evolveHealthFraction > 1.0f )
+    ent->client->pers.evolveHealthFraction = 1.0f;
+
+  //remove credit
+  //G_AddCreditToClient( ent->client, -cost, qtrue );
+  ent->client->pers.classSelection = newClass;
+  ClientUserinfoChanged( clientNum, qfalse );
+  VectorCopy( infestOrigin, ent->s.pos.trBase );
+  VectorCopy( ent->client->ps.velocity, oldVel );
+
+  if( ent->client->ps.stats[ STAT_STATE ] & SS_BOOSTED )
+    oldBoostTime = ent->client->boostedTime;
+
+  ClientSpawn( ent, ent, ent->s.pos.trBase, ent->s.apos.trBase );
+
+  VectorCopy( oldVel, ent->client->ps.velocity );
+  if( oldBoostTime > 0 )
+  {
+    ent->client->boostedTime = oldBoostTime;
+    ent->client->ps.stats[ STAT_STATE ] |= SS_BOOSTED;
+  }
+}
+
+static void Give_Gun( gentity_t *ent, char *s )
+{
+  int w = BG_WeaponByName( s )->number;
+
+  if ( w == WP_NONE )
+    return;
+
+  //if( !BG_Weapon( w )->purchasable )
+  //    return;
+
+  ent->client->ps.stats[ STAT_WEAPON ] = w;
+  ent->client->ps.ammo = BG_Weapon( w )->maxAmmo;
+  ent->client->ps.clips = BG_Weapon( w )->maxClips;
+  G_ForceWeaponChange( ent, w );
+}
+
+static void Give_Upgrade( gentity_t *ent, char *s )
+{
+    int u = BG_UpgradeByName( s )->number;
+    BG_AddUpgradeToInventory( u, ent->client->ps.stats );
+}
 
 /*
 ==================
@@ -394,15 +464,25 @@ void Cmd_Give_f( gentity_t *ent )
 
   if( trap_Argc( ) < 2 )
   {
-    ADMP( "usage: give [what]\n" );
-    ADMP( "usage: valid choices are: all, health, funds [amount], stamina, "
-          "poison, gas, ammo\n" );
+    ADMP( "^3give: ^7usage: give [what]\n"
+          "health, funds <amount>, stamina, poison, gas, ammo, " 
+          "^3level0, level1, level1upg, level2, level2upg, level3, level3upg, level4, builder, builderupg, "
+          "human_base, human_bsuit, "
+          "^5blaster, rifle, psaw, shotgun, lgun, mdriver, chaingun, flamer, prifle, grenade, lockblob, "
+          "hive, teslagen, mgturret, abuild, abuildupg, portalgun, proximity, smokecan, "
+          "^2larmour, helmet, medkit, battpak, jetpack, bsuit, gren \n" );
     return;
   }
 
   name = ConcatArgs( 1 );
   if( Q_stricmp( name, "all" ) == 0 )
     give_all = qtrue;
+
+  if( give_all || Q_stricmp( name, "health" ) == 0 )
+  {
+    ent->health = ent->client->ps.stats[ STAT_MAX_HEALTH ];
+    BG_AddUpgradeToInventory( UP_MEDKIT, ent->client->ps.stats );
+  }
 
   if( give_all || Q_stricmpn( name, "funds", 5 ) == 0 )
   {
@@ -417,9 +497,9 @@ void Cmd_Give_f( gentity_t *ent )
           TEAM_ALIENS ? ALIEN_CREDITS_PER_KILL : 1.0f );
 
       // clamp credits manually, as G_AddCreditToClient() expects a short int
-      if( credits > 30000.0f )
+      if( credits > SHRT_MAX )
         credits = 30000.0f;
-      else if( credits < -30000.0f )
+      else if( credits < SHRT_MIN )
         credits = -30000.0f;
     }
 
@@ -447,6 +527,16 @@ void Cmd_Give_f( gentity_t *ent )
   if( give_all || Q_stricmp( name, "stamina" ) == 0 )
     ent->client->ps.stats[ STAT_STAMINA ] = STAMINA_MAX;
 
+  // Adding guns
+  Give_Gun(ent, name);
+
+  // Adding upgrades
+  Give_Upgrade( ent, name);
+
+  // Change class- this allows you to be any alien class on TEAM_HUMAN and the
+  // otherway round.
+  Give_Class(ent, name);
+
   if( Q_stricmp( name, "poison" ) == 0 )
   {
     if( ent->client->pers.teamSelection == TEAM_HUMANS )
@@ -466,8 +556,7 @@ void Cmd_Give_f( gentity_t *ent )
   {
     ent->client->ps.eFlags |= EF_POISONCLOUDED;
     ent->client->lastPoisonCloudedTime = level.time;
-    trap_SendServerCommand( ent->client->ps.clientNum,
-                              "poisoncloud" );
+    trap_SendServerCommand( ent->client->ps.clientNum, "poisoncloud" );
   }
 
   if( give_all || Q_stricmp( name, "ammo" ) == 0 )
@@ -485,6 +574,45 @@ void Cmd_Give_f( gentity_t *ent )
         BG_InventoryContainsUpgrade( UP_BATTPACK, client->ps.stats ) )
       client->ps.ammo = (int)( (float)client->ps.ammo * BATTPACK_MODIFIER );
   }
+}
+
+/*
+Cmd_Drop_f
+Drop a weapon onto the ground
+*/
+void Cmd_Drop_f( gentity_t *ent )
+{
+  char t[ MAX_TOKEN_CHARS ];
+  char angle[ MAX_TOKEN_CHARS ];
+  float ang = 0.0f;
+  int i;
+
+  if( trap_Argc( ) < 2 )
+  {
+      ADMP("^3drop: ^7usage: drop <weapon> [angle]\n");
+      return;
+  }
+
+  trap_Argv( 1, t, sizeof(t) );
+
+  if ( trap_Argc() > 2 )
+  {
+    trap_Argv( 2, angle, sizeof(angle) );
+    ang = atof( angle );
+  }
+
+  switch ((i = BG_WeaponByName( t )->number))
+  {
+    case WP_NONE:
+      ADMP("^3drop: ^7usage: drop <weapon> [angle]\n");
+      break;
+
+    default:
+      G_DropWeapon( ent, i, ang );
+      break;
+  };
+
+
 }
 
 
@@ -569,6 +697,22 @@ void Cmd_Noclip_f( gentity_t *ent )
 
 
 /*
+==================
+Cmd_LevelShot_f
+
+This is just to help generate the level pictures
+for the menus.  It goes to the intermission immediately
+and sends over a command to the client to resize the view,
+hide the scoreboard, and take a special screenshot
+==================
+*/
+void Cmd_LevelShot_f( gentity_t *ent )
+{
+  BeginIntermission( );
+  trap_SendServerCommand( ent - g_entities, "clientLevelShot" );
+}
+
+/*
 =================
 Cmd_Kill_f
 =================
@@ -577,6 +721,7 @@ void Cmd_Kill_f( gentity_t *ent )
 {
   if( g_cheats.integer )
   {
+    ent->flags &= ~FL_GODMODE;
     ent->client->ps.stats[ STAT_HEALTH ] = ent->health = 0;
     player_die( ent, ent, ent, 100000, MOD_SUICIDE );
   }
@@ -2546,6 +2691,7 @@ void Cmd_Build_f( gentity_t *ent )
         err = MN_NONE;
         break;
 
+      // more serious errors just pop a menu
       case IBE_NOALIENBP:
         err = MN_A_NOBP;
         break;
@@ -2579,7 +2725,9 @@ void Cmd_Build_f( gentity_t *ent )
         break;
     }
 
-    if( err != MN_NONE && !ent->client->pers.disableBlueprintErrors )
+    if( err == MN_NONE || ent->client->pers.disableBlueprintErrors )
+      ent->client->ps.stats[ STAT_BUILDABLE ] |= buildable;
+    else
       G_TriggerMenu( ent->client->ps.clientNum, err );
   }
   else
@@ -2680,6 +2828,7 @@ void G_StopFollowing( gentity_t *ent )
   ent->client->ps.stats[ STAT_STATE ] = 0;
   ent->client->ps.stats[ STAT_VIEWLOCK ] = 0;
   ent->client->ps.eFlags &= ~( EF_WALLCLIMB | EF_WALLCLIMBCEILING );
+  ent->client->ps.viewangles[ PITCH ] = 0.0f;
   ent->client->ps.clientNum = ent - g_entities;
   ent->client->ps.persistant[ PERS_CREDIT ] = ent->client->pers.credit;
 
@@ -3075,6 +3224,120 @@ void Cmd_ListMaps_f( gentity_t *ent )
 
 /*
 =================
+Cmd_ListVoices_f
+=================
+*/
+void Cmd_ListVoices_f( gentity_t *ent )
+{
+  if ( !level.voices ) {
+    ADMP( "^3listvoices: ^7voice system is not installed on this server\n" );
+    return;
+  }
+
+  if ( !g_voiceChats.integer ) {
+    ADMP( "^3listvoices: ^7voice system administratively disabled on this server\n" );
+    return;
+  }
+
+  if ( trap_Argc() < 2 )
+  {
+    voice_t *v;
+    int i = 0;
+
+    ADMBP_begin();
+    for( v = level.voices; v; v = v->next )
+    {
+      ADMBP(va("%d - %s\n", i+1, v->name));
+      i++;
+    }
+    ADMBP(va("^3listvoices: ^7showing %d voices\n", i));
+    ADMBP("^3listvoices: ^7run 'listvoices <voice>' to see available commands.\n");
+    ADMBP_end();
+    return;
+  }
+  else if ( trap_Argc() >= 2 )
+  {
+    voice_t *v;
+    voiceCmd_t *c;
+    int i = 0;
+
+    char name[ MAX_VOICE_NAME_LEN ];
+    trap_Argv(1, name, sizeof(name));
+
+    v = BG_VoiceByName(level.voices, name);
+    if ( !v )
+    {
+      ADMP(va("^3listvoices: ^7no matching voice \"%s\"\n", name));
+      return;
+    }
+
+    ADMBP_begin();
+    for ( c = v->cmds; c; c = c->next )
+    {
+      ADMBP(va("%d - %s\n", i+1, c->cmd));
+      i++;
+    }
+    ADMBP(va("^3listvoices: ^7showing %d voice commands for %s\n", i, v->name));
+    ADMBP_end();
+  }
+}
+
+/*
+=================
+Cmd_ListModels_f
+
+List all the available player models installed on the server.
+=================
+*/
+void Cmd_ListModels_f( gentity_t *ent )
+{
+    int i;
+
+    ADMBP_begin();
+    for (i = 0; i < level.playerModelCount; i++)
+    {
+        ADMBP(va("%d - %s\n", i+1, level.playerModel[i]));
+    }
+    ADMBP(va("^3listmodels: ^7showing %d player models\n", level.playerModelCount));
+    ADMBP_end();
+
+}
+
+/*
+=================
+Cmd_ListSkins_f
+=================
+*/
+void Cmd_ListSkins_f( gentity_t *ent )
+{
+    char modelname[ 64 ];
+    char skins[ MAX_PLAYER_MODEL ][ 64 ];
+    int numskins;
+    int i;
+
+    if ( trap_Argc() < 2 )
+    {
+        ADMP("^3listskins: ^7usage: listskins <model>\n");
+        return;
+    }
+
+    trap_Argv(1, modelname, sizeof(modelname));
+
+    G_GetPlayerModelSkins(modelname, skins, MAX_PLAYER_MODEL, &numskins);
+
+    ADMBP_begin();
+    for (i = 0; i < numskins; i++)
+    {
+        ADMBP(va("%d - %s\n", i+1, skins[i]));
+    }
+    ADMBP(va("^3listskins: ^7default skin ^2%s\n", GetSkin(modelname, "default")));
+    ADMBP(va("^3listskins: ^7showing %d skins for %s\n", numskins, modelname));
+    ADMBP_end();
+}
+
+
+/*
+=================
 Cmd_Test_f
 =================
 */
@@ -3167,6 +3430,7 @@ commands_t cmds[ ] = {
   { "damage", CMD_CHEAT|CMD_ALIVE, Cmd_Damage_f },
   { "deconstruct", CMD_TEAM|CMD_ALIVE, Cmd_Destroy_f },
   { "destroy", CMD_CHEAT|CMD_TEAM|CMD_ALIVE, Cmd_Destroy_f },
+  { "drop", CMD_HUMAN|CMD_CHEAT, Cmd_Drop_f },
   { "follow", CMD_SPEC, Cmd_Follow_f },
   { "follownext", CMD_SPEC, Cmd_FollowCycle_f },
   { "followprev", CMD_SPEC, Cmd_FollowCycle_f },
@@ -3178,6 +3442,9 @@ commands_t cmds[ ] = {
   { "itemtoggle", CMD_HUMAN|CMD_ALIVE, Cmd_ToggleItem_f },
   { "kill", CMD_TEAM|CMD_ALIVE, Cmd_Kill_f },
   { "listmaps", CMD_MESSAGE|CMD_INTERMISSION, Cmd_ListMaps_f },
+  { "listmodels", CMD_MESSAGE|CMD_INTERMISSION, Cmd_ListModels_f },
+  { "listskins", CMD_MESSAGE|CMD_INTERMISSION, Cmd_ListSkins_f },
+  { "listvoices", CMD_MESSAGE|CMD_INTERMISSION, Cmd_ListVoices_f },
   { "m", CMD_MESSAGE|CMD_INTERMISSION, Cmd_PrivateMessage_f },
   { "mt", CMD_MESSAGE|CMD_INTERMISSION, Cmd_PrivateMessage_f },
   { "noclip", CMD_CHEAT_TEAM, Cmd_Noclip_f },

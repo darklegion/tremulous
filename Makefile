@@ -110,12 +110,9 @@ SERVERBIN=tremded
 endif
 
 ifndef BASEGAME
-BASEGAME=base
+BASEGAME=gpp
 endif
 
-ifndef BASEGAME
-BASEGAME=base
-endif
 
 ifndef BASEGAME_CFLAGS
 BASEGAME_CFLAGS=
@@ -131,6 +128,10 @@ endif
 
 ifndef MOUNT_DIR
 MOUNT_DIR=src
+endif
+
+ifndef ASSETS_DIR
+ASSETS_DIR=assets
 endif
 
 ifndef BUILD_DIR
@@ -252,6 +253,7 @@ CMDIR=$(MOUNT_DIR)/qcommon
 SDLDIR=$(MOUNT_DIR)/sdl
 ASMDIR=$(MOUNT_DIR)/asm
 SYSDIR=$(MOUNT_DIR)/sys
+SCRIPTDIR=$(MOUNT_DIR)/script
 GDIR=$(MOUNT_DIR)/game
 CGDIR=$(MOUNT_DIR)/cgame
 NDIR=$(MOUNT_DIR)/null
@@ -994,6 +996,11 @@ ifneq ($(BUILD_GAME_QVM_11),0)
 	$(B)/$(BASEGAME)_11/vms-$(VERSION).pk3
 endif
 
+ifneq ($(BUILD_DATA_PK3),0)
+  TARGETS += \
+    $(B)/$(BASEGAME)/data-$(VERSION).pk3
+endif
+
 ifeq ($(USE_OPENAL),1)
   CLIENT_CFLAGS += -DUSE_OPENAL
   ifeq ($(USE_OPENAL_DLOPEN),1)
@@ -1098,34 +1105,6 @@ ifeq ($(USE_FREETYPE),1)
   BASE_CFLAGS += -DBUILD_FREETYPE $(FREETYPE_CFLAGS)
   RENDERER_LIBS += $(FREETYPE_LIBS)
 endif
-
-#
-# -bbq LUADIR really needs to be built in build/$(PLATFORM) etc.. 
-#  Should try to drive this with PKG_CONFIG_PATH and *.pc files,
-#  trivializing  USE_INTERNAL_LIBS
-#
-# Might also want to package windows + macosx dll's instead of
-# building every time
-#ifeq ($(USE_INTERNAL_LUA),1)
-#LDFLAGS += -l $(B)/liblua.$(SHLIBEXT)
-#endif
-#  CXXFLAGS += -DUSE_INTERNAL_LUA -I$(LUADIR)/include
-#  CFLAGS += -DUSE_INTERNAL_LUA -I$(LUADIR)/include
-#  LDFLAGS += $(LUADIR)/lib/liblua.a
-#else
-#  ifeq ($(USE_LUA),1)
-#    LUA_CFLAGS += $(shell pkg-config --silence-errors --cflags lua)
-#    LUA_LIBS += $(shell pkg-config --silence-errors --libs lua)
-#  else
-#  ifeq ($(USE_LUAJIT),1)
-#    LUA_CFLAGS += $(shell pkg-config --silence-errors --cflags luajit)
-#    LUA_LIBS += $(shell pkg-config --silence-errors --libs luajit)
-#  endif
-#  endif
-#  CFLAGS += $(LUA_CFLAGS)
-#  CXXFLAGS += $(LUA_CFLAGS)
-#  LDFLAGS += $(LUA_LIBS)
-#endif
 
 ifeq ("$(CC)", $(findstring "$(CC)", "clang" "clang++"))
   BASE_CFLAGS += -Qunused-arguments
@@ -1373,6 +1352,7 @@ makedirs:
 	@if [ ! -d $(BUILD_DIR) ];then $(MKDIR) $(BUILD_DIR);fi
 	@if [ ! -d $(B) ];then $(MKDIR) $(B);fi
 	@if [ ! -d $(B)/lua ]; then $(MKDIR) $(B)/lua;fi
+	@if [ ! -d $(B)/script ]; then $(MKDIR) $(B)/script;fi
 	@if [ ! -d $(B)/client ];then $(MKDIR) $(B)/client;fi
 	@if [ ! -d $(B)/client/opus ];then $(MKDIR) $(B)/client/opus;fi
 	@if [ ! -d $(B)/client/vorbis ];then $(MKDIR) $(B)/client/vorbis;fi
@@ -1604,9 +1584,9 @@ define DO_LUA_CC
   $(Q)$(CC) $(LUACFLAGS) $(OPTIMIZE) -o $@ -c $<
 endef
 
-define DO_LUA_LD
-  $(echo_cmd) "LUA_LD $<"
-  $(Q)$(CC) $(SHLIBLDFLAGS) -o $@ $^
+define DO_LUA_CPP
+  $(echo_cmd) "LUA_CPP $<"
+  $(Q)$(CXX) -std=c++1y $(LUACFLAGS) $(OPTIMIZE) -o $@ -c $<
 endef
 
 LUAOBJ = \
@@ -1651,8 +1631,28 @@ CXXFLAGS += $(LUACFLAGS)
 $(B)/lua/%.o: $(LUADIR)/%.c
 	$(DO_LUA_CC)
 
-$(B)/liblua.$(SHLIBEXT): $(LUAOBJ)
-	$(DO_LUA_LD)
+#$(B)/lua/%.o: $(LUADIR)/%.cpp
+#	$(DO_LUA_CPP)
+
+#############################################################################
+# Script API
+# FIXME Disabled for the time being
+#############################################################################
+
+define DO_SCRIPT_CXX
+  $(echo_cmd) "SCRIPT_CXX $<"
+  $(Q)$(CXX) -std=c++1y $(NOTSHLIBCFLAGS) $(CXXFLAGS) $(OPTIMIZE) -o $@ -c $<
+endef
+
+#SCRIPTOBJ = $(B)/script/cvar.o
+SCRIPTOBJ =
+
+#SCRIPTCFLAGS= -I$(SCRIPTDIR)
+#CFLAGS += $(SCRIPTCFLAGS)
+#CXXFLAGS += $(SCRIPTCFLAGS)
+
+$(B)/script/%.o: $(SCRIPTDIR)/%.cpp
+	$(DO_SCRIPT_CXX)
 
 #############################################################################
 # CLIENT/SERVER
@@ -1670,6 +1670,8 @@ Q3OBJ = \
   $(B)/client/cl_scrn.o \
   $(B)/client/cl_ui.o \
   $(B)/client/cl_avi.o \
+  \
+  $(B)/client/q3_lauxlib.o \
   \
   $(B)/client/cm_load.o \
   $(B)/client/cm_patch.o \
@@ -1739,7 +1741,7 @@ else
     $(B)/client/con_tty.o
 endif
 
-Q3OBJ += $(LUAOBJ)
+Q3OBJ += $(LUAOBJ) $(SCRIPTOBJ)
 
 Q3R2OBJ = \
   $(B)/renderergl2/tr_animation.o \
@@ -2214,6 +2216,8 @@ Q3DOBJ = \
   $(B)/ded/sv_snapshot.o \
   $(B)/ded/sv_world.o \
   \
+  $(B)/ded/q3_lauxlib.o \
+  \
   $(B)/ded/cm_load.o \
   $(B)/ded/cm_patch.o \
   $(B)/ded/cm_polylib.o \
@@ -2257,7 +2261,7 @@ ifeq ($(ARCH),x86_64)
       $(B)/ded/ftola.o
 endif
 
-Q3DOBJ += $(LUAOBJ)
+Q3DOBJ += $(LUAOBJ) $(SCRIPTOBJ)
 
 ifeq ($(USE_INTERNAL_ZLIB),1)
 Q3DOBJ += \
@@ -2424,7 +2428,9 @@ GOBJ_ = \
   $(B)/$(BASEGAME)/game/g_trigger.o \
   $(B)/$(BASEGAME)/game/g_utils.o \
   $(B)/$(BASEGAME)/game/g_maprotation.o \
+  $(B)/$(BASEGAME)/game/g_playermodel.o \
   $(B)/$(BASEGAME)/game/g_weapon.o \
+  $(B)/$(BASEGAME)/game/g_weapondrop.o \
   $(B)/$(BASEGAME)/game/g_admin.o \
   $(B)/$(BASEGAME)/game/g_namelog.o \
   \
@@ -2454,6 +2460,8 @@ UIOBJ_ = \
   $(B)/$(BASEGAME)/ui/ui_shared.o \
   $(B)/$(BASEGAME)/ui/ui_gameinfo.o \
   \
+  $(B)/$(BASEGAME)/ui/bg_alloc.o \
+  $(B)/$(BASEGAME)/ui/bg_voice.o \
   $(B)/$(BASEGAME)/ui/bg_misc.o \
   $(B)/$(BASEGAME)/ui/bg_lib.o \
   $(B)/$(BASEGAME)/qcommon/q_math.o \
@@ -2496,6 +2504,14 @@ $(B)/$(BASEGAME)/vms-$(VERSION).pk3: $(B)/$(BASEGAME)/vm/ui.qvm $(B)/$(BASEGAME)
 $(B)/$(BASEGAME)_11/vms-$(VERSION).pk3: $(B)/$(BASEGAME)_11/vm/ui.qvm $(B)/$(BASEGAME)_11/vm/cgame.qvm 
 	@(cd $(B)/$(BASEGAME)_11 && zip -r vms-$(VERSION).pk3 vm/)
 
+
+#############################################################################
+## Assets Package
+#############################################################################
+
+$(B)/$(BASEGAME)/data-$(VERSION).pk3: $(ASSETS_DIR)/ui/menudef.h
+	@(cd $(ASSETS_DIR) && zip -r data-$(VERSION).pk3 *)
+	@mv $(ASSETS_DIR)/data-$(VERSION).pk3 $(B)/$(BASEGAME)
 
 #############################################################################
 ## CLIENT/SERVER RULES
@@ -2723,7 +2739,7 @@ $(B)/$(BASEGAME)/qcommon/%.asm: $(CMDIR)/%.c $(Q3LCC)
 #############################################################################
 
 OBJ = $(Q3OBJ) $(Q3ROBJ) $(Q3R2OBJ) $(Q3DOBJ) $(JPGOBJ) \
-  $(GOBJ) $(CGOBJ) $(UIOBJ) $(LUAOBJ)\
+  $(GOBJ) $(CGOBJ) $(UIOBJ) $(LUAOBJ) $(SCRIPTOBJ) \
   $(GVMOBJ) $(CGVMOBJ) $(UIVMOBJ)
 TOOLSOBJ = $(LBURGOBJ) $(Q3CPPOBJ) $(Q3RCCOBJ) $(Q3LCCOBJ) $(Q3ASMOBJ)
 STRINGOBJ = $(Q3R2STRINGOBJ)

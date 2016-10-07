@@ -526,6 +526,12 @@ void	Cvar_SetValue( const char *var_name, float value );
 void	Cvar_SetValueSafe( const char *var_name, float value );
 // expands value to a string and calls Cvar_Set/Cvar_SetSafe
 
+// Validate String used to validate cvar names
+qboolean Cvar_ValidateString( const char *s );
+cvar_t *Cvar_FindVar( const char *var_name );
+const char *Cvar_Validate( cvar_t *var, const char *value, qboolean warn );
+void Cvar_Print( cvar_t *v );
+
 float	Cvar_VariableValue( const char *var_name );
 int		Cvar_VariableIntegerValue( const char *var_name );
 // returns 0 if not defined or non numeric
@@ -595,7 +601,7 @@ issues.
 
 #define	MAX_FILE_HANDLES	64
 
-#define BASEGAME "base"
+#define BASEGAME "gpp"
 
 #ifdef DEDICATED
 #	define Q3CONFIG_CFG "autogen_server.cfg"
@@ -633,6 +639,7 @@ qboolean FS_CompareZipChecksum(const char *zipfile);
 int		FS_LoadStack( void );
 
 int		FS_GetFileList(  const char *path, const char *extension, char *listbuf, int bufsize );
+int	    FS_GetFilteredFiles( const char *path, const char *extension, char *filter, char *listbuf, int bufsize );
 int		FS_GetModList(  char *listbuf, int bufsize );
 
 fileHandle_t	FS_FOpenFileWrite( const char *qpath );
@@ -988,7 +995,7 @@ void CL_JoystickEvent( int axis, int value, int time );
 
 void CL_PacketEvent( netadr_t from, msg_t *msg );
 
-void CL_ConsolePrint( char *text );
+void CL_ConsolePrint( const char *text );
 
 void CL_MapLoading( void );
 // do a screen update before starting to load a map
@@ -1116,24 +1123,11 @@ void	Sys_Sleep(int msec);
 
 qboolean Sys_LowPhysicalMemory( void );
 
-typedef enum
-{
-	DR_YES = 0,
-	DR_NO = 1,
-	DR_OK = 0,
-	DR_CANCEL = 1
-} dialogResult_t;
+void Sys_SetEnv(const char *name, const char *value);
 
-typedef enum
-{
-	DT_INFO,
-	DT_WARNING,
-	DT_ERROR,
-	DT_YES_NO,
-	DT_OK_CANCEL
-} dialogType_t;
+#include "dialog.h"
 
-dialogResult_t Sys_Dialog( dialogType_t type, const char *message, const char *title );
+qboolean Sys_WritePIDFile( void );
 
 /* This is based on the Adaptive Huffman algorithm described in Sayood's Data
  * Compression book.  The ranks are not actually stored, but implicitly defined

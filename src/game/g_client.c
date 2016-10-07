@@ -807,9 +807,9 @@ if desired.
 char *ClientUserinfoChanged( int clientNum, qboolean forceName )
 {
   gentity_t *ent;
-  char      *s;
-  char      model[ MAX_QPATH ];
-  char      buffer[ MAX_QPATH ];
+  char *s, *s2;
+  char      model[ MAX_QPATH] = { '\0' };
+  char      buffer[ MAX_QPATH ] = { '\0' };
   char      filename[ MAX_QPATH ];
   char      oldname[ MAX_NAME_LENGTH ];
   char      newname[ MAX_NAME_LENGTH ];
@@ -905,6 +905,40 @@ char *ClientUserinfoChanged( int clientNum, qboolean forceName )
     G_namelog_update_name( client );
   }
 
+  if ( client->pers.teamSelection == TEAM_HUMANS )
+  {
+    int i;
+    qboolean found = qfalse;
+
+    s = Info_ValueForKey(userinfo, "model");
+
+    for ( i = 0; i < level.playerModelCount; i++ )
+    {
+      if ( !strcmp(s, level.playerModel[i]) )
+      {
+        found = qtrue;
+        break;
+      }
+    }
+
+    if ( !found )
+      s = NULL;
+    else if ( !g_cheats.integer
+           && !forceName
+           && !G_admin_permission( ent, va("MODEL%s", s) ) )
+      s = NULL;
+
+    if (s)
+    {
+      s2 = Info_ValueForKey(userinfo, "skin");
+      s2 = GetSkin(s, s2);
+    }
+  }
+  else
+  {
+      s = NULL;
+  }
+
   if( client->pers.classSelection == PCL_NONE )
   {
     //This looks hacky and frankly it is. The clientInfo string needs to hold different
@@ -916,8 +950,15 @@ char *ClientUserinfoChanged( int clientNum, qboolean forceName )
   }
   else
   {
-    Com_sprintf( buffer, MAX_QPATH, "%s/%s",  BG_ClassConfig( client->pers.classSelection )->modelName,
-                                              BG_ClassConfig( client->pers.classSelection )->skinName );
+    if ( !(client->pers.classSelection == PCL_HUMAN_BSUIT) && s )
+    {
+        Com_sprintf( buffer, MAX_QPATH, "%s/%s", s, s2 );
+    }
+    else
+    {
+        Com_sprintf( buffer, MAX_QPATH, "%s/%s",  BG_ClassConfig( client->pers.classSelection )->modelName,
+                                                  BG_ClassConfig( client->pers.classSelection )->skinName );
+    }
 
     //model segmentation
     Com_sprintf( filename, sizeof( filename ), "models/players/%s/animation.cfg",

@@ -480,8 +480,12 @@ static qboolean CG_RegisterClientModelname( clientInfo_t *ci, const char *modelN
   // if any skins failed to load, return failure
   if( !CG_RegisterClientSkin( ci, modelName, skinName ) )
   {
-    Com_Printf( "Failed to load skin file: %s : %s\n", modelName, skinName );
-    return qfalse;
+    Com_Printf( "Failed to load skin file: %s : %s. Loading default\n", modelName, skinName );
+    if( !CG_RegisterClientSkin( ci, modelName, "default" ) )
+    {
+        Com_Printf( S_COLOR_RED "Failed to load default skin file!\n" );
+        return qfalse;
+    }
   }
 
   return qtrue;

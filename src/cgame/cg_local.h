@@ -70,6 +70,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define CHAR_HEIGHT         48
 #define TEXT_ICON_SPACE     4
 
+#define TEAMCHAT_WIDTH     80
+#define TEAMCHAT_HEIGHT     8
+
 // very large characters
 #define GIANT_WIDTH         32
 #define GIANT_HEIGHT        48
@@ -938,6 +941,7 @@ typedef struct
   int           clientNum;
 
   qboolean      demoPlayback;
+  qboolean      levelShot;                          // taking a level menu screenshot
   int           deferredPlayerLoading;
   qboolean      loading;                            // don't defer players at initial startup
   qboolean      intermissionStarted;                // don't play voice rewards, because game will end shortly
@@ -1177,7 +1181,6 @@ typedef struct
 // loaded at gamestate time are stored in cgMedia_t
 // Other media that can be tied to clients, weapons, or items are
 // stored in the clientInfo_t, itemInfo_t, weaponInfo_t, and powerupInfo_t
-
 typedef struct
 {
   qhandle_t f1;
@@ -1436,6 +1439,15 @@ typedef struct
   cgMedia_t           media;
 
   voice_t       *voices;
+  clientList_t  ignoreList;
+
+  // Kill Message
+  char          killMsgKillers[ TEAMCHAT_HEIGHT ][ 33*3+1 ];
+  char          killMsgVictims[ TEAMCHAT_HEIGHT ][ 33*3+1 ];
+  int           killMsgWeapons[ TEAMCHAT_HEIGHT ];
+  int           killMsgMsgTimes[ TEAMCHAT_HEIGHT ];
+  int           killMsgPos;
+  int           killMsgLastPos;
 } cgs_t;
 
 typedef struct
@@ -1601,6 +1613,16 @@ extern  vmCvar_t    cg_voice;
 extern  vmCvar_t    cg_emoticons;
 
 extern  vmCvar_t    cg_chatTeamPrefix;
+
+extern  vmCvar_t    cg_killMsg;
+extern  vmCvar_t    cg_killMsgTime;
+extern  vmCvar_t    cg_killMsgHeight;
+
+extern  vmCvar_t    cg_killMsgTime;
+extern  vmCvar_t    cg_killMsgHeight;
+
+extern  vmCvar_t    thz_radar;
+extern  vmCvar_t    thz_radarrange;
 
 //
 // cg_main.c
@@ -1768,6 +1790,7 @@ void        CG_CheckEvents( centity_t *cent );
 void        CG_EntityEvent( centity_t *cent, vec3_t position );
 void        CG_PainEvent( centity_t *cent, int health );
 
+void          CG_AddToKillMsg( const char* killername, const char* victimname, int icon );
 
 //
 // cg_ents.c
@@ -1817,6 +1840,7 @@ void        CG_DrawItemSelectText( rectDef_t *rect, float scale, int textStyle )
 void        CG_UpdateEntityPositions( void );
 void        CG_Scanner( rectDef_t *rect, qhandle_t shader, vec4_t color );
 void        CG_AlienSense( rectDef_t *rect );
+void        THZ_DrawScanner( rectDef_t *rect );
 
 //
 // cg_marks.c
@@ -1850,6 +1874,7 @@ void          CG_ParseServerinfo( void );
 void          CG_SetConfigValues( void );
 void          CG_ShaderStateChanged(void);
 void          CG_UnregisterCommands( void );
+void          CG_CenterPrint_f( void );
 
 //
 // cg_playerstate.c
@@ -2291,6 +2316,6 @@ typedef enum
   DT_INTERACTIVE, // team, class, armoury
   DT_ARMOURYEVOLVE, // Insufficient funds et al
   DT_BUILD, // build errors
-  DT_COMMAND, // You must be alive/human/spec/etc.
+  DT_COMMAND, // You must be living/human/spec etc.
 
 } dialogType_t;

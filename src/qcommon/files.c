@@ -2384,6 +2384,43 @@ int	FS_GetFileList(  const char *path, const char *extension, char *listbuf, int
 }
 
 /*
+================
+FS_GetFilteredFiles
+================
+*/
+int	FS_GetFilteredFiles( const char *path, const char *extension, char *filter, char *listbuf, int bufsize )
+{
+    int nFiles, i, nTotal, nLen;
+    char **pFiles;
+
+	*listbuf = 0;
+	nFiles = 0;
+	nTotal = 0;
+
+	pFiles = FS_ListFilteredFiles( path, extension, filter, &nFiles, qfalse );
+
+	for (i =0; i < nFiles; i++)
+    {
+		nLen = strlen(pFiles[i]) + 1;
+		if (nTotal + nLen + 1 < bufsize)
+        {
+			strcpy(listbuf, pFiles[i]);
+			listbuf += nLen;
+			nTotal += nLen;
+		}
+		else {
+			nFiles = i;
+			break;
+		}
+	}
+
+	FS_FreeFileList(pFiles);
+
+	return nFiles;
+}
+
+
+/*
 =======================
 Sys_ConcatenateFileLists
 
@@ -3296,35 +3333,36 @@ static void FS_Startup( const char *gameName )
 
 	fs_debug = Cvar_Get( "fs_debug", "0", 0 );
 	fs_basepath = Cvar_Get ("fs_basepath", Sys_DefaultInstallPath(), CVAR_INIT|CVAR_PROTECTED );
-	fs_basegame = Cvar_Get ("fs_basegame", "", CVAR_INIT );
+	fs_basegame = Cvar_Get ("fs_basegame", BASEGAME, CVAR_INIT );
 
 	homePath = Sys_DefaultHomePath();
 	if (!homePath || !homePath[0]) {
 		homePath = fs_basepath->string;
 	}
-    fs_readonly_path = Cvar_Get( "fs_readonly_path", va( "%s/readonly", Sys_DefaultHomePath()), CVAR_INIT|CVAR_PROTECTED);
 	fs_homepath = Cvar_Get ("fs_homepath", homePath, CVAR_INIT|CVAR_PROTECTED );
-
-	fs_gamedirvar = Cvar_Get ("fs_game", "gpp", CVAR_INIT|CVAR_SYSTEMINFO );
-	Cvar_Get( "fs_pk3PrefixPairs", "", CVAR_ARCHIVE|CVAR_LATCH );
+	fs_gamedirvar = Cvar_Get ("fs_game", BASEGAME, CVAR_INIT|CVAR_SYSTEMINFO );
 
 	// add search path elements in reverse priority order
 	if (fs_basepath->string[0]) {
 		FS_AddGameDirectory( fs_basepath->string, gameName );
+		FS_AddGameDirectory( fs_basepath->string, "base" );
 	}
 	// fs_homepath is somewhat particular to *nix systems, only add if relevant
 
 #ifdef __APPLE__
-	fs_apppath = Cvar_Get ("fs_apppath", Sys_DefaultAppPath(), CVAR_INIT|CVAR_PROTECTED );
 	// Make MacOSX also include the base path included with the .app bundle
-	if (fs_apppath->string[0])
-		FS_AddGameDirectory(fs_apppath->string, gameName);
+	fs_apppath = Cvar_Get ("fs_apppath", Sys_DefaultAppPath(), CVAR_INIT|CVAR_PROTECTED );
+	if (fs_apppath->string[0]) {
+		FS_AddGameDirectory( fs_apppath->string, gameName );
+		FS_AddGameDirectory( fs_apppath->string, "base" );
+    }
 #endif
 
 	// NOTE: same filtering below for mods and basegame
 	if (fs_homepath->string[0] && Q_stricmp(fs_homepath->string,fs_basepath->string)) {
 		FS_CreatePath ( fs_homepath->string );
-		FS_AddGameDirectory ( fs_homepath->string, gameName );
+		FS_AddGameDirectory( fs_homepath->string, gameName );
+		FS_AddGameDirectory( fs_homepath->string, "base" );
 	}
 
 	// check for additional base game so mods can be based upon other mods

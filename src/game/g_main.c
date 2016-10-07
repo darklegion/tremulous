@@ -643,6 +643,8 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
 
   trap_SetConfigstring( CS_INTERMISSION, "0" );
 
+  G_InitPlayerModel();
+
   // test to see if a custom buildable layout will be loaded
   G_LayoutSelect( );
 
@@ -742,6 +744,7 @@ void G_ShutdownGame( int restart )
   G_namelog_cleanup( );
   G_UnregisterCommands( );
 
+  G_FreePlayerModel( );
   G_ShutdownMapRotations( );
 
   level.restarted = qfalse;
@@ -2388,6 +2391,12 @@ void G_RunFrame( int levelTime )
     if( ent->s.eType == ET_MISSILE )
     {
       G_RunMissile( ent );
+      continue;
+    }
+
+    if ( ent->s.eType == ET_WEAPON_DROP )
+    {
+      G_RunWeaponDrop( ent );
       continue;
     }
 

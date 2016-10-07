@@ -604,6 +604,7 @@ void CL_AddReliableCommand(const char *cmd, qboolean isDisconnectCmd);
 void CL_StartHunkUsers( qboolean rendererOnly );
 
 void CL_Disconnect_f (void);
+void CL_Reconnect_f( void );
 void CL_GetChallengePacket (void);
 void CL_Vid_Restart_f( void );
 void CL_Snd_Restart_f (void);

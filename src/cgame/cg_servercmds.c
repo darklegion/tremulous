@@ -1166,7 +1166,7 @@ static void CG_ParseVoice( void )
 CG_CenterPrint_f
 =================
 */
-static void CG_CenterPrint_f( void )
+void CG_CenterPrint_f( void )
 {
   CG_CenterPrint( CG_Argv( 1 ), SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
 }
