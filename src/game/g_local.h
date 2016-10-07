@@ -845,7 +845,6 @@ void        G_Sound( gentity_t *ent, int channel, int soundIndex );
 void        G_FreeEntity( gentity_t *e );
 void        G_RemoveEntity( gentity_t *ent );
 qboolean    G_EntitiesFree( void );
-char        *G_CopyString( const char *str );
 
 void        G_TouchTriggers( gentity_t *ent );
 
