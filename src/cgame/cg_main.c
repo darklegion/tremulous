@@ -1016,6 +1016,7 @@ static void CG_RegisterGraphics( void )
 
   cgs.media.plainColorShader          = trap_R_RegisterShader( "gfx/plainColor" );
   cgs.media.binaryAlpha1Shader        = trap_R_RegisterShader( "gfx/binary/alpha1" );
+
   for( i = 0; i < NUM_BINARY_SHADERS; ++i )
   {
     cgs.media.binaryShaders[ i ].f1 = trap_R_RegisterShader( va( "gfx/binary/%03i_F1", i ) );

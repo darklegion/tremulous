@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../renderercommon/tr_types.h"
 #include "../game/bg_public.h"
 #include "cg_public.h"
+#include "binaryshader.h"
 #include "../ui/ui_shared.h"
 
 // The entire cgame module is unloaded and reloaded on each level change,
@@ -1171,7 +1172,7 @@ typedef struct
   int           nearUsableBuildable;
   
   int           nextWeaponClickTime;
-
+  // binary shaders - by /dev/humancontroller
   int           numBinaryShadersUsed;
   cgBinaryShaderSetting_t binaryShaderSettings[ NUM_BINARY_SHADERS ];
 } cg_t;
@@ -1225,6 +1226,7 @@ typedef struct
   qhandle_t   redBuildShader;
   qhandle_t   humanSpawningShader;
 
+  // binary shaders + range markers
   qhandle_t   sphereModel;
   qhandle_t   sphericalCone64Model;
   qhandle_t   sphericalCone240Model;
@@ -1537,7 +1539,6 @@ extern  vmCvar_t    cg_thirdPersonRange;
 extern  vmCvar_t    cg_stereoSeparation;
 extern  vmCvar_t    cg_lagometer;
 extern  vmCvar_t    cg_drawSpeed;
-extern  vmCvar_t    cg_maxSpeedTimeWindow;
 extern  vmCvar_t    cg_synchronousClients;
 extern  vmCvar_t    cg_stats;
 extern  vmCvar_t    cg_paused;
@@ -1954,6 +1955,36 @@ void  CG_WritePTRCode( int code );
 // cg_tutorial.c
 //
 const char *CG_TutorialText( void );
+
+// ____                              __  __            _                 
+//|  _ \ __ _ _ __   __ _  ___      |  \/  | __ _ _ __| | _____ _ __ ___ 
+//| |_) / _` | '_ \ / _` |/ _ \_____| |\/| |/ _` | '__| |/ / _ \ '__/ __|
+//|  _ < (_| | | | | (_| |  __/_____| |  | | (_| | |  |   <  __/ |  \__ \
+//|_| \_\__,_|_| |_|\__, |\___|     |_|  |_|\__,_|_|  |_|\_\___|_|  |___/
+//                  |___/                                                
+// ripped from grangerhub pk3 patch orignal work by /dev/humancontroller
+
+typedef enum
+{
+  RMT_SPHERE,
+  RMT_SPHERICAL_CONE_64,
+  RMT_SPHERICAL_CONE_240
+} rangeMarkerType_t;
+extern const vec3_t cg_shaderColors[ SHC_NUM_SHADER_COLORS ];
+// cg_main.c
+qboolean    CG_GetRangeMarkerPreferences( qboolean *drawSurface, qboolean *drawIntersection,
+                                          qboolean *drawFrontline, float *surfaceOpacity,
+                                          float *lineOpacity, float *lineThickness );
+//void        CG_UpdateBuildableRangeMarkerMask( void );
+// cg_drawtools.c
+void        CG_DrawRangeMarker( rangeMarkerType_t rmType, const vec3_t origin, const float *angles, float range,
+                                qboolean drawSurface, qboolean drawIntersection, qboolean drawFrontline,
+                                const vec3_t rgb, float surfaceOpacity, float lineOpacity, float lineThickness );
+// cg_buildable.c
+qboolean    CG_GetBuildableRangeMarkerProperties( buildable_t bType, rangeMarkerType_t *rmType, float *range, vec3_t rgb );
+void        CG_GhostBuildableRangeMarker( buildable_t buildable, const vec3_t origin, const vec3_t normal );
+// cg_ents.c
+void        CG_RangeMarker( centity_t *cent );
 
 //
 //===============================================

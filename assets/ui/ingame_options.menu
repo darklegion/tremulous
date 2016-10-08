@@ -1555,6 +1555,26 @@
         play "sound/misc/menu1.wav";
       }
     }
+
+    itemDef
+    {
+      name misc
+      group optionsGrp
+      type ITEM_TYPE_BIND
+      text "Ready To Play:"
+      cvar "ready"
+      rect SCONTENT_X (SCONTENT_Y+(13*ELEM_H)) SCONTENT_W ELEM_H
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
+      forecolor 1 1 1 1
+      visible MENU_FALSE
+      action
+      {
+        play "sound/misc/menu1.wav";
+      }
+    }
 //////// SYSTEM
 
     //System menu
@@ -2354,6 +2374,204 @@
         play "sound/misc/menu1.wav";
         exec "snd_restart"
       }
+    }
+
+//////// RANGE MARKERS
+
+    itemDef
+    {
+      name system
+      text "Range Markers"
+      group optionsGrp
+      style WINDOW_STYLE_EMPTY
+      rect 0 ((2*BORDER)+TOPBUTT_H+(4*SIDEBUTT_H)) SIDEBUTT_W SIDEBUTT_H
+      type ITEM_TYPE_BUTTON
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textscale .25
+      forecolor 1 1 1 1
+      visible MENU_FALSE
+      action
+      {
+        play "sound/misc/menu1.wav";
+        hide optionsGrp;
+        show system;
+        show rangemarkers
+      }
+    }
+
+    itemDef
+    {
+      name rangemarkers
+      group optionsGrp
+      type ITEM_TYPE_YESNO
+      text "Draw Surface:"
+      cvar "cg_rangeMarkerDrawSurface"
+      rect SCONTENT_X (SCONTENT_Y+(0*ELEM_H)) SCONTENT_W ELEM_H
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
+      forecolor 1 1 1 1
+      visible MENU_FALSE
+      action
+      {
+        play "sound/misc/menu1.wav";
+      }
+    }
+
+    itemDef
+    {
+      name rangemarkers
+      group optionsGrp
+      type ITEM_TYPE_YESNO
+      text "Draw Intersection:"
+      cvar "cg_rangeMarkerDrawIntersection"
+      rect SCONTENT_X (SCONTENT_Y+(1*ELEM_H)) SCONTENT_W ELEM_H
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
+      forecolor 1 1 1 1
+      visible MENU_FALSE
+      action
+      {
+        play "sound/misc/menu1.wav";
+      }
+    }
+
+    itemDef
+    {
+      name rangemarkers
+      group optionsGrp
+      type ITEM_TYPE_YESNO
+      text "Draw Frontline:"
+      cvar "cg_rangeMarkerDrawFrontline"
+      rect SCONTENT_X (SCONTENT_Y+(2*ELEM_H)) SCONTENT_W ELEM_H
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
+      forecolor 1 1 1 1
+      visible MENU_FALSE
+      action
+      {
+        play "sound/misc/menu1.wav";
+      }
+    }
+
+    itemDef
+    {
+      name rangemarkers
+      group optionsGrp
+      type ITEM_TYPE_SLIDER
+      text "Surface Opacity:"
+      cvarfloat "cg_rangeMarkerSurfaceOpacity" 0.08 0.035 0.3
+      rect SCONTENT_X (SCONTENT_Y+(3*ELEM_H)) SCONTENT_W ELEM_H
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
+      forecolor 1 1 1 1
+      visible MENU_FALSE
+    }
+
+    itemDef
+    {
+      name rangemarkers
+      group optionsGrp
+      type ITEM_TYPE_SLIDER
+      text "Line Opacity:"
+      cvarfloat "cg_rangeMarkerLineOpacity" 0.4 0.075 1
+      rect SCONTENT_X (SCONTENT_Y+(4*ELEM_H)) SCONTENT_W ELEM_H
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
+      forecolor 1 1 1 1
+      visible MENU_FALSE
+    }
+
+    itemDef
+    {
+      name rangemarkers
+      group optionsGrp
+      type ITEM_TYPE_SLIDER
+      text "Line Thickness:"
+      cvarfloat "cg_rangeMarkerLineThickness" 4.0 1 11
+      rect SCONTENT_X (SCONTENT_Y+(5*ELEM_H)) SCONTENT_W ELEM_H
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
+      forecolor 1 1 1 1
+      visible MENU_FALSE
+    }
+
+    itemDef
+    {
+      name rangemarkers
+      group optionsGrp
+      type ITEM_TYPE_YESNO
+      text "Range Marker for Blueprint:"
+      cvar "cg_rangeMarkerForBlueprint"
+      rect SCONTENT_X (SCONTENT_Y+(6*ELEM_H)) SCONTENT_W ELEM_H
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
+      forecolor 1 1 1 1
+      visible MENU_FALSE
+      action
+      {
+        play "sound/misc/menu1.wav";
+      }
+    }
+
+    itemDef
+    {
+      name rangemarkers
+      group optionsGrp
+      type ITEM_TYPE_MULTI
+      text "Range Markers for:"
+      cvar "cg_rangeMarkerBuildableTypes"
+      cvarStrList { "No Buildables",              "",
+                    "All Buildables",             "all",
+                    "Support Buildables",         "support",
+                    "Offensive Buildables",       "offensive",
+                    "Alien Buildables",           "alien",
+                    "Human Buildables",           "human",
+                    "Alien Support Buildables",   "aliensupport",
+                    "Human Support Buildables",   "humansupport",
+                    "Offensive Alien Buildables", "alienoffensive",
+                    "Offensive Human Buildables", "humanoffensive" }
+      rect SCONTENT_X (SCONTENT_Y+(7*ELEM_H)) SCONTENT_W ELEM_H
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
+      forecolor 1 1 1 1
+      visible MENU_FALSE
+      action
+      {
+        play "sound/misc/menu1.wav";
+      }
+    }
+
+    itemDef
+    {
+      name rangemarkers
+      group optionsGrp
+      type ITEM_TYPE_SLIDER
+      text "Binary Shader Screen Scale:"
+      cvarfloat "cg_binaryShaderScreenScale" 1.0 0 1
+      rect SCONTENT_X (SCONTENT_Y+(8*ELEM_H)) SCONTENT_W ELEM_H
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
+      forecolor 1 1 1 1
+      visible MENU_FALSE
     }
   }
 }
