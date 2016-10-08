@@ -928,15 +928,6 @@ typedef struct
 
 typedef struct
 {
-  byte color[ 3 ];
-  qboolean drawIntersection;
-  qboolean drawFrontline;
-} cgBinaryShaderSetting_t;
-
-#define NUM_BINARY_SHADERS 256
-
-typedef struct
-{
   int           clientFrame;                        // incremented each frame
 
   int           clientNum;
@@ -1176,21 +1167,6 @@ typedef struct
   int           numBinaryShadersUsed;
   cgBinaryShaderSetting_t binaryShaderSettings[ NUM_BINARY_SHADERS ];
 } cg_t;
-
-
-// all of the model, shader, and sound references that are
-// loaded at gamestate time are stored in cgMedia_t
-// Other media that can be tied to clients, weapons, or items are
-// stored in the clientInfo_t, itemInfo_t, weaponInfo_t, and powerupInfo_t
-typedef struct
-{
-  qhandle_t f1;
-  qhandle_t f2;
-  qhandle_t f3;
-  qhandle_t b1;
-  qhandle_t b2;
-  qhandle_t b3;
-} cgMediaBinaryShader_t;
 
 typedef struct
 {
@@ -1458,22 +1434,6 @@ typedef struct
   void ( *function )( void );
 } consoleCommand_t;
 
-typedef enum
-{
-  SHC_DARK_BLUE,
-  SHC_LIGHT_BLUE,
-  SHC_GREEN_CYAN,
-  SHC_VIOLET,
-  SHC_YELLOW,
-  SHC_ORANGE,
-  SHC_LIGHT_GREEN,
-  SHC_DARK_GREEN,
-  SHC_RED,
-  SHC_PINK,
-  SHC_GREY,
-  SHC_NUM_SHADER_COLORS
-} shaderColorEnum_t;
-
 //==============================================================================
 
 extern  cgs_t     cgs;
@@ -1485,8 +1445,6 @@ extern  weaponInfo_t    cg_weapons[ 32 ];
 extern  upgradeInfo_t   cg_upgrades[ 32 ];
 
 extern  buildableInfo_t cg_buildables[ BA_NUM_BUILDABLES ];
-
-extern  const vec3_t    cg_shaderColors[ SHC_NUM_SHADER_COLORS ];
 
 extern  markPoly_t      cg_markPolys[ MAX_MARK_POLYS ];
 
@@ -1539,6 +1497,7 @@ extern  vmCvar_t    cg_thirdPersonRange;
 extern  vmCvar_t    cg_stereoSeparation;
 extern  vmCvar_t    cg_lagometer;
 extern  vmCvar_t    cg_drawSpeed;
+extern  vmCvar_t    cg_maxSpeedTimeWindow;
 extern  vmCvar_t    cg_synchronousClients;
 extern  vmCvar_t    cg_stats;
 extern  vmCvar_t    cg_paused;
@@ -1956,26 +1915,10 @@ void  CG_WritePTRCode( int code );
 //
 const char *CG_TutorialText( void );
 
-// ____                              __  __            _                 
-//|  _ \ __ _ _ __   __ _  ___      |  \/  | __ _ _ __| | _____ _ __ ___ 
-//| |_) / _` | '_ \ / _` |/ _ \_____| |\/| |/ _` | '__| |/ / _ \ '__/ __|
-//|  _ < (_| | | | | (_| |  __/_____| |  | | (_| | |  |   <  __/ |  \__ \
-//|_| \_\__,_|_| |_|\__, |\___|     |_|  |_|\__,_|_|  |_|\_\___|_|  |___/
-//                  |___/                                                
-// ripped from grangerhub pk3 patch orignal work by /dev/humancontroller
-
-typedef enum
-{
-  RMT_SPHERE,
-  RMT_SPHERICAL_CONE_64,
-  RMT_SPHERICAL_CONE_240
-} rangeMarkerType_t;
-extern const vec3_t cg_shaderColors[ SHC_NUM_SHADER_COLORS ];
 // cg_main.c
 qboolean    CG_GetRangeMarkerPreferences( qboolean *drawSurface, qboolean *drawIntersection,
                                           qboolean *drawFrontline, float *surfaceOpacity,
                                           float *lineOpacity, float *lineThickness );
-//void        CG_UpdateBuildableRangeMarkerMask( void );
 // cg_drawtools.c
 void        CG_DrawRangeMarker( rangeMarkerType_t rmType, const vec3_t origin, const float *angles, float range,
                                 qboolean drawSurface, qboolean drawIntersection, qboolean drawFrontline,

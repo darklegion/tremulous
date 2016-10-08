@@ -36,4 +36,7 @@ typedef enum
   SHC_NUM_SHADER_COLORS
 } shaderColorEnum_t;
 
+extern  const vec3_t    cg_shaderColors[ SHC_NUM_SHADER_COLORS ];
+
+
 #endif

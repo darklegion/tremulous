@@ -1106,29 +1106,6 @@ static void CG_CalcEntityLerpPositions( centity_t *cent )
   }
 }
 
-
-/*
-================
-CG_RangeMarker
-================
-*/
-void CG_RangeMarker( centity_t *cent )
-{
-  qboolean drawS, drawI, drawF;
-  float so, lo, th;
-  rangeMarkerType_t rmType;
-  float range;
-  vec3_t rgb;
-
-  if( CG_GetRangeMarkerPreferences( &drawS, &drawI, &drawF, &so, &lo, &th ) &&
-      CG_GetBuildableRangeMarkerProperties( cent->currentState.modelindex, &rmType, &range, rgb ) )
-  {
-    CG_DrawRangeMarker( rmType, cent->lerpOrigin, ( rmType > 0 ? cent->lerpAngles : NULL ),
-                        range, drawS, drawI, drawF, rgb, so, lo, th );
-  }
-}
-
-
 /*
 ===============
 CG_CEntityPVSEnter
