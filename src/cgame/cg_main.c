@@ -560,6 +560,60 @@ void CG_UpdateBuildableRangeMarkerMask( void )
 
 /*
 =================
+CG_SetPVars
+=================
+*/
+static void CG_SetPVars( void )
+{
+    playerState_t *ps;
+
+    if( !cg.snap ) return;
+    ps = &cg.snap->ps;
+
+    trap_Cvar_Set( "player_hp", va( "%d", ps->stats[ STAT_HEALTH ] ));
+    trap_Cvar_Set( "player_maxhp",va( "%d", ps->stats[ STAT_MAX_HEALTH ] ));
+
+    switch( ps->stats[ STAT_TEAM ] )
+    {
+    case TEAM_NONE:
+    trap_Cvar_Set( "team_bp", "0" );
+    trap_Cvar_Set( "team_kns", "0" );
+    trap_Cvar_Set( "team_teamname", "spectator" );
+    trap_Cvar_Set( "team_stage", "0" );
+    break;
+
+    case TEAM_ALIENS:
+    //trap_Cvar_Set( "team_bp", va( "%d", cgs.alienBuildPoints ));
+    trap_Cvar_Set( "team_kns", va("%d", cgs.alienNextStageThreshold) );
+    trap_Cvar_Set( "team_teamname", "aliens" );
+    trap_Cvar_Set( "team_stage", va( "%d", cgs.alienStage+1 ) );
+    break;
+
+    case TEAM_HUMANS:
+    //trap_Cvar_Set( "team_bp", va("%d",cgs.humanBuildPoints) );
+    trap_Cvar_Set( "team_kns", va("%d",cgs.humanNextStageThreshold) );
+    trap_Cvar_Set( "team_teamname", "humans" );
+    trap_Cvar_Set( "team_stage", va( "%d", cgs.humanStage+1 ) );
+    break;
+    }
+    
+    trap_Cvar_Set( "player_credits", va( "%d", cg.snap->ps.persistant[ PERS_CREDIT ] ) );
+    trap_Cvar_Set( "player_score", va( "%d", cg.snap->ps.persistant[ PERS_SCORE ] ) );
+
+    if ( CG_LastAttacker( ) != -1 )
+        trap_Cvar_Set( "player_attackername", cgs.clientinfo[ CG_LastAttacker( ) ].name );
+    else
+        trap_Cvar_Set( "player_attackername", "" );
+
+    if ( CG_CrosshairPlayer( ) != -1 )
+        trap_Cvar_Set( "player_crosshairname", cgs.clientinfo[ CG_CrosshairPlayer( ) ].name );
+    else
+        trap_Cvar_Set( "player_crosshairname", "" );
+
+}
+
+/*
+=================
 CG_UpdateCvars
 =================
 */
@@ -567,6 +621,8 @@ void CG_UpdateCvars( void )
 {
   int         i;
   cvarTable_t *cv;
+
+  CG_SetPVars( );
 
   for( i = 0, cv = cvarTable; i < cvarTableSize; i++, cv++ )
     if( cv->vmCvar )
