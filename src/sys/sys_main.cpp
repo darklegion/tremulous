@@ -671,13 +671,31 @@ int main( int argc, char **argv )
     NET_Init( );
     CON_Init( );
 
-    lua.open_libraries(sol::lib::base, sol::lib::package);
+    lua.open_libraries
+    (
+     sol::lib::base,
+     sol::lib::package,
+#if !defined(SOL_LUAJIT) // Not with LuaJIT.
+     sol::lib::coroutine,
+#endif
+     sol::lib::string,
+     sol::lib::table,
+     sol::lib::math,
+     sol::lib::bit32,
+     sol::lib::io,
+     sol::lib::os,
+     sol::lib::debug,
+     sol::lib::utf8 // Only with Lua 5.3; ommiting ifdef on purpose. -bbq
+#if defined(SOL_LUAJIT) // Only with LuaJIT.
+     ,sol::lib::ffi,
+     sol::lib::jit
+#endif
+    );
+
     script::cvar::init(&lua);
+
 #ifndef DEDICATED
     script::client::init(&lua);
-#endif
-
-#ifndef DEDICATED // This one should be made to work with tremded
     script::http_client::init(&lua);
 #endif
 
