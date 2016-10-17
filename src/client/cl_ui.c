@@ -101,7 +101,7 @@ qboolean GetNews( qboolean begin )
 			}
 			clc.activeCURLNotGameRelated = qtrue;
 			CL_cURL_BeginDownload("news.dat", 
-				"http://tremulous.net/clientnews.txt");
+				"http://grangerhub.com/wp-content/uploads/clientnews.txt");
 			return qfalse;
 		}
 	}
