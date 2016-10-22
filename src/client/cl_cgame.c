@@ -377,6 +377,22 @@ void CL_CM_LoadMap( const char *mapname ) {
 	CM_LoadMap( mapname, qtrue, &checksum );
 }
 
+char * safe_strncpy(char *dest, const char *src, size_t n)
+{
+    char *ret = dest;
+    while (n > 0 && src[0])
+    {
+	    *ret++ = *src++;
+	    --n;
+    }
+    while (n > 0)
+    {
+	    *ret++ = '\0';
+    	--n;
+    }
+    return dest;
+}
+
 /*
 ====================
 CL_ShutdonwCGame
@@ -688,7 +704,7 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 		Com_Memcpy( VMA(1), VMA(2), args[3] );
 		return 0;
 	case CG_STRNCPY:
-		strncpy( VMA(1), VMA(2), args[3] );
+		safe_strncpy( VMA(1), VMA(2), args[3] );
 		return args[1];
 	case CG_SIN:
 		return FloatAsInt( sin( VMF(1) ) );
