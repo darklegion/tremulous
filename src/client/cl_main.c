@@ -3648,6 +3648,10 @@ void CL_Init( void ) {
 	cl_showMouseRate = Cvar_Get ("cl_showmouserate", "0", 0);
 
 	cl_allowDownload = Cvar_Get ("cl_allowDownload", "1", CVAR_ARCHIVE);
+
+    if (cl_allowDownload->integer != -1 )
+        cl_allowDownload->integer = DLF_ENABLE;
+
 	com_downloadPrompt = Cvar_Get ("com_downloadPrompt", "0", CVAR_ROM);
 	Cvar_Get( "com_downloadPromptText", "", CVAR_TEMP );
 
