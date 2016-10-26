@@ -59,6 +59,8 @@ cvar_t	*sv_pure;
 cvar_t	*sv_lanForceRate; // dedicated 1 (LAN) server forces local client rates to 99999 (bug #491)
 cvar_t	*sv_banFile;
 
+cvar_t  *sv_rsaAuth;
+
 /*
 =============================================================================
 
@@ -769,7 +771,7 @@ static void SV_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 		Huff_Decompress(msg, 12);
 	}
 
-	s = MSG_ReadStringLine( msg );
+	s = MSG_ReadBigString( msg );
 	Cmd_TokenizeString( s );
 
 	c = Cmd_Argv(0);

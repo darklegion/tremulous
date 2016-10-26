@@ -189,6 +189,8 @@ typedef struct client_s {
 	netchan_buffer_t *netchan_start_queue;
 	netchan_buffer_t **netchan_end_queue;
 
+	char            fingerprint[SHA256_DIGEST_SIZE * 2 + 1];
+
 #ifdef USE_VOIP
 	qboolean hasVoip;
 	qboolean muteAllVoip;
@@ -219,6 +221,7 @@ typedef struct client_s {
 typedef struct {
 	netadr_t	adr;
 	int			challenge;
+	char		challenge2[33];
 	int			clientChallenge;		// challenge number coming from the client
 	int			time;				// time the last packet was sent to the autherize server
 	int			pingTime;			// time the challenge response was sent to client
@@ -283,6 +286,8 @@ extern	cvar_t	*sv_banFile;
 extern	cvar_t	*sv_voip;
 extern	cvar_t	*sv_voipProtocol;
 #endif
+
+extern  cvar_t  *sv_rsaAuth;
 
 
 //===========================================================

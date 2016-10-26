@@ -28,6 +28,76 @@ static void SV_CloseDownload( client_t *cl );
 
 /*
 =================
+SV_RSA_VerifySignature
+
+Verifies the signature of data and on success it returns the sha256
+fingerprint of the public key.  pubkey, signature, and fingerprint
+are all base 16 encoded strings.
+
+Returns qtrue on success
+=================
+*/
+static qboolean SV_RSA_VerifySignature( const char *pubkey, const char *signature, const char *data, char *fingerprint )
+{
+	struct rsa_public_key public_key;
+	struct sha256_ctx sha256_hash;
+	uint8_t buf[RSA_STRING_LENGTH];
+	int err;
+	mpz_t n;
+
+	if ( !*pubkey || !*signature )
+		return qfalse;
+
+	// load public key
+	rsa_public_key_init( &public_key );
+	mpz_set_ui( public_key.e, RSA_PUBLIC_EXPONENT );
+	err = mpz_set_str( public_key.n, pubkey, 16 );
+	if ( err ) {
+		rsa_public_key_clear( &public_key );
+		return qfalse;
+	}
+
+	err = !rsa_public_key_prepare( &public_key );
+	if ( err ) {
+		rsa_public_key_clear( &public_key );
+		return qfalse;
+	}
+
+	// load signature
+	mpz_init( n );
+	err = mpz_set_str( n, signature, 16 );
+	if ( err ) {
+		mpz_clear( n );
+		rsa_public_key_clear( &public_key );
+		return qfalse;
+	}
+
+	// hash data
+	sha256_init( &sha256_hash );
+	sha256_update( &sha256_hash, strlen(data), (uint8_t *) data);
+
+	if ( !rsa_sha256_verify( &public_key, &sha256_hash, n ) ) {
+		mpz_clear( n );
+		rsa_public_key_clear( &public_key );
+		return qfalse;
+	}
+
+	// VERIFIED, save the sha256 fingerprint of the key
+	nettle_mpz_get_str_256( sizeof(buf), buf, public_key.n );
+
+	sha256_update( &sha256_hash, sizeof(buf), buf );
+	sha256_digest( &sha256_hash, SHA256_DIGEST_SIZE, buf );
+
+	nettle_mpz_set_str_256_u( n, SHA256_DIGEST_SIZE, buf );
+	mpz_get_str( fingerprint, 16, n );
+
+	mpz_clear( n );
+	rsa_public_key_clear( &public_key );
+	return qtrue;
+}
+
+/*
+=================
 SV_GetChallenge
 
 A "getchallenge" OOB command has been received
@@ -60,6 +130,8 @@ void SV_GetChallenge(netadr_t from)
 	int		clientChallenge;
 	challenge_t	*challenge;
 	qboolean wasfound = qfalse;
+	byte    buf[16];
+	mpz_t   n;
 
 	// Prevent using getchallenge as an amplifier
 	if ( SVC_RateLimitAddress( from, 10, 1000 ) ) {
@@ -113,6 +185,13 @@ void SV_GetChallenge(netadr_t from)
 		challenge->adr = from;
 		challenge->firstTime = svs.time;
 		challenge->connected = qfalse;
+
+		if ( sv_rsaAuth->integer ) {
+			Sys_CryptoRandomBytes( buf, sizeof(buf) );
+			nettle_mpz_init_set_str_256_u( n, sizeof(buf), buf );
+			mpz_get_str( challenge->challenge2, 16, n );
+			mpz_clear( n );
+		}
 	}
 
 	// always generate a new challenge number, so the client cannot circumvent sv_maxping
@@ -120,8 +199,15 @@ void SV_GetChallenge(netadr_t from)
 	challenge->wasrefused = qfalse;
 	challenge->time = svs.time;
 	challenge->pingTime = svs.time;
-	NET_OutOfBandPrint(NS_SERVER, challenge->adr, "challengeResponse %d %d %d",
-			   challenge->challenge, clientChallenge, PROTOCOL_VERSION);
+
+	if ( sv_rsaAuth->integer ) {
+		NET_OutOfBandPrint( NS_SERVER, challenge->adr, "challengeResponse %d %d %d %s",
+            challenge->challenge, clientChallenge, PROTOCOL_VERSION, challenge->challenge2 );
+	}
+	else {
+		NET_OutOfBandPrint( NS_SERVER, challenge->adr, "challengeResponse %d %d %d",
+            challenge->challenge, clientChallenge, PROTOCOL_VERSION );
+	}
 }
 
 /*
@@ -146,6 +232,9 @@ void SV_DirectConnect( netadr_t from ) {
 	intptr_t		denied;
 	int			count;
 	char		*ip;
+	char		*challenge2;
+	qboolean	challenge2Verified = qfalse;
+	char		fingerprint[SHA256_DIGEST_SIZE * 2 + 1];
 
 	Com_DPrintf ("SVC_DirectConnect ()\n");
 	
@@ -212,6 +301,13 @@ void SV_DirectConnect( netadr_t from ) {
 			return;
 		}
 	
+        if ( sv_rsaAuth->integer ) {
+			challenge2 = Info_ValueForKey( userinfo, "challenge2" );
+			if ( !Q_stricmp( challenge2, svs.challenges[i].challenge2 ) ) {
+				challenge2Verified = qtrue;
+			}
+		}
+
 		challengeptr = &svs.challenges[i];
 		
 		if(challengeptr->wasrefused)
@@ -240,6 +336,23 @@ void SV_DirectConnect( netadr_t from ) {
 
 		Com_Printf("Client %i connecting with %i challenge ping\n", i, ping);
 		challengeptr->connected = qtrue;
+	}
+
+	// ignore any fingerprint set by the client
+	Info_RemoveKey( userinfo, "fingerprint" );
+	fingerprint[0] = '\0';
+
+	if ( sv_rsaAuth->integer && ( NET_IsLocalAddress( from ) || challenge2Verified ) ) {
+		if ( SV_RSA_VerifySignature( Cmd_Argv(2), Cmd_Argv(3), Cmd_Argv(1), fingerprint ) ) {
+			if( strlen( fingerprint ) + strlen( userinfo ) + 13 >= MAX_INFO_STRING ) {
+				NET_OutOfBandPrint( NS_SERVER, from,
+					"print\nUserinfo string length exceeded.  "
+					"Try removing setu cvars from your config.\n" );
+				return;
+			}
+			Info_SetValueForKey( userinfo, "fingerprint", fingerprint );
+			Com_DPrintf( "Public key fingerprint: %s\n", fingerprint );
+		}
 	}
 
 	newcl = &temp;
@@ -328,6 +441,9 @@ gotnewcl:
 	Netchan_Setup((version == 69 ? 2 : version == 70 ? 1 : 0), NS_SERVER, &newcl->netchan, from, qport, challenge);
 	// init the netchan queue
 	newcl->netchan_end_queue = &newcl->netchan_start_queue;
+
+	// save the fingerprint
+	Q_strncpyz( newcl->fingerprint, fingerprint, sizeof(newcl->fingerprint) );
 
 	// save the userinfo
 	Q_strncpyz( newcl->userinfo, userinfo, sizeof(newcl->userinfo) );
@@ -1220,6 +1336,16 @@ void SV_UserinfoChanged( client_t *cl ) {
 	else
 		Info_SetValueForKey( cl->userinfo, "ip", ip );
 
+	val = Info_ValueForKey( cl->userinfo, "fingerprint" );
+	if( val[0] )
+		len = strlen( cl->fingerprint ) - strlen( val ) + strlen( cl->userinfo );
+	else
+		len = strlen( cl->fingerprint ) + 13 + strlen( cl->userinfo );
+
+	if( len >= MAX_INFO_STRING )
+		SV_DropClient( cl, "userinfo string length exceeded" );
+	else
+		Info_SetValueForKey( cl->userinfo, "fingerprint", cl->fingerprint );
 }
 
 

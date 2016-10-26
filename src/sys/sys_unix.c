@@ -151,6 +151,17 @@ char *Sys_GetCurrentUser( void )
 	return p->pw_name;
 }
 
+/*
+==================
+Sys_CryptoRandomBytes
+==================
+*/
+void Sys_CryptoRandomBytes( byte *string, int len )
+{
+	if ( !Sys_RandomBytes( string, len ) )
+		Com_Error( ERR_FATAL, "Sys_CryptoRandomBytes: error reading /dev/urandom" );
+}
+
 #define MEM_THRESHOLD 96*1024*1024
 
 /*

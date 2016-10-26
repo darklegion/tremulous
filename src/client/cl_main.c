@@ -32,6 +32,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "libmumblelink.h"
 #endif
 
+#ifndef _WIN32
+#include <sys/stat.h>
+#endif
+
 #ifdef USE_MUMBLE
 cvar_t	*cl_useMumble;
 cvar_t	*cl_mumbleScale;
@@ -121,6 +125,8 @@ cvar_t	*cl_guidServerUniq;
 cvar_t	*cl_consoleKeys;
 
 cvar_t	*cl_rate;
+
+cvar_t	*cl_rsaAuth;
 
 clientActive_t		cl;
 clientConnection_t	clc;
@@ -1692,10 +1698,16 @@ void CL_Connect_f( void ) {
 	else
 		CL_UpdateGUID( NULL, 0 );
 
+	clc.challenge2[0] = '\0';
+	clc.sendSignature = qfalse;
+
 	// if we aren't playing on a lan, we need to authenticate
 	// with the cd key
 	if(NET_IsLocalAddress(clc.serverAddress))
+	{
 		clc.state = CA_CHALLENGING;
+		clc.sendSignature = qtrue;
+	}
 	else
 	{
 		clc.state = CA_CONNECTING;
@@ -2351,6 +2363,168 @@ void CL_InitDownloads(void) {
 }
 
 /*
+===============
+CL_UnloadRSAKeypair
+===============
+*/
+static void CL_UnloadRSAKeypair( void )
+{
+	rsa_public_key_clear( &cls.public_key );
+	rsa_private_key_clear( &cls.private_key );
+}
+
+/*
+===============
+CL_WriteRSAPublicKey
+===============
+*/
+static qboolean CL_WriteRSAPublicKey( void )
+{
+	struct nettle_buffer key_buffer;
+	fileHandle_t f;
+
+	f = FS_SV_FOpenFileWrite( RSA_PUBLIC_KEY_FILE );
+	if ( !f )
+		return qfalse;
+
+	nettle_buffer_init( &key_buffer );
+	if ( !rsa_keypair_to_sexp( &key_buffer, NULL, &cls.public_key, NULL ) ) {
+		FS_FCloseFile( f );
+		nettle_buffer_clear( &key_buffer );
+		return qfalse;
+	}
+
+	FS_Write( key_buffer.contents, key_buffer.size, f );
+	FS_FCloseFile( f );
+
+	nettle_buffer_clear( &key_buffer );
+	return qtrue;
+}
+
+/*
+===============
+CL_WriteRSAPrivateKey
+===============
+*/
+static qboolean CL_WriteRSAPrivateKey( void )
+{
+	struct nettle_buffer key_buffer;
+	fileHandle_t f;
+
+#ifndef _WIN32
+	int old_umask = umask( 0377 );
+#endif
+	f = FS_SV_FOpenFileWrite( RSA_PRIVATE_KEY_FILE );
+#ifndef _WIN32
+	umask( old_umask );
+#endif
+	if ( !f )
+		return qfalse;
+
+	nettle_buffer_init( &key_buffer );
+	if ( !rsa_keypair_to_sexp( &key_buffer, NULL, &cls.public_key, &cls.private_key ) ) {
+		FS_FCloseFile( f );
+		nettle_buffer_clear( &key_buffer );
+		return qfalse;
+	}
+
+	FS_Write( key_buffer.contents, key_buffer.size, f );
+	FS_FCloseFile( f );
+
+	nettle_buffer_clear( &key_buffer );
+	return qtrue;
+}
+
+/*
+===============
+CL_GenerateRSAKeypair
+
+public_key and private_key must already be inititalized before calling this
+function.  This is done by CL_LoadRSAKeypair.
+===============
+*/
+static void CL_GenerateRSAKeypair( void )
+{
+	mpz_set_ui( cls.public_key.e, RSA_PUBLIC_EXPONENT );
+	if ( !rsa_generate_keypair( &cls.public_key, &cls.private_key, NULL, qnettle_random, NULL, NULL, RSA_KEY_LENGTH, 0 ) )
+		goto error;
+
+	if ( !CL_WriteRSAPrivateKey( ) )
+		goto error;
+
+	if ( !CL_WriteRSAPublicKey( ) )
+		goto error;
+
+	Com_Printf( "%s", "RSA keypair generated\n" );
+	return;
+
+error:
+	CL_UnloadRSAKeypair( );
+	Com_Printf( "%s", "Error generating RSA keypair, setting cl_rsaAuth to 0\n" );
+	Cvar_Set( "cl_rsaAuth", "0" );
+}
+
+/*
+===============
+CL_LoadRSAKeypair
+
+Attempt to load RSA keys from RSA_PRIVATE_KEY_FILE
+If this fails, generate a new keypair
+===============
+*/
+static void CL_LoadRSAKeypair( void )
+{
+	int len;
+	fileHandle_t f;
+	uint8_t *buf;
+
+	rsa_public_key_init( &cls.public_key );
+	rsa_private_key_init( &cls.private_key );
+
+	Com_DPrintf( "Loading RSA private key from %s\n", RSA_PRIVATE_KEY_FILE );
+
+	len = FS_SV_FOpenFileRead( RSA_PRIVATE_KEY_FILE, &f );
+	if ( !f )
+	{
+		Com_Printf( "RSA private key not found, generating\n" );
+		CL_GenerateRSAKeypair( );
+		return;
+	}
+
+	if ( len < 1 )
+	{
+		Com_Printf( "RSA private key empty, generating\n" );
+		FS_FCloseFile( f );
+		CL_GenerateRSAKeypair( );
+		return;
+	}
+
+	buf = (uint8_t*) Z_Malloc( len );
+	FS_Read( buf, len, f );
+	FS_FCloseFile( f );
+
+	if ( !rsa_keypair_from_sexp( &cls.public_key, &cls.private_key, 0, len, buf ) )
+	{
+		memset( buf, 0, len );
+		Z_Free( buf );
+		CL_UnloadRSAKeypair( );
+		Com_Error( ERR_FATAL, "Invalid RSA private key found." );
+		return;
+	}
+
+	memset( buf, 0, len );
+	Z_Free( buf );
+
+	len = FS_SV_FOpenFileRead( RSA_PUBLIC_KEY_FILE, &f );
+	if ( !f || len < 1 )
+		CL_WriteRSAPublicKey( );
+	if ( f )
+		FS_FCloseFile( f );
+
+	Com_DPrintf( "RSA private key loaded\n" );
+}
+
+/*
 =================
 CL_CheckForResend
 
@@ -2360,7 +2534,7 @@ Resend a connect message if the last one has timed out
 void CL_CheckForResend( void ) {
 	int		port;
 	char	info[MAX_INFO_STRING];
-	char	data[MAX_INFO_STRING + 10];
+	char	data[MAX_MSGLEN];
 
 	// don't send anything if playing back a demo
 	if ( clc.demoplaying ) {
@@ -2407,8 +2581,31 @@ void CL_CheckForResend( void ) {
 		Info_SetValueForKey( info, "protocol", va("%i", ( clc.serverAddress.alternateProtocol == 0 ? PROTOCOL_VERSION : clc.serverAddress.alternateProtocol == 1 ? 70 : 69 ) ) );
 		Info_SetValueForKey( info, "qport", va("%i", port ) );
 		Info_SetValueForKey( info, "challenge", va("%i", clc.challenge ) );
-		
-		Com_sprintf( data, sizeof(data), "connect \"%s\"", info );
+
+		if ( cl_rsaAuth->integer && clc.sendSignature ) {
+			char public_key[RSA_STRING_LENGTH];
+			char signature[RSA_STRING_LENGTH];
+			struct sha256_ctx sha256_hash;
+			mpz_t n;
+
+			Info_SetValueForKey( info, "challenge2", clc.challenge2 );
+
+			sha256_init( &sha256_hash );
+			sha256_update( &sha256_hash, strlen(info), (uint8_t *) info );
+
+			mpz_init( n );
+			rsa_sha256_sign( &cls.private_key, &sha256_hash, n );
+			mpz_get_str( signature, 16, n );
+			mpz_clear( n );
+
+			mpz_get_str( public_key, 16, cls.public_key.n );
+
+			Com_sprintf( data, sizeof(data), "connect \"%s\" %s %s", info, public_key, signature );
+		}
+		else {
+			Com_sprintf( data, sizeof(data), "connect \"%s\"", info );
+		}
+
 		NET_OutOfBandData( NS_CLIENT, clc.serverAddress, (byte *) data, strlen ( data ) );
 		// the most current userinfo has been sent, so watch for any
 		// newer changes to userinfo variables
@@ -2770,6 +2967,14 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 		clc.state = CA_CHALLENGING;
 		clc.connectPacketCount = 0;
 		clc.connectTime = -99999;
+
+		if ( cl_rsaAuth->integer ) {
+			s = Cmd_Argv( 4 );
+			if ( *s ) {
+				Q_strncpyz( clc.challenge2, s, sizeof( clc.challenge2 ) );
+				clc.sendSignature = qtrue;
+			}
+		}
 
 		// take this address as the new server address.  This allows
 		// a server proxy to hand off connections to multiple servers
@@ -3702,6 +3907,8 @@ void CL_Init( void ) {
 
 	cl_guidServerUniq = Cvar_Get ("cl_guidServerUniq", "1", CVAR_ARCHIVE);
 
+	cl_rsaAuth = Cvar_Get ("cl_rsaAuth", "1", CVAR_INIT | CVAR_PROTECTED);
+
 	// ~ and `, as keys and characters
 	cl_consoleKeys = Cvar_Get( "cl_consoleKeys", "~ ` 0x7e 0x60", CVAR_ARCHIVE);
 
@@ -3781,6 +3988,9 @@ void CL_Init( void ) {
 
 	Cvar_Set( "cl_running", "1" );
 
+	if ( cl_rsaAuth->integer )
+		CL_LoadRSAKeypair();
+
 	CL_GenerateQKey();
 	Cvar_Get( "cl_guid", "", CVAR_USERINFO | CVAR_ROM );
 	CL_UpdateGUID( NULL, 0 );
@@ -3850,6 +4060,9 @@ void CL_Shutdown(const char *finalmsg, qboolean disconnect, qboolean quit)
 	Cvar_Set( "cl_running", "0" );
 
 	recursive = qfalse;
+
+	if ( cl_rsaAuth->integer )
+		CL_UnloadRSAKeypair();
 
 	realtime = cls.realtime;
 	Com_Memset( &cls, 0, sizeof( cls ) );
