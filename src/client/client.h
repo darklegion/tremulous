@@ -31,6 +31,7 @@ extern "C" {
 
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
+#include "../qcommon/crypto.h"
 #include "../renderercommon/tr_public.h"
 #include "../ui/ui_public.h"
 #include "keys.h"
@@ -38,9 +39,7 @@ extern "C" {
 #include "../cgame/cg_public.h"
 #include "../game/bg_public.h"
 
-#ifdef USE_CURL
 #include "cl_curl.h"
-#endif /* USE_CURL */
 
 #ifdef USE_VOIP
 #include <opus.h>
@@ -340,7 +339,8 @@ typedef struct {
 	fileHandle_t download;
 	char		downloadTempName[MAX_OSPATH];
 	char		downloadName[MAX_OSPATH];
-#ifdef USE_CURL
+
+    // XXX Refactor this -vjr
 	qboolean	cURLEnabled;
 	qboolean	cURLUsed;
 	qboolean	cURLDisconnected;
@@ -348,7 +348,7 @@ typedef struct {
 	CURL		*downloadCURL;
 	CURLM		*downloadCURLM;
 	qboolean	activeCURLNotGameRelated;
-#endif /* USE_CURL */
+
 	int		sv_allowDownload;
 	char		sv_dlURL[MAX_CVAR_VALUE_STRING];
 	int			downloadNumber;

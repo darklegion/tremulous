@@ -1,22 +1,14 @@
+
 #include <cstdio>
 #include <vector>
 #include <fstream>
 
-#include <lua.hpp>
-
-#include <rapidjson/document.h>
-#include <rapidjson/error/en.h>
-#include <rapidjson/istreamwrapper.h>
-#include <rapidjson/ostreamwrapper.h>
-#include <rapidjson/pointer.h>
-
-#include "Userdata.hpp"
+#include "userdata.hpp"
 #include "values.hpp"
-#include <rapidjson/schema.h>
-#include <rapidjson/stringbuffer.h>
-#include <rapidjson/prettywriter.h>
-#include <rapidjson/filewritestream.h>
 #include "file.hpp"
+
+#include "lua.hpp"
+#include "rapidjson.h"
 
 using namespace  rapidjson;
 

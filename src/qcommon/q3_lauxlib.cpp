@@ -1,3 +1,5 @@
+
+#include <stdarg.h>
 #include "q3_lauxlib.h"
 
 #include <iostream>
@@ -8,10 +10,7 @@
 
 size_t lua_writestring(char* string, size_t n)
 {
-    //if ( n > MAXPRINTMSG ) {
-    //     n -= MAXPRINTMSG;
-    //    string[MAXPRINTMSG] = '\0';
-    //}
+#warning "FIXME: Tremded is not printing ANYTHING NOW"
 #ifndef DEDICATED
     CL_ConsolePrint( string );
 #endif
@@ -23,6 +22,7 @@ size_t lua_writestring(char* string, size_t n)
 
 int lua_writeline(void)
 {
+#warning "FIXME: Tremded is not printing ANYTHING NOW"
 #ifndef DEDICATED
     CL_ConsolePrint( "\n" );
 #endif

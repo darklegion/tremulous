@@ -35,7 +35,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "unzip.h"
 #ifndef DEDICATED
 #include <string.h>
-#include "cl_rest.h"
+#include "../client/cl_rest.h"
 #endif
 
 /*

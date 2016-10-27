@@ -165,35 +165,34 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 //================================================================= LINUX ===
 
+
 #if defined(__linux__) || defined(__FreeBSD_kernel__) || defined(__GNU__)
 
 #include <endian.h>
 
 #if defined(__linux__)
-#define OS_STRING "linux"
+#       define OS_STRING "linux"
 #elif defined(__FreeBSD_kernel__)
-#define OS_STRING "kFreeBSD"
+#       define OS_STRING "kFreeBSD"
 #else
-#define OS_STRING "GNU"
+#       define OS_STRING "GNU"
 #endif
 
 #define ID_INLINE inline
-
 #define PATH_SEP '/'
 
-#if !defined(ARCH_STRING)
-# error ARCH_STRING should be defined by the Makefile
-#endif
+#ifdef __ppc__
+#       define ARCH_STRING "ppc"
+#       define Q3_BIG_ENDIAN
+#elif defined __i386__
+#       define ARCH_STRING "x86"
+#       define Q3_LITTLE_ENDIAN
+#elif defined __x86_64__
+#       define ARCH_STRING "x86_64"
+#       define Q3_LITTLE_ENDIAN
 
-#if defined __x86_64__
-#undef idx64
-#define idx64 1
-#endif
-
-#if __FLOAT_WORD_ORDER == __BIG_ENDIAN
-#define Q3_BIG_ENDIAN
-#else
-#define Q3_LITTLE_ENDIAN
+#       undef idx64
+#       define idx64 1
 #endif
 
 #define DLL_EXT ".so"

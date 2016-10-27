@@ -25,12 +25,15 @@
 
 #include <iostream>
 
+#include "lua.hpp"
+#include "sol.hpp"
+
 namespace sol
 { 
     class state;
 };
 
-extern "C" LUALIB_API int luaopen_rapidjson(lua_State* L);
+extern "C" int luaopen_rapidjson(lua_State* L);
 
 namespace script 
 {

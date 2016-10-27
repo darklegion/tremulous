@@ -4,9 +4,10 @@
 #include <fstream>
 #include <vector>
 
-#include "../restclient/restclient.h"
-#include "../restclient/connection.h"
-#include "../rapidjson/document.h"
+#include "restclient/restclient.h"
+#include "restclient/connection.h"
+
+#include "rapidjson.h"
 
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"

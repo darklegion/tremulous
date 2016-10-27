@@ -224,10 +224,6 @@ ifndef USE_LOCAL_HEADERS
 USE_LOCAL_HEADERS=$(USE_INTERNAL_LIBS)
 endif
 
-ifndef BUILD_MASTER_SERVER
-BUILD_MASTER_SERVER=0
-endif
-
 ifndef USE_RENDERER_DLOPEN
 USE_RENDERER_DLOPEN=1
 endif
@@ -275,7 +271,6 @@ Q3LCCETCDIR=$(MOUNT_DIR)/tools/lcc/etc
 Q3LCCSRCDIR=$(MOUNT_DIR)/tools/lcc/src
 SDLHDIR=$(MOUNT_DIR)/SDL2
 LIBSDIR=$(MOUNT_DIR)/libs
-MASTERDIR=$(MOUNT_DIR)/master
 TEMPDIR=/tmp
 
 bin_path=$(shell which $(1) 2> /dev/null)
@@ -416,7 +411,7 @@ ifeq ($(PLATFORM),darwin)
   CLIENT_LIBS=
   RENDERER_LIBS=
   OPTIMIZEVM=
-  CXXFLAGS+=-stdlib=libc++
+  #CXXFLAGS+=-stdlib=libc++
 
   # FIXME This is probably bad idea to comment this out 
   #BASE_CFLAGS += -mmacosx-version-min=10.7 -DMAC_OS_X_VERSION_MIN_REQUIRED=1070
@@ -1142,6 +1137,7 @@ BASE_CFLAGS += -Wstrict-aliasing=2 -Wmissing-format-attribute
 BASE_CFLAGS += -Wdisabled-optimization
 BASE_CFLAGS += -Werror-implicit-function-declaration
 
+
 ifeq ($(V),1)
 echo_cmd=@:
 Q=
@@ -1150,25 +1146,64 @@ echo_cmd=@echo
 Q=@
 endif
 
+EXEC_CC = $(CC) ${1} -o ${2} -c ${3}
+LOG_CC = $(file >>compile_commands.txt,{ "target": "${1}", "directory": "$(shell pwd)/$(shell dirname $3)", "command": "${CC} ${2} -o ${3} -c ${4}", "file": "$(shell pwd)/${4}", "relative_file": "${4}" })
+
+EXEC_CXX = $(CXX) -std=c++1y ${CXXFLAGS} ${1} -o ${2} -c ${3}
+LOG_CXX = $(file >>compile_commands.txt,{ "target": "${1}", "directory": "$(shell pwd)/$(shell dirname $3)", "command": "${CXX} ${2} -o ${3} -c ${4}", "file": "$(shell pwd)/${4}", "relative_file": "${4}"})
+
+# TREMULOUS CLIENT
+CC_FLAGS=${NOTSHLIBCFLAGS} ${CFLAGS} ${CLIENT_CFLAGS} ${OPTIMIZE}
 define DO_CC
 $(echo_cmd) "CC $<"
-$(Q)$(CC) $(NOTSHLIBCFLAGS) $(CFLAGS) $(CLIENT_CFLAGS) $(OPTIMIZE) -o $@ -c $<
+$(call EXEC_CC,${CC_FLAGS},'$@','$<')
+$(call LOG_CC,tremulous,${CC_FLAGS},$@,$<)
 endef
 
 define DO_CXX
 $(echo_cmd) "CXX $<"
-$(Q)$(CXX) -std=c++1y $(CXXFLAGS) $(NOTSHLIBCFLAGS) $(CFLAGS) $(CLIENT_CFLAGS) $(OPTIMIZE) -o $@ -c $<
+$(call EXEC_CXX,${CC_FLAGS},'$@','$<')
+$(call LOG_CXX,tremulous,${CC_FLAGS},$@,$<)
 endef
 
-define DO_REF_CC
-$(echo_cmd) "REF_CC $<"
-$(Q)$(CC) $(SHLIBCFLAGS) $(CFLAGS) $(CLIENT_CFLAGS) $(OPTIMIZE) -o $@ -c $<
+##########################################
+# Renderers
+##########################################
+# Common Rendering Code
+define DO_RENDERER_COMMON_CC
+$(echo_cmd) "RENDERER_COMMON_CC $<"
+$(call EXEC_CC,${REF_CC_FLAGS},'$@','$<')
+$(call LOG_CC,renderer_common,${REF_CC_FLAGS},$@,$<)
 endef
-
-define DO_REF_CXX
-$(echo_cmd) "REF_CXX $<"
-$(Q)$(CXX) $(SHLIBCFLAGS) $(CFLAGS) $(CLIENT_CFLAGS) $(OPTIMIZE) -o $@ -c $<
+##########################################
+# Renderers
+##########################################
+# OpenGL 1 Renderer
+REF_CC_FLAGS=${SHLIBCFLAGS} ${CFLAGS} ${CLIENT_CFLAGS} ${OPTIMIZE}
+define DO_RENDERERGL1_CC
+$(echo_cmd) "GL1_RENDERER_CC $<"
+$(call EXEC_CC,${REF_CC_FLAGS},'$@','$<')
+$(call LOG_CC,opengl1,${REF_CC_FLAGS},$@,$<)
 endef
+define DO_RENDERERGL1_CXX
+$(echo_cmd) "GL1_RENDERER_CXX $<"
+$(call EXEC_CXX,${REF_CC_FLAGS},'$@','$<')
+$(call LOG_CXX,opengl1,${REF_CC_FLAGS},$@,$<)
+endef
+##########################################
+# Renderers
+##########################################
+# OpenGL 2 Renderer
+define DO_RENDERERGL2_CC
+$(echo_cmd) "GL2_RENDERER_CC $<"
+$(call EXEC_CC,${REF_CC_FLAGS},'$@','$<')
+$(call LOG_CC,opengl2,${REF_CC_FLAGS},$@,$<)
+endef
+#define DO_RENDERERGL1_CXX
+#$(echo_cmd) "GL1_RENDERER_CXX $<"
+#$(call EXEC_CXX,${REF_CC_FLAGS},'$@','$<')
+#$(call LOG_CXX,opengl2,${REF_CC_FLAGS},$@,$<)
+#endef
 
 define DO_REF_STR
 $(echo_cmd) "REF_STR $<"
@@ -1182,43 +1217,60 @@ ifeq ($(GENERATE_DEPENDENCIES),1)
   DO_QVM_DEP=cat $(@:%.o=%.d) | sed -e 's/\.o/\.asm/g' >> $(@:%.o=%.d)
 endif
 
+SHLIB_CC_FLAGS=${BASEGAME_CFLAGS} ${SHLIBCFLAGS} ${CFLAGS} ${OPTIMIZEVM}
 define DO_SHLIB_CC
 $(echo_cmd) "SHLIB_CC $<"
-$(Q)$(CC) $(BASEGAME_CFLAGS) $(SHLIBCFLAGS) $(CFLAGS) $(OPTIMIZEVM) -o $@ -c $<
+$(call EXEC_CC,${SHLIB_CC_FLAGS},'$@','$<')
+$(call LOG_CC,qcommon,${SHLIB_CC_FLAGS},$@,$<)
 $(Q)$(DO_QVM_DEP)
 endef
 
+GAME_CC_FLAGS=${BASEGAME_CFLAGS} ${SHLIBCFLAGS} ${CFLAGS} ${OPTIMIZEVM}
 define DO_GAME_CC
 $(echo_cmd) "GAME_CC $<"
-$(Q)$(CC) $(BASEGAME_CFLAGS) -DGAME $(SHLIBCFLAGS) $(CFLAGS) $(OPTIMIZEVM) -o $@ -c $<
+$(call EXEC_CC,-DGAME ${GAME_CC_FLAGS},'$@','$<')
+$(call LOG_CC,game,-DGAME ${GAME_CC_FLAGS},$@,$<)
 $(Q)$(DO_QVM_DEP)
 endef
 
 define DO_CGAME_CC
 $(echo_cmd) "CGAME_CC $<"
-$(Q)$(CC) $(BASEGAME_CFLAGS) -DCGAME $(SHLIBCFLAGS) $(CFLAGS) $(OPTIMIZEVM) -o $@ -c $<
+$(call EXEC_CC,-DCGAME ${GAME_CC_FLAGS},'$@','$<')
+$(call LOG_CC,cgame,-DCGAME ${GAME_CC_FLAGS},$@,$<)
 $(Q)$(DO_QVM_DEP)
 endef
 
 define DO_UI_CC
 $(echo_cmd) "UI_CC $<"
-$(Q)$(CC) $(BASEGAME_CFLAGS) -DUI $(SHLIBCFLAGS) $(CFLAGS) $(OPTIMIZEVM) -o $@ -c $<
+$(call EXEC_CC,-DUI ${GAME_CC_FLAGS},'$@','$<')
+$(call LOG_CC,ui,-DUI ${GAME_CC_FLAGS},$@,$<)
 $(Q)$(DO_QVM_DEP)
 endef
 
+AS_FLAGS=${CFLAGS} ${OPTIMIZE} -x assembler-with-cpp
 define DO_AS
 $(echo_cmd) "AS $<"
-$(Q)$(CC) $(CFLAGS) $(OPTIMIZE) -x assembler-with-cpp -o $@ -c $<
+$(call EXEC_CC,${AS_FLAGS},'$@','$<')
+$(call LOG_CC,tremulous,${AS_FLAGS},$@,$<)
 endef
 
+define DO_DED_AS
+$(echo_cmd) "AS $<"
+$(call EXEC_CC,${AS_FLAGS},'$@','$<')
+$(call LOG_CC,tremded,${AS_FLAGS},$@,$<)
+endef
+
+DED_CC_FLAGS=-DDEDICATED ${NOTSHLIBCFLAGS} ${CFLAGS} ${SERVER_CFLAGS} ${OPTIMIZE}
 define DO_DED_CC
 $(echo_cmd) "DED_CC $<"
-$(Q)$(CC) $(NOTSHLIBCFLAGS) -DDEDICATED $(CFLAGS) $(SERVER_CFLAGS) $(OPTIMIZE) -o $@ -c $<
+$(call EXEC_CC,${DED_CC_FLAGS},'$@','$<')
+$(call LOG_CC,tremded,${DED_CC_FLAGS},$@,$<)
 endef
 
 define DO_DED_CXX
 $(echo_cmd) "DED_CXX $<"
-$(Q)$(CXX) -std=c++1y $(CXXFLAGS) $(NOTSHLIBCFLAGS) -DDEDICATED $(CFLAGS) $(SERVER_CFLAGS) $(OPTIMIZE) -o $@ -c $<
+$(call EXEC_CXX,${DED_CC_FLAGS},'$@','$<')
+$(call LOG_CXX,tremded,${DED_CC_FLAGS},$@,$<)
 endef
 
 define DO_WINDRES
@@ -1239,18 +1291,11 @@ debug:
       CXXFLAGS="$(BASE_CFLAGS) $(CXXFLAGS)" \
 	  OPTIMIZE="$(DEBUG_CFLAGS)" OPTIMIZEVM="$(DEBUG_CFLAGS)" \
 	  CLIENT_CFLAGS="$(CLIENT_CFLAGS)" SERVER_CFLAGS="$(SERVER_CFLAGS)" V=$(V)
-ifeq ($(BUILD_MASTER_SERVER),1)
-	$(MAKE) -C $(MASTERDIR) debug
-endif
-
 release:
 	@$(MAKE) targets B=$(BR) CFLAGS="$(CFLAGS) $(BASE_CFLAGS) $(DEPEND_CFLAGS)" \
       CXXFLAGS="$(BASE_CFLAGS) $(CXXFLAGS)" \
 	  OPTIMIZE="-DNDEBUG $(OPTIMIZE)" OPTIMIZEVM="-DNDEBUG $(OPTIMIZEVM)" \
 	  CLIENT_CFLAGS="$(CLIENT_CFLAGS)" SERVER_CFLAGS="$(SERVER_CFLAGS)" V=$(V)
-ifeq ($(BUILD_MASTER_SERVER),1)
-	$(MAKE) -C $(MASTERDIR) release
-endif
 
 ifneq ($(call bin_path, tput),)
   TERM_COLUMNS=$(shell if c=`tput cols`; then echo $$(($$c-4)); else echo 76; fi)
@@ -1294,6 +1339,12 @@ else
   print_wrapped=$(print_list)
 endif
 
+compile_commands.json: compile_commands.txt
+	sed -i -e "$$ ! s/}/},/" $<
+	echo '[' >$@
+	cat $< >>$@
+	echo ']' >>$@
+
 # Create the build directories, check libraries and print out
 # an informational message, then start building
 targets: makedirs
@@ -1306,6 +1357,7 @@ targets: makedirs
 	@echo "  COMPILE_ARCH: $(COMPILE_ARCH)"
 	@echo "  CC: $(CC)"
 	@echo "  CXX: $(CXX)"
+	@echo "  TOOLS_CC $(TOOLS_CC)"
 ifeq ($(PLATFORM),mingw32)
 	@echo "  WINDRES: $(WINDRES)"
 endif
@@ -1362,6 +1414,7 @@ makedirs:
 	@if [ ! -d $(B)/client/vorbis ];then $(MKDIR) $(B)/client/vorbis;fi
 	@if [ ! -d $(B)/client/restclient ];then $(MKDIR) $(B)/client/restclient;fi
 	@if [ ! -d $(B)/ded ];then $(MKDIR) $(B)/ded;fi
+	@if [ ! -d $(B)/renderercommon ];then $(MKDIR) $(B)/renderercommon;fi
 	@if [ ! -d $(B)/renderergl1 ];then $(MKDIR) $(B)/renderergl1;fi
 	@if [ ! -d $(B)/renderergl2 ];then $(MKDIR) $(B)/renderergl2;fi
 	@if [ ! -d $(B)/renderergl2/glsl ];then $(MKDIR) $(B)/renderergl2/glsl;fi
@@ -1389,7 +1442,7 @@ makedirs:
 
 ifndef TOOLS_CC
   # A compiler which probably produces native binaries
-  TOOLS_CC = gcc
+  TOOLS_CC = $(CC)
 endif
 
 ifndef YACC
@@ -1583,14 +1636,11 @@ endif
 endif
 endif
 
+#$(Q)$(CC) $(LUACFLAGS) $(OPTIMIZE) -o $@ -c $<
 define DO_LUA_CC
   $(echo_cmd) "LUA_CC $<"
-  $(Q)$(CC) $(LUACFLAGS) $(OPTIMIZE) -o $@ -c $<
-endef
-
-define DO_LUA_CPP
-  $(echo_cmd) "LUA_CPP $<"
-  $(Q)$(CXX) -std=c++1y $(LUACFLAGS) $(OPTIMIZE) -o $@ -c $<
+  $(call EXEC_CC,${LUACFLAGS} ${OPTIMIZE},'$@','$<')
+  $(call LOG_CC,lua,${LUACFLAGS} ${OPTIMIZE},$@,$<)
 endef
 
 LUAOBJ = \
@@ -1635,27 +1685,17 @@ CXXFLAGS += $(LUACFLAGS)
 $(B)/lua/%.o: $(LUADIR)/%.c
 	$(DO_LUA_CC)
 
-#$(B)/lua/%.o: $(LUADIR)/%.cpp
-#	$(DO_LUA_CPP)
-
 #############################################################################
 # Script API
 # FIXME Disabled for the time being
 #############################################################################
 
+SCRIPT_INCLUDES=-Isrc/qcommon -Isrc/rapidjson -Isrc/sol
 define DO_SCRIPT_CXX
   $(echo_cmd) "SCRIPT_CXX $<"
-  $(Q)$(CXX) -std=c++1y $(NOTSHLIBCFLAGS) $(LUACFLAGS) $(CXXFLAGS) $(OPTIMIZE) -o $@ -c $<
+  $(call EXEC_CXX,${NOTSHLIBCFLAGS} ${SCRIPT_INCLUDES} ${LUACFLAGS} ${OPTIMIZE},'$@','$<')
+  $(call LOG_CXX,script,${NOTSHLIBCFLAGS} ${SCRIPT_INCLUDES} ${LUACFLAGS} ${OPTIMIZE},'$@','$<')
 endef
-
-SCRIPTOBJ =
-
-$(B)/script/%.o: $(SCRIPTDIR)/%.cpp
-	$(DO_SCRIPT_CXX)
-
-######################################
-# Lua-RapidJSON 
-######################################
 
 SCRIPTOBJ = \
   $(B)/script/rapidjson/document.o \
@@ -1663,7 +1703,7 @@ SCRIPTOBJ = \
   $(B)/script/rapidjson/schema.o \
   $(B)/script/rapidjson/values.o
 
-CFLAGS += -I$(LUA_RAPIDJSONDIR) 
+CFLAGS += -I${LUA_RAPIDJSONDIR} -I${SCRIPT_INCLUDES}
 
 $(B)/script/rapidjson/%.o: $(LUA_RAPIDJSONDIR)/%.cpp
 	$(DO_SCRIPT_CXX)
@@ -1676,7 +1716,8 @@ NETTLECFLAGS=-Wall -Wextra -DLUA_COMPAT_5_2 -fPIC -fpic
 
 define DO_NETTLE_CC
   $(echo_cmd) "NETTLE_CC $<"
-  $(Q)$(CC) $(NETTLECFLAGS) $(OPTIMIZE) -o $@ -c $<
+  $(call EXEC_CC,${NETTLECFLAGS},'$@','$<')
+  $(call LOG_CC,nettle,${NETTLECFLAGS},'$@','$<')
 endef
 
 NETTLEOBJ = \
@@ -1727,6 +1768,7 @@ Q3OBJ = \
   $(B)/client/cl_scrn.o \
   $(B)/client/cl_ui.o \
   $(B)/client/cl_updates.o \
+  $(B)/client/cl_rest.o \
   $(B)/client/cl_avi.o \
   \
   $(B)/client/q3_lauxlib.o \
@@ -1842,8 +1884,16 @@ Q3R2OBJ = \
   $(B)/renderergl2/tr_vbo.o \
   $(B)/renderergl2/tr_world.o \
   \
-  $(B)/renderergl1/sdl_gamma.o \
-  $(B)/renderergl1/sdl_glimp.o
+  $(B)/renderercommon/sdl_gamma.o \
+  $(B)/renderercommon/sdl_glimp.o
+
+ifneq ($(USE_RENDERER_DLOPEN), 0)
+  Q3R2OBJ += \
+    $(B)/renderergl1/q_shared.o \
+    $(B)/renderergl1/puff.o \
+    $(B)/renderergl1/q_math.o \
+    $(B)/renderergl1/tr_subs.o
+endif
 
 Q3R2STRINGOBJ = \
   $(B)/renderergl2/glsl/bokeh_fp.o \
@@ -1874,6 +1924,9 @@ Q3R2STRINGOBJ = \
   $(B)/renderergl2/glsl/texturecolor_vp.o \
   $(B)/renderergl2/glsl/tonemap_fp.o \
   $(B)/renderergl2/glsl/tonemap_vp.o
+
+
+# GL1
 
 Q3ROBJ = \
   $(B)/renderergl1/tr_animation.o \
@@ -1906,17 +1959,11 @@ Q3ROBJ = \
   $(B)/renderergl1/tr_surface.o \
   $(B)/renderergl1/tr_world.o \
   \
-  $(B)/renderergl1/sdl_gamma.o \
-  $(B)/renderergl1/sdl_glimp.o
+  $(B)/renderercommon/sdl_gamma.o \
+  $(B)/renderercommon/sdl_glimp.o
 
 ifneq ($(USE_RENDERER_DLOPEN), 0)
   Q3ROBJ += \
-    $(B)/renderergl1/q_shared.o \
-    $(B)/renderergl1/puff.o \
-    $(B)/renderergl1/q_math.o \
-    $(B)/renderergl1/tr_subs.o
-
-  Q3R2OBJ += \
     $(B)/renderergl1/q_shared.o \
     $(B)/renderergl1/puff.o \
     $(B)/renderergl1/q_math.o \
@@ -1925,52 +1972,52 @@ endif
 
 ifneq ($(USE_INTERNAL_JPEG),0)
   JPGOBJ = \
-    $(B)/renderergl1/jaricom.o \
-    $(B)/renderergl1/jcapimin.o \
-    $(B)/renderergl1/jcapistd.o \
-    $(B)/renderergl1/jcarith.o \
-    $(B)/renderergl1/jccoefct.o  \
-    $(B)/renderergl1/jccolor.o \
-    $(B)/renderergl1/jcdctmgr.o \
-    $(B)/renderergl1/jchuff.o   \
-    $(B)/renderergl1/jcinit.o \
-    $(B)/renderergl1/jcmainct.o \
-    $(B)/renderergl1/jcmarker.o \
-    $(B)/renderergl1/jcmaster.o \
-    $(B)/renderergl1/jcomapi.o \
-    $(B)/renderergl1/jcparam.o \
-    $(B)/renderergl1/jcprepct.o \
-    $(B)/renderergl1/jcsample.o \
-    $(B)/renderergl1/jctrans.o \
-    $(B)/renderergl1/jdapimin.o \
-    $(B)/renderergl1/jdapistd.o \
-    $(B)/renderergl1/jdarith.o \
-    $(B)/renderergl1/jdatadst.o \
-    $(B)/renderergl1/jdatasrc.o \
-    $(B)/renderergl1/jdcoefct.o \
-    $(B)/renderergl1/jdcolor.o \
-    $(B)/renderergl1/jddctmgr.o \
-    $(B)/renderergl1/jdhuff.o \
-    $(B)/renderergl1/jdinput.o \
-    $(B)/renderergl1/jdmainct.o \
-    $(B)/renderergl1/jdmarker.o \
-    $(B)/renderergl1/jdmaster.o \
-    $(B)/renderergl1/jdmerge.o \
-    $(B)/renderergl1/jdpostct.o \
-    $(B)/renderergl1/jdsample.o \
-    $(B)/renderergl1/jdtrans.o \
-    $(B)/renderergl1/jerror.o \
-    $(B)/renderergl1/jfdctflt.o \
-    $(B)/renderergl1/jfdctfst.o \
-    $(B)/renderergl1/jfdctint.o \
-    $(B)/renderergl1/jidctflt.o \
-    $(B)/renderergl1/jidctfst.o \
-    $(B)/renderergl1/jidctint.o \
-    $(B)/renderergl1/jmemmgr.o \
-    $(B)/renderergl1/jmemnobs.o \
-    $(B)/renderergl1/jquant1.o \
-    $(B)/renderergl1/jquant2.o \
-    $(B)/renderergl1/jutils.o
+    $(B)/renderercommon/jaricom.o \
+    $(B)/renderercommon/jcapimin.o \
+    $(B)/renderercommon/jcapistd.o \
+    $(B)/renderercommon/jcarith.o \
+    $(B)/renderercommon/jccoefct.o  \
+    $(B)/renderercommon/jccolor.o \
+    $(B)/renderercommon/jcdctmgr.o \
+    $(B)/renderercommon/jchuff.o   \
+    $(B)/renderercommon/jcinit.o \
+    $(B)/renderercommon/jcmainct.o \
+    $(B)/renderercommon/jcmarker.o \
+    $(B)/renderercommon/jcmaster.o \
+    $(B)/renderercommon/jcomapi.o \
+    $(B)/renderercommon/jcparam.o \
+    $(B)/renderercommon/jcprepct.o \
+    $(B)/renderercommon/jcsample.o \
+    $(B)/renderercommon/jctrans.o \
+    $(B)/renderercommon/jdapimin.o \
+    $(B)/renderercommon/jdapistd.o \
+    $(B)/renderercommon/jdarith.o \
+    $(B)/renderercommon/jdatadst.o \
+    $(B)/renderercommon/jdatasrc.o \
+    $(B)/renderercommon/jdcoefct.o \
+    $(B)/renderercommon/jdcolor.o \
+    $(B)/renderercommon/jddctmgr.o \
+    $(B)/renderercommon/jdhuff.o \
+    $(B)/renderercommon/jdinput.o \
+    $(B)/renderercommon/jdmainct.o \
+    $(B)/renderercommon/jdmarker.o \
+    $(B)/renderercommon/jdmaster.o \
+    $(B)/renderercommon/jdmerge.o \
+    $(B)/renderercommon/jdpostct.o \
+    $(B)/renderercommon/jdsample.o \
+    $(B)/renderercommon/jdtrans.o \
+    $(B)/renderercommon/jerror.o \
+    $(B)/renderercommon/jfdctflt.o \
+    $(B)/renderercommon/jfdctfst.o \
+    $(B)/renderercommon/jfdctint.o \
+    $(B)/renderercommon/jidctflt.o \
+    $(B)/renderercommon/jidctfst.o \
+    $(B)/renderercommon/jidctint.o \
+    $(B)/renderercommon/jmemmgr.o \
+    $(B)/renderercommon/jmemnobs.o \
+    $(B)/renderercommon/jquant1.o \
+    $(B)/renderercommon/jquant2.o \
+    $(B)/renderercommon/jutils.o
 endif
 
 ifeq ($(ARCH),x86)
@@ -2187,8 +2234,7 @@ ifeq ($(USE_RESTCLIENT),1)
   Q3OBJ += \
   	$(B)/client/restclient/connection.o \
   	$(B)/client/restclient/helpers.o \
-  	$(B)/client/restclient/restclient.o \
-  	$(B)/client/restclient/cl_rest.o
+  	$(B)/client/restclient/restclient.o
 endif
 
 ifeq ($(HAVE_VM_COMPILED),true)
@@ -2581,7 +2627,7 @@ $(B)/$(BASEGAME)_11/vms-$(VERSION).pk3: $(B)/$(BASEGAME)_11/vm/ui.qvm $(B)/$(BAS
 ## Assets Package
 #############################################################################
 
-$(B)/$(BASEGAME)/data-$(VERSION).pk3: $(ASSETS_DIR)/ui/menudef.h
+$(B)/$(BASEGAME)/data-$(VERSION).pk3: $(ASSETS_DIR)/ui/main.menu
 	@(cd $(ASSETS_DIR) && zip -r data-$(VERSION).pk3 *)
 	@mv $(ASSETS_DIR)/data-$(VERSION).pk3 $(B)/$(BASEGAME)
 
@@ -2660,46 +2706,39 @@ $(B)/client/restclient/%.o: $(RESTDIR)/%.cpp
 $(B)/client/%.o: $(SYSDIR)/%.rc
 	$(DO_WINDRES)
 
-$(B)/renderergl1/%.o: $(CMDIR)/%.c
-	$(DO_REF_CC)
+### GL1
 
-$(B)/renderergl1/%.o: $(CMDIR)/%.c
-	$(DO_REF_CC)
-
-$(B)/renderergl1/%.o: $(CMDIR)/%.cpp
-	$(DO_REF_CXX)
-
-$(B)/renderergl1/%.o: $(SDLDIR)/%.c
-	$(DO_REF_CC)
-
-$(B)/renderergl1/%.o: $(JPDIR)/%.c
-	$(DO_REF_CC)
+$(B)/renderercommon/%.o: $(SDLDIR)/%.c
+	$(DO_RENDERER_COMMON_CC)
+$(B)/renderercommon/%.o: $(JPDIR)/%.c
+	$(DO_RENDERER_COMMON_CC)
 
 $(B)/renderergl1/%.o: $(RCOMMONDIR)/%.c
-	$(DO_REF_CC)
-
+	$(DO_RENDERER_COMMON_CC)
 $(B)/renderergl1/%.o: $(RGL1DIR)/%.c
-	$(DO_REF_CC)
+	$(DO_RENDERERGL1_CC)
+$(B)/renderergl1/%.o: $(CMDIR)/%.c
+	$(DO_RENDERERGL1_CC)
+$(B)/renderergl1/%.o: $(CMDIR)/%.cpp
+	$(DO_RENDERERGL1_CXX)
+
+### GL2
 
 $(B)/renderergl2/glsl/%.c: $(RGL2DIR)/glsl/%.glsl
 	$(DO_REF_STR)
-
 $(B)/renderergl2/glsl/%.o: $(B)/renderergl2/glsl/%.c
-	$(DO_REF_CC)
-
+	$(DO_RENDERERGL2_CC)
 $(B)/renderergl2/%.o: $(RCOMMONDIR)/%.c
-	$(DO_REF_CC)
-
+	$(DO_RENDERER_COMMON_CC)
 $(B)/renderergl2/%.o: $(RGL2DIR)/%.c
-	$(DO_REF_CC)
-
+	$(DO_RENDERERGL2_CC)
 
 $(B)/ded/%.o: $(ASMDIR)/%.s
-	$(DO_AS)
+	$(DO_DED_AS)
 
 # k8 so inline assembler knows about SSE
 $(B)/ded/%.o: $(ASMDIR)/%.c
-	$(DO_CC) -march=k8
+	$(DO_DED_CC) -march=k8
 
 $(B)/ded/%.o: $(SDIR)/%.c
 	$(DO_DED_CC)
@@ -2817,7 +2856,7 @@ TOOLSOBJ = $(LBURGOBJ) $(Q3CPPOBJ) $(Q3RCCOBJ) $(Q3LCCOBJ) $(Q3ASMOBJ)
 STRINGOBJ = $(Q3R2STRINGOBJ)
 
 clean: clean-debug clean-release
-	@$(MAKE) -C $(MASTERDIR) clean
+	@rm -f compile_commands.json compile_commands.txt compile_commands.txt-e
 
 clean-debug:
 	@$(MAKE) clean2 B=$(BD)

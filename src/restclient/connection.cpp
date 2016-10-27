@@ -4,7 +4,7 @@
  * @author Daniel Schauenberg <d@unwiredcouch.com>
  */
 
-#include "connection.h"
+#include "restclient/connection.h"
 
 #include "../client/cl_curl.h"
 #include <cstring>
@@ -13,9 +13,9 @@
 #include <map>
 #include <stdexcept>
 
-#include "restclient.h"
-#include "helpers.h"
-#include "version.h"
+#include "restclient/restclient.h"
+#include "restclient/helpers.h"
+#include "restclient/version.h"
 
 /**
  * @brief constructor for the Connection object

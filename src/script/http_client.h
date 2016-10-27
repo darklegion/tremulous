@@ -25,7 +25,7 @@
 #define SCRIPT_RESTCLIENT_H
 
 #include <iostream>
-#include "../restclient/restclient.h"
+#include "restclient/restclient.h"
 
 namespace sol
 { 

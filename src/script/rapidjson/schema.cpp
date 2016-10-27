@@ -1,13 +1,9 @@
-#include <lua.hpp>
 
-#include <rapidjson/document.h>
-#include <rapidjson/error/en.h>
-#include <rapidjson/istreamwrapper.h>
-#include <rapidjson/schema.h>
-#include <rapidjson/stringbuffer.h>
-
-#include "Userdata.hpp"
+#include "userdata.hpp"
 #include "values.hpp"
+
+#include "lua.hpp"
+#include "rapidjson.h"
 
 using namespace rapidjson;
 
@@ -52,7 +48,6 @@ const luaL_Reg* Userdata<SchemaDocument>::methods()
     static const luaL_Reg reg[] =
     {
         { "__gc", metamethod_gc },
-
         { nullptr, nullptr }
     };
     return reg;
@@ -74,7 +69,6 @@ static void pushValidator_error(lua_State* L, SchemaValidator* validator)
     luaL_buffinit(L, &b);
 
     luaL_addstring(&b, "invalid \"");
-
     luaL_addstring(&b, validator->GetInvalidSchemaKeyword());
     luaL_addstring(&b, "\" in docuement at pointer \"");
 
@@ -94,6 +88,7 @@ static int SchemaValidator_validate(lua_State* L)
     auto ok = doc->Accept(*validator);
     lua_pushboolean(L, ok);
     int nr;
+
     if (ok)
     {
         nr = 1;

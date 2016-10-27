@@ -11,7 +11,7 @@
  * @author Daniel Schauenberg <d@unwiredcouch.com>
  */
 
-#include "restclient.h"
+#include "restclient/restclient.h"
 
 #include "../client/cl_curl.h"
 #ifdef USE_LOCAL_HEADERS
@@ -20,8 +20,8 @@
   #include <curl/curl.h>
 #endif
 
-#include "version.h"
-#include "connection.h"
+#include "restclient/version.h"
+#include "restclient/connection.h"
 
 /**
  * @brief global init function. Call this before you start any threads.

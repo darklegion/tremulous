@@ -4,7 +4,7 @@
  * @author Daniel Schauenberg <d@unwiredcouch.com>
  */
 
-#include "helpers.h"
+#include "restclient/helpers.h"
 
 #ifdef USE_LOCAL_HEADERS
   #include "../libcurl-7.35.0/curl/curl.h"
@@ -14,7 +14,7 @@
 
 #include <cstring>
 
-#include "restclient.h"
+#include "restclient/restclient.h"
 
 /**
  * @brief write callback function for libcurl

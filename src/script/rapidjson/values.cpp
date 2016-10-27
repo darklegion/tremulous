@@ -1,3 +1,4 @@
+
 #include "values.hpp"
 #include "luax.hpp"
 
@@ -70,11 +71,11 @@ namespace values
         Value ObjectValue(lua_State* L, int idx, int depth, Allocator& allocator)
         {
             Value object(rapidjson::kObjectType);
-            lua_pushvalue(L, idx);		// [table]
-            lua_pushnil(L);						// [table, nil]
+            lua_pushvalue(L, idx);
+            lua_pushnil(L);
             while (lua_next(L, -2))
             {
-                // [table, key, value]
+
                 if (lua_type(L, -2) == LUA_TSTRING)
                 {
                     object.AddMember(StringValue(L, -2, allocator), toValue(L, -1, depth, allocator), allocator);
@@ -82,10 +83,10 @@ namespace values
 
                 // pop value, leaving original key
                 lua_pop(L, 1);
-                // [table, key]
+
             }
-            // [table]
-            lua_pop(L, 1); // []
+
+            lua_pop(L, 1);
             return object;
         }
 
@@ -95,11 +96,11 @@ namespace values
             auto MAX = static_cast<int>(luax::rawlen(L, idx)); // luax::rawlen always returns size_t (>= 0)
             for (auto n = 1; n <= MAX; ++n)
             {
-                lua_rawgeti(L, idx, n); // [table, element]
+                lua_rawgeti(L, idx, n);
                 array.PushBack(toValue(L, -1, depth, allocator), allocator);
-                lua_pop(L, 1); // [table]
+                lua_pop(L, 1);
             }
-            // [table]
+
 
             return array;
         }

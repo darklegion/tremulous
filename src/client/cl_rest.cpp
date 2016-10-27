@@ -14,7 +14,7 @@
 #include <errno.h>
 #include <string.h>
 
-#include "restclient.h"
+#include "restclient/restclient.h"
 
 extern "C" int FS_CreatePath(const char*);
 

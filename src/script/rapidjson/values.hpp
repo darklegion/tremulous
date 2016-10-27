@@ -2,12 +2,13 @@
 #define __LUA_RAPIDJSON_TOLUAHANDLER_HPP__
 
 #include <vector>
-#include <lua.hpp>
-#include <rapidjson/rapidjson.h>
-#include <rapidjson/document.h>
+
+
+#include "q3_lauxlib.h"
+#include "lua.hpp"
+#include "rapidjson.h"
 
 #include "luax.hpp"
-
 namespace values
 {
     typedef rapidjson::Document::AllocatorType Allocator;

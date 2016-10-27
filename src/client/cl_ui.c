@@ -92,7 +92,6 @@ GetNews
 */
 qboolean GetNews( qboolean begin )
 {
-#ifdef USE_CURL
 	qboolean finished = qfalse;
 	fileHandle_t fileIn;
 	int readSize;
@@ -125,11 +124,9 @@ qboolean GetNews( qboolean begin )
 		strcpy( clc.newsString, "Retrieving..." );
 	Cvar_Set( "cl_newsString", clc.newsString );
 	return finished;
-#else
 	Cvar_Set( "cl_newsString", 
 		"^1You must compile your client with CURL support to use this feature" );
 	return qtrue;
-#endif
 }
 
 /*

@@ -17,6 +17,7 @@
 #ifndef OVERRIDE_LAUXLIB_H
 #define OVERRIDE_LAUXLIB_H
 
+#include <stdarg.h>
 #include <sys/types.h>
 
 #ifdef __cplusplus

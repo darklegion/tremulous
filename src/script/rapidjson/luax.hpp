@@ -2,38 +2,29 @@
 #define __LUA_RAPIDJSION_LUACOMPAT_H__
 
 #include <cmath>
-#include <lua.hpp>
+#include <limits>
+
+#include "q3_lauxlib.h"
+
+#include "lua.hpp"
 
 namespace luax
 {
     inline void setfuncs(lua_State* L, const luaL_Reg* funcs)
-    {
-#if LUA_VERSION_NUM >= 502 // LUA 5.2 or above
-        luaL_setfuncs(L, funcs, 0);
-#else
-        luaL_register(L, nullptr, funcs);
-#endif
-    }
+    { luaL_setfuncs(L, funcs, 0); }
 
     inline size_t rawlen(lua_State* L, int idx)
-    {
-#if LUA_VERSION_NUM >= 502
-        return lua_rawlen(L, idx);
-#else
-        return lua_objlen(L, idx);
-#endif
-    }
+    { return lua_rawlen(L, idx); }
 
     inline bool isinteger(lua_State* L, int idx, int64_t* out = nullptr)
     {
-#if LUA_VERSION_NUM >= 503
         if (lua_isinteger(L, idx)) // but it maybe not detect all integers.
         {
             if (out)
                 *out = lua_tointeger(L, idx);
             return true;
         }
-#endif
+
         double intpart;
         if (std::modf(lua_tonumber(L, idx), &intpart) == 0.0)
         {
@@ -50,25 +41,21 @@ namespace luax
 
     inline int typerror(lua_State* L, int narg, const char* tname)
     {
-#if LUA_VERSION_NUM < 502
-        return luaL_typerror(L, narg, tname);
-#else
-        const char *msg = lua_pushfstring(L, "%s expected, got %s",
-                tname, luaL_typename(L, narg));
+        const char *msg = lua_pushfstring(L, "%s expected, got %s", tname, luaL_typename(L, narg));
         return luaL_argerror(L, narg, msg);
-#endif
     }
 
     inline bool optboolfield(lua_State* L, int idx, const char* name, bool def)
     {
         auto v = def;
         auto t = lua_type(L, idx);
+
         if (t != LUA_TTABLE && t != LUA_TNONE)
             luax::typerror(L, idx, "table");
 
         if (t != LUA_TNONE)
         {
-            lua_getfield(L, idx, name);  // [field]
+            lua_getfield(L, idx, name);
             if (!lua_isnoneornil(L, -1))
                 v = lua_toboolean(L, -1) != 0;
             lua_pop(L, 1);
@@ -80,9 +67,11 @@ namespace luax
     inline int optintfield(lua_State* L, int idx, const char* name, int def)
     {
         auto v = def;
-        lua_getfield(L, idx, name);  // [field]
+        lua_getfield(L, idx, name);
+
         if (lua_isnumber(L, -1))
             v = static_cast<int>(lua_tointeger(L, -1));
+
         lua_pop(L, 1);
         return v;
     }

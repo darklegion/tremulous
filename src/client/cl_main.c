@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // cl_main.c  -- client main loop
 
 #include "client.h"
+
 #include <limits.h>
 
 #include "../sys/sys_local.h"
@@ -1222,9 +1223,8 @@ void CL_ShutdownAll(qboolean shutdownRef)
 	if(clc.demorecording)
 		CL_StopRecord_f();
 
-#ifdef USE_CURL
 	CL_cURL_Shutdown();
-#endif
+
 	// clear sounds
 	S_DisableSounds();
 	// shutdown CGame
@@ -2027,7 +2027,6 @@ Called when all downloading has been completed
 void CL_DownloadsComplete( void ) {
 	Com_Printf("Downloads complete\n");
 
-#ifdef USE_CURL
 	// if we downloaded with cURL
 	if(clc.cURLUsed) { 
 		clc.cURLUsed = qfalse;
@@ -2044,7 +2043,6 @@ void CL_DownloadsComplete( void ) {
 			return;
 		}
 	}
-#endif
 
 	// if we downloaded files we need to restart the file system
 	if (clc.downloadRestart) {
@@ -2263,7 +2261,7 @@ void CL_NextDownload(void)
 			*s++ = 0;
 		else
 			s = localName + strlen(localName); // point at the nul byte
-#ifdef USE_CURL
+
 		if( ( ( cl_allowDownload->integer & DLF_ENABLE ) &&
 		    !( cl_allowDownload->integer & DLF_NO_REDIRECT ) ) ||
 		    prompt == DLP_CURL ) {
@@ -2295,7 +2293,6 @@ void CL_NextDownload(void)
 			           "configuration (cl_allowDownload is %d)\n",
 			           cl_allowDownload->integer);
 		}
-#endif /* USE_CURL */
 		if(!useCURL) {
 			Com_Printf("Trying UDP download: %s; %s\n", localName, remoteName);
 
@@ -3237,7 +3234,6 @@ void CL_Frame ( int msec ) {
 		}
 	}
 
-#ifdef USE_CURL
 	if(clc.downloadCURLM) {
 		CL_cURL_PerformDownload();
 		// we can't process frames normally when in disconnected
@@ -3254,7 +3250,6 @@ void CL_Frame ( int msec ) {
 			return;
 		}
 	}
-#endif
 
 	if ( clc.state == CA_DISCONNECTED && !( Key_GetCatcher( ) & KEYCATCH_UI )
 		&& !com_sv_running->integer && uivm ) {

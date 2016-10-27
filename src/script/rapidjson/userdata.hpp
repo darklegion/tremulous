@@ -1,8 +1,13 @@
 #ifndef __LUA_RAPIDJSON_USERDATA_HPP__
 #define __LUA_RAPIDJSON_USERDATA_HPP__
 
-#include "lua.hpp"
+
+#include "q3_lauxlib.h"
+
 #include "luax.hpp"
+
+#include "lua.hpp"
+#include "rapidjson.h"
 
 template <typename T>
 struct Userdata
@@ -104,5 +109,4 @@ struct Userdata
     static const char* const metatable;
 };
 
-
-#endif //__LUA_RAPIDJSON_USERDATA_HPP__
+#endif

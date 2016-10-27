@@ -1,50 +1,29 @@
+
 #include <limits>
 #include <cstdio>
 #include <vector>
 #include <algorithm>
 
-#include <lua.hpp>
-
-// __SSE2__ and __SSE4_2__ are recognized by gcc, clang, and the Intel compiler.
-// We use -march=native with gmake to enable -msse2 and -msse4.2, if supported.
-#if defined(__SSE4_2__)
-#  define RAPIDJSON_SSE42
-#elif defined(__SSE2__)
-#  define RAPIDJSON_SSE2
-#endif
-
-#include "rapidjson/document.h"
-#include "rapidjson/encodedstream.h"
-#include "rapidjson/error/en.h"
-#include "rapidjson/error/error.h"
-#include "rapidjson/filereadstream.h"
-#include "rapidjson/filewritestream.h"
-#include "rapidjson/prettywriter.h"
-#include "rapidjson/rapidjson.h"
-#include "rapidjson/reader.h"
-#include "rapidjson/schema.h"
-#include "rapidjson/stringbuffer.h"
-#include "rapidjson/writer.h"
-
-
-#include "Userdata.hpp"
+#include "userdata.hpp"
 #include "values.hpp"
 #include "luax.hpp"
 #include "file.hpp"
 
+#include "lua.hpp"
+#include "rapidjson.h"
+
 using namespace rapidjson;
 
 #ifndef LUA_RAPIDJSON_VERSION
-#define LUA_RAPIDJSON_VERSION "scm"
+#define LUA_RAPIDJSON_VERSION "1.0.0"
 #endif
-
 
 static void createSharedMeta(lua_State* L, const char* meta, const char* type)
 {
-    luaL_newmetatable(L, meta); // [meta]
-    lua_pushstring(L, type); // [meta, name]
-    lua_setfield(L, -2, "__jsontype"); // [meta]
-    lua_pop(L, 1); // []
+    luaL_newmetatable(L, meta);
+    lua_pushstring(L, type);
+    lua_setfield(L, -2, "__jsontype");
+    lua_pop(L, 1);
 }
 
 static int makeTableType(lua_State* L, int idx, const char* meta, const char* type)
@@ -55,25 +34,25 @@ static int makeTableType(lua_State* L, int idx, const char* meta, const char* ty
         return luaL_argerror(L, idx, "optional table excepted");
 
     if (isnoarg)
-        lua_createtable(L, 0, 0); // [table]
+        lua_createtable(L, 0, 0);
     else // is table.
     {
-        lua_pushvalue(L, idx); // [table]
+        lua_pushvalue(L, idx);
         if (lua_getmetatable(L, -1))
         {
             // already have a metatable, just set the __jsontype field.
-            // [table, meta]
-            lua_pushstring(L, type); // [table, meta, name]
-            lua_setfield(L, -2, "__jsontype"); // [table, meta]
-            lua_pop(L, 1); // [table]
+
+            lua_pushstring(L, type);
+            lua_setfield(L, -2, "__jsontype");
+            lua_pop(L, 1);
             return 1;
         }
         // else fall through
     }
 
     // Now we have a table without meta table
-    luaL_getmetatable(L, meta); // [table, meta]
-    lua_setmetatable(L, -2); // [table]
+    luaL_getmetatable(L, meta);
+    lua_setmetatable(L, -2);
     return 1;
 }
 
@@ -217,11 +196,11 @@ class Encoder
             if (!lua_checkstack(L, 4)) // requires at least 4 slots in stack: table, key, value, key
                 luaL_error(L, "stack overflow");
 
-            lua_pushvalue(L, idx); // [table]
+            lua_pushvalue(L, idx);
             if (values::isarray(L, -1))
             {
                 encodeArray(L, writer, depth);
-                lua_pop(L, 1); // []
+                lua_pop(L, 1);
                 return;
             }
 
@@ -229,16 +208,16 @@ class Encoder
             if (!sort_keys)
             {
                 encodeObject(L, writer, depth);
-                lua_pop(L, 1); // []
+                lua_pop(L, 1);
                 return;
             }
 
-            lua_pushnil(L); // [table, nil]
+            lua_pushnil(L);
             std::vector<Key> keys;
 
             while (lua_next(L, -2))
             {
-                // [table, key, value]
+
 
                 if (lua_type(L, -2) == LUA_TSTRING)
                 {
@@ -249,9 +228,9 @@ class Encoder
 
                 // pop value, leaving original key
                 lua_pop(L, 1);
-                // [table, key]
+
             }
-            // [table]
+
             encodeObject(L, writer, depth, keys);
             lua_pop(L, 1);
         }
@@ -261,11 +240,11 @@ class Encoder
         {
             writer->StartObject();
 
-            // [table]
-            lua_pushnil(L); // [table, nil]
+
+            lua_pushnil(L);
             while (lua_next(L, -2))
             {
-                // [table, key, value]
+
                 if (lua_type(L, -2) == LUA_TSTRING)
                 {
                     size_t len = 0;
@@ -276,16 +255,16 @@ class Encoder
 
                 // pop value, leaving original key
                 lua_pop(L, 1);
-                // [table, key]
+
             }
-            // [table]
+
             writer->EndObject();
         }
 
     template<typename Writer>
         void encodeObject(lua_State* L, Writer* writer, int depth, std::vector<Key> &keys)
         {
-            // [table]
+
             writer->StartObject();
             std::sort(keys.begin(), keys.end());
 
@@ -294,29 +273,29 @@ class Encoder
             for ( auto const& i : keys )
             {
                 writer->Key(i.key, static_cast<SizeType>(i.size));
-                lua_pushlstring(L, i.key, i.size); // [table, key]
-                lua_gettable(L, -2); // [table, value]
+                lua_pushlstring(L, i.key, i.size);
+                lua_gettable(L, -2);
                 encodeValue(L, writer, -1, depth);
-                lua_pop(L, 1); // [table]
+                lua_pop(L, 1);
             }
-            // [table]
+
             writer->EndObject();
         }
 
     template<typename Writer>
         void encodeArray(lua_State* L, Writer* writer, int depth)
         {
-            // [table]
+
             writer->StartArray();
             auto MAX = static_cast<int>(luax::rawlen(L, -1)); // lua_rawlen always returns value >= 0
             for (auto n = 1; n <= MAX; ++n)
             {
-                lua_rawgeti(L, -1, n); // [table, element]
+                lua_rawgeti(L, -1, n);
                 encodeValue(L, writer, -1, depth);
-                lua_pop(L, 1); // [table]
+                lua_pop(L, 1);
             }
             writer->EndArray();
-            // [table]
+
         }
 
     public:
@@ -336,7 +315,6 @@ class Encoder
         }
 };
 
-
 static int json_encode(lua_State* L)
 {
 #warning "BALD Exception handler in rapidjson LUA interface"
@@ -355,7 +333,6 @@ static int json_encode(lua_State* L)
     return 0;
 }
 
-
 static int json_dump(lua_State* L)
 {
     Encoder encoder(L, 3);
@@ -371,7 +348,6 @@ static int json_dump(lua_State* L)
     fclose(fp);
     return 0;
 }
-
 
 namespace values
 {
@@ -411,21 +387,20 @@ static const luaL_Reg methods[] =
 
 extern "C"
 {
-
     LUALIB_API int luaopen_rapidjson(lua_State* L)
     {
-        lua_newtable(L); // [rapidjson]
+        lua_newtable(L);
 
-        luax::setfuncs(L, methods); // [rapidjson]
+        luax::setfuncs(L, methods);
 
-        lua_pushliteral(L, "rapidjson"); // [rapidjson, name]
-        lua_setfield(L, -2, "_NAME"); // [rapidjson]
+        lua_pushliteral(L, "rapidjson");
+        lua_setfield(L, -2, "_NAME");
 
-        lua_pushliteral(L, LUA_RAPIDJSON_VERSION); // [rapidjson, version]
-        lua_setfield(L, -2, "_VERSION"); // [rapidjson]
+        lua_pushliteral(L, LUA_RAPIDJSON_VERSION);
+        lua_setfield(L, -2, "_VERSION");
 
-        lua_getfield(L, -1, "null"); // [rapidjson, json.null]
-        values::nullref = luaL_ref(L, LUA_REGISTRYINDEX); // [rapidjson]
+        lua_getfield(L, -1, "null");
+        values::nullref = luaL_ref(L, LUA_REGISTRYINDEX);
 
 
         createSharedMeta(L, "json.object", "object");
@@ -437,5 +412,4 @@ extern "C"
 
         return 1;
     }
-
 }
