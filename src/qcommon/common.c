@@ -2611,6 +2611,7 @@ void Com_Init( char *commandLine ) {
 	Netchan_Init( qport & 0xffff );
 
 	VM_Init();
+	Crypto_Init();
 	SV_Init();
 
 	com_dedicated->modified = qfalse;

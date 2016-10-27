@@ -314,6 +314,8 @@ typedef struct {
 	char		serverMessage[MAX_STRING_TOKENS];	// for display on connection dialog
 
 	int			challenge;					// from the server to use for connecting
+	char		challenge2[33];
+	qboolean	sendSignature;
 	int			checksumFeed;				// from the server for checksum calculations
 
 	// these are our reliable messages that go to the server
@@ -490,6 +492,9 @@ typedef struct {
 	qhandle_t	charSetShader;
 	qhandle_t	whiteShader;
 	qhandle_t	consoleShader;
+
+	struct rsa_public_key public_key;
+	struct rsa_private_key private_key;
 } clientStatic_t;
 
 extern	clientStatic_t		cls;
@@ -591,6 +596,8 @@ extern	cvar_t	*cl_voip;
 #define VOIP_MAX_PACKET_FRAMES		3
 #define VOIP_MAX_PACKET_SAMPLES		( VOIP_MAX_FRAME_SAMPLES * VOIP_MAX_PACKET_FRAMES )
 #endif
+
+extern  cvar_t  *cl_rsaAuth;
 
 //=================================================
 

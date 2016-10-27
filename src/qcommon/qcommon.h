@@ -30,6 +30,8 @@ extern "C" {
 
 #include "../qcommon/cm_public.h"
 
+#include "../qcommon/crypto.h"
+
 //Ignore __attribute__ on non-gcc platforms
 #ifndef __GNUC__
 #ifndef __attribute__
@@ -1084,6 +1086,7 @@ void	Sys_Print( const char *msg );
 int		Sys_Milliseconds (void);
 
 qboolean Sys_RandomBytes( byte *string, int len );
+void Sys_CryptoRandomBytes( byte *string, int len );
 
 // the system console is shown when a dedicated server is running
 void	Sys_DisplaySystemConsole( qboolean show );

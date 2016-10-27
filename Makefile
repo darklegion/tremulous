@@ -266,6 +266,7 @@ OPUSFILEDIR=$(MOUNT_DIR)/opusfile-0.5
 ZDIR=$(MOUNT_DIR)/zlib
 LUADIR=$(MOUNT_DIR)/lua-5.3.3/src
 RESTDIR=$(MOUNT_DIR)/restclient
+NETTLEDIR=$(MOUNT_DIR)/nettle-3.3
 Q3ASMDIR=$(MOUNT_DIR)/tools/asm
 LBURGDIR=$(MOUNT_DIR)/tools/lcc/lburg
 Q3CPPDIR=$(MOUNT_DIR)/tools/lcc/cpp
@@ -1353,6 +1354,7 @@ makedirs:
 	@if [ ! -d $(B) ];then $(MKDIR) $(B);fi
 	@if [ ! -d $(B)/lua ]; then $(MKDIR) $(B)/lua;fi
 	@if [ ! -d $(B)/script ]; then $(MKDIR) $(B)/script;fi
+	@if [ ! -d $(B)/nettle ]; then $(MKDIR) $(B)/nettle;fi
 	@if [ ! -d $(B)/client ];then $(MKDIR) $(B)/client;fi
 	@if [ ! -d $(B)/client/opus ];then $(MKDIR) $(B)/client/opus;fi
 	@if [ ! -d $(B)/client/vorbis ];then $(MKDIR) $(B)/client/vorbis;fi
@@ -1655,6 +1657,48 @@ $(B)/script/%.o: $(SCRIPTDIR)/%.cpp
 	$(DO_SCRIPT_CXX)
 
 #############################################################################
+# Nettle
+#############################################################################
+
+NETTLECFLAGS=-Wall -Wextra -DLUA_COMPAT_5_2 -fPIC -fpic
+
+define DO_NETTLE_CC
+  $(echo_cmd) "NETTLE_CC $<"
+  $(Q)$(CC) $(NETTLECFLAGS) $(OPTIMIZE) -o $@ -c $<
+endef
+
+NETTLEOBJ = \
+  $(B)/nettle/bignum.o \
+  $(B)/nettle/bignum-random.o \
+  $(B)/nettle/bignum-random-prime.o \
+  $(B)/nettle/buffer.o \
+  $(B)/nettle/buffer-init.o \
+  $(B)/nettle/gmp-glue.o \
+  $(B)/nettle/mini-gmp.o \
+  $(B)/nettle/pkcs1.o \
+  $(B)/nettle/pkcs1-rsa-sha256.o \
+  $(B)/nettle/realloc.o \
+  $(B)/nettle/rsa.o \
+  $(B)/nettle/rsa2sexp.o \
+  $(B)/nettle/rsa-keygen.o \
+  $(B)/nettle/rsa-sha256-sign.o \
+  $(B)/nettle/rsa-sha256-verify.o \
+  $(B)/nettle/rsa-sign.o \
+  $(B)/nettle/rsa-verify.o \
+  $(B)/nettle/sexp.o \
+  $(B)/nettle/sexp-format.o \
+  $(B)/nettle/sexp2bignum.o \
+  $(B)/nettle/sexp2rsa.o \
+  $(B)/nettle/sha256-compress.o \
+  $(B)/nettle/sha256.o \
+  $(B)/nettle/write-be32.o
+
+CFLAGS += -I$(NETTLEDIR)
+
+$(B)/nettle/%.o: $(NETTLEDIR)/nettle/%.c
+	$(DO_NETTLE_CC)
+
+#############################################################################
 # CLIENT/SERVER
 #############################################################################
 
@@ -1681,6 +1725,7 @@ Q3OBJ = \
   \
   $(B)/client/cmd.o \
   $(B)/client/common.o \
+  $(B)/client/crypto.o \
   $(B)/client/cvar.o \
   $(B)/client/files.o \
   $(B)/client/md4.o \
@@ -1741,7 +1786,7 @@ else
     $(B)/client/con_tty.o
 endif
 
-Q3OBJ += $(LUAOBJ) $(SCRIPTOBJ)
+Q3OBJ += $(LUAOBJ) $(SCRIPTOBJ) $(NETTLEOBJ)
 
 Q3R2OBJ = \
   $(B)/renderergl2/tr_animation.o \
@@ -2225,6 +2270,7 @@ Q3DOBJ = \
   $(B)/ded/cm_trace.o \
   $(B)/ded/cmd.o \
   $(B)/ded/common.o \
+  $(B)/ded/crypto.o \
   $(B)/ded/cvar.o \
   $(B)/ded/files.o \
   $(B)/ded/md4.o \
@@ -2261,7 +2307,7 @@ ifeq ($(ARCH),x86_64)
       $(B)/ded/ftola.o
 endif
 
-Q3DOBJ += $(LUAOBJ) $(SCRIPTOBJ)
+Q3DOBJ += $(LUAOBJ) $(SCRIPTOBJ) $(NETTLEOBJ)
 
 ifeq ($(USE_INTERNAL_ZLIB),1)
 Q3DOBJ += \
@@ -2743,7 +2789,7 @@ $(B)/$(BASEGAME)/qcommon/%.asm: $(CMDIR)/%.c $(Q3LCC)
 #############################################################################
 
 OBJ = $(Q3OBJ) $(Q3ROBJ) $(Q3R2OBJ) $(Q3DOBJ) $(JPGOBJ) \
-  $(GOBJ) $(CGOBJ) $(UIOBJ) $(LUAOBJ) $(SCRIPTOBJ) \
+  $(GOBJ) $(CGOBJ) $(UIOBJ) $(LUAOBJ) $(SCRIPTOBJ) $(NETTLEOBJ) \
   $(GVMOBJ) $(CGVMOBJ) $(UIVMOBJ)
 TOOLSOBJ = $(LBURGOBJ) $(Q3CPPOBJ) $(Q3RCCOBJ) $(Q3LCCOBJ) $(Q3ASMOBJ)
 STRINGOBJ = $(Q3R2STRINGOBJ)
