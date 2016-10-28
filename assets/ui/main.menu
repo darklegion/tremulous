@@ -173,6 +173,27 @@
 
     itemDef
     {
+      name install_update
+      text "Install Update"
+      type ITEM_TYPE_BUTTON
+      style WINDOW_STYLE_EMPTY
+      textstyle ITEM_TEXTSTYLE_NORMAL
+      rect ((X+5)-W) (Y+(6*ELEM_H)) (W*2) ELEM_H
+      textscale .416
+      textalign ALIGN_RIGHT
+      backcolor 0 0 0 0
+      forecolor 0 1 0 1
+      //visible MENU_FALSE
+      visible MENU_TRUE
+      action
+      {
+        play "sound/misc/menu1.wav";
+        open install_update
+      }
+    }
+
+    itemDef
+    {
       name copyright
       type ITEM_TYPE_TEXT
       text "Tremulous (C) 2005-2009 darklegion development"
