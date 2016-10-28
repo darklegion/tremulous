@@ -148,7 +148,10 @@ typedef enum
   UI_ATAN2,
   UI_SQRT,
   UI_FLOOR,
-  UI_CEIL
+  UI_CEIL,
+
+  UI_LUA_SCRIPT = 200,
+  UI_LUA_SCRIPT_FILE = 201
 }
 uiImport_t;
 

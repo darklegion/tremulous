@@ -99,3 +99,6 @@ equ atan2                             -106
 equ sqrt                              -107
 equ floor                             -108
 equ ceil                              -109
+
+equ trap_Script                       -200
+equ trap_ScriptFile                   -201
