@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../script/http_client.h"
 #include "../script/client.h"
 #endif
+#include "lnettlelib.h"
 
 #include <signal.h>
 #include <stdlib.h>
@@ -303,6 +304,11 @@ void Sys_Script_f( void )
     std::string args = Cmd_Args();
     lua.script(args);
 }
+void Sys_ScriptFile_f( void )
+{
+    std::string args = Cmd_Args();
+    lua.script_file(args);
+}
 /*
 =================
 Sys_Init
@@ -312,6 +318,7 @@ void Sys_Init(void)
 {
     Cmd_AddCommand( "in_restart", Sys_In_Restart_f );
     Cmd_AddCommand( "script", Sys_Script_f );
+    Cmd_AddCommand( "script_file", Sys_ScriptFile_f );
     Cvar_Set( "arch", OS_STRING " " ARCH_STRING );
     Cvar_Set( "username", "UnnamedPlayer" );
 }
@@ -691,6 +698,8 @@ int main( int argc, char **argv )
      sol::lib::jit
 #endif
     );
+
+    lua.require("nettle", luaopen_nettle, 1);
 
     script::cvar::init(&lua);
 
