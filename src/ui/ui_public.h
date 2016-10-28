@@ -140,6 +140,10 @@ typedef enum
   UI_GETNEWS,
 #endif
 
+  // XXX THERE IS ROOM FOR _1_ (or 2? Did i count from 0?)
+  // SYSCALL BETWEEN UI_GETNEWS and UI_MEMSET
+  //UI_RESERVED_SYSCALL = 99,
+
   UI_MEMSET = 100,
   UI_MEMCPY,
   UI_STRNCPY,
@@ -150,10 +154,9 @@ typedef enum
   UI_FLOOR,
   UI_CEIL,
 
-  UI_LUA_SCRIPT = 200,
-  UI_LUA_SCRIPT_FILE = 201
-}
-uiImport_t;
+  UI_LUA_CHECK_FOR_UPDATE = 200,
+  UI_LUA_INSTALL_UPDATE =  201
+} uiImport_t;
 
 typedef enum
 {

@@ -111,7 +111,8 @@ enum
   FEEDER_IGNORE_LIST,          // ignored players
   FEEDER_HELP_LIST,            // help topics
   FEEDER_RESOLUTIONS,           // display resolutions
-  FEEDER_TREMVOICECMD      // voice commands
+  FEEDER_TREMVOICECMD,      // voice commands
+  FEEDER_GITHUB_RELEASE           // latest update info 
 };
 
 // display flags

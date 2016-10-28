@@ -24,6 +24,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <setjmp.h>
 #include "client.h"
 
+#include "cl_updates.h"
+
 vm_t *uivm;
 int uiInterface;
 
@@ -1085,11 +1087,14 @@ intptr_t CL_UISystemCalls( intptr_t *args ) {
 		re.RemapShader( VMA(1), VMA(2), VMA(3) );
 		return 0;
 
-	case UI_LUA_SCRIPT:
-        Sys_Script_f( VMA(1) );
+    // XXX vjr- This is a hack why does syscall #200 come through as 199 when
+    // QVM is loaded??
+    case 199:
+    case UI_LUA_CHECK_FOR_UPDATE: 
+        CL_GetLatestRelease( );
 		return 0;
 
-	case UI_LUA_SCRIPT_FILE:
+	case UI_LUA_INSTALL_UPDATE:
 		return 0;
 
 	default:

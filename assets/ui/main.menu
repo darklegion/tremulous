@@ -173,8 +173,8 @@
 
     itemDef
     {
-      name install_update
-      text "Install Update"
+      name check_for_updates
+      text "Check for Update"
       type ITEM_TYPE_BUTTON
       style WINDOW_STYLE_EMPTY
       textstyle ITEM_TEXTSTYLE_NORMAL
@@ -183,7 +183,6 @@
       textalign ALIGN_RIGHT
       backcolor 0 0 0 0
       forecolor 0 1 0 1
-      //visible MENU_FALSE
       visible MENU_TRUE
       action
       {

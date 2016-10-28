@@ -488,13 +488,13 @@ void trap_SetPbClStatus( int status )
   syscall( UI_SET_PBCLSTATUS, status );
 }
 
-int trap_Script( const char* script )
+int trap_CheckForUpdate( int script )
 {
-  return syscall( UI_LUA_SCRIPT, script );
+  return syscall( UI_LUA_CHECK_FOR_UPDATE, script );
 }
 
-int trap_ScriptFile( const char* scriptfile )
+int trap_InstallUpdate( int script )
 {
-  return syscall( UI_LUA_SCRIPT_FILE, script );
+  return syscall( UI_LUA_INSTALL_UPDATE, script );
 }
 

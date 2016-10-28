@@ -42,6 +42,7 @@ void UI_ClearScores( void );
 void UI_LoadArenas( void );
 void UI_ServerInfo( void );
 void UI_UpdateNews( qboolean );
+void UI_UpdateGithubRelease( );
 
 void UI_RegisterCvars( void );
 void UI_UpdateCvars( void );
@@ -156,6 +157,14 @@ typedef struct
   int refreshtime;
 }
 newsInfo_t;
+
+typedef struct
+{
+  char text[MAX_NEWS_LINES][MAX_NEWS_LINEWIDTH];
+  int numLines;
+  qboolean refreshActive;
+  int nextTime;
+} githubRelease_t;
 
 typedef struct
 {
@@ -281,6 +290,8 @@ typedef struct
   // for showing the game news window
   newsInfo_t newsInfo;
 
+  githubRelease_t githubRelease;
+
   // for the showing the status of a server
   char serverStatusAddress[MAX_ADDRESSLENGTH];
   serverStatusInfo_t serverStatusInfo;
@@ -404,5 +415,8 @@ int       trap_RealTime( qtime_t *qtime );
 void      trap_R_RemapShader( const char *oldShader, const char *newShader, const char *timeOffset );
 
 void      trap_SetPbClStatus( int status );
+
+int       trap_CheckForUpdate( int script );
+int       trap_InstallUpdate( int script );
 
 #endif

@@ -1181,6 +1181,8 @@ void UI_Refresh( int realtime )
     UI_BuildServerStatus( qfalse );
     UI_BuildFindPlayerList( qfalse );
     UI_UpdateNews( qfalse );
+    // FIXME: CHECK FOR "AUTOMATICALLLY CHECK FOR UPDATES == true"
+    UI_UpdateGithubRelease( );
   }
 
   // draw cursor
@@ -2950,6 +2952,8 @@ static void UI_RunMenuScript( char **args )
       UI_ServerInfo();
     else if( Q_stricmp( name, "getNews" ) == 0 )
       UI_UpdateNews( qtrue );
+    else if( Q_stricmp( name, "checkForUpdate" ) == 0 )
+      UI_UpdateGithubRelease( );
     else if( Q_stricmp( name, "saveControls" ) == 0 )
       Controls_SetConfig( qtrue );
     else if( Q_stricmp( name, "loadControls" ) == 0 )
@@ -3480,6 +3484,8 @@ static int UI_FeederCount( int feederID )
     return uiInfo.serverStatusInfo.numLines;
   else if( feederID == FEEDER_NEWS )
     return uiInfo.newsInfo.numLines;
+  else if( feederID == FEEDER_GITHUB_RELEASE )
+    return uiInfo.githubRelease.numLines;
   else if( feederID == FEEDER_FINDPLAYER )
     return uiInfo.numFoundPlayerServers;
   else if( feederID == FEEDER_PLAYER_LIST )
@@ -3699,6 +3705,11 @@ static const char *UI_FeederItemText( int feederID, int index, int column, qhand
   {
     if( index >= 0 && index < uiInfo.newsInfo.numLines )
       return uiInfo.newsInfo.text[index];
+  }
+  else if( feederID == FEEDER_GITHUB_RELEASE )
+  {
+    if( index >= 0 && index < uiInfo.githubRelease.numLines )
+      return uiInfo.githubRelease.text[index];
   }
   else if( feederID == FEEDER_FINDPLAYER )
   {
@@ -4598,7 +4609,6 @@ void UI_DrawConnectScreen( qboolean overlay )
         int prompt = trap_Cvar_VariableValue( "com_downloadPrompt" );
         
         if( prompt & DLP_SHOW ) {
-          Com_Printf("Opening download prompt...\n");
           trap_Key_SetCatcher( KEYCATCH_UI );
           Menus_ActivateByName("download_popmenu");
           trap_Cvar_Set( "com_downloadPrompt", "0" );
@@ -4668,61 +4678,117 @@ UI_UpdateNews
 */
 void UI_UpdateNews( qboolean begin )
 {
-  char newsString[ MAX_NEWS_STRING ];
-  const char *c;
-  const char *wrapped;
-  int line = 0;
-  int linePos = 0;
-  qboolean finished;
+    char newsString[ MAX_NEWS_STRING ];
+    const char *c;
+    const char *wrapped;
+    int line = 0;
+    int linePos = 0;
+    qboolean finished;
 
-  if( begin && !uiInfo.newsInfo.refreshActive ) {
-    uiInfo.newsInfo.refreshtime = uiInfo.uiDC.realTime + 10000;
-    uiInfo.newsInfo.refreshActive = qtrue;
-  }
-  else if( !uiInfo.newsInfo.refreshActive ) // do nothing
-    return; 
-  else if( uiInfo.uiDC.realTime > uiInfo.newsInfo.refreshtime ) {
-    strcpy( uiInfo.newsInfo.text[ 0 ], 
-      "^1Error: Timed out while contacting the server.");
-    uiInfo.newsInfo.numLines = 1;
-    return; 
-  }
-
-  // start the news fetching
-  finished = trap_GetNews( begin );
-
-  // parse what comes back. Parse newlines and otherwise chop when necessary
-  trap_Cvar_VariableStringBuffer( "cl_newsString", newsString, 
-    sizeof( newsString ) );
-
-  // FIXME remove magic width constant
-  wrapped = Item_Text_Wrap( newsString, 0.25f, 325 * uiInfo.uiDC.aspectScale );
-
-  for( c = wrapped; *c != '\0'; ++c ) {
-    if( linePos == (MAX_NEWS_LINEWIDTH - 1) || *c == '\n' ) {
-      uiInfo.newsInfo.text[ line ][ linePos ] = '\0';
-
-      if( line == ( MAX_NEWS_LINES  - 1 ) )
-        break;
-
-      linePos = 0;
-      line++;
-
-      if( *c != '\n' ) {
-        uiInfo.newsInfo.text[ line ][ linePos ] = *c;
-        linePos++;
-      }
-    } else if( isprint( *c ) ) {
-      uiInfo.newsInfo.text[ line ][ linePos ] = *c;
-      linePos++;
+    if( begin && !uiInfo.newsInfo.refreshActive )
+    {
+        uiInfo.newsInfo.refreshtime = uiInfo.uiDC.realTime + 10000;
+        uiInfo.newsInfo.refreshActive = qtrue;
     }
-  }
+    else if( !uiInfo.newsInfo.refreshActive ) // do nothing
+    {
+        return; 
+    }
+    else if( uiInfo.uiDC.realTime > uiInfo.newsInfo.refreshtime )
+    {
+        strcpy( uiInfo.newsInfo.text[ 0 ], "^1Error: Timed out while contacting the server.");
+        uiInfo.newsInfo.numLines = 1;
+        return; 
+    }
 
-  uiInfo.newsInfo.text[ line ] [linePos ] = '\0';
-  uiInfo.newsInfo.numLines = line + 1;
+    // start the news fetching
+    finished = trap_GetNews( begin );
 
-  if( finished )
-    uiInfo.newsInfo.refreshActive = qfalse;
+    // parse what comes back. Parse newlines and otherwise chop when necessary
+    trap_Cvar_VariableStringBuffer( "cl_newsString", newsString, sizeof( newsString ) );
+
+    // FIXME remove magic width constant
+    wrapped = Item_Text_Wrap( newsString, 0.25f, 325 * uiInfo.uiDC.aspectScale );
+
+    for( c = wrapped; *c != '\0'; ++c )
+    {
+        if( linePos == (MAX_NEWS_LINEWIDTH - 1) || *c == '\n' )
+        {
+            uiInfo.newsInfo.text[ line ][ linePos ] = '\0';
+
+            if( line == ( MAX_NEWS_LINES  - 1 ) )
+                break;
+
+            linePos = 0;
+            line++;
+
+            if( *c != '\n' )
+            {
+                uiInfo.newsInfo.text[ line ][ linePos ] = *c;
+                linePos++;
+            }
+        } 
+        else if( isprint( *c ) )
+        {
+            uiInfo.newsInfo.text[ line ][ linePos ] = *c;
+            linePos++;
+        }
+    }
+
+    uiInfo.newsInfo.text[ line ] [linePos ] = '\0';
+    uiInfo.newsInfo.numLines = line + 1;
+
+    if( finished )
+        uiInfo.newsInfo.refreshActive = qfalse;
+}
+
+void UI_UpdateGithubRelease( )
+{
+    char newsString[ MAX_NEWS_STRING ];
+    const char *c;
+    const char *wrapped;
+    int line = 0, linePos = 0;
+
+    if( !uiInfo.githubRelease.nextTime > uiInfo.uiDC.realTime )
+      return;
+
+    // Limit checks to 1x every 10seconds
+    uiInfo.githubRelease.nextTime = uiInfo.uiDC.realTime  + 10000;
+    trap_CheckForUpdate( 0 );
+
+    // parse what comes back. Parse newlines and otherwise chop when necessary
+    trap_Cvar_VariableStringBuffer("cl_latestRelease", newsString, sizeof(newsString));
+
+    // FIXME remove magic width constant
+    wrapped = Item_Text_Wrap(newsString, 0.33f, 450 * uiInfo.uiDC.aspectScale);
+
+    for( c = wrapped; *c != '\0'; ++c )
+    {
+        if( linePos == (MAX_NEWS_LINEWIDTH - 1) || *c == '\n' )
+        {
+            uiInfo.githubRelease.text[ line ][ linePos ] = '\0';
+
+            if( line == (MAX_NEWS_LINES  - 1) )
+                break;
+
+            linePos = 0;
+            line++;
+
+            if( *c != '\n' )
+            {
+                uiInfo.githubRelease.text[ line ][ linePos ] = *c;
+                linePos++;
+            }
+        } 
+        else if( isprint( *c ) )
+        {
+            uiInfo.githubRelease.text[ line ][ linePos ] = *c;
+            linePos++;
+        }
+    }
+
+    uiInfo.githubRelease.text[ line ] [linePos ] = '\0';
+    uiInfo.githubRelease.numLines = line + 1;
 }
 
 #ifdef MODULE_INTERFACE_11
