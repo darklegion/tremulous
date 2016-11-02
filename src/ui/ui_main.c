@@ -1182,7 +1182,7 @@ void UI_Refresh( int realtime )
     UI_BuildFindPlayerList( qfalse );
     UI_UpdateNews( qfalse );
     // FIXME: CHECK FOR "AUTOMATICALLLY CHECK FOR UPDATES == true"
-    UI_UpdateGithubRelease( );
+    //UI_UpdateGithubRelease( );
   }
 
   // draw cursor
