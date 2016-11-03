@@ -267,6 +267,7 @@ ZDIR=$(MOUNT_DIR)/zlib
 LUADIR=$(MOUNT_DIR)/lua-5.3.3/src
 RESTDIR=$(MOUNT_DIR)/restclient
 NETTLEDIR=$(MOUNT_DIR)/nettle-3.3
+LUA_RAPIDJSONDIR=$(MOUNT_DIR)/script/rapidjson
 Q3ASMDIR=$(MOUNT_DIR)/tools/asm
 LBURGDIR=$(MOUNT_DIR)/tools/lcc/lburg
 Q3CPPDIR=$(MOUNT_DIR)/tools/lcc/cpp
@@ -1354,6 +1355,7 @@ makedirs:
 	@if [ ! -d $(B) ];then $(MKDIR) $(B);fi
 	@if [ ! -d $(B)/lua ]; then $(MKDIR) $(B)/lua;fi
 	@if [ ! -d $(B)/script ]; then $(MKDIR) $(B)/script;fi
+	@if [ ! -d $(B)/script/rapidjson ]; then $(MKDIR) $(B)/script/rapidjson;fi
 	@if [ ! -d $(B)/nettle ]; then $(MKDIR) $(B)/nettle;fi
 	@if [ ! -d $(B)/client ];then $(MKDIR) $(B)/client;fi
 	@if [ ! -d $(B)/client/opus ];then $(MKDIR) $(B)/client/opus;fi
@@ -1643,17 +1645,27 @@ $(B)/lua/%.o: $(LUADIR)/%.c
 
 define DO_SCRIPT_CXX
   $(echo_cmd) "SCRIPT_CXX $<"
-  $(Q)$(CXX) -std=c++1y $(NOTSHLIBCFLAGS) $(CXXFLAGS) $(OPTIMIZE) -o $@ -c $<
+  $(Q)$(CXX) -std=c++1y $(NOTSHLIBCFLAGS) $(LUACFLAGS) $(CXXFLAGS) $(OPTIMIZE) -o $@ -c $<
 endef
 
-#SCRIPTOBJ = $(B)/script/cvar.o
 SCRIPTOBJ =
 
-#SCRIPTCFLAGS= -I$(SCRIPTDIR)
-#CFLAGS += $(SCRIPTCFLAGS)
-#CXXFLAGS += $(SCRIPTCFLAGS)
-
 $(B)/script/%.o: $(SCRIPTDIR)/%.cpp
+	$(DO_SCRIPT_CXX)
+
+######################################
+# Lua-RapidJSON 
+######################################
+
+SCRIPTOBJ = \
+  $(B)/script/rapidjson/document.o \
+  $(B)/script/rapidjson/rapidjson.o \
+  $(B)/script/rapidjson/schema.o \
+  $(B)/script/rapidjson/values.o
+
+CFLAGS += -I$(LUA_RAPIDJSONDIR) 
+
+$(B)/script/rapidjson/%.o: $(LUA_RAPIDJSONDIR)/%.cpp
 	$(DO_SCRIPT_CXX)
 
 #############################################################################
@@ -1697,6 +1709,7 @@ CFLAGS += -I$(NETTLEDIR)
 
 $(B)/nettle/%.o: $(NETTLEDIR)/nettle/%.c
 	$(DO_NETTLE_CC)
+
 
 #############################################################################
 # CLIENT/SERVER
