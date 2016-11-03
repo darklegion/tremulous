@@ -7,9 +7,6 @@
 #include "../restclient/restclient.h"
 #include "../restclient/connection.h"
 #include "../rapidjson/document.h"
-//#include "semver/cpp/semver.h"
-
-//#include "platform.h"
 
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
@@ -34,7 +31,9 @@ void CL_GetLatestRelease()
 
     if ( r.code != 200 )
     {
-        Cvar_Set("cl_latestRelease", "^1ERROR:\n^7Server did not return OK status code");
+        Cvar_Set("cl_latestRelease", 
+                S_COLOR_RED "ERROR:\n"
+                S_COLOR_WHITE "Server did not return OK status code");
         return;
     }
 
@@ -47,41 +46,20 @@ void CL_GetLatestRelease()
     txt += release["tag_name"].GetString();
 
     if ( release["prerelease"].IsTrue() )
-        txt += " ^3(PRE RELEASE)";
+        txt += S_COLOR_YELLOW " (Prerelease)";
 
-    txt += "\n^5RELEASE DATE: ^7";
+    txt += '\n';
+    txt += S_COLOR_CYAN "Released:" S_COLOR_WHITE;
     txt += release["published_at"].GetString();
+
+    txt += '\n';
+    txt += S_COLOR_RED "Release Notes:\n" S_COLOR_WHITE;
 
     if ( !release["body"].IsNull() )
     {
-        txt += '\n';
-        txt += "^1RELEASE NOTES:";
         txt += '\n';
         txt += release["body"].GetString();
     }
         
     Cvar_Set("cl_latestRelease", txt.c_str());
-
-#if 0
-    rapidjson::Value &assets = release["assets"];
-    for ( rapidjson::SizeType i = 0; i < assets.Size(); ++i )
-    {
-        auto &a = assets[i];
-        std::string name = a["name"].GetString();
-
-        if ( name == package_name )
-        {
-            std::string url = a["browser_download_url"].GetString();
-            auto r = RestClient::get(url);
-
-            if ( r.code != 200 )
-                throw exception();
-
-            std::fstream dl;
-            dl.open( package_name, fstream::out|ios::binary );
-            dl.write( r.body.c_str(), r.body.length() );
-            dl.close();
-        }
-    }
-#endif
 }
