@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../script/http_client.h"
 #include "../script/client.h"
 #endif
+#include "../script/rapidjson.h"
 #include "lnettlelib.h"
 
 #include <signal.h>
@@ -702,6 +703,7 @@ int main( int argc, char **argv )
     lua.require("nettle", luaopen_nettle, 1);
 
     script::cvar::init(&lua);
+    script::rapidjson::init(&lua);
 
 #ifndef DEDICATED
     script::client::init(&lua);
