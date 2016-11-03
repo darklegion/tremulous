@@ -1593,7 +1593,6 @@ CL_Disconnect_f
 */
 void CL_Disconnect_f( void ) {
 	SCR_StopCinematic();
-	Cvar_Set("ui_singlePlayerActive", "0");
 	if ( clc.state != CA_DISCONNECTED && clc.state != CA_CINEMATIC ) {
 		Com_Error (ERR_DISCONNECT, "Disconnected from server");
 	}
@@ -1609,7 +1608,6 @@ CL_Reconnect_f
 void CL_Reconnect_f( void ) {
 	if ( !strlen( cl_reconnectArgs ) )
 		return;
-	Cvar_Set("ui_singlePlayerActive", "0");
 	Cbuf_AddText( va("connect %s\n", cl_reconnectArgs ) );
 }
 
@@ -1660,7 +1658,6 @@ void CL_Connect_f( void ) {
 	// save arguments for reconnect
 	Q_strncpyz( cl_reconnectArgs, Cmd_Args(), sizeof( cl_reconnectArgs ) );
 
-	Cvar_Set("ui_singlePlayerActive", "0");
 
 	// clear any previous "server full" type messages
 	clc.serverMessage[0] = 0;
@@ -1719,9 +1716,6 @@ void CL_Connect_f( void ) {
 	Key_SetCatcher( Key_GetCatcher() & KEYCATCH_CONSOLE );
 	clc.connectTime = -99999;	// CL_CheckForResend() will fire immediately
 	clc.connectPacketCount = 0;
-
-	// server connection string
-	Cvar_Set( "cl_currentServerAddress", server );
 }
 
 #define MAX_RCON_MESSAGE 1024

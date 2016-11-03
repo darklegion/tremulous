@@ -2639,9 +2639,6 @@ void Com_Init( char *commandLine ) {
 
 	CL_StartHunkUsers( qfalse );
 
-	// make sure single player is off by default
-	Cvar_Set("ui_singlePlayerActive", "0");
-
 	com_fullyInitialized = qtrue;
 
 	// always set the cvar, but only print the info if it makes sense.
