@@ -2363,8 +2363,8 @@ CL_UnloadRSAKeypair
 */
 static void CL_UnloadRSAKeypair( void )
 {
-	rsa_public_key_clear( &cls.public_key );
-	rsa_private_key_clear( &cls.private_key );
+	rsa_public_key_clear( &cls.rsa.public_key );
+	rsa_private_key_clear( &cls.rsa.private_key );
 }
 
 /*
@@ -2382,7 +2382,7 @@ static qboolean CL_WriteRSAPublicKey( void )
 		return qfalse;
 
 	nettle_buffer_init( &key_buffer );
-	if ( !rsa_keypair_to_sexp( &key_buffer, NULL, &cls.public_key, NULL ) ) {
+	if ( !rsa_keypair_to_sexp( &key_buffer, NULL, &cls.rsa.public_key, NULL ) ) {
 		FS_FCloseFile( f );
 		nettle_buffer_clear( &key_buffer );
 		return qfalse;
@@ -2416,7 +2416,7 @@ static qboolean CL_WriteRSAPrivateKey( void )
 		return qfalse;
 
 	nettle_buffer_init( &key_buffer );
-	if ( !rsa_keypair_to_sexp( &key_buffer, NULL, &cls.public_key, &cls.private_key ) ) {
+	if ( !rsa_keypair_to_sexp( &key_buffer, NULL, &cls.rsa.public_key, &cls.rsa.private_key ) ) {
 		FS_FCloseFile( f );
 		nettle_buffer_clear( &key_buffer );
 		return qfalse;
@@ -2439,22 +2439,26 @@ function.  This is done by CL_LoadRSAKeypair.
 */
 static void CL_GenerateRSAKeypair( void )
 {
-	mpz_set_ui( cls.public_key.e, RSA_PUBLIC_EXPONENT );
-	if ( !rsa_generate_keypair( &cls.public_key, &cls.private_key, NULL, qnettle_random, NULL, NULL, RSA_KEY_LENGTH, 0 ) )
-		goto error;
+	mpz_set_ui( cls.rsa.public_key.e, RSA_PUBLIC_EXPONENT );
 
-	if ( !CL_WriteRSAPrivateKey( ) )
-		goto error;
+    int success = rsa_generate_keypair( &cls.rsa.public_key,
+                                        &cls.rsa.private_key,
+                                        NULL,
+                                        qnettle_random,
+                                        NULL,
+                                        NULL,
+                                        RSA_KEY_LENGTH, 0 );
+	if ( success )
+	if ( CL_WriteRSAPrivateKey() )
+	if ( CL_WriteRSAPublicKey() )
+    {
+        Com_Printf( "RSA keypair generated\n" );
+        return;
+    }
 
-	if ( !CL_WriteRSAPublicKey( ) )
-		goto error;
-
-	Com_Printf( "%s", "RSA keypair generated\n" );
-	return;
-
-error:
-	CL_UnloadRSAKeypair( );
-	Com_Printf( "%s", "Error generating RSA keypair, setting cl_rsaAuth to 0\n" );
+    // failure
+	CL_UnloadRSAKeypair();
+	Com_Printf( "Error generating RSA keypair, setting cl_rsaAuth to 0\n" );
 	Cvar_Set( "cl_rsaAuth", "0" );
 }
 
@@ -2472,22 +2476,22 @@ static void CL_LoadRSAKeypair( void )
 	fileHandle_t f;
 	uint8_t *buf;
 
-	rsa_public_key_init( &cls.public_key );
-	rsa_private_key_init( &cls.private_key );
+	rsa_public_key_init( &cls.rsa.public_key );
+	rsa_private_key_init( &cls.rsa.private_key );
 
 	Com_DPrintf( "Loading RSA private key from %s\n", RSA_PRIVATE_KEY_FILE );
 
 	len = FS_SV_FOpenFileRead( RSA_PRIVATE_KEY_FILE, &f );
 	if ( !f )
 	{
-		Com_Printf( "RSA private key not found, generating\n" );
+		Com_DPrintf( "RSA private key not found, generating\n" );
 		CL_GenerateRSAKeypair( );
 		return;
 	}
 
 	if ( len < 1 )
 	{
-		Com_Printf( "RSA private key empty, generating\n" );
+		Com_DPrintf( "RSA private key empty, generating\n" );
 		FS_FCloseFile( f );
 		CL_GenerateRSAKeypair( );
 		return;
@@ -2497,7 +2501,7 @@ static void CL_LoadRSAKeypair( void )
 	FS_Read( buf, len, f );
 	FS_FCloseFile( f );
 
-	if ( !rsa_keypair_from_sexp( &cls.public_key, &cls.private_key, 0, len, buf ) )
+	if ( !rsa_keypair_from_sexp( &cls.rsa.public_key, &cls.rsa.private_key, 0, len, buf ) )
 	{
 		memset( buf, 0, len );
 		Z_Free( buf );
@@ -2588,11 +2592,11 @@ void CL_CheckForResend( void ) {
 			sha256_update( &sha256_hash, strlen(info), (uint8_t *) info );
 
 			mpz_init( n );
-			rsa_sha256_sign( &cls.private_key, &sha256_hash, n );
+			rsa_sha256_sign( &cls.rsa.private_key, &sha256_hash, n );
 			mpz_get_str( signature, 16, n );
 			mpz_clear( n );
 
-			mpz_get_str( public_key, 16, cls.public_key.n );
+			mpz_get_str( public_key, 16, cls.rsa.public_key.n );
 
 			Com_sprintf( data, sizeof(data), "connect \"%s\" %s %s", info, public_key, signature );
 		}

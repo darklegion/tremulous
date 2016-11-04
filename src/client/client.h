@@ -493,8 +493,10 @@ typedef struct {
 	qhandle_t	whiteShader;
 	qhandle_t	consoleShader;
 
-	struct rsa_public_key public_key;
-	struct rsa_private_key private_key;
+    struct {
+	    struct rsa_public_key public_key;
+	    struct rsa_private_key private_key;
+    } rsa;
 } clientStatic_t;
 
 extern	clientStatic_t		cls;
