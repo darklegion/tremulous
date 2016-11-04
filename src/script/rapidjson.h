@@ -38,9 +38,9 @@ namespace script
 
     namespace rapidjson 
     {
-        static inline void init(sol::state* lua)
+        static inline void init(sol::state&& lua)
         {
-            lua->require("rapidjson", luaopen_rapidjson, 1);
+            lua.require("rapidjson", luaopen_rapidjson, 1);
         }
     };
 };

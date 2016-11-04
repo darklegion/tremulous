@@ -129,9 +129,9 @@ namespace script
     };
     
     namespace cvar {
-        static inline void init(sol::state* lua)
+        static inline void init(sol::state&& lua)
         {
-            lua->new_usertype<Cvar>(
+            lua.new_usertype<Cvar>(
                     "cvar", sol::constructors<sol::types<std::string>,
                             sol::types<std::string, std::string>,
                             sol::types<std::string, std::string, int>>(),

@@ -702,12 +702,12 @@ int main( int argc, char **argv )
 
     lua.require("nettle", luaopen_nettle, 1);
 
-    script::cvar::init(&lua);
-    script::rapidjson::init(&lua);
+    script::cvar::init(std::move(lua));
+    script::rapidjson::init(std::move(lua));
 
 #ifndef DEDICATED
-    script::client::init(&lua);
-    script::http_client::init(&lua);
+    script::client::init(std::move(lua));
+    script::http_client::init(std::move(lua));
 #endif
 
     for ( ;; )

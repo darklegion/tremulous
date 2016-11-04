@@ -41,9 +41,9 @@ namespace script
     struct Client {};
     namespace client 
     {
-        static inline void init(sol::state* lua)
+        static inline void init(sol::state&& lua)
         {
-            lua->new_usertype<Client>( "client",
+            lua.new_usertype<Client>( "client",
                     "addReliableCommand", &CL_AddReliableCommand
                     //"disconnect", &CL_Disconnect_f,
                     //"reconnect", &CL_Reconnect_f,
