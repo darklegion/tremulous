@@ -1272,10 +1272,10 @@ typedef enum
 
 typedef struct voiceTrack_s
 {
-#ifdef CGAME
+//#ifdef CGAME
   sfxHandle_t            track;
   int                    duration;
-#endif
+//#endif
   char                   *text;
   int                    enthusiasm;
   int                    team;

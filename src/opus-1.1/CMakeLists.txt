@@ -4,6 +4,7 @@ add_definitions(
     -DOPUS_BUILD
     -DUSE_CODEC_OPUS
     -DUSE_ALLOCA
+    -DHAVE_LRINTF
     )
 
 add_library(

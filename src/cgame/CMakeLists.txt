@@ -9,20 +9,26 @@
 
 set(CMAKE_INSTALL_NAME_DIR ${PROJECT_BINARY_DIR}/gpp)
 
-set(BG_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../game)
-set(QC_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../qcommon)
-set(UI_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../ui)
-set(RC_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../renderercommon)
+set(BG_SOURCE_DIR ../game)
+set(QC_SOURCE_DIR ../qcommon)
+set(UI_SOURCE_DIR ../ui)
+set(RC_SOURCE_DIR ../renderercommon)
 
 add_definitions( -DCGAME )
 
-add_library(
-    cgame SHARED
-    #
+set( CGAME_SOURCES
+    cg_main.c # Must be listed first
     cg_public.h
     cg_local.h
     binaryshader.h
-    #
+    ${BG_SOURCE_DIR}/bg_lib.h
+    ${BG_SOURCE_DIR}/bg_public.h
+    ${BG_SOURCE_DIR}/bg_alloc.c
+    ${BG_SOURCE_DIR}/bg_lib.c
+    ${BG_SOURCE_DIR}/bg_misc.c
+    ${BG_SOURCE_DIR}/bg_voice.c
+    ${BG_SOURCE_DIR}/bg_pmove.c
+    ${BG_SOURCE_DIR}/bg_slidemove.c
     cg_animation.c
     cg_animmapobj.c
     cg_attachment.c
@@ -32,7 +38,6 @@ add_library(
     cg_drawtools.c
     cg_ents.c
     cg_event.c
-    cg_main.c
     cg_marks.c
     cg_particles.c
     cg_players.c
@@ -42,7 +47,6 @@ add_library(
     cg_scanner.c
     cg_servercmds.c
     cg_snapshot.c
-    cg_syscalls.c
     cg_trails.c
     cg_tutorial.c
     cg_view.c
@@ -51,15 +55,6 @@ add_library(
     ${UI_SOURCE_DIR}/ui_shared.h
     ${UI_SOURCE_DIR}/ui_shared.c
     #
-    ${BG_SOURCE_DIR}/bg_lib.h
-    ${BG_SOURCE_DIR}/bg_public.h
-    ${BG_SOURCE_DIR}/bg_alloc.c
-    ${BG_SOURCE_DIR}/bg_lib.c
-    ${BG_SOURCE_DIR}/bg_misc.c
-    ${BG_SOURCE_DIR}/bg_voice.c
-    ${BG_SOURCE_DIR}/bg_pmove.c
-    ${BG_SOURCE_DIR}/bg_slidemove.c
-    #
     ${QC_SOURCE_DIR}/q_shared.h
     ${QC_SOURCE_DIR}/q_shared.c
     ${QC_SOURCE_DIR}/q_math.c
@@ -67,9 +62,14 @@ add_library(
     ${RC_SOURCE_DIR}/tr_types.h
     )
 
-include_directories(
+add_library( cgame SHARED ${CGAME_SOURCES} cg_syscalls.c )
+
+target_include_directories(
+    cgame PUBLIC
     ${BG_SOURCE_DIR}
     ${QC_SOURCE_DIR}
     ${RC_SOURCE_DIR}
     ${UI_SOURCE_DIR}
     )
+
+add_qvm( cgame ${CGAME_SOURCES} cg_syscalls.asm )

@@ -1156,14 +1156,14 @@ LOG_CXX = $(file >>compile_commands.txt,{ "target": "${1}", "directory": "$(shel
 CC_FLAGS=${NOTSHLIBCFLAGS} ${CFLAGS} ${CLIENT_CFLAGS} ${OPTIMIZE}
 define DO_CC
 $(echo_cmd) "CC $<"
-$(call EXEC_CC,${CC_FLAGS},'$@','$<')
-$(call LOG_CC,tremulous,${CC_FLAGS},$@,$<)
+$(Q)$(call EXEC_CC,${CC_FLAGS},'$@','$<')
+$(Q)$(call LOG_CC,tremulous,${CC_FLAGS},$@,$<)
 endef
 
 define DO_CXX
 $(echo_cmd) "CXX $<"
-$(call EXEC_CXX,${CC_FLAGS},'$@','$<')
-$(call LOG_CXX,tremulous,${CC_FLAGS},$@,$<)
+$(Q)$(call EXEC_CXX,${CC_FLAGS},'$@','$<')
+$(Q)$(call LOG_CXX,tremulous,${CC_FLAGS},$@,$<)
 endef
 
 ##########################################
@@ -1172,8 +1172,8 @@ endef
 # Common Rendering Code
 define DO_RENDERER_COMMON_CC
 $(echo_cmd) "RENDERER_COMMON_CC $<"
-$(call EXEC_CC,${REF_CC_FLAGS},'$@','$<')
-$(call LOG_CC,renderer_common,${REF_CC_FLAGS},$@,$<)
+$(Q)$(call EXEC_CC,${REF_CC_FLAGS},'$@','$<')
+$(Q)$(call LOG_CC,renderer_common,${REF_CC_FLAGS},$@,$<)
 endef
 ##########################################
 # Renderers
@@ -1182,13 +1182,13 @@ endef
 REF_CC_FLAGS=${SHLIBCFLAGS} ${CFLAGS} ${CLIENT_CFLAGS} ${OPTIMIZE}
 define DO_RENDERERGL1_CC
 $(echo_cmd) "GL1_RENDERER_CC $<"
-$(call EXEC_CC,${REF_CC_FLAGS},'$@','$<')
-$(call LOG_CC,opengl1,${REF_CC_FLAGS},$@,$<)
+$(Q)$(call EXEC_CC,${REF_CC_FLAGS},'$@','$<')
+$(Q)$(call LOG_CC,opengl1,${REF_CC_FLAGS},$@,$<)
 endef
 define DO_RENDERERGL1_CXX
 $(echo_cmd) "GL1_RENDERER_CXX $<"
-$(call EXEC_CXX,${REF_CC_FLAGS},'$@','$<')
-$(call LOG_CXX,opengl1,${REF_CC_FLAGS},$@,$<)
+$(Q)$(call EXEC_CXX,${REF_CC_FLAGS},'$@','$<')
+$(Q)$(call LOG_CXX,opengl1,${REF_CC_FLAGS},$@,$<)
 endef
 ##########################################
 # Renderers
@@ -1196,14 +1196,9 @@ endef
 # OpenGL 2 Renderer
 define DO_RENDERERGL2_CC
 $(echo_cmd) "GL2_RENDERER_CC $<"
-$(call EXEC_CC,${REF_CC_FLAGS},'$@','$<')
-$(call LOG_CC,opengl2,${REF_CC_FLAGS},$@,$<)
+$(Q)$(call EXEC_CC,${REF_CC_FLAGS},'$@','$<')
+$(Q)$(call LOG_CC,opengl2,${REF_CC_FLAGS},$@,$<)
 endef
-#define DO_RENDERERGL1_CXX
-#$(echo_cmd) "GL1_RENDERER_CXX $<"
-#$(call EXEC_CXX,${REF_CC_FLAGS},'$@','$<')
-#$(call LOG_CXX,opengl2,${REF_CC_FLAGS},$@,$<)
-#endef
 
 define DO_REF_STR
 $(echo_cmd) "REF_STR $<"
@@ -1220,57 +1215,57 @@ endif
 SHLIB_CC_FLAGS=${BASEGAME_CFLAGS} ${SHLIBCFLAGS} ${CFLAGS} ${OPTIMIZEVM}
 define DO_SHLIB_CC
 $(echo_cmd) "SHLIB_CC $<"
-$(call EXEC_CC,${SHLIB_CC_FLAGS},'$@','$<')
-$(call LOG_CC,qcommon,${SHLIB_CC_FLAGS},$@,$<)
+$(Q)$(call EXEC_CC,${SHLIB_CC_FLAGS},'$@','$<')
+$(Q)$(call LOG_CC,qcommon,${SHLIB_CC_FLAGS},$@,$<)
 $(Q)$(DO_QVM_DEP)
 endef
 
 GAME_CC_FLAGS=${BASEGAME_CFLAGS} ${SHLIBCFLAGS} ${CFLAGS} ${OPTIMIZEVM}
 define DO_GAME_CC
 $(echo_cmd) "GAME_CC $<"
-$(call EXEC_CC,-DGAME ${GAME_CC_FLAGS},'$@','$<')
-$(call LOG_CC,game,-DGAME ${GAME_CC_FLAGS},$@,$<)
+$(Q)$(call EXEC_CC,-DGAME ${GAME_CC_FLAGS},'$@','$<')
+$(Q)$(call LOG_CC,game,-DGAME ${GAME_CC_FLAGS},$@,$<)
 $(Q)$(DO_QVM_DEP)
 endef
 
 define DO_CGAME_CC
 $(echo_cmd) "CGAME_CC $<"
-$(call EXEC_CC,-DCGAME ${GAME_CC_FLAGS},'$@','$<')
-$(call LOG_CC,cgame,-DCGAME ${GAME_CC_FLAGS},$@,$<)
+$(Q)$(call EXEC_CC,-DCGAME ${GAME_CC_FLAGS},'$@','$<')
+$(Q)$(call LOG_CC,cgame,-DCGAME ${GAME_CC_FLAGS},$@,$<)
 $(Q)$(DO_QVM_DEP)
 endef
 
 define DO_UI_CC
 $(echo_cmd) "UI_CC $<"
-$(call EXEC_CC,-DUI ${GAME_CC_FLAGS},'$@','$<')
-$(call LOG_CC,ui,-DUI ${GAME_CC_FLAGS},$@,$<)
+$(Q)$(call EXEC_CC,-DUI ${GAME_CC_FLAGS},'$@','$<')
+$(Q)$(call LOG_CC,ui,-DUI ${GAME_CC_FLAGS},$@,$<)
 $(Q)$(DO_QVM_DEP)
 endef
 
 AS_FLAGS=${CFLAGS} ${OPTIMIZE} -x assembler-with-cpp
 define DO_AS
 $(echo_cmd) "AS $<"
-$(call EXEC_CC,${AS_FLAGS},'$@','$<')
-$(call LOG_CC,tremulous,${AS_FLAGS},$@,$<)
+$(Q)$(call EXEC_CC,${AS_FLAGS},'$@','$<')
+$(Q)$(call LOG_CC,tremulous,${AS_FLAGS},$@,$<)
 endef
 
 define DO_DED_AS
 $(echo_cmd) "AS $<"
-$(call EXEC_CC,${AS_FLAGS},'$@','$<')
-$(call LOG_CC,tremded,${AS_FLAGS},$@,$<)
+$(Q)$(call EXEC_CC,${AS_FLAGS},'$@','$<')
+$(Q)$(call LOG_CC,tremded,${AS_FLAGS},$@,$<)
 endef
 
 DED_CC_FLAGS=-DDEDICATED ${NOTSHLIBCFLAGS} ${CFLAGS} ${SERVER_CFLAGS} ${OPTIMIZE}
 define DO_DED_CC
 $(echo_cmd) "DED_CC $<"
-$(call EXEC_CC,${DED_CC_FLAGS},'$@','$<')
-$(call LOG_CC,tremded,${DED_CC_FLAGS},$@,$<)
+$(Q)$(call EXEC_CC,${DED_CC_FLAGS},'$@','$<')
+$(Q)$(call LOG_CC,tremded,${DED_CC_FLAGS},$@,$<)
 endef
 
 define DO_DED_CXX
 $(echo_cmd) "DED_CXX $<"
-$(call EXEC_CXX,${DED_CC_FLAGS},'$@','$<')
-$(call LOG_CXX,tremded,${DED_CC_FLAGS},$@,$<)
+$(Q)$(call EXEC_CXX,${DED_CC_FLAGS},'$@','$<')
+$(Q)$(call LOG_CXX,tremded,${DED_CC_FLAGS},$@,$<)
 endef
 
 define DO_WINDRES
@@ -1639,8 +1634,8 @@ endif
 #$(Q)$(CC) $(LUACFLAGS) $(OPTIMIZE) -o $@ -c $<
 define DO_LUA_CC
   $(echo_cmd) "LUA_CC $<"
-  $(call EXEC_CC,${LUACFLAGS} ${OPTIMIZE},'$@','$<')
-  $(call LOG_CC,lua,${LUACFLAGS} ${OPTIMIZE},$@,$<)
+  $(Q)$(call EXEC_CC,${LUACFLAGS} ${OPTIMIZE},'$@','$<')
+  $(Q)$(call LOG_CC,lua,${LUACFLAGS} ${OPTIMIZE},$@,$<)
 endef
 
 LUAOBJ = \
@@ -1693,8 +1688,8 @@ $(B)/lua/%.o: $(LUADIR)/%.c
 SCRIPT_INCLUDES=-Isrc/qcommon -Isrc/rapidjson -Isrc/sol
 define DO_SCRIPT_CXX
   $(echo_cmd) "SCRIPT_CXX $<"
-  $(call EXEC_CXX,${NOTSHLIBCFLAGS} ${SCRIPT_INCLUDES} ${LUACFLAGS} ${OPTIMIZE},'$@','$<')
-  $(call LOG_CXX,script,${NOTSHLIBCFLAGS} ${SCRIPT_INCLUDES} ${LUACFLAGS} ${OPTIMIZE},'$@','$<')
+  $(Q)$(call EXEC_CXX,${NOTSHLIBCFLAGS} ${SCRIPT_INCLUDES} ${LUACFLAGS} ${OPTIMIZE},'$@','$<')
+  $(Q)$(call LOG_CXX,script,${NOTSHLIBCFLAGS} ${SCRIPT_INCLUDES} ${LUACFLAGS} ${OPTIMIZE},'$@','$<')
 endef
 
 SCRIPTOBJ = \
@@ -1716,8 +1711,8 @@ NETTLECFLAGS=-Wall -Wextra -DLUA_COMPAT_5_2 -fPIC -fpic
 
 define DO_NETTLE_CC
   $(echo_cmd) "NETTLE_CC $<"
-  $(call EXEC_CC,${NETTLECFLAGS},'$@','$<')
-  $(call LOG_CC,nettle,${NETTLECFLAGS},'$@','$<')
+  $(Q)$(call EXEC_CC,${NETTLECFLAGS},'$@','$<')
+  $(Q)$(call LOG_CC,nettle,${NETTLECFLAGS},'$@','$<')
 endef
 
 NETTLEOBJ = \

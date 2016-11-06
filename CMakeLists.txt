@@ -10,6 +10,7 @@
 
 cmake_minimum_required(VERSION 3.5)
 project(Tremulous C CXX)
+#set(CMAKE_MODULE_PATH cmake)
 
 set(CMAKE_CXX_FLAGS -std=c++1y)
 
@@ -21,6 +22,8 @@ option(USE_MUMBLE "" ON)
 option(USE_CODEC_OPUS "" ON)
 option(USE_RENDERER_DLOPEN "" ON)
 option(USE_RESTCLIENT "" ON)
+
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/FindQVM.cmake)
 
 find_package(CURL)
 find_package(OpenGL)
@@ -66,6 +69,15 @@ add_subdirectory(src/client)
 #
  
 add_subdirectory(src/server)
+
+#  _______ ___ ___ _______                              __ __
+# |       |   |   |   |   | .----.-----.--------.-----.|__|  |.-----.----.
+# |   -  _|   |   |       | |  __|  _  |        |  _  ||  |  ||  -__|   _|
+# |_______|\_____/|__|_|__| |____|_____|__|__|__|   __||__|__||_____|__|
+#                                               |__|
+# TODO: DO NOT build unless building a QVM
+
+add_subdirectory(src/tools)
 
 #
 # ,   . `

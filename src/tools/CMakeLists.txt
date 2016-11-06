@@ -1,3 +1,9 @@
+#  _______ ___ ___ _______                              __ __
+# |       |   |   |   |   | .----.-----.--------.-----.|__|  |.-----.----.
+# |   -  _|   |   |       | |  __|  _  |        |  _  ||  |  ||  -__|   _|
+# |_______|\_____/|__|_|__| |____|_____|__|__|__|   __||__|__||_____|__|
+#                                               |__|
+# TODO: DO NOT build unless building a QVM
 
 #  _  _                     
 # | || |                    
@@ -85,7 +91,7 @@ target_include_directories( q3cpp PUBLIC lcc/src lcc/lburg )
 #
 
 add_custom_command(
-    OUTPUT ${CMAKE_BINARY_DIR}/dagcheck.c
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/dagcheck.c
     COMMAND lburg
     ARGS ${CMAKE_CURRENT_SOURCE_DIR}/lcc/src/dagcheck.md dagcheck.c
     DEPENDS lburg lcc/src/dagcheck.md
@@ -98,7 +104,7 @@ add_executable(
     lcc/src/bind.c
     lcc/src/bytecode.c
     lcc/src/dag.c
-    ${CMAKE_BINARY_DIR}/dagcheck.c
+    ${CMAKE_CURRENT_BINARY_DIR}/dagcheck.c
     lcc/src/decl.c
     lcc/src/enode.c
     lcc/src/error.c
@@ -127,6 +133,6 @@ add_executable(
 
 target_include_directories( q3rcc PUBLIC lcc/src lcc/lburg )
 
-# Author: Victor Roemer  wtfbbqhax, <victor@badsec.org>. 
-#  Date: Sat Nov  6 2016 01:09:36 PM 
+# Victor Roemer (wtfbbqhax), <victor@badsec.org>.
 cmake_minimum_required(VERSION 3.5)
+project(QVMCompiler C)
