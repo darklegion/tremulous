@@ -26,6 +26,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../lua-5.3.3/include/lua.hpp"
 #include "../sol/sol.hpp"
 
+#include <errno.h>
+#include <string.h>
+#include <unistd.h>
+
 #include "../script/cvar.h"
 #ifndef DEDICATED
 #include "../script/http_client.h"
@@ -67,19 +71,50 @@ sol::state lua;
 static char binaryPath[ MAX_OSPATH ] = { 0 };
 static char installPath[ MAX_OSPATH ] = { 0 };
 
-void Sys_ExecuteInstaller(const char* args)
+extern char** environ;
+
+class FailInstaller : public std::exception {
+    std::string msg;
+public:
+    FailInstaller(int e)
+    { msg = strerror(e); }
+
+    virtual const char* what() throw()
+    { return msg.c_str(); }
+};
+
+void Sys_ExecuteInstaller(const char *path)
 {
-    sol::function execute = lua["os"]["execute"];
-    std::string cmd { binaryPath };
+    std::string cmd { Sys_DefaultInstallPath() };
     cmd += PATH_SEP;
     cmd += "tremulous-installer";
-    cmd += ' ';
 
-#warning "ARGS is needs to be sanitized!"
-    cmd += args;
-    
+    #warning "path is needs to be sanitized!"
+
+    std::array<const char*,256> argv { };
+
+    argv[0] = cmd.c_str();
+    if ( path && path[0] )
+        argv[1] = path;
+
     Com_Printf( S_COLOR_YELLOW "Executing %s\n", cmd.c_str());
-    execute( cmd.c_str() );
+
+    auto pid = fork();
+    if ( pid == -1 )
+        throw FailInstaller(errno);
+
+    if ( pid == 0 )
+    {
+        execve(cmd.c_str(),
+            const_cast<char **>(argv.data()),
+            environ);
+
+        throw FailInstaller(errno);
+    }
+    else
+    {
+        Engine_Exit("");
+    }
 }
 
 /*
@@ -610,14 +645,14 @@ void Sys_SigHandler( int signal )
     }
     else
     {
-        std::string msg("Received signal " + signal);
+        char const* msg = va("Received signal %d", signal);
 
         signalcaught = qtrue;
         VM_Forced_Unload_Start();
 #ifndef DEDICATED
         CL_Shutdown(va("Received signal %d", signal), qtrue, qtrue);
 #endif
-        SV_Shutdown(msg.c_str());
+        SV_Shutdown(msg);
         VM_Forced_Unload_Done();
     }
 
@@ -657,6 +692,7 @@ void SDLVersionCheck()
     }
 }
 #endif
+
 
 /*
 =================
@@ -740,6 +776,10 @@ int main( int argc, char **argv )
             Com_Frame( );
         } 
         catch (sol::error& e)
+        {
+            Com_Printf(S_COLOR_YELLOW "%s\n", e.what());
+        }
+        catch (FailInstaller& e)
         {
             Com_Printf(S_COLOR_YELLOW "%s\n", e.what());
         }

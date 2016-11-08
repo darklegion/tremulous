@@ -360,9 +360,8 @@ Both client and server can use this, and it will
 do the apropriate things.
 =============
 */
-void Com_Quit_f( void ) {
+void Engine_Exit(const char* p ) {
 	// don't try to shutdown if we are in a recursive error
-	char *p = Cmd_Args( );
 	if ( !com_errorEntered ) {
 		// Some VMs might execute "quit" command directly,
 		// which would trigger an unload of active VM error.
@@ -376,6 +375,12 @@ void Com_Quit_f( void ) {
 		FS_Shutdown(qtrue);
 	}
 	Sys_Quit ();
+}
+
+void Com_Quit_f( void ) {
+	// don't try to shutdown if we are in a recursive error
+	char *p = Cmd_Args( );
+    Engine_Exit(p);
 }
 
 

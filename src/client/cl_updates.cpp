@@ -25,7 +25,6 @@ struct UpdateManager {
     static void execute();
 
 private:
-    static int nextCheckTime;
     static constexpr auto url = "https://api.github.com/repos/wtfbbqhax/tremulous/releases";
     static constexpr auto package_name = "release-mingw32-x86_64.zip";
     static constexpr auto installer_name = "tremulous-installer.exe";
@@ -34,7 +33,7 @@ private:
     // __APPLE__ "release-darwin-x86_64.zip";
 };
 
-int UpdateManager::nextCheckTime = 0;
+static int nextCheckTime = 0;
 
 void UpdateManager::refresh()
 {
@@ -51,9 +50,12 @@ void UpdateManager::refresh()
     RestClient::Response r = RestClient::get(url);
     if ( r.code != 200 )
     {
+        std::string msg { va("Server did not return OK status code: %d", r.code) };
+        
         Cvar_Set("cl_latestRelease", 
                 S_COLOR_RED "ERROR:\n"
                 S_COLOR_WHITE "Server did not return OK status code");
+
         return;
     }
 

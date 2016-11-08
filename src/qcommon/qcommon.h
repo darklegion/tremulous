@@ -832,6 +832,7 @@ void 		QDECL Com_Printf( const char *fmt, ... ) __attribute__ ((format (printf, 
 void 		QDECL Com_Error( int code, const char *fmt, ... ) __attribute__ ((noreturn, format(printf, 2, 3)));
 //#endif
 void 		QDECL Com_DPrintf( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
+void        Engine_Exit(const char* p ) __attribute__ ((noreturn));
 void 		Com_Quit_f( void ) __attribute__ ((noreturn));
 void		Com_GameRestart(int checksumFeed, qboolean disconnect);
 

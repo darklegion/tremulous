@@ -6,11 +6,11 @@ import os
 import sys
 import ycm_core
 
-#def log(msg):
-#    filename = "/Users/viroemer/extra.txt"
-#    with open(filename, 'a') as f:
-#        f.write('%s\n' % msg)
-#
+def log(msg):
+  filename = "/Users/viroemer/extra.txt"
+  with open(filename, 'a') as f:
+    f.write('%s\n' % msg)
+
 
 source_root = os.path.dirname( os.path.abspath( __file__ ) )
 build_root = os.path.join( source_root, 'build' )
@@ -33,8 +33,9 @@ build_root = os.path.join( source_root, 'build' )
 #    '-UNDEBUG'
 #]
 
-if os.path.exists(source_root):
-  database = ycm_core.CompilationDatabase( source_root )
+if os.path.exists(os.path.join(build_root, 'compile_commands.json')):
+  print("Hello world")
+  database = ycm_core.CompilationDatabase(build_root)
 else:
   database = None
 
