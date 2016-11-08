@@ -1,5 +1,13 @@
 add_library(
-    script_rapidjson STATIC
+    script_api STATIC
+    client.h
+    cvar.h
+    http_client.h
+    lnettlelib.c
+    lnettlelib.h
+    lnettlelib.h
+    nettle.h
+    rapidjson.h
     rapidjson/document.cpp
     rapidjson/file.hpp
     rapidjson/luax.hpp
@@ -10,17 +18,18 @@ add_library(
     rapidjson/values.hpp
     )
 
+
 include_directories(
+    # these are in global namespace
     ${CMAKE_CURRENT_SOURCE_DIR}/../lua-5.3.3/include
     ${CMAKE_CURRENT_SOURCE_DIR}/../sol
-    ${CMAKE_CURRENT_SOURCE_DIR}/../rapidjson
     ${CMAKE_CURRENT_SOURCE_DIR}/../qcommon
+    # these have they're own namespace
+    ${CMAKE_CURRENT_SOURCE_DIR}/../nettle-3.3
+    ${CMAKE_CURRENT_SOURCE_DIR}/../rapidjson
     )
 
 target_link_libraries(
-    script_rapidjson
+    script_api
     lua
     )
-
-# command /usr/bin/clang++ -mdynamic-no-pic -Isrc/lua-5.3.3/include -DNDEBUG  -arch x86_64 -mfpmath=sse -ffast-math -o build/release-darwin-x86_64/script/rapidjson/document.o -c src/script/rapidjson/document.cpp
-

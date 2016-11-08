@@ -68,7 +68,6 @@ add_executable(
     #
     ${PARENT_DIR}/sys/con_log.c
     ${PARENT_DIR}/sys/con_tty.c
-    ${PARENT_DIR}/sys/lnettlelib.c
     ${PARENT_DIR}/sys/sys_main.cpp
     ${PARENT_DIR}/sys/sys_unix.c
     ${APPLE_SOURCES}
@@ -94,7 +93,7 @@ target_link_libraries(
     tremded
     #
     lua
-    script_rapidjson
+    script_api
     nettle
     zlib
     ${FRAMEWORKS}

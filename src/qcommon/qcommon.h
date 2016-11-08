@@ -1114,7 +1114,7 @@ char    *Sys_DefaultAppPath(void);
 
 void  Sys_SetDefaultHomePath(const char *path);
 char	*Sys_DefaultHomePath(void);
-const char *Sys_Dirname( char *path );
+const char *Sys_Dirname( char const* path );
 const char *Sys_Basename( char *path );
 char *Sys_ConsoleInput(void);
 

@@ -1685,20 +1685,30 @@ $(B)/lua/%.o: $(LUADIR)/%.c
 # FIXME Disabled for the time being
 #############################################################################
 
-SCRIPT_INCLUDES=-Isrc/qcommon -Isrc/rapidjson -Isrc/sol
+SCRIPT_INCLUDES=-Isrc/qcommon -Isrc/rapidjson -Isrc/sol -Isrc/nettle-3.3
 define DO_SCRIPT_CXX
   $(echo_cmd) "SCRIPT_CXX $<"
   $(Q)$(call EXEC_CXX,${NOTSHLIBCFLAGS} ${SCRIPT_INCLUDES} ${LUACFLAGS} ${OPTIMIZE},'$@','$<')
   $(Q)$(call LOG_CXX,script,${NOTSHLIBCFLAGS} ${SCRIPT_INCLUDES} ${LUACFLAGS} ${OPTIMIZE},'$@','$<')
 endef
 
+define DO_SCRIPT_CC
+  $(echo_cmd) "SCRIPT_CC $<"
+  $(Q)$(call EXEC_CC,${NOTSHLIBCFLAGS} ${SCRIPT_INCLUDES} ${LUACFLAGS} ${OPTIMIZE},'$@','$<')
+  $(Q)$(call LOG_CC,script,${NOTSHLIBCFLAGS} ${SCRIPT_INCLUDES} ${LUACFLAGS} ${OPTIMIZE},'$@','$<')
+endef
+
 SCRIPTOBJ = \
+  $(B)/script/lnettlelib.o \
   $(B)/script/rapidjson/document.o \
   $(B)/script/rapidjson/rapidjson.o \
   $(B)/script/rapidjson/schema.o \
   $(B)/script/rapidjson/values.o
 
 CFLAGS += -I${LUA_RAPIDJSONDIR} -I${SCRIPT_INCLUDES}
+
+$(B)/script/%.o: $(SCRIPTDIR)/%.c
+	$(DO_SCRIPT_CC)
 
 $(B)/script/rapidjson/%.o: $(LUA_RAPIDJSONDIR)/%.cpp
 	$(DO_SCRIPT_CXX)
@@ -1827,8 +1837,7 @@ Q3OBJ = \
   $(B)/client/sdl_snd.o \
   \
   $(B)/client/con_log.o \
-  $(B)/client/sys_main.o \
-  $(B)/client/lnettlelib.o
+  $(B)/client/sys_main.o
 
 ifdef MINGW
   Q3OBJ += \
@@ -2349,8 +2358,7 @@ Q3DOBJ = \
   $(B)/ded/null_snddma.o \
   \
   $(B)/ded/con_log.o \
-  $(B)/ded/sys_main.o \
-  $(B)/client/lnettlelib.o
+  $(B)/ded/sys_main.o
 
 ifeq ($(ARCH),x86)
   Q3DOBJ += \

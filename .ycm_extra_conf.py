@@ -13,7 +13,7 @@ import ycm_core
 #
 
 source_root = os.path.dirname( os.path.abspath( __file__ ) )
-#build_root = os.path.join( source_root, 'build' )
+build_root = os.path.join( source_root, 'build' )
 
 # These are the compilation flags that will be used in case there's no
 # compilation database set (by default, one is not set).

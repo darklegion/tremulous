@@ -191,7 +191,7 @@ const char *Sys_Basename( char *path )
 Sys_Dirname
 ==================
 */
-const char *Sys_Dirname( char *path )
+const char *Sys_Dirname( char const* path )
 {
 	return dirname( path );
 }

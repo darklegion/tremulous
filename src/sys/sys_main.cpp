@@ -25,13 +25,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "../lua-5.3.3/include/lua.hpp"
 #include "../sol/sol.hpp"
+
 #include "../script/cvar.h"
 #ifndef DEDICATED
 #include "../script/http_client.h"
 #include "../script/client.h"
 #endif
 #include "../script/rapidjson.h"
-#include "lnettlelib.h"
+#include "../script/nettle.h"
 
 #include <signal.h>
 #include <stdlib.h>
@@ -65,6 +66,21 @@ sol::state lua;
 
 static char binaryPath[ MAX_OSPATH ] = { 0 };
 static char installPath[ MAX_OSPATH ] = { 0 };
+
+void Sys_ExecuteInstaller(const char* args)
+{
+    sol::function execute = lua["os"]["execute"];
+    std::string cmd { binaryPath };
+    cmd += PATH_SEP;
+    cmd += "tremulous-installer";
+    cmd += ' ';
+
+#warning "ARGS is needs to be sanitized!"
+    cmd += args;
+    
+    Com_Printf( S_COLOR_YELLOW "Executing %s\n", cmd.c_str());
+    execute( cmd.c_str() );
+}
 
 /*
 =================
@@ -300,11 +316,17 @@ cpuFeatures_t Sys_GetProcessorFeatures( void )
     return features;
 }
 
+void Sys_Installer_f()
+{
+    Sys_ExecuteInstaller(Cmd_Args());
+}
+
 void Sys_Script_f( void )
 {
     std::string args = Cmd_Args();
     lua.script(args);
 }
+
 void Sys_ScriptFile_f( void )
 {
     std::string args = Cmd_Args();
@@ -320,6 +342,7 @@ void Sys_Init(void)
     Cmd_AddCommand( "in_restart", Sys_In_Restart_f );
     Cmd_AddCommand( "script", Sys_Script_f );
     Cmd_AddCommand( "script_file", Sys_ScriptFile_f );
+    Cmd_AddCommand( "installer", Sys_Installer_f );
     Cvar_Set( "arch", OS_STRING " " ARCH_STRING );
     Cvar_Set( "username", "UnnamedPlayer" );
 }
@@ -700,10 +723,9 @@ int main( int argc, char **argv )
 #endif
     );
 
-    lua.require("nettle", luaopen_nettle, 1);
-
     script::cvar::init(std::move(lua));
     script::rapidjson::init(std::move(lua));
+    script::nettle::init(std::move(lua));
 
 #ifndef DEDICATED
     script::client::init(std::move(lua));
