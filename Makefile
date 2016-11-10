@@ -135,7 +135,7 @@ ASSETS_DIR=assets
 endif
 
 ifndef BUILD_DIR
-BUILD_DIR=build
+BUILD_DIR=build2
 endif
 
 ifndef TEMPDIR
@@ -1147,10 +1147,10 @@ Q=@
 endif
 
 EXEC_CC = $(CC) ${1} -o ${2} -c ${3}
-LOG_CC = $(file >>compile_commands.txt,{ "target": "${1}", "directory": "$(shell pwd)/$(shell dirname $3)", "command": "${CC} ${2} -o ${3} -c ${4}", "file": "$(shell pwd)/${4}", "relative_file": "${4}" })
+LOG_CC = $(file >>$(B)/compile_commands.txt,{ "target": "${1}", "directory": "$(shell pwd)/$(shell dirname $3)", "command": "${CC} ${2} -o ${3} -c ${4}", "file": "$(shell pwd)/${4}", "relative_file": "${4}" })
 
 EXEC_CXX = $(CXX) -std=c++1y ${CXXFLAGS} ${1} -o ${2} -c ${3}
-LOG_CXX = $(file >>compile_commands.txt,{ "target": "${1}", "directory": "$(shell pwd)/$(shell dirname $3)", "command": "${CXX} ${2} -o ${3} -c ${4}", "file": "$(shell pwd)/${4}", "relative_file": "${4}"})
+LOG_CXX = $(file >>$(B)/compile_commands.txt,{ "target": "${1}", "directory": "$(shell pwd)/$(shell dirname $3)", "command": "${CXX} ${2} -o ${3} -c ${4}", "file": "$(shell pwd)/${4}", "relative_file": "${4}"})
 
 # TREMULOUS CLIENT
 CC_FLAGS=${NOTSHLIBCFLAGS} ${CFLAGS} ${CLIENT_CFLAGS} ${OPTIMIZE}
@@ -1205,6 +1205,8 @@ $(echo_cmd) "REF_STR $<"
 $(Q)rm -f $@
 $(Q)echo "const char *fallbackShader_$(notdir $(basename $<)) =" >> $@
 $(Q)cat $< | sed 's/^/\"/;s/$$/\\n\"/' >> $@
+mkdir -p $(B)/glsl
+cp $@ $(B)/glsl/
 $(Q)echo ";" >> $@
 endef
 
@@ -1334,7 +1336,7 @@ else
   print_wrapped=$(print_list)
 endif
 
-compile_commands.json: compile_commands.txt
+$(B)/compile_commands.json: $(B)/compile_commands.txt
 	sed -i -e "$$ ! s/}/},/" $<
 	echo '[' >$@
 	cat $< >>$@
@@ -1387,7 +1389,7 @@ endif
 	@echo "  Output:"
 	$(call print_list, $(NAKED_TARGETS))
 	@echo ""
-	@$(MAKE) $(TARGETS) $(B).zip V=$(V)
+	@$(MAKE) $(TARGETS) $(B)/compile_commands.json $(B).zip V=$(V)
 
 $(B).zip: $(TARGETS)
 ifeq ($(PLATFORM),darwin)
@@ -2859,7 +2861,7 @@ TOOLSOBJ = $(LBURGOBJ) $(Q3CPPOBJ) $(Q3RCCOBJ) $(Q3LCCOBJ) $(Q3ASMOBJ)
 STRINGOBJ = $(Q3R2STRINGOBJ)
 
 clean: clean-debug clean-release
-	@rm -f compile_commands.json compile_commands.txt compile_commands.txt-e
+	@rm -f $(B)/compile_commands.json $(B)/compile_commands.txt $(B)/compile_commands.txt-e
 
 clean-debug:
 	@$(MAKE) clean2 B=$(BD)

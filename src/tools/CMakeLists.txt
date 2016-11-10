@@ -5,6 +5,7 @@
 #                                               |__|
 # TODO: DO NOT build unless building a QVM
 
+
 #  _  _                     
 # | || |                    
 # | || |          ,_    __, 
@@ -132,6 +133,12 @@ add_executable(
     )
 
 target_include_directories( q3rcc PUBLIC lcc/src lcc/lburg )
+
+set_property(
+    TARGET lburg q3asm q3lcc q3cpp q3rcc
+    PROPERTY RUNTIME_OUTPUT_DIRECTORY
+    ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/qvm_tools
+    )
 
 # Victor Roemer (wtfbbqhax), <victor@badsec.org>.
 cmake_minimum_required(VERSION 3.5)

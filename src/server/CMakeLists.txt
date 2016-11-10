@@ -82,7 +82,7 @@ add_executable(
 
 if(APPLE)
  # FIXME Prefixed with "lua" to prevent cmake from doing "-l-framework Cocoa"
- set(FRAMEWORKS "lua -framework Cocoa -framework Security -framework OpenAL -framework IOKit")
+ set(FRAMEWORKS "-framework Cocoa -framework Security -framework OpenAL -framework IOKit")
 else(APPLE)
  if(UNIX)
   set(SYSLIBS dl rt)

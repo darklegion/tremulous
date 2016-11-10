@@ -1,54 +1,63 @@
-#FIXME: Link against prebuilt SDL2 
-#FIND_LIBRARY(SDL2_LIBRARIES NAMES SDL2main HINTS $ENV{SDL2DIR} PATHS ${CMAKE_SOURCE_DIR}/src/libs/macosx)
-if(APPLE)
- set(SDL2_PREFIX "/usr/local")
- set(SDL2_LIBRARIES "-L${SDL2_PREFIX} -lSDL2")
- set(SDL2_INCLUDE_DIRS "${SDL2_PREFIX}/include/SDL2")
-else(APPLE)
- set(SDL2_PREFIX "/usr")
- set(SDL2_LIBRARIES "-L${SDL2_PREFIX} -lSDL2")
- set(SDL2_INCLUDE_DIRS "${SDL2_PREFIX}/include/SDL2")
-endif(APPLE)
+include("${CMAKE_SOURCE_DIR}/cmake/SDL2.cmake")
 
+find_package(OpenGL)
+
+set(PARENT_DIR ${CMAKE_SOURCE_DIR}/src)
 include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}/../jpeg-8c
-    ${CMAKE_CURRENT_SOURCE_DIR}/../renderercommon 
+    ${PARENT_DIR}/jpeg-8c
+    ${PARENT_DIR}/renderercommon 
+    ${PARENT_DIR}/nettle-3.3
     ${SDL2_INCLUDE_DIRS} 
     )
 
-set(GLSL_SHADERS
-    glsl/bokeh_fp.c
-    glsl/bokeh_vp.c
-    glsl/calclevels4x_fp.c
-    glsl/calclevels4x_vp.c
-    glsl/depthblur_fp.c
-    glsl/depthblur_vp.c
-    glsl/dlight_fp.c
-    glsl/dlight_vp.c
-    glsl/down4x_fp.c
-    glsl/down4x_vp.c
-    glsl/fogpass_fp.c
-    glsl/fogpass_vp.c
-    glsl/generic_fp.c
-    glsl/generic_vp.c
-    glsl/lightall_fp.c
-    glsl/lightall_vp.c
-    glsl/pshadow_fp.c
-    glsl/pshadow_vp.c
-    glsl/shadowfill_fp.c
-    glsl/shadowfill_vp.c
-    glsl/shadowmask_fp.c
-    glsl/shadowmask_vp.c
-    glsl/ssao_fp.c
-    glsl/ssao_vp.c
-    glsl/texturecolor_fp.c
-    glsl/texturecolor_vp.c
-    glsl/tonemap_fp.c
-    glsl/tonemap_vp.c
+include_directories(lib/embed-resource)
+add_subdirectory(lib/embed-resource)
+
+embed_resources(
+    GLSL_SHADERS
+    glsl/bokeh_fp.glsl
+    glsl/bokeh_vp.glsl
+    glsl/calclevels4x_fp.glsl
+    glsl/calclevels4x_vp.glsl
+    glsl/depthblur_fp.glsl
+    glsl/depthblur_vp.glsl
+    glsl/dlight_fp.glsl
+    glsl/dlight_vp.glsl
+    glsl/down4x_fp.glsl
+    glsl/down4x_vp.glsl
+    glsl/fogpass_fp.glsl
+    glsl/fogpass_vp.glsl
+    glsl/generic_fp.glsl
+    glsl/generic_vp.glsl
+    glsl/lightall_fp.glsl
+    glsl/lightall_vp.glsl
+    glsl/pshadow_fp.glsl
+    glsl/pshadow_vp.glsl
+    glsl/shadowfill_fp.glsl
+    glsl/shadowfill_vp.glsl
+    glsl/shadowmask_fp.glsl
+    glsl/shadowmask_vp.glsl
+    glsl/ssao_fp.glsl
+    glsl/ssao_vp.glsl
+    glsl/texturecolor_fp.glsl
+    glsl/texturecolor_vp.glsl
+    glsl/tonemap_fp.glsl
+    glsl/tonemap_vp.glsl
     )
 
-add_library(
-    renderergl2 STATIC
+# XXX: GLSL_SOURCES files must be generated
+# define DO_REF_STR
+#   $(echo_cmd) "REF_STR $<"
+#   rm -f $@
+#   echo "const char *fallbackShader_$(notdir $(basename $<)) =" >> $@
+#   cat $< | sed 's/^/\"/;s/$$/\\n\"/' >> $@
+#   echo ";" >> $@
+# endef
+# 
+# $(B)/renderergl2/glsl/%.c: $(RGL2DIR)/glsl/%.glsl
+# 	$(DO_REF_STR)
+
+set(RENDERERGL2_SRCS
     #
     tr_local.h
     tr_dsa.h
@@ -88,6 +97,69 @@ add_library(
     tr_surface.c
     tr_vbo.c
     tr_world.c
+    #
+    #${CMAKE_SOURCE_DIR}/src/qcommon/cm_load.c
+    #${CMAKE_SOURCE_DIR}/src/qcommon/cm_patch.c
+    #${CMAKE_SOURCE_DIR}/src/qcommon/cm_polylib.c
+    #${CMAKE_SOURCE_DIR}/src/qcommon/cm_test.c
+    #${CMAKE_SOURCE_DIR}/src/qcommon/cm_trace.c
+    #${CMAKE_SOURCE_DIR}/src/qcommon/cmd.cpp
+    #${CMAKE_SOURCE_DIR}/src/qcommon/common.c
+    #${CMAKE_SOURCE_DIR}/src/qcommon/cvar.cpp
+    #${CMAKE_SOURCE_DIR}/src/qcommon/files.c
+    #${CMAKE_SOURCE_DIR}/src/qcommon/huffman.c
+    #${CMAKE_SOURCE_DIR}/src/qcommon/ioapi.c
+    #${CMAKE_SOURCE_DIR}/src/qcommon/md4.c
+    #${CMAKE_SOURCE_DIR}/src/qcommon/md5.c
+    #${CMAKE_SOURCE_DIR}/src/qcommon/msg.c
+    #${CMAKE_SOURCE_DIR}/src/qcommon/net_chan.c
+    #${CMAKE_SOURCE_DIR}/src/qcommon/net_ip.c
+    #${CMAKE_SOURCE_DIR}/src/qcommon/parse.c
+    #${CMAKE_SOURCE_DIR}/src/qcommon/puff.c
+    #${CMAKE_SOURCE_DIR}/src/qcommon/q_shared.c
+    #${CMAKE_SOURCE_DIR}/src/qcommon/q3_lauxlib.cpp
+    #${CMAKE_SOURCE_DIR}/src/qcommon/q_math.c
+    #${CMAKE_SOURCE_DIR}/src/qcommon/unzip.c
+    #${CMAKE_SOURCE_DIR}/src/qcommon/vm.c
+    #${CMAKE_SOURCE_DIR}/src/qcommon/vm_interpreted.c
+    #${CMAKE_SOURCE_DIR}/src/qcommon/vm_x86.c
+    #
+    ${GLSL_SHADERS}
     )
 
-target_link_libraries( renderergl2 renderercommon ${SDL2_LIBRARIES} )
+if(NOT USE_RENDERER_DLOPEN)
+    add_library(
+        renderergl2 STATIC
+        ${RENDERERGL2_SRCS}
+        )
+
+    target_link_libraries(
+        renderergl2 renderercommon
+        ${SDL2_LIBRARIES}
+        )
+else(NOT USE_RENDERER_DLOPEN)
+    add_library(
+        renderergl2 SHARED
+        ${RENDERERGL2_SRCS}
+        )
+
+    set_property(
+        TARGET renderergl2
+        PROPERTY OUTPUT_NAME "renderer_opengl2"
+        )
+
+    set_property(
+        TARGET renderergl2
+        PROPERTY RUNTIME_OUTPUT_DIRECTORY
+        "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
+        )
+
+endif(NOT USE_RENDERER_DLOPEN)
+
+target_link_libraries(
+    renderergl2 
+    renderercommon
+    ${FRAMEWORKS}
+    ${OPENGL_LIBRARIES}
+    ${SDL2_LIBRARIES}
+    )

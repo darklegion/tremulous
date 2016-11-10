@@ -1,7 +1,7 @@
 
 include(CMakeParseArguments)
 
-set(QVM_TOOLS_DIR ${CMAKE_BINARY_DIR}/src/tools)
+set(QVM_TOOLS_DIR ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/qvm_tools)
 set(Q3CPP_BINARY ${QVM_TOOLS_DIR}/q3cpp )
 set(Q3RCC_BINARY ${QVM_TOOLS_DIR}/q3rcc )
 set(Q3LCC_BINARY ${QVM_TOOLS_DIR}/q3lcc )

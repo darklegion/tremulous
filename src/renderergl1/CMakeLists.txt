@@ -1,14 +1,4 @@
-#FIXME: Link against prebuilt SDL2 
-#FIND_LIBRARY(SDL2_LIBRARIES NAMES SDL2main HINTS $ENV{SDL2DIR} PATHS ${CMAKE_SOURCE_DIR}/src/libs/macosx)
-if(APPLE)
- set(SDL2_PREFIX "/usr/local")
- set(SDL2_LIBRARIES "-L${SDL2_PREFIX} -lSDL2")
- set(SDL2_INCLUDE_DIRS "${SDL2_PREFIX}/include/SDL2")
-else(APPLE)
- set(SDL2_PREFIX "/usr")
- set(SDL2_LIBRARIES "-L${SDL2_PREFIX} -lSDL2")
- set(SDL2_INCLUDE_DIRS "${SDL2_PREFIX}/include/SDL2")
-endif(APPLE)
+include("${CMAKE_SOURCE_DIR}/cmake/SDL2.cmake")
 
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../jpeg-8c

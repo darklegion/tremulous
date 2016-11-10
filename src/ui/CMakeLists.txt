@@ -48,4 +48,11 @@ target_include_directories(
     ${BG_SOURCE_DIR}
     )
 
+include(${CMAKE_SOURCE_DIR}/cmake/AddQVM.cmake)
 add_qvm( ui ${UI_SOURCES} ui_syscalls.asm )
+
+add_custom_command(
+    TARGET ui POST_BUILD
+    COMMAND ${CMAKE_COMMAND}
+    ARGS -E copy ${CMAKE_CURRENT_BINARY_DIR}/libui.dylib ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/gpp/uix86_64.dylib
+    )

@@ -59,5 +59,12 @@ set( GAME_SOURCES
 
 add_library( game SHARED ${GAME_SOURCES} g_syscalls.c )
 
+include( ${CMAKE_SOURCE_DIR}/cmake/AddQVM.cmake )
 add_qvm( game ${GAME_SOURCES} g_syscalls.asm )
+
+add_custom_command(
+    TARGET game POST_BUILD
+    COMMAND ${CMAKE_COMMAND}
+    ARGS -E copy ${CMAKE_CURRENT_BINARY_DIR}/libgame.dylib ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/gpp/gamex86_64.dylib
+    )
 

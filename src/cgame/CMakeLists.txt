@@ -72,4 +72,12 @@ target_include_directories(
     ${UI_SOURCE_DIR}
     )
 
+include( ${CMAKE_SOURCE_DIR}/cmake/AddQVM.cmake )
 add_qvm( cgame ${CGAME_SOURCES} cg_syscalls.asm )
+
+
+add_custom_command(
+    TARGET cgame POST_BUILD
+    COMMAND ${CMAKE_COMMAND}
+    ARGS -E copy ${CMAKE_CURRENT_BINARY_DIR}/libcgame.dylib ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/gpp/cgamex86_64.dylib
+    )

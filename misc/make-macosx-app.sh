@@ -216,7 +216,7 @@ done
 cd `dirname $0`
 
 if [ ! -f Makefile ]; then
-	echo "$0 must be run from the ioquake3 build directory"
+	echo "$0 must be run from the ioquake3 build directory `dirname $0`"
 	exit 1
 fi
 

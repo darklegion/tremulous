@@ -7,15 +7,11 @@
 ## Y8b  d8 88booo.   .88.   88.     88  V888    88
 ##  `Y88P' Y88888P Y888888P Y88888P VP   V8P    YP
 #
-if(APPLE)
- set(SDL2_PREFIX "/usr/local")
- set(SDL2_LIBRARIES "-L${SDL2_PREFIX} -lSDL2")
- set(SDL2_INCLUDE_DIRS "${SDL2_PREFIX}/include/SDL2")
-else(APPLE)
- set(SDL2_PREFIX "/usr")
- set(SDL2_LIBRARIES "-L${SDL2_PREFIX} -lSDL2")
- set(SDL2_INCLUDE_DIRS "${SDL2_PREFIX}/include/SDL2")
-endif(APPLE)
+
+find_package(CURL)
+find_package(OpenGL)
+find_package(OpenAL)
+include(${CMAKE_SOURCE_DIR}/cmake/SDL2.cmake)
 
 add_definitions(
     -DUSE_LOCAL_HEADERS
@@ -29,6 +25,7 @@ add_definitions(
     #FIXME-DUSE_RENDERER_DLOPEN
     -DNDEBUG
     -DPRODUCT_VERSION=""
+    ${SDL2_DEFINES}
     )
 
 set(PARENT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/..)
@@ -69,14 +66,6 @@ add_executable(
     snd_mix.c
     snd_openal.c
     snd_wavelet.c
-    #
-    #${PARENT_DIR}/restclient/connection.cpp
-    #${PARENT_DIR}/restclient/connection.h
-    #${PARENT_DIR}/restclient/helpers.cpp
-    #${PARENT_DIR}/restclient/helpers.h
-    #${PARENT_DIR}/restclient/restclient.cpp
-    #${PARENT_DIR}/restclient/restclient.h
-    #${PARENT_DIR}/restclient/version.h
     #
     ${PARENT_DIR}/qcommon/cm_load.c
     ${PARENT_DIR}/qcommon/cm_patch.c
@@ -126,7 +115,7 @@ add_executable(
 
 if(APPLE)
  # FIXME Prefixed with "lua" to prevent cmake from doing "-l-framework Cocoa"
- set(FRAMEWORKS "lua -framework Cocoa -framework Security -framework OpenAL -framework IOKit")
+ set(FRAMEWORKS "-framework Cocoa -framework Security -framework OpenAL -framework IOKit")
 else(APPLE)
  if(UNIX)
   set(SYSLIBS dl rt)
@@ -173,3 +162,11 @@ include_directories(
     ${OPENAL_INCLUDE_DIR}
     )
 
+# TODO: Turn this into a macro 
+if (USE_INTERNAL_SDL2)
+add_custom_command(
+    TARGET tremulous
+    POST_BUILD COMMAND ${CMAKE_COMMAND}
+    ARGS -E copy ${CMAKE_SOURCE_DIR}/src/SDL2/libs/Darwin/libSDL2-2.0.0.dylib ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/libSDL2-2.0.0.dylib
+    )
+endif(USE_INTERNAL_SDL2)

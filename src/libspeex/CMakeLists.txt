@@ -1,7 +1,7 @@
 set( SPEEX_INCLUDES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include ) 
 
 add_library (
-    libspeex STATIC
+    speex STATIC
     _kiss_fft_guts.h
     arch.h
     bits.c
@@ -97,7 +97,7 @@ add_library (
 add_definitions( -DFLOATING_POINT )
 
 target_include_directories(
-    libspeex PUBLIC
+    speex PUBLIC
     ${SPEEX_INCLUDES_DIR}
     ) 
 

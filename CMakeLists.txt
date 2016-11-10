@@ -10,30 +10,27 @@
 
 cmake_minimum_required(VERSION 3.5)
 project(Tremulous C CXX)
-#set(CMAKE_MODULE_PATH cmake)
 
 set(CMAKE_CXX_FLAGS -std=c++1y)
 
+# XXX This one doesn't work yet
+option(USE_RENDERER_DLOPEN "" OFF)
+
+# These are not used at the moment 
+option(USE_INTERNAL_SDL2 "" ON)
 option(USE_INTERNAL_JPEG "" ON)
 option(USE_OPENAL "" ON)
 option(USE_OPENAL_DLOPEN "" ON)
-option(USE_VOIP "" ON)
+option(USE_VOIP "" OFF)
 option(USE_MUMBLE "" ON)
 option(USE_CODEC_OPUS "" ON)
-option(USE_RENDERER_DLOPEN "" ON)
 option(USE_RESTCLIENT "" ON)
 
-include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/FindQVM.cmake)
-
-find_package(CURL)
-find_package(OpenGL)
-find_package(OpenAL)
-
-set(SDL2_PREFIX "/usr/local")
-set(SDL2_LIBRARIES "-L${SDL2_PREFIX} -lSDL2")
-set(SDL2_INCLUDE_DIRS "${SDL2_PREFIX}/inlcude/SDL2")
+include(${CMAKE_SOURCE_DIR}/cmake/build_dir)
+include(${CMAKE_SOURCE_DIR}/cmake/debug_cflags)
 
 # builtins 
+add_subdirectory(src/SDL2)
 add_subdirectory(src/lua-5.3.3)
 add_subdirectory(src/nettle-3.3)
 add_subdirectory(src/zlib)
@@ -50,7 +47,7 @@ add_subdirectory(src/libvorbis-1.3.4)
 add_subdirectory(src/script)
 add_subdirectory(src/renderercommon)
 add_subdirectory(src/renderergl1)
-add_subdirectory(src/renderergl2)
+#add_subdirectory(src/renderergl2)
 add_subdirectory(src/restclient)
 
 #         .                    .
