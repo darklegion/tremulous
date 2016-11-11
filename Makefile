@@ -135,7 +135,7 @@ ASSETS_DIR=assets
 endif
 
 ifndef BUILD_DIR
-BUILD_DIR=build2
+BUILD_DIR=build
 endif
 
 ifndef TEMPDIR
@@ -946,11 +946,11 @@ endif
 TARGETS =
 
 ifndef FULLBINEXT
-  FULLBINEXT=.$(ARCH)$(BINEXT)
+  FULLBINEXT=$(BINEXT)
 endif
 
 ifndef SHLIBNAME
-  SHLIBNAME=$(ARCH).$(SHLIBEXT)
+  SHLIBNAME=.$(SHLIBEXT)
 endif
 
 ifneq ($(BUILD_SERVER),0)
@@ -959,9 +959,9 @@ endif
 
 ifneq ($(BUILD_CLIENT),0)
   ifneq ($(USE_RENDERER_DLOPEN),0)
-    TARGETS += $(B)/$(CLIENTBIN)$(FULLBINEXT) $(B)/renderer_opengl1_$(SHLIBNAME)
+    TARGETS += $(B)/$(CLIENTBIN)$(FULLBINEXT) $(B)/renderer_opengl1$(SHLIBNAME)
     ifneq ($(BUILD_RENDERER_OPENGL2),0)
-      TARGETS += $(B)/renderer_opengl2_$(SHLIBNAME)
+      TARGETS += $(B)/renderer_opengl2$(SHLIBNAME)
     endif
   else
     TARGETS += $(B)/$(CLIENTBIN)$(FULLBINEXT)
@@ -1147,10 +1147,10 @@ Q=@
 endif
 
 EXEC_CC = $(CC) ${1} -o ${2} -c ${3}
-LOG_CC = $(file >>$(B)/compile_commands.txt,{ "target": "${1}", "directory": "$(shell pwd)/$(shell dirname $3)", "command": "${CC} ${2} -o ${3} -c ${4}", "file": "$(shell pwd)/${4}", "relative_file": "${4}" })
+#LOG_CC = $(file >>$(B)/compile_commands.txt,{ "target": "${1}", "directory": "$(shell pwd)/$(shell dirname $3)", "command": "${CC} ${2} -o ${3} -c ${4}", "file": "$(shell pwd)/${4}", "relative_file": "${4}" })
 
 EXEC_CXX = $(CXX) -std=c++1y ${CXXFLAGS} ${1} -o ${2} -c ${3}
-LOG_CXX = $(file >>$(B)/compile_commands.txt,{ "target": "${1}", "directory": "$(shell pwd)/$(shell dirname $3)", "command": "${CXX} ${2} -o ${3} -c ${4}", "file": "$(shell pwd)/${4}", "relative_file": "${4}"})
+#LOG_CXX = $(file >>$(B)/compile_commands.txt,{ "target": "${1}", "directory": "$(shell pwd)/$(shell dirname $3)", "command": "${CXX} ${2} -o ${3} -c ${4}", "file": "$(shell pwd)/${4}", "relative_file": "${4}"})
 
 # TREMULOUS CLIENT
 CC_FLAGS=${NOTSHLIBCFLAGS} ${CFLAGS} ${CLIENT_CFLAGS} ${OPTIMIZE}
@@ -1336,11 +1336,11 @@ else
   print_wrapped=$(print_list)
 endif
 
-$(B)/compile_commands.json: $(B)/compile_commands.txt
-	sed -i -e "$$ ! s/}/},/" $<
-	echo '[' >$@
-	cat $< >>$@
-	echo ']' >>$@
+#$(B)/compile_commands.json: $(B)/compile_commands.txt
+#	sed -i -e "$$ ! s/}/},/" $<
+#	echo '[' >$@
+#	cat $< >>$@
+#	echo ']' >>$@
 
 # Create the build directories, check libraries and print out
 # an informational message, then start building
@@ -1389,7 +1389,7 @@ endif
 	@echo "  Output:"
 	$(call print_list, $(NAKED_TARGETS))
 	@echo ""
-	@$(MAKE) $(TARGETS) $(B)/compile_commands.json $(B).zip V=$(V)
+	@$(MAKE) $(TARGETS) $(B).zip V=$(V)
 
 $(B).zip: $(TARGETS)
 ifeq ($(PLATFORM),darwin)
@@ -2281,12 +2281,12 @@ $(B)/$(CLIENTBIN)$(FULLBINEXT): $(Q3OBJ) $(LIBSDLMAIN)
 	$(Q)$(CXX) -std=c++1y $(CXXFLAGS) $(CLIENT_LDFLAGS) $(LDFLAGS) $(Q3OBJ) \
 		$(LIBSDLMAIN) $(CLIENT_LIBS) $(LIBS) -o $@ 
 
-$(B)/renderer_opengl1_$(SHLIBNAME): $(Q3ROBJ) $(JPGOBJ)
+$(B)/renderer_opengl1$(SHLIBNAME): $(Q3ROBJ) $(JPGOBJ)
 	$(echo_cmd) "LD $@"
 	$(Q)$(CC) $(SHLIBLDFLAGS) -o $@ $(Q3ROBJ) $(JPGOBJ) \
 		$(THREAD_LIBS) $(LIBSDLMAIN) $(RENDERER_LIBS) $(LDFLAGS)
 
-$(B)/renderer_opengl2_$(SHLIBNAME): $(Q3R2OBJ) $(Q3R2STRINGOBJ) $(JPGOBJ)
+$(B)/renderer_opengl2$(SHLIBNAME): $(Q3R2OBJ) $(Q3R2STRINGOBJ) $(JPGOBJ)
 	$(echo_cmd) "LD $@"
 	$(Q)$(CC) $(SHLIBLDFLAGS) -o $@ $(Q3R2OBJ) $(Q3R2STRINGOBJ) $(JPGOBJ) \
 		$(THREAD_LIBS) $(LIBSDLMAIN) $(RENDERER_LIBS) $(LDFLAGS)

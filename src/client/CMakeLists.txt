@@ -22,9 +22,9 @@ add_definitions(
     -DUSE_OPENAL
     -DUSE_OPENAL_DLOPEN
     -DUSE_INTERNAL_JPEG
-    #FIXME-DUSE_RENDERER_DLOPEN
+    -DUSE_RENDERER_DLOPEN
     -DNDEBUG
-    -DPRODUCT_VERSION=""
+    -DPRODUCT_VERSION="pre-release"
     ${SDL2_DEFINES}
     )
 
@@ -122,6 +122,13 @@ else(APPLE)
  endif(UNIX)
 endif(APPLE)
 
+if(NOT USE_RENDERER_DLOPEN)
+  if(USE_OPENGL1)
+  set(RENDERER_LIBRARY renderergl1)
+  endif(USE_OPENGL1)
+  set(RENDERER_LIBRARY renderergl2)
+endif(NOT USE_RENDERER_DLOPEN)
+
 target_link_libraries(
     tremulous
     #
@@ -134,8 +141,6 @@ target_link_libraries(
     #
     script_api
     restclient
-    renderergl1
-    #renderergl2
     #
     ${FRAMEWORKS}
     ${CURL_LIBRARIES}
@@ -170,3 +175,25 @@ add_custom_command(
     ARGS -E copy ${CMAKE_SOURCE_DIR}/src/SDL2/libs/Darwin/libSDL2-2.0.0.dylib ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/libSDL2-2.0.0.dylib
     )
 endif(USE_INTERNAL_SDL2)
+
+if (USE_RENDERER_DLOPEN)
+    add_custom_command(
+        TARGET tremulous
+        POST_BUILD COMMAND ${CMAKE_COMMAND}
+        ARGS -E copy ${CMAKE_BINARY_DIR}/src/renderergl1/librenderergl1${CMAKE_SHARED_LIBRARY_SUFFIX} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/renderer_opengl1${CMAKE_SHARED_LIBRARY_SUFFIX}
+        )
+
+    add_custom_command(
+        TARGET tremulous
+        POST_BUILD COMMAND ${CMAKE_COMMAND}
+        ARGS -E copy ${CMAKE_BINARY_DIR}/src/renderergl2/librenderergl2${CMAKE_SHARED_LIBRARY_SUFFIX} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/renderer_opengl2${CMAKE_SHARED_LIBRARY_SUFFIX}
+        )
+endif(USE_RENDERER_DLOPEN)
+
+
+add_dependencies(
+    tremulous
+    ui
+    renderergl1
+    renderergl2
+    )

@@ -14,10 +14,14 @@ project(Tremulous C CXX)
 set(CMAKE_CXX_FLAGS -std=c++1y)
 
 # XXX This one doesn't work yet
-option(USE_RENDERER_DLOPEN "" OFF)
+option(USE_RENDERER_DLOPEN "" ON)
 
 # These are not used at the moment 
+if (APPLE or WIN32)
 option(USE_INTERNAL_SDL2 "" ON)
+else
+option(USE_INTERNAL_SDL2 "" OFF)
+endif (APPLE or WIN32)
 option(USE_INTERNAL_JPEG "" ON)
 option(USE_OPENAL "" ON)
 option(USE_OPENAL_DLOPEN "" ON)
@@ -47,7 +51,7 @@ add_subdirectory(src/libvorbis-1.3.4)
 add_subdirectory(src/script)
 add_subdirectory(src/renderercommon)
 add_subdirectory(src/renderergl1)
-#add_subdirectory(src/renderergl2)
+add_subdirectory(src/renderergl2)
 add_subdirectory(src/restclient)
 
 #         .                    .

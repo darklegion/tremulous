@@ -10,11 +10,7 @@ include_directories(
     ${SDL2_INCLUDE_DIRS} 
     )
 
-include_directories(lib/embed-resource)
-add_subdirectory(lib/embed-resource)
-
-embed_resources(
-    GLSL_SHADERS
+set(GLSL_SHADERS
     glsl/bokeh_fp.glsl
     glsl/bokeh_vp.glsl
     glsl/calclevels4x_fp.glsl
@@ -45,27 +41,41 @@ embed_resources(
     glsl/tonemap_vp.glsl
     )
 
-# XXX: GLSL_SOURCES files must be generated
-# define DO_REF_STR
-#   $(echo_cmd) "REF_STR $<"
-#   rm -f $@
-#   echo "const char *fallbackShader_$(notdir $(basename $<)) =" >> $@
-#   cat $< | sed 's/^/\"/;s/$$/\\n\"/' >> $@
-#   echo ";" >> $@
-# endef
-# 
-# $(B)/renderergl2/glsl/%.c: $(RGL2DIR)/glsl/%.glsl
-# 	$(DO_REF_STR)
+# Converts ^^^GSLS shaders^^^ into const char* C-strings.
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/glsl/)
+foreach(shader ${GLSL_SHADERS})
+    set(in ${CMAKE_CURRENT_SOURCE_DIR}/${shader})
 
-set(RENDERERGL2_SRCS
-    #
+    get_filename_component(out ${in} NAME_WE)
+    set(out ${CMAKE_CURRENT_BINARY_DIR}/glsl/${out}.c)
+
+    get_filename_component(shader ${shader} NAME_WE)
+    message(STATUS "-- Generating embeded GLSL ${shader}")
+
+    file(READ ${in} contents HEX)
+    file(WRITE ${out} "const char *fallbackShader_${shader} = \"")
+
+    string(LENGTH "${contents}" contents_length)
+    math(EXPR contents_length "${contents_length} - 1")
+
+    foreach(iter RANGE 0 ${contents_length} 2)
+      string(SUBSTRING ${contents} ${iter} 2 line)
+      file(APPEND "${out}" "\\x${line}")
+    endforeach()
+    file(APPEND "${out}" "\";\n")
+
+    list(APPEND renderergl2_SHADERS "${out}")
+    set_source_files_properties(${out} PROPERTIES GENERATED TRUE)
+endforeach(shader)
+
+set(renderergl2_SRCS
+    ${renderergl2_SHADERS}
     tr_local.h
     tr_dsa.h
     tr_extramath.h
     tr_extratypes.h
     tr_fbo.h
     tr_postprocess.h
-    #
     tr_animation.c
     tr_backend.c
     tr_bsp.c
@@ -97,69 +107,40 @@ set(RENDERERGL2_SRCS
     tr_surface.c
     tr_vbo.c
     tr_world.c
-    #
-    #${CMAKE_SOURCE_DIR}/src/qcommon/cm_load.c
-    #${CMAKE_SOURCE_DIR}/src/qcommon/cm_patch.c
-    #${CMAKE_SOURCE_DIR}/src/qcommon/cm_polylib.c
-    #${CMAKE_SOURCE_DIR}/src/qcommon/cm_test.c
-    #${CMAKE_SOURCE_DIR}/src/qcommon/cm_trace.c
-    #${CMAKE_SOURCE_DIR}/src/qcommon/cmd.cpp
-    #${CMAKE_SOURCE_DIR}/src/qcommon/common.c
-    #${CMAKE_SOURCE_DIR}/src/qcommon/cvar.cpp
-    #${CMAKE_SOURCE_DIR}/src/qcommon/files.c
-    #${CMAKE_SOURCE_DIR}/src/qcommon/huffman.c
-    #${CMAKE_SOURCE_DIR}/src/qcommon/ioapi.c
-    #${CMAKE_SOURCE_DIR}/src/qcommon/md4.c
-    #${CMAKE_SOURCE_DIR}/src/qcommon/md5.c
-    #${CMAKE_SOURCE_DIR}/src/qcommon/msg.c
-    #${CMAKE_SOURCE_DIR}/src/qcommon/net_chan.c
-    #${CMAKE_SOURCE_DIR}/src/qcommon/net_ip.c
-    #${CMAKE_SOURCE_DIR}/src/qcommon/parse.c
-    #${CMAKE_SOURCE_DIR}/src/qcommon/puff.c
-    #${CMAKE_SOURCE_DIR}/src/qcommon/q_shared.c
-    #${CMAKE_SOURCE_DIR}/src/qcommon/q3_lauxlib.cpp
-    #${CMAKE_SOURCE_DIR}/src/qcommon/q_math.c
-    #${CMAKE_SOURCE_DIR}/src/qcommon/unzip.c
-    #${CMAKE_SOURCE_DIR}/src/qcommon/vm.c
-    #${CMAKE_SOURCE_DIR}/src/qcommon/vm_interpreted.c
-    #${CMAKE_SOURCE_DIR}/src/qcommon/vm_x86.c
-    #
-    ${GLSL_SHADERS}
+    ${CMAKE_SOURCE_DIR}/src/qcommon/q_shared.c
+    ${CMAKE_SOURCE_DIR}/src/qcommon/puff.c
+    ${CMAKE_SOURCE_DIR}/src/qcommon/q_math.c
     )
 
 if(NOT USE_RENDERER_DLOPEN)
+
     add_library(
         renderergl2 STATIC
-        ${RENDERERGL2_SRCS}
-        )
+        ${renderergl2_SRCS})
 
     target_link_libraries(
         renderergl2 renderercommon
-        ${SDL2_LIBRARIES}
-        )
+        ${SDL2_LIBRARIES})
+
 else(NOT USE_RENDERER_DLOPEN)
+
     add_library(
         renderergl2 SHARED
-        ${RENDERERGL2_SRCS}
+        ${renderergl2_SRCS}
         )
 
-    set_property(
-        TARGET renderergl2
-        PROPERTY OUTPUT_NAME "renderer_opengl2"
+        target_link_libraries(
+        renderergl2 
+        renderercommon
+        ${FRAMEWORKS}
+        ${OPENGL_LIBRARIES}
+        ${SDL2_LIBRARIES}
         )
-
-    set_property(
+    add_custom_command(
         TARGET renderergl2
-        PROPERTY RUNTIME_OUTPUT_DIRECTORY
-        "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
+        POST_BUILD COMMAND ${CMAKE_COMMAND}
+        ARGS -E copy ${CMAKE_CURRENT_BINARY_DIR}/librenderergl2${CMAKE_SHARED_LIBRARY_SUFFIX} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/renderer_opengl2${CMAKE_SHARED_LIBRARY_SUFFIX}
         )
 
 endif(NOT USE_RENDERER_DLOPEN)
 
-target_link_libraries(
-    renderergl2 
-    renderercommon
-    ${FRAMEWORKS}
-    ${OPENGL_LIBRARIES}
-    ${SDL2_LIBRARIES}
-    )
