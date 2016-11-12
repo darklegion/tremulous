@@ -17,11 +17,12 @@ set(CMAKE_CXX_FLAGS -std=c++1y)
 option(USE_RENDERER_DLOPEN "" ON)
 
 # These are not used at the moment 
-if (APPLE or WIN32)
-option(USE_INTERNAL_SDL2 "" ON)
-else
-option(USE_INTERNAL_SDL2 "" OFF)
-endif (APPLE or WIN32)
+if (APPLE OR WIN32)
+  option(USE_INTERNAL_SDL2 "" ON)
+else ()
+  option(USE_INTERNAL_SDL2 "" OFF)
+endif()
+
 option(USE_INTERNAL_JPEG "" ON)
 option(USE_OPENAL "" ON)
 option(USE_OPENAL_DLOPEN "" ON)
