@@ -121,6 +121,12 @@ void Sys_ExecuteInstaller(const char *path)
 		Engine_Exit("");
 	}
 #else
+	execve(cmd.c_str(),
+		const_cast<char **>(argv.data()),
+		environ);
+
+	throw FailInstaller(errno);
+#if 0
 	STARTUPINFO si;
 	PROCESS_INFORMATION pi;
 
@@ -138,6 +144,7 @@ void Sys_ExecuteInstaller(const char *path)
 	{
 		Com_Printf(S_COLOR_RED "ERROR: Could not start process: '%s\\%s' ", cmd.c_str());
 	}
+#endif
 #endif
 
 }
