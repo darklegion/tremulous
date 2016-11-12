@@ -30,6 +30,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <string.h>
 #include <unistd.h>
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 #include "../script/cvar.h"
 #ifndef DEDICATED
 #include "../script/http_client.h"
@@ -85,36 +89,57 @@ public:
 
 void Sys_ExecuteInstaller(const char *path)
 {
-    std::string cmd { Sys_DefaultInstallPath() };
-    cmd += PATH_SEP;
-    cmd += "tremulous-installer";
+	std::string cmd{ Sys_DefaultInstallPath() };
+	cmd += PATH_SEP;
+	cmd += "tremulous-installer";
 
-    #warning "path is needs to be sanitized!"
+	#warning "path is needs to be sanitized!"
 
-    std::array<const char*,256> argv { };
+	std::array<const char*, 256> argv{};
 
-    argv[0] = cmd.c_str();
-    if ( path && path[0] )
-        argv[1] = path;
+	argv[0] = cmd.c_str();
+	if (path && path[0])
+		argv[1] = path;
 
-    Com_Printf( S_COLOR_YELLOW "Executing %s\n", cmd.c_str());
+	Com_Printf(S_COLOR_YELLOW "Executing %s\n", cmd.c_str());
 
-    auto pid = fork();
-    if ( pid == -1 )
-        throw FailInstaller(errno);
+#ifndef _WIN32
+	auto pid = fork();
+	if (pid == -1)
+		throw FailInstaller(errno);
 
-    if ( pid == 0 )
-    {
-        execve(cmd.c_str(),
-            const_cast<char **>(argv.data()),
-            environ);
+	if (pid == 0)
+	{
+		execve(cmd.c_str(),
+			const_cast<char **>(argv.data()),
+			environ);
 
-        throw FailInstaller(errno);
-    }
-    else
-    {
-        Engine_Exit("");
-    }
+		throw FailInstaller(errno);
+	}
+	else
+	{
+		Engine_Exit("");
+	}
+#else
+	STARTUPINFO si;
+	PROCESS_INFORMATION pi;
+
+	ZeroMemory(&si, sizeof(si));
+	si.cb = sizeof(si);
+
+	//Create process and execute file from some folder and with some name
+	//some folder = somefol
+	//some name = somename
+    //char somefol[_MAX_PATH];
+	//GetCurrentDirectory(_MAX_PATH, &somefol);
+//	if (!CreateProcess(nullptr, cmd.c_str(),
+	if (!CreateProcess(nullptr, (char*)va("%s", cmd.c_str()),
+                nullptr, nullptr, FALSE, 0, nullptr, nullptr, &si, &pi))
+	{
+		Com_Printf(S_COLOR_RED "ERROR: Could not start process: '%s\\%s' ", cmd.c_str());
+	}
+#endif
+
 }
 
 /*

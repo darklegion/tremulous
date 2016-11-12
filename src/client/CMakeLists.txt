@@ -190,7 +190,6 @@ if (USE_RENDERER_DLOPEN)
         )
 endif(USE_RENDERER_DLOPEN)
 
-
 add_dependencies(
     tremulous
     ui

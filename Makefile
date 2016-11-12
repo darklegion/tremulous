@@ -1439,7 +1439,8 @@ makedirs:
 
 ifndef TOOLS_CC
   # A compiler which probably produces native binaries
-  TOOLS_CC = $(CC)
+  TOOLS_CC = gcc
+  #$(CC)
 endif
 
 ifndef YACC

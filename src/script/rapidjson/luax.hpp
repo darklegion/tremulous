@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include <limits>
+#include <cstdint>
 
 #include "q3_lauxlib.h"
 

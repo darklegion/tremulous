@@ -13,6 +13,11 @@ project(Tremulous C CXX)
 
 set(CMAKE_CXX_FLAGS -std=c++1y)
 
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
+endif()
+
 # XXX This one doesn't work yet
 option(USE_RENDERER_DLOPEN "" ON)
 
