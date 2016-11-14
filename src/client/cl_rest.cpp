@@ -62,6 +62,7 @@ bool GetTremulousPk3s(const char* destdir, const char* basegame)
     std::vector<std::string> files = { 
         "data-gpp1.pk3",
         "data-1.1.0.pk3",
+        "map-arachnid2-1.1.0.pk3",
         "map-atcs-1.1.0.pk3",
         "map-karith-1.1.0.pk3",
         "map-nexus6-1.1.0.pk3",
