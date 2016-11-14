@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 void CL_GetLatestRelease();
-
+void ExecuteInstaller(const char* path);
 
 #ifdef __cplusplus
 }

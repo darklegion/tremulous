@@ -75,80 +75,6 @@ sol::state lua;
 static char binaryPath[ MAX_OSPATH ] = { 0 };
 static char installPath[ MAX_OSPATH ] = { 0 };
 
-extern char** environ;
-
-class FailInstaller : public std::exception {
-    std::string msg;
-public:
-    FailInstaller(int e)
-    { msg = strerror(e); }
-
-    virtual const char* what() throw()
-    { return msg.c_str(); }
-};
-
-void Sys_ExecuteInstaller(const char *path)
-{
-	std::string cmd{ Sys_DefaultInstallPath() };
-	cmd += PATH_SEP;
-	cmd += "tremulous-installer";
-
-	#warning "path is needs to be sanitized!"
-
-	std::array<const char*, 256> argv{};
-
-	argv[0] = cmd.c_str();
-	if (path && path[0])
-		argv[1] = path;
-
-	Com_Printf(S_COLOR_YELLOW "Executing %s\n", cmd.c_str());
-
-#ifndef _WIN32
-	auto pid = fork();
-	if (pid == -1)
-		throw FailInstaller(errno);
-
-	if (pid == 0)
-	{
-		execve(cmd.c_str(),
-			const_cast<char **>(argv.data()),
-			environ);
-
-		throw FailInstaller(errno);
-	}
-	else
-	{
-		Engine_Exit("");
-	}
-#else
-	execve(cmd.c_str(),
-		const_cast<char **>(argv.data()),
-		environ);
-
-	throw FailInstaller(errno);
-#if 0
-	STARTUPINFO si;
-	PROCESS_INFORMATION pi;
-
-	ZeroMemory(&si, sizeof(si));
-	si.cb = sizeof(si);
-
-	//Create process and execute file from some folder and with some name
-	//some folder = somefol
-	//some name = somename
-    //char somefol[_MAX_PATH];
-	//GetCurrentDirectory(_MAX_PATH, &somefol);
-//	if (!CreateProcess(nullptr, cmd.c_str(),
-	if (!CreateProcess(nullptr, (char*)va("%s", cmd.c_str()),
-                nullptr, nullptr, FALSE, 0, nullptr, nullptr, &si, &pi))
-	{
-		Com_Printf(S_COLOR_RED "ERROR: Could not start process: '%s\\%s' ", cmd.c_str());
-	}
-#endif
-#endif
-
-}
-
 /*
 =================
 Sys_SetBinaryPath
@@ -383,11 +309,6 @@ cpuFeatures_t Sys_GetProcessorFeatures( void )
     return features;
 }
 
-void Sys_Installer_f()
-{
-    Sys_ExecuteInstaller(Cmd_Args());
-}
-
 void Sys_Script_f( void )
 {
     std::string args = Cmd_Args();
@@ -409,7 +330,6 @@ void Sys_Init(void)
     Cmd_AddCommand( "in_restart", Sys_In_Restart_f );
     Cmd_AddCommand( "script", Sys_Script_f );
     Cmd_AddCommand( "script_file", Sys_ScriptFile_f );
-    Cmd_AddCommand( "installer", Sys_Installer_f );
     Cvar_Set( "arch", OS_STRING " " ARCH_STRING );
     Cvar_Set( "username", "UnnamedPlayer" );
 }
@@ -808,10 +728,6 @@ int main( int argc, char **argv )
             Com_Frame( );
         } 
         catch (sol::error& e)
-        {
-            Com_Printf(S_COLOR_YELLOW "%s\n", e.what());
-        }
-        catch (FailInstaller& e)
         {
             Com_Printf(S_COLOR_YELLOW "%s\n", e.what());
         }

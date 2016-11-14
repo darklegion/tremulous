@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // cl_main.c  -- client main loop
 
 #include "client.h"
+#include "cl_updates.h"
 
 #include <limits.h>
 
@@ -169,6 +170,14 @@ void CL_CheckForResend( void );
 void CL_ShowIP_f(void);
 void CL_ServerStatus_f(void);
 void CL_ServerStatusResponse( netadr_t from, msg_t *msg );
+
+void CL_Installer_f()
+{
+    if (Cmd_Argc() > 1)
+        ExecuteInstaller(Cmd_Args());
+    else
+        ExecuteInstaller(".");
+}
 
 /*
 ===============
@@ -3970,6 +3979,7 @@ void CL_Init( void ) {
 	Cmd_AddCommand ("model", CL_SetModel_f );
 	Cmd_AddCommand ("video", CL_Video_f );
 	Cmd_AddCommand ("stopvideo", CL_StopVideo_f );
+    Cmd_AddCommand( "installer", CL_Installer_f );
 	if( !com_dedicated->integer ) {
 		Cmd_AddCommand ("sayto", CL_Sayto_f );
 		Cmd_SetCommandCompletionFunc( "sayto", CL_CompletePlayerName );

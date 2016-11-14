@@ -3,6 +3,9 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <array>
+
+#include <unistd.h>
 
 #include "restclient/restclient.h"
 #include "restclient/connection.h"
@@ -22,12 +25,11 @@ struct UpdateManager {
 
     static void refresh();
     static void download();
-    static void execute();
+    static void execute(const char *path);
 
 private:
     static constexpr auto url = "https://api.github.com/repos/wtfbbqhax/tremulous/releases";
     static constexpr auto package_name = "release-mingw32-x86_64.zip";
-    static constexpr auto installer_name = "tremulous-installer.exe";
     // WIN32 "release-mingw32-x86_64.zip";
     // __linux__ "release-linux-x86_64.zip";
     // __APPLE__ "release-darwin-x86_64.zip";
@@ -98,9 +100,6 @@ void UpdateManager::refresh()
     }
 }
 
-//
-// FUCK where to put installer 
-//
 void UpdateManager::download()
 {
     auto url = Cvar_VariableString("cl_latestDownload");
@@ -109,11 +108,7 @@ void UpdateManager::download()
         throw exception();
 
     std::string path { Cvar_VariableString("fs_homepath") };
-#ifdef WIN32
-    path += '\\';
-#else
-    path += '/';
-#endif
+    path += PATH_SEP;
     path += package_name;
 
     std::fstream dl;
@@ -122,20 +117,61 @@ void UpdateManager::download()
     dl.close();
 }
 
-void UpdateManager::execute()
-{
-#if 0
-    lua.script(R"LUA(
-    installer = Sys_InstallerPath()
-    args = 'hello world'
+extern char** environ;
 
-    cmd = installer .. ' ' .. args
-    os.execute(cmd)
-    )LUA");
-    // TODO
+class FailInstaller : public std::exception {
+    std::string msg;
+public:
+    FailInstaller(int e)
+    { msg = strerror(e); }
+
+    virtual const char* what() throw()
+    { return msg.c_str(); }
+};
+
+// TODO
+void UpdateManager::execute(const char *path)
+{
+	std::string cmd{ Sys_DefaultInstallPath() };
+	cmd += PATH_SEP;
+	cmd += "tremulous-installer";
+
+#warning "path is needs to be sanitized!"
+
+	std::array<const char*, 256> argv{};
+
+	argv[0] = cmd.c_str();
+	if (path && path[0])
+		argv[1] = path;
+
+	Com_Printf(S_COLOR_YELLOW "Executing %s\n", cmd.c_str());
+
+#ifndef _WIN32
+	auto pid = fork();
+	if (pid == -1)
+		throw FailInstaller(errno);
+
+	if (pid == 0)
+	{
+		execve(cmd.c_str(),
+			const_cast<char **>(argv.data()),
+			environ);
+
+		throw FailInstaller(errno);
+	}
+	else
+	{
+		Engine_Exit("");
+	}
+#else
+	execve(cmd.c_str(),
+		const_cast<char **>(argv.data()),
+		environ);
+
+	throw FailInstaller(errno);
 #endif
 }
 
 void CL_GetLatestRelease() { UpdateManager::refresh(); }
 void DownloadRelease() { UpdateManager::download(); }
-void ExecuteInstaller() { UpdateManager::execute(); }
+void ExecuteInstaller(const char*path) { UpdateManager::execute(path); }
