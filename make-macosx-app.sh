@@ -75,19 +75,19 @@ function symlinkArch()
     IS64=`file "${SRCFILE}.${EXT}" | grep "x86_64"`
 
     if [ "${IS32}" != "" ]; then
-        if [ ! -L "${DSTFILE}x86.${EXT}" ]; then
-            ln -s "${SRCFILE}.${EXT}" "${DSTFILE}x86.${EXT}"
+        if [ ! -L "${DSTFILE}.${EXT}" ]; then
+            ln -s "${SRCFILE}.${EXT}" "${DSTFILE}.${EXT}"
         fi
-    elif [ -L "${DSTFILE}x86.${EXT}" ]; then
-        rm "${DSTFILE}x86.${EXT}"
+    elif [ -L "${DSTFILE}.${EXT}" ]; then
+        rm "${DSTFILE}.${EXT}"
     fi
 
     if [ "${IS64}" != "" ]; then
-        if [ ! -L "${DSTFILE}x86_64.${EXT}" ]; then
-            ln -s "${SRCFILE}.${EXT}" "${DSTFILE}x86_64.${EXT}"
+        if [ ! -L "${DSTFILE}.${EXT}" ]; then
+            ln -s "${SRCFILE}.${EXT}" "${DSTFILE}.${EXT}"
         fi
-    elif [ -L "${DSTFILE}x86_64.${EXT}" ]; then
-        rm "${DSTFILE}x86_64.${EXT}"
+    elif [ -L "${DSTFILE}.${EXT}" ]; then
+        rm "${DSTFILE}.${EXT}"
     fi
 
     popd > /dev/null
@@ -165,13 +165,13 @@ EXECUTABLE_NAME="tremulous"
 for ARCH in $SEARCH_ARCHS; do
 	CURRENT_ARCH=${ARCH}
 	BUILT_PRODUCTS_DIR="${OBJROOT}/${TARGET_NAME}-darwin-${CURRENT_ARCH}"
-	IOQ3_CLIENT="${EXECUTABLE_NAME}.${CURRENT_ARCH}"
-	IOQ3_SERVER="${DEDICATED_NAME}.${CURRENT_ARCH}"
-	IOQ3_RENDERER_GL1="${RENDERER_OPENGL}1_${CURRENT_ARCH}.dylib"
-	IOQ3_RENDERER_GL2="${RENDERER_OPENGL}2_${CURRENT_ARCH}.dylib"
-	IOQ3_CGAME="${CGAME}${CURRENT_ARCH}.dylib"
-	IOQ3_GAME="${GAME}${CURRENT_ARCH}.dylib"
-	IOQ3_UI="${UI}${CURRENT_ARCH}.dylib"
+	IOQ3_CLIENT="${EXECUTABLE_NAME}"
+	IOQ3_SERVER="${DEDICATED_NAME}"
+	IOQ3_RENDERER_GL1="${RENDERER_OPENGL}1dylib"
+	IOQ3_RENDERER_GL2="${RENDERER_OPENGL}2dylib"
+	IOQ3_CGAME="${CGAME}.dylib"
+	IOQ3_GAME="${GAME}.dylib"
+	IOQ3_UI="${UI}.dylib"
 
 	if [ ! -d ${BUILT_PRODUCTS_DIR} ]; then
 		CURRENT_ARCH=""
