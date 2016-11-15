@@ -18,7 +18,7 @@
 
 extern "C" int FS_CreatePath(const char*);
 
-static bool is_good(std::string filename, int permissions = (R_OK|W_OK))
+bool is_good(std::string filename, int permissions = (R_OK|W_OK))
 {
     int ret = access(filename.c_str(), permissions);
     if (ret)
@@ -27,13 +27,20 @@ static bool is_good(std::string filename, int permissions = (R_OK|W_OK))
     return !ret;
 }
 
-static bool MakeDir(std::string destdir, std::string basegame)
+bool MakeDir(std::string destdir, std::string basegame)
 {
     std::string destpath(destdir);
-    destpath += '/';
-    destpath += basegame;
-    destpath += '/'; // XXX FS_CreatePath requires a trailing slash. 
-            // Maybe the assumption is that a file listing might be included?
+
+    if ( basegame != "" )
+    {
+        destpath += '/';
+        destpath += basegame;
+    }
+
+    if ( *destpath.rbegin() != '/' )
+        destpath += '/'; // XXX FS_CreatePath requires a trailing slash. 
+        // Maybe the assumption is that a file listing might be included?
+
     FS_CreatePath(destpath.c_str());
     return true;
 }

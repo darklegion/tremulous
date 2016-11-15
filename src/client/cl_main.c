@@ -179,6 +179,11 @@ void CL_Installer_f()
         ExecuteInstaller(".");
 }
 
+void CL_CheckForUpdate_f()
+{
+    CL_GetLatestRelease();
+}
+
 /*
 ===============
 CL_CDDialog
@@ -3980,6 +3985,7 @@ void CL_Init( void ) {
 	Cmd_AddCommand ("video", CL_Video_f );
 	Cmd_AddCommand ("stopvideo", CL_StopVideo_f );
     Cmd_AddCommand( "installer", CL_Installer_f );
+    Cmd_AddCommand( "checkForUpdate", CL_CheckForUpdate_f );
 	if( !com_dedicated->integer ) {
 		Cmd_AddCommand ("sayto", CL_Sayto_f );
 		Cmd_SetCommandCompletionFunc( "sayto", CL_CompletePlayerName );

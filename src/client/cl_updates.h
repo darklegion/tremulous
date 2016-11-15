@@ -5,8 +5,11 @@
 extern "C" {
 #endif
 
+#ifdef _WIN32
+#endif
+
 void CL_GetLatestRelease();
-void ExecuteInstaller(const char* path);
+void ExecuteInstaller();
 
 #ifdef __cplusplus
 }

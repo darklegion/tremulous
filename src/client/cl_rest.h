@@ -20,4 +20,12 @@ bool    GetTremulousPk3s(const char* destdir, const char* basegame);
 };
 #endif
 
+// XXX Hack
+#ifdef __cplusplus
+#include <string>
+
+//bool is_good(std::string filename, int permissions = (R_OK|W_OK));
+bool MakeDir(std::string destdir, std::string basegame);
+#endif
+
 #endif

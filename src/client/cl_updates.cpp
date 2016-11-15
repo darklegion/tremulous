@@ -1,10 +1,12 @@
 #include "cl_updates.h"
+#include "cl_rest.h"
 
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include <array>
 
+#include <libgen.h>
 #include <unistd.h>
 
 #include "restclient/restclient.h"
@@ -17,25 +19,29 @@
 
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
+#include "../qcommon/unzip.h"
+
+#include "../qcommon/q_platform.h"
 
 using namespace std;
 
+std::vector<std::string> release_package;
+static std::string granger_exe;
+static std::string granger_main_lua;
+static int nextCheckTime = 0;
 
 struct UpdateManager {
 
     static void refresh();
     static void download();
-    static void execute(const char *path);
+    static void extract(std::string extract_path, std::string path);
+    static void execute();
 
 private:
     static constexpr auto url = "https://api.github.com/repos/wtfbbqhax/tremulous/releases";
-    static constexpr auto package_name = "release-mingw32-x86_64.zip";
-    // WIN32 "release-mingw32-x86_64.zip";
-    // __linux__ "release-linux-x86_64.zip";
-    // __APPLE__ "release-darwin-x86_64.zip";
+    static constexpr auto package_name = RELEASE_PACKAGE_NAME;
+    static constexpr auto granger_binary_name = "granger" EXE_EXT;
 };
-
-static int nextCheckTime = 0;
 
 void UpdateManager::refresh()
 {
@@ -100,21 +106,134 @@ void UpdateManager::refresh()
     }
 }
 
+void UpdateManager::extract(std::string extract_path, std::string path)
+{
+    // Extract the release package
+    auto z = unzOpen(path.c_str());
+    assert( z != nullptr );
+
+    unz_global_info zi;
+    unzGetGlobalInfo(z, &zi);
+
+    // Iterate through all files in the package
+    unzGoToFirstFile(z);
+    for (int i = 0; i < zi.number_entry; ++i)
+    {
+        unz_file_info fi;
+        char filename[256] = ""; // 256 == MAX_ZPATH
+        int err;
+        
+        err = unzGetCurrentFileInfo(z, &fi, filename, sizeof(filename),
+                nullptr, 0, nullptr, 0);
+        assert( err == UNZ_OK ); // != OK means corrupt archive
+
+        std::string fn = { filename };
+
+        // FIXME stop doing dumb string stuff
+        std::string fullpath = extract_path;
+        fullpath += PATH_SEP;
+        fullpath += fn;
+        release_package.emplace_back(fn);
+
+        // Bad assumption of a directory?
+        if ( !fi.compressed_size && !fi.uncompressed_size )
+        {
+            Com_DPrintf(S_COLOR_CYAN"ARCHIVED DIR: "
+                        S_COLOR_WHITE"%s\n",
+                        fn.c_str());
+
+            MakeDir(extract_path, fn);
+
+            unzGoToNextFile(z);
+            continue;
+        }
+
+        // Must be a file
+        Com_DPrintf(S_COLOR_CYAN"ARCHIVED FILE: "
+                    S_COLOR_WHITE"%s (%lu/%lu)\n",
+                    filename,
+                    fi.compressed_size,
+                    fi.uncompressed_size);
+
+        if ( fn.rfind(granger_binary_name) != std::string::npos )
+            granger_exe = fn;
+
+        else if ( fn.rfind("main.lua") != std::string::npos )
+            granger_main_lua = fn;
+
+        err = unzOpenCurrentFile(z);
+        assert( err == UNZ_OK );
+
+        // FIXME cleanup all this shit string stuff
+        std::string path = extract_path;
+        path += PATH_SEP;
+        path += fn;
+
+        Com_DPrintf(S_COLOR_YELLOW"Extracted FILE: "
+                    S_COLOR_WHITE"%s\n",
+                    path.c_str());
+
+        std::fstream dl;
+        dl.open(path, fstream::out|ios::binary);
+    
+        // Extract the release package
+        size_t numwrote;
+        do {
+            // Extract 16k at a time
+            unsigned blocksiz = 16384; 
+
+            if ( blocksiz > fi.uncompressed_size - numwrote )
+                blocksiz = fi.uncompressed_size - numwrote;
+
+            uint8_t block[blocksiz];
+            unzReadCurrentFile(z, static_cast<void*>(&block), blocksiz);
+
+            dl.write((const char*)block, blocksiz);
+            numwrote += blocksiz;
+
+        } while ( fi.uncompressed_size > numwrote ); 
+        dl.close();
+
+        unzCloseCurrentFile(z);
+        unzGoToNextFile(z);
+    }
+
+    unzClose(z);
+}
+
 void UpdateManager::download()
 {
+    // Download the latest release
     auto url = Cvar_VariableString("cl_latestDownload");
     auto r = RestClient::get(url);
     if ( r.code != 200 )
         throw exception();
 
-    std::string path { Cvar_VariableString("fs_homepath") };
+    Com_DPrintf(S_COLOR_CYAN "URL: " S_COLOR_WHITE "%s\n", url);
+
+    // FIXME Cleanup this string bullshit
+    std::string extract_path, path { Cvar_VariableString("fs_homepath") };
     path += PATH_SEP;
+    extract_path = path;
     path += package_name;
 
+    MakeDir(extract_path, "extract");
+    extract_path += "extract";
+
+    Com_DPrintf(S_COLOR_CYAN"PATH: " S_COLOR_WHITE "%s\n",
+            path.c_str());
+
+    // Write the release package to disk
     std::fstream dl;
     dl.open( path, fstream::out|ios::binary );
     dl.write( r.body.c_str(), r.body.length() );
     dl.close();
+
+    // Extract the contents of the release package
+    UpdateManager::extract(extract_path, path);
+
+    // Delete the release package
+    unlink(path.c_str());
 }
 
 extern char** environ;
@@ -129,31 +248,49 @@ public:
     { return msg.c_str(); }
 };
 
-// TODO
-void UpdateManager::execute(const char *path)
+void UpdateManager::execute()
 {
-	std::string cmd{ Sys_DefaultInstallPath() };
-	cmd += PATH_SEP;
-	cmd += "tremulous-installer";
+    granger_exe = "";
+    granger_main_lua = "";
 
-#warning "path is needs to be sanitized!"
+    // FIXME: Make download() a separate step 
+    UpdateManager::download();
 
-	std::array<const char*, 256> argv{};
+    if ( granger_exe == "" || granger_main_lua == "" )
+    {
+        for ( auto const& i : release_package )
+        {
+            Com_Printf(S_COLOR_RED " Unlink %s\n", i.c_str());
+            unlink(i.c_str());
+        }
 
-	argv[0] = cmd.c_str();
-	if (path && path[0])
-		argv[1] = path;
+        Com_Error( ERR_DROP, "Missing Granger or GrangerScript\n" );
+        return;
+    }
 
-	Com_Printf(S_COLOR_YELLOW "Executing %s\n", cmd.c_str());
+	std::array<const char*, 4> argv{};
+
+    char* tmp = strdup(granger_exe.c_str());
+    const char* dir = dirname(tmp);
+
+	argv[0] = granger_exe.c_str();
+    argv[1] = va(" -C %s", dir);
+    argv[2] = granger_main_lua.c_str();
+
+    // Dump the details
+	Com_Printf(S_COLOR_YELLOW"Launching "
+               S_COLOR_WHITE"%s %s %s\n",
+               argv[0], argv[1], argv[2]);
 
 #ifndef _WIN32
+    // Fork solely to try cleanup SDL2/GL states
 	auto pid = fork();
 	if (pid == -1)
 		throw FailInstaller(errno);
 
 	if (pid == 0)
 	{
-		execve(cmd.c_str(),
+		execve(argv[0],
 			const_cast<char **>(argv.data()),
 			environ);
 
@@ -164,7 +301,8 @@ void UpdateManager::execute(const char *path)
 		Engine_Exit("");
 	}
 #else
-	execve(cmd.c_str(),
+    // FIXME Dirty exit on Windows...
+	execve(argv[0],
 		const_cast<char **>(argv.data()),
 		environ);
 
@@ -173,5 +311,5 @@ void UpdateManager::execute(const char *path)
 }
 
 void CL_GetLatestRelease() { UpdateManager::refresh(); }
-void DownloadRelease() { UpdateManager::download(); }
-void ExecuteInstaller(const char*path) { UpdateManager::execute(path); }
+//void DownloadRelease() { UpdateManager::download(); }
+void ExecuteInstaller() { UpdateManager::execute(); }

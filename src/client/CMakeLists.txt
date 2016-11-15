@@ -193,6 +193,8 @@ endif(USE_RENDERER_DLOPEN)
 add_dependencies(
     tremulous
     ui
+    game
+    cgame
     renderergl1
     renderergl2
     )

@@ -153,9 +153,6 @@ typedef enum
   UI_SQRT,
   UI_FLOOR,
   UI_CEIL,
-
-  UI_LUA_CHECK_FOR_UPDATE = 200,
-  UI_LUA_INSTALL_UPDATE =  201
 } uiImport_t;
 
 typedef enum

@@ -793,15 +793,25 @@ intptr_t CL_UISystemCalls( intptr_t *args ) {
 		return 0;
 
 	case UI_CMD_EXECUTETEXT:
-		if(args[1] == EXEC_NOW
-		&& (!strncmp(VMA(2), "snd_restart", 11)
-		|| !strncmp(VMA(2), "vid_restart", 11)
-		|| !strncmp(VMA(2), "quit", 5)))
-		{
-			Com_Printf (S_COLOR_YELLOW "turning EXEC_NOW '%.11s' into EXEC_INSERT\n", (const char*)VMA(2));
-			args[1] = EXEC_INSERT;
-		}
-		Cbuf_ExecuteText( args[1], VMA(2) );
+		if(args[1] == EXEC_NOW)
+        {
+            if( !strncmp(VMA(2), "snd_restart", 11)
+             || !strncmp(VMA(2), "vid_restart", 11)
+             || !strncmp(VMA(2), "quit", 5) )
+            {
+                Com_Printf(S_COLOR_YELLOW "turning EXEC_NOW '%.11s' into EXEC_INSERT\n", (const char*)VMA(2));
+                args[1] = EXEC_INSERT;
+            }
+        }
+
+        //  TODO: Do this better
+        if ( !strncmp(VMA(2), "checkForUpdate", 14) )
+        {
+            CL_GetLatestRelease();
+            return 0;
+        }
+
+        Cbuf_ExecuteText( args[1], VMA(2) );
 		return 0;
 
 	case UI_FS_FOPENFILE:
@@ -1082,16 +1092,6 @@ intptr_t CL_UISystemCalls( intptr_t *args ) {
 
 	case UI_R_REMAP_SHADER:
 		re.RemapShader( VMA(1), VMA(2), VMA(3) );
-		return 0;
-
-    // XXX vjr- This is a hack why does syscall #200 come through as 199 when
-    // QVM is loaded??
-    case 199:
-    case UI_LUA_CHECK_FOR_UPDATE: 
-        CL_GetLatestRelease( );
-		return 0;
-
-	case UI_LUA_INSTALL_UPDATE:
 		return 0;
 
 	default:

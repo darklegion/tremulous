@@ -4294,7 +4294,6 @@ void UI_SetActiveMenu( uiMenuCommand_t menu )
         trap_Key_ClearStates();
         trap_Cvar_Set( "cl_paused", "0" );
         Menus_CloseAll( );
-
         return;
 
       case UIMENU_MAIN:
@@ -4311,7 +4310,6 @@ void UI_SetActiveMenu( uiMenuCommand_t menu )
           else
             Menus_ActivateByName( "error_popmenu" );
         }
-
         return;
 
       case UIMENU_INGAME:
@@ -4756,56 +4754,7 @@ void UI_UpdateGithubRelease( )
 
     // Limit checks to 1x every 10seconds
     uiInfo.githubRelease.nextTime = uiInfo.uiDC.realTime  + 10000;
-    trap_CheckForUpdate( 0 );
-
-    // parse what comes back. Parse newlines and otherwise chop when necessary
-    trap_Cvar_VariableStringBuffer("cl_latestRelease", newsString, sizeof(newsString));
-
-    // FIXME remove magic width constant
-    wrapped = Item_Text_Wrap(newsString, 0.33f, 450 * uiInfo.uiDC.aspectScale);
-
-    for( c = wrapped; *c != '\0'; ++c )
-    {
-        if( linePos == (MAX_NEWS_LINEWIDTH - 1) || *c == '\n' )
-        {
-            uiInfo.githubRelease.text[ line ][ linePos ] = '\0';
-
-            if( line == (MAX_NEWS_LINES  - 1) )
-                break;
-
-            linePos = 0;
-            line++;
-
-            if( *c != '\n' )
-            {
-                uiInfo.githubRelease.text[ line ][ linePos ] = *c;
-                linePos++;
-            }
-        } 
-        else if( isprint( *c ) )
-        {
-            uiInfo.githubRelease.text[ line ][ linePos ] = *c;
-            linePos++;
-        }
-    }
-
-    uiInfo.githubRelease.text[ line ] [linePos ] = '\0';
-    uiInfo.githubRelease.numLines = line + 1;
-}
-
-void UI_InstallRelease( )
-{
-    char newsString[ MAX_NEWS_STRING ];
-    const char *c;
-    const char *wrapped;
-    int line = 0, linePos = 0;
-
-    if( !uiInfo.githubRelease.nextTime > uiInfo.uiDC.realTime )
-      return;
-
-    // Limit checks to 1x every 10seconds
-    uiInfo.githubRelease.nextTime = uiInfo.uiDC.realTime  + 10000;
-    trap_CheckForUpdate( 0 );
+    trap_Cmd_ExecuteText(EXEC_INSERT, "checkForUpdate");
 
     // parse what comes back. Parse newlines and otherwise chop when necessary
     trap_Cvar_VariableStringBuffer("cl_latestRelease", newsString, sizeof(newsString));
