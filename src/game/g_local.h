@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // g_local.h -- local definitions for game module
 
 #include "../qcommon/q_shared.h"
+#include "../qcommon/files.h"
 #include "bg_public.h"
 #include "g_public.h"
 
@@ -1211,12 +1212,12 @@ int       trap_RealTime( qtime_t *qtime );
 int       trap_Argc( void );
 void      trap_Argv( int n, char *buffer, int bufferLength );
 void      trap_Args( char *buffer, int bufferLength );
-int       trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, fsMode_t mode );
+int       trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, enum FS_Mode mode );
 void      trap_FS_Read( void *buffer, int len, fileHandle_t f );
 void      trap_FS_Write( const void *buffer, int len, fileHandle_t f );
 void      trap_FS_FCloseFile( fileHandle_t f );
 int       trap_FS_GetFileList( const char *path, const char *extension, char *listbuf, int bufsize );
-int       trap_FS_Seek( fileHandle_t f, long offset, int origin ); // fsOrigin_t
+int       trap_FS_Seek( fileHandle_t f, long offset, enum FS_Mode origin ); // fsOrigin_t
 void      trap_SendConsoleCommand( int exec_when, const char *text );
 void      trap_Cvar_Register( vmCvar_t *cvar, const char *var_name, const char *value, int flags );
 void      trap_Cvar_Update( vmCvar_t *cvar );

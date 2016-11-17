@@ -722,7 +722,6 @@ void CL_Record_f( void ) {
 	int			len;
 	entityState_t	*ent;
 	entityState_t	nullstate;
-	char		*s;
 
 	if ( Cmd_Argc() > 2 ) {
 		Com_Printf ("record <demoname>\n");
@@ -747,11 +746,11 @@ void CL_Record_f( void ) {
 	}
 
 	if ( Cmd_Argc() == 2 ) {
-		s = Cmd_Argv(1);
-		Q_strncpyz( demoName, s, sizeof( demoName ) );
-		Com_sprintf (name, sizeof(name), "demos/%s.%s%d", demoName, DEMOEXT, PROTOCOL_VERSION );
-	} else {
-		int		number;
+        const char *s = Cmd_Argv(1);
+        Q_strncpyz( demoName, s, sizeof( demoName ) );
+        Com_sprintf (name, sizeof(name), "demos/%s.%s%d", demoName, DEMOEXT, PROTOCOL_VERSION );
+    } else {
+		int	number;
 
 		// scan for a free demo name
 		for ( number = 0 ; number <= 9999 ; number++ ) {
@@ -798,7 +797,7 @@ void CL_Record_f( void ) {
 		if ( !cl.gameState.stringOffsets[i] ) {
 			continue;
 		}
-		s = cl.gameState.stringData + cl.gameState.stringOffsets[i];
+		const char* s = cl.gameState.stringData + cl.gameState.stringOffsets[i];
 		MSG_WriteByte (&buf, svc_configstring);
 		MSG_WriteShort (&buf, i);
 		MSG_WriteBigString (&buf, s);
@@ -1063,7 +1062,7 @@ demo <demoname>
 */
 void CL_PlayDemo_f( void ) {
 	char		name[MAX_OSPATH];
-	char		*arg, *ext_test;
+	char* ext_test;
 	int			protocol, i;
 	char		retry[MAX_OSPATH];
 
@@ -1077,7 +1076,7 @@ void CL_PlayDemo_f( void ) {
 	Cvar_Set( "sv_killserver", "2" );
 
 	// open the demo file
-	arg = Cmd_Argv(1);
+	const char *arg = Cmd_Argv(1);
 	
 	CL_Disconnect( qtrue );
 

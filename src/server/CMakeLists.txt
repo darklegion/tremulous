@@ -43,7 +43,7 @@ add_executable(
     ${PARENT_DIR}/qcommon/common.c
     ${PARENT_DIR}/qcommon/crypto.c
     ${PARENT_DIR}/qcommon/cvar.cpp
-    ${PARENT_DIR}/qcommon/files.c
+    ${PARENT_DIR}/qcommon/files.cpp
     ${PARENT_DIR}/qcommon/huffman.c
     ${PARENT_DIR}/qcommon/ioapi.c
     ${PARENT_DIR}/qcommon/md4.c

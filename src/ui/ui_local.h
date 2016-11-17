@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define UI_LOCAL_H
 
 #include "../qcommon/q_shared.h"
+#include "../qcommon/files.h"
 #include "../renderercommon/tr_types.h"
 #include "ui_public.h"
 #include "../client/keycodes.h"
@@ -348,12 +349,12 @@ void      trap_Cvar_InfoStringBuffer( int bit, char *buffer, int bufsize );
 int       trap_Argc( void );
 void      trap_Argv( int n, char *buffer, int bufferLength );
 void      trap_Cmd_ExecuteText( int exec_when, const char *text );  // don't use EXEC_NOW!
-int       trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, fsMode_t mode );
+int       trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, enum FS_Mode mode );
 void      trap_FS_Read( void *buffer, int len, fileHandle_t f );
 void      trap_FS_Write( const void *buffer, int len, fileHandle_t f );
 void      trap_FS_FCloseFile( fileHandle_t f );
 int       trap_FS_GetFileList(  const char *path, const char *extension, char *listbuf, int bufsize );
-int       trap_FS_Seek( fileHandle_t f, long offset, int origin ); // fsOrigin_t
+int       trap_FS_Seek( fileHandle_t f, long offset, enum FS_Mode origin ); // fsOrigin_t
 qhandle_t trap_R_RegisterModel( const char *name );
 qhandle_t trap_R_RegisterSkin( const char *name );
 qhandle_t trap_R_RegisterShaderNoMip( const char *name );

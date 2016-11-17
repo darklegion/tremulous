@@ -124,7 +124,7 @@ typedef enum {
 
   G_ARGV,     // ( int n, char *buffer, int bufferLength );
 
-  G_FS_FOPEN_FILE,  // ( const char *qpath, fileHandle_t *file, fsMode_t mode );
+  G_FS_FOPEN_FILE,  // ( const char *qpath, fileHandle_t *file, enum FS_Mode mode );
   G_FS_READ,    // ( void *buffer, int len, fileHandle_t f );
   G_FS_WRITE,   // ( const void *buffer, int len, fileHandle_t f );
   G_FS_FCLOSE_FILE,   // ( fileHandle_t f );

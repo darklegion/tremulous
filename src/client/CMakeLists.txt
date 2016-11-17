@@ -76,7 +76,8 @@ add_executable(
     ${PARENT_DIR}/qcommon/common.c
     ${PARENT_DIR}/qcommon/crypto.c
     ${PARENT_DIR}/qcommon/cvar.cpp
-    ${PARENT_DIR}/qcommon/files.c
+    ${PARENT_DIR}/qcommon/files.cpp
+    ${PARENT_DIR}/qcommon/files.h
     ${PARENT_DIR}/qcommon/huffman.c
     ${PARENT_DIR}/qcommon/ioapi.c
     ${PARENT_DIR}/qcommon/md4.c
@@ -153,6 +154,7 @@ target_link_libraries(
 include_directories(
     ${PARENT_DIR}
     ${PARENT_DIR}/zlib
+    ${PARENT_DIR}/qcommon
     ${PARENT_DIR}/restclient
     ${PARENT_DIR}/rapidjson
     ${PARENT_DIR}/SDL2/include

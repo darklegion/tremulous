@@ -24,10 +24,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // bg_voice.c -- both games voice functions
 #include "../qcommon/q_shared.h"
+#include "../qcommon/files.h"
 #include "bg_public.h"
 #include "bg_local.h"
 
-int  trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, fsMode_t mode );
+int  trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, enum FS_Mode  mode );
 int  trap_FS_GetFileList( const char *path, const char *extension, char *listbuf, int bufsize );
 int trap_Parse_LoadSource( const char *filename );
 int trap_Parse_FreeSource( int handle );
