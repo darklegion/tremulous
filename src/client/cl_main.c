@@ -2348,22 +2348,24 @@ After receiving a valid game state, we valid the cgame and local zip files here
 and determine if we need to download them
 =================
 */
-void CL_InitDownloads(void) {
-	if ( FS_ComparePaks( clc.downloadList, sizeof( clc.downloadList ) , qtrue ) ) {
-    Com_Printf("Need paks: %s\n", clc.downloadList );
-		Cvar_Set( "com_downloadPrompt", "0" );
-		if ( *clc.downloadList ) {
-			// if autodownloading is not enabled on the server
-			clc.state = CA_CONNECTED;
+void CL_InitDownloads(void)
+{
+    if ( FS_ComparePaks(clc.downloadList, sizeof(clc.downloadList), qtrue) )
+    {
+        Com_Printf("Need paks: %s\n", clc.downloadList );
 
-			*clc.downloadTempName = *clc.downloadName = 0;
-			Cvar_Set( "cl_downloadName", "" );
-
-			CL_NextDownload();
-			return;
-		}
-	}
-	CL_DownloadsComplete();
+        Cvar_Set( "com_downloadPrompt", "0" );
+        if ( *clc.downloadList )
+        {
+            // if autodownloading is not enabled on the server
+            clc.state = CA_CONNECTED;
+            *clc.downloadTempName = *clc.downloadName = 0;
+            Cvar_Set( "cl_downloadName", "" );
+            CL_NextDownload();
+            return;
+        }
+    }
+    CL_DownloadsComplete();
 }
 
 /*

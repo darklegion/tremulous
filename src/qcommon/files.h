@@ -181,7 +181,6 @@ extern "C" {
  =============================================================================
 */
 
-// mode parm for FS_FOpenFile
 enum FS_Mode {
 	FS_READ,
 	FS_WRITE,
@@ -195,7 +194,7 @@ enum FS_Origin {
 	FS_SEEK_SET
 };
 
-const char* FS_GetCurrentGameDir (void);
+const char*  FS_GetCurrentGameDir (void);
 void         FS_FilenameCompletion (const char* dir, const char* ext, qboolean stripExt, void (* callback)(const char* s), qboolean allowNonPureFilesOnDisk);
 int          FS_FOpenFileByMode (const char* qpath, fileHandle_t* f, enum FS_Mode mode);
 qboolean     FS_ConditionalRestart (int checksumFeed, qboolean disconnect);
@@ -241,8 +240,6 @@ int          FS_Read2 (void* buffer, int len, fileHandle_t f);
 int          FS_FindVM (void** startSearch, char* found, int foundlen, const char* name, int enableDll);
 long         FS_FOpenFileRead (const char* filename, fileHandle_t* file, qboolean uniqueFILE);
 long         FS_FOpenFileReadDir (const char* filename, void* search, fileHandle_t* file, qboolean uniqueFILE, qboolean unpure);
-qboolean     FS_IsDemoExt (const char* filename, int namelen);
-qboolean     FS_IsExt (const char* filename, const char* ext, int namelen);
 qboolean     FS_FilenameCompare (const char* s1, const char* s2);
 fileHandle_t FS_FCreateOpenPipeFile (const char* filename);
 fileHandle_t FS_FOpenFileAppend (const char* filename);
@@ -257,12 +254,12 @@ qboolean     FS_FileExists (const char* file);
 qboolean     FS_FileInPathExists (const char* testpath);
 void         FS_HomeRemove (const char* homePath);
 void         FS_Remove (const char* osPath);
-int          FS_CreatePath (const char* OSPath);
-char* FS_BuildOSPath (const char* base, const char* game, const char* qpath);
+qboolean     FS_CreatePath (const char* OSPath);
+char*        FS_BuildOSPath (const char* base, const char* game, const char* qpath);
 long         FS_filelength (fileHandle_t f);
+void         FS_ReplaceSeparators (char *path);
 void         FS_ForceFlush (fileHandle_t f);
 int          FS_LoadStack (void);
-qboolean     FS_PakIsPure (void* pack);
 qboolean     FS_Initialized (void);
 
 void         FS_Which_f (void);

@@ -1621,16 +1621,14 @@ $(Q3ASM): $(Q3ASMOBJ)
 # LUA
 #############################################################################
 
-LUACFLAGS=-Wall -Wextra -DLUA_COMPAT_5_2 -fPIC -fpic
+LUACFLAGS=-Wall -Wextra -fPIC -fpic
+#-DLUA_COMPAT_5_2 -fPIC -fpic
 
-ifeq ($(PLATFORM),mingw32)
-else
 ifeq ($(PLATFORM),darwin)
 LUACFLAGS += -DLUA_USE_MACOSX
 else
 ifeq ($(PLATFORM),linux)
 LUACFLAGS += -DLUA_USE_LINUX
-endif
 endif
 endif
 
@@ -1676,7 +1674,7 @@ LUAOBJ = \
   $(B)/lua/loadlib.o \
   $(B)/lua/linit.o
 
-LUACFLAGS= -I$(MOUNT_DIR)/lua-5.3.3/include
+LUACFLAGS += -I$(MOUNT_DIR)/lua-5.3.3/include
 CFLAGS += $(LUACFLAGS)
 CXXFLAGS += $(LUACFLAGS)
 
