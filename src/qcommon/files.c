@@ -30,11 +30,18 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *****************************************************************************/
 
 
+#include <ctype.h>
+#include <string.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#include "q_platform.h"
 #include "q_shared.h"
 #include "qcommon.h"
 #include "unzip.h"
+
 #ifndef DEDICATED
-#include <string.h>
 #include "../client/cl_rest.h"
 #endif
 
@@ -3344,7 +3351,6 @@ static void FS_Startup( const char *gameName )
 
 	// add search path elements in reverse priority order
 	if (fs_basepath->string[0]) {
-		FS_AddGameDirectory( fs_basepath->string, gameName );
 		FS_AddGameDirectory( fs_basepath->string, "base" );
 	}
 	// fs_homepath is somewhat particular to *nix systems, only add if relevant
@@ -3353,7 +3359,6 @@ static void FS_Startup( const char *gameName )
 	// Make MacOSX also include the base path included with the .app bundle
 	fs_apppath = Cvar_Get ("fs_apppath", Sys_DefaultAppPath(), CVAR_INIT|CVAR_PROTECTED );
 	if (fs_apppath->string[0]) {
-		FS_AddGameDirectory( fs_apppath->string, gameName );
 		FS_AddGameDirectory( fs_apppath->string, "base" );
     }
 #endif
@@ -3361,7 +3366,6 @@ static void FS_Startup( const char *gameName )
 	// NOTE: same filtering below for mods and basegame
 	if (fs_homepath->string[0] && Q_stricmp(fs_homepath->string,fs_basepath->string)) {
 		FS_CreatePath ( fs_homepath->string );
-		FS_AddGameDirectory( fs_homepath->string, gameName );
 		FS_AddGameDirectory( fs_homepath->string, "base" );
 	}
 
@@ -3383,6 +3387,26 @@ static void FS_Startup( const char *gameName )
 		if (fs_homepath->string[0] && Q_stricmp(fs_homepath->string,fs_basepath->string)) {
 			FS_AddGameDirectory(fs_homepath->string, fs_gamedirvar->string);
 		}
+	}
+
+	// add search path elements in reverse priority order
+	if (fs_basepath->string[0]) {
+		FS_AddGameDirectory( fs_basepath->string, gameName );
+	}
+	// fs_homepath is somewhat particular to *nix systems, only add if relevant
+
+#ifdef __APPLE__
+	// Make MacOSX also include the base path included with the .app bundle
+	fs_apppath = Cvar_Get ("fs_apppath", Sys_DefaultAppPath(), CVAR_INIT|CVAR_PROTECTED );
+	if (fs_apppath->string[0]) {
+		FS_AddGameDirectory( fs_apppath->string, gameName );
+	}
+#endif
+
+	// NOTE: same filtering below for mods and basegame
+	if (fs_homepath->string[0] && Q_stricmp(fs_homepath->string,fs_basepath->string)) {
+		FS_CreatePath ( fs_homepath->string );
+		FS_AddGameDirectory( fs_homepath->string, gameName );
 	}
 
 	// add our commands

@@ -23,6 +23,7 @@ set(UI_SOURCES
     ui_local.h
     ui_shared.c
     ui_shared.h
+    ${CMAKE_SOURCE_DIR}/assets/ui/menudef.h
     ${BG_SOURCE_DIR}/bg_lib.h
     ${BG_SOURCE_DIR}/bg_public.h
     ${BG_SOURCE_DIR}/bg_alloc.c
