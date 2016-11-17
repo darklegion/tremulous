@@ -28,6 +28,13 @@ size_t lua_writestring(char* string, size_t n);
 int lua_writeline(void);
 int lua_writestringerror(const char *fmt, ...);
 
+
+#define LUA_TMPNAMTEMPLATE	"/tmp/tremulous_XXXXXX"
+
+#ifndef _WIN32
+#define LUA_USE_POSIX 1
+#endif
+
 #ifdef __cplusplus
 }
 #endif
