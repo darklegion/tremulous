@@ -1808,7 +1808,7 @@ void Script_SetPlayerModel( itemDef_t *item, char **args )
     (void)item;
 
     if( String_Parse( args, &name ) )
-        DC->setCVar( "team_model", name );
+        DC->setCVar( "model", name );
 }
 
 void Script_SetPlayerHead( itemDef_t *item, char **args )
@@ -1818,7 +1818,7 @@ void Script_SetPlayerHead( itemDef_t *item, char **args )
     (void)item;
 
     if( String_Parse( args, &name ) )
-        DC->setCVar( "team_headmodel", name );
+        DC->setCVar( "headmodel", name );
 }
 
 void Script_SetCvar( itemDef_t *item, char **args )

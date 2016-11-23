@@ -43,6 +43,10 @@ private:
     static constexpr auto granger_binary_name = "granger" EXE_EXT;
 };
 
+#define AU_ACT_NIL 0
+#define AU_ACT_GET 1
+#define AU_ACT_RUN 2
+
 void UpdateManager::refresh()
 {
 	auto currentTime = Sys_Milliseconds();
@@ -52,6 +56,7 @@ void UpdateManager::refresh()
 
     nextCheckTime = currentTime + 10000;
 
+    Cvar_SetValue("ui_autoupdate_action", 0);
     Cvar_Set("cl_latestDownload", "");
     Cvar_Set("cl_latestRelease", "");
 
@@ -102,6 +107,7 @@ void UpdateManager::refresh()
             Cvar_Set("cl_latestDownload", dl.c_str());
             Cvar_Set("cl_latestPackage", package_name);
             Cvar_Set("cl_latestRelease", txt.c_str());
+            Cvar_SetValue("ui_autoupdate_action", AU_ACT_GET);
         }
     }
 }
@@ -234,6 +240,8 @@ void UpdateManager::download()
 
     // Delete the release package
     unlink(path.c_str());
+
+    Cvar_SetValue("au_autoupdate_action", AU_ACT_RUN);
 }
 
 extern char** environ;
@@ -252,9 +260,6 @@ void UpdateManager::execute()
 {
     granger_exe = "";
     granger_main_lua = "";
-
-    // FIXME: Make download() a separate step 
-    UpdateManager::download();
 
     if ( granger_exe == "" || granger_main_lua == "" )
     {
@@ -311,5 +316,5 @@ void UpdateManager::execute()
 }
 
 void CL_GetLatestRelease() { UpdateManager::refresh(); }
-//void DownloadRelease() { UpdateManager::download(); }
-void ExecuteInstaller() { UpdateManager::execute(); }
+void CL_DownloadRelease() { UpdateManager::download(); }
+void CL_ExecuteInstaller() { UpdateManager::execute(); }

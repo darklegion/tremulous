@@ -2954,8 +2954,10 @@ static void UI_RunMenuScript( char **args )
       UI_UpdateNews( qtrue );
     else if( Q_stricmp( name, "checkForUpdate" ) == 0 )
       UI_UpdateGithubRelease( );
+    else if( Q_stricmp( name, "downloadUpdate" ) == 0 )
+      trap_Cmd_ExecuteText(EXEC_APPEND, "downloadUpdate" );
     else if( Q_stricmp( name, "installUpdate" ) == 0 )
-      trap_Cmd_ExecuteText(EXEC_APPEND, "installer" );
+      trap_Cmd_ExecuteText(EXEC_APPEND, "installUpdate" );
     else if( Q_stricmp( name, "saveControls" ) == 0 )
       Controls_SetConfig( qtrue );
     else if( Q_stricmp( name, "loadControls" ) == 0 )
