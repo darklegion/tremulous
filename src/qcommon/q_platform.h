@@ -111,7 +111,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
     // For cl_updates.cpp
     #define RELEASE_PACKAGE_NAME ( "release-mingw32-" ARCH_STRING ".zip" )
-    
+    #define RELEASE_SIGNATURE_NAME ( "release-mingw32-" ARCH_STRING ".zip.sig" )
+
 #elif defined(_WIN32) || defined(__WIN32__)
 
     #undef QDECL
@@ -142,6 +143,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
     // For cl_updates.cpp
     #define RELEASE_PACKAGE_NAME ( "release-mingw32-" ARCH_STRING ".zip" )
+    #define RELEASE_SIGNATURE_NAME ( "release-mingw32-" ARCH_STRING ".zip.sig" )
  
 #endif
 
@@ -172,7 +174,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
     // For cl_updates.cpp
     #define RELEASE_PACKAGE_NAME ( "release-darwin-" ARCH_STRING ".zip" )
- 
+    #define RELEASE_SIGNATURE_NAME ( "release-darwin-" ARCH_STRING ".zip.sig" )
+
 #endif
 
 //================================================================= LINUX ===
@@ -211,6 +214,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
     
     // For cl_updates.cpp
     #define RELEASE_PACKAGE_NAME ( "release-linux-" ARCH_STRING ".zip" )
+    #define RELEASE_SIGNATURE_NAME ( "release-linux-" ARCH_STRING ".zip.sig" )
  
 #endif
 
