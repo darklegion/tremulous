@@ -67,7 +67,7 @@ void  trap_Argv( int n, char *buffer, int bufferLength )
   syscall( G_ARGV, n, buffer, bufferLength );
 }
 
-int   trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, fsMode_t mode )
+int   trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, enum FS_Mode mode )
 {
   return syscall( G_FS_FOPEN_FILE, qpath, f, mode );
 }

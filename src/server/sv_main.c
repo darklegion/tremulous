@@ -596,7 +596,7 @@ if a user is interested in a server to do a full status
 */
 void SVC_Info( netadr_t from ) {
 	int		i, count;
-	char	*gamedir;
+	const char *gamedir;
 	char	infostring[MAX_INFO_STRING];
 
 	// Prevent using getinfo as an amplifier
@@ -760,10 +760,8 @@ Clients that are in the game can still send
 connectionless packets.
 =================
 */
-static void SV_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
-	char	*s;
-	char	*c;
-
+static void SV_ConnectionlessPacket( netadr_t from, msg_t *msg )
+{
 	MSG_BeginReadingOOB( msg );
 	MSG_ReadLong( msg );		// skip the -1 marker
 
@@ -771,10 +769,10 @@ static void SV_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 		Huff_Decompress(msg, 12);
 	}
 
-	s = MSG_ReadBigString( msg );
+	char *s = MSG_ReadBigString( msg );
 	Cmd_TokenizeString( s );
 
-	c = Cmd_Argv(0);
+	const char *c = Cmd_Argv(0);
 	Com_DPrintf ("SV packet %s : %s\n", NET_AdrToString(from), c);
 
 	if (!Q_stricmp(c, "getstatus")) {

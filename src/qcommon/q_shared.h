@@ -837,20 +837,6 @@ void Com_ClientListRemove( clientList_t *list, int clientNum );
 char *Com_ClientListString( const clientList_t *list );
 void Com_ClientListParse( clientList_t *list, const char *s );
 
-// mode parm for FS_FOpenFile
-typedef enum {
-	FS_READ,
-	FS_WRITE,
-	FS_APPEND,
-	FS_APPEND_SYNC
-} fsMode_t;
-
-typedef enum {
-	FS_SEEK_CUR,
-	FS_SEEK_END,
-	FS_SEEK_SET
-} fsOrigin_t;
-
 //=============================================
 
 int Q_isprint( int c );

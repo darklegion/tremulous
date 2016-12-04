@@ -99,6 +99,10 @@ private:
     static constexpr auto granger_binary_name = "granger" EXE_EXT;
 };
 
+#define AU_ACT_NIL 0
+#define AU_ACT_GET 1
+#define AU_ACT_RUN 2
+
 void UpdateManager::refresh()
 {
 	auto currentTime = Sys_Milliseconds();
@@ -108,6 +112,7 @@ void UpdateManager::refresh()
 
     nextCheckTime = currentTime + 10000;
 
+    Cvar_SetValue("ui_autoupdate_action", 0);
     Cvar_Set("cl_latestDownload", "");
     Cvar_Set("cl_latestRelease", "");
     Cvar_Set("cl_latestSignature", "");
@@ -159,6 +164,12 @@ void UpdateManager::refresh()
             Cvar_Set("cl_latestDownload", dl.c_str());
             Cvar_Set("cl_latestPackage", package_name);
             Cvar_Set("cl_latestRelease", txt.c_str());
+            Cvar_SetValue("ui_autoupdate_action", AU_ACT_GET);
+        }
+        else if ( name == signature_name )
+        {
+            std::string dl = a["browser_download_url"].GetString();
+            Cvar_Set("cl_latestSignature", dl.c_str());
         }
         else if ( name == signature_name )
         {
@@ -321,6 +332,63 @@ void UpdateManager::download()
 
     // Delete the release package
     unlink(path.c_str());
+
+    Cvar_SetValue("au_autoupdate_action", AU_ACT_RUN);
+}
+
+void UpdateManager::validate_signature(std::string path, std::string signature_path)
+{
+    // Load public key
+    rsa_public_key public_key;
+    rsa_public_key_init(&public_key);
+    rsa_keypair_from_sexp(&public_key, NULL, 0, release_key_pub_len, release_key_pub);
+
+    auto min = [](auto a, auto b) { return a < b ? a : b; };
+
+    // Read in signature
+    mpz_t signature;
+    {
+        std::ifstream f(signature_path, ios::binary);
+        f.seekg (0, f.end);
+        size_t length = f.tellg();
+        f.seekg (0, f.beg);
+
+        std::vector<char> buffer(512, 0);
+        f.read(buffer.data(), min(length, buffer.size()));
+        nettle_mpz_init_set_str_256_u(signature, f.gcount(), (uint8_t *)buffer.data());
+    }
+
+    // Hash file
+    sha256_ctx ctx;
+    sha256_init(&ctx);
+    {
+        std::ifstream f(path, ios::binary);
+        f.seekg (0, f.end);
+        size_t length = f.tellg();
+        f.seekg (0, f.beg);
+
+        std::vector<unsigned char> buffer(16384, 0);
+        while (f.read((char *)buffer.data(), min(length, buffer.size()))) {
+            auto nbytes = f.gcount();
+            sha256_update(&ctx, nbytes, buffer.data());
+            length -= nbytes;
+            if (length <= 0) {
+                break;
+            }
+        }
+    }
+
+    // Verify signature
+    if (!rsa_sha256_verify(&public_key, &ctx, signature)) {
+        rsa_public_key_clear(&public_key);
+        mpz_clear(signature);
+        Com_Error( ERR_DROP, "Update signature was not verified\n" );
+        return;
+    }
+
+    unlink(signature_path.c_str());
+    rsa_public_key_clear(&public_key);
+    mpz_clear(signature);
 }
 
 void UpdateManager::validate_signature(std::string path, std::string signature_path)
@@ -395,9 +463,6 @@ void UpdateManager::execute()
     granger_exe = "";
     granger_main_lua = "";
 
-    // FIXME: Make download() a separate step 
-    UpdateManager::download();
-
     if ( granger_exe == "" || granger_main_lua == "" )
     {
         for ( auto const& i : release_package )
@@ -453,5 +518,5 @@ void UpdateManager::execute()
 }
 
 void CL_GetLatestRelease() { UpdateManager::refresh(); }
-//void DownloadRelease() { UpdateManager::download(); }
-void ExecuteInstaller() { UpdateManager::execute(); }
+void CL_DownloadRelease() { UpdateManager::download(); }
+void CL_ExecuteInstaller() { UpdateManager::execute(); }

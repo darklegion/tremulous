@@ -289,7 +289,8 @@ DIRECTORY SCANNING
 Sys_ListFilteredFiles
 ==================
 */
-void Sys_ListFilteredFiles( const char *basedir, char *subdirs, char *filter, char **list, int *numfiles )
+void Sys_ListFilteredFiles( const char *basedir, char *subdirs, 
+        const char *filter, char **list, int *numfiles )
 {
 	char          search[MAX_OSPATH], newsubdirs[MAX_OSPATH];
 	char          filename[MAX_OSPATH];
@@ -346,7 +347,8 @@ void Sys_ListFilteredFiles( const char *basedir, char *subdirs, char *filter, ch
 Sys_ListFiles
 ==================
 */
-char **Sys_ListFiles( const char *directory, const char *extension, char *filter, int *numfiles, qboolean wantsubs )
+char **Sys_ListFiles( const char *directory, const char *extension,
+        const char *filter, int *numfiles, qboolean wantsubs )
 {
 	struct dirent *d;
 	DIR           *fdir;

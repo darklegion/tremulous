@@ -100,7 +100,7 @@ void  trap_LiteralArgs( char *buffer, int bufferLength )
   syscall( CG_LITERAL_ARGS, buffer, bufferLength );
 }
 
-int trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, fsMode_t mode )
+int trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, enum FS_Mode mode )
 {
   return syscall( CG_FS_FOPENFILE, qpath, f, mode );
 }
@@ -120,7 +120,7 @@ void  trap_FS_FCloseFile( fileHandle_t f )
   syscall( CG_FS_FCLOSEFILE, f );
 }
 
-void trap_FS_Seek( fileHandle_t f, long offset, fsOrigin_t origin )
+void trap_FS_Seek( fileHandle_t f, long offset, enum FS_Origin origin )
 {
   syscall( CG_FS_SEEK, f, offset, origin );
 }

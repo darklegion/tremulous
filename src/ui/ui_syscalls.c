@@ -119,7 +119,7 @@ void trap_Cmd_ExecuteText( int exec_when, const char *text )
   syscall( UI_CMD_EXECUTETEXT, exec_when, text );
 }
 
-int trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, fsMode_t mode )
+int trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, enum FS_Mode mode )
 {
   return syscall( UI_FS_FOPENFILE, qpath, f, mode );
 }
@@ -144,7 +144,7 @@ int trap_FS_GetFileList(  const char *path, const char *extension, char *listbuf
   return syscall( UI_FS_GETFILELIST, path, extension, listbuf, bufsize );
 }
 
-int trap_FS_Seek( fileHandle_t f, long offset, int origin )
+int trap_FS_Seek( fileHandle_t f, long offset, enum FS_Mode origin )
 {
   return syscall( UI_FS_SEEK, f, offset, origin );
 }

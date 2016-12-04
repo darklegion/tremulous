@@ -9,7 +9,8 @@ extern "C" {
 #endif
 
 void CL_GetLatestRelease();
-void ExecuteInstaller();
+void CL_DownloadRelease();
+void CL_ExecuteInstaller();
 
 #ifdef __cplusplus
 }

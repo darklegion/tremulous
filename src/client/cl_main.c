@@ -171,12 +171,17 @@ void CL_ShowIP_f(void);
 void CL_ServerStatus_f(void);
 void CL_ServerStatusResponse( netadr_t from, msg_t *msg );
 
-void CL_Installer_f()
+void CL_DownloadUpdate_f()
+{
+    CL_DownloadRelease();
+}
+
+void CL_InstallUpdate_f()
 {
     if (Cmd_Argc() > 1)
-        ExecuteInstaller(Cmd_Args());
+        CL_ExecuteInstaller(Cmd_Args());
     else
-        ExecuteInstaller(".");
+        CL_ExecuteInstaller(".");
 }
 
 void CL_CheckForUpdate_f()
@@ -722,7 +727,6 @@ void CL_Record_f( void ) {
 	int			len;
 	entityState_t	*ent;
 	entityState_t	nullstate;
-	char		*s;
 
 	if ( Cmd_Argc() > 2 ) {
 		Com_Printf ("record <demoname>\n");
@@ -747,11 +751,11 @@ void CL_Record_f( void ) {
 	}
 
 	if ( Cmd_Argc() == 2 ) {
-		s = Cmd_Argv(1);
-		Q_strncpyz( demoName, s, sizeof( demoName ) );
-		Com_sprintf (name, sizeof(name), "demos/%s.%s%d", demoName, DEMOEXT, PROTOCOL_VERSION );
-	} else {
-		int		number;
+        const char *s = Cmd_Argv(1);
+        Q_strncpyz( demoName, s, sizeof( demoName ) );
+        Com_sprintf (name, sizeof(name), "demos/%s.%s%d", demoName, DEMOEXT, PROTOCOL_VERSION );
+    } else {
+		int	number;
 
 		// scan for a free demo name
 		for ( number = 0 ; number <= 9999 ; number++ ) {
@@ -798,7 +802,7 @@ void CL_Record_f( void ) {
 		if ( !cl.gameState.stringOffsets[i] ) {
 			continue;
 		}
-		s = cl.gameState.stringData + cl.gameState.stringOffsets[i];
+		const char* s = cl.gameState.stringData + cl.gameState.stringOffsets[i];
 		MSG_WriteByte (&buf, svc_configstring);
 		MSG_WriteShort (&buf, i);
 		MSG_WriteBigString (&buf, s);
@@ -1063,7 +1067,7 @@ demo <demoname>
 */
 void CL_PlayDemo_f( void ) {
 	char		name[MAX_OSPATH];
-	char		*arg, *ext_test;
+	char* ext_test;
 	int			protocol, i;
 	char		retry[MAX_OSPATH];
 
@@ -1077,7 +1081,7 @@ void CL_PlayDemo_f( void ) {
 	Cvar_Set( "sv_killserver", "2" );
 
 	// open the demo file
-	arg = Cmd_Argv(1);
+	const char *arg = Cmd_Argv(1);
 	
 	CL_Disconnect( qtrue );
 
@@ -2349,22 +2353,24 @@ After receiving a valid game state, we valid the cgame and local zip files here
 and determine if we need to download them
 =================
 */
-void CL_InitDownloads(void) {
-	if ( FS_ComparePaks( clc.downloadList, sizeof( clc.downloadList ) , qtrue ) ) {
-    Com_Printf("Need paks: %s\n", clc.downloadList );
-		Cvar_Set( "com_downloadPrompt", "0" );
-		if ( *clc.downloadList ) {
-			// if autodownloading is not enabled on the server
-			clc.state = CA_CONNECTED;
+void CL_InitDownloads(void)
+{
+    if ( FS_ComparePaks(clc.downloadList, sizeof(clc.downloadList), qtrue) )
+    {
+        Com_Printf("Need paks: %s\n", clc.downloadList );
 
-			*clc.downloadTempName = *clc.downloadName = 0;
-			Cvar_Set( "cl_downloadName", "" );
-
-			CL_NextDownload();
-			return;
-		}
-	}
-	CL_DownloadsComplete();
+        Cvar_Set( "com_downloadPrompt", "0" );
+        if ( *clc.downloadList )
+        {
+            // if autodownloading is not enabled on the server
+            clc.state = CA_CONNECTED;
+            *clc.downloadTempName = *clc.downloadName = 0;
+            Cvar_Set( "cl_downloadName", "" );
+            CL_NextDownload();
+            return;
+        }
+    }
+    CL_DownloadsComplete();
 }
 
 /*
@@ -3984,7 +3990,8 @@ void CL_Init( void ) {
 	Cmd_AddCommand ("model", CL_SetModel_f );
 	Cmd_AddCommand ("video", CL_Video_f );
 	Cmd_AddCommand ("stopvideo", CL_StopVideo_f );
-    Cmd_AddCommand( "installer", CL_Installer_f );
+    Cmd_AddCommand( "downloadUpdate", CL_DownloadUpdate_f );
+    Cmd_AddCommand( "installUpdate", CL_InstallUpdate_f );
     Cmd_AddCommand( "checkForUpdate", CL_CheckForUpdate_f );
 	if( !com_dedicated->integer ) {
 		Cmd_AddCommand ("sayto", CL_Sayto_f );

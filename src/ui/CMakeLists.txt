@@ -16,6 +16,14 @@ set(CLIENT_SOURCE_DIR ../client)
 
 add_definitions( -DUI )
 
+#add_custom_command(
+#    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/menudef.h
+#    COMMAND ${CMAKE_COMMAND}
+#    ARGS -E copy ${CMAKE_BINARY_DIR}/assets/ui/menudef.h ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/menudef.h
+#    DEPENDS ${CMAKE_BINARY_DIR}/assets/ui/menudef.h
+#    )
+#set_source_files_properties(menudef.h PROPERTIES GENERATED TRUE)
+
 set(UI_SOURCES
     ui_main.c # Must be listed first!
     ui_atoms.c
