@@ -10,7 +10,7 @@
 add_definitions(
     -DDEDICATED
     -DUSE_LOCAL_HEADERS
-    -DPRODUCT_VERSION=""
+    -DPRODUCT_VERSION="1.2.0 pre-release"
     -DUSE_VOIP
     -DNDEBUG
     )

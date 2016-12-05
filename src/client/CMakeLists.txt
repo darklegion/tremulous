@@ -1,4 +1,4 @@
-
+READMe
 #
 ##  .o88b. db      d888888b d88888b d8b   db d888888b
 ## d8P  Y8 88        `88'   88'     888o  88 `~~88~~'
@@ -24,7 +24,7 @@ add_definitions(
     -DUSE_INTERNAL_JPEG
     -DUSE_RENDERER_DLOPEN
     -DNDEBUG
-    -DPRODUCT_VERSION="pre-release"
+    -DPRODUCT_VERSION="1.2.0 pre-release"
     ${SDL2_DEFINES}
     )
 

@@ -34,7 +34,7 @@ extern "C" {
 #define PRODUCT_NAME              "tremulous"
 
 #ifndef PRODUCT_VERSION
-# define PRODUCT_VERSION          "1.1.0"
+# define PRODUCT_VERSION          "1.2.0 pre-release"
 #endif
 
 #define CLIENT_WINDOW_TITLE       "Tremulous " PRODUCT_VERSION
