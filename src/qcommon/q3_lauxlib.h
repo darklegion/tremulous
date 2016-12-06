@@ -28,12 +28,12 @@ size_t lua_writestring(char* string, size_t n);
 int lua_writeline(void);
 int lua_writestringerror(const char *fmt, ...);
 
-
 #define LUA_TMPNAMTEMPLATE	"/tmp/tremulous_XXXXXX"
 
-#ifndef _WIN32
-#define LUA_USE_POSIX 1
-#endif
+// Because: src/lua-5.3.3/include/luaconf.h:69:9: warning: 'LUA_USE_POSIX' macro redefined [-Wmacro-redefined]
+//#ifndef _WIN32
+//#define LUA_USE_POSIX 1
+//#endif
 
 #ifdef __cplusplus
 }
