@@ -14,7 +14,7 @@
 
 #include "rapidjson.h"
 
-#include "lua.hpp"
+//#include "lua.hpp"
 //#include "../sol/sol.h"
 
 #include "../qcommon/q_shared.h"
@@ -96,7 +96,7 @@ private:
     static constexpr auto url = "https://api.github.com/repos/wtfbbqhax/tremulous/releases";
     static constexpr auto package_name = RELEASE_PACKAGE_NAME;
     static constexpr auto signature_name = RELEASE_SIGNATURE_NAME;
-    static constexpr auto granger_binary_name = "granger" EXE_EXT;
+    static constexpr auto granger_binary_name = GRANGER_EXE;
 };
 
 #define AU_ACT_NIL 0
@@ -165,11 +165,6 @@ void UpdateManager::refresh()
             Cvar_Set("cl_latestPackage", package_name);
             Cvar_Set("cl_latestRelease", txt.c_str());
             Cvar_SetValue("ui_autoupdate_action", AU_ACT_GET);
-        }
-        else if ( name == signature_name )
-        {
-            std::string dl = a["browser_download_url"].GetString();
-            Cvar_Set("cl_latestSignature", dl.c_str());
         }
         else if ( name == signature_name )
         {
