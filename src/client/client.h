@@ -37,7 +37,6 @@ extern "C" {
 #include "keys.h"
 #include "snd_public.h"
 #include "../cgame/cg_public.h"
-#include "../game/bg_public.h"
 
 #include "cl_curl.h"
 
