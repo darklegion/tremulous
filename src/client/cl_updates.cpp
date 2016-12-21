@@ -271,7 +271,7 @@ void UpdateManager::extract(std::string extract_path, std::string path)
 
 void UpdateManager::download()
 {
-    cvar_t *cl_enableSignatureCheck = Cvar_Get("cl_enableSignatureCheck", "1", CVAR_ARCHIVE | CVAR_PROTECTED);
+    cvar_t *cl_enableSignatureCheck = Cvar_Get("cl_enableSignatureCheck", "0", CVAR_ARCHIVE | CVAR_PROTECTED);
 
     // Check for and download signature
     std::string signature_url = Cvar_VariableString("cl_latestSignature");
