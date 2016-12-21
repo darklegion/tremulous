@@ -55,10 +55,10 @@ static void LerpDrawVert( srfVert_t *a, srfVert_t *b, srfVert_t *out ) {
 	out->lightmap[0] = 0.5f * (a->lightmap[0] + b->lightmap[0]);
 	out->lightmap[1] = 0.5f * (a->lightmap[1] + b->lightmap[1]);
 
-	out->vertexColors[0] = 0.5f * (a->vertexColors[0] + b->vertexColors[0]);
-	out->vertexColors[1] = 0.5f * (a->vertexColors[1] + b->vertexColors[1]);
-	out->vertexColors[2] = 0.5f * (a->vertexColors[2] + b->vertexColors[2]);
-	out->vertexColors[3] = 0.5f * (a->vertexColors[3] + b->vertexColors[3]);
+	out->color[0] = ((int)a->color[0] + (int)b->color[0]) >> 1;
+	out->color[1] = ((int)a->color[1] + (int)b->color[1]) >> 1;
+	out->color[2] = ((int)a->color[2] + (int)b->color[2]) >> 1;
+	out->color[3] = ((int)a->color[3] + (int)b->color[3]) >> 1;
 }
 
 /*
@@ -208,12 +208,15 @@ static	int	neighbors[8][2] = {
 			//if ( count == 0 ) {
 			//	printf("bad normal\n");
 			//}
-			VectorNormalize2( sum, dv->normal );
+			{
+				vec3_t fNormal;
+				VectorNormalize2(sum, fNormal);
+				R_VaoPackNormal(dv->normal, fNormal);
+			}
 		}
 	}
 }
 
-#ifdef USE_VERT_TANGENT_SPACE
 static void MakeMeshTangentVectors(int width, int height, srfVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE], int numIndexes,
 								   glIndex_t indexes[(MAX_GRID_SIZE-1)*(MAX_GRID_SIZE-1)*2*3])
 {
@@ -252,7 +255,6 @@ static void MakeMeshTangentVectors(int width, int height, srfVert_t ctrl[MAX_GRI
 		}
 	}
 }
-#endif
 
 
 static int MakeMeshIndexes(int width, int height, glIndex_t indexes[(MAX_GRID_SIZE-1)*(MAX_GRID_SIZE-1)*2*3])
@@ -429,7 +431,7 @@ void R_CreateSurfaceGridMesh(srfBspSurface_t *grid, int width, int height,
 R_FreeSurfaceGridMesh
 =================
 */
-void R_FreeSurfaceGridMeshData( srfBspSurface_t *grid ) {
+static void R_FreeSurfaceGridMeshData( srfBspSurface_t *grid ) {
 	ri.Free(grid->widthLodError);
 	ri.Free(grid->heightLodError);
 	ri.Free(grid->indexes);
@@ -612,9 +614,7 @@ void R_SubdividePatchToGrid( srfBspSurface_t *grid, int width, int height,
 
 	// calculate normals
 	MakeMeshNormals( width, height, ctrl );
-#ifdef USE_VERT_TANGENT_SPACE
 	MakeMeshTangentVectors(width, height, ctrl, numIndexes, indexes);
-#endif
 
 	R_CreateSurfaceGridMesh(grid, width, height, ctrl, errorTable, numIndexes, indexes);
 }
@@ -667,9 +667,7 @@ void R_GridInsertColumn( srfBspSurface_t *grid, int column, int row, vec3_t poin
 
 	// calculate normals
 	MakeMeshNormals( width, height, ctrl );
-#ifdef USE_VERT_TANGENT_SPACE
 	MakeMeshTangentVectors(width, height, ctrl, numIndexes, indexes);
-#endif
 
 	VectorCopy(grid->lodOrigin, lodOrigin);
 	lodRadius = grid->lodRadius;
@@ -729,9 +727,7 @@ void R_GridInsertRow( srfBspSurface_t *grid, int row, int column, vec3_t point, 
 
 	// calculate normals
 	MakeMeshNormals( width, height, ctrl );
-#ifdef USE_VERT_TANGENT_SPACE
 	MakeMeshTangentVectors(width, height, ctrl, numIndexes, indexes);
-#endif
 
 	VectorCopy(grid->lodOrigin, lodOrigin);
 	lodRadius = grid->lodRadius;
