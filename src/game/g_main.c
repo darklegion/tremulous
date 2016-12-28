@@ -271,7 +271,7 @@ static cvarTable_t   gameCvarTable[ ] =
 
   { &g_censorship, "g_censorship", "", CVAR_ARCHIVE, 0, qfalse  },
 
-  { &g_tag, "g_tag", "main", CVAR_INIT, 0, qfalse }
+  { &g_tag, "g_tag", "gpp", CVAR_INIT, 0, qfalse }
 };
 
 static size_t gameCvarTableSize = ARRAY_LEN( gameCvarTable );
