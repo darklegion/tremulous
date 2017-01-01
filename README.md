@@ -53,3 +53,20 @@ This adds the admin command `/transform [name|slot#] [modelname] <skin>` which i
 force player model chanes.
 
 This also includes voice menus branch
+
+
+# Console Cvars
+
+* New Cvar `scr_useShader` enable/disable use of the console shader vs color controls below. 
+ - (0, 1) default 1 (enabled)
+* New Cvar `scr_height` control console height.
+ - 100: (e.g., 100%) Default
+* New Cvar `scr_colorRed` console background red amount.
+ - (0.0f - 1.0f) default 0.0f
+* New Cvar `scr_colorGreen` console background green amount.
+ - (0.0f - 1.0f) default 0.0f
+* New Cvar `scr_colorBlue` console background blue amount.
+ - (0.0f - 1.0f) default 0.0f
+* New Cvar `scr_colorAlpha` console transparency.
+ - (0.0f - 1.0f) default 0.8f
+
