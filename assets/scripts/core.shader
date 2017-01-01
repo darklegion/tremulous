@@ -34,13 +34,13 @@ console
 		map ui/assets/console1.tga
 		blendFunc GL_ONE GL_ZERO
 		tcMod scroll .02  0
-		tcmod scale 4 4
+		tcmod scale 4 1
 	}
 	{
 		map ui/assets/console2.jpg
 		blendFunc add
 		tcMod turb 0 .1 0 .1
-		tcMod scale 4 4
+		tcMod scale 4 1
 		tcmod scroll 0.2  .1
 	} 
 }
