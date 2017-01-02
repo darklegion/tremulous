@@ -24,12 +24,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "qcommon.h"
 
 // Max number of arguments to pass from engine to vm's vmMain function.
-// command number + 12 arguments
-#define MAX_VMMAIN_ARGS 13
+// command number + 3 arguments
+#define MAX_VMMAIN_ARGS 4
 
 // Max number of arguments to pass from a vm to engine's syscall handler function for the vm.
-// syscall number + 15 arguments
-#define MAX_VMSYSCALL_ARGS 16
+// syscall number + 9 arguments
+#define MAX_VMSYSCALL_ARGS 10
 
 // don't change, this is hardcoded into x86 VMs, opStack protection relies
 // on this
