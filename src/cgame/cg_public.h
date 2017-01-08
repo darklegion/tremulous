@@ -195,6 +195,7 @@ typedef enum
   CG_KEY_GETOVERSTRIKEMODE,
 
   CG_S_SOUNDDURATION,
+  CG_FIELD_COMPLETELIST,
 #endif
 
   CG_MEMSET = 200,
@@ -267,9 +268,17 @@ typedef enum
   // pass text that has been printed to the console to cgame
   // use Cmd_Argc() / Cmd_Argv() to read it
 
-  CG_VOIP_STRING
+  CG_VOIP_STRING,
   // char *(*CG_VoIPString)( void );
   // returns a string of comma-delimited clientnums based on cl_voipSendTarget
+  
+  CG_CONSOLE_COMPLETARGUMENT
+  // qboolean (*CG_Console_CompleteArgument)( int argNum )
+  // Requests CGAME to try to complete the command line
+  // argument. argNum indicates which argument we're completing. CGAME
+  // uses trap_Argv and trap_Argc to read the command line
+  // contents. Returns true if a completion function is found in
+  // CGAME, otherwise client tries another completion method.  
 } cgameExport_t;
 
 #endif

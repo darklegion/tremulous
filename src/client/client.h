@@ -697,7 +697,6 @@ void Con_Init(void);
 void Con_Shutdown(void);
 void Con_Clear_f (void);
 void Con_ToggleConsole_f (void);
-void Con_DrawNotify (void);
 void Con_ClearNotify (void);
 void Con_RunConsole (void);
 void Con_DrawConsole (void);

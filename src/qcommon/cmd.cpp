@@ -25,6 +25,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "q_shared.h"
 #include "qcommon.h"
 
+#ifndef DEDICATED
+#include "../client/client.h"
+#endif
+
 #define	MAX_CMD_BUFFER  128*1024
 #define	MAX_CMD_LINE	1024
 
@@ -783,17 +787,18 @@ void	Cmd_CommandCompletion( void(*callback)(const char *s) ) {
 Cmd_CompleteArgument
 ============
 */
-void Cmd_CompleteArgument( const char *command, char *args, int argNum ) {
-	cmd_function_t	*cmd;
+void Cmd_CompleteArgument( const char *command, char *args, int argNum )
+{
+    cmd_function_t	*cmd;
 
-	for( cmd = cmd_functions; cmd; cmd = cmd->next ) {
-		if( !Q_stricmp( command, cmd->name ) ) {
-			if ( cmd->complete ) {
-				cmd->complete( args, argNum );
-			}
-			return;
-		}
-	}
+#ifndef DEDICATED
+    // Forward command argument completion to CGAME VM
+    if( cgvm && !VM_Call( cgvm, CG_CONSOLE_COMPLETARGUMENT, argNum ) )
+#endif
+    // Call local completion if VM doesn't pick up
+    for( cmd = cmd_functions; cmd; cmd = cmd->next )
+        if( !Q_stricmp( command, cmd->name ) && cmd->complete )
+            cmd->complete( args, argNum );
 }
 
 

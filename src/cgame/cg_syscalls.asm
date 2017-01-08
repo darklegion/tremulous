@@ -106,6 +106,7 @@ equ trap_Key_SetOverstrikeMode        -102
 equ trap_Key_GetOverstrikeMode        -103
 
 equ trap_S_SoundDuration              -104
+equ trap_Field_CompleteList           -105
 
 equ memset                            -201
 equ memcpy                            -202

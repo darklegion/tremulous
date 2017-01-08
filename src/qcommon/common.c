@@ -25,7 +25,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "q_shared.h"
 #include "qcommon.h"
 #include "crypto.h"
+
+#define JSON_IMPLEMENTATION
+#include "json.h"
+
 #include <setjmp.h>
+
 #ifndef _WIN32
 #include <netinet/in.h>
 #include <sys/stat.h> // umask
@@ -3235,6 +3240,45 @@ void Field_CompleteFilename( const char *dir,
 
 	if( !Field_Complete( ) )
 		FS_FilenameCompletion( dir, ext, stripExt, PrintMatches, allowNonPureFilesOnDisk );
+}
+
+/*
+============
+Field_ListCompletion
+============
+*/
+void Field_ListCompletion( char *listJson, void(*callback)(const char *s) )
+{
+    char 		item[ 256 ];
+    const char 	*arrayPtr;
+    const char	*listEnd = listJson + strlen( listJson );
+
+    // JSON parse array
+    for ( arrayPtr = JSON_ArrayGetFirstValue( listJson, listEnd );
+            arrayPtr ;
+            arrayPtr = JSON_ArrayGetNextValue( arrayPtr, listEnd ) )
+    {
+        JSON_ValueGetString( arrayPtr, listEnd, item, 256 );
+        callback( item );
+    }		
+}
+
+/*
+===============
+Field_CompleteList
+
+Completes an arbirary list of JSON encoded items passed from a VM
+===============
+*/
+void Field_CompleteList( char *listJson )
+{
+	matchCount = 0;
+	shortestMatch[ 0 ] = 0;
+
+	Field_ListCompletion( listJson, FindMatches );
+
+	if( !Field_Complete() )
+	  Field_ListCompletion( listJson, PrintMatches );
 }
 
 /*

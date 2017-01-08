@@ -693,9 +693,14 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 
 	case CG_KEY_SETOVERSTRIKEMODE:
 		Key_SetOverstrikeMode( args[1] );
-    return 0;
+        return 0;
+
 	case CG_KEY_GETOVERSTRIKEMODE:
 		return Key_GetOverstrikeMode( );
+    
+	case CG_FIELD_COMPLETELIST:
+		Field_CompleteList( VMA(1) );
+		return 0;
 
 	case CG_MEMSET:
 		Com_Memset( VMA(1), args[2], args[3] );
