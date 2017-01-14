@@ -160,7 +160,7 @@ void Cvar_VariableStringBuffer( const char *var_name, char *buffer, int bufsize 
 Cvar_Flags
 ============
 */
-int Cvar_Flags(const char *var_name)
+unsigned int Cvar_Flags(const char *var_name)
 {
 	cvar_t *var;
 	
