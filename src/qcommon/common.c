@@ -470,7 +470,8 @@ skip loading of autogen.cfg
 */
 qboolean Com_SafeMode( void )
 {
-    for ( int i = 0 ; i < com_numConsoleLines ; i++ )
+    int i;
+    for ( i = 0 ; i < com_numConsoleLines ; i++ )
     {
         Cmd_TokenizeString(com_consoleLines[i]);
         if ( !Q_stricmp(Cmd_Argv(0), "safe")
@@ -530,7 +531,8 @@ qboolean Com_AddStartupCommands( void )
     qboolean added = qfalse;
 
     // quote every token, so args with semicolons can work
-    for ( int i = 0 ; i < com_numConsoleLines ; i++)
+    int i;
+    for ( i = 0 ; i < com_numConsoleLines ; i++)
     {
         if ( !com_consoleLines[i] || !com_consoleLines[i][0] )
             continue;
@@ -3206,7 +3208,8 @@ static void FindMatches( const char *s )
     }
 
     // cut shortestMatch to the amount common with s
-    for ( int i = 0 ; shortestMatch[i] ; i++ )
+    int i;
+    for ( i = 0 ; shortestMatch[i] ; i++ )
     {
         if ( i >= strlen(s) )
         {
