@@ -3352,6 +3352,37 @@ static void FS_Startup(const char *gameName)
     fs_homepath = Cvar_Get("fs_homepath", homePath, CVAR_INIT | CVAR_PROTECTED);
     fs_gamedirvar = Cvar_Get("fs_game", BASEGAME, CVAR_INIT | CVAR_SYSTEMINFO);
 
+
+#ifdef DEDICATED
+
+    // add search path elements in reverse priority order
+    if (fs_basepath->string[0])
+            FS_AddGameDirectory( fs_basepath->string, gameName );
+
+    // NOTE: same filtering below for mods and basegame
+    if (fs_homepath->string[0] && Q_stricmp(fs_homepath->string,fs_basepath->string)) {
+            FS_CreatePath ( fs_homepath->string );
+            FS_AddGameDirectory ( fs_homepath->string, gameName );
+    }
+
+    // check for additional base game so mods can be based upon other mods
+    if ( fs_basegame->string[0] && Q_stricmp( fs_basegame->string, gameName ) ) {
+        if (fs_basepath->string[0])
+            FS_AddGameDirectory(fs_basepath->string, fs_basegame->string);
+        if (fs_homepath->string[0] && Q_stricmp(fs_homepath->string,fs_basepath->string))
+            FS_AddGameDirectory(fs_homepath->string, fs_basegame->string);
+    }
+
+    // check for additional game folder for mods
+    if ( fs_gamedirvar->string[0] && Q_stricmp( fs_gamedirvar->string, gameName ) ) {
+        if (fs_basepath->string[0])
+            FS_AddGameDirectory(fs_basepath->string, fs_gamedirvar->string);
+        if (fs_homepath->string[0] && Q_stricmp(fs_homepath->string,fs_basepath->string))
+            FS_AddGameDirectory(fs_homepath->string, fs_gamedirvar->string);
+    }
+
+#else
+
     // add search path elements in reverse priority order
     if (fs_basepath->string[0])
     {
@@ -3410,6 +3441,7 @@ static void FS_Startup(const char *gameName)
     {
         FS_AddGameDirectory(fs_apppath->string, gameName);
     }
+#endif
 #endif
 
     // add our commands
