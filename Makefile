@@ -261,6 +261,7 @@ OPUSDIR=$(MOUNT_DIR)/opus-1.1
 OPUSFILEDIR=$(MOUNT_DIR)/opusfile-0.5
 ZDIR=$(MOUNT_DIR)/zlib
 LUADIR=$(MOUNT_DIR)/lua-5.3.3/src
+GRANGERDIR=$(MOUNT_DIR)/granger/src
 RESTDIR=$(MOUNT_DIR)/restclient
 NETTLEDIR=$(MOUNT_DIR)/nettle-3.3
 LUA_RAPIDJSONDIR=$(MOUNT_DIR)/script/rapidjson
@@ -370,6 +371,7 @@ ifneq (,$(findstring "$(PLATFORM)", "linux" "gnu_kfreebsd" "kfreebsd-gnu" "gnu")
 
   THREAD_LIBS=-lpthread
   LIBS=-ldl -lm
+  GRANGER_LIBS=-lm -ldl
 
   CLIENT_LIBS=$(SDL_LIBS)
   RENDERER_LIBS = $(SDL_LIBS) -lGL
@@ -415,6 +417,8 @@ ifeq ($(PLATFORM),darwin)
 
   # FIXME This is probably bad idea to comment this out 
   #BASE_CFLAGS += -mmacosx-version-min=10.7 -DMAC_OS_X_VERSION_MIN_REQUIRED=1070
+
+  GRANGER_LIBS = -framework Cocoa -framework Security
 
   ifeq ($(USE_RESTCLIENT),1)
     CLIENT_LIBS += -framework Security
@@ -566,6 +570,7 @@ ifdef MINGW
   CFLAGS += -static -static-libgcc -static-libstdc++
   CXXFLAGS += -static -static-libgcc -static-libstdc++
   LDFLAGS += -static -static-libgcc -static-libstdc++
+  GRANGER_CFLAGS = -D_CRT_SECURE_NO_WARNINGS
 
   BASE_CFLAGS = -Wall -fno-strict-aliasing -Wimplicit -Wstrict-prototypes \
     -DUSE_ICON
@@ -695,6 +700,7 @@ ifeq ($(PLATFORM),freebsd)
   THREAD_LIBS=-lpthread
   # don't need -ldl (FreeBSD)
   LIBS=-lm
+  GRANGER_LIBS = -lm
 
   CLIENT_LIBS =
 
@@ -787,6 +793,7 @@ ifeq ($(PLATFORM),openbsd)
 
   THREAD_LIBS=-lpthread
   LIBS=-lm
+  GRANGER_LIBS=-lm
 
   CLIENT_LIBS =
 
@@ -813,6 +820,7 @@ else # ifeq openbsd
 ifeq ($(PLATFORM),netbsd)
 
   LIBS=-lm
+  GRANGER_LIBS=-lm
   SHLIBEXT=so
   SHLIBCFLAGS=-fPIC
   SHLIBLDFLAGS=-shared $(LDFLAGS)
@@ -849,6 +857,7 @@ ifeq ($(PLATFORM),irix64)
   SHLIBLDFLAGS=-shared
 
   LIBS=-ldl -lm -lgen
+  GRANGER_LIBS=-ldl -lm -lgen
   # FIXME: The X libraries probably aren't necessary?
   CLIENT_LIBS=-L/usr/X11/$(LIB) $(SDL_LIBS) \
     -lX11 -lXext -lm
@@ -903,6 +912,7 @@ ifeq ($(PLATFORM),sunos)
 
   THREAD_LIBS=-lpthread
   LIBS=-lsocket -lnsl -ldl -lm
+  GRANGER_LIBS=-ldl -lm
 
   BOTCFLAGS=-O0
 
@@ -1426,6 +1436,11 @@ makedirs:
 	@if [ ! -d $(B)/$(BASEGAME)/vm ];then $(MKDIR) $(B)/$(BASEGAME)/vm;fi
 	@if [ ! -d $(B)/$(BASEGAME)_11 ];then $(MKDIR) $(B)/$(BASEGAME)_11;fi
 	@if [ ! -d $(B)/$(BASEGAME)_11/vm ];then $(MKDIR) $(B)/$(BASEGAME)_11/vm;fi
+	@if [ ! -d $(B)/granger.dir ];then $(MKDIR) $(B)/granger.dir;fi
+	@if [ ! -d $(B)/granger.dir/src ];then $(MKDIR) $(B)/granger.dir/src;fi
+	@if [ ! -d $(B)/granger.dir/src/lua ];then $(MKDIR) $(B)/granger.dir/src/lua;fi
+	@if [ ! -d $(B)/granger.dir/src/premake ];then $(MKDIR) $(B)/granger.dir/src/premake;fi
+	@if [ ! -d $(B)/granger.dir/src/nettle ];then $(MKDIR) $(B)/granger.dir/src/nettle;fi
 	@if [ ! -d $(B)/tools ];then $(MKDIR) $(B)/tools;fi
 	@if [ ! -d $(B)/tools/asm ];then $(MKDIR) $(B)/tools/asm;fi
 	@if [ ! -d $(B)/tools/etc ];then $(MKDIR) $(B)/tools/etc;fi
@@ -1617,6 +1632,7 @@ $(Q3ASM): $(Q3ASMOBJ)
 	$(echo_cmd) "LD $@"
 	$(Q)$(TOOLS_CC) $(TOOLS_CFLAGS) $(TOOLS_LDFLAGS) -o $@ $^ $(TOOLS_LIBS)
 
+
 #############################################################################
 # LUA
 #############################################################################
@@ -1680,6 +1696,110 @@ CXXFLAGS += $(LUACFLAGS)
 
 $(B)/lua/%.o: $(LUADIR)/%.c
 	$(DO_LUA_CC)
+
+#############################################################################
+# GRANGER
+#############################################################################
+
+GRANGER_CFLAGS += -Wall -Wextra -fPIC -fpic
+#-DLUA_COMPAT_5_2 -fPIC -fpic
+
+ifeq ($(PLATFORM),darwin)
+GRANGER_CFLAGS += -DLUA_USE_MACOSX
+else
+ifeq ($(PLATFORM),linux)
+GRANGER_CFLAGS += -DLUA_USE_LINUX
+endif
+endif
+
+GRANGEROBJ = \
+	$(B)/granger.dir/src/lnettlelib.o \
+	$(B)/granger.dir/src/main.o \
+	$(B)/granger.dir/src/strvec.o \
+	$(B)/granger.dir/src/lua/lapi.o \
+	$(B)/granger.dir/src/lua/lauxlib.o \
+	$(B)/granger.dir/src/lua/lbaselib.o \
+	$(B)/granger.dir/src/lua/lbitlib.o \
+	$(B)/granger.dir/src/lua/lcode.o \
+	$(B)/granger.dir/src/lua/lcorolib.o \
+	$(B)/granger.dir/src/lua/lctype.o \
+	$(B)/granger.dir/src/lua/ldblib.o \
+	$(B)/granger.dir/src/lua/ldebug.o \
+	$(B)/granger.dir/src/lua/ldo.o \
+	$(B)/granger.dir/src/lua/ldump.o \
+	$(B)/granger.dir/src/lua/lfunc.o \
+	$(B)/granger.dir/src/lua/lgc.o \
+	$(B)/granger.dir/src/lua/linit.o \
+	$(B)/granger.dir/src/lua/liolib.o \
+	$(B)/granger.dir/src/lua/llex.o \
+	$(B)/granger.dir/src/lua/lmathlib.o \
+	$(B)/granger.dir/src/lua/lmem.o \
+	$(B)/granger.dir/src/lua/loadlib.o \
+	$(B)/granger.dir/src/lua/lobject.o \
+	$(B)/granger.dir/src/lua/lopcodes.o \
+	$(B)/granger.dir/src/lua/loslib.o \
+	$(B)/granger.dir/src/lua/lparser.o \
+	$(B)/granger.dir/src/lua/lstate.o \
+	$(B)/granger.dir/src/lua/lstring.o \
+	$(B)/granger.dir/src/lua/lstrlib.o \
+	$(B)/granger.dir/src/lua/ltable.o \
+	$(B)/granger.dir/src/lua/ltablib.o \
+	$(B)/granger.dir/src/lua/ltm.o \
+	$(B)/granger.dir/src/lua/lundump.o \
+	$(B)/granger.dir/src/lua/lutf8lib.o \
+	$(B)/granger.dir/src/lua/lvm.o \
+	$(B)/granger.dir/src/lua/lzio.o \
+	$(B)/granger.dir/src/premake/os_access.o \
+	$(B)/granger.dir/src/premake/os_chdir.o \
+	$(B)/granger.dir/src/premake/os_copyfile.o \
+	$(B)/granger.dir/src/premake/os_elevate.o \
+	$(B)/granger.dir/src/premake/os_getcwd.o \
+	$(B)/granger.dir/src/premake/os_is64bit.o \
+	$(B)/granger.dir/src/premake/os_isdir.o \
+	$(B)/granger.dir/src/premake/os_isfile.o \
+	$(B)/granger.dir/src/premake/os_match.o \
+	$(B)/granger.dir/src/premake/os_mkdir.o \
+	$(B)/granger.dir/src/premake/os_pathsearch.o \
+	$(B)/granger.dir/src/premake/os_rmdir.o \
+	$(B)/granger.dir/src/premake/os_stat.o \
+	$(B)/granger.dir/src/premake/path_getabsolute.o \
+	$(B)/granger.dir/src/premake/path_getrelative.o \
+	$(B)/granger.dir/src/premake/path_isabsolute.o \
+	$(B)/granger.dir/src/premake/path_join.o \
+	$(B)/granger.dir/src/premake/path_normalize.o \
+	$(B)/granger.dir/src/premake/path_translate.o \
+	$(B)/granger.dir/src/premake/premake.o \
+	$(B)/granger.dir/src/premake/string_endswith.o \
+	$(B)/granger.dir/src/nettle/md5-compress.o \
+	$(B)/granger.dir/src/nettle/md5.o \
+	$(B)/granger.dir/src/nettle/sha256-compress.o \
+	$(B)/granger.dir/src/nettle/sha256.o \
+	$(B)/granger.dir/src/nettle/write-be32.o \
+	$(B)/granger.dir/src/nettle/write-le32.o
+
+define DO_GRANGER_CC
+  $(echo_cmd) "GRANGER_CC $<"
+  $(Q)$(call EXEC_CC, ${GRANGER_CFLAGS} ${OPTIMIZE},'$@','$<')
+  $(Q)$(call LOG_CC,granger, ${GRANGER_CFLAGS} ${OPTIMIZE},$@,$<)
+endef
+ 
+$(B)/granger.dir/src/lua/%.o: $(GRANGERDIR)/lua/%.c
+	$(DO_GRANGER_CC)
+
+$(B)/granger.dir/src/premake/%.o: $(GRANGERDIR)/premake/%.c
+	$(DO_GRANGER_CC)
+
+$(B)/granger.dir/src/nettle/%.o: $(GRANGERDIR)/nettle/%.c
+	$(DO_GRANGER_CC)
+
+$(B)/granger.dir/src/%.o: $(GRANGERDIR)/%.c
+	$(DO_GRANGER_CC)
+
+$(B)/granger$(FULLBINEXT): $(GRANGEROBJ)
+	$(echo_cmd) "LD $@"
+	$(Q)$(CC) $(LDFLAGS) -o $@ $(GRANGEROBJ) $(GRANGER_LIBS) 
+
+TARGETS += $(B)/granger$(FULLBINEXT)
 
 #############################################################################
 # Script API
@@ -2855,7 +2975,7 @@ $(B)/$(BASEGAME)/qcommon/%.asm: $(CMDIR)/%.c $(Q3LCC)
 
 OBJ = $(Q3OBJ) $(Q3ROBJ) $(Q3R2OBJ) $(Q3DOBJ) $(JPGOBJ) \
   $(GOBJ) $(CGOBJ) $(UIOBJ) $(LUAOBJ) $(SCRIPTOBJ) $(NETTLEOBJ) \
-  $(GVMOBJ) $(CGVMOBJ) $(UIVMOBJ)
+  $(GVMOBJ) $(CGVMOBJ) $(UIVMOBJ) $(GRANGEROBJ)
 TOOLSOBJ = $(LBURGOBJ) $(Q3CPPOBJ) $(Q3RCCOBJ) $(Q3LCCOBJ) $(Q3ASMOBJ)
 STRINGOBJ = $(Q3R2STRINGOBJ)
 

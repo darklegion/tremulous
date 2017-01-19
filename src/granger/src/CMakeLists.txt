@@ -20,7 +20,7 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 endif()
 
 add_definitions (
-    -DLUA_COMPAT_5_2
+    #-DLUA_COMPAT_5_2
     -DNDEBUG
     -mfpmath=sse
     -ffast-math

@@ -115,6 +115,14 @@ static char EMSG[] = "";
 #define	EMSG		""
 #endif
 
+struct option		/* specification for a long form option...	*/
+{
+  const char *name;		/* option name, without leading hyphens */
+  int         has_arg;		/* does it take an argument?		*/
+  int        *flag;		/* where to save its status, or NULL	*/
+  int         val;		/* its associated status value		*/
+};
+
 static int getopt_internal(int, char * const *, const char *,
 			   const struct option *, int *, int);
 static int parse_long_options(char * const *, const char *,
@@ -264,14 +272,6 @@ extern int optreset;
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-struct option		/* specification for a long form option...	*/
-{
-  const char *name;		/* option name, without leading hyphens */
-  int         has_arg;		/* does it take an argument?		*/
-  int        *flag;		/* where to save its status, or NULL	*/
-  int         val;		/* its associated status value		*/
-};
 
 enum    		/* permitted values for its `has_arg' field...	*/
 {
