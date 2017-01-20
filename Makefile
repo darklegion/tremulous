@@ -1403,7 +1403,7 @@ endif
 
 $(B).zip: $(TARGETS)
 ifeq ($(PLATFORM),darwin)
-	@("./misc/make-macosx-app.sh" release $(ARCH); if [ "$$?" -eq 0 ] && [ -d "$(B)/Tremulous.app" ]; then rm -f $@; cd $(B) && zip --symlinks -r9 ../../$@ `find "Tremulous.app" -print | sed -e "s!$(B)/!!g"`; else rm -f $@; cd $(B) && zip -r9 ../../$@ $(NAKED_TARGETS); fi)
+	@("./make-macosx-app.sh" release $(ARCH); if [ "$$?" -eq 0 ] && [ -d "$(B)/Tremulous.app" ]; then rm -f $@; cd $(B) && zip --symlinks -r9 ../../$@ `find "Tremulous.app" -print | sed -e "s!$(B)/!!g"`; else rm -f $@; cd $(B) && zip -r9 ../../$@ $(NAKED_TARGETS); fi)
 else
 	@rm -f $@
 	@(cd $(B) && zip -r9 ../../$@ $(NAKED_TARGETS))
@@ -1619,8 +1619,6 @@ $(echo_cmd) "UI_Q3LCC_11 $<"
 $(Q)$(Q3LCC) $(BASEGAME_CFLAGS) -DMODULE_INTERFACE_11 -DUI -o $@ $<
 endef
 
-
-
 Q3ASMOBJ = \
   $(B)/tools/asm/q3asm.o \
   $(B)/tools/asm/cmdlib.o
@@ -1632,77 +1630,11 @@ $(Q3ASM): $(Q3ASMOBJ)
 	$(echo_cmd) "LD $@"
 	$(Q)$(TOOLS_CC) $(TOOLS_CFLAGS) $(TOOLS_LDFLAGS) -o $@ $^ $(TOOLS_LIBS)
 
-
-#############################################################################
-# LUA
-#############################################################################
-
-LUACFLAGS=-Wall -Wextra -fPIC -fpic
-#-DLUA_COMPAT_5_2 -fPIC -fpic
-
-ifeq ($(PLATFORM),darwin)
-LUACFLAGS += -DLUA_USE_MACOSX
-else
-ifeq ($(PLATFORM),linux)
-LUACFLAGS += -DLUA_USE_LINUX
-endif
-endif
-
-#$(Q)$(CC) $(LUACFLAGS) $(OPTIMIZE) -o $@ -c $<
-define DO_LUA_CC
-  $(echo_cmd) "LUA_CC $<"
-  $(Q)$(call EXEC_CC,${LUACFLAGS} ${OPTIMIZE},'$@','$<')
-  $(Q)$(call LOG_CC,lua,${LUACFLAGS} ${OPTIMIZE},$@,$<)
-endef
-
-LUAOBJ = \
-  $(B)/lua/lapi.o \
-  $(B)/lua/lcode.o \
-  $(B)/lua/lctype.o \
-  $(B)/lua/ldebug.o \
-  $(B)/lua/ldo.o \
-  $(B)/lua/ldump.o \
-  $(B)/lua/lfunc.o \
-  $(B)/lua/lgc.o \
-  $(B)/lua/llex.o \
-  $(B)/lua/lmem.o \
-  $(B)/lua/lobject.o \
-  $(B)/lua/lopcodes.o \
-  $(B)/lua/lparser.o \
-  $(B)/lua/lstate.o \
-  $(B)/lua/lstring.o \
-  $(B)/lua/ltable.o \
-  $(B)/lua/ltm.o \
-  $(B)/lua/lundump.o \
-  $(B)/lua/lvm.o \
-  $(B)/lua/lzio.o \
-  $(B)/lua/lauxlib.o \
-  $(B)/lua/lbaselib.o \
-  $(B)/lua/lbitlib.o \
-  $(B)/lua/lcorolib.o \
-  $(B)/lua/ldblib.o \
-  $(B)/lua/liolib.o \
-  $(B)/lua/lmathlib.o \
-  $(B)/lua/loslib.o \
-  $(B)/lua/lstrlib.o \
-  $(B)/lua/ltablib.o \
-  $(B)/lua/lutf8lib.o \
-  $(B)/lua/loadlib.o \
-  $(B)/lua/linit.o
-
-LUACFLAGS += -I$(MOUNT_DIR)/lua-5.3.3/include
-CFLAGS += $(LUACFLAGS)
-CXXFLAGS += $(LUACFLAGS)
-
-$(B)/lua/%.o: $(LUADIR)/%.c
-	$(DO_LUA_CC)
-
 #############################################################################
 # GRANGER
 #############################################################################
 
 GRANGER_CFLAGS += -Wall -Wextra -fPIC -fpic
-#-DLUA_COMPAT_5_2 -fPIC -fpic
 
 ifeq ($(PLATFORM),darwin)
 GRANGER_CFLAGS += -DLUA_USE_MACOSX
@@ -1800,6 +1732,73 @@ $(B)/granger$(FULLBINEXT): $(GRANGEROBJ)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $(GRANGEROBJ) $(GRANGER_LIBS) 
 
 TARGETS += $(B)/granger$(FULLBINEXT)
+
+$(B)/scripts:
+	rsync -rupE --exclude=".*" scripts $(B)
+
+TARGETS += $(B)/scripts
+
+#############################################################################
+# LUA
+#############################################################################
+
+LUACFLAGS=-Wall -Wextra -fPIC -fpic
+
+ifeq ($(PLATFORM),darwin)
+LUACFLAGS += -DLUA_USE_MACOSX
+else
+ifeq ($(PLATFORM),linux)
+LUACFLAGS += -DLUA_USE_LINUX
+endif
+endif
+
+LUAOBJ = \
+  $(B)/lua/lapi.o \
+  $(B)/lua/lcode.o \
+  $(B)/lua/lctype.o \
+  $(B)/lua/ldebug.o \
+  $(B)/lua/ldo.o \
+  $(B)/lua/ldump.o \
+  $(B)/lua/lfunc.o \
+  $(B)/lua/lgc.o \
+  $(B)/lua/llex.o \
+  $(B)/lua/lmem.o \
+  $(B)/lua/lobject.o \
+  $(B)/lua/lopcodes.o \
+  $(B)/lua/lparser.o \
+  $(B)/lua/lstate.o \
+  $(B)/lua/lstring.o \
+  $(B)/lua/ltable.o \
+  $(B)/lua/ltm.o \
+  $(B)/lua/lundump.o \
+  $(B)/lua/lvm.o \
+  $(B)/lua/lzio.o \
+  $(B)/lua/lauxlib.o \
+  $(B)/lua/lbaselib.o \
+  $(B)/lua/lbitlib.o \
+  $(B)/lua/lcorolib.o \
+  $(B)/lua/ldblib.o \
+  $(B)/lua/liolib.o \
+  $(B)/lua/lmathlib.o \
+  $(B)/lua/loslib.o \
+  $(B)/lua/lstrlib.o \
+  $(B)/lua/ltablib.o \
+  $(B)/lua/lutf8lib.o \
+  $(B)/lua/loadlib.o \
+  $(B)/lua/linit.o
+
+define DO_LUA_CC
+  $(echo_cmd) "LUA_CC $<"
+  $(Q)$(call EXEC_CC,${LUACFLAGS} ${OPTIMIZE},'$@','$<')
+  $(Q)$(call LOG_CC,lua,${LUACFLAGS} ${OPTIMIZE},$@,$<)
+endef
+
+LUACFLAGS += -I$(MOUNT_DIR)/lua-5.3.3/include
+CFLAGS += $(LUACFLAGS)
+CXXFLAGS += $(LUACFLAGS)
+
+$(B)/lua/%.o: $(LUADIR)/%.c
+	$(DO_LUA_CC)
 
 #############################################################################
 # Script API
@@ -2049,7 +2048,6 @@ Q3R2STRINGOBJ = \
   $(B)/renderergl2/glsl/texturecolor_vp.o \
   $(B)/renderergl2/glsl/tonemap_fp.o \
   $(B)/renderergl2/glsl/tonemap_vp.o
-
 
 # GL1
 
@@ -3028,7 +3026,11 @@ endif
 .PHONY: all clean clean2 clean-debug clean-release \
 	debug default dist distclean makedirs release targets \
 	toolsclean toolsclean2 toolsclean-debug toolsclean-release \
-	$(OBJ_D_FILES) $(TOOLSOBJ_D_FILES)
+	$(OBJ_D_FILES) $(TOOLSOBJ_D_FILES) $(B)/scripts \
+	$(B)/$(BASEGAME)/data-$(VERSION).pk3 \
+	$(B)/$(BASEGAME)_11/vms-$(VERSION).pk3 \
+	$(B)/$(BASEGAME)/vms-$(VERSION).pk3 \
+	$(B).zip
 
 # If the target name contains "clean", don't do a parallel build
 ifneq ($(findstring clean, $(MAKECMDGOALS)),)
