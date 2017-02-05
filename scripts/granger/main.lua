@@ -4,24 +4,60 @@
 -- Copyright (c) 2016 Jeff Kent <jeff@jkent.net>
 --
 
-require 'lib'
+require 'scripts/granger/lib'
 
-local src-dir = os.getenv('GRANGER_SRC')
-if not src_dir then
-	os.exit()
-end
+local install_files = {}
 
-local dst_dir = path.getdirectory(_EXE_PATH)
-local tremulous_exe = "tremulous"
 if os.is('windows') then
-	tremulous_exe = tremulous_exe .. '.exe'
+    install_files = {
+        "tremulous.exe"
+        "tremded.exe"
+        "granger.exe"
+        "SDL264.dll"
+        "renderer_opengl1.dll"
+        "renderer_opengl2.dll"
+    }
+elseif os.is('linux') then
+    install_files = {
+        "tremulous"
+        "tremded"
+        "granger"
+        "renderer_opengl1.so"
+        "renderer_opengl2.so"
+    }
+elseif os.is('macosx') then
+    install_files = {
+        "tremulous"
+        "tremded"
+        "granger"
+        "libSDL2-2.0.0.dylib"
+        "renderer_opengl1.dylib"
+        "renderer_opengl2.dylib"
+    }
+else 
+    os.exit(1)
 end
 
-local src = path.join(src_dir, tremulous_exe)
-local dst = path.join(dst_dir, tremulous_exe)
+local dst_dir = path.getdirectory('.')
+local dst_dir = path.getdirectory(_EXE_PATH)
 
-if not os.access(dst, 'w') then
-	os.elevate()
+local privs = false
+for file in ipairs(install_files) do
+    local src = path.join(src_dir, file)
+    local dst = path.join(dst_dir, file)
+    if not os.access(dst, 'w') then
+        privs = true
+    end
 end
 
-os.rename(src, dst)
+if privs then
+    os.elevate()
+end
+
+for file in ipairs(install_files) do
+    local src = path.join(src_dir, file)
+    local dst = path.join(dst_dir, file)
+    os.rename(src, dst)
+end
+
+--- Copyright (C) 2017 GrangerHub 
