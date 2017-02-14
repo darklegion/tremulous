@@ -2881,26 +2881,24 @@ CL_ConnectionlessPacket
 Responses to broadcasts, etc
 =================
 */
-void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
-	char	*s;
-	char	*c;
+void CL_ConnectionlessPacket( netadr_t from, msg_t *msg )
+{
 	int challenge = 0;
 
 	MSG_BeginReadingOOB( msg );
 	MSG_ReadLong( msg );	// skip the -1
 
-	s = MSG_ReadStringLine( msg );
+	char* s = MSG_ReadStringLine( msg );
 
 	Cmd_TokenizeString( s );
 
-	c = Cmd_Argv(0);
+	const char* c = Cmd_Argv(0);
 
 	Com_DPrintf ("CL packet %s: %s\n", NET_AdrToStringwPort(from), c);
 
 	// challenge from the server we are connecting to
 	if (!Q_stricmp(c, "challengeResponse"))
 	{
-		char *strver;
 		int ver;
 	
 		if (clc.state != CA_CONNECTING)
@@ -2909,7 +2907,7 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 			return;
 		}
 		
-		strver = Cmd_Argv(3);
+		const char* strver = Cmd_Argv(3);
 		if(*strver)
 		{
 			ver = atoi(strver);
@@ -3565,7 +3563,8 @@ void CL_InitRef( void ) {
 
 	Com_Printf( "-------------------------------\n");
 
-	if ( !ret ) {
+	if ( !ret )
+    {
 		Com_Error (ERR_FATAL, "Couldn't initialize refresh" );
 	}
 
@@ -3579,16 +3578,19 @@ void CL_InitRef( void ) {
 //===========================================================================================
 
 
-void CL_SetModel_f( void ) {
-	char	*arg;
-	char	name[256];
+void CL_SetModel_f( void )
+{
+	char name[256];
 
-	arg = Cmd_Argv( 1 );
-	if (arg[0]) {
-		Cvar_Set( "model", arg );
-		Cvar_Set( "headmodel", arg );
-	} else {
-		Cvar_VariableStringBuffer( "model", name, sizeof(name) );
+	const char* arg = Cmd_Argv( 1 );
+	if (arg[0])
+    {
+		Cvar_Set("model", arg);
+		Cvar_Set("headmodel", arg);
+	}
+    else
+    {
+		Cvar_VariableStringBuffer("model", name, sizeof(name));
 		Com_Printf("model is set to %s\n", name);
 	}
 }
@@ -3862,7 +3864,6 @@ void CL_Init( void ) {
 	cl_voipProtocol = Cvar_Get ("cl_voipProtocol", cl_voip->integer ? "opus" : "", CVAR_USERINFO | CVAR_ROM);
 #endif
 
-
 	// cgame might not be initialized before menu is used
 	Cvar_Get ("cg_viewsize", "100", CVAR_ARCHIVE );
 	// Make sure cg_stereoSeparation is zero as that variable is deprecated and should not be used anymore.
@@ -3913,11 +3914,11 @@ void CL_Init( void ) {
 
 	CL_GenerateQKey();
 	Cvar_Get( "cl_guid", "", CVAR_USERINFO | CVAR_ROM );
-	if(clc.state == CA_DISCONNECTED) CL_UpdateGUID(NULL,0);  //	CL_UpdateGUID( NULL, 0 );
+	if(clc.state == CA_DISCONNECTED)
+        CL_UpdateGUID(NULL, 0);
 
 	Com_Printf( "----- Client Initialization Complete -----\n" );
 }
-
 
 /*
 ===============
@@ -3994,20 +3995,20 @@ void CL_Shutdown(const char *finalmsg, qboolean disconnect, qboolean quit)
 }
 
 static void CL_SetServerInfo(serverInfo_t *server, const char *info, int ping) {
-	if (server) {
-		if (info) {
-			const char *game;
-
+	if (server)
+    {
+		if (info)
+        {
 			server->clients = atoi(Info_ValueForKey(info, "clients"));
-			Q_strncpyz(server->hostName,Info_ValueForKey(info, "hostname"), MAX_HOSTNAME_LENGTH );
+			Q_strncpyz(server->hostName, Info_ValueForKey(info, "hostname"), MAX_HOSTNAME_LENGTH);
 			Q_strncpyz(server->mapName, Info_ValueForKey(info, "mapname"), MAX_NAME_LENGTH);
 			server->maxClients = atoi(Info_ValueForKey(info, "sv_maxclients"));
-			game = Info_ValueForKey(info, "game");
-			Q_strncpyz(server->game, (game[0]) ? game : BASEGAME, MAX_NAME_LENGTH);
 			server->gameType = atoi(Info_ValueForKey(info, "gametype"));
 			server->netType = atoi(Info_ValueForKey(info, "nettype"));
 			server->minPing = atoi(Info_ValueForKey(info, "minping"));
 			server->maxPing = atoi(Info_ValueForKey(info, "maxping"));
+			const char* game = Info_ValueForKey(info, "game");
+			Q_strncpyz(server->game, (game[0]) ? game : BASEGAME, MAX_NAME_LENGTH);
 		}
 		server->ping = ping;
 	}
