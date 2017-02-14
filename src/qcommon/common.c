@@ -132,7 +132,7 @@ void CIN_CloseAllVideos( void );
 //============================================================================
 
 static char* rd_buffer;
-static int rd_buffersize;
+static unsigned int rd_buffersize;
 static void (*rd_flush)( char *buffer );
 
 void Com_BeginRedirect (char *buffer, int buffersize, void (*flush)( char *) )
