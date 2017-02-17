@@ -8,7 +8,7 @@
 For Linux and Mac OS X builds, follow these steps.
 
 ```bash
-git clone https://github.com/wtfbbqhax/tremulous.git
+git clone https://github.com/GrangerHub/tremulous.git
 cd tremulous
 make
 # cd build/release-darwin-x86_64/
@@ -69,4 +69,3 @@ This also includes voice menus branch
  - (0.0f - 1.0f) default 0.0f
 * New Cvar `scr_colorAlpha` console transparency.
  - (0.0f - 1.0f) default 0.8f
-

@@ -5,7 +5,7 @@ cl_latestRelease = cvar.new("cl_latestRelease")
 dlurl = ""
 
 Releases = {
-  url='https://api.github.com/repos/wtfbbqhax/tremulous/releases'
+  url='https://api.github.com/repos/GrangerHub/tremulous/releases'
 
   refresh = function()
     r = http.get(url)
@@ -38,4 +38,3 @@ Releases = {
     os.execute(path .. args)
   end
 }
-

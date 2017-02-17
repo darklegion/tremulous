@@ -93,7 +93,7 @@ struct UpdateManager {
     static void execute();
 
 private:
-    static constexpr auto url = "https://api.github.com/repos/wtfbbqhax/tremulous/releases";
+    static constexpr auto url = "https://api.github.com/repos/GrangerHub/tremulous/releases";
     static constexpr auto package_name = RELEASE_PACKAGE_NAME;
     static constexpr auto signature_name = RELEASE_SIGNATURE_NAME;
     static constexpr auto granger_binary_name = GRANGER_EXE;

@@ -15,7 +15,7 @@
 --]]
 
 -- GitHub API URL
-url='https://api.github.com/repos/wtfbbqhax/tremulous/releases'
+url='https://api.github.com/repos/GrangerHub/tremulous/releases'
 
 -- HTTP Get request- retrieve the raw JSON response
 txt = http.get(url)
