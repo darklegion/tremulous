@@ -134,8 +134,8 @@ qboolean SpotWouldTelefrag( gentity_t *spot )
   gentity_t *hit;
   vec3_t    mins, maxs;
 
-  VectorAdd( spot->s.origin, playerMins, mins );
-  VectorAdd( spot->s.origin, playerMaxs, maxs );
+  VectorAdd( spot->r.currentOrigin, playerMins, mins );
+  VectorAdd( spot->r.currentOrigin, playerMaxs, maxs );
   num = trap_EntitiesInBox( mins, maxs, touch, MAX_GENTITIES );
 
   for( i = 0; i < num; i++ )
@@ -174,7 +174,7 @@ static gentity_t *G_SelectRandomFurthestSpawnPoint ( vec3_t avoidPoint, vec3_t o
     if( SpotWouldTelefrag( spot ) )
       continue;
 
-    VectorSubtract( spot->s.origin, avoidPoint, delta );
+    VectorSubtract( spot->r.currentOrigin, avoidPoint, delta );
     dist = VectorLength( delta );
 
     for( i = 0; i < numSpots; i++ )
@@ -216,18 +216,18 @@ static gentity_t *G_SelectRandomFurthestSpawnPoint ( vec3_t avoidPoint, vec3_t o
     if( !spot )
       G_Error( "Couldn't find a spawn point" );
 
-    VectorCopy( spot->s.origin, origin );
+    VectorCopy( spot->r.currentOrigin, origin );
     origin[ 2 ] += 9;
-    VectorCopy( spot->s.angles, angles );
+    VectorCopy( spot->r.currentAngles, angles );
     return spot;
   }
 
   // select a random spot from the spawn points furthest away
   rnd = random( ) * ( numSpots / 2 );
 
-  VectorCopy( list_spot[ rnd ]->s.origin, origin );
+  VectorCopy( list_spot[ rnd ]->r.currentOrigin, origin );
   origin[ 2 ] += 9;
-  VectorCopy( list_spot[ rnd ]->s.angles, angles );
+  VectorCopy( list_spot[ rnd ]->r.currentAngles, angles );
 
   return list_spot[ rnd ];
 }
@@ -256,18 +256,18 @@ static gentity_t *G_SelectSpawnBuildable( vec3_t preference, buildable_t buildab
     if( search->health <= 0 )
       continue;
 
-    if( !search->s.groundEntityNum )
+    if( search->s.groundEntityNum == ENTITYNUM_NONE )
       continue;
 
     if( search->clientSpawnTime > 0 )
       continue;
 
-    if( G_CheckSpawnPoint( search->s.number, search->s.origin,
+    if( G_CheckSpawnPoint( search->s.number, search->r.currentOrigin,
           search->s.origin2, buildable, NULL ) != NULL )
       continue;
 
-    if( !spot || DistanceSquared( preference, search->s.origin ) <
-                 DistanceSquared( preference, spot->s.origin ) )
+    if( !spot || DistanceSquared( preference, search->r.currentOrigin ) <
+                 DistanceSquared( preference, spot->r.currentOrigin ) )
       spot = search;
   }
 
@@ -318,11 +318,11 @@ gentity_t *G_SelectTremulousSpawnPoint( team_t team, vec3_t preference, vec3_t o
     return NULL;
 
   if( team == TEAM_ALIENS )
-    G_CheckSpawnPoint( spot->s.number, spot->s.origin, spot->s.origin2, BA_A_SPAWN, origin );
+    G_CheckSpawnPoint( spot->s.number, spot->r.currentOrigin, spot->s.origin2, BA_A_SPAWN, origin );
   else if( team == TEAM_HUMANS )
-    G_CheckSpawnPoint( spot->s.number, spot->s.origin, spot->s.origin2, BA_H_SPAWN, origin );
+    G_CheckSpawnPoint( spot->s.number, spot->r.currentOrigin, spot->s.origin2, BA_H_SPAWN, origin );
 
-  VectorCopy( spot->s.angles, angles );
+  VectorCopy( spot->r.currentAngles, angles );
   angles[ ROLL ] = 0;
 
   return spot;
@@ -365,8 +365,8 @@ gentity_t *G_SelectAlienLockSpawnPoint( vec3_t origin, vec3_t angles )
   if( !spot )
     return G_SelectSpectatorSpawnPoint( origin, angles );
 
-  VectorCopy( spot->s.origin, origin );
-  VectorCopy( spot->s.angles, angles );
+  VectorCopy( spot->r.currentOrigin, origin );
+  VectorCopy( spot->r.currentAngles, angles );
 
   return spot;
 }
@@ -390,8 +390,8 @@ gentity_t *G_SelectHumanLockSpawnPoint( vec3_t origin, vec3_t angles )
   if( !spot )
     return G_SelectSpectatorSpawnPoint( origin, angles );
 
-  VectorCopy( spot->s.origin, origin );
-  VectorCopy( spot->s.angles, angles );
+  VectorCopy( spot->r.currentOrigin, origin );
+  VectorCopy( spot->r.currentAngles, angles );
 
   return spot;
 }
@@ -448,9 +448,7 @@ static void SpawnCorpse( gentity_t *ent )
 {
   gentity_t   *body;
   int         contents;
-  vec3_t      origin, dest;
-  trace_t     tr;
-  float       vDiff;
+  vec3_t      origin, mins;
 
   VectorCopy( ent->r.currentOrigin, origin );
 
@@ -463,13 +461,14 @@ static void SpawnCorpse( gentity_t *ent )
 
   body = G_Spawn( );
 
-  VectorCopy( ent->s.apos.trBase, body->s.angles );
+  VectorCopy( ent->s.apos.trBase, body->s.apos.trBase );
+  VectorCopy( ent->s.apos.trBase, body->r.currentAngles );
   body->s.eFlags = EF_DEAD;
   body->s.eType = ET_CORPSE;
-  body->s.number = body - g_entities;
   body->timestamp = level.time;
   body->s.event = 0;
   body->r.contents = CONTENTS_CORPSE;
+  body->clipmask = MASK_DEADSOLID;
   body->s.clientNum = ent->client->ps.stats[ STAT_CLASS ];
   body->nonSegModel = ent->client->ps.persistant[ PERS_STATE ] & PS_NONSEGMODEL;
 
@@ -526,25 +525,19 @@ static void SpawnCorpse( gentity_t *ent )
 
   body->takedamage = qfalse;
 
-  body->health = ent->health = ent->client->ps.stats[ STAT_HEALTH ];
-  ent->health = 0;
+  body->health = ent->health;
 
   //change body dimensions
-  BG_ClassBoundingBox( ent->client->ps.stats[ STAT_CLASS ], NULL, NULL, NULL, body->r.mins, body->r.maxs );
-  vDiff = body->r.mins[ 2 ] - ent->r.mins[ 2 ];
+  BG_ClassBoundingBox( ent->client->ps.stats[ STAT_CLASS ], mins, NULL, NULL, body->r.mins, body->r.maxs );
 
   //drop down to match the *model* origins of ent and body
-  VectorSet( dest, origin[ 0 ], origin[ 1 ], origin[ 2 ] - vDiff );
-  trap_Trace( &tr, origin, body->r.mins, body->r.maxs, dest, body->s.number, body->clipmask );
-  VectorCopy( tr.endpos, origin );
+  origin[2] += mins[ 2 ] - body->r.mins[ 2 ];
 
   G_SetOrigin( body, origin );
-  VectorCopy( origin, body->s.origin );
   body->s.pos.trType = TR_GRAVITY;
   body->s.pos.trTime = level.time;
   VectorCopy( ent->client->ps.velocity, body->s.pos.trDelta );
 
-  VectorCopy ( body->s.pos.trBase, body->r.currentOrigin );
   trap_LinkEntity( body );
 }
 
@@ -557,7 +550,7 @@ G_SetClientViewAngle
 
 ==================
 */
-void G_SetClientViewAngle( gentity_t *ent, vec3_t angle )
+void G_SetClientViewAngle( gentity_t *ent, const vec3_t angle )
 {
   int     i;
 
@@ -570,8 +563,9 @@ void G_SetClientViewAngle( gentity_t *ent, vec3_t angle )
     ent->client->ps.delta_angles[ i ] = cmdAngle - ent->client->pers.cmd.angles[ i ];
   }
 
-  VectorCopy( angle, ent->s.angles );
-  VectorCopy( ent->s.angles, ent->client->ps.viewangles );
+  VectorCopy( angle, ent->s.apos.trBase );
+  VectorCopy( angle, ent->r.currentAngles );
+  VectorCopy( angle, ent->client->ps.viewangles );
 }
 
 /*
@@ -813,9 +807,9 @@ if desired.
 char *ClientUserinfoChanged( int clientNum, qboolean forceName )
 {
   gentity_t *ent;
-  char      *s;
-  char      model[ MAX_QPATH ];
-  char      buffer[ MAX_QPATH ];
+  char *s, *s2;
+  char      model[ MAX_QPATH] = { '\0' };
+  char      buffer[ MAX_QPATH ] = { '\0' };
   char      filename[ MAX_QPATH ];
   char      oldname[ MAX_NAME_LENGTH ];
   char      newname[ MAX_NAME_LENGTH ];
@@ -911,6 +905,40 @@ char *ClientUserinfoChanged( int clientNum, qboolean forceName )
     G_namelog_update_name( client );
   }
 
+  if ( client->pers.teamSelection == TEAM_HUMANS )
+  {
+    int i;
+    qboolean found = qfalse;
+
+    s = Info_ValueForKey(userinfo, "model");
+
+    for ( i = 0; i < level.playerModelCount; i++ )
+    {
+      if ( !strcmp(s, level.playerModel[i]) )
+      {
+        found = qtrue;
+        break;
+      }
+    }
+
+    if ( !found )
+      s = NULL;
+    else if ( !g_cheats.integer
+           && !forceName
+           && !G_admin_permission( ent, va("MODEL%s", s) ) )
+      s = NULL;
+
+    if (s)
+    {
+      s2 = Info_ValueForKey(userinfo, "skin");
+      s2 = GetSkin(s, s2);
+    }
+  }
+  else
+  {
+      s = NULL;
+  }
+
   if( client->pers.classSelection == PCL_NONE )
   {
     //This looks hacky and frankly it is. The clientInfo string needs to hold different
@@ -922,8 +950,15 @@ char *ClientUserinfoChanged( int clientNum, qboolean forceName )
   }
   else
   {
-    Com_sprintf( buffer, MAX_QPATH, "%s/%s",  BG_ClassConfig( client->pers.classSelection )->modelName,
-                                              BG_ClassConfig( client->pers.classSelection )->skinName );
+    if ( !(client->pers.classSelection == PCL_HUMAN_BSUIT) && s )
+    {
+        Com_sprintf( buffer, MAX_QPATH, "%s/%s", s, s2 );
+    }
+    else
+    {
+        Com_sprintf( buffer, MAX_QPATH, "%s/%s",  BG_ClassConfig( client->pers.classSelection )->modelName,
+                                                  BG_ClassConfig( client->pers.classSelection )->skinName );
+    }
 
     //model segmentation
     Com_sprintf( filename, sizeof( filename ), "models/players/%s/animation.cfg",
@@ -975,6 +1010,9 @@ char *ClientUserinfoChanged( int clientNum, qboolean forceName )
     client->pers.disableBlueprintErrors = qtrue;
   else
     client->pers.disableBlueprintErrors = qfalse;
+
+  client->pers.buildableRangeMarkerMask =
+    atoi( Info_ValueForKey( userinfo, "cg_buildableRangeMarkerMask" ) );
 
   // teamInfo
   s = Info_ValueForKey( userinfo, "teamoverlay" );
@@ -1034,7 +1072,7 @@ to the server machine, but qfalse on map changes and tournement
 restarts.
 ============
 */
-char *ClientConnect( int clientNum, qboolean firstTime )
+const char *ClientConnect( int clientNum, qboolean firstTime )
 {
   char      *value;
   char      *userInfoError;
@@ -1067,6 +1105,22 @@ char *ClientConnect( int clientNum, qboolean firstTime )
 
   client->pers.admin = G_admin_admin( client->pers.guid );
 
+  client->pers.alternateProtocol = trap_Cvar_VariableIntegerValue( va( "sv_clAltProto%i", clientNum ) );
+
+  if( client->pers.alternateProtocol == 2 && client->pers.guid[ 0 ] == '\0' )
+  {
+    size_t len = strlen( client->pers.ip.str );
+    if( len == 0 )
+      len = 1;
+    for( i = 0; i < sizeof( client->pers.guid ) - 1; ++i )
+    {
+      int j = client->pers.ip.str[ i % len ] + rand() / ( RAND_MAX / 16 + 1 );
+      client->pers.guid[ i ] = "0123456789ABCDEF"[ j % 16 ];
+    }
+    client->pers.guid[ sizeof( client->pers.guid ) - 1 ] = '\0';
+    client->pers.guidless = qtrue;
+  }
+
   // check for admin ban
   if( G_admin_ban_check( ent, reason, sizeof( reason ) ) )
   {
@@ -1086,22 +1140,6 @@ char *ClientConnect( int clientNum, qboolean firstTime )
 
   if( i < sizeof( client->pers.guid ) - 1 )
     return "Invalid GUID";
-
-  for( i = 0; i < level.maxclients; i++ )
-  {
-    if( level.clients[ i ].pers.connected == CON_DISCONNECTED )
-      continue;
-
-    if( !Q_stricmp( client->pers.guid, level.clients[ i ].pers.guid ) )
-    {
-      if( !G_ClientIsLagging( level.clients + i ) )
-      {
-        trap_SendServerCommand( i, "cp \"Your GUID is not secure\"" );
-        return "Duplicate GUID";
-      }
-      trap_DropClient( i, "Ghost" );
-    }
-  }
 
   client->pers.connected = CON_CONNECTING;
 
@@ -1149,9 +1187,9 @@ char *ClientConnect( int clientNum, qboolean firstTime )
 ===========
 ClientBegin
 
-called when a client has finished connecting, and is ready
-to be placed into the level.  This will happen every level load,
-and on transition between teams, but doesn't happen on respawns
+Called when a client has finished connecting, and is ready
+to be placed into the level. This will happen on every
+level load and level restart, but doesn't happen on respawns.
 ============
 */
 void ClientBegin( int clientNum )
@@ -1214,7 +1252,7 @@ after the first ClientBegin, and after each respawn
 Initializes all non-persistant parts of playerState
 ============
 */
-void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles )
+void ClientSpawn( gentity_t *ent, gentity_t *spawn, const vec3_t origin, const vec3_t angles )
 {
   int                 index;
   vec3_t              spawn_origin, spawn_angles;
@@ -1222,8 +1260,8 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   int                 i;
   clientPersistant_t  saved;
   clientSession_t     savedSess;
+  qboolean            savedNoclip, savedCliprcontents;
   int                 persistant[ MAX_PERSISTANT ];
-  gentity_t           *spawnPoint = NULL;
   int                 flags;
   int                 savedPing;
   int                 teamLocal;
@@ -1255,43 +1293,38 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   if( ent->client->sess.spectatorState == SPECTATOR_FOLLOW )
     G_StopFollowing( ent );
 
-  if( origin != NULL )
-    VectorCopy( origin, spawn_origin );
-
-  if( angles != NULL )
-    VectorCopy( angles, spawn_angles );
-
   // find a spawn point
   // do it before setting health back up, so farthest
   // ranging doesn't count this client
   if( client->sess.spectatorState != SPECTATOR_NOT )
   {
-    if( teamLocal == TEAM_NONE )
-      spawnPoint = G_SelectSpectatorSpawnPoint( spawn_origin, spawn_angles );
-    else if( teamLocal == TEAM_ALIENS )
-      spawnPoint = G_SelectAlienLockSpawnPoint( spawn_origin, spawn_angles );
+    if( teamLocal == TEAM_ALIENS )
+      spawn = G_SelectAlienLockSpawnPoint( spawn_origin, spawn_angles );
     else if( teamLocal == TEAM_HUMANS )
-      spawnPoint = G_SelectHumanLockSpawnPoint( spawn_origin, spawn_angles );
+      spawn = G_SelectHumanLockSpawnPoint( spawn_origin, spawn_angles );
+    else
+      spawn = G_SelectSpectatorSpawnPoint( spawn_origin, spawn_angles );
   }
   else
   {
-    if( spawn == NULL )
+    if( origin == NULL || angles == NULL )
     {
-      G_Error( "ClientSpawn: spawn is NULL\n" );
+      G_Error( "ClientSpawn: origin or angles is NULL" );
       return;
     }
 
-    spawnPoint = spawn;
+    VectorCopy( origin, spawn_origin );
+    VectorCopy( angles, spawn_angles );
 
-    if( ent != spawn )
+    if( spawn != NULL && spawn != ent )
     {
       //start spawn animation on spawnPoint
-      G_SetBuildableAnim( spawnPoint, BANIM_SPAWN1, qtrue );
+      G_SetBuildableAnim( spawn, BANIM_SPAWN1, qtrue );
 
-      if( spawnPoint->buildableTeam == TEAM_ALIENS )
-        spawnPoint->clientSpawnTime = ALIEN_SPAWN_REPEAT_TIME;
-      else if( spawnPoint->buildableTeam == TEAM_HUMANS )
-        spawnPoint->clientSpawnTime = HUMAN_SPAWN_REPEAT_TIME;
+      if( spawn->buildableTeam == TEAM_ALIENS )
+        spawn->clientSpawnTime = ALIEN_SPAWN_REPEAT_TIME;
+      else if( spawn->buildableTeam == TEAM_HUMANS )
+        spawn->clientSpawnTime = HUMAN_SPAWN_REPEAT_TIME;
     }
   }
 
@@ -1304,6 +1337,8 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   saved = client->pers;
   savedSess = client->sess;
   savedPing = client->ps.ping;
+  savedNoclip = client->noclip;
+  savedCliprcontents = client->cliprcontents;
 
   for( i = 0; i < MAX_PERSISTANT; i++ )
     persistant[ i ] = client->ps.persistant[ i ];
@@ -1314,6 +1349,8 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   client->pers = saved;
   client->sess = savedSess;
   client->ps.ping = savedPing;
+  client->noclip = savedNoclip;
+  client->cliprcontents = savedCliprcontents;
   client->lastkilled_client = -1;
 
   for( i = 0; i < MAX_PERSISTANT; i++ )
@@ -1335,14 +1372,19 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   ent->s.groundEntityNum = ENTITYNUM_NONE;
   ent->client = &level.clients[ index ];
   ent->takedamage = qtrue;
-  ent->inuse = qtrue;
   ent->classname = "player";
-  ent->r.contents = CONTENTS_BODY;
-  ent->clipmask = MASK_PLAYERSOLID;
+  if( client->noclip )
+    client->cliprcontents = CONTENTS_BODY;
+  else
+    ent->r.contents = CONTENTS_BODY;
+  if( client->pers.teamSelection == TEAM_NONE )
+    ent->clipmask = MASK_DEADSOLID;
+  else
+    ent->clipmask = MASK_PLAYERSOLID;
   ent->die = player_die;
   ent->waterlevel = 0;
   ent->watertype = 0;
-  ent->flags = 0;
+  ent->flags &= FL_GODMODE | FL_NOTARGET;
 
   // calculate each client's acceleration
   ent->evaluateAcceleration = qtrue;
@@ -1394,7 +1436,7 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   if( ent == spawn )
   {
     ent->health *= ent->client->pers.evolveHealthFraction;
-    client->ps.stats[ STAT_HEALTH ] *= ent->client->pers.evolveHealthFraction;
+    client->ps.stats[ STAT_HEALTH ] = ent->health;
   }
 
   //clear the credits array
@@ -1413,7 +1455,11 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   if( client->sess.spectatorState == SPECTATOR_NOT &&
       client->ps.stats[ STAT_TEAM ] == TEAM_ALIENS )
   {
-    if( ent == spawn )
+    if( spawn == NULL )
+    {
+      G_AddPredictableEvent( ent, EV_PLAYER_RESPAWN, 0 );
+    }
+    else if( ent == spawn )
     {
       //evolution particle system
       G_AddPredictableEvent( ent, EV_ALIEN_EVOLVE, DirToByte( up ) );
@@ -1423,13 +1469,13 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
       spawn_angles[ YAW ] += 180.0f;
       AngleNormalize360( spawn_angles[ YAW ] );
 
-      if( spawnPoint->s.origin2[ 2 ] > 0.0f )
+      if( spawn->s.origin2[ 2 ] > 0.0f )
       {
         vec3_t  forward, dir;
 
         AngleVectors( spawn_angles, forward, NULL, NULL );
         VectorScale( forward, F_VEL, forward );
-        VectorAdd( spawnPoint->s.origin2, forward, dir );
+        VectorAdd( spawn->s.origin2, forward, dir );
         VectorNormalize( dir );
 
         VectorScale( dir, UP_VEL, client->ps.velocity );
@@ -1441,8 +1487,11 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   else if( client->sess.spectatorState == SPECTATOR_NOT &&
            client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS )
   {
-    spawn_angles[ YAW ] += 180.0f;
-    AngleNormalize360( spawn_angles[ YAW ] );
+    if( spawn != NULL )
+    {
+      spawn_angles[ YAW ] += 180.0f;
+      AngleNormalize360( spawn_angles[ YAW ] );
+    }
   }
 
   // the respawned flag will be cleared after the attack and jump keys come up
@@ -1481,8 +1530,8 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   else
   {
     // fire the targets of the spawn point
-    if( !spawn )
-      G_UseTargets( spawnPoint, ent );
+    if( spawn != NULL && spawn != ent )
+      G_UseTargets( spawn, ent );
 
     client->ps.weapon = client->ps.stats[ STAT_WEAPON ];
   }
@@ -1493,11 +1542,12 @@ void ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles
   ent->client->pers.cmd.serverTime = level.time;
   ClientThink( ent-g_entities );
 
+  VectorCopy( ent->client->ps.viewangles, ent->r.currentAngles );
+  VectorCopy( ent->client->ps.origin, ent->r.currentOrigin );
   // positively link the client, even if the command times are weird
   if( client->sess.spectatorState == SPECTATOR_NOT )
   {
     BG_PlayerStateToEntityState( &client->ps, &ent->s, qtrue );
-    VectorCopy( ent->client->ps.origin, ent->r.currentOrigin );
     trap_LinkEntity( ent );
   }
 
@@ -1560,7 +1610,6 @@ void ClientDisconnect( int clientNum )
    ent->client->pers.ip.str, ent->client->pers.guid, ent->client->pers.netname );
 
   trap_UnlinkEntity( ent );
-  ent->s.modelindex = 0;
   ent->inuse = qfalse;
   ent->classname = "disconnected";
   ent->client->pers.connected = CON_DISCONNECTED;

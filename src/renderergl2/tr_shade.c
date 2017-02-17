@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // tr_shade.c
 
 #include "tr_local.h" 
-#if idppc_altivec && !defined(MACOS_X)
+#if idppc_altivec && !defined(__APPLE__)
 #include <altivec.h>
 #endif
 
@@ -45,7 +45,7 @@ R_DrawElements
 void R_DrawElementsVao( int numIndexes, glIndex_t firstIndex, glIndex_t minIndex, glIndex_t maxIndex )
 {
 	if (glRefConfig.drawRangeElements)
-		qglDrawRangeElementsEXT(GL_TRIANGLES, minIndex, maxIndex, numIndexes, GL_INDEX_TYPE, BUFFER_OFFSET(firstIndex * sizeof(glIndex_t)));
+		qglDrawRangeElements(GL_TRIANGLES, minIndex, maxIndex, numIndexes, GL_INDEX_TYPE, BUFFER_OFFSET(firstIndex * sizeof(glIndex_t)));
 	else
 		qglDrawElements(GL_TRIANGLES, numIndexes, GL_INDEX_TYPE, BUFFER_OFFSET(firstIndex * sizeof(glIndex_t)));
 	
@@ -57,7 +57,7 @@ static void R_DrawMultiElementsVao( int multiDrawPrimitives, glIndex_t *multiDra
 {
 	if (glRefConfig.multiDrawArrays && multiDrawPrimitives > 1)
 	{
-		qglMultiDrawElementsEXT(GL_TRIANGLES, multiDrawNumIndexes, GL_INDEX_TYPE, (const GLvoid **)multiDrawFirstIndex, multiDrawPrimitives);
+		qglMultiDrawElements(GL_TRIANGLES, multiDrawNumIndexes, GL_INDEX_TYPE, (const GLvoid **)multiDrawFirstIndex, multiDrawPrimitives);
 	}
 	else
 	{
@@ -67,7 +67,7 @@ static void R_DrawMultiElementsVao( int multiDrawPrimitives, glIndex_t *multiDra
 		{
 			for (i = 0; i < multiDrawPrimitives; i++)
 			{
-				qglDrawRangeElementsEXT(GL_TRIANGLES, multiDrawMinIndex[i], multiDrawMaxIndex[i], multiDrawNumIndexes[i], GL_INDEX_TYPE, multiDrawFirstIndex[i]);
+				qglDrawRangeElements(GL_TRIANGLES, multiDrawMinIndex[i], multiDrawMaxIndex[i], multiDrawNumIndexes[i], GL_INDEX_TYPE, multiDrawFirstIndex[i]);
 			}
 		}
 		else
@@ -447,18 +447,16 @@ static void ComputeShaderColors( shaderStage_t *pStage, vec4_t baseColor, vec4_t
 		|| ((blend & GLS_SRCBLEND_BITS) == GLS_SRCBLEND_ONE_MINUS_DST_COLOR)
 		|| ((blend & GLS_DSTBLEND_BITS) == GLS_DSTBLEND_SRC_COLOR)
 		|| ((blend & GLS_DSTBLEND_BITS) == GLS_DSTBLEND_ONE_MINUS_SRC_COLOR);
-	qboolean isWorldDraw = !(backEnd.refdef.rdflags & RDF_NOWORLDMODEL);
-	float scale = 1.0f;
 
-#if defined(USE_OVERBRIGHT)
-	float exactLight = 1.0f;
-#else
-	float exactLight = (isBlend || !isWorldDraw) ? 1.0f : (float)(1 << r_mapOverBrightBits->integer);
-#endif
+	qboolean is2DDraw = backEnd.currentEntity == &backEnd.entity2D;
+
+	float overbright = (isBlend || is2DDraw) ? 1.0f : (float)(1 << tr.overbrightBits);
+
+	fog_t *fog;
 
 	baseColor[0] = 
 	baseColor[1] =
-	baseColor[2] = exactLight;
+	baseColor[2] =
 	baseColor[3] = 1.0f;
 
 	vertColor[0] =
@@ -471,11 +469,6 @@ static void ComputeShaderColors( shaderStage_t *pStage, vec4_t baseColor, vec4_t
 	//
 	switch ( pStage->rgbGen )
 	{
-		case CGEN_IDENTITY_LIGHTING:
-			baseColor[0] = 
-			baseColor[1] =
-			baseColor[2] = tr.identityLight;
-			break;
 		case CGEN_EXACT_VERTEX:
 		case CGEN_EXACT_VERTEX_LIT:
 			baseColor[0] = 
@@ -485,7 +478,7 @@ static void ComputeShaderColors( shaderStage_t *pStage, vec4_t baseColor, vec4_t
 
 			vertColor[0] =
 			vertColor[1] =
-			vertColor[2] = exactLight;
+			vertColor[2] = overbright;
 			vertColor[3] = 1.0f;
 			break;
 		case CGEN_CONST:
@@ -495,47 +488,33 @@ static void ComputeShaderColors( shaderStage_t *pStage, vec4_t baseColor, vec4_t
 			baseColor[3] = pStage->constantColor[3] / 255.0f;
 			break;
 		case CGEN_VERTEX:
-			baseColor[0] = 
+		case CGEN_VERTEX_LIT:
+			baseColor[0] =
 			baseColor[1] =
 			baseColor[2] =
 			baseColor[3] = 0.0f;
 
 			vertColor[0] =
 			vertColor[1] =
-			vertColor[2] = tr.identityLight;
+			vertColor[2] =
 			vertColor[3] = 1.0f;
-			break;
-		case CGEN_VERTEX_LIT:
-			baseColor[0] = 
-			baseColor[1] =
-			baseColor[2] = 
-			baseColor[3] = 0.0f;
-
-			vertColor[0] =
-			vertColor[1] =
-			vertColor[2] = 
-			vertColor[3] = tr.identityLight;
 			break;
 		case CGEN_ONE_MINUS_VERTEX:
 			baseColor[0] = 
 			baseColor[1] =
-			baseColor[2] = tr.identityLight;
+			baseColor[2] = 1.0f;
 
 			vertColor[0] =
 			vertColor[1] =
-			vertColor[2] = -tr.identityLight;
+			vertColor[2] = -1.0f;
 			break;
 		case CGEN_FOG:
-			{
-				fog_t		*fog;
+			fog = tr.world->fogs + tess.fogNum;
 
-				fog = tr.world->fogs + tess.fogNum;
-
-				baseColor[0] = ((unsigned char *)(&fog->colorInt))[0] / 255.0f;
-				baseColor[1] = ((unsigned char *)(&fog->colorInt))[1] / 255.0f;
-				baseColor[2] = ((unsigned char *)(&fog->colorInt))[2] / 255.0f;
-				baseColor[3] = ((unsigned char *)(&fog->colorInt))[3] / 255.0f;
-			}
+			baseColor[0] = ((unsigned char *)(&fog->colorInt))[0] / 255.0f;
+			baseColor[1] = ((unsigned char *)(&fog->colorInt))[1] / 255.0f;
+			baseColor[2] = ((unsigned char *)(&fog->colorInt))[2] / 255.0f;
+			baseColor[3] = ((unsigned char *)(&fog->colorInt))[3] / 255.0f;
 			break;
 		case CGEN_WAVEFORM:
 			baseColor[0] = 
@@ -562,6 +541,11 @@ static void ComputeShaderColors( shaderStage_t *pStage, vec4_t baseColor, vec4_t
 			break;
 		case CGEN_IDENTITY:
 		case CGEN_LIGHTING_DIFFUSE:
+			baseColor[0] =
+			baseColor[1] =
+			baseColor[2] = overbright;
+			break;
+		case CGEN_IDENTITY_LIGHTING:
 		case CGEN_BAD:
 			break;
 	}
@@ -610,18 +594,6 @@ static void ComputeShaderColors( shaderStage_t *pStage, vec4_t baseColor, vec4_t
 			baseColor[3] = 1.0f;
 			vertColor[3] = 0.0f;
 			break;
-	}
-
-	if (tr.overbrightBits && !isBlend)
-		scale *= 1 << tr.overbrightBits;
-
-	if ((backEnd.refdef.colorScale != 1.0f) && !isBlend && isWorldDraw)
-		scale *= backEnd.refdef.colorScale;
-
-	if (scale != 1.0f)
-	{
-		VectorScale(baseColor, scale, baseColor);
-		VectorScale(vertColor, scale, vertColor);
 	}
 
 	// FIXME: find some way to implement this.
@@ -1053,9 +1025,7 @@ static unsigned int RB_CalcShaderVertexAttribs( shaderCommands_t *input )
 		if (vertexAttribs & ATTR_NORMAL)
 		{
 			vertexAttribs |= ATTR_NORMAL2;
-#ifdef USE_VERT_TANGENT_SPACE
 			vertexAttribs |= ATTR_TANGENT2;
-#endif
 		}
 	}
 
@@ -1271,7 +1241,7 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 					specularScale[1] = 0.0f;
 			}
 
-			GLSL_SetUniformVec4(sp, UNIFORM_SPECULARSCALE, pStage->specularScale);
+			GLSL_SetUniformVec4(sp, UNIFORM_SPECULARSCALE, specularScale);
 		}
 
 		//GLSL_SetUniformFloat(sp, UNIFORM_MAPLIGHTSCALE, backEnd.refdef.mapLightScale);
@@ -1293,7 +1263,9 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 
 			if (r_sunlightMode->integer && (backEnd.viewParms.flags & VPF_USESUNLIGHT) && (pStage->glslShaderIndex & LIGHTDEF_LIGHTTYPE_MASK))
 			{
-				GL_BindToTMU(tr.screenShadowImage, TB_SHADOWMAP);
+				// FIXME: screenShadowImage is NULL if no framebuffers
+				if (tr.screenShadowImage)
+					GL_BindToTMU(tr.screenShadowImage, TB_SHADOWMAP);
 				GLSL_SetUniformVec3(sp, UNIFORM_PRIMARYLIGHTAMBIENT, backEnd.refdef.sunAmbCol);
 				if (r_pbr->integer)
 				{
@@ -1405,7 +1377,9 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 			vec4_t vec;
 			cubemap_t *cubemap = &tr.cubemaps[input->cubemapIndex - 1];
 
-			GL_BindToTMU( cubemap->image, TB_CUBEMAP);
+			// FIXME: cubemap image could be NULL if cubemap isn't renderer or loaded
+			if (cubemap->image)
+				GL_BindToTMU( cubemap->image, TB_CUBEMAP);
 
 			VectorSubtract(cubemap->origin, backEnd.viewParms.or.origin, vec);
 			vec[3] = 1.0f;
@@ -1625,7 +1599,7 @@ void RB_StageIteratorGeneric( void )
 	// 
 	// now do any dynamic lighting needed
 	//
-	if ( tess.dlightBits && tess.shader->sort <= SS_OPAQUE
+	if ( tess.dlightBits && tess.shader->sort <= SS_OPAQUE && r_lightmap->integer == 0
 		&& !(tess.shader->surfaceFlags & (SURF_NODLIGHT | SURF_SKY) ) ) {
 		if (tess.shader->numUnfoggedPasses == 1 && tess.xstages[0]->glslShaderGroup == tr.lightallShader
 			&& (tess.xstages[0]->glslShaderIndex & LIGHTDEF_LIGHTTYPE_MASK) && r_dlightMode->integer)

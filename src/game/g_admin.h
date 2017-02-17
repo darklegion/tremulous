@@ -50,7 +50,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  * IMMUTABLE - admin commands cannot be used on them
  * INCOGNITO - does not show up as an admin in /listplayers
  * ALLFLAGS - all flags (including command flags) apply to this player
- * ADMINCHAT - receieves and can send /a admin messages
+ * ADMINCHAT - receives and can send /a admin messages
  */
 #define ADMF_IMMUNITY        "IMMUNITY"
 #define ADMF_NOCENSORFLOOD   "NOCENSORFLOOD"
@@ -124,7 +124,7 @@ typedef struct g_admin_ban
   char guid[ 33 ];
   addr_t ip;
   char reason[ MAX_ADMIN_BAN_REASON ];
-  char made[ 18 ]; // big enough for strftime() %c
+  char made[ 20 ]; // "YYYY-MM-DD hh:mm:ss"
   int expires;
   char banner[ MAX_NAME_LENGTH ];
   int warnCount;
@@ -157,6 +157,8 @@ void G_admin_authlog( gentity_t *ent );
 qboolean G_admin_time( gentity_t *ent );
 qboolean G_admin_setlevel( gentity_t *ent );
 qboolean G_admin_kick( gentity_t *ent );
+qboolean G_admin_addlayout( gentity_t *ent );
+qboolean G_admin_setivo( gentity_t *ent );
 qboolean G_admin_adjustban( gentity_t *ent );
 qboolean G_admin_ban( gentity_t *ent );
 qboolean G_admin_unban( gentity_t *ent );
@@ -173,18 +175,21 @@ qboolean G_admin_admintest( gentity_t *ent );
 qboolean G_admin_allready( gentity_t *ent );
 qboolean G_admin_endvote( gentity_t *ent );
 qboolean G_admin_spec999( gentity_t *ent );
+qboolean G_admin_transform( gentity_t *ent );
 qboolean G_admin_rename( gentity_t *ent );
 qboolean G_admin_restart( gentity_t *ent );
 qboolean G_admin_nextmap( gentity_t *ent );
+qboolean G_admin_setnextmap( gentity_t *ent );
 qboolean G_admin_namelog( gentity_t *ent );
 qboolean G_admin_lock( gentity_t *ent );
 qboolean G_admin_pause( gentity_t *ent );
 qboolean G_admin_builder( gentity_t *ent );
 qboolean G_admin_buildlog( gentity_t *ent );
 qboolean G_admin_revert( gentity_t *ent );
+qboolean G_admin_setdevmode( gentity_t *ent );
 
-void G_admin_print( gentity_t *ent, char *m );
-void G_admin_buffer_print( gentity_t *ent, char *m );
+void G_admin_print( gentity_t *ent, const char *m );
+void G_admin_buffer_print( gentity_t *ent, const char *m );
 void G_admin_buffer_begin( void );
 void G_admin_buffer_end( gentity_t *ent );
 

@@ -24,10 +24,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // bg_voice.c -- both games voice functions
 #include "../qcommon/q_shared.h"
+#include "../qcommon/files.h"
 #include "bg_public.h"
 #include "bg_local.h"
 
-int  trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, fsMode_t mode );
+int  trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, enum FS_Mode  mode );
 int  trap_FS_GetFileList( const char *path, const char *extension, char *listbuf, int bufsize );
 int trap_Parse_LoadSource( const char *filename );
 int trap_Parse_FreeSource( int handle );
@@ -45,14 +46,14 @@ int trap_S_SoundDuration( sfxHandle_t handle );
 BG_VoiceParseError
 ============
 */
-static void BG_VoiceParseError( fileHandle_t handle, char *err )
+static void BG_VoiceParseError( fileHandle_t handle, const char *err )
 {
   int line;
   char filename[ MAX_QPATH ];
 
   trap_Parse_SourceFileAndLine( handle, filename, &line );
   trap_Parse_FreeSource( handle );
-  Com_Error( ERR_FATAL, "%s on line %d of %s\n", err, line, filename );
+  Com_Error( ERR_FATAL, "%s on line %d of %s", err, line, filename );
 }
 
 /*
@@ -378,7 +379,7 @@ static voiceCmd_t *BG_VoiceParse( char *name )
 
         trap_Parse_SourceFileAndLine( handle, filename, &line );
         Com_Error( ERR_FATAL, "BG_VoiceParse(): "
-          "parse error on line %d of %s\n", line, filename );
+          "parse error on line %d of %s", line, filename );
       }
     }
       
@@ -389,7 +390,7 @@ static voiceCmd_t *BG_VoiceParse( char *name )
 
         trap_Parse_SourceFileAndLine( handle, filename, &line );
         Com_Error( ERR_FATAL, "BG_VoiceParse(): "
-          "command \"%s\" exceeds MAX_VOICE_CMD_LEN (%d) on line %d of %s\n",
+          "command \"%s\" exceeds MAX_VOICE_CMD_LEN (%d) on line %d of %s",
           token.string, MAX_VOICE_CMD_LEN, line, filename );
     }
    

@@ -181,7 +181,7 @@ static void CG_AddTestModel( void )
     return;
   }
 
-  // if testing a gun, set the origin reletive to the view origin
+  // if testing a gun, set the origin relative to the view origin
   if( cg.testGun )
   {
     VectorCopy( cg.refdef.vieworg, cg.testModelEntity.origin );
@@ -1095,7 +1095,6 @@ static void CG_smoothWWTransitions( playerState_t *ps, const vec3_t in, vec3_t o
   if( !VectorCompare( surfNormal, cg.lastNormal ) )
   {
     //if we moving from the ceiling to the floor special case
-    //( x product of colinear vectors is undefined)
     if( VectorCompare( ceilingNormal, cg.lastNormal ) &&
         VectorCompare( refNormal,     surfNormal ) )
     {
@@ -1305,7 +1304,7 @@ static int CG_CalcViewValues( void )
     CG_OffsetFirstPersonView( );
   }
 
-  // position eye reletive to origin
+  // position eye relative to origin
   AnglesToAxis( cg.refdefViewAngles, cg.refdef.viewaxis );
 
   if( cg.hyperspace )

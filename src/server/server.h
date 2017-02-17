@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
+#include "../qcommon/crypto.h"
 #include "../game/g_public.h"
 #include "../game/bg_public.h"
 
@@ -189,6 +190,8 @@ typedef struct client_s {
 	netchan_buffer_t *netchan_start_queue;
 	netchan_buffer_t **netchan_end_queue;
 
+	char            fingerprint[SHA256_DIGEST_SIZE * 2 + 1];
+
 #ifdef USE_VOIP
 	qboolean hasVoip;
 	qboolean muteAllVoip;
@@ -219,6 +222,7 @@ typedef struct client_s {
 typedef struct {
 	netadr_t	adr;
 	int			challenge;
+	char		challenge2[33];
 	int			clientChallenge;		// challenge number coming from the client
 	int			time;				// time the last packet was sent to the autherize server
 	int			pingTime;			// time the challenge response was sent to client
@@ -262,7 +266,7 @@ extern	cvar_t	*sv_maxclients;
 
 extern	cvar_t	*sv_privateClients;
 extern	cvar_t	*sv_hostname;
-extern	cvar_t	*sv_master[MAX_MASTER_SERVERS];
+extern	cvar_t	*sv_masters[3][MAX_MASTER_SERVERS];
 extern	cvar_t	*sv_reconnectlimit;
 extern	cvar_t	*sv_showloss;
 extern	cvar_t	*sv_padPackets;
@@ -283,6 +287,8 @@ extern	cvar_t	*sv_banFile;
 extern	cvar_t	*sv_voip;
 extern	cvar_t	*sv_voipProtocol;
 #endif
+
+extern  cvar_t  *sv_rsaAuth;
 
 
 //===========================================================
@@ -312,7 +318,7 @@ extern leakyBucket_t outboundLeakyBucket;
 qboolean SVC_RateLimit( leakyBucket_t *bucket, int burst, int period );
 qboolean SVC_RateLimitAddress( netadr_t from, int burst, int period );
 
-void SV_FinalMessage (char *message);
+void SV_FinalMessage (const char *message);
 void QDECL SV_SendServerCommand( client_t *cl, const char *fmt, ...) __attribute__ ((format (printf, 2, 3)));
 
 
@@ -321,7 +327,6 @@ void SV_RemoveOperatorCommands (void);
 
 
 void SV_MasterShutdown (void);
-void SV_MasterGameStat( const char *data );
 int SV_RateMsec(client_t *client);
 
 

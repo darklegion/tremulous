@@ -227,7 +227,7 @@ static int GLimp_SetMode( qboolean failSafe, qboolean fullscreen, qboolean nobor
 {
 	const char *glstring;
 	int perChannelColorBits;
-	int colorBits, depthBits, stencilBits;
+	int colorBits, alphaBits, depthBits, stencilBits;
 	int samples;
 	int i = 0;
 	SDL_Surface *icon = NULL;
@@ -358,6 +358,8 @@ static int GLimp_SetMode( qboolean failSafe, qboolean fullscreen, qboolean nobor
 	if ((!colorBits) || (colorBits >= 32))
 		colorBits = 24;
 
+	alphaBits = r_alphabits->value;
+
 	if (!r_depthbits->value)
 		depthBits = 24;
 	else
@@ -434,12 +436,14 @@ static int GLimp_SetMode( qboolean failSafe, qboolean fullscreen, qboolean nobor
 			perChannelColorBits = 0; /* Use minimum size for 16-bit color */
 
 		/* Need alpha or else SGIs choose 36+ bit RGB mode */
-		SDL_GL_SetAttribute( SDL_GL_ALPHA_SIZE, 1);
+		if (alphaBits < 1)
+			alphaBits = 1;
 #endif
 
 		SDL_GL_SetAttribute( SDL_GL_RED_SIZE, perChannelColorBits );
 		SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, perChannelColorBits );
 		SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, perChannelColorBits );
+		SDL_GL_SetAttribute( SDL_GL_ALPHA_SIZE, alphaBits );
 		SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, testDepthBits );
 		SDL_GL_SetAttribute( SDL_GL_STENCIL_SIZE, testStencilBits );
 
@@ -656,7 +660,7 @@ static void GLimp_InitExtensions( void )
 
 	// GL_EXT_texture_env_add
 	glConfig.textureEnvAddAvailable = qfalse;
-	if ( GLimp_HaveExtension( "EXT_texture_env_add" ) )
+	if ( GLimp_HaveExtension( "GL_EXT_texture_env_add" ) )
 	{
 		if ( r_ext_texture_env_add->integer )
 		{
@@ -780,6 +784,7 @@ void GLimp_Init( void )
 	r_allowResize = ri.Cvar_Get( "r_allowResize", "0", CVAR_ARCHIVE | CVAR_LATCH );
 	r_centerWindow = ri.Cvar_Get( "r_centerWindow", "0", CVAR_ARCHIVE | CVAR_LATCH );
 
+#ifndef DEBUG
 	if( ri.Cvar_VariableIntegerValue( "com_abnormalExit" ) )
 	{
 		ri.Cvar_Set( "r_width", va( "%d", R_FAILSAFE_WIDTH ) );
@@ -788,6 +793,7 @@ void GLimp_Init( void )
 		ri.Cvar_Set( "r_centerWindow", "0" );
 		ri.Cvar_Set( "com_abnormalExit", "0" );
 	}
+#endif
 
 	ri.Sys_GLimpInit( );
 

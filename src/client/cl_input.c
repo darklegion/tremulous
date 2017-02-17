@@ -269,7 +269,7 @@ void IN_Button15Down(void) {IN_KeyDown(&in_buttons[15]);}
 void IN_Button15Up(void) {IN_KeyUp(&in_buttons[15]);}
 
 void IN_CenterView (void) {
-	cl.viewangles[PITCH] = -SHORT2ANGLE(cl.snap.ps.delta_angles[PITCH]);
+	cl.viewangles[PITCH] = -SHORT2ANGLE((clc.netchan.alternateProtocol == 2 ? cl.snap.alternatePs.delta_angles : cl.snap.ps.delta_angles)[PITCH]);
 }
 
 
@@ -393,6 +393,12 @@ CL_JoystickMove
 void CL_JoystickMove( usercmd_t *cmd ) {
 	float	anglespeed;
 
+	float yaw     = j_yaw->value     * cl.joystickAxis[j_yaw_axis->integer];
+	float right   = j_side->value    * cl.joystickAxis[j_side_axis->integer];
+	float forward = j_forward->value * cl.joystickAxis[j_forward_axis->integer];
+	float pitch   = j_pitch->value   * cl.joystickAxis[j_pitch_axis->integer];
+	float up      = j_up->value      * cl.joystickAxis[j_up_axis->integer];
+
 	if ( !(in_speed.active ^ cl_run->integer) ) {
 		cmd->buttons |= BUTTON_WALKING;
 	}
@@ -404,22 +410,22 @@ void CL_JoystickMove( usercmd_t *cmd ) {
 	}
 
 	if ( !in_strafe.active ) {
-		cl.viewangles[YAW] += anglespeed * j_yaw->value * cl.joystickAxis[j_yaw_axis->integer];
-		cmd->rightmove = ClampChar( cmd->rightmove + (int) (j_side->value * cl.joystickAxis[j_side_axis->integer]) );
+		cl.viewangles[YAW] += anglespeed * yaw;
+		cmd->rightmove = ClampChar( cmd->rightmove + (int)right );
 	} else {
-		cl.viewangles[YAW] += anglespeed * j_side->value * cl.joystickAxis[j_side_axis->integer];
-		cmd->rightmove = ClampChar( cmd->rightmove + (int) (j_yaw->value * cl.joystickAxis[j_yaw_axis->integer]) );
+		cl.viewangles[YAW] += anglespeed * right;
+		cmd->rightmove = ClampChar( cmd->rightmove + (int)yaw );
 	}
 
 	if ( in_mlooking ) {
-		cl.viewangles[PITCH] += anglespeed * j_forward->value * cl.joystickAxis[j_forward_axis->integer];
-		cmd->forwardmove = ClampChar( cmd->forwardmove + (int) (j_pitch->value * cl.joystickAxis[j_pitch_axis->integer]) );
+		cl.viewangles[PITCH] += anglespeed * forward;
+		cmd->forwardmove = ClampChar( cmd->forwardmove + (int)pitch );
 	} else {
-		cl.viewangles[PITCH] += anglespeed * j_pitch->value * cl.joystickAxis[j_pitch_axis->integer];
-		cmd->forwardmove = ClampChar( cmd->forwardmove + (int) (j_forward->value * cl.joystickAxis[j_forward_axis->integer]) );
+		cl.viewangles[PITCH] += anglespeed * pitch;
+		cmd->forwardmove = ClampChar( cmd->forwardmove + (int)forward );
 	}
 
-	cmd->upmove = ClampChar( cmd->upmove + (int) (j_up->value * cl.joystickAxis[j_up_axis->integer]) );
+	cmd->upmove = ClampChar( cmd->upmove + (int)up );
 }
 
 /*
@@ -795,12 +801,27 @@ void CL_WritePacket( void ) {
 	{
 		if((clc.voipFlags & VOIP_SPATIAL) || Com_IsVoipTarget(clc.voipTargets, sizeof(clc.voipTargets), -1))
 		{
-			MSG_WriteByte (&buf, clc_voipOpus);
+			if ( clc.netchan.alternateProtocol != 0 ) {
+				MSG_WriteByte (&buf, clc_EOF);
+			}
+			MSG_WriteByte (&buf, clc_voipSpeex);
+			if ( clc.netchan.alternateProtocol != 0 ) {
+				MSG_WriteByte (&buf, clc_voipSpeex + 1);
+			}
 			MSG_WriteByte (&buf, clc.voipOutgoingGeneration);
 			MSG_WriteLong (&buf, clc.voipOutgoingSequence);
 			MSG_WriteByte (&buf, clc.voipOutgoingDataFrames);
-			MSG_WriteData (&buf, clc.voipTargets, sizeof(clc.voipTargets));
-			MSG_WriteByte(&buf, clc.voipFlags);
+			if ( clc.netchan.alternateProtocol == 0 ) {
+				MSG_WriteData (&buf, clc.voipTargets, sizeof(clc.voipTargets));
+				MSG_WriteByte(&buf, clc.voipFlags);
+			} else {
+				MSG_WriteLong (&buf, clc.voipTargets[0] | (clc.voipTargets[1] << 8) |
+				               (clc.voipTargets[2] << 16) | ((clc.voipTargets[3] & 0x7F) << 24));
+				MSG_WriteLong (&buf, (clc.voipTargets[3] >> 7) |
+				               (clc.voipTargets[4] << 1) | (clc.voipTargets[5] << 9) |
+				               (clc.voipTargets[6] << 17) | ((clc.voipTargets[7] & 0x3F) << 25));
+				MSG_WriteLong (&buf, clc.voipTargets[7] >> 6);
+			}
 			MSG_WriteShort (&buf, clc.voipOutgoingDataSize);
 			MSG_WriteData (&buf, clc.voipOutgoingData, clc.voipOutgoingDataSize);
 
@@ -822,7 +843,9 @@ void CL_WritePacket( void ) {
 				MSG_WriteLong (&fakemsg, clc.voipOutgoingSequence);
 				MSG_WriteByte (&fakemsg, clc.voipOutgoingDataFrames);
 				MSG_WriteShort (&fakemsg, clc.voipOutgoingDataSize );
-				MSG_WriteBits (&fakemsg, clc.voipFlags, VOIP_FLAGCNT);
+				if ( clc.netchan.alternateProtocol == 0 ) {
+					MSG_WriteBits (&fakemsg, clc.voipFlags, VOIP_FLAGCNT);
+				}
 				MSG_WriteData (&fakemsg, clc.voipOutgoingData, voipSize);
 				MSG_WriteByte (&fakemsg, svc_EOF);
 				CL_WriteDemoMessage (&fakemsg, 0);
@@ -862,7 +885,7 @@ void CL_WritePacket( void ) {
 		// also use the message acknowledge
 		key ^= clc.serverMessageSequence;
 		// also use the last acknowledged server command in the key
-		key ^= MSG_HashKey(clc.serverCommands[ clc.serverCommandSequence & (MAX_RELIABLE_COMMANDS-1) ], 32);
+		key ^= MSG_HashKey(clc.netchan.alternateProtocol, clc.serverCommands[ clc.serverCommandSequence & (MAX_RELIABLE_COMMANDS-1) ], 32);
 
 		// write all the commands, including the predicted command
 		for ( i = 0 ; i < count ; i++ ) {

@@ -35,9 +35,9 @@ Q_EXPORT void dllEntry( intptr_t ( QDECL *syscallptr )( intptr_t arg, ... ) )
 
 int PASSFLOAT( float x )
 {
-  float  floatTemp;
-  floatTemp = x;
-  return *( int * ) & floatTemp;
+  floatint_t fi;
+  fi.f = x;
+  return fi.i;
 }
 
 void trap_Print( const char *string )
@@ -74,9 +74,9 @@ void trap_Cvar_Set( const char *var_name, const char *value )
 
 float trap_Cvar_VariableValue( const char *var_name )
 {
-  int temp;
-  temp = syscall( UI_CVAR_VARIABLEVALUE, var_name );
-  return ( *( float* ) & temp );
+  floatint_t fi;
+  fi.i = syscall( UI_CVAR_VARIABLEVALUE, var_name );
+  return fi.f;
 }
 
 void trap_Cvar_VariableStringBuffer( const char *var_name, char *buffer, int bufsize )
@@ -119,7 +119,7 @@ void trap_Cmd_ExecuteText( int exec_when, const char *text )
   syscall( UI_CMD_EXECUTETEXT, exec_when, text );
 }
 
-int trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, fsMode_t mode )
+int trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, enum FS_Mode mode )
 {
   return syscall( UI_FS_FOPENFILE, qpath, f, mode );
 }
@@ -144,7 +144,7 @@ int trap_FS_GetFileList(  const char *path, const char *extension, char *listbuf
   return syscall( UI_FS_GETFILELIST, path, extension, listbuf, bufsize );
 }
 
-int trap_FS_Seek( fileHandle_t f, long offset, int origin )
+int trap_FS_Seek( fileHandle_t f, long offset, enum FS_Mode origin )
 {
   return syscall( UI_FS_SEEK, f, offset, origin );
 }
@@ -199,10 +199,12 @@ void trap_R_SetColor( const float *rgba )
   syscall( UI_R_SETCOLOR, rgba );
 }
 
+#ifndef MODULE_INTERFACE_11
 void  trap_R_SetClipRegion( const float *region )
 {
   syscall( UI_R_SETCLIPREGION, region );
 }
+#endif
 
 void trap_R_DrawStretchPic( float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader )
 {
@@ -329,10 +331,12 @@ int trap_LAN_ServerStatus( const char *serverAddress, char *serverStatus, int ma
   return syscall( UI_LAN_SERVERSTATUS, serverAddress, serverStatus, maxLen );
 }
 
+#ifndef MODULE_INTERFACE_11
 qboolean trap_GetNews( qboolean force )
 {
   return syscall( UI_GETNEWS, force );
 }
+#endif
 
 void trap_LAN_SaveCachedServers( void )
 {
@@ -483,3 +487,5 @@ void trap_SetPbClStatus( int status )
 {
   syscall( UI_SET_PBCLSTATUS, status );
 }
+
+

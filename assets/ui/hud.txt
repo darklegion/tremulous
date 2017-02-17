@@ -5,6 +5,7 @@
   loadMenu { "ui/tremulous_alien_builder_hud.menu" }
   loadMenu { "ui/tremulous_alien_general_hud.menu" }
   loadMenu { "ui/tremulous_default_hud.menu" }
+  loadMenu { "ui/tremulous_spectator_hud.menu" }
 
   loadMenu { "ui/teamscore.menu" }
   loadMenu { "ui/loading.menu" }

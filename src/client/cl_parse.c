@@ -73,7 +73,7 @@ void CL_DeltaEntity (msg_t *msg, clSnapshot_t *frame, int newnum, entityState_t 
 	if ( unchanged ) {
 		*state = *old;
 	} else {
-		MSG_ReadDeltaEntity( msg, old, state, newnum );
+		MSG_ReadDeltaEntity( clc.netchan.alternateProtocol, msg, old, state, newnum );
 	}
 
 	if ( state->number == (MAX_GENTITIES-1) ) {
@@ -249,13 +249,13 @@ void CL_ParseSnapshot( msg_t *msg ) {
 		old = &cl.snapshots[newSnap.deltaNum & PACKET_MASK];
 		if ( !old->valid ) {
 			// should never happen
-			Com_Printf ("Delta from invalid frame (not supposed to happen!).\n");
+			Com_DPrintf ("Delta from invalid frame (not supposed to happen!).\n");
 		} else if ( old->messageNum != newSnap.deltaNum ) {
 			// The frame that the server did the delta from
 			// is too old, so we can't reconstruct it properly.
-			Com_Printf ("Delta frame too old.\n");
+			Com_DPrintf ("Delta frame too old.\n");
 		} else if ( cl.parseEntitiesNum - old->parseEntitiesNum > MAX_PARSE_ENTITIES - MAX_SNAPSHOT_ENTITIES ) {
-			Com_Printf ("Delta parseEntitiesNum too old.\n");
+			Com_DPrintf ("Delta parseEntitiesNum too old.\n");
 		} else {
 			newSnap.valid = qtrue;	// valid delta parse
 		}
@@ -274,10 +274,18 @@ void CL_ParseSnapshot( msg_t *msg ) {
 
 	// read playerinfo
 	SHOWNET( msg, "playerstate" );
-	if ( old ) {
-		MSG_ReadDeltaPlayerstate( msg, &old->ps, &newSnap.ps );
+	if ( clc.netchan.alternateProtocol == 2 ) {
+		if ( old ) {
+			MSG_ReadDeltaAlternatePlayerstate( msg, &old->alternatePs, &newSnap.alternatePs );
+		} else {
+			MSG_ReadDeltaAlternatePlayerstate( msg, NULL, &newSnap.alternatePs );
+		}
 	} else {
-		MSG_ReadDeltaPlayerstate( msg, NULL, &newSnap.ps );
+		if ( old ) {
+			MSG_ReadDeltaPlayerstate( msg, &old->ps, &newSnap.ps );
+		} else {
+			MSG_ReadDeltaPlayerstate( msg, NULL, &newSnap.ps );
+		}
 	}
 
 	// read packet entities
@@ -309,7 +317,7 @@ void CL_ParseSnapshot( msg_t *msg ) {
 	// calculate ping time
 	for ( i = 0 ; i < PACKET_BACKUP ; i++ ) {
 		packetNum = ( clc.netchan.outgoingSequence - 1 - i ) & PACKET_MASK;
-		if ( cl.snap.ps.commandTime >= cl.outPackets[ packetNum ].p_serverTime ) {
+		if ( ( clc.netchan.alternateProtocol == 2 ? cl.snap.alternatePs.commandTime : cl.snap.ps.commandTime ) >= cl.outPackets[ packetNum ].p_serverTime ) {
 			cl.snap.ping = cls.realtime - cl.outPackets[ packetNum ].p_realtime;
 			break;
 		}
@@ -409,10 +417,8 @@ void CL_SystemInfoChanged( void ) {
 			// If this cvar may not be modified by a server discard the value.
 			if(!(cvar_flags & (CVAR_SYSTEMINFO | CVAR_SERVER_CREATED | CVAR_USER_CREATED)))
 			{
-#ifndef STANDALONE
 				if(Q_stricmp(key, "g_synchronousClients") && Q_stricmp(key, "pmove_fixed") &&
 				   Q_stricmp(key, "pmove_msec"))
-#endif
 				{
 					Com_Printf(S_COLOR_YELLOW "WARNING: server is not allowed to set %s=%s\n", key, value);
 					continue;
@@ -462,8 +468,6 @@ void CL_ParseGamestate( msg_t *msg ) {
 	char			*s;
 	char oldGame[MAX_QPATH];
 
-	Con_Close();
-
 	clc.connectPacketCount = 0;
 
 	// wipe local client state
@@ -506,7 +510,7 @@ void CL_ParseGamestate( msg_t *msg ) {
 			}
 			Com_Memset (&nullstate, 0, sizeof(nullstate));
 			es = &cl.entityBaselines[ newnum ];
-			MSG_ReadDeltaEntity( msg, &nullstate, es, newnum );
+			MSG_ReadDeltaEntity( clc.netchan.alternateProtocol, msg, &nullstate, es, newnum );
 		} else {
 			Com_Error( ERR_DROP, "CL_ParseGamestate: bad command byte" );
 		}
@@ -702,8 +706,10 @@ void CL_ParseVoip ( msg_t *msg, qboolean ignoreData ) {
 	const int sequence = MSG_ReadLong(msg);
 	const int frames = MSG_ReadByte(msg);
 	const int packetsize = MSG_ReadShort(msg);
-	const int flags = MSG_ReadBits(msg, VOIP_FLAGCNT);
-	unsigned char encoded[4000];
+	int flags = VOIP_DIRECT;
+	if (clc.netchan.alternateProtocol == 0)
+		flags = MSG_ReadBits(msg, VOIP_FLAGCNT);
+	char encoded[4000];
 	int	numSamples;
 	int seqdiff;
 	int written = 0;
@@ -877,6 +883,28 @@ void CL_ParseServerMessage( msg_t *msg ) {
 		}
 
 		cmd = MSG_ReadByte( msg );
+
+		if ( clc.netchan.alternateProtocol != 0 )
+		{
+			// See if this is an extension command after the EOF, which means we
+			//  got data that a legacy client should ignore.
+			if ( cmd == svc_EOF && MSG_LookaheadByte( msg ) == svc_voipSpeex ) {
+				SHOWNET( msg, "EXTENSION" );
+				MSG_ReadByte( msg );  // throw the svc_extension byte away.
+				cmd = MSG_ReadByte( msg );  // something legacy clients can't do!
+				// sometimes you get a svc_extension at end of stream...dangling
+				//  bits in the huffman decoder giving a bogus value?
+				if ( cmd == -1 ) {
+					cmd = svc_EOF;
+				}
+			}
+
+			if ( cmd == svc_voipSpeex ) {
+				cmd = svc_voipSpeex + 1;
+			} else if ( cmd == svc_voipSpeex + 1 ) {
+				cmd = svc_voipSpeex;
+			}
+		}
 
 		if (cmd == svc_EOF) {
 			SHOWNET( msg, "END OF MESSAGE" );

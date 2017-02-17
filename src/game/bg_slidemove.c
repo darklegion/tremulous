@@ -74,8 +74,7 @@ qboolean  PM_SlideMove( qboolean gravity )
     if( pml.groundPlane )
     {
       // slide along the ground plane
-      PM_ClipVelocity( pm->ps->velocity, pml.groundTrace.plane.normal,
-        pm->ps->velocity, OVERCLIP );
+      PM_ClipVelocity( pm->ps->velocity, pml.groundTrace.plane.normal, pm->ps->velocity );
     }
   }
 
@@ -166,10 +165,10 @@ qboolean  PM_SlideMove( qboolean gravity )
         pml.impactSpeed = -into;
 
       // slide along the plane
-      PM_ClipVelocity( pm->ps->velocity, planes[ i ], clipVelocity, OVERCLIP );
+      PM_ClipVelocity( pm->ps->velocity, planes[ i ], clipVelocity );
 
       // slide along the plane
-      PM_ClipVelocity( endVelocity, planes[ i ], endClipVelocity, OVERCLIP );
+      PM_ClipVelocity( endVelocity, planes[ i ], endClipVelocity );
 
       // see if there is a second plane that the new move enters
       for( j = 0; j < numplanes; j++ )
@@ -181,8 +180,8 @@ qboolean  PM_SlideMove( qboolean gravity )
           continue;   // move doesn't interact with the plane
 
         // try clipping the move to the plane
-        PM_ClipVelocity( clipVelocity, planes[ j ], clipVelocity, OVERCLIP );
-        PM_ClipVelocity( endClipVelocity, planes[ j ], endClipVelocity, OVERCLIP );
+        PM_ClipVelocity( clipVelocity, planes[ j ], clipVelocity );
+        PM_ClipVelocity( endClipVelocity, planes[ j ], endClipVelocity );
 
         // see if it goes back into the first clip plane
         if( DotProduct( clipVelocity, planes[ i ] ) >= 0 )
@@ -369,7 +368,7 @@ qboolean PM_StepSlideMove( qboolean gravity, qboolean predictive )
       VectorCopy( trace.endpos, pm->ps->origin );
 
     if( trace.fraction < 1.0f )
-      PM_ClipVelocity( pm->ps->velocity, trace.plane.normal, pm->ps->velocity, OVERCLIP );
+      PM_ClipVelocity( pm->ps->velocity, trace.plane.normal, pm->ps->velocity );
   }
 
   if( !predictive && stepped )

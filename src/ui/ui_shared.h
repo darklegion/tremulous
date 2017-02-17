@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 #include "../qcommon/q_shared.h"
+#include "../qcommon/cvar.h"
 #include "../renderercommon/tr_types.h"
 #include "../client/keycodes.h"
 
@@ -129,12 +130,11 @@ scriptDef_t;
 
 typedef struct
 {
-  float x;    // horiz position
-  float y;    // vert position
-  float w;    // width
-  float h;    // height;
-}
-rectDef_t;
+    float x;    // horiz position
+    float y;    // vert position
+    float w;    // width
+    float h;    // height;
+} rectDef_t;
 
 typedef rectDef_t Rectangle;
 
@@ -142,30 +142,29 @@ typedef rectDef_t Rectangle;
 
 typedef struct
 {
-  Rectangle rect;                 // client coord rectangle
-  int aspectBias;                 // direction in which to aspect compensate
-  Rectangle rectClient;           // screen coord rectangle
-  const char *name;               //
-  const char *group;              // if it belongs to a group
-  const char *cinematicName;      // cinematic name
-  int cinematic;                  // cinematic handle
-  int style;                      //
-  int border;                     //
-  int ownerDraw;                  // ownerDraw style
-  int ownerDrawFlags;             // show flags for ownerdraw items
-  float borderSize;               //
-  int flags;                      // visible, focus, mouseover, cursor
-  Rectangle rectEffects;          // for various effects
-  Rectangle rectEffects2;         // for various effects
-  int offsetTime;                 // time based value for various effects
-  int nextTime;                   // time next effect should cycle
-  vec4_t foreColor;               // text color
-  vec4_t backColor;               // border color
-  vec4_t borderColor;             // border color
-  vec4_t outlineColor;            // border color
-  qhandle_t background;           // background asset
-}
-windowDef_t;
+    Rectangle rect;                 // client coord rectangle
+    int aspectBias;                 // direction in which to aspect compensate
+    Rectangle rectClient;           // screen coord rectangle
+    const char *name;               //
+    const char *group;              // if it belongs to a group
+    const char *cinematicName;      // cinematic name
+    int cinematic;                  // cinematic handle
+    int style;                      //
+    int border;                     //
+    int ownerDraw;                  // ownerDraw style
+    int ownerDrawFlags;             // show flags for ownerdraw items
+    float borderSize;               //
+    int flags;                      // visible, focus, mouseover, cursor
+    Rectangle rectEffects;          // for various effects
+    Rectangle rectEffects2;         // for various effects
+    int offsetTime;                 // time based value for various effects
+    int nextTime;                   // time next effect should cycle
+    vec4_t foreColor;               // text color
+    vec4_t backColor;               // border color
+    vec4_t borderColor;             // border color
+    vec4_t outlineColor;            // border color
+    qhandle_t background;           // background asset
+} windowDef_t;
 
 typedef windowDef_t Window;
 
@@ -320,8 +319,7 @@ typedef struct itemDef_s
     cycleDef_t     *cycle;
     modelDef_t     *model;
   } typeData;                    // type specific data pointers
-}
-itemDef_t;
+} itemDef_t;
 
 typedef struct
 {
@@ -380,8 +378,7 @@ typedef struct
   qboolean fontRegistered;
   emoticon_t emoticons[ MAX_EMOTICONS ];
   int emoticonCount;
-}
-cachedAssets_t;
+} cachedAssets_t;
 
 typedef struct
 {

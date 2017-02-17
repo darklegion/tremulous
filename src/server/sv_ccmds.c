@@ -40,11 +40,12 @@ Restart the server on a different map
 ==================
 */
 static void SV_Map_f( void ) {
-	char		*cmd;
-	char		*map;
+	const char	*cmd;
+	const char	*map;
 	qboolean	killBots, cheat;
 	char		expanded[MAX_QPATH];
 	char		mapname[MAX_QPATH];
+	int			a;
 	int			i;
 
 	map = Cmd_Argv(1);
@@ -88,8 +89,9 @@ static void SV_Map_f( void ) {
 
 	// This forces the local master server IP address cache
 	// to be updated on sending the next heartbeat
-	for( i = 0; i < MAX_MASTER_SERVERS; i++ )
-		sv_master[ i ]->modified  = qtrue;
+	for( a = 0; a < 3; ++a )
+		for( i = 0; i < MAX_MASTER_SERVERS; i++ )
+			sv_masters[ a ][ i ]->modified  = qtrue;
 }
 
 /*
@@ -125,7 +127,7 @@ static void SV_MapRestart_f( void ) {
 		delay = atoi( Cmd_Argv(1) );
 	}
 	else {
-		delay = 5;
+		delay = 0;
 	}
 	if( delay && !Cvar_VariableValue("g_doWarmup") ) {
 		sv.restartTime = sv.time + delay * 1000;

@@ -192,6 +192,17 @@ char *Sys_GetCurrentUser( void )
 	return s_userName;
 }
 
+/*
+==================
+Sys_CryptoRandomBytes
+==================
+*/
+void Sys_CryptoRandomBytes( byte *string, int len )
+{
+	if ( !Sys_RandomBytes( string, len ) )
+		Com_Error( ERR_FATAL, "Sys_CryptoRandomBytes: error generating random data" );
+}
+
 #define MEM_THRESHOLD 96*1024*1024
 
 /*
@@ -241,7 +252,7 @@ const char *Sys_Basename( char *path )
 Sys_Dirname
 ==============
 */
-const char *Sys_Dirname( char *path )
+const char *Sys_Dirname( const char *path )
 {
 	static char dir[ MAX_OSPATH ] = { 0 };
 	int length;
@@ -322,7 +333,8 @@ DIRECTORY SCANNING
 Sys_ListFilteredFiles
 ==============
 */
-void Sys_ListFilteredFiles( const char *basedir, char *subdirs, char *filter, char **list, int *numfiles )
+void Sys_ListFilteredFiles( const char *basedir, char *subdirs,
+        const char *filter, char **list, int *numfiles )
 {
 	char		search[MAX_OSPATH], newsubdirs[MAX_OSPATH];
 	char		filename[MAX_OSPATH];
@@ -402,7 +414,8 @@ static qboolean strgtr(const char *s0, const char *s1)
 Sys_ListFiles
 ==============
 */
-char **Sys_ListFiles( const char *directory, const char *extension, char *filter, int *numfiles, qboolean wantsubs )
+char **Sys_ListFiles( const char *directory, const char *extension,
+        const char *filter, int *numfiles, qboolean wantsubs )
 {
 	char		search[MAX_OSPATH];
 	int			nfiles;

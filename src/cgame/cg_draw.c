@@ -663,7 +663,7 @@ static void CG_DrawPlayerAmmoValue( rectDef_t *rect, vec4_t color )
   if( value > -1 )
   {
     float tx, ty;
-    char *text;
+    const char *text;
     float scale;
     int len;
 
@@ -1403,7 +1403,7 @@ static void CG_DrawTeamLabel( rectDef_t *rect, team_t team, float text_x, float 
 {
   char  *t;
   char  stage[ MAX_TOKEN_CHARS ];
-  char  *s;
+  const char  *s;
   float tx, ty;
 
   stage[ 0 ] = '\0';
@@ -1509,7 +1509,7 @@ static void CG_DrawFPS( rectDef_t *rect, float text_x, float text_y,
                         int textalign, int textvalign, int textStyle,
                         qboolean scalableText )
 {
-  char        *s;
+  const char *s;
   float       tx, ty;
   float       w, h, totalWidth;
   int         strLength;
@@ -1636,7 +1636,7 @@ static void CG_DrawTimer( rectDef_t *rect, float text_x, float text_y,
                           float scale, vec4_t color,
                           int textalign, int textvalign, int textStyle )
 {
-  char    *s;
+  const char    *s;
   float   tx, ty;
   int     i, strLength;
   float   w, h, totalWidth;
@@ -1727,7 +1727,7 @@ static int QDECL SortWeaponClass( const void *a, const void *b )
 
 static void CG_DrawTeamOverlay( rectDef_t *rect, float scale, vec4_t color )
 {
-  char              *s;
+  const char              *s;
   int               i;
   float             x = rect->x;
   float             y;
@@ -1916,7 +1916,7 @@ static void CG_DrawClock( rectDef_t *rect, float text_x, float text_y,
                           float scale, vec4_t color,
                           int textalign, int textvalign, int textStyle )
 {
-  char    *s;
+  const char    *s;
   float   tx, ty;
   int     i, strLength;
   float   w, h, totalWidth;
@@ -1976,7 +1976,7 @@ static void CG_DrawSnapshot( rectDef_t *rect, float text_x, float text_y,
                              float scale, vec4_t color,
                              int textalign, int textvalign, int textStyle )
 {
-  char    *s;
+  const char    *s;
   float   tx, ty;
 
   if( !cg_drawSnapshot.integer )
@@ -1989,6 +1989,73 @@ static void CG_DrawSnapshot( rectDef_t *rect, float text_x, float text_y,
 
   UI_Text_Paint( text_x + tx, text_y + ty, scale, color, s, 0, 0, textStyle );
 }
+
+/*
+===============================================================================
+
+KILLL MESSAGE
+
+===============================================================================
+*/
+
+/*
+==================
+CG_DrawKillMsg
+==================
+*/
+static void CG_DrawKillMsg( rectDef_t *rect, float text_x, float text_y,
+                           float scale, vec4_t color,
+                           int textalign, int textvalign, int textStyle )
+{
+   int     i;
+   vec4_t  hcolor;
+   int     chatHeight;
+
+   if (cg_killMsgHeight.integer < TEAMCHAT_HEIGHT)
+       chatHeight = cg_killMsgHeight.integer;
+   else
+       chatHeight = TEAMCHAT_HEIGHT;
+
+   if (chatHeight <= 0)
+       return; // disabled
+
+   if (cgs.killMsgLastPos != cgs.killMsgPos)
+   {
+       if (cg.time - cgs.killMsgMsgTimes[cgs.killMsgLastPos % chatHeight] > cg_killMsgTime.integer)
+           cgs.killMsgLastPos++;
+
+       hcolor[0] = hcolor[1] = hcolor[2] = hcolor[3] = 1.0f;
+
+       for ( i = cgs.killMsgPos - 1; i >= cgs.killMsgLastPos; i-- )
+       {
+            int x = 0, w;
+            int j = i % chatHeight;
+
+            w = UI_Text_Width( cgs.killMsgKillers[j], scale );
+            UI_Text_Paint( rect->x + TINYCHAR_WIDTH,
+                           rect->y - (cgs.killMsgPos - i)*20,
+                           scale, color, cgs.killMsgKillers[j],
+                           0, 0, textStyle );
+            x += w + 3;
+
+            if ( cg_weapons[cgs.killMsgWeapons[j]].weaponIcon != WP_NONE )
+            {
+                CG_DrawPic( rect->x + TINYCHAR_WIDTH + x,
+                            rect->y - (cgs.killMsgPos - i)*20-15,
+                            16, 16,
+                            cg_weapons[cgs.killMsgWeapons[j]].weaponIcon );
+                x += 16 + 2;
+
+                w = UI_Text_Width( cgs.killMsgVictims[j], scale );
+                UI_Text_Paint( rect->x + TINYCHAR_WIDTH + x,
+                               rect->y - (cgs.killMsgPos - i)*20,
+                               scale, color, cgs.killMsgVictims[j],
+                               0, 0, textStyle );
+            }
+       }
+   }
+}
+
 
 /*
 ===============================================================================
@@ -2129,7 +2196,7 @@ static void CG_DrawLagometer( rectDef_t *rect, float text_x, float text_y,
   int     color;
   vec4_t  adjustedColor;
   float   vscale;
-  char    *ping;
+  const char    *ping;
 
   if( cg.snap->ps.pm_type == PM_INTERMISSION )
     return;
@@ -2268,14 +2335,17 @@ static void CG_DrawLagometer( rectDef_t *rect, float text_x, float text_y,
   CG_DrawDisconnect( );
 }
 
-#define SPEEDOMETER_NUM_SAMPLES 160
+#define SPEEDOMETER_NUM_SAMPLES 4096
+#define SPEEDOMETER_NUM_DISPLAYED_SAMPLES 160
 #define SPEEDOMETER_DRAW_TEXT   0x1
 #define SPEEDOMETER_DRAW_GRAPH  0x2
 #define SPEEDOMETER_IGNORE_Z    0x4
 float speedSamples[ SPEEDOMETER_NUM_SAMPLES ];
+int speedSampleTimes[ SPEEDOMETER_NUM_SAMPLES ];
 // array indices
 int oldestSpeedSample = 0;
 int maxSpeedSample = 0;
+int maxSpeedSampleInWindow = 0;
 
 /*
 ===================
@@ -2288,6 +2358,8 @@ void CG_AddSpeed( void )
 {
   float speed;
   vec3_t vel;
+  int windowTime;
+  qboolean newSpeedGteMaxSpeed, newSpeedGteMaxSpeedInWindow;
 
   VectorCopy( cg.snap->ps.velocity, vel );
 
@@ -2296,16 +2368,22 @@ void CG_AddSpeed( void )
 
   speed = VectorLength( vel );
 
-  if( speed > speedSamples[ maxSpeedSample ] )
-  {
+  windowTime = cg_maxSpeedTimeWindow.integer;
+  if( windowTime < 0 )
+    windowTime = 0;
+  else if( windowTime > SPEEDOMETER_NUM_SAMPLES * 1000 )
+    windowTime = SPEEDOMETER_NUM_SAMPLES * 1000;
+
+  if( ( newSpeedGteMaxSpeed = ( speed >= speedSamples[ maxSpeedSample ] ) ) )
     maxSpeedSample = oldestSpeedSample;
-    speedSamples[ oldestSpeedSample++ ] = speed;
-    oldestSpeedSample %= SPEEDOMETER_NUM_SAMPLES;
-    return;
-  }
+
+  if( ( newSpeedGteMaxSpeedInWindow = ( speed >= speedSamples[ maxSpeedSampleInWindow ] ) ) )
+    maxSpeedSampleInWindow = oldestSpeedSample;
 
   speedSamples[ oldestSpeedSample ] = speed;
-  if( maxSpeedSample == oldestSpeedSample++ )
+  speedSampleTimes[ oldestSpeedSample ] = cg.time;
+
+  if( !newSpeedGteMaxSpeed && maxSpeedSample == oldestSpeedSample )
   {
     // if old max was overwritten find a new one
     int i;
@@ -2316,7 +2394,23 @@ void CG_AddSpeed( void )
     }
   }
 
-  oldestSpeedSample %= SPEEDOMETER_NUM_SAMPLES;
+  if( !newSpeedGteMaxSpeedInWindow && ( maxSpeedSampleInWindow == oldestSpeedSample ||
+        cg.time - speedSampleTimes[ maxSpeedSampleInWindow ] > windowTime ) )
+  {
+    int i;
+    do {
+      maxSpeedSampleInWindow = ( maxSpeedSampleInWindow + 1 ) % SPEEDOMETER_NUM_SAMPLES;
+    } while( cg.time - speedSampleTimes[ maxSpeedSampleInWindow ] > windowTime );
+    for( i = maxSpeedSampleInWindow; ; i = ( i + 1 ) % SPEEDOMETER_NUM_SAMPLES )
+    {
+      if( speedSamples[ i ] > speedSamples[ maxSpeedSampleInWindow ] )
+        maxSpeedSampleInWindow = i;
+      if( i == oldestSpeedSample )
+        break;
+    }
+  }
+
+  oldestSpeedSample = ( oldestSpeedSample + 1 ) % SPEEDOMETER_NUM_SAMPLES;
 }
 
 #define SPEEDOMETER_MIN_RANGE 900
@@ -2348,9 +2442,10 @@ static void CG_DrawSpeedGraph( rectDef_t *rect, vec4_t foreColor,
 
   Vector4Copy( foreColor, color );
 
-  for( i = 1; i < SPEEDOMETER_NUM_SAMPLES; i++ )
+  for( i = 1; i < SPEEDOMETER_NUM_DISPLAYED_SAMPLES; i++ )
   {
-    val = speedSamples[ ( oldestSpeedSample + i ) % SPEEDOMETER_NUM_SAMPLES ];
+    val = speedSamples[ ( oldestSpeedSample + i + SPEEDOMETER_NUM_SAMPLES -
+      SPEEDOMETER_NUM_DISPLAYED_SAMPLES ) % SPEEDOMETER_NUM_SAMPLES ];
     if( val < SPEED_MED )
       VectorLerp2( val / SPEED_MED, slow, medium, color );
     else if( val < SPEED_FAST )
@@ -2360,8 +2455,8 @@ static void CG_DrawSpeedGraph( rectDef_t *rect, vec4_t foreColor,
       VectorCopy( fast, color );
     trap_R_SetColor( color );
     top = rect->y + ( 1 - val / max ) * rect->h;
-    CG_DrawPic( rect->x + ( i / (float)SPEEDOMETER_NUM_SAMPLES ) * rect->w, top,
-                rect->w / (float)SPEEDOMETER_NUM_SAMPLES, val * rect->h / max,
+    CG_DrawPic( rect->x + ( i / (float)SPEEDOMETER_NUM_DISPLAYED_SAMPLES ) * rect->w, top,
+                rect->w / (float)SPEEDOMETER_NUM_DISPLAYED_SAMPLES, val * rect->h / max,
                 cgs.media.whiteShader );
   }
   trap_R_SetColor( NULL );
@@ -2389,12 +2484,10 @@ static void CG_DrawSpeedText( rectDef_t *rect, float text_x, float text_y,
       vel[ 2 ] = 0;
     val = VectorLength( vel );
   }
-  else if( oldestSpeedSample == 0 )
-    val = speedSamples[ SPEEDOMETER_NUM_SAMPLES - 1 ];
   else
-    val = speedSamples[ oldestSpeedSample - 1 ];
+    val = speedSamples[ ( oldestSpeedSample - 1 + SPEEDOMETER_NUM_SAMPLES ) % SPEEDOMETER_NUM_SAMPLES ];
 
-  Com_sprintf( speedstr, sizeof( speedstr ), "%d", (int)val );
+  Com_sprintf( speedstr, sizeof( speedstr ), "%d / %d", (int)val, (int)speedSamples[ maxSpeedSampleInWindow ] );
 
   UI_Text_Paint(
       rect->x + ( rect->w - UI_Text_Width( speedstr, scale ) ) / 2.0f,
@@ -2463,7 +2556,6 @@ void CG_DrawWeaponIcon( rectDef_t *rect, vec4_t color )
 
   if( weapon <= WP_NONE || weapon >= WP_NUM_WEAPONS )
   {
-    CG_Error( "CG_DrawWeaponIcon: weapon out of range: %d\n", weapon );
     return;
   }
 
@@ -2673,7 +2765,7 @@ CG_DrawCrosshairNames
 static void CG_DrawCrosshairNames( rectDef_t *rect, float scale, int textStyle )
 {
   float   *color;
-  char    *name;
+  const char    *name;
   float   w, x;
 
   if( !cg_drawCrosshairNames.integer )
@@ -2920,6 +3012,14 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
 
     case CG_TUTORIAL:
       CG_DrawTutorial( &rect, text_x, text_y, foreColor, scale, textalign, textvalign, textStyle );
+      break;
+
+    case CG_KILLFEED:
+      CG_DrawKillMsg( &rect, text_x, text_y, scale, foreColor, textalign, textvalign, textStyle );
+      break;
+
+    case CG_PLAYER_THZ_SCANNER:
+      THZ_DrawScanner( &rect );
       break;
 
     default:
@@ -3191,7 +3291,7 @@ CG_DrawVote
 */
 static void CG_DrawVote( team_t team )
 {
-  char    *s;
+  const char    *s;
   int     sec;
   int     offset = 0;
   vec4_t  white = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -3407,10 +3507,6 @@ static void CG_Draw2D( void )
 {
   menuDef_t *menu = NULL;
 
-  // if we are taking a levelshot for the menu, don't draw anything
-  if( cg.levelShot )
-    return;
-
   // fading to black if stamina runs out
   // (only 2D that can't be disabled)
   CG_DrawLighting( );
@@ -3424,8 +3520,9 @@ static void CG_Draw2D( void )
     return;
   }
 
-  if( cg.snap->ps.persistant[ PERS_SPECSTATE ] == SPECTATOR_NOT &&
-      cg.snap->ps.stats[ STAT_HEALTH ] > 0 )
+  if ( cg.snap->ps.stats[ STAT_TEAM ] == TEAM_NONE
+      || (cg.snap->ps.persistant[ PERS_SPECSTATE ] == SPECTATOR_NOT
+      && cg.snap->ps.stats[ STAT_HEALTH ] > 0 ))
   {
     menu = Menus_FindByName( BG_ClassConfig(
       cg.predictedPlayerState.stats[ STAT_CLASS ] )->hudName );
@@ -3594,6 +3691,66 @@ void CG_ResetPainBlend( void )
 }
 
 /*
+================
+CG_DrawBinaryShadersFinalPhases
+================
+*/
+static void CG_DrawBinaryShadersFinalPhases( void )
+{
+  float ss, f, l, u;
+  polyVert_t verts[ 4 ] = {
+    { { 0, 0, 0 }, { 0, 0 }, { 255, 255, 255, 255 } },
+    { { 0, 0, 0 }, { 1, 0 }, { 255, 255, 255, 255 } },
+    { { 0, 0, 0 }, { 1, 1 }, { 255, 255, 255, 255 } },
+    { { 0, 0, 0 }, { 0, 1 }, { 255, 255, 255, 255 } }
+  };
+  int i, j, k;
+
+  if( !cg.numBinaryShadersUsed )
+    return;
+
+  ss = cg_binaryShaderScreenScale.value;
+  if( ss <= 0.0f )
+  {
+    cg.numBinaryShadersUsed = 0;
+    return;
+  }
+  else if( ss > 1.0f )
+    ss = 1.0f;
+
+  ss = sqrt( ss );
+
+  f = 1.01f; // FIXME: is this a good choice to avoid near-clipping?
+  l = f * tan( DEG2RAD( cg.refdef.fov_x / 2 ) ) * ss;
+  u = f * tan( DEG2RAD( cg.refdef.fov_y / 2 ) ) * ss;
+
+  VectorMA( cg.refdef.vieworg, f, cg.refdef.viewaxis[ 0 ], verts[ 0 ].xyz );
+  VectorMA( verts[ 0 ].xyz, l, cg.refdef.viewaxis[ 1 ], verts[ 0 ].xyz );
+  VectorMA( verts[ 0 ].xyz, u, cg.refdef.viewaxis[ 2 ], verts[ 0 ].xyz );
+  VectorMA( verts[ 0 ].xyz, -2*l, cg.refdef.viewaxis[ 1 ], verts[ 1 ].xyz );
+  VectorMA( verts[ 1 ].xyz, -2*u, cg.refdef.viewaxis[ 2 ], verts[ 2 ].xyz );
+  VectorMA( verts[ 0 ].xyz, -2*u, cg.refdef.viewaxis[ 2 ], verts[ 3 ].xyz );
+
+  trap_R_AddPolyToScene( cgs.media.binaryAlpha1Shader, 4, verts );
+
+  for( i = 0; i < cg.numBinaryShadersUsed; ++i )
+  {
+    for( j = 0; j < 4; ++j )
+    {
+      for( k = 0; k < 3; ++k )
+        verts[ j ].modulate[ k ] = cg.binaryShaderSettings[ i ].color[ k ];
+    }
+
+    if( cg.binaryShaderSettings[ i ].drawFrontline )
+      trap_R_AddPolyToScene( cgs.media.binaryShaders[ i ].f3, 4, verts );
+    if( cg.binaryShaderSettings[ i ].drawIntersection )
+      trap_R_AddPolyToScene( cgs.media.binaryShaders[ i ].b3, 4, verts );
+  }
+
+  cg.numBinaryShadersUsed = 0;
+}
+
+/*
 =====================
 CG_DrawActive
 
@@ -3634,6 +3791,8 @@ void CG_DrawActive( stereoFrame_t stereoView )
   if( separation != 0 )
     VectorMA( cg.refdef.vieworg, -separation, cg.refdef.viewaxis[ 1 ],
               cg.refdef.vieworg );
+
+  CG_DrawBinaryShadersFinalPhases( );
 
   // draw 3D view
   trap_R_RenderScene( &cg.refdef );

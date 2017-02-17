@@ -58,6 +58,9 @@ void  Svcmd_EntityList_f( void )
       case ET_BUILDABLE:
         G_Printf( "ET_BUILDABLE        " );
         break;
+      case ET_RANGE_MARKER:
+        G_Printf( "ET_RANGE_MARKER     " );
+        break;
       case ET_LOCATION:
         G_Printf( "ET_LOCATION         " );
         break;
@@ -209,6 +212,7 @@ static void Svcmd_LayoutSave_f( void )
   char str2[ MAX_QPATH - 4 ];
   char *s;
   int i = 0;
+  qboolean pipeEncountered = qfalse;
 
   if( trap_Argc( ) != 2 )
   {
@@ -218,13 +222,17 @@ static void Svcmd_LayoutSave_f( void )
   trap_Argv( 1, str, sizeof( str ) );
 
   // sanitize name
+  str2[ 0 ] = '\0';
   s = &str[ 0 ];
   while( *s && i < sizeof( str2 ) - 1 )
   {
-    if( isalnum( *s ) || *s == '-' || *s == '_' )
+    if( isalnum( *s ) || *s == '-' || *s == '_' ||
+        ( ( *s == '|' || *s == ',' ) && !pipeEncountered ) )
     {
       str2[ i++ ] = *s;
       str2[ i ] = '\0';
+      if( *s == '|' )
+        pipeEncountered = qtrue;
     }
     s++;
   }
@@ -247,13 +255,14 @@ Svcmd_LayoutLoad_f
 layoutload [<name> [<name2> [<name3 [...]]]]
 
 This is just a silly alias for doing:
- set g_layouts "name name2 name3"
+ set g_nextLayout "name name2 name3"
  map_restart
 ===================
 */
 static void Svcmd_LayoutLoad_f( void )
 {
   char layouts[ MAX_CVAR_VALUE_STRING ];
+  char map[ MAX_CVAR_VALUE_STRING ];
   char *s;
 
   if( trap_Argc( ) < 2 )
@@ -264,7 +273,9 @@ static void Svcmd_LayoutLoad_f( void )
 
   s = ConcatArgs( 1 );
   Q_strncpyz( layouts, s, sizeof( layouts ) );
-  trap_Cvar_Set( "g_layouts", layouts ); 
+  trap_Cvar_Set( "g_nextLayout", layouts );
+  trap_Cvar_VariableStringBuffer( "mapname", map, sizeof( map ) );
+  G_MapConfigs( map );
   trap_SendConsoleCommand( EXEC_APPEND, "map_restart\n" );
   level.restarted = qtrue;
 }
@@ -323,6 +334,8 @@ static void Svcmd_TeamWin_f( void )
 
 static void Svcmd_Evacuation_f( void )
 {
+  if( level.exited )
+    return;
   trap_SendServerCommand( -1, "print \"Evacuation ordered\n\"" );
   level.lastWin = TEAM_NONE;
   trap_SetConfigstring( CS_WINNER, "Evacuation" );

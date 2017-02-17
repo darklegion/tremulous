@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#ifndef MACOS_X
+#ifndef __APPLE__
 #error This file is for Mac OS X only. You probably should not compile it.
 #endif
 
@@ -101,7 +101,7 @@ Discovers if passed dir is suffixed with the directory structure of a Mac OS X
 the result is returned. If not, dir is returned untouched.
 =================
 */
-char *Sys_StripAppBundle( char *dir )
+char *Sys_StripAppBundle( const char *dir )
 {
 	static char cwd[MAX_OSPATH];
 

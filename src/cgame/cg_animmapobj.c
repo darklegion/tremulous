@@ -147,7 +147,6 @@ void CG_AnimMapObj( centity_t *cent )
 
   memset( &ent, 0, sizeof( ent ) );
 
-  VectorCopy( es->angles, cent->lerpAngles );
   AnglesToAxis( cent->lerpAngles, ent.axis );
 
   ent.hModel = cgs.gameModels[ es->modelindex ];

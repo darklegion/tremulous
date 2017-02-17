@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "client.h"
 #include "snd_local.h"
-#if idppc_altivec && !defined(MACOS_X)
+#if idppc_altivec && !defined(__APPLE__)
 #include <altivec.h>
 #endif
 
@@ -34,6 +34,9 @@ static int snd_vol;
 int*     snd_p;  
 int      snd_linear_count;
 short*   snd_out;
+
+#warning "Remove id386 throughout"
+#undef id386
 
 #if	!id386                                        // if configured not to use asm
 

@@ -42,7 +42,7 @@ cvar_t	*sv_maxclients;
 
 cvar_t	*sv_privateClients;		// number of clients reserved for password
 cvar_t	*sv_hostname;
-cvar_t	*sv_master[MAX_MASTER_SERVERS];	// master server ip address
+cvar_t	*sv_masters[3][MAX_MASTER_SERVERS];	// master server IP addresses
 cvar_t	*sv_reconnectlimit;		// minimum seconds between connect messages
 cvar_t	*sv_showloss;			// report when usercmds are lost
 cvar_t	*sv_padPackets;			// add nop bytes to messages
@@ -58,6 +58,8 @@ cvar_t	*sv_maxPing;
 cvar_t	*sv_pure;
 cvar_t	*sv_lanForceRate; // dedicated 1 (LAN) server forces local client rates to 99999 (bug #491)
 cvar_t	*sv_banFile;
+
+cvar_t  *sv_rsaAuth;
 
 /*
 =============================================================================
@@ -225,12 +227,15 @@ but not on every player enter or exit.
 #define	HEARTBEAT_MSEC	300*1000
 void SV_MasterHeartbeat(const char *message)
 {
-	static netadr_t	adr[MAX_MASTER_SERVERS][2]; // [2] for v4 and v6 address for the same address string.
+	static netadr_t	adrs[3][MAX_MASTER_SERVERS][2]; // [2] for v4 and v6 address for the same address string.
+	int			a;
 	int			i;
 	int			res;
 	int			netenabled;
+	int			netAlternateProtocols;
 
 	netenabled = Cvar_VariableIntegerValue("net_enabled");
+	netAlternateProtocols = Cvar_VariableIntegerValue("net_alternateProtocols");
 
 	// "dedicated 1" is for lan play, "dedicated 2" is for inet public play
 	if (!com_dedicated || com_dedicated->integer != 2 || !(netenabled & (NET_ENABLEV4 | NET_ENABLEV6)))
@@ -242,72 +247,86 @@ void SV_MasterHeartbeat(const char *message)
 
 	svs.nextHeartbeatTime = svs.time + HEARTBEAT_MSEC;
 
+	for (a = 0; a < 3; ++a)
+	{
+	// indent
+	if(a == 0 && (netAlternateProtocols & NET_DISABLEPRIMPROTO))
+		continue;
+	if(a == 1 && !(netAlternateProtocols & NET_ENABLEALT1PROTO))
+		continue;
+	if(a == 2 && !(netAlternateProtocols & NET_ENABLEALT1PROTO))
+		continue;
+
 	// send to group masters
 	for (i = 0; i < MAX_MASTER_SERVERS; i++)
 	{
-		if(!sv_master[i]->string[0])
+		if(!sv_masters[a][i]->string[0])
 			continue;
 
 		// see if we haven't already resolved the name
 		// resolving usually causes hitches on win95, so only
 		// do it when needed
-		if(sv_master[i]->modified || (adr[i][0].type == NA_BAD && adr[i][1].type == NA_BAD))
+		if(sv_masters[a][i]->modified || (adrs[a][i][0].type == NA_BAD && adrs[a][i][1].type == NA_BAD))
 		{
-			sv_master[i]->modified = qfalse;
+			sv_masters[a][i]->modified = qfalse;
 			
 			if(netenabled & NET_ENABLEV4)
 			{
-				Com_Printf("Resolving %s (IPv4)\n", sv_master[i]->string);
-				res = NET_StringToAdr(sv_master[i]->string, &adr[i][0], NA_IP);
+				Com_Printf("Resolving %s (IPv4)\n", sv_masters[a][i]->string);
+				res = NET_StringToAdr(sv_masters[a][i]->string, &adrs[a][i][0], NA_IP);
+				adrs[a][i][0].alternateProtocol = a;
 
 				if(res == 2)
 				{
 					// if no port was specified, use the default master port
-					adr[i][0].port = BigShort(PORT_MASTER);
+					adrs[a][i][0].port = BigShort(a == 2 ? ALT2PORT_MASTER : a == 1 ? ALT1PORT_MASTER : PORT_MASTER);
 				}
 				
 				if(res)
-					Com_Printf( "%s resolved to %s\n", sv_master[i]->string, NET_AdrToStringwPort(adr[i][0]));
+					Com_Printf( "%s resolved to %s\n", sv_masters[a][i]->string, NET_AdrToStringwPort(adrs[a][i][0]));
 				else
-					Com_Printf( "%s has no IPv4 address.\n", sv_master[i]->string);
+					Com_Printf( "%s has no IPv4 address.\n", sv_masters[a][i]->string);
 			}
 			
 			if(netenabled & NET_ENABLEV6)
 			{
-				Com_Printf("Resolving %s (IPv6)\n", sv_master[i]->string);
-				res = NET_StringToAdr(sv_master[i]->string, &adr[i][1], NA_IP6);
+				Com_Printf("Resolving %s (IPv6)\n", sv_masters[a][i]->string);
+				res = NET_StringToAdr(sv_masters[a][i]->string, &adrs[a][i][1], NA_IP6);
+				adrs[a][i][1].alternateProtocol = a;
 
 				if(res == 2)
 				{
 					// if no port was specified, use the default master port
-					adr[i][1].port = BigShort(PORT_MASTER);
+					adrs[a][i][1].port = BigShort(a == 2 ? ALT2PORT_MASTER : a == 1 ? ALT1PORT_MASTER : PORT_MASTER);
 				}
 				
 				if(res)
-					Com_Printf( "%s resolved to %s\n", sv_master[i]->string, NET_AdrToStringwPort(adr[i][1]));
+					Com_Printf( "%s resolved to %s\n", sv_masters[a][i]->string, NET_AdrToStringwPort(adrs[a][i][1]));
 				else
-					Com_Printf( "%s has no IPv6 address.\n", sv_master[i]->string);
+					Com_Printf( "%s has no IPv6 address.\n", sv_masters[a][i]->string);
 			}
 
-			if(adr[i][0].type == NA_BAD && adr[i][1].type == NA_BAD)
+			if(adrs[a][i][0].type == NA_BAD && adrs[a][i][1].type == NA_BAD)
 			{
-				Com_Printf("Couldn't resolve address: %s\n", sv_master[i]->string);
-				Cvar_Set(sv_master[i]->name, "");
-				sv_master[i]->modified = qfalse;
+				Com_Printf("Couldn't resolve address: %s\n", sv_masters[a][i]->string);
+				Cvar_Set(sv_masters[a][i]->name, "");
+				sv_masters[a][i]->modified = qfalse;
 				continue;
 			}
 		}
 
 
-		Com_Printf ("Sending heartbeat to %s\n", sv_master[i]->string );
+		Com_Printf ("Sending%s heartbeat to %s\n", (a == 2 ? " alternate-2" : a == 1 ? " alternate-1" : ""), sv_masters[a][i]->string );
 
 		// this command should be changed if the server info / status format
 		// ever incompatably changes
 
-		if(adr[i][0].type != NA_BAD)
-			NET_OutOfBandPrint( NS_SERVER, adr[i][0], "heartbeat %s\n", message);
-		if(adr[i][1].type != NA_BAD)
-			NET_OutOfBandPrint( NS_SERVER, adr[i][1], "heartbeat %s\n", message);
+		if(adrs[a][i][0].type != NA_BAD)
+			NET_OutOfBandPrint( NS_SERVER, adrs[a][i][0], "heartbeat %s\n", message);
+		if(adrs[a][i][1].type != NA_BAD)
+			NET_OutOfBandPrint( NS_SERVER, adrs[a][i][1], "heartbeat %s\n", message);
+	}
+	// outdent
 	}
 }
 
@@ -329,39 +348,6 @@ void SV_MasterShutdown( void ) {
 
 	// when the master tries to poll the server, it won't respond, so
 	// it will be removed from the list
-}
-
-/*
-=================
-SV_MasterGameStat
-=================
-*/
-void SV_MasterGameStat( const char *data )
-{
-  netadr_t adr;
-
-  if( !com_dedicated || com_dedicated->integer != 2 )
-    return; // only dedicated servers send stats
-
-  Com_Printf( "Resolving %s\n", MASTER_SERVER_NAME );
-
-  switch( NET_StringToAdr( MASTER_SERVER_NAME, &adr, NA_UNSPEC ) )
-  {
-    case 0:
-      Com_Printf( "Couldn't resolve master address: %s\n", MASTER_SERVER_NAME );
-      return;
-
-    case 2:
-      adr.port = BigShort( PORT_MASTER );
-    default:
-      break;
-  }
-
-  Com_Printf( "%s resolved to %s\n", MASTER_SERVER_NAME,
-              NET_AdrToStringwPort( adr ) );
-
-  Com_Printf( "Sending gamestat to %s\n", MASTER_SERVER_NAME );
-  NET_OutOfBandPrint( NS_SERVER, adr, "gamestat %s", data );
 }
 
 /*
@@ -576,6 +562,9 @@ static void SVC_Status( netadr_t from ) {
 	// to prevent timed spoofed reply packets that add ghost servers
 	Info_SetValueForKey( infostring, "challenge", Cmd_Argv(1) );
 
+	if ( from.alternateProtocol != 0 )
+		Info_SetValueForKey( infostring, "protocol", from.alternateProtocol == 2 ? "69" : "70" );
+
 	status[0] = 0;
 	statusLength = 0;
 
@@ -607,7 +596,7 @@ if a user is interested in a server to do a full status
 */
 void SVC_Info( netadr_t from ) {
 	int		i, count;
-	char	*gamedir;
+	const char *gamedir;
 	char	infostring[MAX_INFO_STRING];
 
 	// Prevent using getinfo as an amplifier
@@ -647,7 +636,7 @@ void SVC_Info( netadr_t from ) {
 	// to prevent timed spoofed reply packets that add ghost servers
 	Info_SetValueForKey( infostring, "challenge", Cmd_Argv(1) );
 
-	Info_SetValueForKey( infostring, "protocol", va("%i", PROTOCOL_VERSION) );
+	Info_SetValueForKey( infostring, "protocol", va("%i", from.alternateProtocol == 2 ? 69 : from.alternateProtocol == 1 ? 70 : PROTOCOL_VERSION) );
 	Info_SetValueForKey( infostring, "gamename", com_gamename->string );
 	Info_SetValueForKey( infostring, "hostname", sv_hostname->string );
 	Info_SetValueForKey( infostring, "mapname", sv_mapname->string );
@@ -771,10 +760,8 @@ Clients that are in the game can still send
 connectionless packets.
 =================
 */
-static void SV_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
-	char	*s;
-	char	*c;
-
+static void SV_ConnectionlessPacket( netadr_t from, msg_t *msg )
+{
 	MSG_BeginReadingOOB( msg );
 	MSG_ReadLong( msg );		// skip the -1 marker
 
@@ -782,10 +769,10 @@ static void SV_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 		Huff_Decompress(msg, 12);
 	}
 
-	s = MSG_ReadStringLine( msg );
+	char *s = MSG_ReadBigString( msg );
 	Cmd_TokenizeString( s );
 
-	c = Cmd_Argv(0);
+	const char *c = Cmd_Argv(0);
 	Com_DPrintf ("SV packet %s : %s\n", NET_AdrToString(from), c);
 
 	if (!Q_stricmp(c, "getstatus")) {
@@ -1081,13 +1068,13 @@ void SV_Frame( int msec ) {
 	// 2giga-milliseconds = 23 days, so it won't be too often
 	if ( svs.time > 0x70000000 ) {
 		SV_Shutdown( "Restarting server due to time wrapping" );
-		Cbuf_AddText( va( "map %s\n", Cvar_VariableString( "mapname" ) ) );
+		Cbuf_AddText( va( "map \"%s\"\n", Cvar_VariableString( "mapname" ) ) );
 		return;
 	}
 	// this can happen considerably earlier when lots of clients play and the map doesn't change
 	if ( svs.nextSnapshotEntities >= 0x7FFFFFFE - svs.numSnapshotEntities ) {
 		SV_Shutdown( "Restarting server due to numSnapshotEntities wrapping" );
-		Cbuf_AddText( va( "map %s\n", Cvar_VariableString( "mapname" ) ) );
+		Cbuf_AddText( va( "map \"%s\"\n", Cvar_VariableString( "mapname" ) ) );
 		return;
 	}
 
@@ -1181,7 +1168,10 @@ int SV_RateMsec(client_t *client)
 	else
 		messageSize += UDPIP_HEADER_SIZE;
 		
-	rateMsec = messageSize * 1000 / ((int) (rate * com_timescale->value));
+	rate = (int)(rate * com_timescale->value);
+	if(rate < 1)
+		rate = 1;
+	rateMsec = messageSize * 1000 / rate;
 	rate = Sys_Milliseconds() - client->netchan.lastSentTime;
 	
 	if(rate > rateMsec)

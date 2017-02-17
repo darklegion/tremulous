@@ -12,7 +12,7 @@ and Travis Maurer.
 The functionality of this code mimics the behaviour of the currently
 inactive project shrubet (http://www.etstats.com/shrubet/index.php?ver=2)
 by Ryan Mannion.   However, shrubet was a closed-source project and
-none of it's code has been copied, only it's functionality.
+none of its code has been copied, only its functionality.
 
 Tremulous is free software; you can redistribute it
 and/or modify it under the terms of the GNU General Public License as
@@ -38,6 +38,15 @@ static char g_bfb[ 32000 ];
 // note: list ordered alphabetically
 g_admin_cmd_t g_admin_cmds[ ] =
   {
+    {"addlayout", G_admin_addlayout, qfalse, "addlayout",
+      "place layout elements into the game. the elements are specified by a "
+      "union of filtered layouts. the syntax is demonstrated by an example: "
+      "^5reactor,telenode|westside+alien|sewers^7 will place only the "
+      "reactor and telenodes from the westside layout, and also all alien "
+      "layout elements from the sewers layout",
+      "[^3layoutelements^7]"
+    },
+
     {"adjustban", G_admin_adjustban, qfalse, "ban",
       "change the IP address mask, duration or reason of a ban.  mask is "
       "prefixed with '/'.  duration is specified as numbers followed by units "
@@ -175,9 +184,24 @@ g_admin_cmd_t g_admin_cmds[ ] =
       "[^3id^7]"
     },
 
+    {"setdevmode", G_admin_setdevmode, qfalse, "setdevmode",
+      "switch developer mode on or off",
+      "[^3on|off^7]"
+    },
+
+    {"setivo", G_admin_setivo, qfalse, "setivo",
+      "set an intermission view override",
+      "[^3s|a|h^7]"
+    },
+
     {"setlevel", G_admin_setlevel, qfalse, "setlevel",
       "sets the admin level of a player",
       "[^3name|slot#|admin#^7] [^3level^7]"
+    },
+
+    {"setnextmap", G_admin_setnextmap, qfalse, "setnextmap",
+      "set the next map (and, optionally, a forced layout)",
+      "[^3mapname^7] (^5layout^7)"
     },
 
     {"showbans", G_admin_showbans, qtrue, "showbans",
@@ -192,6 +216,10 @@ g_admin_cmd_t g_admin_cmds[ ] =
     {"time", G_admin_time, qtrue, "time",
       "show the current local server time",
       ""},
+    {"transform", G_admin_transform, qfalse, "magic",
+      "change a human player to a different player model",
+      "[^3name|slot#^7] [^3player model^7]"
+    },
 
     {"unban", G_admin_unban, qfalse, "ban",
       "unbans a player specified by the slot as seen in showbans",
@@ -1404,6 +1432,12 @@ qboolean G_admin_setlevel( gentity_t *ent )
     return qfalse;
   }
 
+  if( vic && vic->client->pers.guidless )
+  {
+    ADMP( va( "^3setlevel: ^7%s^7 has no GUID\n", vic->client->pers.netname ) );
+    return qfalse;
+  }
+
   if( !a && vic )
   {
     for( a = g_admin_admins; a && a->next; a = a->next );
@@ -1469,8 +1503,8 @@ static void admin_create_ban( gentity_t *ent,
   Q_strncpyz( b->guid, guid, sizeof( b->guid ) );
   memcpy( &b->ip, ip, sizeof( b->ip ) );
 
-  Com_sprintf( b->made, sizeof( b->made ), "%02i/%02i/%02i %02i:%02i:%02i",
-    qt.tm_mon + 1, qt.tm_mday, qt.tm_year % 100,
+  Com_sprintf( b->made, sizeof( b->made ), "%04i-%02i-%02i %02i:%02i:%02i",
+    qt.tm_year+1900, qt.tm_mon+1, qt.tm_mday,
     qt.tm_hour, qt.tm_min, qt.tm_sec );
 
   if( ent && ent->client->pers.admin )
@@ -1537,6 +1571,48 @@ int G_admin_parse_time( const char *time )
   return seconds;
 }
 
+qboolean G_admin_setdevmode( gentity_t *ent )
+{
+  char str[ 5 ];
+  if( trap_Argc() != 2 )
+  {
+    ADMP( "^3setdevmode: ^7usage: setdevmode [on|off]\n" );
+    return qfalse;
+  }
+  trap_Argv( 1, str, sizeof( str ) );
+  if( !Q_stricmp( str, "on" ) )
+  {
+    if( g_cheats.integer )
+    {
+      ADMP( "^3setdevmode: ^7developer mode is already on\n" );
+      return qfalse;
+    }
+    trap_Cvar_Set( "sv_cheats", "1" );
+    trap_Cvar_Update( &g_cheats );
+    AP( va( "print \"^3setdevmode: ^7%s ^7has switched developer mode on\n\"",
+            ent ? ent->client->pers.netname : "console" ) );
+    return qtrue;
+  }
+  else if( !Q_stricmp( str, "off" ) )
+  {
+    if( !g_cheats.integer )
+    {
+      ADMP( "^3setdevmode: ^7developer mode is already off\n" );
+      return qfalse;
+    }
+    trap_Cvar_Set( "sv_cheats", "0" );
+    trap_Cvar_Update( &g_cheats );
+    AP( va( "print \"^3setdevmode: ^7%s ^7has switched developer mode off\n\"",
+            ent ? ent->client->pers.netname : "console" ) );
+    return qtrue;
+  }
+  else
+  {
+    ADMP( "^3setdevmode: ^7usage: setdevmode [on|off]\n" );
+    return qfalse;
+  }
+}
+
 qboolean G_admin_kick( gentity_t *ent )
 {
   int pid;
@@ -1579,12 +1655,57 @@ qboolean G_admin_kick( gentity_t *ent )
     reason ) );
   admin_create_ban( ent,
     vic->client->pers.netname,
-    vic->client->pers.guid,
+    vic->client->pers.guidless ? "" : vic->client->pers.guid,
     &vic->client->pers.ip,
     MAX( 1, G_admin_parse_time( g_adminTempBan.string ) ),
     ( *reason ) ? reason : "kicked by admin" );
   admin_writeconfig();
 
+  return qtrue;
+}
+
+qboolean G_admin_setivo( gentity_t* ent )
+{
+  char arg[ 3 ];
+  const char *cn;
+  gentity_t *spot;
+
+  if( !ent )
+  {
+    ADMP( "^3setivo: ^7the console can't position intermission view overrides\n" );
+    return qfalse;
+  }
+
+  if( trap_Argc() != 2 )
+  {
+    ADMP( "^3setivo: ^7usage: setivo {s|a|h}\n" );
+    return qfalse;
+  }
+  trap_Argv( 1, arg, sizeof( arg ) );
+  if( !Q_stricmp( arg, "s" ) )
+    cn = "info_player_intermission";
+  else if( !Q_stricmp( arg, "a" ) )
+    cn = "info_alien_intermission";
+  else if( !Q_stricmp( arg, "h" ) )
+    cn = "info_human_intermission";
+  else
+  {
+    ADMP( "^3setivo: ^7the argument must be either s, a or h\n" );
+    return qfalse;
+  }
+
+  spot = G_Find( NULL, FOFS( classname ), cn );
+  if( !spot )
+  {
+    spot = G_Spawn();
+    spot->classname = (char *)cn;
+  }
+  spot->count = 1;
+
+  BG_GetClientViewOrigin( &ent->client->ps, spot->r.currentOrigin );
+  VectorCopy( ent->client->ps.viewangles, spot->r.currentAngles );
+
+  ADMP( "^3setivo: ^7intermission view override positioned\n" );
   return qtrue;
 }
 
@@ -1723,7 +1844,7 @@ qboolean G_admin_ban( gentity_t *ent )
         match->slot == -1 ?
           match->name[ match->nameOffset ] :
           level.clients[ match->slot ].pers.netname,
-        match->guid,
+        match->guidless ? "" : match->guid,
         &ip,
         seconds, reason );
     }
@@ -1742,7 +1863,7 @@ qboolean G_admin_ban( gentity_t *ent )
         match->slot == -1 ?
           match->name[ match->nameOffset ] :
           level.clients[ match->slot ].pers.netname,
-        match->guid,
+        match->guidless ? "" : match->guid,
         &match->ip[ i ],
         seconds, reason );
       admin_log( va( "[%s]", match->ip[ i ].str ) );
@@ -1803,6 +1924,25 @@ qboolean G_admin_unban( gentity_t *ent )
           ( ent ) ? ent->client->pers.netname : "console" ) );
   ban->expires = time;
   admin_writeconfig();
+  return qtrue;
+}
+
+qboolean G_admin_addlayout( gentity_t *ent )
+{
+  char layout[ MAX_QPATH ];
+
+  if( trap_Argc( ) != 2 )
+  {
+    ADMP( "^3addlayout: ^7usage: addlayout <layoutelements>\n" );
+    return qfalse;
+  }
+
+  trap_Argv( 1, layout, sizeof( layout ) );
+
+  G_LayoutLoad( layout );
+
+  AP( va( "print \"^3addlayout: ^7some layout elements have been placed by %s\n\"",
+          ent ? ent->client->pers.netname : "console" ) );
   return qtrue;
 }
 
@@ -1997,7 +2137,7 @@ qboolean G_admin_changemap( gentity_t *ent )
 
   trap_Argv( 1, map, sizeof( map ) );
 
-  if( !trap_FS_FOpenFile( va( "maps/%s.bsp", map ), NULL, FS_READ ) )
+  if( !G_MapExists( map ) )
   {
     ADMP( va( "^3changemap: ^7invalid map name '%s'\n", map ) );
     return qfalse;
@@ -2006,11 +2146,9 @@ qboolean G_admin_changemap( gentity_t *ent )
   if( trap_Argc( ) > 2 )
   {
     trap_Argv( 2, layout, sizeof( layout ) );
-    if( !Q_stricmp( layout, "*BUILTIN*" ) ||
-      trap_FS_FOpenFile( va( "layouts/%s/%s.dat", map, layout ),
-        NULL, FS_READ ) > 0 )
+    if( G_LayoutExists( map, layout ) )
     {
-      trap_Cvar_Set( "g_layouts", layout );
+      trap_Cvar_Set( "g_nextLayout", layout );
     }
     else
     {
@@ -2021,7 +2159,9 @@ qboolean G_admin_changemap( gentity_t *ent )
   admin_log( map );
   admin_log( layout );
 
-  trap_SendConsoleCommand( EXEC_APPEND, va( "map %s", map ) );
+  G_MapConfigs( map );
+  trap_SendConsoleCommand( EXEC_APPEND, va( "%smap \"%s\"\n",
+                             ( g_cheats.integer ? "dev" : "" ), map ) );
   level.restarted = qtrue;
   AP( va( "print \"^3changemap: ^7map '%s' started by %s^7 %s\n\"", map,
           ( ent ) ? ent->client->pers.netname : "console",
@@ -2291,12 +2431,12 @@ qboolean G_admin_listplayers( gentity_t *ent )
         colorlen += 2;
     }
 
-    ADMBP( va( "%2i ^%c%c^7 %-2i^2%c^7 %*s^7 ^1%c%c^7 %s^7 %s%s%s\n",
+    ADMBP( va( "%2i ^%c%c %s %s^7 %*s^7 ^1%c%c^7 %s^7 %s%s%s\n",
               i,
               c,
               t,
-              l ? l->level : 0,
-              hint ? '*' : ' ',
+              p->pers.guidless ? "^1---" : va( "^7%-2i^2%c", l ? l->level : 0, hint ? '*' : ' ' ),
+              p->pers.alternateProtocol == 2 ? "^11" : p->pers.alternateProtocol == 1 ? "^3G" : " ",
               admin_level_maxname + colorlen,
               lname,
               muted,
@@ -2441,7 +2581,7 @@ qboolean G_admin_adminhelp( gentity_t *ent )
   }
   else
   {
-    //!adminhelp param
+    // adminhelp param
     char param[ MAX_ADMIN_CMD_LEN ];
     g_admin_cmd_t *admincmd;
     qboolean denied = qfalse;
@@ -2537,7 +2677,7 @@ qboolean G_admin_endvote( gentity_t *ent )
   char command[ MAX_ADMIN_CMD_LEN ];
   team_t team;
   qboolean cancel;
-  char *msg;
+  const char *msg;
 
   trap_Argv( 0, command, sizeof( command ) );
   cancel = !Q_stricmp( command, "cancelvote" );
@@ -2590,6 +2730,76 @@ qboolean G_admin_spec999( gentity_t *ent )
         vic->client->pers.netname ) );
     }
   }
+  return qtrue;
+}
+ 
+qboolean G_admin_transform( gentity_t *ent )
+{
+  int pid;
+  char name[ MAX_NAME_LENGTH ];
+  char modelname[ MAX_NAME_LENGTH ];
+  char skin[ MAX_NAME_LENGTH ];
+  char err[ MAX_STRING_CHARS ];
+  char userinfo[ MAX_INFO_STRING ];
+  gentity_t *victim = NULL;
+  int i;
+  qboolean found = qfalse;
+
+  if (trap_Argc() < 3)
+  {
+    ADMP("^3transform: ^7usage: transform [name|slot#] [model] <skin>\n");
+    return qfalse;
+  }
+
+  trap_Argv(1, name, sizeof(name));
+  trap_Argv(2, modelname, sizeof(modelname));
+
+  strcpy(skin, "default");
+  if (trap_Argc() >= 4)
+  {
+      trap_Argv(1, skin, sizeof(skin));
+  }
+
+  pid = G_ClientNumberFromString(name, err, sizeof(err));
+  if (pid == -1)
+  {
+    ADMP(va("^3transform: ^7%s", err));
+    return qfalse;
+  }
+
+  victim = &g_entities[ pid ];
+  if (victim->client->pers.connected != CON_CONNECTED)
+  {
+    ADMP("^3transform: ^7sorry, but your intended victim is still connecting\n");
+    return qfalse;
+  }
+
+  for ( i = 0; i < level.playerModelCount; i++ )
+  {
+    if ( !strcmp(modelname, level.playerModel[i]) )
+    {
+      found = qtrue;
+      break;
+    }
+  }
+
+  if (!found)
+  {
+    ADMP(va("^3transform: ^7no matching model %s\n", modelname));
+    return qfalse;
+  }
+
+  trap_GetUserinfo(pid, userinfo, sizeof(userinfo));
+  AP( va("print \"^3transform: ^7%s^7 has been changed into %s^7 by %s\n\"",
+         victim->client->pers.netname, modelname,
+         (ent ? ent->client->pers.netname : "console")) );
+
+  Info_SetValueForKey( userinfo, "model", modelname );
+  Info_SetValueForKey( userinfo, "skin", GetSkin(modelname, skin));
+  Info_SetValueForKey( userinfo, "voice", modelname );
+  trap_SetUserinfo( pid, userinfo );
+  ClientUserinfoChanged( pid, qtrue );
+
   return qtrue;
 }
 
@@ -2649,6 +2859,7 @@ qboolean G_admin_restart( gentity_t *ent )
 {
   char      layout[ MAX_CVAR_VALUE_STRING ] = { "" };
   char      teampref[ MAX_STRING_CHARS ] = { "" };
+  char      map[ MAX_CVAR_VALUE_STRING ];
   int       i;
   gclient_t *cl;
 
@@ -2665,11 +2876,9 @@ qboolean G_admin_restart( gentity_t *ent )
         Q_stricmp( layout, "switchteams" ) &&
         Q_stricmp( layout, "switchteamslock" ) )
     {
-      if( !Q_stricmp( layout, "*BUILTIN*" ) ||
-          trap_FS_FOpenFile( va( "layouts/%s/%s.dat", map, layout ),
-                             NULL, FS_READ ) > 0 )
+      if( G_LayoutExists( map, layout ) )
       {
-        trap_Cvar_Set( "g_layouts", layout );
+        trap_Cvar_Set( "g_nextLayout", layout );
       }
       else
       {
@@ -2724,7 +2933,9 @@ qboolean G_admin_restart( gentity_t *ent )
       !Q_stricmp( teampref, "keepteamslock" ) )
     trap_Cvar_Set( "g_lockTeamsAtStart", "1" );
 
-  trap_SendConsoleCommand( EXEC_APPEND, "map_restart" );
+  trap_Cvar_VariableStringBuffer( "mapname", map, sizeof( map ) );
+  G_MapConfigs( map );
+  trap_SendConsoleCommand( EXEC_APPEND, "map_restart\n" );
 
   AP( va( "print \"^3restart: ^7map restarted by %s %s %s\n\"",
           ( ent ) ? ent->client->pers.netname : "console",
@@ -2735,12 +2946,57 @@ qboolean G_admin_restart( gentity_t *ent )
 
 qboolean G_admin_nextmap( gentity_t *ent )
 {
+  if( level.exited )
+    return qfalse;
   AP( va( "print \"^3nextmap: ^7%s^7 decided to load the next map\n\"",
     ( ent ) ? ent->client->pers.netname : "console" ) );
   level.lastWin = TEAM_NONE;
   trap_SetConfigstring( CS_WINNER, "Evacuation" );
   LogExit( va( "nextmap was run by %s",
     ( ent ) ? ent->client->pers.netname : "console" ) );
+  return qtrue;
+}
+
+qboolean G_admin_setnextmap( gentity_t *ent )
+{
+  int argc = trap_Argc();
+  char map[ MAX_QPATH ];
+  char layout[ MAX_QPATH ];
+
+  if( argc < 2 || argc > 3 )
+  {
+    ADMP( "^3setnextmap: ^7usage: setnextmap [map] (layout)\n" );
+    return qfalse;
+  }
+
+  trap_Argv( 1, map, sizeof( map ) );
+
+  if( !G_MapExists( map ) )
+  {
+    ADMP( va( "^3setnextmap: ^7map '%s' does not exist\n", map ) );
+    return qfalse;
+  }
+
+  if( argc > 2 )
+  {
+    trap_Argv( 2, layout, sizeof( layout ) );
+
+    if( !G_LayoutExists( map, layout ) )
+    {
+      ADMP( va( "^3setnextmap: ^7layout '%s' does not exist for map '%s'\n", layout, map ) );
+      return qfalse;
+    }
+
+    trap_Cvar_Set( "g_nextLayout", layout );
+  }
+  else
+    trap_Cvar_Set( "g_nextLayout", "" );
+
+  trap_Cvar_Set( "g_nextMap", map );
+
+  AP( va( "print \"^3setnextmap: ^7%s^7 has set the next map to '%s'%s\n\"",
+          ( ent ) ? ent->client->pers.netname : "console", map,
+          argc > 2 ? va( " with layout '%s'", layout ) : "" ) );
   return qtrue;
 }
 
@@ -3243,7 +3499,7 @@ qboolean G_admin_revert( gentity_t *ent )
  that it prints the message to the server console if ent is not defined.
 ================
 */
-void G_admin_print( gentity_t *ent, char *m )
+void G_admin_print( gentity_t *ent, const char *m )
 {
   if( ent )
     trap_SendServerCommand( ent - level.gentities, va( "print \"%s\"", m ) );
@@ -3270,7 +3526,7 @@ void G_admin_buffer_end( gentity_t *ent )
   ADMP( g_bfb );
 }
 
-void G_admin_buffer_print( gentity_t *ent, char *m )
+void G_admin_buffer_print( gentity_t *ent, const char *m )
 {
   // 1022 - strlen("print 64 \"\"") - 1
   if( strlen( m ) + strlen( g_bfb ) >= 1009 )

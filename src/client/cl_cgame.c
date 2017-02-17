@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // cl_cgame.c  -- client system interaction with client game
 
+#include <setjmp.h>
 #include "client.h"
 
 #ifdef USE_MUMBLE
@@ -32,6 +33,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 extern qboolean loadCamera(const char *name);
 extern void startCamera(int time);
 extern qboolean getCameraInfo(int time, vec3_t *origin, vec3_t *angles);
+
+int cgInterface;
 
 /*
 ====================
@@ -98,7 +101,13 @@ qboolean	CL_GetParseEntityState( int parseEntityNumber, entityState_t *state ) {
 		return qfalse;
 	}
 
-	*state = cl.parseEntities[ parseEntityNumber & ( MAX_PARSE_ENTITIES - 1 ) ];
+	if ( cgInterface == 2 ) {
+		entityState_t *es = &cl.parseEntities[ parseEntityNumber & ( MAX_PARSE_ENTITIES - 1 ) ];
+		memcpy( state, es, (size_t)&((entityState_t *)0)->weaponAnim );
+		state->weaponAnim = es->generic1;
+	} else {
+		*state = cl.parseEntities[ parseEntityNumber & ( MAX_PARSE_ENTITIES - 1 ) ];
+	}
 	return qtrue;
 }
 
@@ -144,20 +153,32 @@ qboolean	CL_GetSnapshot( int snapshotNumber, snapshot_t *snapshot ) {
 
 	// write the snapshot
 	snapshot->snapFlags = clSnap->snapFlags;
-	snapshot->serverCommandSequence = clSnap->serverCommandNum;
 	snapshot->ping = clSnap->ping;
 	snapshot->serverTime = clSnap->serverTime;
 	Com_Memcpy( snapshot->areamask, clSnap->areamask, sizeof( snapshot->areamask ) );
-	snapshot->ps = clSnap->ps;
 	count = clSnap->numEntities;
 	if ( count > MAX_ENTITIES_IN_SNAPSHOT ) {
 		Com_DPrintf( "CL_GetSnapshot: truncated %i entities to %i\n", count, MAX_ENTITIES_IN_SNAPSHOT );
 		count = MAX_ENTITIES_IN_SNAPSHOT;
 	}
-	snapshot->numEntities = count;
-	for ( i = 0 ; i < count ; i++ ) {
-		snapshot->entities[i] = 
-			cl.parseEntities[ ( clSnap->parseEntitiesNum + i ) & (MAX_PARSE_ENTITIES-1) ];
+	if ( cgInterface == 2 ) {
+		alternateSnapshot_t *altSnapshot = (alternateSnapshot_t *)snapshot;
+		altSnapshot->ps = clSnap->alternatePs;
+		altSnapshot->serverCommandSequence = clSnap->serverCommandNum;
+		altSnapshot->numEntities = count;
+		for ( i = 0 ; i < count ; i++ ) {
+			entityState_t *es = &cl.parseEntities[ ( clSnap->parseEntitiesNum + i ) & (MAX_PARSE_ENTITIES-1) ];
+			memcpy( &altSnapshot->entities[i], es, (size_t)&((entityState_t *)0)->weaponAnim );
+			altSnapshot->entities[i].generic1 = es->generic1;
+		}
+	} else {
+		snapshot->ps = clSnap->ps;
+		snapshot->serverCommandSequence = clSnap->serverCommandNum;
+		snapshot->numEntities = count;
+		for ( i = 0 ; i < count ; i++ ) {
+			snapshot->entities[i] = 
+				cl.parseEntities[ ( clSnap->parseEntitiesNum + i ) & (MAX_PARSE_ENTITIES-1) ];
+		}
 	}
 
 	// FIXME: configstring changes and server commands!!!
@@ -336,25 +357,6 @@ rescan:
 		return qtrue;
 	}
 
-	// the clientLevelShot command is used during development
-	// to generate 128*128 screenshots from the intermission
-	// point of levels for the menu system to use
-	// we pass it along to the cgame to make apropriate adjustments,
-	// but we also clear the console and notify lines here
-	if ( !strcmp( cmd, "clientLevelShot" ) ) {
-		// don't do it if we aren't running the server locally,
-		// otherwise malicious remote servers could overwrite
-		// the existing thumbnails
-		if ( !com_sv_running->integer ) {
-			return qfalse;
-		}
-		// close the console
-		Con_Close();
-		// take a special screenshot next frame
-		Cbuf_AddText( "wait ; wait ; wait ; wait ; screenshot levelshot\n" );
-		return qtrue;
-	}
-
 	// we may want to put a "connect to other server" command here
 
 	// cgame can now act on the command
@@ -373,6 +375,22 @@ void CL_CM_LoadMap( const char *mapname ) {
 	int		checksum;
 
 	CM_LoadMap( mapname, qtrue, &checksum );
+}
+
+char * safe_strncpy(char *dest, const char *src, size_t n)
+{
+    char *ret = dest;
+    while (n > 0 && src[0])
+    {
+	    *ret++ = *src++;
+	    --n;
+    }
+    while (n > 0)
+    {
+	    *ret++ = '\0';
+    	--n;
+    }
+    return dest;
 }
 
 /*
@@ -398,6 +416,9 @@ static int	FloatAsInt( float f ) {
 	return fi.i;
 }
 
+static jmp_buf cgProbingJB;
+static qboolean probingCG = qfalse;
+
 /*
 ====================
 CL_CgameSystemCalls
@@ -406,11 +427,26 @@ The cgame module is making a system call
 ====================
 */
 intptr_t CL_CgameSystemCalls( intptr_t *args ) {
+	if( cgInterface == 2 && args[0] >= CG_R_SETCLIPREGION && args[0] < CG_MEMSET ) {
+		if( args[0] < CG_S_STOPBACKGROUNDTRACK - 1 ) {
+			args[0] += 1;
+		} else if( args[0] < CG_S_STOPBACKGROUNDTRACK + 4 ) {
+			args[0] += CG_PARSE_ADD_GLOBAL_DEFINE - CG_S_STOPBACKGROUNDTRACK + 1;
+		} else if( args[0] < CG_PARSE_ADD_GLOBAL_DEFINE + 4 ) {
+			args[0] -= 4;
+		} else if( args[0] >= CG_PARSE_SOURCE_FILE_AND_LINE && args[0] <= CG_S_SOUNDDURATION ) {
+			args[0] = CG_PARSE_SOURCE_FILE_AND_LINE - 1337 - args[0] ;
+		}
+	}
+
 	switch( args[0] ) {
 	case CG_PRINT:
 		Com_Printf( "%s", (const char*)VMA(1) );
 		return 0;
 	case CG_ERROR:
+		if( probingCG ) {
+			longjmp( cgProbingJB, 1 );
+		}
 		Com_Error( ERR_DROP, "%s", (const char*)VMA(1) );
 		return 0;
 	case CG_MILLISECONDS:
@@ -619,10 +655,10 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 		return Key_IsDown( args[1] );
   case CG_KEY_GETCATCHER:
 		return Key_GetCatcher();
-  case CG_KEY_SETCATCHER:
-		// Don't allow the cgame module to close the console
-		Key_SetCatcher( args[1] | ( Key_GetCatcher( ) & KEYCATCH_CONSOLE ) );
-    return 0;
+	case CG_KEY_SETCATCHER:
+		// don't allow the cgame module to toggle the console
+		Key_SetCatcher( ( args[1] & ~KEYCATCH_CONSOLE ) | ( Key_GetCatcher() & KEYCATCH_CONSOLE ) );
+		return 0;
   case CG_KEY_GETKEY:
 		return Key_GetKey( VMA(1) );
 
@@ -657,9 +693,14 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 
 	case CG_KEY_SETOVERSTRIKEMODE:
 		Key_SetOverstrikeMode( args[1] );
-    return 0;
+        return 0;
+
 	case CG_KEY_GETOVERSTRIKEMODE:
 		return Key_GetOverstrikeMode( );
+    
+	case CG_FIELD_COMPLETELIST:
+		Field_CompleteList( VMA(1) );
+		return 0;
 
 	case CG_MEMSET:
 		Com_Memset( VMA(1), args[2], args[3] );
@@ -668,7 +709,7 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 		Com_Memcpy( VMA(1), VMA(2), args[3] );
 		return 0;
 	case CG_STRNCPY:
-		strncpy( VMA(1), VMA(2), args[3] );
+		safe_strncpy( VMA(1), VMA(2), args[3] );
 		return args[1];
 	case CG_SIN:
 		return FloatAsInt( sin( VMF(1) ) );
@@ -751,12 +792,10 @@ void CL_InitCGame( void ) {
 	const char			*info;
 	const char			*mapname;
 	int					t1, t2;
+	char				backup[ MAX_STRING_CHARS ];
 	vmInterpret_t		interpret;
 
 	t1 = Sys_Milliseconds();
-
-	// put away the console
-	Con_Close();
 
 	// find the current mapname
 	info = cl.gameState.stringData + cl.gameState.stringOffsets[ CS_SERVERINFO ];
@@ -777,6 +816,26 @@ void CL_InitCGame( void ) {
 		Com_Error( ERR_DROP, "VM_Create on cgame failed" );
 	}
 	clc.state = CA_LOADING;
+
+	Cvar_VariableStringBuffer( "cl_voipSendTarget", backup, sizeof( backup ) );
+	Cvar_Set( "cl_voipSendTarget", "" );
+	cgInterface = 0;
+	probingCG = qtrue;
+	if ( setjmp( cgProbingJB ) == 0 ) {
+		VM_Call( cgvm, CG_VOIP_STRING );
+	} else {
+		VM_ClearCallLevel( cgvm );
+		cgInterface = 2;
+	}
+	probingCG = qfalse;
+	Cvar_Set( "cl_voipSendTarget", backup );
+
+	if ( ( clc.netchan.alternateProtocol == 2 ) != ( cgInterface == 2 ) ) {
+		Com_Error( ERR_DROP, "%s protocol %i, but a cgame module using the %s interface was found",
+		           ( clc.demoplaying ? "Demo was recorded using" : "Server uses" ),
+		           ( clc.netchan.alternateProtocol == 0 ? PROTOCOL_VERSION : clc.netchan.alternateProtocol == 1 ? 70 : 69 ),
+		           ( cgInterface == 2 ? "1.1" : "non-1.1" ) );
+	}
 
 	// init for this gamestate
 	// use the lastExecutedServerCommand instead of the serverCommandSequence

@@ -24,13 +24,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __Q_SHARED_H
 #define __Q_SHARED_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // q_shared.h -- included first by ALL program modules.
 // A user mod should never modify this file
 
 #define PRODUCT_NAME              "tremulous"
 
 #ifndef PRODUCT_VERSION
-# define PRODUCT_VERSION          "1.1.0"
+# define PRODUCT_VERSION          "1.2.0 pre-release"
 #endif
 
 #define CLIENT_WINDOW_TITLE       "Tremulous " PRODUCT_VERSION
@@ -164,7 +168,11 @@ typedef int intptr_t;
 
 typedef unsigned char 		byte;
 
+#ifdef __cplusplus
+enum qboolean : int {qfalse, qtrue};
+#else
 typedef enum {qfalse, qtrue}	qboolean;
+#endif
 
 typedef union {
 	float f;
@@ -233,7 +241,7 @@ typedef int		clipHandle_t;
 #define	MAX_NAME_LENGTH			32		// max length of a client name
 #define	MAX_HOSTNAME_LENGTH	80		// max length of a host name
 
-#define	MAX_SAY_TEXT	150
+#define	MAX_SAY_TEXT	800
 
 // paramters for command buffer stuffing
 typedef enum {
@@ -812,7 +820,7 @@ int Com_HexStrToInt( const char *str );
 
 int QDECL Com_sprintf (char *dest, int size, const char *fmt, ...) __attribute__ ((format (printf, 3, 4)));
 
-char *Com_SkipTokens( char *s, int numTokens, char *sep );
+char *Com_SkipTokens( char *s, int numTokens, const char *sep );
 char *Com_SkipCharset( char *s, char *sep );
 
 void Com_RandomBytes( byte *string, int len );
@@ -828,20 +836,6 @@ void Com_ClientListAdd( clientList_t *list, int clientNum );
 void Com_ClientListRemove( clientList_t *list, int clientNum );
 char *Com_ClientListString( const clientList_t *list );
 void Com_ClientListParse( clientList_t *list, const char *s );
-
-// mode parm for FS_FOpenFile
-typedef enum {
-	FS_READ,
-	FS_WRITE,
-	FS_APPEND,
-	FS_APPEND_SYNC
-} fsMode_t;
-
-typedef enum {
-	FS_SEEK_CUR,
-	FS_SEEK_END,
-	FS_SEEK_SET
-} fsOrigin_t;
 
 //=============================================
 
@@ -902,7 +896,7 @@ float	LittleFloat (const float *l);
 
 void	Swap_Init (void);
 */
-char	* QDECL va(char *format, ...) __attribute__ ((format (printf, 1, 2)));
+const char	* QDECL va(const char *format, ...) __attribute__ ((format (printf, 1, 2)));
 
 #define TRUNCATE_LENGTH	64
 void Com_TruncateLongString( char *buffer, const char *s );
@@ -923,84 +917,6 @@ void Info_NextPair( const char **s, char *key, char *value );
 // this is only here so the functions in q_shared.c and bg_*.c can link
 void	QDECL Com_Error( int level, const char *error, ... ) __attribute__ ((noreturn, format(printf, 2, 3)));
 void	QDECL Com_Printf( const char *msg, ... ) __attribute__ ((format (printf, 1, 2)));
-
-
-/*
-==========================================================
-
-CVARS (console variables)
-
-Many variables can be used for cheating purposes, so when
-cheats is zero, force all unspecified variables to their
-default values.
-==========================================================
-*/
-
-#define	CVAR_ARCHIVE		0x0001	// set to cause it to be saved to vars.rc
-					// used for system variables, not for player
-					// specific configurations
-#define	CVAR_USERINFO		0x0002	// sent to server on connect or change
-#define	CVAR_SERVERINFO		0x0004	// sent in response to front end requests
-#define	CVAR_SYSTEMINFO		0x0008	// these cvars will be duplicated on all clients
-#define	CVAR_INIT		0x0010	// don't allow change from console at all,
-					// but can be set from the command line
-#define	CVAR_LATCH		0x0020	// will only change when C code next does
-					// a Cvar_Get(), so it can't be changed
-					// without proper initialization.  modified
-					// will be set, even though the value hasn't
-					// changed yet
-#define	CVAR_ROM		0x0040	// display only, cannot be set by user at all
-#define	CVAR_USER_CREATED	0x0080	// created by a set command
-#define	CVAR_TEMP		0x0100	// can be set even when cheats are disabled, but is not archived
-#define CVAR_CHEAT		0x0200	// can not be changed if cheats are disabled
-#define CVAR_NORESTART		0x0400	// do not clear when a cvar_restart is issued
-
-#define CVAR_SERVER_CREATED	0x0800	// cvar was created by a server the client connected to.
-#define CVAR_VM_CREATED		0x1000	// cvar was created exclusively in one of the VMs.
-#define CVAR_PROTECTED		0x2000	// prevent modifying this var from VMs or the server
-// These flags are only returned by the Cvar_Flags() function
-#define CVAR_MODIFIED		0x40000000	// Cvar was modified
-#define CVAR_NONEXISTENT	0x80000000	// Cvar doesn't exist.
-
-// nothing outside the Cvar_*() functions should modify these fields!
-typedef struct cvar_s cvar_t;
-
-struct cvar_s {
-	char			*name;
-	char			*string;
-	char			*resetString;		// cvar_restart will reset to this value
-	char			*latchedString;		// for CVAR_LATCH vars
-	int				flags;
-	qboolean	modified;			// set each time the cvar is changed
-	int				modificationCount;	// incremented each time the cvar is changed
-	float			value;				// atof( string )
-	int				integer;			// atoi( string )
-	qboolean	validate;
-	qboolean	integral;
-	float			min;
-	float			max;
-	char			*description;
-
-	cvar_t *next;
-	cvar_t *prev;
-	cvar_t *hashNext;
-	cvar_t *hashPrev;
-	int			hashIndex;
-};
-
-#define	MAX_CVAR_VALUE_STRING	256
-
-typedef int	cvarHandle_t;
-
-// the modules that run in the virtual machine can't access the cvar_t directly,
-// so they must ask for structured updates
-typedef struct {
-	cvarHandle_t	handle;
-	int			modificationCount;
-	float		value;
-	int			integer;
-	char		string[MAX_CVAR_VALUE_STRING];
-} vmCvar_t;
 
 
 /*
@@ -1509,4 +1425,7 @@ typedef struct
 #define LERP( a, b, w ) ( ( a ) * ( 1.0f - ( w ) ) + ( b ) * ( w ) )
 #define LUMA( red, green, blue ) ( 0.2126f * ( red ) + 0.7152f * ( green ) + 0.0722f * ( blue ) )
 
+#ifdef __cplusplus
+};
+#endif
 #endif	// __Q_SHARED_H

@@ -40,7 +40,7 @@ void P_DamageFeedback( gentity_t *player )
   vec3_t    angles;
 
   client = player->client;
-  if( !PM_Live( client->ps.pm_type ) )
+  if( !PM_Alive( client->ps.pm_type ) )
     return;
 
   // total points of damage shot at the player this frame
@@ -324,6 +324,10 @@ void  G_TouchTriggers( gentity_t *ent )
   if( !ent->client )
     return;
 
+  // noclipping clients don't activate triggers!
+  if( ent->client->noclip )
+    return;
+
   // dead clients don't activate triggers!
   if( ent->client->ps.stats[ STAT_HEALTH ] <= 0 )
     return;
@@ -426,6 +430,7 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd )
     else if( client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS )
       G_RemoveFromSpawnQueue( &level.humanSpawnQueue, client->ps.clientNum );
     client->pers.classSelection = PCL_NONE;
+    client->pers.humanItemSelection = WP_NONE;
     client->ps.stats[ STAT_CLASS ] = PCL_NONE;
     client->ps.pm_flags &= ~PMF_QUEUED;
     queued = qfalse;
@@ -469,7 +474,7 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd )
     pm.ps = &client->ps;
     pm.pmext = &client->pmext;
     pm.cmd = *ucmd;
-    pm.tracemask = MASK_DEADSOLID; // spectators can fly through bodies
+    pm.tracemask = ent->clipmask;
     pm.trace = trap_Trace;
     pm.pointcontents = trap_PointContents;
 
@@ -477,7 +482,10 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd )
     Pmove( &pm );
 
     // Save results of pmove
-    VectorCopy( client->ps.origin, ent->s.origin );
+    VectorCopy( client->ps.origin, ent->s.pos.trBase );
+    VectorCopy( client->ps.origin, ent->r.currentOrigin );
+    VectorCopy( client->ps.viewangles, ent->r.currentAngles );
+    VectorCopy( client->ps.viewangles, ent->s.pos.trBase );
 
     G_TouchTriggers( ent );
     trap_UnlinkEntity( ent );
@@ -627,9 +635,10 @@ void ClientTimerActions( gentity_t *ent, int msec )
         {
           int     dist = BG_Class( ent->client->ps.stats[ STAT_CLASS ] )->buildDist;
           vec3_t  dummy, dummy2;
+          int     dummy3;
 
           if( G_CanBuild( ent, client->ps.stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT,
-                          dist, dummy, dummy2 ) == IBE_NONE )
+                          dist, dummy, dummy2, &dummy3 ) == IBE_NONE )
             client->ps.stats[ STAT_BUILDABLE ] |= SB_VALID_TOGGLEBIT;
           else
             client->ps.stats[ STAT_BUILDABLE ] &= ~SB_VALID_TOGGLEBIT;
@@ -667,6 +676,7 @@ void ClientTimerActions( gentity_t *ent, int msec )
         {
           ent->client->medKitHealthToRestore--;
           ent->health++;
+          ent->client->ps.stats[ STAT_HEALTH ] = ent->health;
         }
         else
           ent->client->ps.stats[ STAT_STATE ] &= ~SS_HEALING_2X;
@@ -682,6 +692,7 @@ void ClientTimerActions( gentity_t *ent, int msec )
           {
             ent->client->medKitHealthToRestore--;
             ent->health++;
+            ent->client->ps.stats[ STAT_HEALTH ] = ent->health;
 
             client->medKitIncrementTime = level.time +
               ( remainingStartupTime / MEDKIT_STARTUP_SPEED );
@@ -735,9 +746,9 @@ void ClientTimerActions( gentity_t *ent, int msec )
     else
       client->voiceEnthusiasm = 0.0f;
 
-    client->pers.aliveSeconds++;
+    client->pers.secondsAlive++;
     if( g_freeFundPeriod.integer > 0 &&
-        client->pers.aliveSeconds % g_freeFundPeriod.integer == 0 )
+        client->pers.secondsAlive % g_freeFundPeriod.integer == 0 )
     {
       // Give clients some credit periodically
       if( G_TimeTilSuddenDeath( ) > 0 )
@@ -994,10 +1005,10 @@ void G_UnlaggedCalc( int time, gentity_t *rewindEnt )
 {
   int i = 0;
   gentity_t *ent;
-  int startIndex = level.unlaggedIndex;
-  int stopIndex = -1;
-  int frameMsec = 0;
-  float lerp = 0.5f;
+  int startIndex;
+  int stopIndex;
+  int frameMsec;
+  float lerp;
 
   if( !g_unlagged.integer )
     return;
@@ -1009,13 +1020,18 @@ void G_UnlaggedCalc( int time, gentity_t *rewindEnt )
     ent->client->unlaggedCalc.used = qfalse;
   }
 
-  for( i = 0; i < MAX_UNLAGGED_MARKERS; i++ )
+  // client is on the current frame, no need for unlagged
+  if( level.unlaggedTimes[ level.unlaggedIndex ] <= time )
+    return;
+
+  startIndex = level.unlaggedIndex;
+  for( i = 1; i < MAX_UNLAGGED_MARKERS; i++ )
   {
-    if( level.unlaggedTimes[ startIndex ] <= time )
-      break;
     stopIndex = startIndex;
     if( --startIndex < 0 )
       startIndex = MAX_UNLAGGED_MARKERS - 1;
+    if( level.unlaggedTimes[ startIndex ] <= time )
+      break;
   }
   if( i == MAX_UNLAGGED_MARKERS )
   {
@@ -1023,18 +1039,11 @@ void G_UnlaggedCalc( int time, gentity_t *rewindEnt )
     // just use the oldest marker with no lerping
     lerp = 0.0f;
   }
-
-  // client is on the current frame, no need for unlagged
-  if( stopIndex == -1 )
-    return;
-
-  // lerp between two markers
-  frameMsec = level.unlaggedTimes[ stopIndex ] -
-    level.unlaggedTimes[ startIndex ];
-  if( frameMsec > 0 )
+  else
   {
-    lerp = ( float )( time - level.unlaggedTimes[ startIndex ] ) /
-      ( float )frameMsec;
+    // lerp between two markers
+    frameMsec = level.unlaggedTimes[ stopIndex ] - level.unlaggedTimes[ startIndex ];
+    lerp = ( float )( time - level.unlaggedTimes[ startIndex ] ) / ( float )frameMsec;
   }
 
   for( i = 0; i < level.maxclients; i++ )
@@ -1245,16 +1254,10 @@ void ClientThink_real( gentity_t *ent )
 
   // sanity check the command time to prevent speedup cheating
   if( ucmd->serverTime > level.time + 200 )
-  {
     ucmd->serverTime = level.time + 200;
-//    G_Printf("serverTime <<<<<\n" );
-  }
 
   if( ucmd->serverTime < level.time - 1000 )
-  {
     ucmd->serverTime = level.time - 1000;
-//    G_Printf("serverTime >>>>>\n" );
-  }
 
   msec = ucmd->serverTime - client->ps.commandTime;
   // following others may result in bad times, but we still want
@@ -1410,7 +1413,7 @@ void ClientThink_real( gentity_t *ent )
       {
         gentity_t *boost = &g_entities[ entityList[ i ] ];
 
-        if( Distance( client->ps.origin, boost->s.origin ) > REGEN_BOOST_RANGE )
+        if( Distance( client->ps.origin, boost->r.currentOrigin ) > REGEN_BOOST_RANGE )
           continue;
 
         if( modifier < BOOSTER_REGEN_MOD && boost->s.eType == ET_BUILDABLE &&
@@ -1461,16 +1464,20 @@ void ClientThink_real( gentity_t *ent )
       interval = 1000 / ( regenRate * modifier );
       // if recovery interval is less than frametime, compensate
       count = 1 + ( level.time - ent->nextRegenTime ) / interval;
-
-      ent->health += count;
       ent->nextRegenTime += count * interval;
 
-      // if at max health, clear damage counters
-      if( ent->health >= client->ps.stats[ STAT_MAX_HEALTH ] )
+      if( ent->health < client->ps.stats[ STAT_MAX_HEALTH ] )
       {
-        ent->health = client->ps.stats[ STAT_MAX_HEALTH ];
-        for( i = 0; i < MAX_CLIENTS; i++ )
-          ent->credits[ i ] = 0;
+        ent->health += count;
+        client->ps.stats[ STAT_HEALTH ] = ent->health;
+
+        // if at max health, clear damage counters
+        if( ent->health >= client->ps.stats[ STAT_MAX_HEALTH ] )
+        {
+          ent->health = client->ps.stats[ STAT_HEALTH ] = client->ps.stats[ STAT_MAX_HEALTH ];
+          for( i = 0; i < MAX_CLIENTS; i++ )
+            ent->credits[ i ] = 0;
+        }
       }
     }
   }
@@ -1532,12 +1539,7 @@ void ClientThink_real( gentity_t *ent )
   pm.ps = &client->ps;
   pm.pmext = &client->pmext;
   pm.cmd = *ucmd;
-
-  if( pm.ps->pm_type == PM_DEAD )
-    pm.tracemask = MASK_DEADSOLID;
-  else
-    pm.tracemask = MASK_PLAYERSOLID;
-
+  pm.tracemask = ent->clipmask;
   pm.trace = trap_Trace;
   pm.pointcontents = trap_PointContents;
   pm.debugLevel = g_debugMove.integer;
@@ -1550,8 +1552,7 @@ void ClientThink_real( gentity_t *ent )
 
   // moved from after Pmove -- potentially the cause of
   // future triggering bugs
-  if( !ent->client->noclip )
-    G_TouchTriggers( ent );
+  G_TouchTriggers( ent );
 
   Pmove( &pm );
 
@@ -1561,6 +1562,7 @@ void ClientThink_real( gentity_t *ent )
   if( ent->client->ps.eventSequence != oldEventSequence )
     ent->eventTime = level.time;
 
+  VectorCopy( ent->client->ps.viewangles, ent->r.currentAngles );
   if( g_smoothClients.integer )
     BG_PlayerStateToEntityStateExtraPolate( &ent->client->ps, &ent->s, ent->client->ps.commandTime, qtrue );
   else
@@ -1642,7 +1644,7 @@ void ClientThink_real( gentity_t *ent )
 
   // NOTE: now copy the exact origin over otherwise clients can be snapped into solid
   VectorCopy( ent->client->ps.origin, ent->r.currentOrigin );
-  VectorCopy( ent->client->ps.origin, ent->s.origin );
+  VectorCopy( ent->client->ps.origin, ent->s.pos.trBase );
 
   // save results of triggers and client events
   if( ent->client->ps.eventSequence != oldEventSequence )
@@ -1730,7 +1732,6 @@ void ClientThink_real( gentity_t *ent )
 
   if( ent->suicideTime > 0 && ent->suicideTime < level.time )
   {
-    ent->flags &= ~FL_GODMODE;
     ent->client->ps.stats[ STAT_HEALTH ] = ent->health = 0;
     player_die( ent, ent, ent, 100000, MOD_SUICIDE );
 
@@ -1844,12 +1845,6 @@ void ClientEndFrame( gentity_t *ent )
     ent->s.eFlags |= EF_CONNECTION;
   else
     ent->s.eFlags &= ~EF_CONNECTION;
-
-  if( ent->client->ps.stats[ STAT_HEALTH ] != ent->health )
-  {
-    ent->client->ps.stats[ STAT_HEALTH ] = ent->health; // FIXME: get rid of ent->health...
-    ent->client->pers.infoChangeTime = level.time;
-  }
 
   // respawn if dead
   if( ent->client->ps.stats[ STAT_HEALTH ] <= 0 && level.time >= ent->client->respawnTime )

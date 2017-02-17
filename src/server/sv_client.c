@@ -28,6 +28,76 @@ static void SV_CloseDownload( client_t *cl );
 
 /*
 =================
+SV_RSA_VerifySignature
+
+Verifies the signature of data and on success it returns the sha256
+fingerprint of the public key.  pubkey, signature, and fingerprint
+are all base 16 encoded strings.
+
+Returns qtrue on success
+=================
+*/
+static qboolean SV_RSA_VerifySignature( const char *pubkey, const char *signature, const char *data, char *fingerprint )
+{
+	struct rsa_public_key public_key;
+	struct sha256_ctx sha256_hash;
+	uint8_t buf[RSA_STRING_LENGTH];
+	int err;
+	mpz_t n;
+
+	if ( !*pubkey || !*signature )
+		return qfalse;
+
+	// load public key
+	rsa_public_key_init( &public_key );
+	mpz_set_ui( public_key.e, RSA_PUBLIC_EXPONENT );
+	err = mpz_set_str( public_key.n, pubkey, 16 );
+	if ( err ) {
+		rsa_public_key_clear( &public_key );
+		return qfalse;
+	}
+
+	err = !rsa_public_key_prepare( &public_key );
+	if ( err ) {
+		rsa_public_key_clear( &public_key );
+		return qfalse;
+	}
+
+	// load signature
+	mpz_init( n );
+	err = mpz_set_str( n, signature, 16 );
+	if ( err ) {
+		mpz_clear( n );
+		rsa_public_key_clear( &public_key );
+		return qfalse;
+	}
+
+	// hash data
+	sha256_init( &sha256_hash );
+	sha256_update( &sha256_hash, strlen(data), (uint8_t *) data);
+
+	if ( !rsa_sha256_verify( &public_key, &sha256_hash, n ) ) {
+		mpz_clear( n );
+		rsa_public_key_clear( &public_key );
+		return qfalse;
+	}
+
+	// VERIFIED, save the sha256 fingerprint of the key
+	nettle_mpz_get_str_256( sizeof(buf), buf, public_key.n );
+
+	sha256_update( &sha256_hash, sizeof(buf), buf );
+	sha256_digest( &sha256_hash, SHA256_DIGEST_SIZE, buf );
+
+	nettle_mpz_set_str_256_u( n, SHA256_DIGEST_SIZE, buf );
+	mpz_get_str( fingerprint, 16, n );
+
+	mpz_clear( n );
+	rsa_public_key_clear( &public_key );
+	return qtrue;
+}
+
+/*
+=================
 SV_GetChallenge
 
 A "getchallenge" OOB command has been received
@@ -60,8 +130,8 @@ void SV_GetChallenge(netadr_t from)
 	int		clientChallenge;
 	challenge_t	*challenge;
 	qboolean wasfound = qfalse;
-	char *gameName;
-	qboolean gameMismatch;
+	byte    buf[16];
+	mpz_t   n;
 
 	// Prevent using getchallenge as an amplifier
 	if ( SVC_RateLimitAddress( from, 10, 1000 ) ) {
@@ -74,18 +144,6 @@ void SV_GetChallenge(netadr_t from)
 	// excess outbound bandwidth usage when being flooded inbound
 	if ( SVC_RateLimit( &outboundLeakyBucket, 10, 100 ) ) {
 		Com_DPrintf( "SV_GetChallenge: rate limit exceeded, dropping request\n" );
-		return;
-	}
-
-	gameName = Cmd_Argv(2);
-
-	gameMismatch = !*gameName || strcmp(gameName, com_gamename->string) != 0;
-
-	// reject client if the gamename string sent by the client doesn't match ours
-	if (gameMismatch)
-	{
-		NET_OutOfBandPrint(NS_SERVER, from, "print\nGame mismatch: This is a %s server\n",
-			com_gamename->string);
 		return;
 	}
 
@@ -127,6 +185,13 @@ void SV_GetChallenge(netadr_t from)
 		challenge->adr = from;
 		challenge->firstTime = svs.time;
 		challenge->connected = qfalse;
+
+		if ( sv_rsaAuth->integer ) {
+			Sys_CryptoRandomBytes( buf, sizeof(buf) );
+			nettle_mpz_init_set_str_256_u( n, sizeof(buf), buf );
+			mpz_get_str( challenge->challenge2, 16, n );
+			mpz_clear( n );
+		}
 	}
 
 	// always generate a new challenge number, so the client cannot circumvent sv_maxping
@@ -134,8 +199,15 @@ void SV_GetChallenge(netadr_t from)
 	challenge->wasrefused = qfalse;
 	challenge->time = svs.time;
 	challenge->pingTime = svs.time;
-	NET_OutOfBandPrint(NS_SERVER, challenge->adr, "challengeResponse %d %d %d",
-			   challenge->challenge, clientChallenge, PROTOCOL_VERSION);
+
+	if ( sv_rsaAuth->integer ) {
+		NET_OutOfBandPrint( NS_SERVER, challenge->adr, "challengeResponse %d %d %d %s",
+            challenge->challenge, clientChallenge, PROTOCOL_VERSION, challenge->challenge2 );
+	}
+	else {
+		NET_OutOfBandPrint( NS_SERVER, challenge->adr, "challengeResponse %d %d %d",
+            challenge->challenge, clientChallenge, PROTOCOL_VERSION );
+	}
 }
 
 /*
@@ -160,14 +232,17 @@ void SV_DirectConnect( netadr_t from ) {
 	intptr_t		denied;
 	int			count;
 	char		*ip;
+	char		*challenge2;
+	qboolean	challenge2Verified = qfalse;
+	char		fingerprint[SHA256_DIGEST_SIZE * 2 + 1];
 
 	Com_DPrintf ("SVC_DirectConnect ()\n");
 	
 	Q_strncpyz( userinfo, Cmd_Argv(1), sizeof(userinfo) );
 
 	version = atoi( Info_ValueForKey( userinfo, "protocol" ) );
-	if ( version != PROTOCOL_VERSION ) {
-		NET_OutOfBandPrint(NS_SERVER, from, "print\nServer uses protocol version %i "
+	if ( version != PROTOCOL_VERSION && version != 70 && version != 69 ) {
+		NET_OutOfBandPrint(NS_SERVER, from, "print\nServer uses either protocol version %i, 70 or 69 "
 					"(yours is %i).\n", PROTOCOL_VERSION, version);
 		Com_DPrintf("    rejected connect from version %i\n", version);
 		return;
@@ -226,6 +301,13 @@ void SV_DirectConnect( netadr_t from ) {
 			return;
 		}
 	
+        if ( sv_rsaAuth->integer ) {
+			challenge2 = Info_ValueForKey( userinfo, "challenge2" );
+			if ( !Q_stricmp( challenge2, svs.challenges[i].challenge2 ) ) {
+				challenge2Verified = qtrue;
+			}
+		}
+
 		challengeptr = &svs.challenges[i];
 		
 		if(challengeptr->wasrefused)
@@ -254,6 +336,23 @@ void SV_DirectConnect( netadr_t from ) {
 
 		Com_Printf("Client %i connecting with %i challenge ping\n", i, ping);
 		challengeptr->connected = qtrue;
+	}
+
+	// ignore any fingerprint set by the client
+	Info_RemoveKey( userinfo, "fingerprint" );
+	fingerprint[0] = '\0';
+
+	if ( sv_rsaAuth->integer && ( NET_IsLocalAddress( from ) || challenge2Verified ) ) {
+		if ( SV_RSA_VerifySignature( Cmd_Argv(2), Cmd_Argv(3), Cmd_Argv(1), fingerprint ) ) {
+			if( strlen( fingerprint ) + strlen( userinfo ) + 13 >= MAX_INFO_STRING ) {
+				NET_OutOfBandPrint( NS_SERVER, from,
+					"print\nUserinfo string length exceeded.  "
+					"Try removing setu cvars from your config.\n" );
+				return;
+			}
+			Info_SetValueForKey( userinfo, "fingerprint", fingerprint );
+			Com_DPrintf( "Public key fingerprint: %s\n", fingerprint );
+		}
 	}
 
 	newcl = &temp;
@@ -292,7 +391,7 @@ void SV_DirectConnect( netadr_t from ) {
 
 	// check for privateClient password
 	password = Info_ValueForKey( userinfo, "password" );
-	if ( !strcmp( password, sv_privatePassword->string ) ) {
+	if ( *password && !strcmp( password, sv_privatePassword->string ) ) {
 		startIndex = 0;
 	} else {
 		// skip past the reserved slots
@@ -333,13 +432,18 @@ gotnewcl:
 	ent = SV_GentityNum( clientNum );
 	newcl->gentity = ent;
 
+	Cvar_Set( va( "sv_clAltProto%i", clientNum ), ( version == 69 ? "2" : version == 70 ? "1" : "0" ) );
+
 	// save the challenge
 	newcl->challenge = challenge;
 
 	// save the address
-	Netchan_Setup(NS_SERVER, &newcl->netchan, from, qport, challenge);
+	Netchan_Setup((version == 69 ? 2 : version == 70 ? 1 : 0), NS_SERVER, &newcl->netchan, from, qport, challenge);
 	// init the netchan queue
 	newcl->netchan_end_queue = &newcl->netchan_start_queue;
+
+	// save the fingerprint
+	Q_strncpyz( newcl->fingerprint, fingerprint, sizeof(newcl->fingerprint) );
 
 	// save the userinfo
 	Q_strncpyz( newcl->userinfo, userinfo, sizeof(newcl->userinfo) );
@@ -471,6 +575,8 @@ void SV_DropClient( client_t *drop, const char *reason ) {
 	}
 }
 
+extern char alternateInfos[2][2][BIG_INFO_STRING];
+
 /*
 ================
 SV_SendClientGameState
@@ -487,6 +593,7 @@ static void SV_SendClientGameState( client_t *client ) {
 	entityState_t	*base, nullstate;
 	msg_t		msg;
 	byte		msgBuffer[MAX_MSGLEN];
+	const char	*configstring;
 
  	Com_DPrintf ("SV_SendClientGameState() for %s\n", client->name);
 	Com_DPrintf( "Going from CS_CONNECTED to CS_PRIMED for %s\n", client->name );
@@ -517,10 +624,16 @@ static void SV_SendClientGameState( client_t *client ) {
 
 	// write the configstrings
 	for ( start = 0 ; start < MAX_CONFIGSTRINGS ; start++ ) {
-		if (sv.configstrings[start].s[0]) {
+		if ( start <= CS_SYSTEMINFO && client->netchan.alternateProtocol != 0 ) {
+			configstring = alternateInfos[start][ client->netchan.alternateProtocol - 1 ];
+		} else {
+			configstring = sv.configstrings[start].s;
+		}
+
+		if (configstring[0]) {
 			MSG_WriteByte( &msg, svc_configstring );
 			MSG_WriteShort( &msg, start );
-			MSG_WriteBigString( &msg, sv.configstrings[start].s );
+			MSG_WriteBigString( &msg, configstring );
 		}
 	}
 
@@ -532,7 +645,7 @@ static void SV_SendClientGameState( client_t *client ) {
 			continue;
 		}
 		MSG_WriteByte( &msg, svc_baseline );
-		MSG_WriteDeltaEntity( &msg, &nullstate, base, qtrue );
+		MSG_WriteDeltaEntity( client->netchan.alternateProtocol, &msg, &nullstate, base, qtrue );
 	}
 
 	MSG_WriteByte( &msg, svc_EOF );
@@ -725,7 +838,7 @@ int SV_WriteDownloadToClient(client_t *cl, msg_t *msg)
 			// Check for pk3 filename extension
 			if(!Q_stricmp(pakptr + 1, "pk3"))
 			{
-				const char *referencedPaks = FS_ReferencedPakNames();
+				const char *referencedPaks = FS_ReferencedPakNames( cl->netchan.alternateProtocol == 2 );
 
 				// Check whether the file appears in the list of referenced
 				// paks to prevent downloading of arbitrary files.
@@ -982,9 +1095,9 @@ static void SV_VerifyPaks_f( client_t *cl ) {
 
 		nChkSum1 = nChkSum2 = 0;
 		// we run the game, so determine which cgame and ui the client "should" be running
-		bGood = (FS_FileIsInPAK("vm/cgame.qvm", &nChkSum1) == 1);
+		bGood = (FS_FileIsInPAK_A(cl->netchan.alternateProtocol == 2, "vm/cgame.qvm", &nChkSum1) == 1);
 		if (bGood)
-			bGood = (FS_FileIsInPAK("vm/ui.qvm", &nChkSum2) == 1);
+			bGood = (FS_FileIsInPAK_A(cl->netchan.alternateProtocol == 2, "vm/ui.qvm", &nChkSum2) == 1);;
 
 		nClientPaks = Cmd_Argc();
 
@@ -1060,7 +1173,7 @@ static void SV_VerifyPaks_f( client_t *cl ) {
 				break;
 
 			// get the pure checksums of the pk3 files loaded by the server
-			pPaks = FS_LoadedPakPureChecksums();
+			pPaks = FS_LoadedPakPureChecksums( cl->netchan.alternateProtocol == 2 );
 			Cmd_TokenizeString( pPaks );
 			nServerPaks = Cmd_Argc();
 			if (nServerPaks > 1024)
@@ -1223,6 +1336,16 @@ void SV_UserinfoChanged( client_t *cl ) {
 	else
 		Info_SetValueForKey( cl->userinfo, "ip", ip );
 
+	val = Info_ValueForKey( cl->userinfo, "fingerprint" );
+	if( val[0] )
+		len = strlen( cl->fingerprint ) - strlen( val ) + strlen( cl->userinfo );
+	else
+		len = strlen( cl->fingerprint ) + 13 + strlen( cl->userinfo );
+
+	if( len >= MAX_INFO_STRING )
+		SV_DropClient( cl, "userinfo string length exceeded" );
+	else
+		Info_SetValueForKey( cl->userinfo, "fingerprint", cl->fingerprint );
 }
 
 
@@ -1319,7 +1442,6 @@ void SV_ExecuteClientCommand( client_t *cl, const char *s, qboolean clientOK ) {
 	if (clientOK) {
 		// pass unknown strings to the game
 		if (!u->name && sv.state == SS_GAME && (cl->state == CS_ACTIVE || cl->state == CS_PRIMED)) {
-			Cmd_Args_Sanitize();
 			VM_Call( gvm, GAME_CLIENT_COMMAND, cl - svs.clients );
 		}
 	}
@@ -1447,7 +1569,7 @@ static void SV_UserMove( client_t *cl, msg_t *msg, qboolean delta ) {
 	// also use the message acknowledge
 	key ^= cl->messageAcknowledge;
 	// also use the last acknowledged server command in the key
-	key ^= MSG_HashKey(cl->reliableCommands[ cl->reliableAcknowledge & (MAX_RELIABLE_COMMANDS-1) ], 32);
+	key ^= MSG_HashKey(cl->netchan.alternateProtocol, cl->reliableCommands[ cl->reliableAcknowledge & (MAX_RELIABLE_COMMANDS-1) ], 32);
 
 	Com_Memset( &nullcmd, 0, sizeof(nullcmd) );
 	oldcmd = &nullcmd;
@@ -1540,7 +1662,8 @@ void SV_UserVoip(client_t *cl, msg_t *msg, qboolean ignoreData)
 {
 	int sender, generation, sequence, frames, packetsize;
 	uint8_t recips[(MAX_CLIENTS + 7) / 8];
-	int flags;
+	int recip1 = 0, recip2 = 0, recip3 = 0; // silence warning
+	int flags = 0;
 	byte encoded[sizeof(cl->voipPacket[0]->data)];
 	client_t *client = NULL;
 	voipServerPacket_t *packet = NULL;
@@ -1550,8 +1673,14 @@ void SV_UserVoip(client_t *cl, msg_t *msg, qboolean ignoreData)
 	generation = MSG_ReadByte(msg);
 	sequence = MSG_ReadLong(msg);
 	frames = MSG_ReadByte(msg);
-	MSG_ReadData(msg, recips, sizeof(recips));
-	flags = MSG_ReadByte(msg);
+	if (cl->netchan.alternateProtocol == 0) {
+		MSG_ReadData(msg, recips, sizeof(recips));
+		flags = MSG_ReadByte(msg);
+	} else {
+		recip1 = MSG_ReadLong(msg);
+		recip2 = MSG_ReadLong(msg);
+		recip3 = MSG_ReadLong(msg);
+	}
 	packetsize = MSG_ReadShort(msg);
 
 	if (msg->readcount > msg->cursize)
@@ -1594,10 +1723,21 @@ void SV_UserVoip(client_t *cl, msg_t *msg, qboolean ignoreData)
 		else if (*cl->downloadName)   // !!! FIXME: possible to DoS?
 			continue;  // no VoIP allowed if downloading, to save bandwidth.
 
-		if(Com_IsVoipTarget(recips, sizeof(recips), i))
+		if (cl->netchan.alternateProtocol == 0) {
+			if(Com_IsVoipTarget(recips, sizeof(recips), i))
+				flags |= VOIP_DIRECT;
+			else
+				flags &= ~VOIP_DIRECT;
+		} else {
+			if (i < 31 && (recip1 & (1 << (i - 0))) == 0)
+				continue;  // not addressed to this player.
+			else if (i >= 31 && i < 62 && (recip2 & (1 << (i - 31))) == 0)
+				continue;  // not addressed to this player.
+			else if (i >= 62 && (recip3 & (1 << (i - 62))) == 0)
+				continue;  // not addressed to this player.
+
 			flags |= VOIP_DIRECT;
-		else
-			flags &= ~VOIP_DIRECT;
+		}
 
 		if (!(flags & (VOIP_SPATIAL | VOIP_DIRECT)))
 			continue;  // not addressed to this player.
@@ -1709,6 +1849,29 @@ void SV_ExecuteClientMessage( client_t *cl, msg_t *msg ) {
 	// read optional clientCommand strings
 	do {
 		c = MSG_ReadByte( msg );
+
+		if ( cl->netchan.alternateProtocol != 0 ) {
+			// See if this is an extension command after the EOF, which means we
+			//  got data that a legacy server should ignore.
+			if ( c == clc_EOF && MSG_LookaheadByte( msg ) == clc_voipSpeex ) {
+				MSG_ReadByte( msg );  // throw the clc_extension byte away.
+				c = MSG_ReadByte( msg );  // something legacy servers can't do!
+				if ( c == clc_voipSpeex + 1 ) {
+					c = clc_voipSpeex;
+				}
+				// sometimes you get a clc_extension at end of stream...dangling
+				//  bits in the huffman decoder giving a bogus value?
+				if ( c == -1 ) {
+					c = clc_EOF;
+				}
+			}
+
+			if ( c == svc_voipSpeex ) {
+				c = svc_voipSpeex + 1;
+			} else if ( c == svc_voipSpeex + 1 ) {
+				c = svc_voipSpeex;
+			}
+		}
 
 		if ( c == clc_EOF ) {
 			break;

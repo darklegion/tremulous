@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "g_local.h"
 
+static qboolean G_RoomForClassChange( gentity_t*, class_t, vec3_t );
+
 /*
 ==================
 G_SanitiseString
@@ -345,7 +347,7 @@ char *ConcatArgsPrintable( int start )
   static char line[ MAX_STRING_CHARS ];
   int         len;
   char        arg[ MAX_STRING_CHARS + 2 ];
-  char        *printArg;
+  const char* printArg;
 
   len = 0;
   c = trap_Argc( );
@@ -379,6 +381,74 @@ char *ConcatArgsPrintable( int start )
   return line;
 }
 
+static void Give_Class( gentity_t *ent, char *s )
+{
+  class_t currentClass = ent->client->pers.classSelection;
+  int clientNum = ent->client - level.clients;
+  vec3_t infestOrigin;
+  vec3_t oldVel;
+  int oldBoostTime = -1;
+  int newClass = BG_ClassByName( s )->number;
+
+  if( newClass == PCL_NONE )
+    return;
+
+  if( !G_RoomForClassChange( ent, newClass, infestOrigin ) )
+  {
+    ADMP("give: not enough room to evolve\n");
+    return;
+  }
+
+  ent->client->pers.evolveHealthFraction 
+      = (float)ent->client->ps.stats[ STAT_HEALTH ] 
+      / (float)BG_Class( currentClass )->health;
+
+  if( ent->client->pers.evolveHealthFraction < 0.0f )
+    ent->client->pers.evolveHealthFraction = 0.0f;
+  else if( ent->client->pers.evolveHealthFraction > 1.0f )
+    ent->client->pers.evolveHealthFraction = 1.0f;
+
+  //remove credit
+  //G_AddCreditToClient( ent->client, -cost, qtrue );
+  ent->client->pers.classSelection = newClass;
+  ClientUserinfoChanged( clientNum, qfalse );
+  VectorCopy( infestOrigin, ent->s.pos.trBase );
+  VectorCopy( ent->client->ps.velocity, oldVel );
+
+  if( ent->client->ps.stats[ STAT_STATE ] & SS_BOOSTED )
+    oldBoostTime = ent->client->boostedTime;
+
+  ClientSpawn( ent, ent, ent->s.pos.trBase, ent->s.apos.trBase );
+
+  VectorCopy( oldVel, ent->client->ps.velocity );
+  if( oldBoostTime > 0 )
+  {
+    ent->client->boostedTime = oldBoostTime;
+    ent->client->ps.stats[ STAT_STATE ] |= SS_BOOSTED;
+  }
+}
+
+static void Give_Gun( gentity_t *ent, char *s )
+{
+  int w = BG_WeaponByName( s )->number;
+
+  if ( w == WP_NONE )
+    return;
+
+  //if( !BG_Weapon( w )->purchasable )
+  //    return;
+
+  ent->client->ps.stats[ STAT_WEAPON ] = w;
+  ent->client->ps.ammo = BG_Weapon( w )->maxAmmo;
+  ent->client->ps.clips = BG_Weapon( w )->maxClips;
+  G_ForceWeaponChange( ent, w );
+}
+
+static void Give_Upgrade( gentity_t *ent, char *s )
+{
+    int u = BG_UpgradeByName( s )->number;
+    BG_AddUpgradeToInventory( u, ent->client->ps.stats );
+}
 
 /*
 ==================
@@ -394,9 +464,13 @@ void Cmd_Give_f( gentity_t *ent )
 
   if( trap_Argc( ) < 2 )
   {
-    ADMP( "usage: give [what]\n" );
-    ADMP( "usage: valid choices are: all, health, funds [amount], stamina, "
-          "poison, gas, ammo\n" );
+    ADMP( "^3give: ^7usage: give [what]\n"
+          "health, funds <amount>, stamina, poison, gas, ammo, " 
+          "^3level0, level1, level1upg, level2, level2upg, level3, level3upg, level4, builder, builderupg, "
+          "human_base, human_bsuit, "
+          "^5blaster, rifle, psaw, shotgun, lgun, mdriver, chaingun, flamer, prifle, grenade, lockblob, "
+          "hive, teslagen, mgturret, abuild, abuildupg, portalgun, proximity, smokecan, "
+          "^2larmour, helmet, medkit, battpak, jetpack, bsuit, gren \n" );
     return;
   }
 
@@ -432,8 +506,36 @@ void Cmd_Give_f( gentity_t *ent )
     G_AddCreditToClient( ent->client, (short)credits, qtrue );
   }
 
+  if( ent->client->ps.stats[ STAT_HEALTH ] <= 0 ||
+      ent->client->sess.spectatorState != SPECTATOR_NOT )
+  {
+    if( !( give_all || Q_stricmpn( name, "funds", 5 ) == 0 ) )
+      G_TriggerMenu( ent-g_entities, MN_CMD_ALIVE );
+    return;
+  }
+
+  if( give_all || Q_stricmp( name, "health" ) == 0 )
+  {
+    if( ent->health < ent->client->ps.stats[ STAT_MAX_HEALTH ] )
+    {
+      ent->health = ent->client->ps.stats[ STAT_MAX_HEALTH ];
+      ent->client->ps.stats[ STAT_HEALTH ] = ent->health;
+    }
+    BG_AddUpgradeToInventory( UP_MEDKIT, ent->client->ps.stats );
+  }
+
   if( give_all || Q_stricmp( name, "stamina" ) == 0 )
     ent->client->ps.stats[ STAT_STAMINA ] = STAMINA_MAX;
+
+  // Adding guns
+  Give_Gun(ent, name);
+
+  // Adding upgrades
+  Give_Upgrade( ent, name);
+
+  // Change class- this allows you to be any alien class on TEAM_HUMAN and the
+  // otherway round.
+  Give_Class(ent, name);
 
   if( Q_stricmp( name, "poison" ) == 0 )
   {
@@ -454,8 +556,7 @@ void Cmd_Give_f( gentity_t *ent )
   {
     ent->client->ps.eFlags |= EF_POISONCLOUDED;
     ent->client->lastPoisonCloudedTime = level.time;
-    trap_SendServerCommand( ent->client->ps.clientNum,
-                              "poisoncloud" );
+    trap_SendServerCommand( ent->client->ps.clientNum, "poisoncloud" );
   }
 
   if( give_all || Q_stricmp( name, "ammo" ) == 0 )
@@ -473,6 +574,45 @@ void Cmd_Give_f( gentity_t *ent )
         BG_InventoryContainsUpgrade( UP_BATTPACK, client->ps.stats ) )
       client->ps.ammo = (int)( (float)client->ps.ammo * BATTPACK_MODIFIER );
   }
+}
+
+/*
+Cmd_Drop_f
+Drop a weapon onto the ground
+*/
+void Cmd_Drop_f( gentity_t *ent )
+{
+  char t[ MAX_TOKEN_CHARS ];
+  char angle[ MAX_TOKEN_CHARS ];
+  float ang = 0.0f;
+  int i;
+
+  if( trap_Argc( ) < 2 )
+  {
+      ADMP("^3drop: ^7usage: drop <weapon> [angle]\n");
+      return;
+  }
+
+  trap_Argv( 1, t, sizeof(t) );
+
+  if ( trap_Argc() > 2 )
+  {
+    trap_Argv( 2, angle, sizeof(angle) );
+    ang = atof( angle );
+  }
+
+  switch ((i = BG_WeaponByName( t )->number))
+  {
+    case WP_NONE:
+      ADMP("^3drop: ^7usage: drop <weapon> [angle]\n");
+      break;
+
+    default:
+      G_DropWeapon( ent, i, ang );
+      break;
+  };
+
+
 }
 
 
@@ -536,11 +676,21 @@ void Cmd_Noclip_f( gentity_t *ent )
   char  *msg;
 
   if( ent->client->noclip )
+  {
     msg = "noclip OFF\n";
+    ent->r.contents = ent->client->cliprcontents;
+  }
   else
+  {
     msg = "noclip ON\n";
+    ent->client->cliprcontents = ent->r.contents;
+    ent->r.contents = 0;
+  }
 
   ent->client->noclip = !ent->client->noclip;
+
+  if( ent->r.linked )
+    trap_LinkEntity( ent );
 
   trap_SendServerCommand( ent - g_entities, va( "print \"%s\"", msg ) );
 }
@@ -616,7 +766,7 @@ void Cmd_Team_f( gentity_t *ent )
 
   // stop switching teams for gameplay exploit reasons by enforcing a long
   // wait before they can come back
-  if( !force && !g_cheats.integer && ent->client->pers.aliveSeconds && 
+  if( !force && !g_cheats.integer && ent->client->pers.secondsAlive &&
       level.time - ent->client->pers.teamChangeTime < 30000 )
   {
     trap_SendServerCommand( ent-g_entities,
@@ -875,6 +1025,9 @@ static qboolean G_SayTo( gentity_t *ent, gentity_t *other, saymode_t mode, const
   if( other->client->pers.connected != CON_CONNECTED )
     return qfalse;
 
+  if( Com_ClientListContains( &other->client->sess.ignoreList, (int)( ent - g_entities ) ) )
+    return qfalse;
+
   if( ( ent && !OnSameTeam( ent, other ) ) &&
       ( mode == SAY_TEAM || mode == SAY_AREA || mode == SAY_TPRIVMSG ) )
   {
@@ -921,13 +1074,13 @@ void G_Say( gentity_t *ent, saymode_t mode, const char *chatText )
     case SAY_TEAM:
       // console say_team is handled in g_svscmds, not here
       if( !ent || !ent->client )
-        Com_Error( ERR_FATAL, "SAY_TEAM by non-client entity\n" );
+        Com_Error( ERR_FATAL, "SAY_TEAM by non-client entity" );
       G_LogPrintf( "SayTeam: %d \"%s" S_COLOR_WHITE "\": " S_COLOR_CYAN "%s\n",
         (int)( ent - g_entities ), ent->client->pers.netname, chatText );
       break;
     case SAY_RAW:
       if( ent )
-        Com_Error( ERR_FATAL, "SAY_RAW by client entity\n" );
+        Com_Error( ERR_FATAL, "SAY_RAW by client entity" );
       G_LogPrintf( "Chat: -1 \"console\": %s\n", chatText );
     default:
       break;
@@ -970,8 +1123,8 @@ static void Cmd_SayArea_f( gentity_t *ent )
   G_LogPrintf( "SayArea: %d \"%s" S_COLOR_WHITE "\": " S_COLOR_BLUE "%s\n",
     (int)( ent - g_entities ), ent->client->pers.netname, msg );
 
-  VectorAdd( ent->s.origin, range, maxs );
-  VectorSubtract( ent->s.origin, range, mins );
+  VectorAdd( ent->r.currentOrigin, range, maxs );
+  VectorSubtract( ent->r.currentOrigin, range, mins );
 
   num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
   for( i = 0; i < num; i++ )
@@ -1033,7 +1186,7 @@ void Cmd_VSay_f( gentity_t *ent )
   weapon_t        weapon;
 
   if( !ent || !ent->client )
-    Com_Error( ERR_FATAL, "Cmd_VSay_f() called by non-client entity\n" );
+    Com_Error( ERR_FATAL, "Cmd_VSay_f() called by non-client entity" );
 
   trap_Argv( 0, arg, sizeof( arg ) );
   if( trap_Argc( ) < 2 )
@@ -1145,8 +1298,8 @@ void Cmd_Where_f( gentity_t *ent )
     return;
   trap_SendServerCommand( ent - g_entities,
                           va( "print \"origin: %f %f %f\n\"",
-                              ent->s.origin[ 0 ], ent->s.origin[ 1 ],
-                              ent->s.origin[ 2 ] ) );
+                              ent->r.currentOrigin[ 0 ], ent->r.currentOrigin[ 1 ],
+                              ent->r.currentOrigin[ 2 ] ) );
 }
 
 /*
@@ -1158,7 +1311,8 @@ void Cmd_CallVote_f( gentity_t *ent )
 {
   char   cmd[ MAX_TOKEN_CHARS ],
          vote[ MAX_TOKEN_CHARS ],
-         arg[ MAX_TOKEN_CHARS ];
+         arg[ MAX_TOKEN_CHARS ],
+         extra[ MAX_TOKEN_CHARS ];
   char   name[ MAX_NAME_LENGTH ] = "";
   char   caller[ MAX_NAME_LENGTH ] = "";
   char   reason[ MAX_TOKEN_CHARS ];
@@ -1170,6 +1324,7 @@ void Cmd_CallVote_f( gentity_t *ent )
   trap_Argv( 0, cmd, sizeof( cmd ) );
   trap_Argv( 1, vote, sizeof( vote ) );
   trap_Argv( 2, arg, sizeof( arg ) );
+  trap_Argv( 3, extra, sizeof( extra ) );
   creason = ConcatArgs( 3 );
   G_DecolorString( creason, reason, sizeof( reason ) );
 
@@ -1189,6 +1344,15 @@ void Cmd_CallVote_f( gentity_t *ent )
   {
     trap_SendServerCommand( ent-g_entities,
       va( "print \"%s: a vote is already in progress\n\"", cmd ) );
+    return;
+  }
+
+  // protect against the dreaded exploit of '\n'-interpretation inside quotes
+  if( strchr( arg, '\n' ) || strchr( arg, '\r' ) ||
+      strchr( extra, '\n' ) || strchr( extra, '\r' ) ||
+      strchr( creason, '\n' ) || strchr( creason, '\r' ) )
+  {
+    trap_SendServerCommand( ent-g_entities, "print \"Invalid vote string\n\"" );
     return;
   }
 
@@ -1328,8 +1492,24 @@ void Cmd_CallVote_f( gentity_t *ent )
     }
     else if( !Q_stricmp( vote, "map_restart" ) )
     {
-      strcpy( level.voteString[ team ], vote );
-      strcpy( level.voteDisplayString[ team ], "Restart current map" );
+      if( arg[ 0 ] )
+      {
+        char map[ MAX_QPATH ];
+        trap_Cvar_VariableStringBuffer( "mapname", map, sizeof( map ) );
+
+        if( !G_LayoutExists( map, arg ) )
+        {
+          trap_SendServerCommand( ent-g_entities,
+            va( "print \"%s: layout '%s' does not exist for map '%s'\n\"",
+              cmd, arg, map ) );
+          return;
+        }
+      }
+
+      Com_sprintf( level.voteDisplayString[ team ], sizeof( level.voteDisplayString[ team ] ),
+        "Restart the current map%s", arg[ 0 ] ? va( " with layout '%s'", arg ) : "" );
+      Com_sprintf( level.voteString[ team ], sizeof( level.voteString[ team ] ),
+        "set g_nextMap \"\" ; set g_nextLayout \"%s\" ; %s", arg, vote );
       // map_restart comes with a default delay
     }
     else if( !Q_stricmp( vote, "map" ) )
@@ -1342,20 +1522,29 @@ void Cmd_CallVote_f( gentity_t *ent )
         return;
       }
 
-      Com_sprintf( level.voteString[ team ], sizeof( level.voteString ),
-        "%s \"%s\"", vote, arg );
-      Com_sprintf( level.voteDisplayString[ team ],
-        sizeof( level.voteDisplayString[ team ] ),
-        "Change to map '%s'", arg );
+      if( extra[ 0 ] && !G_LayoutExists( arg, extra ) )
+      {
+        trap_SendServerCommand( ent-g_entities,
+          va( "print \"%s: layout '%s' does not exist for map '%s'\n\"",
+            cmd, extra, arg ) );
+        return;
+      }
+
+      Com_sprintf( level.voteString[ team ], sizeof( level.voteString[ team ] ),
+        "set g_nextMap \"\" ; set g_nextLayout \"%s\" ; %s \"%s\"", extra, vote, arg );
+      Com_sprintf( level.voteDisplayString[ team ], sizeof( level.voteDisplayString[ team ] ),
+        "Change to map '%s'%s", arg, extra[ 0 ] ? va( " with layout '%s'", extra ) : "" );
       level.voteDelay[ team ] = 3000;
     }
     else if( !Q_stricmp( vote, "nextmap" ) )
     {
-      if( G_MapExists( g_nextMap.string ) )
+      if( G_MapExists( g_nextMap.string ) &&
+          ( !g_nextLayout.string[ 0 ] || G_LayoutExists( g_nextMap.string, g_nextLayout.string ) ) )
       {
         trap_SendServerCommand( ent-g_entities,
-          va( "print \"%s: the next map is already set to '%s'\n\"",
-            cmd, g_nextMap.string ) );
+          va( "print \"%s: the next map is already set to '%s'%s\n\"",
+            cmd, g_nextMap.string,
+            g_nextLayout.string[ 0 ] ? va( " with layout '%s'", g_nextLayout.string ) : "" ) );
         return;
       }
 
@@ -1367,11 +1556,18 @@ void Cmd_CallVote_f( gentity_t *ent )
         return;
       }
 
+      if( extra[ 0 ] && !G_LayoutExists( arg, extra ) )
+      {
+        trap_SendServerCommand( ent-g_entities,
+          va( "print \"%s: layout '%s' does not exist for map '%s'\n\"",
+            cmd, extra, arg ) );
+        return;
+      }
+
       Com_sprintf( level.voteString[ team ], sizeof( level.voteString[ team ] ),
-        "set g_nextMap \"%s\"", arg );
-      Com_sprintf( level.voteDisplayString[ team ],
-        sizeof( level.voteDisplayString[ team ] ),
-        "Set the next map to '%s'", arg );
+        "set g_nextMap \"%s\" ; set g_nextLayout \"%s\"", arg, extra );
+      Com_sprintf( level.voteDisplayString[ team ], sizeof( level.voteDisplayString[ team ] ),
+        "Set the next map to '%s'%s", arg, extra[ 0 ] ? va( " with layout '%s'", extra ) : "" );
     }
     else if( !Q_stricmp( vote, "draw" ) )
     {
@@ -1570,24 +1766,32 @@ void Cmd_SetViewpos_f( gentity_t *ent )
   char    buffer[ MAX_TOKEN_CHARS ];
   int     i;
 
-  if( trap_Argc( ) != 5 )
+  if( trap_Argc( ) < 4 )
   {
-    trap_SendServerCommand( ent-g_entities, "print \"usage: setviewpos x y z yaw\n\"" );
+    trap_SendServerCommand( ent-g_entities, "print \"usage: setviewpos <x> <y> <z> [<yaw> [<pitch>]]\n\"" );
     return;
   }
-
-  VectorClear( angles );
 
   for( i = 0; i < 3; i++ )
   {
     trap_Argv( i + 1, buffer, sizeof( buffer ) );
     origin[ i ] = atof( buffer );
   }
+  origin[ 2 ] -= ent->client->ps.viewheight;
 
-  trap_Argv( 4, buffer, sizeof( buffer ) );
-  angles[ YAW ] = atof( buffer );
+  VectorCopy( ent->client->ps.viewangles, angles );
+  angles[ ROLL ] = 0;
 
-  TeleportPlayer( ent, origin, angles );
+  if( trap_Argc() >= 5 ) {
+    trap_Argv( 4, buffer, sizeof( buffer ) );
+    angles[ YAW ] = atof( buffer );
+    if( trap_Argc() >= 6 ) {
+      trap_Argv( 5, buffer, sizeof( buffer ) );
+      angles[ PITCH ] = atof( buffer );
+    }
+  }
+
+  TeleportPlayer( ent, origin, angles, 0.0f );
 }
 
 #define AS_OVER_RT3         ((ALIENSENSE_RANGE*0.5f)/M_ROOT3)
@@ -1630,6 +1834,9 @@ static qboolean G_RoomForClassChange( gentity_t *ent, class_t class,
 
   // find what the new origin would be on a level surface
   newOrigin[ 2 ] -= toMins[ 2 ] - fromMins[ 2 ];
+
+  if( ent->client->noclip )
+    return qtrue;
 
   //compute a place up in the air to start the real trace
   VectorCopy( newOrigin, temp );
@@ -1784,7 +1991,6 @@ void Cmd_Class_f( gentity_t *ent )
         return;
       }
 
-      //guard against selling the HBUILD weapons exploit
       if( ent->client->sess.spectatorState == SPECTATOR_NOT &&
           ( currentClass == PCL_ALIEN_BUILDER0 ||
             currentClass == PCL_ALIEN_BUILDER0_UPG ) &&
@@ -1957,6 +2163,7 @@ void Cmd_Destroy_f( gentity_t *ent )
         }
         G_Damage( traceEnt, ent, ent, forward, tr.endpos,
                   traceEnt->health, 0, MOD_DECONSTRUCT );
+        G_RemoveRangeMarkerFrom( traceEnt );
         G_FreeEntity( traceEnt );
       }
     }
@@ -2408,6 +2615,7 @@ void Cmd_Build_f( gentity_t *ent )
   buildable_t   buildable;
   float         dist;
   vec3_t        origin, normal;
+  int           groundEntNum;
   team_t        team;
 
   if( ent->client->pers.namelog->denyBuild )
@@ -2425,6 +2633,16 @@ void Cmd_Build_f( gentity_t *ent )
   trap_Argv( 1, s, sizeof( s ) );
 
   buildable = BG_BuildableByName( s )->number;
+  team = ent->client->ps.stats[ STAT_TEAM ];
+
+  if( buildable == BA_NONE || !BG_BuildableIsAllowed( buildable ) ||
+      !( ( 1 << ent->client->ps.weapon ) & BG_Buildable( buildable )->buildWeapon ) ||
+      ( team == TEAM_ALIENS && !BG_BuildableAllowedInStage( buildable, g_alienStage.integer ) ) ||
+      ( team == TEAM_HUMANS && !BG_BuildableAllowedInStage( buildable, g_humanStage.integer ) ) )
+  {
+    G_TriggerMenu( ent->client->ps.clientNum, MN_B_CANNOT );
+    return;
+  }
 
   if( G_TimeTilSuddenDeath( ) <= 0 )
   {
@@ -2432,21 +2650,15 @@ void Cmd_Build_f( gentity_t *ent )
     return;
   }
 
-  team = ent->client->ps.stats[ STAT_TEAM ];
+  ent->client->ps.stats[ STAT_BUILDABLE ] = buildable;
 
-  if( buildable != BA_NONE &&
-      ( ( 1 << ent->client->ps.weapon ) & BG_Buildable( buildable )->buildWeapon ) &&
-      BG_BuildableIsAllowed( buildable ) &&
-      ( ( team == TEAM_ALIENS && BG_BuildableAllowedInStage( buildable, g_alienStage.integer ) ) ||
-        ( team == TEAM_HUMANS && BG_BuildableAllowedInStage( buildable, g_humanStage.integer ) ) ) )
+  if( 1 )
   {
     dynMenu_t err;
     dist = BG_Class( ent->client->ps.stats[ STAT_CLASS ] )->buildDist;
 
-    ent->client->ps.stats[ STAT_BUILDABLE ] = BA_NONE;
-
     //these are the errors displayed when the builder first selects something to use
-    switch( G_CanBuild( ent, buildable, dist, origin, normal ) )
+    switch( G_CanBuild( ent, buildable, dist, origin, normal, &groundEntNum ) )
     {
       // can place right away, set the blueprint and the valid togglebit
       case IBE_NONE:
@@ -2455,15 +2667,26 @@ void Cmd_Build_f( gentity_t *ent )
       case IBE_RPTPOWERHERE:
       case IBE_SPWNWARN:
         err = MN_NONE;
-        // we OR-in the selected builable later
-        ent->client->ps.stats[ STAT_BUILDABLE ] = SB_VALID_TOGGLEBIT;
+        ent->client->ps.stats[ STAT_BUILDABLE ] |= SB_VALID_TOGGLEBIT;
         break;
 
       // can't place yet but maybe soon: start with valid togglebit off
       case IBE_NORMAL:
+        err = MN_B_NORMAL;
+        break;
+
       case IBE_NOCREEP:
+        err = MN_A_NOCREEP;
+        break;
+
       case IBE_NOROOM:
+        err = MN_B_NOROOM;
+        break;
+
       case IBE_NOOVERMIND:
+        err = MN_A_NOOVMND;
+        break;
+
       case IBE_NOPOWERHERE:
         err = MN_NONE;
         break;
@@ -2490,7 +2713,7 @@ void Cmd_Build_f( gentity_t *ent )
         break;
 
       case IBE_PERMISSION:
-        err = MN_B_CANNOT;
+        err = MN_B_NORMAL;
         break;
 
       case IBE_LASTSPAWN:
@@ -2608,6 +2831,16 @@ void G_StopFollowing( gentity_t *ent )
   ent->client->ps.viewangles[ PITCH ] = 0.0f;
   ent->client->ps.clientNum = ent - g_entities;
   ent->client->ps.persistant[ PERS_CREDIT ] = ent->client->pers.credit;
+
+  if( ent->client->pers.teamSelection == TEAM_NONE )
+  {
+    vec3_t viewOrigin, angles;
+
+    BG_GetClientViewOrigin( &ent->client->ps, viewOrigin );
+    VectorCopy( ent->client->ps.viewangles, angles );
+    angles[ ROLL ] = 0;
+    TeleportPlayer( ent, viewOrigin, angles, qfalse );
+  }
 
   CalculateRanks( );
 }
@@ -2991,6 +3224,120 @@ void Cmd_ListMaps_f( gentity_t *ent )
 
 /*
 =================
+Cmd_ListVoices_f
+=================
+*/
+void Cmd_ListVoices_f( gentity_t *ent )
+{
+  if ( !level.voices ) {
+    ADMP( "^3listvoices: ^7voice system is not installed on this server\n" );
+    return;
+  }
+
+  if ( !g_voiceChats.integer ) {
+    ADMP( "^3listvoices: ^7voice system administratively disabled on this server\n" );
+    return;
+  }
+
+  if ( trap_Argc() < 2 )
+  {
+    voice_t *v;
+    int i = 0;
+
+    ADMBP_begin();
+    for( v = level.voices; v; v = v->next )
+    {
+      ADMBP(va("%d - %s\n", i+1, v->name));
+      i++;
+    }
+    ADMBP(va("^3listvoices: ^7showing %d voices\n", i));
+    ADMBP("^3listvoices: ^7run 'listvoices <voice>' to see available commands.\n");
+    ADMBP_end();
+    return;
+  }
+  else if ( trap_Argc() >= 2 )
+  {
+    voice_t *v;
+    voiceCmd_t *c;
+    int i = 0;
+
+    char name[ MAX_VOICE_NAME_LEN ];
+    trap_Argv(1, name, sizeof(name));
+
+    v = BG_VoiceByName(level.voices, name);
+    if ( !v )
+    {
+      ADMP(va("^3listvoices: ^7no matching voice \"%s\"\n", name));
+      return;
+    }
+
+    ADMBP_begin();
+    for ( c = v->cmds; c; c = c->next )
+    {
+      ADMBP(va("%d - %s\n", i+1, c->cmd));
+      i++;
+    }
+    ADMBP(va("^3listvoices: ^7showing %d voice commands for %s\n", i, v->name));
+    ADMBP_end();
+  }
+}
+
+/*
+=================
+Cmd_ListModels_f
+
+List all the available player models installed on the server.
+=================
+*/
+void Cmd_ListModels_f( gentity_t *ent )
+{
+    int i;
+
+    ADMBP_begin();
+    for (i = 0; i < level.playerModelCount; i++)
+    {
+        ADMBP(va("%d - %s\n", i+1, level.playerModel[i]));
+    }
+    ADMBP(va("^3listmodels: ^7showing %d player models\n", level.playerModelCount));
+    ADMBP_end();
+
+}
+
+/*
+=================
+Cmd_ListSkins_f
+=================
+*/
+void Cmd_ListSkins_f( gentity_t *ent )
+{
+    char modelname[ 64 ];
+    char skins[ MAX_PLAYER_MODEL ][ 64 ];
+    int numskins;
+    int i;
+
+    if ( trap_Argc() < 2 )
+    {
+        ADMP("^3listskins: ^7usage: listskins <model>\n");
+        return;
+    }
+
+    trap_Argv(1, modelname, sizeof(modelname));
+
+    G_GetPlayerModelSkins(modelname, skins, MAX_PLAYER_MODEL, &numskins);
+
+    ADMBP_begin();
+    for (i = 0; i < numskins; i++)
+    {
+        ADMBP(va("%d - %s\n", i+1, skins[i]));
+    }
+    ADMBP(va("^3listskins: ^7default skin ^2%s\n", GetSkin(modelname, "default")));
+    ADMBP(va("^3listskins: ^7showing %d skins for %s\n", numskins, modelname));
+    ADMBP_end();
+}
+
+
+/*
+=================
 Cmd_Test_f
 =================
 */
@@ -3029,7 +3376,7 @@ void Cmd_Damage_f( gentity_t *ent )
     dz = atof( arg );
     nonloc = qfalse;
   }
-  VectorCopy( ent->s.origin, point );
+  VectorCopy( ent->r.currentOrigin, point );
   point[ 0 ] += dx;
   point[ 1 ] += dy;
   point[ 2 ] += dz;
@@ -3075,36 +3422,39 @@ int G_FloodLimited( gentity_t *ent )
 
 commands_t cmds[ ] = {
   { "a", CMD_MESSAGE|CMD_INTERMISSION, Cmd_AdminMessage_f },
-  { "build", CMD_TEAM|CMD_LIVING, Cmd_Build_f },
-  { "buy", CMD_HUMAN|CMD_LIVING, Cmd_Buy_f },
+  { "build", CMD_TEAM|CMD_ALIVE, Cmd_Build_f },
+  { "buy", CMD_HUMAN|CMD_ALIVE, Cmd_Buy_f },
   { "callteamvote", CMD_MESSAGE|CMD_TEAM, Cmd_CallVote_f },
   { "callvote", CMD_MESSAGE, Cmd_CallVote_f },
   { "class", CMD_TEAM, Cmd_Class_f },
-  { "damage", CMD_CHEAT|CMD_LIVING, Cmd_Damage_f },
-  { "deconstruct", CMD_TEAM|CMD_LIVING, Cmd_Destroy_f },
-  { "destroy", CMD_CHEAT|CMD_TEAM|CMD_LIVING, Cmd_Destroy_f },
+  { "damage", CMD_CHEAT|CMD_ALIVE, Cmd_Damage_f },
+  { "deconstruct", CMD_TEAM|CMD_ALIVE, Cmd_Destroy_f },
+  { "destroy", CMD_CHEAT|CMD_TEAM|CMD_ALIVE, Cmd_Destroy_f },
+  { "drop", CMD_HUMAN|CMD_CHEAT, Cmd_Drop_f },
   { "follow", CMD_SPEC, Cmd_Follow_f },
   { "follownext", CMD_SPEC, Cmd_FollowCycle_f },
   { "followprev", CMD_SPEC, Cmd_FollowCycle_f },
-  { "give", CMD_CHEAT|CMD_TEAM|CMD_LIVING, Cmd_Give_f },
-  { "god", CMD_CHEAT|CMD_TEAM|CMD_LIVING, Cmd_God_f },
+  { "give", CMD_CHEAT|CMD_TEAM, Cmd_Give_f },
+  { "god", CMD_CHEAT, Cmd_God_f },
   { "ignore", 0, Cmd_Ignore_f },
-  { "itemact", CMD_HUMAN|CMD_LIVING, Cmd_ActivateItem_f },
-  { "itemdeact", CMD_HUMAN|CMD_LIVING, Cmd_DeActivateItem_f },
-  { "itemtoggle", CMD_HUMAN|CMD_LIVING, Cmd_ToggleItem_f },
-  { "kill", CMD_TEAM|CMD_LIVING, Cmd_Kill_f },
-  { "levelshot", CMD_CHEAT, Cmd_LevelShot_f },
+  { "itemact", CMD_HUMAN|CMD_ALIVE, Cmd_ActivateItem_f },
+  { "itemdeact", CMD_HUMAN|CMD_ALIVE, Cmd_DeActivateItem_f },
+  { "itemtoggle", CMD_HUMAN|CMD_ALIVE, Cmd_ToggleItem_f },
+  { "kill", CMD_TEAM|CMD_ALIVE, Cmd_Kill_f },
   { "listmaps", CMD_MESSAGE|CMD_INTERMISSION, Cmd_ListMaps_f },
+  { "listmodels", CMD_MESSAGE|CMD_INTERMISSION, Cmd_ListModels_f },
+  { "listskins", CMD_MESSAGE|CMD_INTERMISSION, Cmd_ListSkins_f },
+  { "listvoices", CMD_MESSAGE|CMD_INTERMISSION, Cmd_ListVoices_f },
   { "m", CMD_MESSAGE|CMD_INTERMISSION, Cmd_PrivateMessage_f },
   { "mt", CMD_MESSAGE|CMD_INTERMISSION, Cmd_PrivateMessage_f },
   { "noclip", CMD_CHEAT_TEAM, Cmd_Noclip_f },
-  { "notarget", CMD_CHEAT|CMD_TEAM|CMD_LIVING, Cmd_Notarget_f },
-  { "reload", CMD_HUMAN|CMD_LIVING, Cmd_Reload_f },
+  { "notarget", CMD_CHEAT|CMD_TEAM|CMD_ALIVE, Cmd_Notarget_f },
+  { "reload", CMD_HUMAN|CMD_ALIVE, Cmd_Reload_f },
   { "say", CMD_MESSAGE|CMD_INTERMISSION, Cmd_Say_f },
-  { "say_area", CMD_MESSAGE|CMD_TEAM|CMD_LIVING, Cmd_SayArea_f },
+  { "say_area", CMD_MESSAGE|CMD_TEAM|CMD_ALIVE, Cmd_SayArea_f },
   { "say_team", CMD_MESSAGE|CMD_INTERMISSION, Cmd_Say_f },
   { "score", CMD_INTERMISSION, ScoreboardMessage },
-  { "sell", CMD_HUMAN|CMD_LIVING, Cmd_Sell_f },
+  { "sell", CMD_HUMAN|CMD_ALIVE, Cmd_Sell_f },
   { "setviewpos", CMD_CHEAT_TEAM, Cmd_SetViewpos_f },
   { "team", 0, Cmd_Team_f },
   { "teamvote", CMD_TEAM, Cmd_Vote_f },
@@ -3196,11 +3546,11 @@ void ClientCommand( int clientNum )
     return;
   }
 
-  if( command->cmdFlags & CMD_LIVING &&
+  if( command->cmdFlags & CMD_ALIVE &&
     ( ent->client->ps.stats[ STAT_HEALTH ] <= 0 ||
       ent->client->sess.spectatorState != SPECTATOR_NOT ) )
   {
-    G_TriggerMenu( clientNum, MN_CMD_LIVING );
+    G_TriggerMenu( clientNum, MN_CMD_ALIVE );
     return;
   }
 
@@ -3236,7 +3586,7 @@ void G_ListCommands( gentity_t *ent )
   G_admin_cmdlist( ent );
 }
 
-void G_DecolorString( char *in, char *out, int len )
+void G_DecolorString( const char *in, char *out, int len )
 {
   qboolean decolor = qtrue;
 

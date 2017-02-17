@@ -187,7 +187,7 @@ static void UI_Me_f( void )
 
   UI_ConcatArgs( 1, buf, sizeof( buf ) );
 
-  trap_Cmd_ExecuteText( EXEC_APPEND, va( "say \"/me %s\"", buf ) );
+  trap_Cmd_ExecuteText( EXEC_APPEND, va( "say \"/me %s\"\n", buf ) );
 }
 
 struct uicmd

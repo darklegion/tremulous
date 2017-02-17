@@ -197,7 +197,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace )
       if( VectorLength( velocity ) == 0 )
         velocity[ 2 ] = 1;  // stepped on a grenade
 
-      G_Damage( other, ent, attacker, velocity, ent->s.origin, ent->damage,
+      G_Damage( other, ent, attacker, velocity, ent->r.currentOrigin, ent->damage,
         DAMAGE_NO_LOCDAMAGE, ent->methodOfDeath );
     }
   }
@@ -349,7 +349,6 @@ gentity_t *fire_flamer( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->nextthink = level.time + FLAMER_LIFETIME;
   bolt->think = G_ExplodeMissile;
   bolt->s.eType = ET_MISSILE;
-  bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
   bolt->s.weapon = WP_FLAMER;
   bolt->s.generic1 = self->s.generic1; //weaponMode
   bolt->r.ownerNum = self->s.number;
@@ -396,7 +395,6 @@ gentity_t *fire_blaster( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->nextthink = level.time + 10000;
   bolt->think = G_ExplodeMissile;
   bolt->s.eType = ET_MISSILE;
-  bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
   bolt->s.weapon = WP_BLASTER;
   bolt->s.generic1 = self->s.generic1; //weaponMode
   bolt->r.ownerNum = self->s.number;
@@ -442,7 +440,6 @@ gentity_t *fire_pulseRifle( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->nextthink = level.time + 10000;
   bolt->think = G_ExplodeMissile;
   bolt->s.eType = ET_MISSILE;
-  bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
   bolt->s.weapon = WP_PULSE_RIFLE;
   bolt->s.generic1 = self->s.generic1; //weaponMode
   bolt->r.ownerNum = self->s.number;
@@ -495,7 +492,6 @@ gentity_t *fire_luciferCannon( gentity_t *self, vec3_t start, vec3_t dir,
 
   bolt->think = G_ExplodeMissile;
   bolt->s.eType = ET_MISSILE;
-  bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
   bolt->s.weapon = WP_LUCIFER_CANNON;
   bolt->s.generic1 = self->s.generic1; //weaponMode
   bolt->r.ownerNum = self->s.number;
@@ -549,7 +545,6 @@ gentity_t *launch_grenade( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->nextthink = level.time + 5000;
   bolt->think = G_ExplodeMissile;
   bolt->s.eType = ET_MISSILE;
-  bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
   bolt->s.weapon = WP_GRENADE;
   bolt->s.eFlags = EF_BOUNCE_HALF;
   bolt->s.generic1 = WPM_PRIMARY; //weaponMode
@@ -595,6 +590,9 @@ void AHive_SearchAndDestroy( gentity_t *self )
   int       i;
   float     d, nearest;
 
+  if( self->parent && !self->parent->inuse )
+    self->parent = NULL;
+
   if( level.time > self->timestamp )
   {
     VectorCopy( self->r.currentOrigin, self->s.pos.trBase );
@@ -603,11 +601,20 @@ void AHive_SearchAndDestroy( gentity_t *self )
 
     self->think = G_ExplodeMissile;
     self->nextthink = level.time + 50;
-    self->parent->active = qfalse; //allow the parent to start again
+    if( self->parent )
+      self->parent->active = qfalse; //allow the parent to start again
     return;
   }
 
-  nearest = DistanceSquared( self->r.currentOrigin, self->target_ent->r.currentOrigin );
+  ent = self->target_ent;
+  if( ent && ent->health > 0 && ent->client && ent->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS )
+    nearest = DistanceSquared( self->r.currentOrigin, ent->r.currentOrigin );
+  else
+  {
+    self->target_ent = NULL;
+    nearest = 0; // silence warning
+  }
+
   //find the closest human
   for( i = 0; i < MAX_CLIENTS; i++ )
   {
@@ -619,7 +626,8 @@ void AHive_SearchAndDestroy( gentity_t *self )
     if( ent->client &&
         ent->health > 0 &&   
         ent->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS &&
-        nearest > (d = DistanceSquared( ent->r.currentOrigin, self->r.currentOrigin ) ) )
+        ( d = DistanceSquared( ent->r.currentOrigin, self->r.currentOrigin ),
+          ( self->target_ent == NULL || d < nearest ) ) )
     {
       trap_Trace( &tr, self->r.currentOrigin, self->r.mins, self->r.maxs,
                   ent->r.currentOrigin, self->r.ownerNum, self->clipmask );
@@ -630,8 +638,14 @@ void AHive_SearchAndDestroy( gentity_t *self )
       }
     }
   }
+
+  if( self->target_ent == NULL )
+    VectorClear( dir );
+  else
+  {
     VectorSubtract( self->target_ent->r.currentOrigin, self->r.currentOrigin, dir );
     VectorNormalize( dir );
+  }
 
     //change direction towards the player
     VectorScale( dir, HIVE_SPEED, self->s.pos.trDelta );
@@ -660,7 +674,6 @@ gentity_t *fire_hive( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->think = AHive_SearchAndDestroy;
   bolt->s.eType = ET_MISSILE;
   bolt->s.eFlags |= EF_BOUNCE | EF_NO_BOUNCE_SOUND;
-  bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
   bolt->s.weapon = WP_HIVE;
   bolt->s.generic1 = WPM_PRIMARY; //weaponMode
   bolt->r.ownerNum = self->s.number;
@@ -702,7 +715,6 @@ gentity_t *fire_lockblob( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->nextthink = level.time + 15000;
   bolt->think = G_ExplodeMissile;
   bolt->s.eType = ET_MISSILE;
-  bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
   bolt->s.weapon = WP_LOCKBLOB_LAUNCHER;
   bolt->s.generic1 = WPM_PRIMARY; //weaponMode
   bolt->r.ownerNum = self->s.number;
@@ -741,7 +753,6 @@ gentity_t *fire_slowBlob( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->nextthink = level.time + 15000;
   bolt->think = G_ExplodeMissile;
   bolt->s.eType = ET_MISSILE;
-  bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
   bolt->s.weapon = WP_ABUILD2;
   bolt->s.generic1 = self->s.generic1; //weaponMode
   bolt->r.ownerNum = self->s.number;
@@ -781,7 +792,6 @@ gentity_t *fire_paraLockBlob( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->nextthink = level.time + 15000;
   bolt->think = G_ExplodeMissile;
   bolt->s.eType = ET_MISSILE;
-  bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
   bolt->s.weapon = WP_LOCKBLOB_LAUNCHER;
   bolt->s.generic1 = self->s.generic1; //weaponMode
   bolt->r.ownerNum = self->s.number;
@@ -819,7 +829,6 @@ gentity_t *fire_bounceBall( gentity_t *self, vec3_t start, vec3_t dir )
   bolt->nextthink = level.time + 3000;
   bolt->think = G_ExplodeMissile;
   bolt->s.eType = ET_MISSILE;
-  bolt->r.svFlags = SVF_USE_CURRENT_ORIGIN;
   bolt->s.weapon = WP_ALEVEL3_UPG;
   bolt->s.generic1 = self->s.generic1; //weaponMode
   bolt->r.ownerNum = self->s.number;

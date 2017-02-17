@@ -237,7 +237,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   int       anim;
   int       killer;
   int       i;
-  char      *killerName, *obit;
+  const char      *killerName, *obit;
 
   if( self->client->ps.pm_type == PM_DEAD )
     return;
@@ -339,19 +339,20 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
       ScoreboardMessage( g_entities + i );
   }
 
-  VectorCopy( self->s.origin, self->client->pers.lastDeathLocation );
+  VectorCopy( self->r.currentOrigin, self->client->pers.lastDeathLocation );
 
   self->takedamage = qfalse; // can still be gibbed
 
   self->s.weapon = WP_NONE;
-  self->r.contents = CONTENTS_CORPSE;
+  if( self->client->noclip )
+    self->client->cliprcontents = CONTENTS_CORPSE;
+  else
+    self->r.contents = CONTENTS_CORPSE;
 
-  self->s.angles[ PITCH ] = 0;
-  self->s.angles[ ROLL ] = 0;
-  self->s.angles[ YAW ] = self->s.apos.trBase[ YAW ];
+  self->client->ps.viewangles[ PITCH ] = 0; // zomg
+  self->client->ps.viewangles[ YAW ] = self->s.apos.trBase[ YAW ];
+  self->client->ps.viewangles[ ROLL ] = 0;
   LookAtKiller( self, inflictor, attacker );
-
-  VectorCopy( self->s.angles, self->client->ps.viewangles );
 
   self->s.loopSound = 0;
 
@@ -894,7 +895,7 @@ dflags    these flags are used to control how T_Damage works
   DAMAGE_RADIUS     damage was indirect (from a nearby explosion)
   DAMAGE_NO_ARMOR     armor does not protect from this damage
   DAMAGE_NO_KNOCKBACK   do not affect velocity, just view angles
-  DAMAGE_NO_PROTECTION  kills godmode, armor, everything
+  DAMAGE_NO_PROTECTION  kills everything except godmode
 ============
 */
 
@@ -1000,6 +1001,10 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
     }
   }
 
+  // check for godmode
+  if( targ->flags & FL_GODMODE )
+    return;
+
   // don't do friendly fire on movement attacks
   if( ( mod == MOD_LEVEL4_TRAMPLE || mod == MOD_LEVEL3_POUNCE ||
         mod == MOD_LEVEL4_CRUSH ) &&
@@ -1060,10 +1065,6 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
         G_BroadcastEvent( EV_DCC_ATTACK, 0 );
       }
     }
-
-    // check for godmode
-    if ( targ->flags & FL_GODMODE )
-      return;
   }
 
   // add to the attacker's hit counter
@@ -1159,7 +1160,11 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
         targ->flags |= FL_NO_KNOCKBACK;
 
       if( targ->health < -999 )
+      {
         targ->health = -999;
+        if( targ->client )
+          targ->client->ps.stats[ STAT_HEALTH ] = -999;
+      }
 
       targ->enemy = attacker;
       targ->die( targ, inflictor, attacker, take, mod );

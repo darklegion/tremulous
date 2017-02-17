@@ -993,6 +993,13 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
   weaponNum = cent->currentState.weapon;
   weaponMode = cent->currentState.generic1;
 
+  if( weaponNum <= WP_NONE || weaponNum >= WP_NUM_WEAPONS )
+  {
+    Com_Printf( S_COLOR_YELLOW "WARNING: CG_AddPlayerWeapon: weapon "
+                "number %i is out of bounds", weaponNum );
+    return;
+  }
+
   if( weaponMode <= WPM_NONE || weaponMode >= WPM_NUM_WEAPONMODES )
     weaponMode = WPM_PRIMARY;
 

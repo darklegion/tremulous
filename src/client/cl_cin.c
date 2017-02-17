@@ -1385,6 +1385,7 @@ e_status CIN_RunCinematic (int handle)
 		RoQReset();
 	  } else {
 		RoQShutdown();
+		return FMV_EOF;
 	  }
 	}
 
@@ -1447,7 +1448,7 @@ int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, int systemBi
 	if (cinTable[currentHandle].alterGameState) {
 		// close the menu
 		if ( uivm ) {
-			VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_NONE );
+			VM_Call( uivm, UI_SET_ACTIVE_MENU - ( uiInterface == 2 ? 2 : 0 ), UIMENU_NONE );
 		}
 	} else {
 		cinTable[currentHandle].playonwalls = cl_inGameVideo->integer;
@@ -1470,8 +1471,6 @@ int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, int systemBi
 			clc.state = CA_CINEMATIC;
 		}
 		
-		Con_Close();
-
 		if (!cinTable[currentHandle].silent) {
 			s_rawend[0] = s_soundtime;
 		}

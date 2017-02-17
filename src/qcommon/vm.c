@@ -744,6 +744,10 @@ void VM_Forced_Unload_Done(void) {
 	forced_unload = 0;
 }
 
+void VM_ClearCallLevel(vm_t *vm) {
+	vm->callLevel = 0;
+}
+
 void *VM_ArgPtr( intptr_t intValue ) {
 	if ( !intValue ) {
 		return NULL;
@@ -827,14 +831,13 @@ intptr_t QDECL VM_Call( vm_t *vm, int callnum, ... )
 		int args[MAX_VMMAIN_ARGS-1];
 		va_list ap;
 		va_start(ap, callnum);
-		for (i = 0; i < ARRAY_LEN(args); i++) {
+		for (unsigned i = 0; i < ARRAY_LEN(args); i++)
+        {
 			args[i] = va_arg(ap, int);
 		}
 		va_end(ap);
 
-		r = vm->entryPoint( callnum,  args[0],  args[1],  args[2], args[3],
-                            args[4],  args[5],  args[6], args[7],
-                            args[8],  args[9], args[10], args[11]);
+		r = vm->entryPoint( callnum,  args[0],  args[1],  args[2] );
 	} else {
 #if ( id386 || idsparc ) && !defined __clang__ // calling convention doesn't need conversion in some cases
 #ifndef NO_VM_COMPILED
@@ -852,7 +855,8 @@ intptr_t QDECL VM_Call( vm_t *vm, int callnum, ... )
 
 		a.callnum = callnum;
 		va_start(ap, callnum);
-		for (i = 0; i < ARRAY_LEN(a.args); i++) {
+		for (unsigned i = 0; i < ARRAY_LEN(a.args); i++)
+        {
 			a.args[i] = va_arg(ap, int);
 		}
 		va_end(ap);

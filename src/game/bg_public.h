@@ -21,9 +21,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+#ifndef _BG_PUBLIC_H_
+#define _BG_PUBLIC_H_
+
 // bg_public.h -- definitions shared by both the server game and client game modules
 
 //tremulous balance header
+#include "../qcommon/q_shared.h"
+#include "../qcommon/cvar.h"
 #include "tremulous.h"
 
 // because games can change separately from the main system version, we need a
@@ -117,7 +122,7 @@ typedef enum
   PM_NOCLIP,        // noclip movement
   PM_SPECTATOR,     // still run into walls
   PM_JETPACK,       // jetpack physics
-  PM_GRABBED,       // like dead, but for when the player is still live
+  PM_GRABBED,       // like dead, but for when the player is still alive
   PM_DEAD,          // no acceleration or turning, but free falling
   PM_FREEZE,        // stuck in place with no control
   PM_INTERMISSION   // no movement or status bar
@@ -126,7 +131,7 @@ typedef enum
 // pmtype_t categories
 #define PM_Paralyzed( x ) ( (x) == PM_DEAD || (x) == PM_FREEZE ||\
                             (x) == PM_INTERMISSION )
-#define PM_Live( x )      ( (x) == PM_NORMAL || (x) == PM_JETPACK ||\
+#define PM_Alive( x )     ( (x) == PM_NORMAL || (x) == PM_JETPACK ||\
                             (x) == PM_GRABBED )
 
 typedef enum
@@ -136,7 +141,6 @@ typedef enum
   WEAPON_DROPPING,
   WEAPON_FIRING,
   WEAPON_RELOADING,
-  WEAPON_NEEDS_RESET,
 } weaponstate_t;
 
 // pmove->pm_flags
@@ -429,13 +433,15 @@ typedef enum
   BA_NUM_BUILDABLES
 } buildable_t;
 
-// reward sounds (stored in ps->persistant[PERS_PLAYEREVENTS])
-#define PLAYEREVENT_DENIEDREWARD      0x0001
-#define PLAYEREVENT_GAUNTLETREWARD    0x0002
-#define PLAYEREVENT_HOLYSHIT          0x0004
+typedef enum
+{
+  RMT_SPHERE,
+  RMT_SPHERICAL_CONE_64,
+  RMT_SPHERICAL_CONE_240
+} rangeMarkerType_t;
 
 // entityState_t->event values
-// entity events are for effects that take place reletive
+// entity events are for effects that take place relative
 // to an existing entities origin.  Very network efficient.
 
 // two bits at the top of the entityState->event field
@@ -520,7 +526,7 @@ typedef enum
   EV_DEATH3,
   EV_OBITUARY,
 
-  EV_GIB_PLAYER,      // gib a previously living player
+  EV_GIB_PLAYER,
 
   EV_BUILD_CONSTRUCT,
   EV_BUILD_DESTROY,
@@ -570,7 +576,7 @@ typedef enum
   MN_CMD_SPEC,
   MN_CMD_ALIEN,
   MN_CMD_HUMAN,
-  MN_CMD_LIVING,
+  MN_CMD_ALIVE,
 
   //alien stuff
   MN_A_CLASS,
@@ -932,6 +938,7 @@ typedef struct
   int       fov;
   float     bob;
   float     bobCycle;
+  float     landBob;
   int       steptime;
 
   float     speed;
@@ -1181,7 +1188,8 @@ typedef enum
   ET_PLAYER,
   ET_ITEM,
 
-  ET_BUILDABLE,       // buildable type
+  ET_BUILDABLE,
+  ET_RANGE_MARKER,
 
   ET_LOCATION,
 
@@ -1201,6 +1209,7 @@ typedef enum
   ET_MODELDOOR,
   ET_LIGHTFLARE,
   ET_LEV2_ZAP_CHAIN,
+  ET_WEAPON_DROP,
 
   ET_EVENTS       // any of the EV_* events can be added freestanding
               // by setting eType to ET_EVENTS + eventNum
@@ -1265,10 +1274,10 @@ typedef enum
 
 typedef struct voiceTrack_s
 {
-#ifdef CGAME
+//#ifdef CGAME
   sfxHandle_t            track;
   int                    duration;
-#endif
+//#endif
   char                   *text;
   int                    enthusiasm;
   int                    team;
@@ -1312,3 +1321,7 @@ typedef struct
   const char *name;
 } dummyCmd_t;
 int cmdcmp( const void *a, const void *b );
+
+char *G_CopyString( const char *str );
+
+#endif

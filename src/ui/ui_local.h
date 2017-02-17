@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define UI_LOCAL_H
 
 #include "../qcommon/q_shared.h"
+#include "../qcommon/files.h"
 #include "../renderercommon/tr_types.h"
 #include "ui_public.h"
 #include "../client/keycodes.h"
@@ -42,6 +43,7 @@ void UI_ClearScores( void );
 void UI_LoadArenas( void );
 void UI_ServerInfo( void );
 void UI_UpdateNews( qboolean );
+void UI_UpdateGithubRelease( );
 
 void UI_RegisterCvars( void );
 void UI_UpdateCvars( void );
@@ -159,6 +161,14 @@ newsInfo_t;
 
 typedef struct
 {
+  char text[MAX_NEWS_LINES][MAX_NEWS_LINEWIDTH];
+  int numLines;
+  qboolean refreshActive;
+  int nextTime;
+} githubRelease_t;
+
+typedef struct
+{
   const char *modName;
   const char *modDescr;
 }
@@ -170,7 +180,8 @@ typedef enum
   INFOTYPE_BUILDABLE,
   INFOTYPE_CLASS,
   INFOTYPE_WEAPON,
-  INFOTYPE_UPGRADE
+  INFOTYPE_UPGRADE,
+  INFOTYPE_VOICECMD
 } infoType_t;
 
 typedef struct
@@ -264,6 +275,10 @@ typedef struct
   int         humanBuildCount;
   int         humanBuildIndex;
 
+  menuItem_t  voiceCmdList[ 32 ];
+  int         voiceCmdCount;
+  int         voiceCmdIndex;
+
   menuItem_t  helpList[ MAX_HELP_INFOPANES ];
   int         helpCount;
   int         helpIndex;
@@ -275,6 +290,8 @@ typedef struct
 
   // for showing the game news window
   newsInfo_t newsInfo;
+
+  githubRelease_t githubRelease;
 
   // for the showing the status of a server
   char serverStatusAddress[MAX_ADDRESSLENGTH];
@@ -294,9 +311,12 @@ typedef struct
   int           numResolutions;
   int           resolutionIndex;
 
+  voice_t       *voices;
+
   qboolean inGameLoad;
 
   qboolean  chatTeam;
+  qboolean  voiceCmd;
 }
 uiInfo_t;
 
@@ -329,12 +349,12 @@ void      trap_Cvar_InfoStringBuffer( int bit, char *buffer, int bufsize );
 int       trap_Argc( void );
 void      trap_Argv( int n, char *buffer, int bufferLength );
 void      trap_Cmd_ExecuteText( int exec_when, const char *text );  // don't use EXEC_NOW!
-int       trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, fsMode_t mode );
+int       trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, enum FS_Mode mode );
 void      trap_FS_Read( void *buffer, int len, fileHandle_t f );
 void      trap_FS_Write( const void *buffer, int len, fileHandle_t f );
 void      trap_FS_FCloseFile( fileHandle_t f );
 int       trap_FS_GetFileList(  const char *path, const char *extension, char *listbuf, int bufsize );
-int       trap_FS_Seek( fileHandle_t f, long offset, int origin ); // fsOrigin_t
+int       trap_FS_Seek( fileHandle_t f, long offset, enum FS_Mode origin ); // fsOrigin_t
 qhandle_t trap_R_RegisterModel( const char *name );
 qhandle_t trap_R_RegisterSkin( const char *name );
 qhandle_t trap_R_RegisterShaderNoMip( const char *name );
@@ -396,5 +416,8 @@ int       trap_RealTime( qtime_t *qtime );
 void      trap_R_RemapShader( const char *oldShader, const char *newShader, const char *timeOffset );
 
 void      trap_SetPbClStatus( int status );
+
+int       trap_CheckForUpdate( int script );
+int       trap_InstallUpdate( int script );
 
 #endif

@@ -235,7 +235,7 @@ typedef struct directive_s
 
 static int Parse_ReadToken(source_t *source, token_t *token);
 static qboolean Parse_AddDefineToSourceFromString( source_t *source,
-                                                   char *string );
+                                                   const char *string );
 
 int numtokens;
 
@@ -1049,7 +1049,7 @@ static script_t *Parse_LoadScriptFile(const char *filename)
 Parse_LoadScriptMemory
 ===============
 */
-static script_t *Parse_LoadScriptMemory(char *ptr, int length, char *name)
+static script_t *Parse_LoadScriptMemory(const char *ptr, int length, char *name)
 {
   void *buffer;
   script_t *script;
@@ -2765,7 +2765,7 @@ static int Parse_Directive_eval(source_t *source)
   token.whitespace_p = source->scriptstack->script_p;
   token.endwhitespace_p = source->scriptstack->script_p;
   token.linescrossed = 0;
-  sprintf(token.string, "%d", abs(value));
+  sprintf(token.string, "%ld", labs(value));
   token.type = TT_NUMBER;
   token.subtype = TT_INTEGER|TT_LONG|TT_DECIMAL;
   Parse_UnreadSourceToken(source, &token);
@@ -2812,7 +2812,7 @@ static int Parse_DollarDirective_evalint(source_t *source)
   token.whitespace_p = source->scriptstack->script_p;
   token.endwhitespace_p = source->scriptstack->script_p;
   token.linescrossed = 0;
-  sprintf(token.string, "%d", abs(value));
+  sprintf(token.string, "%ld", labs(value));
   token.type = TT_NUMBER;
   token.subtype = TT_INTEGER|TT_LONG|TT_DECIMAL;
   token.intvalue = value;
@@ -3468,7 +3468,7 @@ Parse_AddDefineToSourceFromString
 ===============
 */
 static qboolean Parse_AddDefineToSourceFromString( source_t *source,
-                                                   char *string )
+                                                   const char *string )
 {
   Parse_PushScript( source, Parse_LoadScriptMemory( string, strlen( string ),
                                                     "*extern" ) );

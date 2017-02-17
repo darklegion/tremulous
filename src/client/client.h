@@ -22,22 +22,158 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 // client.h -- primary header for client
 
+#ifndef _CLIENT_H_
+#define _CLIENT_H_
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
+#include "../qcommon/crypto.h"
 #include "../renderercommon/tr_public.h"
 #include "../ui/ui_public.h"
 #include "keys.h"
 #include "snd_public.h"
 #include "../cgame/cg_public.h"
-#include "../game/bg_public.h"
 
-#ifdef USE_CURL
 #include "cl_curl.h"
-#endif /* USE_CURL */
 
 #ifdef USE_VOIP
 #include <opus.h>
 #endif
+
+typedef struct alternatePlayerState_s {
+	int			commandTime;	// cmd->serverTime of last executed command
+	int			pm_type;
+	int			bobCycle;		// for view bobbing and footstep generation
+	int			pm_flags;		// ducked, jump_held, etc
+	int			pm_time;
+
+	vec3_t		origin;
+	vec3_t		velocity;
+	int			weaponTime;
+	int			gravity;
+	int			speed;
+	int			delta_angles[3];	// add to command angles to get view direction
+									// changed by spawns, rotating objects, and teleporters
+
+	int			groundEntityNum;// ENTITYNUM_NONE = in air
+
+	int			legsTimer;		// don't change low priority animations until this runs out
+	int			legsAnim;		// mask off ANIM_TOGGLEBIT
+
+	int			torsoTimer;		// don't change low priority animations until this runs out
+	int			torsoAnim;		// mask off ANIM_TOGGLEBIT
+
+	int			movementDir;	// a number 0 to 7 that represents the relative angle
+								// of movement to the view angle (axial and diagonals)
+								// when at rest, the value will remain unchanged
+								// used to twist the legs during strafing
+
+	vec3_t		grapplePoint;	// location of grapple to pull towards if PMF_GRAPPLE_PULL
+
+	int			eFlags;			// copied to entityState_t->eFlags
+
+	int			eventSequence;	// pmove generated events
+	int			events[MAX_PS_EVENTS];
+	int			eventParms[MAX_PS_EVENTS];
+
+	int			externalEvent;	// events set on player from another source
+	int			externalEventParm;
+	int			externalEventTime;
+
+	int			clientNum;		// ranges from 0 to MAX_CLIENTS-1
+	int			weapon;			// copied to entityState_t->weapon
+	int			weaponstate;
+
+	vec3_t		viewangles;		// for fixed views
+	int			viewheight;
+
+	// damage feedback
+	int			damageEvent;	// when it changes, latch the other parms
+	int			damageYaw;
+	int			damagePitch;
+	int			damageCount;
+
+	int			stats[MAX_STATS];
+	int			persistant[MAX_PERSISTANT];	// stats that aren't cleared on death
+	int			misc[MAX_MISC];	// misc data
+	int			ammo[MAX_WEAPONS];
+
+	int			generic1;
+	int			loopSound;
+	int			otherEntityNum;
+
+	// not communicated over the net at all
+	int			ping;			// server to game info for scoreboard
+	int			pmove_framecount;
+	int			jumppad_frame;
+	int			entityEventSequence;
+} alternatePlayerState_t;
+
+typedef struct alternateEntityState_s {
+	int		number;			// entity index
+	int		eType;			// entityType_t
+	int		eFlags;
+
+	trajectory_t	pos;	// for calculating position
+	trajectory_t	apos;	// for calculating angles
+
+	int		time;
+	int		time2;
+
+	vec3_t	origin;
+	vec3_t	origin2;
+
+	vec3_t	angles;
+	vec3_t	angles2;
+
+	int		otherEntityNum;	// shotgun sources, etc
+	int		otherEntityNum2;
+
+	int		groundEntityNum;	// ENTITYNUM_NONE = in air
+
+	int		constantLight;	// r + (g<<8) + (b<<16) + (intensity<<24)
+	int		loopSound;		// constantly loop this sound
+
+	int		modelindex;
+	int		modelindex2;
+	int		clientNum;		// 0 to (MAX_CLIENTS - 1), for players and corpses
+	int		frame;
+
+	int		solid;			// for client side prediction, trap_linkentity sets this properly
+
+	int		event;			// impulse events -- muzzle flashes, footsteps, etc
+	int		eventParm;
+
+	// for players
+	int		misc;			// bit flags
+	int		weapon;			// determines weapon and flash model, etc
+	int		legsAnim;		// mask off ANIM_TOGGLEBIT
+	int		torsoAnim;		// mask off ANIM_TOGGLEBIT
+
+	int		generic1;
+} alternateEntityState_t;
+
+typedef struct
+{
+  int           snapFlags;                            // SNAPFLAG_RATE_DELAYED, etc
+  int           ping;
+
+  int           serverTime;                           // server time the message is valid for (in msec)
+
+  byte          areamask[ MAX_MAP_AREA_BYTES ];       // portalarea visibility bits
+
+  alternatePlayerState_t ps;                          // complete information about the current player at this time
+
+  int           numEntities;                          // all of the entities that need to be presented
+  alternateEntityState_t entities[ MAX_ENTITIES_IN_SNAPSHOT ]; // at the time of this snapshot
+
+  int           numServerCommands;                    // text based server commands to execute when this
+  int           serverCommandSequence;                // snapshot becomes current
+} alternateSnapshot_t;
 
 // file full of random crap that gets used to create cl_guid
 #define QKEY_FILE "qkey"
@@ -59,6 +195,7 @@ typedef struct {
 
 	int				cmdNum;			// the next cmdNum the server is expecting
 	playerState_t	ps;						// complete information about the current player at this time
+	alternatePlayerState_t	alternatePs;	// complete information about the current player at this time
 
 	int				numEntities;			// all of the entities that need to be presented
 	int				parseEntitiesNum;		// at the time of this snapshot
@@ -175,6 +312,8 @@ typedef struct {
 	char		serverMessage[MAX_STRING_TOKENS];	// for display on connection dialog
 
 	int			challenge;					// from the server to use for connecting
+	char		challenge2[33];
+	qboolean	sendSignature;
 	int			checksumFeed;				// from the server for checksum calculations
 
 	// these are our reliable messages that go to the server
@@ -199,7 +338,8 @@ typedef struct {
 	fileHandle_t download;
 	char		downloadTempName[MAX_OSPATH];
 	char		downloadName[MAX_OSPATH];
-#ifdef USE_CURL
+
+    // XXX Refactor this -vjr
 	qboolean	cURLEnabled;
 	qboolean	cURLUsed;
 	qboolean	cURLDisconnected;
@@ -207,7 +347,7 @@ typedef struct {
 	CURL		*downloadCURL;
 	CURLM		*downloadCURLM;
 	qboolean	activeCURLNotGameRelated;
-#endif /* USE_CURL */
+
 	int		sv_allowDownload;
 	char		sv_dlURL[MAX_CVAR_VALUE_STRING];
 	int			downloadNumber;
@@ -322,8 +462,8 @@ typedef struct {
 	int			realFrametime;		// ignoring pause, so console always works
 
 	// master server sequence information
-	int			numMasterPackets;
-	unsigned int		receivedMasterPackets; // bitfield
+	int			numAlternateMasterPackets[3];
+	unsigned int		receivedAlternateMasterPackets[3]; // bitfield
 
 	int			numlocalservers;
 	serverInfo_t	localServers[MAX_OTHER_SERVERS];
@@ -351,6 +491,11 @@ typedef struct {
 	qhandle_t	charSetShader;
 	qhandle_t	whiteShader;
 	qhandle_t	consoleShader;
+
+    struct {
+	    struct rsa_public_key public_key;
+	    struct rsa_private_key private_key;
+    } rsa;
 } clientStatic_t;
 
 extern	clientStatic_t		cls;
@@ -362,6 +507,7 @@ extern	qboolean	cl_oldGameSet;
 
 extern	vm_t			*cgvm;	// interface to cgame dll or vm
 extern	vm_t			*uivm;	// interface to ui dll or vm
+extern	int			uiInterface;
 extern	refexport_t		re;		// interface to refresh .dll
 
 
@@ -452,6 +598,8 @@ extern	cvar_t	*cl_voip;
 #define VOIP_MAX_PACKET_SAMPLES		( VOIP_MAX_FRAME_SAMPLES * VOIP_MAX_PACKET_FRAMES )
 #endif
 
+extern  cvar_t  *cl_rsaAuth;
+
 //=================================================
 
 //
@@ -464,6 +612,7 @@ void CL_AddReliableCommand(const char *cmd, qboolean isDisconnectCmd);
 void CL_StartHunkUsers( qboolean rendererOnly );
 
 void CL_Disconnect_f (void);
+void CL_Reconnect_f( void );
 void CL_GetChallengePacket (void);
 void CL_Vid_Restart_f( void );
 void CL_Snd_Restart_f (void);
@@ -548,7 +697,6 @@ void Con_Init(void);
 void Con_Shutdown(void);
 void Con_Clear_f (void);
 void Con_ToggleConsole_f (void);
-void Con_DrawNotify (void);
 void Con_ClearNotify (void);
 void Con_RunConsole (void);
 void Con_DrawConsole (void);
@@ -644,3 +792,7 @@ qboolean CL_VideoRecording( void );
 //
 void CL_WriteDemoMessage ( msg_t *msg, int headerBytes );
 
+#ifdef __cplusplus
+};
+#endif
+#endif

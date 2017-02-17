@@ -101,11 +101,8 @@ cvar_t  *r_ext_draw_range_elements;
 cvar_t  *r_ext_multi_draw_arrays;
 cvar_t  *r_ext_framebuffer_object;
 cvar_t  *r_ext_texture_float;
-cvar_t  *r_arb_half_float_pixel;
-cvar_t  *r_arb_half_float_vertex;
 cvar_t  *r_ext_framebuffer_multisample;
 cvar_t  *r_arb_seamless_cube_map;
-cvar_t  *r_arb_vertex_type_2_10_10_10_rev;
 cvar_t  *r_arb_vertex_array_object;
 cvar_t  *r_ext_direct_state_access;
 
@@ -155,7 +152,6 @@ cvar_t  *r_imageUpsampleMaxSize;
 cvar_t  *r_imageUpsampleType;
 cvar_t  *r_genNormalMaps;
 cvar_t  *r_forceSun;
-cvar_t  *r_forceSunMapLightScale;
 cvar_t  *r_forceSunLightScale;
 cvar_t  *r_forceSunAmbientScale;
 cvar_t  *r_sunlightMode;
@@ -175,6 +171,7 @@ cvar_t	*r_logFile;
 cvar_t	*r_stencilbits;
 cvar_t	*r_depthbits;
 cvar_t	*r_colorbits;
+cvar_t	*r_alphabits;
 cvar_t	*r_texturebits;
 cvar_t  *r_ext_multisample;
 
@@ -883,7 +880,9 @@ void GL_SetDefaultState( void )
 	qglColor4f (1,1,1,1);
 
 	GL_BindNullTextures();
-	GL_BindNullFramebuffers();
+
+	if (glRefConfig.framebufferObject)
+		GL_BindNullFramebuffers();
 
 	qglEnable(GL_TEXTURE_2D);
 	GL_TextureMode( r_textureMode->string );
@@ -902,10 +901,10 @@ void GL_SetDefaultState( void )
 	GL_BindNullProgram();
 
 	if (glRefConfig.vertexArrayObject)
-		qglBindVertexArrayARB(0);
+		qglBindVertexArray(0);
 
-	qglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-	qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+	qglBindBuffer(GL_ARRAY_BUFFER, 0);
+	qglBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glState.currentVao = NULL;
 	glState.vertexAttribsEnabled = 0;
 
@@ -1092,11 +1091,8 @@ void R_Register( void )
 	r_ext_multi_draw_arrays = ri.Cvar_Get( "r_ext_multi_draw_arrays", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_framebuffer_object = ri.Cvar_Get( "r_ext_framebuffer_object", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_texture_float = ri.Cvar_Get( "r_ext_texture_float", "1", CVAR_ARCHIVE | CVAR_LATCH);
-	r_arb_half_float_pixel = ri.Cvar_Get( "r_arb_half_float_pixel", "1", CVAR_ARCHIVE | CVAR_LATCH);
-	r_arb_half_float_vertex = ri.Cvar_Get( "r_arb_half_float_vertex", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_framebuffer_multisample = ri.Cvar_Get( "r_ext_framebuffer_multisample", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_arb_seamless_cube_map = ri.Cvar_Get( "r_arb_seamless_cube_map", "0", CVAR_ARCHIVE | CVAR_LATCH);
-	r_arb_vertex_type_2_10_10_10_rev = ri.Cvar_Get( "r_arb_vertex_type_2_10_10_10_rev", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_arb_vertex_array_object = ri.Cvar_Get( "r_arb_vertex_array_object", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_direct_state_access = ri.Cvar_Get("r_ext_direct_state_access", "1", CVAR_ARCHIVE | CVAR_LATCH);
 
@@ -1111,6 +1107,7 @@ void R_Register( void )
 	r_detailTextures = ri.Cvar_Get( "r_detailtextures", "1", CVAR_ARCHIVE | CVAR_LATCH );
 	r_texturebits = ri.Cvar_Get( "r_texturebits", "0", CVAR_ARCHIVE | CVAR_LATCH );
 	r_colorbits = ri.Cvar_Get( "r_colorbits", "0", CVAR_ARCHIVE | CVAR_LATCH );
+	r_alphabits = ri.Cvar_Get( "r_alphabits", "1", CVAR_ARCHIVE | CVAR_LATCH );
 	r_stencilbits = ri.Cvar_Get( "r_stencilbits", "8", CVAR_ARCHIVE | CVAR_LATCH );
 	r_depthbits = ri.Cvar_Get( "r_depthbits", "0", CVAR_ARCHIVE | CVAR_LATCH );
 	r_ext_multisample = ri.Cvar_Get( "r_ext_multisample", "0", CVAR_ARCHIVE | CVAR_LATCH );
@@ -1175,7 +1172,6 @@ void R_Register( void )
 	r_genNormalMaps = ri.Cvar_Get( "r_genNormalMaps", "0", CVAR_ARCHIVE | CVAR_LATCH );
 
 	r_forceSun = ri.Cvar_Get( "r_forceSun", "0", CVAR_CHEAT );
-	r_forceSunMapLightScale = ri.Cvar_Get( "r_forceSunMapLightScale", "1.0", CVAR_CHEAT );
 	r_forceSunLightScale = ri.Cvar_Get( "r_forceSunLightScale", "1.0", CVAR_CHEAT );
 	r_forceSunAmbientScale = ri.Cvar_Get( "r_forceSunAmbientScale", "0.5", CVAR_CHEAT );
 	r_drawSunRays = ri.Cvar_Get( "r_drawSunRays", "0", CVAR_ARCHIVE | CVAR_LATCH );
@@ -1305,7 +1301,7 @@ void R_InitQueries(void)
 		return;
 
 	if (r_drawSunRays->integer)
-		qglGenQueriesARB(ARRAY_LEN(tr.sunFlareQuery), tr.sunFlareQuery);
+		qglGenQueries(ARRAY_LEN(tr.sunFlareQuery), tr.sunFlareQuery);
 }
 
 void R_ShutDownQueries(void)
@@ -1314,7 +1310,7 @@ void R_ShutDownQueries(void)
 		return;
 
 	if (r_drawSunRays->integer)
-		qglDeleteQueriesARB(ARRAY_LEN(tr.sunFlareQuery), tr.sunFlareQuery);
+		qglDeleteQueries(ARRAY_LEN(tr.sunFlareQuery), tr.sunFlareQuery);
 }
 
 /*

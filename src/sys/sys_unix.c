@@ -59,11 +59,19 @@ char *Sys_DefaultHomePath(void)
 		if( ( p = getenv( "HOME" ) ) != NULL )
 		{
 			Com_sprintf(homePath, sizeof(homePath), "%s%c", p, PATH_SEP);
-#ifdef MACOS_X
-			Q_strcat( homePath, sizeof( homePath ),
-					"/Library/Application Support/" HOMEPATH_NAME_MACOSX );
+#ifdef __APPLE__
+			Q_strcat(homePath, sizeof(homePath),
+				"Library/Application Support/");
+
+			if(com_homepath->string[0])
+				Q_strcat(homePath, sizeof(homePath), com_homepath->string);
+			else
+				Q_strcat(homePath, sizeof(homePath), HOMEPATH_NAME_MACOSX);
 #else
-			Q_strcat( homePath, sizeof( homePath ), "/" HOMEPATH_NAME_UNIX );
+			if(com_homepath->string[0])
+				Q_strcat(homePath, sizeof(homePath), com_homepath->string);
+			else
+				Q_strcat(homePath, sizeof(homePath), HOMEPATH_NAME_UNIX);
 #endif
 		}
 	}
@@ -143,6 +151,17 @@ char *Sys_GetCurrentUser( void )
 	return p->pw_name;
 }
 
+/*
+==================
+Sys_CryptoRandomBytes
+==================
+*/
+void Sys_CryptoRandomBytes( byte *string, int len )
+{
+	if ( !Sys_RandomBytes( string, len ) )
+		Com_Error( ERR_FATAL, "Sys_CryptoRandomBytes: error reading /dev/urandom" );
+}
+
 #define MEM_THRESHOLD 96*1024*1024
 
 /*
@@ -172,7 +191,7 @@ const char *Sys_Basename( char *path )
 Sys_Dirname
 ==================
 */
-const char *Sys_Dirname( char *path )
+const char *Sys_Dirname( char const* path )
 {
 	return dirname( path );
 }
@@ -270,7 +289,8 @@ DIRECTORY SCANNING
 Sys_ListFilteredFiles
 ==================
 */
-void Sys_ListFilteredFiles( const char *basedir, char *subdirs, char *filter, char **list, int *numfiles )
+void Sys_ListFilteredFiles( const char *basedir, char *subdirs, 
+        const char *filter, char **list, int *numfiles )
 {
 	char          search[MAX_OSPATH], newsubdirs[MAX_OSPATH];
 	char          filename[MAX_OSPATH];
@@ -327,7 +347,8 @@ void Sys_ListFilteredFiles( const char *basedir, char *subdirs, char *filter, ch
 Sys_ListFiles
 ==================
 */
-char **Sys_ListFiles( const char *directory, const char *extension, char *filter, int *numfiles, qboolean wantsubs )
+char **Sys_ListFiles( const char *directory, const char *extension,
+        const char *filter, int *numfiles, qboolean wantsubs )
 {
 	struct dirent *d;
 	DIR           *fdir;
@@ -542,7 +563,7 @@ void Sys_ErrorDialog( const char *error )
 	close( f );
 }
 
-#ifndef MACOS_X
+#ifndef __APPLE__
 static char execBuffer[ 1024 ];
 static char *execBufferPointer;
 static char *execArgv[ 16 ];

@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // console.c
 
 #include "client.h"
+#include "../qcommon/cdefs.h"
 
 
 int g_console_field_width = 78;
@@ -55,6 +56,13 @@ typedef struct {
 console_t	con;
 
 cvar_t		*con_conspeed;
+cvar_t      *con_height;
+cvar_t      *con_useShader;
+cvar_t      *con_colorRed;
+cvar_t      *con_colorGreen;
+cvar_t      *con_colorBlue;
+cvar_t      *con_colorAlpha;
+cvar_t      *con_versionStr;
 
 #define	DEFAULT_CONSOLE_WIDTH	78
 
@@ -262,7 +270,7 @@ void Con_CheckResize (void)
 Cmd_CompleteTxtName
 ==================
 */
-void Cmd_CompleteTxtName( char *args, int argNum ) {
+void Cmd_CompleteTxtName( char *args UNUSED, int argNum ) {
 	if( argNum == 2 ) {
 		Field_CompleteFilename( "", "txt", qfalse, qtrue );
 	}
@@ -277,7 +285,14 @@ Con_Init
 void Con_Init (void) {
 	int		i;
 
-	con_conspeed = Cvar_Get ("scr_conspeed", "3", 0);
+	con_conspeed    = Cvar_Get ("scr_conspeed", "3", 0);
+	con_useShader   = Cvar_Get ("scr_useShader", "1", CVAR_ARCHIVE);
+	con_height      = Cvar_Get ("scr_height", "50", CVAR_ARCHIVE);
+	con_colorRed    = Cvar_Get ("scr_colorRed", "0", CVAR_ARCHIVE);
+	con_colorBlue   = Cvar_Get ("scr_colorBlue", "0", CVAR_ARCHIVE);
+	con_colorGreen  = Cvar_Get ("scr_colorGreen", "0", CVAR_ARCHIVE);
+	con_colorAlpha  = Cvar_Get ("scr_colorAlpha", ".8", CVAR_ARCHIVE);
+    con_versionStr  = Cvar_Get ("scr_versionString", Q3_VERSION, CVAR_ARCHIVE);
 
 	Field_Clear( &g_consoleField );
 	g_consoleField.widthInChars = g_console_field_width;
@@ -312,14 +327,17 @@ void Con_Shutdown(void)
 Con_Linefeed
 ===============
 */
-void Con_Linefeed (qboolean skipnotify)
+void Con_Linefeed(qboolean skipnotify UNUSED)
 {
-	int		i;
+	int	i;
 
 	con.x = 0;
+
 	if (con.display == con.current)
 		con.display++;
+
 	con.current++;
+
 	for(i=0; i<con.linewidth; i++)
 		con.text[(con.current%con.totallines)*con.linewidth+i] = (ColorIndex(COLOR_WHITE)<<8) | ' ';
 }
@@ -333,7 +351,7 @@ All console printing must go through this in order to be logged to disk
 If no console is visible, the text will appear at the top of the game window
 ================
 */
-void CL_ConsolePrint( char *txt ) {
+void CL_ConsolePrint( const char *txt ) {
 	int		y, l;
 	unsigned char	c;
 	unsigned short	color;
@@ -361,7 +379,8 @@ void CL_ConsolePrint( char *txt ) {
 		con.initialized = qtrue;
 	}
 
-	if( !skipnotify && !( Key_GetCatcher( ) & KEYCATCH_CONSOLE ) ) {
+	if( !skipnotify && !( Key_GetCatcher( ) & KEYCATCH_CONSOLE ) )
+    {
 		Cmd_SaveCmdContext( );
 
 		// feed the text to cgame
@@ -373,26 +392,25 @@ void CL_ConsolePrint( char *txt ) {
 
 	color = ColorIndex(COLOR_WHITE);
 
-	while ( (c = *((unsigned char *) txt)) != 0 ) {
-		if ( Q_IsColorString( txt ) ) {
+	while ( (c = *((unsigned char *) txt)) != 0 )
+    {
+		if ( Q_IsColorString( txt ) )
+        {
 			color = ColorIndex( *(txt+1) );
 			txt += 2;
 			continue;
 		}
 
 		// count word length
-		for (l=0 ; l< con.linewidth ; l++) {
-			if ( txt[l] <= ' ') {
+		for (l=0 ; l< con.linewidth ; l++)
+        {
+			if ( txt[l] <= ' ')
 				break;
-			}
-
 		}
 
 		// word wrap
-		if (l != con.linewidth && (con.x + l >= con.linewidth) ) {
+		if (l != con.linewidth && (con.x + l >= con.linewidth) )
 			Con_Linefeed(skipnotify);
-
-		}
 
 		txt++;
 
@@ -464,7 +482,6 @@ void Con_DrawSolidConsole( float frac ) {
 	short			*text;
 	int				row;
 	int				lines;
-//	qhandle_t		conShader;
 	int				currentColor;
 	vec4_t			color;
 
@@ -481,18 +498,28 @@ void Con_DrawSolidConsole( float frac ) {
 
 	// draw the background
 	y = frac * SCREEN_HEIGHT;
-	if ( y < 1 ) {
+	if ( y < 1 )
+    {
 		y = 0;
 	}
-	else {
-		SCR_DrawPic( 0, 0, SCREEN_WIDTH, y, cls.consoleShader );
+	else if (con_useShader->integer)
+    {
+        SCR_DrawPic(0, 0, SCREEN_WIDTH, y, cls.consoleShader);
+    }
+    else
+    {
+        color[0] = con_colorRed->value;
+        color[1] = con_colorGreen->value;
+        color[2] = con_colorBlue->value;
+        color[3] = con_colorAlpha->value;
+        SCR_FillRect(0, 0, SCREEN_WIDTH, y, color);
 	}
 
 	color[0] = 1;
 	color[1] = 0;
 	color[2] = 0;
 	color[3] = 1;
-	SCR_FillRect( 0, y, SCREEN_WIDTH, 2, color );
+	SCR_FillRect(0, y, SCREEN_WIDTH, 2, color);
 
 
 	// draw the version number
@@ -505,7 +532,6 @@ void Con_DrawSolidConsole( float frac ) {
 		SCR_DrawSmallChar( cls.glconfig.vidWidth - ( i - x + 1 ) * SMALLCHAR_WIDTH,
 			lines - SMALLCHAR_HEIGHT, Q3_VERSION[x] );
 	}
-
 
 	// draw the text
 	con.vislines = lines;
@@ -602,7 +628,7 @@ Scroll it up or down
 void Con_RunConsole (void) {
 	// decide on the destination height of the console
 	if ( Key_GetCatcher( ) & KEYCATCH_CONSOLE )
-		con.finalFrac = 0.5;		// half screen
+		con.finalFrac = MAX(0.10, 0.01 * con_height->integer);
 	else
 		con.finalFrac = 0;				// none visible
 	
