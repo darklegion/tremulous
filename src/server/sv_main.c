@@ -183,9 +183,18 @@ void QDECL SV_SendServerCommand(client_t *cl, const char *fmt, ...) {
 	// Fix to http://aluigi.altervista.org/adv/q3msgboom-adv.txt
 	// The actual cause of the bug is probably further downstream
 	// and should maybe be addressed later, but this certainly
-	// fixes the problem for now
+	// fixes the problem for now.	
+	// Summary: The bug is that messages longer than 1022 are not
+	// allowed downstream and there is a buffer overflow issue
+	// affecting network traffic etc. Therefore, one way to stop
+	// this from happening is stopping the packet here. Ideally,
+	// we should increase the size of the downstream message.
 	if ( strlen ((char *)message) > 1022 ) {
-		return;
+	  Com_Printf( "SV_SendServerCommand( %ld, %.20s... ) length %ld > 1022, "
+		      "dropping to avoid server buffer overflow.\n",
+		      cl - svs.clients, message, strlen( (char *)message ) );
+	  Com_Printf( "Full message: [%s]\n", message ); 
+	  return;
 	}
 
 	if ( cl != NULL ) {
