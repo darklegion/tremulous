@@ -12,7 +12,7 @@ cmake_minimum_required(VERSION 3.5)
 project(Tremulous C CXX)
 
 set(CMAKE_CXX_FLAGS -std=c++1y)
-set(CMAKE_C_FLAGS -std=c99)
+set(CMAKE_C_FLAGS -std=gnu99)
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
