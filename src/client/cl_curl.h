@@ -95,7 +95,7 @@ extern void         (*qcurl_global_cleanup)(void);
 #define qcurl_global_cleanup curl_global_cleanup
 #endif
 
-qboolean CL_cURL_Init( void );
+bool CL_cURL_Init( void );
 void CL_cURL_Shutdown( void );
 void CL_cURL_BeginDownload( const char *localName, const char *remoteURL );
 void CL_cURL_PerformDownload( void );

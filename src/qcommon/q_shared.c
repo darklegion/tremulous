@@ -1426,7 +1426,7 @@ static qboolean Com_CharIsOneOfCharset( char c, const char *set )
 Com_SkipCharset
 ==================
 */
-char *Com_SkipCharset( char *s, char *sep )
+char *Com_SkipCharset( char *s, const char *sep )
 {
 	char	*p = s;
 

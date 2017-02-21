@@ -189,9 +189,9 @@ static qboolean BG_VoiceParseTrack( int handle, voiceTrack_t *voiceTrack )
       while( foundToken && token.type == TT_NUMBER )
       {
         found = qtrue;
-        if( voiceTrack->class < 0 )
-          voiceTrack->class = 0;
-        voiceTrack->class |= ( 1 << token.intvalue );
+        if( voiceTrack->klass < 0 )
+          voiceTrack->klass = 0;
+        voiceTrack->klass |= ( 1 << token.intvalue );
         foundToken = trap_Parse_ReadToken( handle, &token );
       }
       if( !found )
@@ -334,7 +334,7 @@ static voiceTrack_t *BG_VoiceParseCommand( int handle )
     }
 
     voiceTracks->team = -1;
-    voiceTracks->class = -1;
+    voiceTracks->klass = -1;
     voiceTracks->weapon = -1;
     voiceTracks->enthusiasm = 0;
     voiceTracks->text = NULL;
@@ -479,7 +479,7 @@ void BG_PrintVoices( voice_t *voices, int debugLevel )
         if( debugLevel > 2 )
         {
           Com_Printf( "    team -> %d\n", voiceTrack->team );
-          Com_Printf( "    class -> %d\n", voiceTrack->class );
+          Com_Printf( "    class -> %d\n", voiceTrack->klass );
           Com_Printf( "    weapon -> %d\n", voiceTrack->weapon );
           Com_Printf( "    enthusiasm -> %d\n", voiceTrack->enthusiasm );
 #ifdef CGAME
@@ -604,7 +604,7 @@ voiceTrack_t *BG_VoiceTrackFind( voiceTrack_t *head, team_t team,
   while( vt )
   {
     if( ( vt->team >= 0 && !( vt->team  & ( 1 << team ) ) ) || 
-        ( vt->class >= 0 && !( vt->class & ( 1 << class ) ) ) || 
+        ( vt->klass >= 0 && !( vt->klass & ( 1 << class ) ) ) || 
         ( vt->weapon >= 0 && !( vt->weapon & ( 1 << weapon ) ) ) ||
         vt->enthusiasm > enthusiasm )
     {
@@ -634,7 +634,7 @@ voiceTrack_t *BG_VoiceTrackFind( voiceTrack_t *head, team_t team,
   {
     j++;
     if( ( vt->team >= 0 && !( vt->team  & ( 1 << team ) ) ) || 
-        ( vt->class >= 0 && !( vt->class & ( 1 << class ) ) ) || 
+        ( vt->klass >= 0 && !( vt->klass & ( 1 << class ) ) ) || 
         ( vt->weapon >= 0 && !( vt->weapon & ( 1 << weapon ) ) ) ||
         vt->enthusiasm != highestMatch )
     {

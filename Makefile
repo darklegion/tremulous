@@ -1185,6 +1185,11 @@ $(echo_cmd) "RENDERER_COMMON_CC $<"
 $(Q)$(call EXEC_CC,${REF_CC_FLAGS},'$@','$<')
 $(Q)$(call LOG_CC,renderer_common,${REF_CC_FLAGS},$@,$<)
 endef
+define DO_RENDERER_COMMON_CXX
+$(echo_cmd) "RENDERER_COMMON_CXX $<"
+$(Q)$(call EXEC_CXX,${REF_CC_FLAGS},'$@','$<')
+$(Q)$(call LOG_CXX,renderer_common,${REF_CC_FLAGS},$@,$<)
+endef
 ##########################################
 # Renderers
 ##########################################
@@ -2821,6 +2826,9 @@ $(B)/client/%.o: $(ZDIR)/%.c
 $(B)/client/%.o: $(SDLDIR)/%.c
 	$(DO_CC)
 
+$(B)/client/%.o: $(SDLDIR)/%.cpp
+	$(DO_CC)
+
 $(B)/client/%.o: $(SYSDIR)/%.c
 	$(DO_CC)
 
@@ -2841,6 +2849,8 @@ $(B)/client/%.o: $(SYSDIR)/%.rc
 
 $(B)/renderercommon/%.o: $(SDLDIR)/%.c
 	$(DO_RENDERER_COMMON_CC)
+$(B)/renderercommon/%.o: $(SDLDIR)/%.cpp
+	$(DO_RENDERER_COMMON_CXX)
 $(B)/renderercommon/%.o: $(JPDIR)/%.c
 	$(DO_RENDERER_COMMON_CC)
 
@@ -2900,6 +2910,9 @@ $(B)/ded/%.o: $(SYSDIR)/%.rc
 
 $(B)/ded/%.o: $(NDIR)/%.c
 	$(DO_DED_CC)
+
+$(B)/ded/%.o: $(NDIR)/%.cpp
+	$(DO_DED_CXX)
 
 # Extra dependencies to ensure the git version is incorporated
 ifeq ($(USE_GIT),1)

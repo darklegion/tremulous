@@ -25,14 +25,12 @@
 
 #include <iostream>
 
-//#include "../client/client.h"
+#include "../client/client.h"
 
 namespace sol
 { 
     class state;
 };
-
-extern "C" void CL_AddReliableCommand(const char *cmd, qboolean isDisconnectCmd);
 
 namespace script 
 {

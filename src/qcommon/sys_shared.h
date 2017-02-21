@@ -14,7 +14,7 @@
 #include "qcommon.h"
 
 #ifdef __cplusplus
-extern "C" {
+//extern "C" {
 #endif
 
 #define MAX_JOYSTICK_AXIS 16
@@ -83,7 +83,7 @@ char *Sys_DefaultAppPath(void);
 
 void Sys_SetDefaultHomePath(const char *path);
 char *Sys_DefaultHomePath(void);
-const char *Sys_Dirname(char const *path);
+const char *Sys_Dirname(char *path);
 const char *Sys_Basename(char *path);
 char *Sys_ConsoleInput(void);
 
@@ -100,6 +100,6 @@ void Sys_SetEnv(const char *name, const char *value);
 qboolean Sys_WritePIDFile(void);
 
 #ifdef __cplusplus
-}
+//}
 #endif
 #endif

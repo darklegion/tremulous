@@ -25,10 +25,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef _CLIENT_H_
 #define _CLIENT_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
 #include "../qcommon/crypto.h"
@@ -340,13 +336,14 @@ typedef struct {
 	char		downloadName[MAX_OSPATH];
 
     // XXX Refactor this -vjr
-	qboolean	cURLEnabled;
-	qboolean	cURLUsed;
-	qboolean	cURLDisconnected;
+	bool    cURLEnabled;
+	bool    cURLUsed;
+	bool    cURLDisconnected;
+
 	char		downloadURL[MAX_OSPATH];
 	CURL		*downloadCURL;
 	CURLM		*downloadCURLM;
-	qboolean	activeCURLNotGameRelated;
+	bool    activeCURLNotGameRelated;
 
 	int		sv_allowDownload;
 	char		sv_dlURL[MAX_CVAR_VALUE_STRING];
@@ -355,7 +352,7 @@ typedef struct {
 	int			downloadCount;	// how many bytes we got
 	int			downloadSize;	// how many bytes we got
 	char		downloadList[MAX_INFO_STRING]; // list of paks we need to download
-	qboolean	downloadRestart;	// if true, we need to do another FS_Restart because we downloaded a pak
+	bool     downloadRestart;	// if true, we need to do another FS_Restart because we downloaded a pak
 	char		newsString[ MAX_NEWS_STRING ];
 
 	// demo information
@@ -379,8 +376,8 @@ typedef struct {
 	float		aviSoundFrameRemainder;
 
 #ifdef USE_VOIP
-	qboolean voipEnabled;
-	qboolean voipCodecInitialized;
+	bool voipEnabled;
+	bool voipCodecInitialized;
 
 	// incoming data...
 	// !!! FIXME: convert from parallel arrays to array of a struct.
@@ -607,7 +604,7 @@ extern  cvar_t  *cl_rsaAuth;
 //
 
 void CL_Init (void);
-void CL_AddReliableCommand(const char *cmd, qboolean isDisconnectCmd);
+void CL_AddReliableCommand(const char *cmd, bool isDisconnectCmd);
 
 void CL_StartHunkUsers( qboolean rendererOnly );
 
@@ -661,8 +658,8 @@ void IN_CenterView (void);
 void CL_VerifyCode( void );
 
 float CL_KeyState (kbutton_t *key);
-int Key_StringToKeynum( char *str );
-char *Key_KeynumToString (int keynum);
+int Key_StringToKeynum( const char *str );
+const char *Key_KeynumToString (int keynum);
 
 //
 // cl_parse.c
@@ -790,9 +787,7 @@ qboolean CL_VideoRecording( void );
 //
 // cl_main.c
 //
-void CL_WriteDemoMessage ( msg_t *msg, int headerBytes );
+void CL_WriteDemoMessage( msg_t *msg, int headerBytes );
+int CL_ScaledMilliseconds(void);
 
-#ifdef __cplusplus
-};
-#endif
 #endif

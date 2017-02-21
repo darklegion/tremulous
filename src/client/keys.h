@@ -26,12 +26,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "keycodes.h"
 
 typedef struct {
-	qboolean	down;
+	bool	    down;
 	int			repeats;		// if > 1, it is autorepeating
 	char		*binding;
 } qkey_t;
 
-extern	qboolean	key_overstrikeMode;
+extern	bool	    key_overstrikeMode;
 extern	qkey_t		keys[MAX_KEYS];
 
 // NOTE TTimo the declaration of field_t and Field_Clear is now in qcommon/qcommon.h
@@ -51,7 +51,7 @@ extern	int			chat_playerNum;
 
 void Key_WriteBindings( fileHandle_t f );
 void Key_SetBinding( int keynum, const char *binding );
-char *Key_GetBinding( int keynum );
+const char *Key_GetBinding( int keynum );
 qboolean Key_IsDown( int keynum );
 qboolean Key_GetOverstrikeMode( void );
 void Key_SetOverstrikeMode( qboolean state );

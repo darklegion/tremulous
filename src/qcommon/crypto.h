@@ -41,7 +41,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define RSA_KEY_LENGTH 4096
 #define RSA_STRING_LENGTH (RSA_KEY_LENGTH / 4 + 1)
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void Crypto_Init( void );
 void qnettle_random( void *ctx, size_t length, uint8_t *dst );
 
+#ifdef __cplusplus
+};
+#endif
 #endif /* __CRYPTO_H__ */
