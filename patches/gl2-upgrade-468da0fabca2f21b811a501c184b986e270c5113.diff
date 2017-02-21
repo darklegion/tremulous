@@ -1,0 +1,41 @@
+diff --git a/src/renderergl1/tr_surface.c b/src/renderergl1/tr_surface.c
+index c4a1b2d..9aadf95 100644
+--- a/src/renderergl1/tr_surface.c
++++ b/src/renderergl1/tr_surface.c
+@@ -563,8 +563,8 @@ static void VectorArrayNormalize(vec4_t *normals, unsigned int count)
+         
+ #if idppc
+     {
+-        register float half = 0.5;
+-        register float one  = 1.0;
++        float half = 0.5;
++        float one  = 1.0;
+         float *components = (float *)normals;
+         
+         // Vanilla PPC code, but since PPC has a reciprocal square root estimate instruction,
+diff --git a/src/renderergl2/tr_glsl.c b/src/renderergl2/tr_glsl.c
+index 84f36ec..966c217 100644
+--- a/src/renderergl2/tr_glsl.c
++++ b/src/renderergl2/tr_glsl.c
+@@ -1015,7 +1015,7 @@ void GLSL_InitGPUShaders(void)
+ 		if ((i & LIGHTDEF_USE_PARALLAXMAP) && !r_parallaxMapping->integer)
+ 			continue;
+ 
+-		if (!lightType && (i & LIGHTDEF_USE_SHADOWMAP))
++		if ((i & LIGHTDEF_USE_SHADOWMAP) && (!lightType || !r_sunlightMode->integer))
+ 			continue;
+ 
+ 		attribs = ATTR_POSITION | ATTR_TEXCOORD | ATTR_COLOR | ATTR_NORMAL;
+diff --git a/src/renderergl2/tr_shade.c b/src/renderergl2/tr_shade.c
+index fd88191..eeeed94 100644
+--- a/src/renderergl2/tr_shade.c
++++ b/src/renderergl2/tr_shade.c
+@@ -1598,7 +1598,7 @@ void RB_StageIteratorGeneric( void )
+ 	// 
+ 	// now do any dynamic lighting needed
+ 	//
+-	if ( tess.dlightBits && tess.shader->sort <= SS_OPAQUE
++	if ( tess.dlightBits && tess.shader->sort <= SS_OPAQUE && r_lightmap->integer == 0
+ 		&& !(tess.shader->surfaceFlags & (SURF_NODLIGHT | SURF_SKY) ) ) {
+ 		if (tess.shader->numUnfoggedPasses == 1 && tess.xstages[0]->glslShaderGroup == tr.lightallShader
+ 			&& (tess.xstages[0]->glslShaderIndex & LIGHTDEF_LIGHTTYPE_MASK) && r_dlightMode->integer)
