@@ -62,7 +62,7 @@ static void *cURLLib = NULL;
 GPA
 =================
 */
-static void *GPA(char *str)
+static void *GPA(const char *str)
 {
 	void* rv = Sys_LoadFunction(cURLLib, str);
 	if(!rv)
@@ -93,40 +93,40 @@ bool CL_cURL_Init()
 		return true;
 
 	Com_Printf("Loading \"%s\"...", cl_cURLLib->string);
-	if(!(cURLLib = Sys_LoadDll(cl_cURLLib->string, true)))
+	if( !(cURLLib = Sys_LoadDll(cl_cURLLib->string, qtrue)) )
 	{
 #ifdef ALTERNATE_CURL_LIB
 		// On some linux distributions there is no libcurl.so.3, but only libcurl.so.4. That one works too.
-		if(!(cURLLib = Sys_LoadDll(ALTERNATE_CURL_LIB, true)))
+		if( !(cURLLib = Sys_LoadDll(ALTERNATE_CURL_LIB, qtrue)) )
 #endif
 			return false;
 	}
 
 	clc.cURLEnabled = true;
 
-	qcurl_version = GPA("curl_version");
+	qcurl_version = (decltype(qcurl_version)) GPA("curl_version");
 
-	qcurl_easy_init = GPA("curl_easy_init");
-	qcurl_easy_setopt = GPA("curl_easy_setopt");
-	qcurl_easy_perform = GPA("curl_easy_perform");
-	qcurl_easy_cleanup = GPA("curl_easy_cleanup");
-	qcurl_easy_getinfo = GPA("curl_easy_getinfo");
-	qcurl_easy_duphandle = GPA("curl_easy_duphandle");
-	qcurl_easy_reset = GPA("curl_easy_reset");
-	qcurl_easy_strerror = GPA("curl_easy_strerror");
+	qcurl_easy_init = (decltype(qcurl_easy_init)) GPA("curl_easy_init");
+	qcurl_easy_setopt = (decltype(qcurl_easy_setopt)) GPA("curl_easy_setopt");
+	qcurl_easy_perform = (decltype(qcurl_easy_perform)) GPA("curl_easy_perform");
+	qcurl_easy_cleanup = (decltype(qcurl_easy_cleanup)) GPA("curl_easy_cleanup");
+	qcurl_easy_getinfo = (decltype(qcurl_easy_getinfo)) GPA("curl_easy_getinfo");
+	qcurl_easy_duphandle = (decltype(qcurl_easy_duphandle)) GPA("curl_easy_duphandle");
+	qcurl_easy_reset = (decltype(qcurl_easy_reset)) GPA("curl_easy_reset");
+	qcurl_easy_strerror = (decltype(qcurl_easy_strerror)) GPA("curl_easy_strerror");
 	
-	qcurl_multi_init = GPA("curl_multi_init");
-	qcurl_multi_add_handle = GPA("curl_multi_add_handle");
-	qcurl_multi_remove_handle = GPA("curl_multi_remove_handle");
-	qcurl_multi_fdset = GPA("curl_multi_fdset");
-	qcurl_multi_perform = GPA("curl_multi_perform");
-	qcurl_multi_cleanup = GPA("curl_multi_cleanup");
-	qcurl_multi_info_read = GPA("curl_multi_info_read");
-	qcurl_multi_strerror = GPA("curl_multi_strerror");
-    qcurl_slist_append = GPA("curl_slist_append");
-    qcurl_slist_free_all = GPA("curl_slist_free_all");
-    qcurl_global_init = GPA("curl_global_init");
-    qcurl_global_cleanup = GPA("curl_global_cleanup");
+	qcurl_multi_init = (decltype(qcurl_multi_init)) GPA("curl_multi_init");
+	qcurl_multi_add_handle = (decltype(qcurl_multi_add_handle)) GPA("curl_multi_add_handle");
+	qcurl_multi_remove_handle = (decltype(qcurl_multi_remove_handle)) GPA("curl_multi_remove_handle");
+	qcurl_multi_fdset = (decltype(qcurl_multi_fdset)) GPA("curl_multi_fdset");
+	qcurl_multi_perform = (decltype(qcurl_multi_perform)) GPA("curl_multi_perform");
+	qcurl_multi_cleanup = (decltype(qcurl_multi_cleanup)) GPA("curl_multi_cleanup");
+	qcurl_multi_info_read = (decltype(qcurl_multi_info_read)) GPA("curl_multi_info_read");
+	qcurl_multi_strerror = (decltype(qcurl_multi_strerror)) GPA("curl_multi_strerror");
+    qcurl_slist_append = (decltype(qcurl_slist_append)) GPA("curl_slist_append");
+    qcurl_slist_free_all = (decltype(qcurl_slist_free_all)) GPA("curl_slist_free_all");
+    qcurl_global_init = (decltype(qcurl_global_init)) GPA("curl_global_init");
+    qcurl_global_cleanup = (decltype(qcurl_global_cleanup)) GPA("curl_global_cleanup");
 
 	if(!clc.cURLEnabled)
 	{
