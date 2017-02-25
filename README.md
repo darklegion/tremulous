@@ -17,7 +17,45 @@ following these steps:
  - When you run the tremulous.exe binary for the first time, it may go through a bootstrap (download needed assets, generate an RSA key) process which may take a few minutes.
 * You can simply continue to run the new client from wherever the unzipped release folder is, or you could optionally replace your old Tremulous binaries with the binaries in the unzipped release directory, but make sure that you copy all of the contents of the unzipped release directory to where ever you move the released binaries to.  **_Backup your existing Tremulous if you intend on replacing the binaries._**
 
-# How to Install from the Source Code
+# Building from Source
+
+## Dependencies
+
+If you want to build against system libraries, the following packages are necessary:
+
+### Linux:
+
+* GCC/G++ (version 6+ is recommend)
+* CMake (Optional)
+* Zip (the tool not the library)
+* Libgl1-mesa
+* LibSDL2
+* LibCURL4
+* LibOpenAL
+* Libfreetype6
+* Lua 5.2
+
+On Ubuntu yakkety (specifically) you can install all the packages necessary with the following:
+
+```
+apt install -y cmake libgl1-mesa-dev libsdl2-dev libcurl4-openssl-dev libopenal-dev libfreetype6-dev mingw-w64 g++-mingw-w64 g++-multilib git zip vim-nox
+
+```
+
+### Mingw32 (win32 cross compile)
+
+Mingw32 requires `USE_INTERNAL_LIBS=1`
+
+* Mingw-w64
+* g++-mingw-w64
+
+Currently there is no native Windows build setup, all builds are cross compiled on Linux.
+
+### OSX
+
+TBD
+
+## How to Install from the Source Code
 
 For Linux and Mac OS X builds, follow these steps.
 
