@@ -3,7 +3,21 @@
 [![Travis branch](https://travis-ci.org/wtfbbqhax/tremulous.svg?branch=lua)](https://travis-ci.org/wtfbbqhax/tremulous)
 [![Coverity Scan](https://img.shields.io/coverity/scan/9866.svg?maxAge=3600)](https://scan.coverity.com/projects/wtfbbqhax-tremulous)
 
-# How to Install
+# How to Install from GrangerHub's Release Page
+
+You can install the latest released binaries from GrangerHub's release page,
+following these steps:
+
+* Download the most recent .zip file for your platform from https://github.com/GrangerHub/tremulous/releases
+ - The 64 bit Windows release would be named release-mingw32-x86_64.zip
+ - The 64 bit Linux release would be named release-linux-x86_64.zip
+ - The 64 bit Mac OS X release would be named release-darwin-x86_64.zip
+* Unzip the release .zip anywhere
+* Run the tremulous.exe from the unzipped release directory.
+ - When you run the tremulous.exe binary for the first time, it may go through a bootstrap (download needed assets, generate an RSA key) process which may take a few minutes.
+* You can simply continue to run the new client from wherever the unzipped release folder is, or you could optionally replace your old Tremulous binaries with the binaries in the unzipped release directory, but make sure that you copy all of the contents of the unzipped release directory to where ever you move the released binaries to.  **_Backup your existing Tremulous if you intend on replacing the binaries._**
+
+# How to Install from the Source Code
 
 For Linux and Mac OS X builds, follow these steps.
 

@@ -1166,7 +1166,7 @@ EXEC_CXX = $(CXX) -std=c++1y ${CXXFLAGS} ${1} -o ${2} -c ${3}
 CC_FLAGS=${NOTSHLIBCFLAGS} ${CFLAGS} ${CLIENT_CFLAGS} ${OPTIMIZE}
 define DO_CC
 $(echo_cmd) "CC $<"
-$(Q)$(call EXEC_CC,${CC_FLAGS},'$@','$<')
+$(Q)$(call EXEC_CC,-std=gnu99 ${CC_FLAGS},'$@','$<')
 $(Q)$(call LOG_CC,tremulous,${CC_FLAGS},$@,$<)
 endef
 
@@ -1270,7 +1270,7 @@ endef
 DED_CC_FLAGS=-DDEDICATED ${NOTSHLIBCFLAGS} ${CFLAGS} ${SERVER_CFLAGS} ${OPTIMIZE}
 define DO_DED_CC
 $(echo_cmd) "DED_CC $<"
-$(Q)$(call EXEC_CC,${DED_CC_FLAGS},'$@','$<')
+$(Q)$(call EXEC_CC,-std=gnu99 ${DED_CC_FLAGS},'$@','$<')
 $(Q)$(call LOG_CC,tremded,${DED_CC_FLAGS},$@,$<)
 endef
 
@@ -1512,7 +1512,7 @@ $(B)/tools/lburg/%.o: $(LBURGDIR)/%.c
 
 $(LBURG): $(LBURGOBJ)
 	$(echo_cmd) "LD $@"
-	$(Q)$(TOOLS_CC) $(TOOLS_CFLAGS) $(TOOLS_LDFLAGS) -o $@ $^ $(TOOLS_LIBS)
+	$(Q)$(TOOLS_CC) -std=gnu99 $(TOOLS_CFLAGS) $(TOOLS_LDFLAGS) -o $@ $^ $(TOOLS_LIBS)
 
 Q3RCCOBJ = \
   $(B)/tools/rcc/alloc.o \
@@ -1711,8 +1711,8 @@ GRANGEROBJ = \
 
 define DO_GRANGER_CC
   $(echo_cmd) "GRANGER_CC $<"
-  $(Q)$(call EXEC_CC, ${GRANGER_CFLAGS} ${OPTIMIZE},'$@','$<')
-  $(Q)$(call LOG_CC,granger, ${GRANGER_CFLAGS} ${OPTIMIZE},$@,$<)
+  $(Q)$(call EXEC_CC,-std=gnu99 ${GRANGER_CFLAGS} ${OPTIMIZE},'$@','$<')
+  $(Q)$(call LOG_CC,granger,-std=gnu99 ${GRANGER_CFLAGS} ${OPTIMIZE},$@,$<)
 endef
  
 $(B)/granger.dir/src/lua/%.o: $(GRANGERDIR)/lua/%.c
