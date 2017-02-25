@@ -44,7 +44,7 @@ static int qconsole_history_oldest = 0;
 // current edit buffer
 static char qconsole_line[ MAX_EDIT_LINE ];
 static int qconsole_linelen = 0;
-static qboolean qconsole_drawinput = qtrue;
+static bool qconsole_drawinput = true;
 static int qconsole_cursor;
 
 static HANDLE qconsole_hout;

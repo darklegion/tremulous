@@ -1654,7 +1654,7 @@ void VM_Compile(vm_t *vm, vmHeader_t *header)
 		Com_Error(ERR_FATAL, "VM_CompileX86: can't mmap memory");
 #elif _WIN32
 	// allocate memory with EXECUTE permissions under windows.
-	vm->codeBase = VirtualAlloc(NULL, compiledOfs, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+	vm->codeBase = (byte*)VirtualAlloc(NULL, compiledOfs, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
 	if(!vm->codeBase)
 		Com_Error(ERR_FATAL, "VM_CompileX86: VirtualAlloc failed");
 #else

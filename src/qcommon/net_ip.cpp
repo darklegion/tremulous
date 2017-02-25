@@ -543,7 +543,7 @@ qboolean NET_GetPacket(netadr_t *net_from, msg_t *net_message, fd_set *fdr)
 	if(ip_sockets[a] != INVALID_SOCKET && FD_ISSET(ip_sockets[a], fdr))
 	{
 		fromlen = sizeof(from);
-		ret = recvfrom( ip_sockets[a], (void *)net_message->data, net_message->maxsize, 0, (struct sockaddr *) &from, &fromlen );
+		ret = recvfrom( ip_sockets[a], (char*)net_message->data, net_message->maxsize, 0, (struct sockaddr *) &from, &fromlen );
 		
 		if (ret == SOCKET_ERROR)
 		{
@@ -589,7 +589,7 @@ qboolean NET_GetPacket(netadr_t *net_from, msg_t *net_message, fd_set *fdr)
 	if(ip6_sockets[a] != INVALID_SOCKET && FD_ISSET(ip6_sockets[a], fdr))
 	{
 		fromlen = sizeof(from);
-		ret = recvfrom(ip6_sockets[a], (void *)net_message->data, net_message->maxsize, 0, (struct sockaddr *) &from, &fromlen);
+		ret = recvfrom(ip6_sockets[a], (char*)net_message->data, net_message->maxsize, 0, (struct sockaddr *) &from, &fromlen);
 		
 		if (ret == SOCKET_ERROR)
 		{
@@ -621,7 +621,7 @@ qboolean NET_GetPacket(netadr_t *net_from, msg_t *net_message, fd_set *fdr)
 	if(multicast6_socket != INVALID_SOCKET && multicast6_socket != ip6_socket && FD_ISSET(multicast6_socket, fdr))
 	{
 		fromlen = sizeof(from);
-		ret = recvfrom(multicast6_socket, (void *)net_message->data, net_message->maxsize, 0, (struct sockaddr *) &from, &fromlen);
+		ret = recvfrom(multicast6_socket, (char*)net_message->data, net_message->maxsize, 0, (struct sockaddr *) &from, &fromlen);
 		
 		if (ret == SOCKET_ERROR)
 		{
@@ -692,13 +692,13 @@ void Sys_SendPacket( int length, const void *data, netadr_t to ) {
 		*(int *)&socksBuf[4] = ((struct sockaddr_in *)&addr)->sin_addr.s_addr;
 		*(short *)&socksBuf[8] = ((struct sockaddr_in *)&addr)->sin_port;
 		memcpy( &socksBuf[10], data, length );
-		ret = sendto( ip_sockets[to.alternateProtocol], socksBuf, length+10, 0, &socksRelayAddr, sizeof(socksRelayAddr) );
+		ret = sendto( ip_sockets[to.alternateProtocol], (const char*)socksBuf, length+10, 0, &socksRelayAddr, sizeof(socksRelayAddr) );
 	}
 	else {
 		if(addr.ss_family == AF_INET)
-			ret = sendto( ip_sockets[to.alternateProtocol], data, length, 0, (struct sockaddr *) &addr, sizeof(struct sockaddr_in) );
+			ret = sendto( ip_sockets[to.alternateProtocol], (const char*)data, length, 0, (struct sockaddr *) &addr, sizeof(struct sockaddr_in) );
 		else if(addr.ss_family == AF_INET6)
-			ret = sendto( ip6_sockets[to.alternateProtocol], data, length, 0, (struct sockaddr *) &addr, sizeof(struct sockaddr_in6) );
+			ret = sendto( ip6_sockets[to.alternateProtocol], (const char*)data, length, 0, (struct sockaddr *) &addr, sizeof(struct sockaddr_in6) );
 	}
 	if( ret == SOCKET_ERROR ) {
 		int err = socketError;

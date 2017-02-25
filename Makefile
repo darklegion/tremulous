@@ -1160,6 +1160,8 @@ EXEC_CC = $(CC) ${1} -o ${2} -c ${3}
 #LOG_CC = $(file >>$(B)/compile_commands.txt,{ "target": "${1}", "directory": "$(shell pwd)/$(shell dirname $3)", "command": "${CC} ${2} -o ${3} -c ${4}", "file": "$(shell pwd)/${4}", "relative_file": "${4}" })
 
 EXEC_CXX = $(CXX) -std=c++1y ${CXXFLAGS} ${1} -o ${2} -c ${3}
+
+EXEC_CXX = $(CXX) -std=c++1y ${CXXFLAGS} ${1} -o ${2} -c ${3}
 #LOG_CXX = $(file >>$(B)/compile_commands.txt,{ "target": "${1}", "directory": "$(shell pwd)/$(shell dirname $3)", "command": "${CXX} ${2} -o ${3} -c ${4}", "file": "$(shell pwd)/${4}", "relative_file": "${4}"})
 
 # TREMULOUS CLIENT
@@ -2369,15 +2371,14 @@ endif
 #-bbq
 ifeq ($(USE_RESTCLIENT),1)
   Q3OBJ += \
-  	$(B)/client/restclient/connection.o \
-  	$(B)/client/restclient/helpers.o \
-  	$(B)/client/restclient/restclient.o
+  $(B)/client/restclient/connection.o \
+  $(B)/client/restclient/helpers.o \
+  $(B)/client/restclient/restclient.o
 endif
 
 ifeq ($(HAVE_VM_COMPILED),true)
   ifneq ($(findstring $(ARCH),x86 x86_64),)
-    Q3OBJ += \
-      $(B)/client/vm_x86.o
+    Q3OBJ += $(B)/client/vm_x86.o
   endif
   ifneq ($(findstring $(ARCH),ppc ppc64),)
     Q3OBJ += $(B)/client/vm_powerpc.o $(B)/client/vm_powerpc_asm.o
@@ -2835,8 +2836,8 @@ $(B)/client/%.o: $(SYSDIR)/%.c
 $(B)/client/%.o: $(SYSDIR)/%.cpp
 	$(DO_CXX)
 
-$(B)/client/%.o: $(SYSDIR)/%.m
-	$(DO_CC)
+$(B)/client/%.o: $(SYSDIR)/%.mm
+	$(DO_CXX)
 
 #-wtf
 $(B)/client/restclient/%.o: $(RESTDIR)/%.cpp
@@ -2902,8 +2903,8 @@ $(B)/ded/%.o: $(SYSDIR)/%.c
 $(B)/ded/%.o: $(SYSDIR)/%.cpp
 	$(DO_DED_CXX)
 
-$(B)/ded/%.o: $(SYSDIR)/%.m
-	$(DO_DED_CC)
+$(B)/ded/%.o: $(SYSDIR)/%.mm
+	$(DO_DED_CXX)
 
 $(B)/ded/%.o: $(SYSDIR)/%.rc
 	$(DO_WINDRES)

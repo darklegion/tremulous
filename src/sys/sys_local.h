@@ -26,6 +26,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
+#include "../qcommon/sys_shared.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 // Require a minimum version of SDL
 #define MINSDL_MAJOR 2
@@ -59,4 +64,8 @@ void Sys_AnsiColorPrint( const char *msg );
 int Sys_PID( void );
 qboolean Sys_PIDIsRunning( int pid );
 
+#ifdef __cplusplus
+};
 #endif
+#endif
+

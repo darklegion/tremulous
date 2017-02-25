@@ -1,14 +1,14 @@
 add_library (
     sys STATIC
-    con_log.c
-    con_passive.c
-    con_tty.c
-    con_win32.c
+    con_log.cpp
+    con_passive.cpp
+    con_tty.cpp
+    con_win32.cpp
     sys_loadlib.h
     sys_local.h
     sys_main.cpp
-    sys_unix.c
-    sys_win32.c
+    sys_unix.cpp
+    sys_win32.cpp
     win_resource.h
 )
 

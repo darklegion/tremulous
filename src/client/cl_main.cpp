@@ -1067,7 +1067,7 @@ demo <demoname>
 */
 void CL_PlayDemo_f( void ) {
 	char name[MAX_OSPATH];
-	char* ext_test;
+	const char* ext_test;
 	int	protocol, i;
 	char retry[MAX_OSPATH];
 

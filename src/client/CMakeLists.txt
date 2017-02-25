@@ -29,7 +29,7 @@ add_definitions(
 
 set(PARENT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/..)
 if(APPLE)
-set(APPLE_SOURCES ${PARENT_DIR}/sys/sys_osx.m)
+set(APPLE_SOURCES ${PARENT_DIR}/sys/sys_osx.mm)
 endif(APPLE)
 
 add_executable(

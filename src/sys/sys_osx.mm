@@ -33,8 +33,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/qcommon.h"
 #include "sys_local.h"
 
+//#import <AppKit/AppKit.h>
+#import <Foundation/Foundation.h>
 #import <Carbon/Carbon.h>
 #import <Cocoa/Cocoa.h>
+//
+//#import <AppKit/AppKitDefines.h>
+//#import <Foundation/NSObject.h>
+//#import <Foundation/NSArray.h>
+//#import <Foundation/NSDictionary.h>
+//#import <AppKit/NSAlert.h>
 
 /*
 ==============
@@ -91,5 +99,4 @@ dialogResult_t Sys_Dialog( dialogType_t type, const char *message, const char *t
 
 	return result;
 }
-
 

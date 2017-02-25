@@ -14,7 +14,7 @@
 #include "qcommon.h"
 
 #ifdef __cplusplus
-//extern "C" {
+extern "C" {
 #endif
 
 #define MAX_JOYSTICK_AXIS 16
@@ -100,6 +100,6 @@ void Sys_SetEnv(const char *name, const char *value);
 qboolean Sys_WritePIDFile(void);
 
 #ifdef __cplusplus
-//}
+};
 #endif
 #endif
