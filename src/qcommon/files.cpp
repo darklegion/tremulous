@@ -3935,7 +3935,7 @@ int FS_FOpenFileByMode(const char *qpath, fileHandle_t *f, enum FS_Mode mode)
         case FS_WRITE:
             *f = FS_FOpenFileWrite(qpath);
             r = 0;
-            if (*f) r = -1;
+            if (*f == 0) r = -1;
             break;
 
         case FS_APPEND_SYNC:
@@ -3945,7 +3945,7 @@ int FS_FOpenFileByMode(const char *qpath, fileHandle_t *f, enum FS_Mode mode)
         case FS_APPEND:
             *f = FS_FOpenFileAppend(qpath);
             r = 0;
-            if (*f) r = -1;
+            if (*f == 0) r = -1;
             break;
 
         default:
