@@ -140,7 +140,7 @@ SV_inPVS
 Also checks portalareas so that doors block sight
 =================
 */
-qboolean SV_inPVS (const vec3_t p1, const vec3_t p2)
+bool SV_inPVS (const vec3_t p1, const vec3_t p2)
 {
 	int		leafnum;
 	int		cluster;
@@ -155,11 +155,14 @@ qboolean SV_inPVS (const vec3_t p1, const vec3_t p2)
 	leafnum = CM_PointLeafnum (p2);
 	cluster = CM_LeafCluster (leafnum);
 	area2 = CM_LeafArea (leafnum);
-	if ( mask && (!(mask[cluster>>3] & (1<<(cluster&7)) ) ) )
-		return qfalse;
+
+	if ( mask && !(mask[cluster>>3] & (1<<(cluster&7))) )
+		return false;
+
 	if (!CM_AreasConnected (area1, area2))
-		return qfalse;		// a door blocks sight
-	return qtrue;
+		return false;		// a door blocks sight
+
+	return true;
 }
 
 
@@ -170,7 +173,7 @@ SV_inPVSIgnorePortals
 Does NOT check portalareas
 =================
 */
-qboolean SV_inPVSIgnorePortals( const vec3_t p1, const vec3_t p2)
+bool SV_inPVSIgnorePortals( const vec3_t p1, const vec3_t p2)
 {
 	int		leafnum;
 	int		cluster;
@@ -184,9 +187,9 @@ qboolean SV_inPVSIgnorePortals( const vec3_t p1, const vec3_t p2)
 	cluster = CM_LeafCluster (leafnum);
 
 	if ( mask && (!(mask[cluster>>3] & (1<<(cluster&7)) ) ) )
-		return qfalse;
+		return false;
 
-	return qtrue;
+	return true;
 }
 
 
@@ -211,7 +214,7 @@ void SV_AdjustAreaPortalState( sharedEntity_t *ent, qboolean open ) {
 SV_EntityContact
 ==================
 */
-qboolean	SV_EntityContact( vec3_t mins, vec3_t maxs, const sharedEntity_t *gEnt, traceType_t type ) {
+bool SV_EntityContact( vec3_t mins, vec3_t maxs, const sharedEntity_t *gEnt, traceType_t type ) {
 	const float	*origin, *angles;
 	clipHandle_t	ch;
 	trace_t			trace;

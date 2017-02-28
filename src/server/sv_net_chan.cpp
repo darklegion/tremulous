@@ -241,14 +241,14 @@ void SV_Netchan_Transmit( client_t *client, msg_t *msg)
 Netchan_SV_Process
 =================
 */
-qboolean SV_Netchan_Process( client_t *client, msg_t *msg ) {
-	int ret;
-	ret = Netchan_Process( &client->netchan, msg );
-	if (!ret)
-		return qfalse;
+bool SV_Netchan_Process( client_t *client, msg_t *msg )
+{
+	int ret = Netchan_Process( &client->netchan, msg );
+	if (!ret) return false;
+
 	if (client->netchan.alternateProtocol != 0)
 		SV_Netchan_Decode( client, msg );
 
-	return qtrue;
+	return true;
 }
 

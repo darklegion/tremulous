@@ -42,7 +42,7 @@ Restart the server on a different map
 static void SV_Map_f( void ) {
 	const char	*cmd;
 	const char	*map;
-	qboolean	killBots, cheat;
+	bool        cheat;
 	char		expanded[MAX_QPATH];
 	char		mapname[MAX_QPATH];
 	int			a;
@@ -63,11 +63,9 @@ static void SV_Map_f( void ) {
 
 	cmd = Cmd_Argv(0);
 	if ( !Q_stricmp( cmd, "devmap" ) ) {
-		cheat = qtrue;
-		killBots = qtrue;
+		cheat = true;
 	} else {
-		cheat = qfalse;
-		killBots = qfalse;
+		cheat = false;
 	}
 
 	// save the map name here cause on a map restart we reload the autogen.cfg
@@ -75,7 +73,7 @@ static void SV_Map_f( void ) {
 	Q_strncpyz(mapname, map, sizeof(mapname));
 
 	// start up the map
-	SV_SpawnServer( mapname, killBots );
+	SV_SpawnServer( mapname );
 
 	// set the cheat value
 	// if the level was started with "map <levelname>", then
@@ -144,7 +142,7 @@ static void SV_MapRestart_f( void ) {
 		// restart the map the slow way
 		Q_strncpyz( mapname, Cvar_VariableString( "mapname" ), sizeof( mapname ) );
 
-		SV_SpawnServer( mapname, qfalse );
+		SV_SpawnServer( mapname );
 		return;
 	}
 
@@ -170,7 +168,7 @@ static void SV_MapRestart_f( void ) {
 	// note that we do NOT set sv.state = SS_LOADING, so configstrings that
 	// had been changed from their default values will generate broadcast updates
 	sv.state = SS_LOADING;
-	sv.restarting = qtrue;
+	sv.restarting = true;
 
 	SV_RestartGameProgs();
 
@@ -183,7 +181,7 @@ static void SV_MapRestart_f( void ) {
 	}
 
 	sv.state = SS_GAME;
-	sv.restarting = qfalse;
+	sv.restarting = false;
 
 	// connect and begin all the clients
 	for (i=0 ; i<sv_maxclients->integer ; i++) {

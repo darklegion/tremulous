@@ -184,7 +184,7 @@ void SV_GetChallenge(netadr_t from)
 		challenge->clientChallenge = clientChallenge;
 		challenge->adr = from;
 		challenge->firstTime = svs.time;
-		challenge->connected = qfalse;
+		challenge->connected = false;
 
 		if ( sv_rsaAuth->integer ) {
 			Sys_CryptoRandomBytes( buf, sizeof(buf) );
@@ -196,7 +196,7 @@ void SV_GetChallenge(netadr_t from)
 
 	// always generate a new challenge number, so the client cannot circumvent sv_maxping
 	challenge->challenge = ( (rand() << 16) ^ rand() ) ^ svs.time;
-	challenge->wasrefused = qfalse;
+	challenge->wasrefused = false;
 	challenge->time = svs.time;
 	challenge->pingTime = svs.time;
 
@@ -323,19 +323,19 @@ void SV_DirectConnect( netadr_t from ) {
 			if ( sv_minPing->value && ping < sv_minPing->value ) {
 				NET_OutOfBandPrint( NS_SERVER, from, "print\nServer is for high pings only\n" );
 				Com_DPrintf ("Client %i rejected on a too low ping\n", i);
-				challengeptr->wasrefused = qtrue;
+				challengeptr->wasrefused = true;
 				return;
 			}
 			if ( sv_maxPing->value && ping > sv_maxPing->value ) {
 				NET_OutOfBandPrint( NS_SERVER, from, "print\nServer is for low pings only\n" );
 				Com_DPrintf ("Client %i rejected on a too high ping\n", i);
-				challengeptr->wasrefused = qtrue;
+				challengeptr->wasrefused = true;
 				return;
 			}
 		}
 
 		Com_Printf("Client %i connecting with %i challenge ping\n", i, ping);
-		challengeptr->connected = qtrue;
+		challengeptr->connected = true;
 	}
 
 	// ignore any fingerprint set by the client
@@ -599,7 +599,7 @@ static void SV_SendClientGameState( client_t *client ) {
 	Com_DPrintf( "Going from CS_CONNECTED to CS_PRIMED for %s\n", client->name );
 	client->state = CS_PRIMED;
 	client->pureAuthentic = 0;
-	client->gotCP = qfalse;
+	client->gotCP = false;
 
 	// when we receive the first packet from the client, we will
 	// notice that it is from a different serverid and that the
@@ -907,7 +907,7 @@ int SV_WriteDownloadToClient(client_t *cl, msg_t *msg)
 		// Init
 		cl->downloadCurrentBlock = cl->downloadClientBlock = cl->downloadXmitBlock = 0;
 		cl->downloadCount = 0;
-		cl->downloadEOF = qfalse;
+		cl->downloadEOF = false;
 	}
 
 	// Perform any reads that we need to
@@ -934,14 +934,14 @@ int SV_WriteDownloadToClient(client_t *cl, msg_t *msg)
 	}
 
 	// Check to see if we have eof condition and add the EOF block
-	if (cl->downloadCount == cl->downloadSize &&
-		!cl->downloadEOF &&
-		cl->downloadCurrentBlock - cl->downloadClientBlock < MAX_DOWNLOAD_WINDOW) {
-
+	if (cl->downloadCount == cl->downloadSize
+      && !cl->downloadEOF
+      && cl->downloadCurrentBlock - cl->downloadClientBlock < MAX_DOWNLOAD_WINDOW)
+    {
 		cl->downloadBlockSize[cl->downloadCurrentBlock % MAX_DOWNLOAD_WINDOW] = 0;
 		cl->downloadCurrentBlock++;
 
-		cl->downloadEOF = qtrue;  // We have added the EOF block
+		cl->downloadEOF = true;  // We have added the EOF block
 	}
 
 	if (cl->downloadClientBlock == cl->downloadCurrentBlock)
@@ -1214,7 +1214,7 @@ static void SV_VerifyPaks_f( client_t *cl ) {
 			break;
 		}
 
-		cl->gotCP = qtrue;
+		cl->gotCP = true;
 
 		if (bGood) {
 			cl->pureAuthentic = 1;
@@ -1240,7 +1240,7 @@ SV_ResetPureClient_f
 */
 static void SV_ResetPureClient_f( client_t *cl ) {
 	cl->pureAuthentic = 0;
-	cl->gotCP = qfalse;
+	cl->gotCP = false;
 }
 
 /*
@@ -1314,7 +1314,7 @@ void SV_UserinfoChanged( client_t *cl ) {
 	
 #ifdef USE_VOIP
 	val = Info_ValueForKey(cl->userinfo, "cl_voipProtocol");
-	cl->hasVoip = (qboolean)!Q_stricmp( val, "opus" );
+	cl->hasVoip = !Q_stricmp( val, "opus" );
 #endif
 
 	// TTimo
@@ -1364,8 +1364,7 @@ static void SV_UpdateUserinfo_f( client_t *cl ) {
 
 
 #ifdef USE_VOIP
-static
-void SV_UpdateVoipIgnore(client_t *cl, const char *idstr, qboolean ignore)
+static void SV_UpdateVoipIgnore(client_t *cl, const char *idstr, bool ignore)
 {
 	if ((*idstr >= '0') && (*idstr <= '9')) {
 		const int id = atoi(idstr);
@@ -1380,16 +1379,17 @@ void SV_UpdateVoipIgnore(client_t *cl, const char *idstr, qboolean ignore)
 SV_Voip_f
 ==================
 */
-static void SV_Voip_f( client_t *cl ) {
+static void SV_Voip_f( client_t *cl )
+{
 	const char *cmd = Cmd_Argv(1);
 	if (strcmp(cmd, "ignore") == 0) {
-		SV_UpdateVoipIgnore(cl, Cmd_Argv(2), qtrue);
+		SV_UpdateVoipIgnore(cl, Cmd_Argv(2), true);
 	} else if (strcmp(cmd, "unignore") == 0) {
-		SV_UpdateVoipIgnore(cl, Cmd_Argv(2), qfalse);
+		SV_UpdateVoipIgnore(cl, Cmd_Argv(2), false);
 	} else if (strcmp(cmd, "muteall") == 0) {
-		cl->muteAllVoip = qtrue;
+		cl->muteAllVoip = true;
 	} else if (strcmp(cmd, "unmuteall") == 0) {
-		cl->muteAllVoip = qfalse;
+		cl->muteAllVoip = false;
 	}
 }
 #endif
@@ -1424,7 +1424,7 @@ SV_ExecuteClientCommand
 Also called by bot code
 ==================
 */
-void SV_ExecuteClientCommand( client_t *cl, const char *s, qboolean clientOK ) {
+void SV_ExecuteClientCommand( client_t *cl, const char *s, bool clientOK ) {
 	ucmd_t	*u;
 	qboolean bProcessed = qfalse;
 	
@@ -1457,7 +1457,7 @@ SV_ClientCommand
 static qboolean SV_ClientCommand( client_t *cl, msg_t *msg ) {
 	int		seq;
 	const char	*s;
-	qboolean clientOk = qtrue;
+	bool clientOk = true;
 
 	seq = MSG_ReadLong( msg );
 	s = MSG_ReadString( msg );
@@ -1491,7 +1491,7 @@ static qboolean SV_ClientCommand( client_t *cl, msg_t *msg ) {
 		svs.time < cl->nextReliableTime ) {
 		// ignore any other text messages from this client but let them keep playing
 		// TTimo - moved the ignored verbose to the actual processing in SV_ExecuteClientCommand, only printing if the core doesn't intercept
-		clientOk = qfalse;
+		clientOk = false;
 	}
 #endif
 

@@ -661,7 +661,7 @@ void SV_SendClientMessages(void)
 
 		if(c->netchan.unsentFragments || c->netchan_start_queue)
 		{
-			c->rateDelayed = qtrue;
+			c->rateDelayed = true;
 			continue;		// Drop this snapshot if the packet queue is still full or delta compression will break
 		}
 
@@ -676,7 +676,7 @@ void SV_SendClientMessages(void)
 			if(SV_RateMsec(c) > 0)
 			{
 				// Not enough time since last packet passed through the line
-				c->rateDelayed = qtrue;
+				c->rateDelayed = true;
 				continue;
 			}
 		}
@@ -684,6 +684,6 @@ void SV_SendClientMessages(void)
 		// generate and send a new message
 		SV_SendClientSnapshot(c);
 		c->lastSnapshotTime = svs.time;
-		c->rateDelayed = qfalse;
+		c->rateDelayed = false;
 	}
 }

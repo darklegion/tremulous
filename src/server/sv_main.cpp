@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "server.h"
 
+#include <iostream>
+
 #ifdef USE_VOIP
 cvar_t *sv_voip;
 cvar_t *sv_voipProtocol;
@@ -176,9 +178,9 @@ void QDECL SV_SendServerCommand(client_t *cl, const char *fmt, ...) {
 	client_t	*client;
 	int			j;
 	
-	va_start (argptr,fmt);
-	Q_vsnprintf ((char *)message, sizeof(message), fmt,argptr);
-	va_end (argptr);
+	va_start(argptr, fmt);
+	Q_vsnprintf((char*)message, sizeof(message), fmt,argptr);
+	va_end(argptr);
 
 	// Fix to http://aluigi.altervista.org/adv/q3msgboom-adv.txt
 	// The actual cause of the bug is probably further downstream
@@ -190,8 +192,7 @@ void QDECL SV_SendServerCommand(client_t *cl, const char *fmt, ...) {
 	// this from happening is stopping the packet here. Ideally,
 	// we should increase the size of the downstream message.
 	if ( strlen ((char *)message) > 1022 ) {
-	  Com_Printf( "SV_SendServerCommand( %ld, %.20s... ) length %ld > 1022, "
-		      "dropping to avoid server buffer overflow.\n",
+	  Com_Printf( "SV_SendServerCommand( %ld, %.20s... ) length %ld > 1022, dropping to avoid server buffer overflow.\n",
 		      cl - svs.clients, message, strlen( (char *)message ) );
 	  Com_Printf( "Full message: [%s]\n", message ); 
 	  return;
@@ -490,29 +491,34 @@ static leakyBucket_t *SVC_BucketForAddress( netadr_t address, int burst, int per
 SVC_RateLimit
 ================
 */
-qboolean SVC_RateLimit( leakyBucket_t *bucket, int burst, int period ) {
-	if ( bucket != NULL ) {
+bool SVC_RateLimit( leakyBucket_t *bucket, int burst, int period )
+{
+	if ( bucket != NULL )
+    {
 		int now = Sys_Milliseconds();
 		int interval = now - bucket->lastTime;
 		int expired = interval / period;
 		int expiredRemainder = interval % period;
 
-		if ( expired > bucket->burst || interval < 0 ) {
+		if ( expired > bucket->burst || interval < 0 )
+        {
 			bucket->burst = 0;
 			bucket->lastTime = now;
-		} else {
+		}
+        else
+        {
 			bucket->burst -= expired;
 			bucket->lastTime = now - expiredRemainder;
 		}
 
-		if ( bucket->burst < burst ) {
+		if ( bucket->burst < burst )
+        {
 			bucket->burst++;
-
-			return qfalse;
+			return false;
 		}
 	}
 
-	return qtrue;
+	return true;
 }
 
 /*
@@ -522,9 +528,9 @@ SVC_RateLimitAddress
 Rate limit for a particular address
 ================
 */
-qboolean SVC_RateLimitAddress( netadr_t from, int burst, int period ) {
+bool SVC_RateLimitAddress( netadr_t from, int burst, int period )
+{
 	leakyBucket_t *bucket = SVC_BucketForAddress( from, burst, period );
-
 	return SVC_RateLimit( bucket, burst, period );
 }
 
@@ -771,37 +777,38 @@ connectionless packets.
 */
 static void SV_ConnectionlessPacket( netadr_t from, msg_t *msg )
 {
-	MSG_BeginReadingOOB( msg );
-	MSG_ReadLong( msg );		// skip the -1 marker
+    MSG_BeginReadingOOB( msg );
+    MSG_ReadLong( msg );		// skip the -1 marker
 
-	if (!Q_strncmp("connect", (char *) &msg->data[4], 7)) {
-		Huff_Decompress(msg, 12);
-	}
+    if (!Q_strncmp("connect", (char*) &msg->data[4], 7)) {
+        Huff_Decompress(msg, 12);
+    }
 
-	char *s = MSG_ReadBigString( msg );
-	Cmd_TokenizeString( s );
+    char *s = MSG_ReadBigString( msg );
+    Cmd_TokenizeString( s );
 
-	const char *c = Cmd_Argv(0);
-	Com_DPrintf ("SV packet %s : %s\n", NET_AdrToString(from), c);
+    const std::string c { Cmd_Argv(0) };
 
-	if (!Q_stricmp(c, "getstatus")) {
-		SVC_Status( from );
-  } else if (!Q_stricmp(c, "getinfo")) {
-		SVC_Info( from );
-	} else if (!Q_stricmp(c, "getchallenge")) {
-		SV_GetChallenge(from);
-	} else if (!Q_stricmp(c, "connect")) {
-		SV_DirectConnect( from );
-	} else if (!Q_stricmp(c, "rcon")) {
-		SVC_RemoteCommand( from, msg );
-	} else if (!Q_stricmp(c, "disconnect")) {
-		// if a client starts up a local server, we may see some spurious
-		// server disconnect messages when their new server sees our final
-		// sequenced messages to the old client
-	} else {
-		Com_DPrintf ("bad connectionless packet from %s:\n%s\n",
-			NET_AdrToString (from), s);
-	}
+    Com_DPrintf("SV packet %s : %s\n", NET_AdrToString(from), c.c_str());
+
+    if ( c ==  "getstatus" )
+        SVC_Status( from );
+    else if ( c == "getinfo" )
+        SVC_Info( from );
+    else if ( c == "getchallenge" )
+        SV_GetChallenge(from);
+    else if ( c == "connect" )
+        SV_DirectConnect( from );
+    else if ( c == "rcon" )
+        SVC_RemoteCommand( from, msg );
+    else if ( c == "disconnect" )
+    {
+        // if a client starts up a local server, we may see some spurious
+        // server disconnect messages when their new server sees our final
+        // sequenced messages to the old client
+    }
+    else
+        Com_DPrintf("bad connectionless packet from %s:\n%s\n", NET_AdrToString(from), s);
 }
 
 //============================================================================

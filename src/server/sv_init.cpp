@@ -98,20 +98,20 @@ Configstring indexes that have changed while the client was in CS_PRIMED
 */
 void SV_UpdateConfigstrings(client_t *client)
 {
-	int index;
-
-	for( index = 0; index < MAX_CONFIGSTRINGS; index++ ) {
+	for( int i = 0; i < MAX_CONFIGSTRINGS; i++ )
+    {
 		// if the CS hasn't changed since we went to CS_PRIMED, ignore
-		if(!client->csUpdated[index])
+		if(!client->csUpdated[i])
 			continue;
 
 		// do not always send server info to all clients
-		if ( index == CS_SERVERINFO && client->gentity &&
+		if ( i == CS_SERVERINFO && client->gentity &&
 			(client->gentity->r.svFlags & SVF_NOSERVERINFO) ) {
 			continue;
 		}
-		SV_SendConfigstring(client, index);
-		client->csUpdated[index] = qfalse;
+
+		SV_SendConfigstring(client, i);
+		client->csUpdated[i] = false;
 	}
 }
 
@@ -121,7 +121,8 @@ SV_SetConfigstring
 
 ===============
 */
-void SV_SetConfigstring (int index, const char *val) {
+void SV_SetConfigstring (int index, const char *val)
+{
 	qboolean modified[3] = { qfalse, qfalse, qfalse };
 	int		i;
 	client_t	*client;
@@ -191,7 +192,7 @@ void SV_SetConfigstring (int index, const char *val) {
 
 			if ( client->state < CS_ACTIVE ) {
 				if ( client->state == CS_PRIMED )
-					client->csUpdated[ index ] = qtrue;
+					client->csUpdated[ index ] = true;
 				continue;
 			}
 			// do not always send server info to all clients
@@ -235,7 +236,7 @@ void SV_SetConfigstringRestrictions (int index, const clientList_t* clientList) 
 	clientList_t oldClientList = sv.configstrings[index].clientList;
 
 	sv.configstrings[index].clientList = *clientList;
-	sv.configstrings[index].restricted = qtrue;
+	sv.configstrings[index].restricted = true;
 
 	for ( i = 0 ; i < sv_maxclients->integer ; i++ ) {
 		if ( svs.clients[i].state >= CS_CONNECTED ) {
@@ -358,7 +359,7 @@ static void SV_Startup( void ) {
 		// we don't need nearly as many when playing locally
 		svs.numSnapshotEntities = sv_maxclients->integer * 4 * MAX_SNAPSHOT_ENTITIES;
 	}
-	svs.initialized = qtrue;
+	svs.initialized = true;
 
 	// Don't respect sv_killserver unless a server is actually running
 	if ( sv_killserver->integer ) {
@@ -484,7 +485,7 @@ clients along with it.
 This is NOT called for map_restart
 ================
 */
-void SV_SpawnServer( char *server, qboolean killBots ) {
+void SV_SpawnServer( char *server) {
 	int			i;
 	int			checksum;
 	char		systemInfo[16384];
@@ -544,7 +545,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 			alternateInfos[i][0][0] = alternateInfos[i][1][0] = '\0';
 		}
 		sv.configstrings[i].s = CopyString("");
-		sv.configstrings[i].restricted = qfalse;
+		sv.configstrings[i].restricted = false;
 		Com_Memset(&sv.configstrings[i].clientList, 0, sizeof(clientList_t));
 	}
 
