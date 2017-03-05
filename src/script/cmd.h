@@ -20,13 +20,10 @@
 #error __file__ " is only available to C++"
 #endif
 
-#ifndef SCRIPT_CLIENT_H
-#define SCRIPT_CLIENT_H
+#ifndef SCRIPT_CMD_H
+#define SCRIPT_CMD_H
 
-#include <iostream>
-
-#include "../client/client.h"
-#include "../client/keys.h"
+#include "../qcommon/cmd.h"
 
 namespace sol
 { 
@@ -35,16 +32,15 @@ namespace sol
 
 namespace script 
 {
-    struct Client {};
+   struct Cmd { };
 
-    namespace client 
+    namespace cmd 
     {
         static inline void init(sol::state&& lua)
         {
-            lua.new_usertype<Client>( "client",
-                    "addReliableCommand", &CL_AddReliableCommand
-                    //"disconnect", &CL_Disconnect_f,
-                    //"reconnect", &CL_Reconnect_f,
+            lua.new_usertype<Cmd>(
+                    "cmd", 
+                    "execute", &Cmd_ExecuteString
                 );
         }
     };

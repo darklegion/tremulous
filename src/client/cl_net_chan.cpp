@@ -29,104 +29,111 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ==============
 CL_Netchan_Encode
 
-	// first 12 bytes of the data are always:
-	long serverId;
-	long messageAcknowledge;
-	long reliableAcknowledge;
+        // first 12 bytes of the data are always:
+        long serverId;
+        long messageAcknowledge;
+        long reliableAcknowledge;
 
 ==============
 */
-static void CL_Netchan_Encode( msg_t *msg ) {
-	int serverId, messageAcknowledge, reliableAcknowledge;
-	int i, index, srdc, sbit;
+static void CL_Netchan_Encode(msg_t *msg)
+{
+    int serverId, messageAcknowledge, reliableAcknowledge;
+    int i, idx, srdc, sbit;
     qboolean soob;
-	byte key, *string;
+    byte key, *string;
 
-	if ( msg->cursize <= CL_ENCODE_START ) {
-		return;
-	}
+    if (msg->cursize <= CL_ENCODE_START)
+    {
+        return;
+    }
 
-	srdc = msg->readcount;
-	sbit = msg->bit;
-	soob = msg->oob;
+    srdc = msg->readcount;
+    sbit = msg->bit;
+    soob = msg->oob;
 
-	msg->bit = 0;
-	msg->readcount = 0;
-	msg->oob = qfalse;
+    msg->bit = 0;
+    msg->readcount = 0;
+    msg->oob = qfalse;
 
-	serverId = MSG_ReadLong(msg);
-	messageAcknowledge = MSG_ReadLong(msg);
-	reliableAcknowledge = MSG_ReadLong(msg);
+    serverId = MSG_ReadLong(msg);
+    messageAcknowledge = MSG_ReadLong(msg);
+    reliableAcknowledge = MSG_ReadLong(msg);
 
-	msg->oob = soob;
-	msg->bit = sbit;
-	msg->readcount = srdc;
+    msg->oob = soob;
+    msg->bit = sbit;
+    msg->readcount = srdc;
 
-	string = (byte *)clc.serverCommands[ reliableAcknowledge & (MAX_RELIABLE_COMMANDS-1) ];
-	index = 0;
-	//
-	key = clc.challenge ^ serverId ^ messageAcknowledge;
-	for (i = CL_ENCODE_START; i < msg->cursize; i++) {
-		// modify the key with the last received now acknowledged server command
-		if (!string[index])
-			index = 0;
-		if (string[index] > 127 || (string[index] == '%' && clc.netchan.alternateProtocol == 2)) {
-			key ^= '.' << (i & 1);
-		}
-		else {
-			key ^= string[index] << (i & 1);
-		}
-		index++;
-		// encode the data with this key
-		*(msg->data + i) = (*(msg->data + i)) ^ key;
-	}
+    string = (byte *)clc.serverCommands[reliableAcknowledge & (MAX_RELIABLE_COMMANDS - 1)];
+    idx = 0;
+    //
+    key = clc.challenge ^ serverId ^ messageAcknowledge;
+    for (i = CL_ENCODE_START; i < msg->cursize; i++)
+    {
+        // modify the key with the last received now acknowledged server command
+        if (!string[idx]) idx = 0;
+        if (string[idx] > 127 || (string[idx] == '%' && clc.netchan.alternateProtocol == 2))
+        {
+            key ^= '.' << (i & 1);
+        }
+        else
+        {
+            key ^= string[idx] << (i & 1);
+        }
+        idx++;
+        // encode the data with this key
+        *(msg->data + i) = (*(msg->data + i)) ^ key;
+    }
 }
 
 /*
 ==============
 CL_Netchan_Decode
 
-	// first four bytes of the data are always:
-	long reliableAcknowledge;
+        // first four bytes of the data are always:
+        long reliableAcknowledge;
 
 ==============
 */
-static void CL_Netchan_Decode( msg_t *msg ) {
-	long reliableAcknowledge, i, index;
-	byte key, *string;
-	int srdc, sbit;
+static void CL_Netchan_Decode(msg_t *msg)
+{
+    long reliableAcknowledge, i, idx;
+    byte key, *string;
+    int srdc, sbit;
     qboolean soob;
 
-	srdc = msg->readcount;
-	sbit = msg->bit;
-	soob = msg->oob;
+    srdc = msg->readcount;
+    sbit = msg->bit;
+    soob = msg->oob;
 
-	msg->oob = qfalse;
+    msg->oob = qfalse;
 
-	reliableAcknowledge = MSG_ReadLong(msg);
+    reliableAcknowledge = MSG_ReadLong(msg);
 
-	msg->oob = soob;
-	msg->bit = sbit;
-	msg->readcount = srdc;
+    msg->oob = soob;
+    msg->bit = sbit;
+    msg->readcount = srdc;
 
-	string = (byte *) clc.reliableCommands[ reliableAcknowledge & (MAX_RELIABLE_COMMANDS-1) ];
-	index = 0;
-	// xor the client challenge with the netchan sequence number (need something that changes every message)
-	key = clc.challenge ^ LittleLong( *(unsigned *)msg->data );
-	for (i = msg->readcount + CL_DECODE_START; i < msg->cursize; i++) {
-		// modify the key with the last sent and with this message acknowledged client command
-		if (!string[index])
-			index = 0;
-		if (string[index] > 127 || (string[index] == '%' && clc.netchan.alternateProtocol == 2)) {
-			key ^= '.' << (i & 1);
-		}
-		else {
-			key ^= string[index] << (i & 1);
-		}
-		index++;
-		// decode the data with this key
-		*(msg->data + i) = *(msg->data + i) ^ key;
-	}
+    string = (byte *)clc.reliableCommands[reliableAcknowledge & (MAX_RELIABLE_COMMANDS - 1)];
+    idx = 0;
+    // xor the client challenge with the netchan sequence number (need something that changes every message)
+    key = clc.challenge ^ LittleLong(*(unsigned *)msg->data);
+    for (i = msg->readcount + CL_DECODE_START; i < msg->cursize; i++)
+    {
+        // modify the key with the last sent and with this message acknowledged client command
+        if (!string[idx]) idx = 0;
+        if (string[idx] > 127 || (string[idx] == '%' && clc.netchan.alternateProtocol == 2))
+        {
+            key ^= '.' << (i & 1);
+        }
+        else
+        {
+            key ^= string[idx] << (i & 1);
+        }
+        idx++;
+        // decode the data with this key
+        *(msg->data + i) = *(msg->data + i) ^ key;
+    }
 }
 
 /*
@@ -134,15 +141,15 @@ static void CL_Netchan_Decode( msg_t *msg ) {
 CL_Netchan_TransmitNextFragment
 =================
 */
-qboolean CL_Netchan_TransmitNextFragment(netchan_t *chan)
+static bool CL_Netchan_TransmitNextFragment(netchan_t *chan)
 {
-	if(chan->unsentFragments)
-	{
-		Netchan_TransmitNextFragment(chan);
-		return qtrue;
-	}
-	
-	return qfalse;
+    if (chan->unsentFragments)
+    {
+        Netchan_TransmitNextFragment(chan);
+        return true;
+    }
+
+    return false;
 }
 
 /*
@@ -150,18 +157,18 @@ qboolean CL_Netchan_TransmitNextFragment(netchan_t *chan)
 CL_Netchan_Transmit
 ================
 */
-void CL_Netchan_Transmit( netchan_t *chan, msg_t* msg ) {
-	MSG_WriteByte( msg, clc_EOF );
+void CL_Netchan_Transmit(netchan_t *chan, msg_t *msg)
+{
+    MSG_WriteByte(msg, clc_EOF);
 
-	if(chan->alternateProtocol != 0)
-		CL_Netchan_Encode( msg );
-	Netchan_Transmit(chan, msg->cursize, msg->data);
-	
-	// Transmit all fragments without delay
-	while(CL_Netchan_TransmitNextFragment(chan))
-	{
-		Com_DPrintf("WARNING: #462 unsent fragments (not supposed to happen!)\n");
-	}
+    if (chan->alternateProtocol != 0) CL_Netchan_Encode(msg);
+    Netchan_Transmit(chan, msg->cursize, msg->data);
+
+    // Transmit all fragments without delay
+    while (CL_Netchan_TransmitNextFragment(chan))
+    {
+        Com_DPrintf("WARNING: #462 unsent fragments (not supposed to happen!)\n");
+    }
 }
 
 /*
@@ -169,14 +176,13 @@ void CL_Netchan_Transmit( netchan_t *chan, msg_t* msg ) {
 CL_Netchan_Process
 =================
 */
-bool CL_Netchan_Process( netchan_t *chan, msg_t *msg ) {
-	int ret;
+bool CL_Netchan_Process(netchan_t *chan, msg_t *msg)
+{
+    int ret;
 
-	ret = Netchan_Process( chan, msg );
-	if (!ret)
-		return qfalse;
-	if(chan->alternateProtocol != 0)
-		CL_Netchan_Decode( msg );
+    ret = Netchan_Process(chan, msg);
+    if (!ret) return qfalse;
+    if (chan->alternateProtocol != 0) CL_Netchan_Decode(msg);
 
-	return qtrue;
+    return qtrue;
 }

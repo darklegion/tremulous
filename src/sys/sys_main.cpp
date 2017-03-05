@@ -35,9 +35,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 #include "../script/cvar.h"
+#include "../script/cmd.h"
 #ifndef DEDICATED
 #include "../script/http_client.h"
 #include "../script/client.h"
+#include "../script/bind.h"
 #endif
 #include "../script/rapidjson.h"
 #include "../script/nettle.h"
@@ -740,11 +742,13 @@ int main( int argc, char **argv )
     );
 
     script::cvar::init(std::move(lua));
+    script::cmd::init(std::move(lua));
     script::rapidjson::init(std::move(lua));
     script::nettle::init(std::move(lua));
 
 #ifndef DEDICATED
     script::client::init(std::move(lua));
+    script::keybind::init(std::move(lua));
     script::http_client::init(std::move(lua));
 #endif
 

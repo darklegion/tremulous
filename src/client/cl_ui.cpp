@@ -90,7 +90,7 @@ void LAN_SaveServersToCache( void ) {
 GetNews
 ====================
 */
-static bool GetNews( qboolean begin )
+static bool GetNews( bool begin )
 {
 	bool finished = false;
 	fileHandle_t fileIn;
@@ -924,7 +924,7 @@ intptr_t CL_UISystemCalls( intptr_t *args )
 		return Key_GetOverstrikeMode();
 
 	case UI_KEY_SETOVERSTRIKEMODE:
-		Key_SetOverstrikeMode( (qboolean)args[1] );
+		Key_SetOverstrikeMode( (bool)args[1] );
 		return 0;
 
 	case UI_KEY_CLEARSTATES:
@@ -999,7 +999,7 @@ intptr_t CL_UISystemCalls( intptr_t *args )
 		return LAN_GetServerPing( args[1], args[2] );
 
 	case UI_LAN_MARKSERVERVISIBLE:
-		LAN_MarkServerVisible( args[1], args[2], (qboolean)args[3] );
+		LAN_MarkServerVisible( args[1], args[2], (bool)args[3] );
 		return 0;
 
 	case UI_LAN_SERVERISVISIBLE:
@@ -1016,7 +1016,7 @@ intptr_t CL_UISystemCalls( intptr_t *args )
 		return LAN_GetServerStatus( (char*)VMA(1), (char*)VMA(2), args[3] );
 
 	case UI_GETNEWS:
-		return GetNews( (qboolean)args[1] );
+		return GetNews( (bool)args[1] );
 
 	case UI_LAN_COMPARESERVERS:
 		return LAN_CompareServers( args[1], args[2], args[3], args[4], args[5] );
@@ -1205,7 +1205,8 @@ UI_GameCommand
 See if the current console command is claimed by the ui
 ====================
 */
-qboolean UI_GameCommand( void ) {
+qboolean UI_GameCommand( void )
+{
 	if ( !uivm )
 		return qfalse;
 

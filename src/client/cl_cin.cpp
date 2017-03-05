@@ -35,20 +35,20 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "client.h"
 #include "snd_local.h"
 
-#define MAXSIZE 8
-#define MINSIZE 4
+#define MAXSIZE             8
+#define MINSIZE             4
 
-#define DEFAULT_CIN_WIDTH 512
-#define DEFAULT_CIN_HEIGHT 512
+#define DEFAULT_CIN_WIDTH   512
+#define DEFAULT_CIN_HEIGHT  512
 
-#define ROQ_QUAD 0x1000
-#define ROQ_QUAD_INFO 0x1001
-#define ROQ_CODEBOOK 0x1002
-#define ROQ_QUAD_VQ 0x1011
-#define ROQ_QUAD_JPEG 0x1012
-#define ROQ_QUAD_HANG 0x1013
-#define ROQ_PACKET 0x1030
-#define ZA_SOUND_MONO 0x1020
+#define ROQ_QUAD        0x1000
+#define ROQ_QUAD_INFO   0x1001
+#define ROQ_CODEBOOK    0x1002
+#define ROQ_QUAD_VQ     0x1011
+#define ROQ_QUAD_JPEG   0x1012
+#define ROQ_QUAD_HANG   0x1013
+#define ROQ_PACKET      0x1030
+#define ZA_SOUND_MONO   0x1020
 #define ZA_SOUND_STEREO 0x1021
 
 #define MAX_VIDEO_HANDLES 16
@@ -73,7 +73,8 @@ static unsigned short vq2[256 * 16 * 4];
 static unsigned short vq4[256 * 64 * 4];
 static unsigned short vq8[256 * 256 * 4];
 
-typedef struct {
+struct cinematics_t
+{
     byte linbuf[DEFAULT_CIN_WIDTH * DEFAULT_CIN_HEIGHT * 4 * 2];
     byte file[65536];
     short sqrTable[256];
@@ -81,18 +82,36 @@ typedef struct {
     int mcomp[256];
     byte *qStatus[2][32768];
 
-    long oldXOff, oldYOff, oldysize, oldxsize;
+    long oldXOff;
+    long oldYOff;
+    long oldysize;
+    long oldxsize;
 
     int currentHandle;
-} cinematics_t;
+};
 
-typedef struct {
+struct cin_cache
+{
     char fileName[MAX_OSPATH];
-    int CIN_WIDTH, CIN_HEIGHT;
-    int xpos, ypos, width, height;
-    bool looping, holdAtEnd, dirty, alterGameState, silent, shader;
+
+    int CIN_WIDTH;
+    int CIN_HEIGHT;
+
+    int xpos;
+    int ypos;
+    int width;
+    int height;
+
+    bool looping;
+    bool holdAtEnd; 
+    bool dirty;
+    bool alterGameState;
+    bool silent;
+    bool shader;
+
     fileHandle_t iFile;
     e_status status;
+
     int startTime;
     int lastTime;
     long tfps;
@@ -125,8 +144,9 @@ typedef struct {
     long roqFPS;
     int playonwalls;
     byte *buf;
-    long drawX, drawY;
-} cin_cache;
+    long drawX;
+    long drawY;
+};
 
 static cinematics_t cin;
 static cin_cache cinTable[MAX_VIDEO_HANDLES];
@@ -183,6 +203,7 @@ static void RllSetupTable(void)
     }
 }
 
+#if 0
 //-----------------------------------------------------------------------------
 // RllDecodeMonoToMono
 //
@@ -212,6 +233,7 @@ long RllDecodeMonoToMono(unsigned char *from, short *to, unsigned int size, char
     }
     return size;  //*sizeof(short));
 }
+#endif
 
 //-----------------------------------------------------------------------------
 // RllDecodeMonoToStereo
@@ -227,7 +249,7 @@ long RllDecodeMonoToMono(unsigned char *from, short *to, unsigned int size, char
 //
 // Returns:		Number of samples placed in output buffer
 //-----------------------------------------------------------------------------
-long RllDecodeMonoToStereo(unsigned char *from, short *to, unsigned int size, char signedOutput, unsigned short flag)
+static long RllDecodeMonoToStereo(unsigned char *from, short *to, unsigned int size, char signedOutput, unsigned short flag)
 {
     unsigned int z;
     int prev;
@@ -259,7 +281,7 @@ long RllDecodeMonoToStereo(unsigned char *from, short *to, unsigned int size, ch
 //
 // Returns:		Number of samples placed in output buffer
 //-----------------------------------------------------------------------------
-long RllDecodeStereoToStereo(unsigned char *from, short *to, unsigned int size, char signedOutput, unsigned short flag)
+static long RllDecodeStereoToStereo(unsigned char *from, short *to, unsigned int size, char signedOutput, unsigned short flag)
 {
     unsigned int z;
     unsigned char *zz = from;
@@ -287,6 +309,7 @@ long RllDecodeStereoToStereo(unsigned char *from, short *to, unsigned int size, 
     return (size >> 1);  //*sizeof(short));
 }
 
+#if 0
 //-----------------------------------------------------------------------------
 // RllDecodeStereoToMono
 //
@@ -325,6 +348,7 @@ long RllDecodeStereoToMono(unsigned char *from, short *to, unsigned int size, ch
 
     return size;
 }
+#endif
 
 /******************************************************************************
 *
@@ -1205,7 +1229,7 @@ static void RoQInterrupt(void)
     FS_Read(cin.file, cinTable[currentHandle].RoQFrameSize + 8, cinTable[currentHandle].iFile);
     if (cinTable[currentHandle].RoQPlayed >= cinTable[currentHandle].ROQSize)
     {
-        if (cinTable[currentHandle].holdAtEnd == qfalse)
+        if (cinTable[currentHandle].holdAtEnd == false)
         {
             if (cinTable[currentHandle].looping)
             {
@@ -1251,7 +1275,7 @@ redump:
                     cinTable[currentHandle].samplesPerLine * cinTable[currentHandle].ysize);
             }
             cinTable[currentHandle].numQuads++;
-            cinTable[currentHandle].dirty = qtrue;
+            cinTable[currentHandle].dirty = true;
             break;
         case ROQ_CODEBOOK:
             decodeCodeBook(framedata, (unsigned short)cinTable[currentHandle].roq_flags);
@@ -1304,7 +1328,7 @@ redump:
     //
     if (cinTable[currentHandle].RoQPlayed >= cinTable[currentHandle].ROQSize)
     {
-        if (cinTable[currentHandle].holdAtEnd == qfalse)
+        if (cinTable[currentHandle].holdAtEnd == false)
         {
             if (cinTable[currentHandle].looping)
             {
@@ -1548,6 +1572,22 @@ e_status CIN_RunCinematic(int handle)
     return cinTable[currentHandle].status;
 }
 
+void CIN_SetExtents(int handle, int x, int y, int w, int h)
+{
+    if (handle < 0 || handle >= MAX_VIDEO_HANDLES || cinTable[handle].status == FMV_EOF) return;
+    cinTable[handle].xpos = x;
+    cinTable[handle].ypos = y;
+    cinTable[handle].width = w;
+    cinTable[handle].height = h;
+    cinTable[handle].dirty = true;
+}
+
+static void CIN_SetLooping(int handle, bool loop)
+{
+    if (handle < 0 || handle >= MAX_VIDEO_HANDLES || cinTable[handle].status == FMV_EOF) return;
+    cinTable[handle].looping = loop;
+}
+
 /*
 ==================
 CIN_PlayCinematic
@@ -1654,22 +1694,6 @@ int CIN_PlayCinematic(const char *arg, int x, int y, int w, int h, int systemBit
     return -1;
 }
 
-void CIN_SetExtents(int handle, int x, int y, int w, int h)
-{
-    if (handle < 0 || handle >= MAX_VIDEO_HANDLES || cinTable[handle].status == FMV_EOF) return;
-    cinTable[handle].xpos = x;
-    cinTable[handle].ypos = y;
-    cinTable[handle].width = w;
-    cinTable[handle].height = h;
-    cinTable[handle].dirty = qtrue;
-}
-
-void CIN_SetLooping(int handle, bool loop)
-{
-    if (handle < 0 || handle >= MAX_VIDEO_HANDLES || cinTable[handle].status == FMV_EOF) return;
-    cinTable[handle].looping = loop;
-}
-
 /*
 ==================
 CIN_ResampleCinematic
@@ -1677,7 +1701,7 @@ CIN_ResampleCinematic
 Resample cinematic to 256x256 and store in buf2
 ==================
 */
-void CIN_ResampleCinematic(int handle, int *buf2)
+static void CIN_ResampleCinematic(int handle, int *buf2)
 {
     int ix, iy, *buf3, xm, ym, ll;
     byte *buf;
@@ -1772,18 +1796,20 @@ void CIN_DrawCinematic(int handle)
     if (cinTable[handle].dirty &&
         (cinTable[handle].CIN_WIDTH != cinTable[handle].drawX || cinTable[handle].CIN_HEIGHT != cinTable[handle].drawY))
     {
-        int* buf2 = (int*)Hunk_AllocateTempMemory(256 * 256 * 4);
+        int *buf2 = (int *)Hunk_AllocateTempMemory(256 * 256 * 4);
 
         CIN_ResampleCinematic(handle, buf2);
 
         re.DrawStretchRaw(x, y, w, h, 256, 256, (byte *)buf2, handle, qtrue);
-        cinTable[handle].dirty = qfalse;
+        cinTable[handle].dirty = false;
         Hunk_FreeTempMemory(buf2);
         return;
     }
 
-    re.DrawStretchRaw(x, y, w, h, cinTable[handle].drawX, cinTable[handle].drawY, buf, handle, (qboolean)cinTable[handle].dirty);
-    cinTable[handle].dirty = qfalse;
+    re.DrawStretchRaw(x, y, w, h, cinTable[handle].drawX, cinTable[handle].drawY,
+            buf, handle, (qboolean)cinTable[handle].dirty);
+
+    cinTable[handle].dirty = false;
 }
 
 void CL_PlayCinematic_f(void)
@@ -1796,8 +1822,8 @@ void CL_PlayCinematic_f(void)
         SCR_StopCinematic();
     }
 
-    const char* arg = Cmd_Argv(1);
-    const char* s = Cmd_Argv(2);
+    const char *arg = Cmd_Argv(1);
+    const char *s = Cmd_Argv(2);
 
     if ((s && s[0] == '1') || Q_stricmp(arg, "demoend.roq") == 0 || Q_stricmp(arg, "end.roq") == 0)
     {
@@ -1869,7 +1895,7 @@ void CIN_UploadCinematic(int handle)
                 }
                 else
                 {
-                    cinTable[handle].dirty = qfalse;
+                    cinTable[handle].dirty = false;
                 }
             }
         }
@@ -1878,13 +1904,13 @@ void CIN_UploadCinematic(int handle)
         if (cinTable[handle].dirty && (cinTable[handle].CIN_WIDTH != cinTable[handle].drawX ||
                                           cinTable[handle].CIN_HEIGHT != cinTable[handle].drawY))
         {
-            int* buf2 = (int*)Hunk_AllocateTempMemory(256 * 256 * 4);
+            int *buf2 = (int *)Hunk_AllocateTempMemory(256 * 256 * 4);
 
             CIN_ResampleCinematic(handle, buf2);
 
             re.UploadCinematic(
                 cinTable[handle].CIN_WIDTH, cinTable[handle].CIN_HEIGHT, 256, 256, (byte *)buf2, handle, qtrue);
-            cinTable[handle].dirty = qfalse;
+            cinTable[handle].dirty = false;
             Hunk_FreeTempMemory(buf2);
         }
         else
@@ -1892,7 +1918,7 @@ void CIN_UploadCinematic(int handle)
             // Upload video at normal resolution
             re.UploadCinematic(cinTable[handle].CIN_WIDTH, cinTable[handle].CIN_HEIGHT, cinTable[handle].drawX,
                 cinTable[handle].drawY, cinTable[handle].buf, handle, (qboolean)cinTable[handle].dirty);
-            cinTable[handle].dirty = qfalse;
+            cinTable[handle].dirty = false;
         }
 
         if (cl_inGameVideo->integer == 0 && cinTable[handle].playonwalls == 1)

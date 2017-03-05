@@ -573,7 +573,7 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
             return 0;
             }
         case CG_S_REGISTERSOUND:
-            return S_RegisterSound( (const char*)VMA(1), (qboolean)args[2] );
+            return S_RegisterSound( (const char*)VMA(1), (bool)args[2] );
         case CG_S_SOUNDDURATION:
             return S_SoundDuration( args[1] );
         case CG_S_STARTBACKGROUNDTRACK:
@@ -693,7 +693,7 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
             return Parse_SourceFileAndLine( args[1], (char*)VMA(2), (int*)VMA(3) );
 
         case CG_KEY_SETOVERSTRIKEMODE:
-            Key_SetOverstrikeMode( (qboolean)args[1] );
+            Key_SetOverstrikeMode( (bool)args[1] );
             return 0;
 
         case CG_KEY_GETOVERSTRIKEMODE:
@@ -876,10 +876,10 @@ CL_GameCommand
 See if the current console command is claimed by the cgame
 ====================
 */
-qboolean CL_GameCommand( void ) {
-	if ( !cgvm ) {
+qboolean CL_GameCommand( void )
+{
+	if ( !cgvm )
 		return qfalse;
-	}
 
 	return (qboolean)VM_Call( cgvm, CG_CONSOLE_COMMAND );
 }
@@ -889,21 +889,21 @@ qboolean CL_GameCommand( void ) {
 CL_GameConsoleText
 ====================
 */
-void CL_GameConsoleText( void ) {
-	if ( !cgvm ) {
+void CL_GameConsoleText( void )
+{
+	if ( !cgvm )
 		return;
-	}
 
 	VM_Call( cgvm, CG_CONSOLE_TEXT );
 }
-
 
 /*
 =====================
 CL_CGameRendering
 =====================
 */
-void CL_CGameRendering( stereoFrame_t stereo ) {
+void CL_CGameRendering( stereoFrame_t stereo )
+{
 	VM_Call( cgvm, CG_DRAW_ACTIVE_FRAME, cl.serverTime, stereo, clc.demoplaying );
 	VM_Debug( 0 );
 }

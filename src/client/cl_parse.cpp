@@ -61,23 +61,28 @@ Parses deltas from the given base and adds the resulting entity
 to the current frame
 ==================
 */
-void CL_DeltaEntity (msg_t *msg, clSnapshot_t *frame, int newnum, entityState_t *old, 
-					 qboolean unchanged) {
+static void CL_DeltaEntity(msg_t *msg, clSnapshot_t *frame, int newnum, entityState_t *old, bool unchanged)
+{
 	entityState_t	*state;
 
-	// save the parsed entity state into the big circular buffer so
-	// it can be used as the source for a later delta
+    // save the parsed entity state into the big circular buffer so it can be
+    // used as the source for a later delta
 	state = &cl.parseEntities[cl.parseEntitiesNum & (MAX_PARSE_ENTITIES-1)];
 
-	if ( unchanged ) {
+	if ( unchanged )
+    {
 		*state = *old;
-	} else {
+	}
+    else
+    {
 		MSG_ReadDeltaEntity( clc.netchan.alternateProtocol, msg, old, state, newnum );
 	}
 
-	if ( state->number == (MAX_GENTITIES-1) ) {
-		return;		// entity was delta removed
+	if ( state->number == (MAX_GENTITIES-1) )
+    {
+		return;	// entity was delta removed
 	}
+
 	cl.parseEntitiesNum++;
 	frame->numEntities++;
 }
@@ -88,10 +93,11 @@ CL_ParsePacketEntities
 
 ==================
 */
-void CL_ParsePacketEntities( msg_t *msg, clSnapshot_t *oldframe, clSnapshot_t *newframe) {
-	int			newnum;
-	entityState_t	*oldstate;
-	int			oldindex, oldnum;
+static void CL_ParsePacketEntities( msg_t *msg, clSnapshot_t *oldframe, clSnapshot_t *newframe)
+{
+	int	newnum;
+	entityState_t *oldstate;
+	int	oldindex, oldnum;
 
 	newframe->parseEntitiesNum = cl.parseEntitiesNum;
 	newframe->numEntities = 0;
@@ -128,7 +134,7 @@ void CL_ParsePacketEntities( msg_t *msg, clSnapshot_t *oldframe, clSnapshot_t *n
 			if ( cl_shownet->integer == 3 ) {
 				Com_Printf ("%3i:  unchanged: %i\n", msg->readcount, oldnum);
 			}
-			CL_DeltaEntity( msg, newframe, oldnum, oldstate, qtrue );
+			CL_DeltaEntity( msg, newframe, oldnum, oldstate, true );
 			
 			oldindex++;
 
@@ -145,7 +151,7 @@ void CL_ParsePacketEntities( msg_t *msg, clSnapshot_t *oldframe, clSnapshot_t *n
 			if ( cl_shownet->integer == 3 ) {
 				Com_Printf ("%3i:  delta: %i\n", msg->readcount, newnum);
 			}
-			CL_DeltaEntity( msg, newframe, newnum, oldstate, qfalse );
+			CL_DeltaEntity( msg, newframe, newnum, oldstate, false );
 
 			oldindex++;
 
@@ -164,7 +170,7 @@ void CL_ParsePacketEntities( msg_t *msg, clSnapshot_t *oldframe, clSnapshot_t *n
 			if ( cl_shownet->integer == 3 ) {
 				Com_Printf ("%3i:  baseline: %i\n", msg->readcount, newnum);
 			}
-			CL_DeltaEntity( msg, newframe, newnum, &cl.entityBaselines[newnum], qfalse );
+			CL_DeltaEntity( msg, newframe, newnum, &cl.entityBaselines[newnum], false );
 			continue;
 		}
 
@@ -176,7 +182,7 @@ void CL_ParsePacketEntities( msg_t *msg, clSnapshot_t *oldframe, clSnapshot_t *n
 		if ( cl_shownet->integer == 3 ) {
 			Com_Printf ("%3i:  unchanged: %i\n", msg->readcount, oldnum);
 		}
-		CL_DeltaEntity( msg, newframe, oldnum, oldstate, qtrue );
+		CL_DeltaEntity( msg, newframe, oldnum, oldstate, true );
 		
 		oldindex++;
 
@@ -535,7 +541,7 @@ void CL_ParseGamestate( msg_t *msg ) {
 	// reinitialize the filesystem if the game directory has changed
 	if(!cl_oldGameSet && (Cvar_Flags("fs_game") & CVAR_MODIFIED))
 	{
-		cl_oldGameSet = qtrue;
+		cl_oldGameSet = true;
 		Q_strncpyz(cl_oldGame, oldGame, sizeof(cl_oldGame));
 	}
 
@@ -566,7 +572,7 @@ void CL_ParseDownload ( msg_t *msg ) {
 
 	if (!*clc.downloadTempName) {
 		Com_Printf("Server sending download, but no download was requested\n");
-		CL_AddReliableCommand("stopdl", qfalse);
+		CL_AddReliableCommand("stopdl", false);
 		return;
 	}
 
@@ -609,7 +615,7 @@ void CL_ParseDownload ( msg_t *msg ) {
 
 		if (!clc.download) {
 			Com_Printf( "Could not create %s\n", clc.downloadTempName );
-			CL_AddReliableCommand("stopdl", qfalse);
+			CL_AddReliableCommand("stopdl", false);
 			CL_NextDownload();
 			return;
 		}
@@ -618,7 +624,7 @@ void CL_ParseDownload ( msg_t *msg ) {
 	if (size)
 		FS_Write( data, size, clc.download );
 
-	CL_AddReliableCommand(va("nextdl %d", clc.downloadBlock), qfalse);
+	CL_AddReliableCommand(va("nextdl %d", clc.downloadBlock), false);
 	clc.downloadBlock++;
 
 	clc.downloadCount += size;
@@ -632,7 +638,7 @@ void CL_ParseDownload ( msg_t *msg ) {
 			clc.download = 0;
 
 			// rename the file
-			FS_SV_Rename ( clc.downloadTempName, clc.downloadName, qfalse );
+			FS_SV_Rename( clc.downloadTempName, clc.downloadName, qfalse );
 		}
 
 		// send intentions now
@@ -649,21 +655,20 @@ void CL_ParseDownload ( msg_t *msg ) {
 }
 
 #ifdef USE_VOIP
-static
-qboolean CL_ShouldIgnoreVoipSender(int sender)
+static bool CL_ShouldIgnoreVoipSender(int sender)
 {
 	if (!cl_voip->integer)
-		return qtrue;  // VoIP is disabled.
+		return true;  // VoIP is disabled.
 	else if ((sender == clc.clientNum) && (!clc.demoplaying))
-		return qtrue;  // ignore own voice (unless playing back a demo).
+		return true;  // ignore own voice (unless playing back a demo).
 	else if (clc.voipMuteAll)
-		return qtrue;  // all channels are muted with extreme prejudice.
+		return true;  // all channels are muted with extreme prejudice.
 	else if (clc.voipIgnore[sender])
-		return qtrue;  // just ignoring this guy.
+		return true;  // just ignoring this guy.
 	else if (clc.voipGain[sender] == 0.0f)
-		return qtrue;  // too quiet to play.
+		return true;  // too quiet to play.
 
-	return qfalse;
+	return false;
 }
 
 /*
@@ -678,14 +683,12 @@ static void CL_PlayVoip(int sender, int samplecnt, const byte *data, int flags)
 {
 	if(flags & VOIP_DIRECT)
 	{
-		S_RawSamples(sender + 1, samplecnt, 48000, 2, 1,
-	             data, clc.voipGain[sender], -1);
+		S_RawSamples(sender + 1, samplecnt, 48000, 2, 1, data, clc.voipGain[sender], -1);
 	}
 
 	if(flags & VOIP_SPATIAL)
 	{
-		S_RawSamples(sender + MAX_CLIENTS + 1, samplecnt, 48000, 2, 1,
-	             data, 1.0f, sender);
+		S_RawSamples(sender + MAX_CLIENTS + 1, samplecnt, 48000, 2, 1, data, 1.0f, sender);
 	}
 }
 
@@ -944,7 +947,7 @@ void CL_ParseServerMessage( msg_t *msg ) {
 			break;
 		case svc_voipSpeex:
 #ifdef USE_VOIP
-			CL_ParseVoip( msg, qtrue );
+			CL_ParseVoip( msg, true );
 #endif
 			break;
 		case svc_voipOpus:

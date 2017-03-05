@@ -55,7 +55,7 @@ typedef struct aviFileData_s
   int           width, height;
   int           numVideoFrames;
   int           maxRecordSize;
-  qboolean      motionJpeg;
+  bool          motionJpeg;
 
   bool          audio;
   audioFormat_t a;
@@ -353,9 +353,9 @@ bool CL_OpenAVIForWriting( const char *fileName )
   afd.height = cls.glconfig.vidHeight;
 
   if( cl_aviMotionJpeg->integer )
-    afd.motionJpeg = qtrue;
+    afd.motionJpeg = true;
   else
-    afd.motionJpeg = qfalse;
+    afd.motionJpeg = false;
 
   // Buffers only need to store RGB pixels.
   // Allocate a bit more space for the capture buffer to account for possible
@@ -595,9 +595,9 @@ bool CL_CloseAVI( void )
 
   // AVI file isn't open
   if( !afd.fileOpen )
-    return qfalse;
+    return false;
 
-  afd.fileOpen = qfalse;
+  afd.fileOpen = false;
 
   FS_Seek( afd.idxF, 4, FS_SEEK_SET );
   bufIndex = 0;
@@ -608,8 +608,7 @@ bool CL_CloseAVI( void )
   // Write index
 
   // Open the temp index file
-  if( ( indexSize = FS_FOpenFileRead( idxFileName,
-          &afd.idxF, qtrue ) ) <= 0 )
+  if( ( indexSize = FS_FOpenFileRead( idxFileName, &afd.idxF, qtrue ) ) <= 0 )
   {
     FS_FCloseFile( afd.f );
     return false;

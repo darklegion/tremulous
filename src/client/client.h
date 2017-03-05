@@ -647,11 +647,8 @@ void CL_ClearState(void);
 void CL_ReadPackets(void);
 
 void CL_WritePacket(void);
-void IN_CenterView(void);
+//void IN_CenterView(void);
 
-void CL_VerifyCode(void);
-
-float CL_KeyState(kbutton_t *key);
 int Key_StringToKeynum(const char *str);
 const char *Key_KeynumToString(int keynum);
 
@@ -734,7 +731,6 @@ e_status CIN_StopCinematic(int handle);
 e_status CIN_RunCinematic(int handle);
 void CIN_DrawCinematic(int handle);
 void CIN_SetExtents(int handle, int x, int y, int w, int h);
-void CIN_SetLooping(int handle, bool loop);
 void CIN_UploadCinematic(int handle);
 void CIN_CloseAllVideos(void);
 
