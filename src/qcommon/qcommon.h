@@ -108,8 +108,8 @@ void MSG_ReadDeltaEntity( int alternateProtocol, msg_t *msg, entityState_t *from
 
 void MSG_WriteDeltaPlayerstate( int alternateProtocol, msg_t *msg, struct playerState_s *from, struct playerState_s *to );
 void MSG_ReadDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct playerState_s *to );
-struct alternatePlayerState_s;
-void MSG_ReadDeltaAlternatePlayerstate( msg_t *msg, struct alternatePlayerState_s *from, struct alternatePlayerState_s *to );
+struct alternatePlayerState_t;
+void MSG_ReadDeltaAlternatePlayerstate( msg_t *msg, struct alternatePlayerState_t *from, struct alternatePlayerState_t *to );
 
 
 void MSG_ReportChangeVectors_f( void );
@@ -630,9 +630,6 @@ void	CL_ForwardCommandToServer( const char *string );
 // adds the current command line as a clc_clientCommand to the client message.
 // things like godmode, noclip, etc, are commands directed to the server,
 // so when they are typed in at the console, they will need to be forwarded.
-
-void CL_CDDialog( void );
-// bring up the "need a cd to play" dialog
 
 void CL_FlushMemory( void );
 // dump all memory on an error

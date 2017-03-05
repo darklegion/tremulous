@@ -33,7 +33,7 @@ int g_console_field_width = 78;
 
 #define		CON_TEXTSIZE	163840
 typedef struct {
-	qboolean	initialized;
+	bool    initialized;
 
 	short	text[CON_TEXTSIZE];
 	int		current;		// line where next message will be printed
@@ -327,7 +327,7 @@ void Con_Shutdown(void)
 Con_Linefeed
 ===============
 */
-void Con_Linefeed(qboolean skipnotify UNUSED)
+void Con_Linefeed(void)
 {
 	int	i;
 
@@ -351,23 +351,23 @@ All console printing must go through this in order to be logged to disk
 If no console is visible, the text will appear at the top of the game window
 ================
 */
-void CL_ConsolePrint( const char *txt ) {
-	int		y, l;
-	unsigned char	c;
-	unsigned short	color;
-	qboolean skipnotify = qfalse;		// NERVE - SMF
+void CL_ConsolePrint( const char *txt )
+{
+	int	y, l;
+	unsigned char c;
+	unsigned short color;
+	bool skipnotify = false;		// NERVE - SMF
 
 	// TTimo - prefix for text that shows up in console but not in notify
 	// backported from RTCW
 	if ( !Q_strncmp( txt, "[skipnotify]", 12 ) ) {
-		skipnotify = qtrue;
+		skipnotify = true;
 		txt += 12;
 	}
 	
 	// for some demos we don't want to ever show anything on the console
-	if ( cl_noprint && cl_noprint->integer ) {
+	if ( cl_noprint && cl_noprint->integer )
 		return;
-	}
 	
 	if (!con.initialized) {
 		con.color[0] = 
@@ -376,10 +376,10 @@ void CL_ConsolePrint( const char *txt ) {
 		con.color[3] = 1.0f;
 		con.linewidth = -1;
 		Con_CheckResize ();
-		con.initialized = qtrue;
+		con.initialized = true;
 	}
 
-	if( !skipnotify && !( Key_GetCatcher( ) & KEYCATCH_CONSOLE ) )
+	if( !skipnotify && !(Key_GetCatcher( ) & KEYCATCH_CONSOLE) )
     {
 		Cmd_SaveCmdContext( );
 
@@ -392,7 +392,7 @@ void CL_ConsolePrint( const char *txt ) {
 
 	color = ColorIndex(COLOR_WHITE);
 
-	while ( (c = *((unsigned char *) txt)) != 0 )
+	while ( (c = *((unsigned char *)txt)) != 0 )
     {
 		if ( Q_IsColorString( txt ) )
         {
@@ -410,7 +410,7 @@ void CL_ConsolePrint( const char *txt ) {
 
 		// word wrap
 		if (l != con.linewidth && (con.x + l >= con.linewidth) )
-			Con_Linefeed(skipnotify);
+			Con_Linefeed();
 
 		txt++;
 
@@ -419,7 +419,7 @@ void CL_ConsolePrint( const char *txt ) {
 		case INDENT_MARKER:
 			break;
 		case '\n':
-			Con_Linefeed (skipnotify);
+			Con_Linefeed();
 			break;
 		case '\r':
 			con.x = 0;
@@ -429,7 +429,7 @@ void CL_ConsolePrint( const char *txt ) {
 			con.text[y*con.linewidth+con.x] = (color << 8) | c;
 			con.x++;
 			if(con.x >= con.linewidth)
-				Con_Linefeed(skipnotify);
+				Con_Linefeed();
 			break;
 		}
 	}
@@ -452,7 +452,8 @@ Con_DrawInput
 Draw the editline after a ] prompt
 ================
 */
-void Con_DrawInput (void) {
+static void Con_DrawInput (void)
+{
 	int		y;
 
 	if ( clc.state != CA_DISCONNECTED && !(Key_GetCatcher( ) & KEYCATCH_CONSOLE ) ) {
@@ -465,8 +466,11 @@ void Con_DrawInput (void) {
 
 	SCR_DrawSmallChar( con.xadjust + 1 * SMALLCHAR_WIDTH, y, ']' );
 
-	Field_Draw( &g_consoleField, con.xadjust + 2 * SMALLCHAR_WIDTH, y,
-		SCREEN_WIDTH - 3 * SMALLCHAR_WIDTH, qtrue, qtrue );
+	Field_Draw( &g_consoleField,
+            con.xadjust + 2 * SMALLCHAR_WIDTH,
+            y,
+            SCREEN_WIDTH - 3 * SMALLCHAR_WIDTH,
+            true, true );
 }
 
 /*
@@ -476,7 +480,8 @@ Con_DrawSolidConsole
 Draws the console with the solid background
 ================
 */
-void Con_DrawSolidConsole( float frac ) {
+static void Con_DrawSolidConsole( float frac )
+{
 	int				i, x, y;
 	int				rows;
 	short			*text;

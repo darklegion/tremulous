@@ -90,9 +90,9 @@ void LAN_SaveServersToCache( void ) {
 GetNews
 ====================
 */
-qboolean GetNews( qboolean begin )
+static bool GetNews( qboolean begin )
 {
-	qboolean finished = qfalse;
+	bool finished = false;
 	fileHandle_t fileIn;
 	int readSize;
 
@@ -100,9 +100,9 @@ qboolean GetNews( qboolean begin )
 		if( !clc.downloadCURLM ) { 
 			if(!CL_cURL_Init()) {
 				Cvar_Set( "cl_newsString", "^1Error: Could not load cURL library" );
-				return qtrue;
+				return true;
 			}
-			clc.activeCURLNotGameRelated = qtrue;
+			clc.activeCURLNotGameRelated = true;
 			CL_cURL_BeginDownload("news.dat", 
 				"http://grangerhub.com/wp-content/uploads/clientnews.txt");
 			return qfalse;
@@ -114,10 +114,10 @@ qboolean GetNews( qboolean begin )
 		FS_FCloseFile(fileIn);
 		clc.newsString[ readSize ] = '\0';
 		if( readSize > 0 ) {
-			finished = qtrue;
-			clc.cURLUsed = qfalse;
+			finished = true;
+			clc.cURLUsed = false;
 			CL_cURL_Shutdown();
-			clc.activeCURLNotGameRelated = qfalse;
+			clc.activeCURLNotGameRelated = false;
 		}
 	}
 	if( !finished ) 
@@ -126,7 +126,7 @@ qboolean GetNews( qboolean begin )
 	return finished;
 	Cvar_Set( "cl_newsString", 
 		"^1You must compile your client with CURL support to use this feature" );
-	return qtrue;
+	return true;
 }
 
 /*
@@ -199,7 +199,7 @@ static int LAN_AddServer(int source, const char *name, const char *address) {
 		if (i >= *count) {
 			servers[*count].adr = adr;
 			Q_strncpyz(servers[*count].hostName, name, sizeof(servers[*count].hostName));
-			servers[*count].visible = qtrue;
+			servers[*count].visible = true;
 			(*count)++;
 			return 1;
 		}
@@ -553,7 +553,7 @@ static void LAN_GetPingInfo( int n, char *buf, int buflen ) {
 LAN_MarkServerVisible
 ====================
 */
-static void LAN_MarkServerVisible(int source, int n, qboolean visible ) {
+static void LAN_MarkServerVisible(int source, int n, bool visible ) {
 	if (n == -1) {
 		int count = MAX_OTHER_SERVERS;
 		serverInfo_t *server = NULL;
@@ -604,7 +604,7 @@ static void LAN_MarkServerVisible(int source, int n, qboolean visible ) {
 LAN_ServerIsVisible
 =======================
 */
-static int LAN_ServerIsVisible(int source, int n ) {
+static bool LAN_ServerIsVisible(int source, int n ) {
 	switch (source) {
 		case AS_LOCAL :
 			if (n >= 0 && n < MAX_OTHER_SERVERS) {
@@ -623,7 +623,7 @@ static int LAN_ServerIsVisible(int source, int n ) {
 			}
 			break;
 	}
-	return qfalse;
+	return false;
 }
 
 /*
@@ -631,7 +631,7 @@ static int LAN_ServerIsVisible(int source, int n ) {
 LAN_UpdateVisiblePings
 =======================
 */
-qboolean LAN_UpdateVisiblePings(int source ) {
+static bool LAN_UpdateVisiblePings(int source ) {
 	return CL_UpdateVisiblePings_f(source);
 }
 
@@ -640,7 +640,7 @@ qboolean LAN_UpdateVisiblePings(int source ) {
 LAN_GetServerStatus
 ====================
 */
-int LAN_GetServerStatus( char *serverAddress, char *serverStatus, int maxLen ) {
+static bool LAN_GetServerStatus( char *serverAddress, char *serverStatus, int maxLen ) {
 	return CL_ServerStatus( serverAddress, serverStatus, maxLen );
 }
 
@@ -658,24 +658,23 @@ static void CL_GetGlconfig( glconfig_t *config ) {
 GetConfigString
 ====================
 */
-static int GetConfigString(int index, char *buf, int size)
+static bool GetConfigString(int i, char *buf, int size)
 {
 	int		offset;
 
-	if (index < 0 || index >= MAX_CONFIGSTRINGS)
-		return qfalse;
+	if ( i < 0 || i >= MAX_CONFIGSTRINGS )
+		return false;
 
-	offset = cl.gameState.stringOffsets[index];
-	if (!offset) {
-		if( size ) {
-			buf[0] = 0;
-		}
-		return qfalse;
+	offset = cl.gameState.stringOffsets[i];
+	if ( !offset )
+    {
+		if( size ) buf[0] = '\0';
+		return false;
 	}
 
-	Q_strncpyz( buf, cl.gameState.stringData+offset, size);
+	Q_strncpyz(buf, cl.gameState.stringData+offset, size);
  
-	return qtrue;
+	return true;
 }
 
 /*
@@ -900,7 +899,7 @@ intptr_t CL_UISystemCalls( intptr_t *args )
 		return 0;
 
 	case UI_S_REGISTERSOUND:
-		return S_RegisterSound( (const char*)VMA(1), (qboolean)args[2] );
+		return S_RegisterSound( (const char*)VMA(1), (bool)args[2] );
 
 	case UI_S_STARTLOCALSOUND:
 		S_StartLocalSound( args[1], args[2] );
@@ -1120,7 +1119,7 @@ CL_ShutdownUI
 */
 void CL_ShutdownUI( void ) {
 	Key_SetCatcher( Key_GetCatcher( ) & ~KEYCATCH_UI );
-	cls.uiStarted = qfalse;
+	cls.uiStarted = false;
 	if ( !uivm ) {
 		return;
 	}
@@ -1160,7 +1159,7 @@ void CL_InitUI( void )
 		VM_Free( uivm );
 		uivm = NULL;
 
-		cls.uiStarted = qfalse;
+		cls.uiStarted = false;
 		Com_Error( ERR_DROP, "User Interface is version %d, expected %d", v, UI_API_VERSION );
 	}
 

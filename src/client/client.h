@@ -25,14 +25,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef _CLIENT_H_
 #define _CLIENT_H_
 
+#include "../cgame/cg_public.h"
+#include "../qcommon/crypto.h"
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
-#include "../qcommon/crypto.h"
 #include "../renderercommon/tr_public.h"
 #include "../ui/ui_public.h"
 #include "keys.h"
 #include "snd_public.h"
-#include "../cgame/cg_public.h"
 
 #include "cl_curl.h"
 
@@ -40,167 +40,164 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <opus.h>
 #endif
 
-typedef struct alternatePlayerState_s {
-	int			commandTime;	// cmd->serverTime of last executed command
-	int			pm_type;
-	int			bobCycle;		// for view bobbing and footstep generation
-	int			pm_flags;		// ducked, jump_held, etc
-	int			pm_time;
+struct alternatePlayerState_t {
+    int commandTime;  // cmd->serverTime of last executed command
+    int pm_type;
+    int bobCycle;  // for view bobbing and footstep generation
+    int pm_flags;  // ducked, jump_held, etc
+    int pm_time;
 
-	vec3_t		origin;
-	vec3_t		velocity;
-	int			weaponTime;
-	int			gravity;
-	int			speed;
-	int			delta_angles[3];	// add to command angles to get view direction
-									// changed by spawns, rotating objects, and teleporters
+    vec3_t origin;
+    vec3_t velocity;
+    int weaponTime;
+    int gravity;
+    int speed;
+    int delta_angles[3];  // add to command angles to get view direction
+    // changed by spawns, rotating objects, and teleporters
 
-	int			groundEntityNum;// ENTITYNUM_NONE = in air
+    int groundEntityNum;  // ENTITYNUM_NONE = in air
 
-	int			legsTimer;		// don't change low priority animations until this runs out
-	int			legsAnim;		// mask off ANIM_TOGGLEBIT
+    int legsTimer;  // don't change low priority animations until this runs out
+    int legsAnim;  // mask off ANIM_TOGGLEBIT
 
-	int			torsoTimer;		// don't change low priority animations until this runs out
-	int			torsoAnim;		// mask off ANIM_TOGGLEBIT
+    int torsoTimer;  // don't change low priority animations until this runs out
+    int torsoAnim;  // mask off ANIM_TOGGLEBIT
 
-	int			movementDir;	// a number 0 to 7 that represents the relative angle
-								// of movement to the view angle (axial and diagonals)
-								// when at rest, the value will remain unchanged
-								// used to twist the legs during strafing
+    int movementDir;  // a number 0 to 7 that represents the relative angle
+    // of movement to the view angle (axial and diagonals)
+    // when at rest, the value will remain unchanged
+    // used to twist the legs during strafing
 
-	vec3_t		grapplePoint;	// location of grapple to pull towards if PMF_GRAPPLE_PULL
+    vec3_t grapplePoint;  // location of grapple to pull towards if PMF_GRAPPLE_PULL
 
-	int			eFlags;			// copied to entityState_t->eFlags
+    int eFlags;  // copied to entityState_t->eFlags
 
-	int			eventSequence;	// pmove generated events
-	int			events[MAX_PS_EVENTS];
-	int			eventParms[MAX_PS_EVENTS];
+    int eventSequence;  // pmove generated events
+    int events[MAX_PS_EVENTS];
+    int eventParms[MAX_PS_EVENTS];
 
-	int			externalEvent;	// events set on player from another source
-	int			externalEventParm;
-	int			externalEventTime;
+    int externalEvent;  // events set on player from another source
+    int externalEventParm;
+    int externalEventTime;
 
-	int			clientNum;		// ranges from 0 to MAX_CLIENTS-1
-	int			weapon;			// copied to entityState_t->weapon
-	int			weaponstate;
+    int clientNum;  // ranges from 0 to MAX_CLIENTS-1
+    int weapon;  // copied to entityState_t->weapon
+    int weaponstate;
 
-	vec3_t		viewangles;		// for fixed views
-	int			viewheight;
+    vec3_t viewangles;  // for fixed views
+    int viewheight;
 
-	// damage feedback
-	int			damageEvent;	// when it changes, latch the other parms
-	int			damageYaw;
-	int			damagePitch;
-	int			damageCount;
+    // damage feedback
+    int damageEvent;  // when it changes, latch the other parms
+    int damageYaw;
+    int damagePitch;
+    int damageCount;
 
-	int			stats[MAX_STATS];
-	int			persistant[MAX_PERSISTANT];	// stats that aren't cleared on death
-	int			misc[MAX_MISC];	// misc data
-	int			ammo[MAX_WEAPONS];
+    int stats[MAX_STATS];
+    int persistant[MAX_PERSISTANT];  // stats that aren't cleared on death
+    int misc[MAX_MISC];  // misc data
+    int ammo[MAX_WEAPONS];
 
-	int			generic1;
-	int			loopSound;
-	int			otherEntityNum;
+    int generic1;
+    int loopSound;
+    int otherEntityNum;
 
-	// not communicated over the net at all
-	int			ping;			// server to game info for scoreboard
-	int			pmove_framecount;
-	int			jumppad_frame;
-	int			entityEventSequence;
-} alternatePlayerState_t;
+    // not communicated over the net at all
+    int ping;  // server to game info for scoreboard
+    int pmove_framecount;
+    int jumppad_frame;
+    int entityEventSequence;
+};
 
-typedef struct alternateEntityState_s {
-	int		number;			// entity index
-	int		eType;			// entityType_t
-	int		eFlags;
+struct alternateEntityState_t {
+    int number;  // entity index
+    int eType;  // entityType_t
+    int eFlags;
 
-	trajectory_t	pos;	// for calculating position
-	trajectory_t	apos;	// for calculating angles
+    trajectory_t pos;  // for calculating position
+    trajectory_t apos;  // for calculating angles
 
-	int		time;
-	int		time2;
+    int time;
+    int time2;
 
-	vec3_t	origin;
-	vec3_t	origin2;
+    vec3_t origin;
+    vec3_t origin2;
 
-	vec3_t	angles;
-	vec3_t	angles2;
+    vec3_t angles;
+    vec3_t angles2;
 
-	int		otherEntityNum;	// shotgun sources, etc
-	int		otherEntityNum2;
+    int otherEntityNum;  // shotgun sources, etc
+    int otherEntityNum2;
 
-	int		groundEntityNum;	// ENTITYNUM_NONE = in air
+    int groundEntityNum;  // ENTITYNUM_NONE = in air
 
-	int		constantLight;	// r + (g<<8) + (b<<16) + (intensity<<24)
-	int		loopSound;		// constantly loop this sound
+    int constantLight;  // r + (g<<8) + (b<<16) + (intensity<<24)
+    int loopSound;  // constantly loop this sound
 
-	int		modelindex;
-	int		modelindex2;
-	int		clientNum;		// 0 to (MAX_CLIENTS - 1), for players and corpses
-	int		frame;
+    int modelindex;
+    int modelindex2;
+    int clientNum;  // 0 to (MAX_CLIENTS - 1), for players and corpses
+    int frame;
 
-	int		solid;			// for client side prediction, trap_linkentity sets this properly
+    int solid;  // for client side prediction, trap_linkentity sets this properly
 
-	int		event;			// impulse events -- muzzle flashes, footsteps, etc
-	int		eventParm;
+    int event;  // impulse events -- muzzle flashes, footsteps, etc
+    int eventParm;
 
-	// for players
-	int		misc;			// bit flags
-	int		weapon;			// determines weapon and flash model, etc
-	int		legsAnim;		// mask off ANIM_TOGGLEBIT
-	int		torsoAnim;		// mask off ANIM_TOGGLEBIT
+    // for players
+    int misc;  // bit flags
+    int weapon;  // determines weapon and flash model, etc
+    int legsAnim;  // mask off ANIM_TOGGLEBIT
+    int torsoAnim;  // mask off ANIM_TOGGLEBIT
 
-	int		generic1;
-} alternateEntityState_t;
+    int generic1;
+};
 
-typedef struct
-{
-  int           snapFlags;                            // SNAPFLAG_RATE_DELAYED, etc
-  int           ping;
+struct alternateSnapshot_t {
+    int snapFlags;  // SNAPFLAG_RATE_DELAYED, etc
+    int ping;
 
-  int           serverTime;                           // server time the message is valid for (in msec)
+    int serverTime;  // server time the message is valid for (in msec)
 
-  byte          areamask[ MAX_MAP_AREA_BYTES ];       // portalarea visibility bits
+    byte areamask[MAX_MAP_AREA_BYTES];  // portalarea visibility bits
 
-  alternatePlayerState_t ps;                          // complete information about the current player at this time
+    alternatePlayerState_t ps;  // complete information about the current player at this time
 
-  int           numEntities;                          // all of the entities that need to be presented
-  alternateEntityState_t entities[ MAX_ENTITIES_IN_SNAPSHOT ]; // at the time of this snapshot
+    int numEntities;  // all of the entities that need to be presented
+    alternateEntityState_t entities[MAX_ENTITIES_IN_SNAPSHOT];  // at the time of this snapshot
 
-  int           numServerCommands;                    // text based server commands to execute when this
-  int           serverCommandSequence;                // snapshot becomes current
-} alternateSnapshot_t;
+    int numServerCommands;  // text based server commands to execute when this
+    int serverCommandSequence;  // snapshot becomes current
+};
 
 // file full of random crap that gets used to create cl_guid
 #define QKEY_FILE "qkey"
 #define QKEY_SIZE 2048
 
-#define	RETRANSMIT_TIMEOUT	3000	// time between connection packet retransmits
+#define RETRANSMIT_TIMEOUT 3000  // time between connection packet retransmits
 
 // snapshots are a view of the server at a given time
-typedef struct {
-	qboolean		valid;			// cleared if delta parsing was invalid
-	int				snapFlags;		// rate delayed and dropped commands
+struct clSnapshot_t {
+    bool valid;  // cleared if delta parsing was invalid
+    int snapFlags;  // rate delayed and dropped commands
 
-	int				serverTime;		// server time the message is valid for (in msec)
+    int serverTime;  // server time the message is valid for (in msec)
 
-	int				messageNum;		// copied from netchan->incoming_sequence
-	int				deltaNum;		// messageNum the delta is from
-	int				ping;			// time from when cmdNum-1 was sent to time packet was reeceived
-	byte			areamask[MAX_MAP_AREA_BYTES];		// portalarea visibility bits
+    int messageNum;  // copied from netchan->incoming_sequence
+    int deltaNum;  // messageNum the delta is from
+    int ping;  // time from when cmdNum-1 was sent to time packet was reeceived
+    byte areamask[MAX_MAP_AREA_BYTES];  // portalarea visibility bits
 
-	int				cmdNum;			// the next cmdNum the server is expecting
-	playerState_t	ps;						// complete information about the current player at this time
-	alternatePlayerState_t	alternatePs;	// complete information about the current player at this time
+    int cmdNum;  // the next cmdNum the server is expecting
+    playerState_t ps;  // complete information about the current player at this time
+    alternatePlayerState_t alternatePs;  // complete information about the current player at this time
 
-	int				numEntities;			// all of the entities that need to be presented
-	int				parseEntitiesNum;		// at the time of this snapshot
+    int numEntities;  // all of the entities that need to be presented
+    int parseEntitiesNum;  // at the time of this snapshot
 
-	int				serverCommandNum;		// execute all commands up to this before
-											// making the snapshot current
-} clSnapshot_t;
-
-
+    int serverCommandNum;  // execute all commands up to this before
+    // making the snapshot current
+};
 
 /*
 =============================================================================
@@ -211,73 +208,73 @@ new gamestate_t, potentially several times during an established connection
 =============================================================================
 */
 
-typedef struct {
-	int		p_cmdNumber;		// cl.cmdNumber when packet was sent
-	int		p_serverTime;		// usercmd->serverTime when packet was sent
-	int		p_realtime;			// cls.realtime when packet was sent
-} outPacket_t;
+struct outPacket_t {
+    int p_cmdNumber;  // cl.cmdNumber when packet was sent
+    int p_serverTime;  // usercmd->serverTime when packet was sent
+    int p_realtime;  // cls.realtime when packet was sent
+};
 
 // the parseEntities array must be large enough to hold PACKET_BACKUP frames of
 // entities, so that when a delta compressed message arives from the server
-// it can be un-deltad from the original 
-#define	MAX_PARSE_ENTITIES	( PACKET_BACKUP * MAX_SNAPSHOT_ENTITIES )
+// it can be un-deltad from the original
+#define MAX_PARSE_ENTITIES (PACKET_BACKUP * MAX_SNAPSHOT_ENTITIES)
 
 extern int g_console_field_width;
 
-typedef struct {
-	int			timeoutcount;		// it requres several frames in a timeout condition
-									// to disconnect, preventing debugging breaks from
-									// causing immediate disconnects on continue
-	clSnapshot_t	snap;			// latest received from server
+struct clientActive_t {
+    int timeoutcount;  // it requres several frames in a timeout condition
+    // to disconnect, preventing debugging breaks from
+    // causing immediate disconnects on continue
+    clSnapshot_t snap;  // latest received from server
 
-	int			serverTime;			// may be paused during play
-	int			oldServerTime;		// to prevent time from flowing bakcwards
-	int			oldFrameServerTime;	// to check tournament restarts
-	int			serverTimeDelta;	// cl.serverTime = cls.realtime + cl.serverTimeDelta
-									// this value changes as net lag varies
-	qboolean	extrapolatedSnapshot;	// set if any cgame frame has been forced to extrapolate
-									// cleared when CL_AdjustTimeDelta looks at it
-	qboolean	newSnapshots;		// set on parse of any valid packet
+    int serverTime;  // may be paused during play
+    int oldServerTime;  // to prevent time from flowing bakcwards
+    int oldFrameServerTime;  // to check tournament restarts
+    int serverTimeDelta;  // cl.serverTime = cls.realtime + cl.serverTimeDelta
+    // this value changes as net lag varies
+    bool extrapolatedSnapshot;  // set if any cgame frame has been forced to extrapolate
+    // cleared when CL_AdjustTimeDelta looks at it
+    bool newSnapshots;  // set on parse of any valid packet
 
-	gameState_t	gameState;			// configstrings
-	char		mapname[MAX_QPATH];	// extracted from CS_SERVERINFO
+    gameState_t gameState;  // configstrings
+    char mapname[MAX_QPATH];  // extracted from CS_SERVERINFO
 
-	int			parseEntitiesNum;	// index (not anded off) into cl_parse_entities[]
+    int parseEntitiesNum;  // index (not anded off) into cl_parse_entities[]
 
-	int			mouseDx[2], mouseDy[2];	// added to by mouse events
-	int			mouseIndex;
-	int			joystickAxis[MAX_JOYSTICK_AXIS];	// set by joystick events
+    int mouseDx[2], mouseDy[2];  // added to by mouse events
+    int mouseIndex;
+    int joystickAxis[MAX_JOYSTICK_AXIS];  // set by joystick events
 
-	// cgame communicates a few values to the client system
-	int			cgameUserCmdValue;	// current weapon to add to usercmd_t
-	float		cgameSensitivity;
+    // cgame communicates a few values to the client system
+    int cgameUserCmdValue;  // current weapon to add to usercmd_t
+    float cgameSensitivity;
 
-	// cmds[cmdNumber] is the predicted command, [cmdNumber-1] is the last
-	// properly generated command
-	usercmd_t	cmds[CMD_BACKUP];	// each mesage will send several old cmds
-	int			cmdNumber;			// incremented each frame, because multiple
-									// frames may need to be packed into a single packet
+    // cmds[cmdNumber] is the predicted command, [cmdNumber-1] is the last
+    // properly generated command
+    usercmd_t cmds[CMD_BACKUP];  // each mesage will send several old cmds
+    int cmdNumber;  // incremented each frame, because multiple
+    // frames may need to be packed into a single packet
 
-	outPacket_t	outPackets[PACKET_BACKUP];	// information about each packet we have sent out
+    outPacket_t outPackets[PACKET_BACKUP];  // information about each packet we have sent out
 
-	// the client maintains its own idea of view angles, which are
-	// sent to the server each frame.  It is cleared to 0 upon entering each level.
-	// the server sends a delta each frame which is added to the locally
-	// tracked view angles to account for standing on rotating objects,
-	// and teleport direction changes
-	vec3_t		viewangles;
+    // the client maintains its own idea of view angles, which are
+    // sent to the server each frame.  It is cleared to 0 upon entering each level.
+    // the server sends a delta each frame which is added to the locally
+    // tracked view angles to account for standing on rotating objects,
+    // and teleport direction changes
+    vec3_t viewangles;
 
-	int			serverId;			// included in each client message so the server
-												// can tell if it is for a prior map_restart
-	// big stuff at end of structure so most offsets are 15 bits or less
-	clSnapshot_t	snapshots[PACKET_BACKUP];
+    int serverId;  // included in each client message so the server
+    // can tell if it is for a prior map_restart
+    // big stuff at end of structure so most offsets are 15 bits or less
+    clSnapshot_t snapshots[PACKET_BACKUP];
 
-	entityState_t	entityBaselines[MAX_GENTITIES];	// for delta compression when not in previous frame
+    entityState_t entityBaselines[MAX_GENTITIES];  // for delta compression when not in previous frame
 
-	entityState_t	parseEntities[MAX_PARSE_ENTITIES];
-} clientActive_t;
+    entityState_t parseEntities[MAX_PARSE_ENTITIES];
+};
 
-extern	clientActive_t		cl;
+extern clientActive_t cl;
 
 /*
 =============================================================================
@@ -291,122 +288,122 @@ demo through a file.
 =============================================================================
 */
 
-#define MAX_TIMEDEMO_DURATIONS	4096
+#define MAX_TIMEDEMO_DURATIONS 4096
 
-typedef struct {
+struct clientConnection_t {
+    connstate_t state;  // connection status
 
-	connstate_t	state;				// connection status
+    int clientNum;
+    int lastPacketSentTime;  // for retransmits during connection
+    int lastPacketTime;  // for timeouts
 
-	int			clientNum;
-	int			lastPacketSentTime;			// for retransmits during connection
-	int			lastPacketTime;				// for timeouts
+    char servername[MAX_OSPATH];  // name of server from original connect (used by reconnect)
+    netadr_t serverAddress;
+    int connectTime;  // for connection retransmits
+    int connectPacketCount;  // for display on connection dialog
+    char serverMessage[MAX_STRING_TOKENS];  // for display on connection dialog
 
-	char		servername[MAX_OSPATH];		// name of server from original connect (used by reconnect)
-	netadr_t	serverAddress;
-	int			connectTime;				// for connection retransmits
-	int			connectPacketCount;			// for display on connection dialog
-	char		serverMessage[MAX_STRING_TOKENS];	// for display on connection dialog
+    int challenge;  // from the server to use for connecting
+    char challenge2[33];
+    bool sendSignature;
+    int checksumFeed;  // from the server for checksum calculations
 
-	int			challenge;					// from the server to use for connecting
-	char		challenge2[33];
-	qboolean	sendSignature;
-	int			checksumFeed;				// from the server for checksum calculations
+    // these are our reliable messages that go to the server
+    int reliableSequence;
+    int reliableAcknowledge;  // the last one the server has executed
+    char reliableCommands[MAX_RELIABLE_COMMANDS][MAX_STRING_CHARS];
 
-	// these are our reliable messages that go to the server
-	int			reliableSequence;
-	int			reliableAcknowledge;		// the last one the server has executed
-	char		reliableCommands[MAX_RELIABLE_COMMANDS][MAX_STRING_CHARS];
+    // server message (unreliable) and command (reliable) sequence
+    // numbers are NOT cleared at level changes, but continue to
+    // increase as long as the connection is valid
 
-	// server message (unreliable) and command (reliable) sequence
-	// numbers are NOT cleared at level changes, but continue to
-	// increase as long as the connection is valid
+    // message sequence is used by both the network layer and the
+    // delta compression layer
+    int serverMessageSequence;
 
-	// message sequence is used by both the network layer and the
-	// delta compression layer
-	int			serverMessageSequence;
+    // reliable messages received from server
+    int serverCommandSequence;
+    int lastExecutedServerCommand;  // last server command grabbed or executed with CL_GetServerCommand
+    char serverCommands[MAX_RELIABLE_COMMANDS][MAX_STRING_CHARS];
 
-	// reliable messages received from server
-	int			serverCommandSequence;
-	int			lastExecutedServerCommand;		// last server command grabbed or executed with CL_GetServerCommand
-	char		serverCommands[MAX_RELIABLE_COMMANDS][MAX_STRING_CHARS];
-
-	// file transfer from server
-	fileHandle_t download;
-	char		downloadTempName[MAX_OSPATH];
-	char		downloadName[MAX_OSPATH];
+    // file transfer from server
+    fileHandle_t download;
+    char downloadTempName[MAX_OSPATH];
+    char downloadName[MAX_OSPATH];
 
     // XXX Refactor this -vjr
-	bool    cURLEnabled;
-	bool    cURLUsed;
-	bool    cURLDisconnected;
+    bool cURLEnabled;
+    bool cURLUsed;
+    bool cURLDisconnected;
 
-	char		downloadURL[MAX_OSPATH];
-	CURL		*downloadCURL;
-	CURLM		*downloadCURLM;
-	bool    activeCURLNotGameRelated;
+    char downloadURL[MAX_OSPATH];
+    CURL *downloadCURL;
+    CURLM *downloadCURLM;
+    bool activeCURLNotGameRelated;
 
-	int		sv_allowDownload;
-	char		sv_dlURL[MAX_CVAR_VALUE_STRING];
-	int			downloadNumber;
-	int			downloadBlock;	// block we are waiting for
-	int			downloadCount;	// how many bytes we got
-	int			downloadSize;	// how many bytes we got
-	char		downloadList[MAX_INFO_STRING]; // list of paks we need to download
-	bool     downloadRestart;	// if true, we need to do another FS_Restart because we downloaded a pak
-	char		newsString[ MAX_NEWS_STRING ];
+    int sv_allowDownload;
+    char sv_dlURL[MAX_CVAR_VALUE_STRING];
+    int downloadNumber;
+    int downloadBlock;  // block we are waiting for
+    int downloadCount;  // how many bytes we got
+    int downloadSize;  // how many bytes we got
+    char downloadList[MAX_INFO_STRING];  // list of paks we need to download
+    bool downloadRestart;  // if true, we need to do another FS_Restart because we downloaded a pak
+    char newsString[MAX_NEWS_STRING];
 
-	// demo information
-	char		demoName[MAX_QPATH];
-	qboolean	spDemoRecording;
-	qboolean	demorecording;
-	qboolean	demoplaying;
-	qboolean	demowaiting;	// don't record until a non-delta message is received
-	qboolean	firstDemoFrameSkipped;
-	fileHandle_t	demofile;
+    // demo information
+    char demoName[MAX_QPATH];
+    bool spDemoRecording;
+    bool demorecording;
+#warning "Where is demoplaying initialized?"
+    bool demoplaying;
+    bool demowaiting;  // don't record until a non-delta message is received
+    bool firstDemoFrameSkipped;
+    fileHandle_t demofile;
 
-	int			timeDemoFrames;		// counter of rendered frames
-	int			timeDemoStart;		// cls.realtime before first frame
-	int			timeDemoBaseTime;	// each frame will be at this time + frameNum * 50
-	int			timeDemoLastFrame;// time the last frame was rendered
-	int			timeDemoMinDuration;	// minimum frame duration
-	int			timeDemoMaxDuration;	// maximum frame duration
-	unsigned char	timeDemoDurations[ MAX_TIMEDEMO_DURATIONS ];	// log of frame durations
+    int timeDemoFrames;  // counter of rendered frames
+    int timeDemoStart;  // cls.realtime before first frame
+    int timeDemoBaseTime;  // each frame will be at this time + frameNum * 50
+    int timeDemoLastFrame;  // time the last frame was rendered
+    int timeDemoMinDuration;  // minimum frame duration
+    int timeDemoMaxDuration;  // maximum frame duration
+    unsigned char timeDemoDurations[MAX_TIMEDEMO_DURATIONS];  // log of frame durations
 
-	float		aviVideoFrameRemainder;
-	float		aviSoundFrameRemainder;
+    float aviVideoFrameRemainder;
+    float aviSoundFrameRemainder;
 
 #ifdef USE_VOIP
-	bool voipEnabled;
-	bool voipCodecInitialized;
+    bool voipEnabled;
+    bool voipCodecInitialized;
 
-	// incoming data...
-	// !!! FIXME: convert from parallel arrays to array of a struct.
-	OpusDecoder *opusDecoder[MAX_CLIENTS];
-	byte voipIncomingGeneration[MAX_CLIENTS];
-	int voipIncomingSequence[MAX_CLIENTS];
-	float voipGain[MAX_CLIENTS];
-	qboolean voipIgnore[MAX_CLIENTS];
-	qboolean voipMuteAll;
+    // incoming data...
+    // !!! FIXME: convert from parallel arrays to array of a struct.
+    OpusDecoder *opusDecoder[MAX_CLIENTS];
+    byte voipIncomingGeneration[MAX_CLIENTS];
+    int voipIncomingSequence[MAX_CLIENTS];
+    float voipGain[MAX_CLIENTS];
+    bool voipIgnore[MAX_CLIENTS];
+    bool voipMuteAll;
 
-	// outgoing data...
-	// if voipTargets[i / 8] & (1 << (i % 8)),
-	// then we are sending to clientnum i.
-	uint8_t voipTargets[(MAX_CLIENTS + 7) / 8];
-	uint8_t voipFlags;
-	OpusEncoder *opusEncoder;
-	int voipOutgoingDataSize;
-	int voipOutgoingDataFrames;
-	int voipOutgoingSequence;
-	byte voipOutgoingGeneration;
-	byte voipOutgoingData[1024];
-	float voipPower;
+    // outgoing data...
+    // if voipTargets[i / 8] & (1 << (i % 8)),
+    // then we are sending to clientnum i.
+    uint8_t voipTargets[(MAX_CLIENTS + 7) / 8];
+    uint8_t voipFlags;
+    OpusEncoder *opusEncoder;
+    int voipOutgoingDataSize;
+    int voipOutgoingDataFrames;
+    int voipOutgoingSequence;
+    byte voipOutgoingGeneration;
+    byte voipOutgoingData[1024];
+    float voipPower;
 #endif
 
-	// big stuff at end of structure so most offsets are 15 bits or less
-	netchan_t	netchan;
-} clientConnection_t;
+    // big stuff at end of structure so most offsets are 15 bits or less
+    netchan_t netchan;
+};
 
-extern	clientConnection_t clc;
+extern clientConnection_t clc;
 
 /*
 ==================================================================
@@ -418,184 +415,181 @@ no client connection is active at all
 ==================================================================
 */
 
-typedef struct {
-	netadr_t	adr;
-	int			start;
-	int			time;
-	char		info[MAX_INFO_STRING];
-} ping_t;
+struct ping_t {
+    netadr_t adr;
+    int start;
+    int time;
+    char info[MAX_INFO_STRING];
+};
 
-#define MAX_FEATLABEL_CHARS  32
-typedef struct {
-	netadr_t	adr;
-	char	  	hostName[MAX_HOSTNAME_LENGTH];
-	char	  	mapName[MAX_NAME_LENGTH];
-	char	  	game[MAX_NAME_LENGTH];
-	char		label[MAX_FEATLABEL_CHARS]; // for featured servers, NULL otherwise
-	int			netType;
-	int			gameType;
-	int		  	clients;
-	int		  	maxClients;
-	int			minPing;
-	int			maxPing;
-	int			ping;
-	qboolean	visible;
-} serverInfo_t;
+#define MAX_FEATLABEL_CHARS 32
+struct serverInfo_t {
+    netadr_t adr;
+    char hostName[MAX_HOSTNAME_LENGTH];
+    char mapName[MAX_NAME_LENGTH];
+    char game[MAX_NAME_LENGTH];
+    char label[MAX_FEATLABEL_CHARS];  // for featured servers, NULL otherwise
+    int netType;
+    int gameType;
+    int clients;
+    int maxClients;
+    int minPing;
+    int maxPing;
+    int ping;
+    bool visible;
+};
 
-typedef struct {
-	qboolean	cddialog;			// bring up the cd needed dialog next frame
+struct clientStatic_t {
+    // when the server clears the hunk, all of these must be restarted
+    bool rendererStarted;
+    bool soundStarted;
+    bool soundRegistered;
+    bool uiStarted;
+    bool cgameStarted;
 
-	// when the server clears the hunk, all of these must be restarted
-	qboolean	rendererStarted;
-	qboolean	soundStarted;
-	qboolean	soundRegistered;
-	qboolean	uiStarted;
-	qboolean	cgameStarted;
+    int framecount;
+    int frametime;  // msec since last frame
 
-	int			framecount;
-	int			frametime;			// msec since last frame
+    int realtime;  // ignores pause
+    int realFrametime;  // ignoring pause, so console always works
 
-	int			realtime;			// ignores pause
-	int			realFrametime;		// ignoring pause, so console always works
+    // master server sequence information
+    int numAlternateMasterPackets[3];
+    unsigned int receivedAlternateMasterPackets[3];  // bitfield
 
-	// master server sequence information
-	int			numAlternateMasterPackets[3];
-	unsigned int		receivedAlternateMasterPackets[3]; // bitfield
+    int numlocalservers;
+    serverInfo_t localServers[MAX_OTHER_SERVERS];
 
-	int			numlocalservers;
-	serverInfo_t	localServers[MAX_OTHER_SERVERS];
+    int numglobalservers;
+    serverInfo_t globalServers[MAX_GLOBAL_SERVERS];
+    // additional global servers
+    int numGlobalServerAddresses;
+    netadr_t globalServerAddresses[MAX_GLOBAL_SERVERS];
 
-	int			numglobalservers;
-	serverInfo_t  globalServers[MAX_GLOBAL_SERVERS];
-	// additional global servers
-	int			numGlobalServerAddresses;
-	netadr_t		globalServerAddresses[MAX_GLOBAL_SERVERS];
+    int numfavoriteservers;
+    serverInfo_t favoriteServers[MAX_OTHER_SERVERS];
 
-	int			numfavoriteservers;
-	serverInfo_t	favoriteServers[MAX_OTHER_SERVERS];
+    int pingUpdateSource;  // source currently pinging or updating
 
-	int pingUpdateSource;		// source currently pinging or updating
+    // update server info
+    netadr_t updateServer;
+    char updateChallenge[MAX_TOKEN_CHARS];
+    char updateInfoString[MAX_INFO_STRING];
 
-	// update server info
-	netadr_t	updateServer;
-	char		updateChallenge[MAX_TOKEN_CHARS];
-	char		updateInfoString[MAX_INFO_STRING];
+    netadr_t authorizeServer;
 
-	netadr_t	authorizeServer;
-
-	// rendering info
-	glconfig_t	glconfig;
-	qhandle_t	charSetShader;
-	qhandle_t	whiteShader;
-	qhandle_t	consoleShader;
+    // rendering info
+    glconfig_t glconfig;
+    qhandle_t charSetShader;
+    qhandle_t whiteShader;
+    qhandle_t consoleShader;
 
     struct {
-	    struct rsa_public_key public_key;
-	    struct rsa_private_key private_key;
+        struct rsa_public_key public_key;
+        struct rsa_private_key private_key;
     } rsa;
-} clientStatic_t;
+};
 
-extern	clientStatic_t		cls;
+extern clientStatic_t cls;
 
-extern	char		cl_oldGame[MAX_QPATH];
-extern	qboolean	cl_oldGameSet;
+extern char cl_oldGame[MAX_QPATH];
+extern bool cl_oldGameSet;
 
 //=============================================================================
 
-extern	vm_t			*cgvm;	// interface to cgame dll or vm
-extern	vm_t			*uivm;	// interface to ui dll or vm
-extern	int			uiInterface;
-extern	refexport_t		re;		// interface to refresh .dll
-
+extern vm_t *cgvm;  // interface to cgame dll or vm
+extern vm_t *uivm;  // interface to ui dll or vm
+extern int uiInterface;
+extern refexport_t re;  // interface to refresh .dll
 
 //
 // cvars
 //
-extern	cvar_t	*cl_nodelta;
-extern	cvar_t	*cl_debugMove;
-extern	cvar_t	*cl_noprint;
-extern	cvar_t	*cl_timegraph;
-extern	cvar_t	*cl_maxpackets;
-extern	cvar_t	*cl_packetdup;
-extern	cvar_t	*cl_shownet;
-extern	cvar_t	*cl_showSend;
-extern	cvar_t	*cl_timeNudge;
-extern	cvar_t	*cl_showTimeDelta;
-extern	cvar_t	*cl_freezeDemo;
+extern cvar_t *cl_nodelta;
+extern cvar_t *cl_debugMove;
+extern cvar_t *cl_noprint;
+extern cvar_t *cl_timegraph;
+extern cvar_t *cl_maxpackets;
+extern cvar_t *cl_packetdup;
+extern cvar_t *cl_shownet;
+extern cvar_t *cl_showSend;
+extern cvar_t *cl_timeNudge;
+extern cvar_t *cl_showTimeDelta;
+extern cvar_t *cl_freezeDemo;
 
-extern	cvar_t	*cl_yawspeed;
-extern	cvar_t	*cl_pitchspeed;
-extern	cvar_t	*cl_run;
-extern	cvar_t	*cl_anglespeedkey;
+extern cvar_t *cl_yawspeed;
+extern cvar_t *cl_pitchspeed;
+extern cvar_t *cl_run;
+extern cvar_t *cl_anglespeedkey;
 
-extern	cvar_t	*cl_sensitivity;
-extern	cvar_t	*cl_freelook;
+extern cvar_t *cl_sensitivity;
+extern cvar_t *cl_freelook;
 
-extern	cvar_t	*cl_mouseAccel;
-extern	cvar_t	*cl_mouseAccelOffset;
-extern	cvar_t	*cl_mouseAccelStyle;
-extern	cvar_t	*cl_showMouseRate;
+extern cvar_t *cl_mouseAccel;
+extern cvar_t *cl_mouseAccelOffset;
+extern cvar_t *cl_mouseAccelStyle;
+extern cvar_t *cl_showMouseRate;
 
-extern	cvar_t	*m_pitch;
-extern	cvar_t	*m_yaw;
-extern	cvar_t	*m_forward;
-extern	cvar_t	*m_side;
-extern	cvar_t	*m_filter;
+extern cvar_t *m_pitch;
+extern cvar_t *m_yaw;
+extern cvar_t *m_forward;
+extern cvar_t *m_side;
+extern cvar_t *m_filter;
 
-extern	cvar_t	*j_pitch;
-extern	cvar_t	*j_yaw;
-extern	cvar_t	*j_forward;
-extern	cvar_t	*j_side;
-extern	cvar_t	*j_up;
-extern	cvar_t	*j_pitch_axis;
-extern	cvar_t	*j_yaw_axis;
-extern	cvar_t	*j_forward_axis;
-extern	cvar_t	*j_side_axis;
-extern	cvar_t	*j_up_axis;
+extern cvar_t *j_pitch;
+extern cvar_t *j_yaw;
+extern cvar_t *j_forward;
+extern cvar_t *j_side;
+extern cvar_t *j_up;
+extern cvar_t *j_pitch_axis;
+extern cvar_t *j_yaw_axis;
+extern cvar_t *j_forward_axis;
+extern cvar_t *j_side_axis;
+extern cvar_t *j_up_axis;
 
-extern	cvar_t	*cl_timedemo;
-extern	cvar_t	*cl_aviFrameRate;
-extern	cvar_t	*cl_aviMotionJpeg;
+extern cvar_t *cl_timedemo;
+extern cvar_t *cl_aviFrameRate;
+extern cvar_t *cl_aviMotionJpeg;
 
-extern	cvar_t	*cl_activeAction;
+extern cvar_t *cl_activeAction;
 
-extern	cvar_t	*cl_allowDownload;
-extern  cvar_t  *cl_downloadMethod;
-extern	cvar_t	*cl_conXOffset;
-extern	cvar_t	*cl_inGameVideo;
+extern cvar_t *cl_allowDownload;
+extern cvar_t *cl_downloadMethod;
+extern cvar_t *cl_conXOffset;
+extern cvar_t *cl_inGameVideo;
 
-extern	cvar_t	*cl_lanForcePackets;
-extern	cvar_t	*cl_autoRecordDemo;
+extern cvar_t *cl_lanForcePackets;
+extern cvar_t *cl_autoRecordDemo;
 
-extern	cvar_t	*cl_consoleKeys;
+extern cvar_t *cl_consoleKeys;
 
 #ifdef USE_MUMBLE
-extern	cvar_t	*cl_useMumble;
-extern	cvar_t	*cl_mumbleScale;
+extern cvar_t *cl_useMumble;
+extern cvar_t *cl_mumbleScale;
 #endif
 
 #ifdef USE_VOIP
 // cl_voipSendTarget is a string: "all" to broadcast to everyone, "none" to
 //  send to no one, or a comma-separated list of client numbers:
 //  "0,7,2,23" ... an empty string is treated like "all".
-extern	cvar_t	*cl_voipUseVAD;
-extern	cvar_t	*cl_voipVADThreshold;
-extern	cvar_t	*cl_voipSend;
-extern	cvar_t	*cl_voipSendTarget;
-extern	cvar_t	*cl_voipGainDuringCapture;
-extern	cvar_t	*cl_voipCaptureMult;
-extern	cvar_t	*cl_voipShowMeter;
-extern	cvar_t	*cl_voip;
+extern cvar_t *cl_voipUseVAD;
+extern cvar_t *cl_voipVADThreshold;
+extern cvar_t *cl_voipSend;
+extern cvar_t *cl_voipSendTarget;
+extern cvar_t *cl_voipGainDuringCapture;
+extern cvar_t *cl_voipCaptureMult;
+extern cvar_t *cl_voipShowMeter;
+extern cvar_t *cl_voip;
 
 // 20ms at 48k
-#define VOIP_MAX_FRAME_SAMPLES		( 20 * 48 )
+#define VOIP_MAX_FRAME_SAMPLES (20 * 48)
 
 // 3 frame is 60ms of audio, the max opus will encode at once
-#define VOIP_MAX_PACKET_FRAMES		3
-#define VOIP_MAX_PACKET_SAMPLES		( VOIP_MAX_FRAME_SAMPLES * VOIP_MAX_PACKET_FRAMES )
+#define VOIP_MAX_PACKET_FRAMES 3
+#define VOIP_MAX_PACKET_SAMPLES (VOIP_MAX_FRAME_SAMPLES * VOIP_MAX_PACKET_FRAMES)
 #endif
 
-extern  cvar_t  *cl_rsaAuth;
+extern cvar_t *cl_rsaAuth;
 
 //=================================================
 
@@ -603,191 +597,189 @@ extern  cvar_t  *cl_rsaAuth;
 // cl_main
 //
 
-void CL_Init (void);
+void CL_Init(void);
 void CL_AddReliableCommand(const char *cmd, bool isDisconnectCmd);
 
-void CL_StartHunkUsers( qboolean rendererOnly );
+void CL_StartHunkUsers(qboolean rendererOnly);
 
-void CL_Disconnect_f (void);
-void CL_Reconnect_f( void );
-void CL_GetChallengePacket (void);
-void CL_Vid_Restart_f( void );
-void CL_Snd_Restart_f (void);
-void CL_StartDemoLoop( void );
-void CL_NextDemo( void );
-void CL_ReadDemoMessage( void );
-demoState_t CL_DemoState( void );
-int CL_DemoPos( void );
-void CL_DemoName( char *buffer, int size );
-void CL_StopRecord_f( void );
+void CL_Disconnect_f(void);
+void CL_Reconnect_f(void);
+void CL_GetChallengePacket(void);
+void CL_Vid_Restart_f(void);
+void CL_Snd_Restart_f(void);
+void CL_StartDemoLoop(void);
+void CL_NextDemo(void);
+void CL_ReadDemoMessage(void);
+demoState_t CL_DemoState(void);
+int CL_DemoPos(void);
+void CL_DemoName(char *buffer, int size);
+void CL_StopRecord_f(void);
 
 void CL_InitDownloads(void);
 void CL_NextDownload(void);
 
-void CL_GetPing( int n, char *buf, int buflen, int *pingtime );
-void CL_GetPingInfo( int n, char *buf, int buflen );
-void CL_ClearPing( int n );
-int CL_GetPingQueueCount( void );
+void CL_GetPing(int n, char *buf, int buflen, int *pingtime);
+void CL_GetPingInfo(int n, char *buf, int buflen);
+void CL_ClearPing(int n);
+int CL_GetPingQueueCount(void);
 
-void CL_ShutdownRef( void );
-void CL_InitRef( void );
-int CL_ServerStatus( char *serverAddress, char *serverStatusString, int maxLen );
+void CL_ShutdownRef(void);
+void CL_InitRef(void);
+bool CL_ServerStatus(char *serverAddress, char *serverStatusString, int maxLen);
 
-qboolean CL_CheckPaused(void);
+bool CL_CheckPaused(void);
 
 //
 // cl_input
 //
 typedef struct {
-	int			down[2];		// key nums holding it down
-	unsigned	downtime;		// msec timestamp
-	unsigned	msec;			// msec down this frame if both a down and up happened
-	qboolean	active;			// current state
-	qboolean	wasPressed;		// set when down, not cleared when up
+    int down[2];  // key nums holding it down
+    unsigned downtime;  // msec timestamp
+    unsigned msec;  // msec down this frame if both a down and up happened
+    bool active;  // current state
+    bool wasPressed;  // set when down, not cleared when up
 } kbutton_t;
 
 void CL_InitInput(void);
 void CL_ShutdownInput(void);
-void CL_SendCmd (void);
-void CL_ClearState (void);
-void CL_ReadPackets (void);
+void CL_SendCmd(void);
+void CL_ClearState(void);
+void CL_ReadPackets(void);
 
-void CL_WritePacket( void );
-void IN_CenterView (void);
+void CL_WritePacket(void);
+void IN_CenterView(void);
 
-void CL_VerifyCode( void );
+void CL_VerifyCode(void);
 
-float CL_KeyState (kbutton_t *key);
-int Key_StringToKeynum( const char *str );
-const char *Key_KeynumToString (int keynum);
+float CL_KeyState(kbutton_t *key);
+int Key_StringToKeynum(const char *str);
+const char *Key_KeynumToString(int keynum);
 
 //
 // cl_parse.c
 //
-extern int cl_connectedToPureServer;
-extern int cl_connectedToCheatServer;
+extern bool cl_connectedToPureServer;
+extern bool cl_connectedToCheatServer;
 
 #ifdef USE_VOIP
-void CL_Voip_f( void );
+void CL_Voip_f(void);
 #endif
 
-void CL_SystemInfoChanged( void );
-void CL_ParseServerMessage( msg_t *msg );
+void CL_SystemInfoChanged(void);
+void CL_ParseServerMessage(msg_t *msg);
 
 //====================================================================
 
-void	CL_ServerInfoPacket( netadr_t from, msg_t *msg );
-void	CL_LocalServers_f( void );
-void	CL_GlobalServers_f( void );
-void	CL_FavoriteServers_f( void );
-void	CL_Ping_f( void );
-qboolean CL_UpdateVisiblePings_f( int source );
-
+void CL_ServerInfoPacket(netadr_t from, msg_t *msg);
+void CL_LocalServers_f(void);
+void CL_GlobalServers_f(void);
+void CL_FavoriteServers_f(void);
+void CL_Ping_f(void);
+bool CL_UpdateVisiblePings_f(int source);
 
 //
 // console
 //
-void Con_DrawCharacter (int cx, int line, int num);
+void Con_DrawCharacter(int cx, int line, int num);
 
-void Con_CheckResize (void);
+void Con_CheckResize(void);
 void Con_Init(void);
 void Con_Shutdown(void);
-void Con_Clear_f (void);
-void Con_ToggleConsole_f (void);
-void Con_ClearNotify (void);
-void Con_RunConsole (void);
-void Con_DrawConsole (void);
-void Con_PageUp( void );
-void Con_PageDown( void );
-void Con_Top( void );
-void Con_Bottom( void );
-void Con_Close( void );
+void Con_Clear_f(void);
+void Con_ToggleConsole_f(void);
+void Con_ClearNotify(void);
+void Con_RunConsole(void);
+void Con_DrawConsole(void);
+void Con_PageUp(void);
+void Con_PageDown(void);
+void Con_Top(void);
+void Con_Bottom(void);
+void Con_Close(void);
 
-void CL_LoadConsoleHistory( void );
-void CL_SaveConsoleHistory( void );
+void CL_LoadConsoleHistory(void);
+void CL_SaveConsoleHistory(void);
 
 //
 // cl_scrn.c
 //
-void	SCR_Init (void);
-void	SCR_UpdateScreen (void);
+void SCR_Init(void);
+void SCR_UpdateScreen(void);
 
-void	SCR_DebugGraph (float value);
+void SCR_DebugGraph(float value);
 
-int		SCR_GetBigStringWidth( const char *str );	// returns in virtual 640x480 coordinates
+int SCR_GetBigStringWidth(const char *str);  // returns in virtual 640x480 coordinates
 
-void	SCR_AdjustFrom640( float *x, float *y, float *w, float *h );
-void	SCR_FillRect( float x, float y, float width, float height, 
-					 const float *color );
-void	SCR_DrawPic( float x, float y, float width, float height, qhandle_t hShader );
-void	SCR_DrawNamedPic( float x, float y, float width, float height, const char *picname );
+void SCR_AdjustFrom640(float *x, float *y, float *w, float *h);
+void SCR_FillRect(float x, float y, float width, float height, const float *color);
+void SCR_DrawPic(float x, float y, float width, float height, qhandle_t hShader);
+void SCR_DrawNamedPic(float x, float y, float width, float height, const char *picname);
 
-void	SCR_DrawBigString( int x, int y, const char *s, float alpha, qboolean noColorEscape );			// draws a string with embedded color control characters with fade
-void	SCR_DrawBigStringColor( int x, int y, const char *s, vec4_t color, qboolean noColorEscape );	// ignores embedded color control characters
-void	SCR_DrawSmallStringExt( int x, int y, const char *string, float *setColor, qboolean forceColor, qboolean noColorEscape );
-void	SCR_DrawSmallChar( int x, int y, int ch );
-
+void SCR_DrawBigString(int x, int y, const char *s, float alpha,
+    bool noColorEscape);  // draws a string with embedded color control characters with fade
+void SCR_DrawBigStringColor(
+    int x, int y, const char *s, vec4_t color, bool noColorEscape);  // ignores embedded color control characters
+void SCR_DrawSmallStringExt(int x, int y, const char *string, float *setColor, bool forceColor, bool noColorEscape);
+void SCR_DrawSmallChar(int x, int y, int ch);
 
 //
 // cl_cin.c
 //
 
-void CL_PlayCinematic_f( void );
-void SCR_DrawCinematic (void);
-void SCR_RunCinematic (void);
-void SCR_StopCinematic (void);
-int CIN_PlayCinematic( const char *arg0, int xpos, int ypos, int width, int height, int bits);
+void CL_PlayCinematic_f(void);
+void SCR_DrawCinematic(void);
+void SCR_RunCinematic(void);
+void SCR_StopCinematic(void);
+int CIN_PlayCinematic(const char *arg0, int xpos, int ypos, int width, int height, int bits);
 e_status CIN_StopCinematic(int handle);
-e_status CIN_RunCinematic (int handle);
-void CIN_DrawCinematic (int handle);
-void CIN_SetExtents (int handle, int x, int y, int w, int h);
-void CIN_SetLooping (int handle, qboolean loop);
+e_status CIN_RunCinematic(int handle);
+void CIN_DrawCinematic(int handle);
+void CIN_SetExtents(int handle, int x, int y, int w, int h);
+void CIN_SetLooping(int handle, bool loop);
 void CIN_UploadCinematic(int handle);
 void CIN_CloseAllVideos(void);
 
 //
 // cl_cgame.c
 //
-void CL_InitCGame( void );
-void CL_ShutdownCGame( void );
-qboolean CL_GameCommand( void );
-void CL_GameConsoleText( void );
-void CL_CGameRendering( stereoFrame_t stereo );
-void CL_SetCGameTime( void );
-void CL_FirstSnapshot( void );
+void CL_InitCGame(void);
+void CL_ShutdownCGame(void);
+qboolean CL_GameCommand(void);
+void CL_GameConsoleText(void);
+void CL_CGameRendering(stereoFrame_t stereo);
+void CL_SetCGameTime(void);
+void CL_FirstSnapshot(void);
 void CL_ShaderStateChanged(void);
 
 //
 // cl_ui.c
 //
-void CL_InitUI( void );
-void CL_ShutdownUI( void );
-int Key_GetCatcher( void );
-void Key_SetCatcher( int catcher );
-void LAN_LoadCachedServers( void );
-void LAN_SaveServersToCache( void );
-
+void CL_InitUI(void);
+void CL_ShutdownUI(void);
+int Key_GetCatcher(void);
+void Key_SetCatcher(int catcher);
+void LAN_LoadCachedServers(void);
+void LAN_SaveServersToCache(void);
 
 //
 // cl_net_chan.c
 //
-void CL_Netchan_Transmit( netchan_t *chan, msg_t* msg);	//int length, const byte *data );
-qboolean CL_Netchan_Process( netchan_t *chan, msg_t *msg );
+void CL_Netchan_Transmit(netchan_t *chan, msg_t *msg);  // int length, const byte *data );
+bool CL_Netchan_Process(netchan_t *chan, msg_t *msg);
 
 //
 // cl_avi.c
 //
-qboolean CL_OpenAVIForWriting( const char *filename );
-void CL_TakeVideoFrame( void );
-void CL_WriteAVIVideoFrame( const byte *imageBuffer, int size );
-void CL_WriteAVIAudioFrame( const byte *pcmBuffer, int size );
-qboolean CL_CloseAVI( void );
-qboolean CL_VideoRecording( void );
+bool CL_OpenAVIForWriting(const char *filename);
+void CL_TakeVideoFrame(void);
+void CL_WriteAVIVideoFrame(const byte *imageBuffer, int size);
+void CL_WriteAVIAudioFrame(const byte *pcmBuffer, int size);
+bool CL_CloseAVI(void);
+bool CL_VideoRecording(void);
 
 //
 // cl_main.c
 //
-void CL_WriteDemoMessage( msg_t *msg, int headerBytes );
+void CL_WriteDemoMessage(msg_t *msg, int headerBytes);
 int CL_ScaledMilliseconds(void);
 
 #endif

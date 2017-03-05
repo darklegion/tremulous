@@ -115,7 +115,7 @@ ResampleSfx
 resample / decimate to the current source rate
 ================
 */
-static int ResampleSfx(sfx_t *sfx, int channels, int inrate, int inwidth, int samples, byte *data, qboolean compressed)
+static int ResampleSfx(sfx_t *sfx, int channels, int inrate, int inwidth, int samples, byte *data, bool compressed)
 {
     float stepscale = (float)inrate / dma.speed;  // this is usually 0.5, 1, or 2
     int outcount = samples / stepscale;
@@ -216,13 +216,13 @@ The filename may be different than sfx->name in the case
 of a forced fallback of a player specific sound
 ==============
 */
-qboolean S_LoadSound(sfx_t *sfx)
+bool S_LoadSound(sfx_t *sfx)
 {
     snd_info_t info;
     byte *data = (byte*)S_CodecLoad(sfx->soundName, &info);
     if (!data)
     {
-        return qfalse;
+        return false;
     }
 
     int size_per_sec = info.rate * info.channels * info.width;
@@ -253,7 +253,7 @@ qboolean S_LoadSound(sfx_t *sfx)
     // manager to do the right thing for us and page
     // sound in as needed
 
-    if (info.channels == 1 && sfx->soundCompressed == qtrue)
+    if (info.channels == 1 && sfx->soundCompressed == true)
     {
         sfx->soundCompressionMethod = 1;
         sfx->soundData = NULL;
@@ -277,7 +277,7 @@ qboolean S_LoadSound(sfx_t *sfx)
                     info.width,
                     info.samples,
                     data + info.dataofs,
-                    qfalse);
+                    false);
     }
 
     sfx->soundChannels = info.channels;
@@ -285,7 +285,7 @@ qboolean S_LoadSound(sfx_t *sfx)
     Hunk_FreeTempMemory(samples);
     Hunk_FreeTempMemory(data);
 
-    return qtrue;
+    return true;
 }
 
 void S_DisplayFreeMemory(void)

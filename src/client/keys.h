@@ -26,38 +26,36 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "keycodes.h"
 
 typedef struct {
-	bool	    down;
-	int			repeats;		// if > 1, it is autorepeating
-	char		*binding;
+    bool down;
+    int repeats;  // if > 1, it is autorepeating
+    char *binding;
 } qkey_t;
 
-extern	bool	    key_overstrikeMode;
-extern	qkey_t		keys[MAX_KEYS];
+extern bool key_overstrikeMode;
+extern qkey_t keys[MAX_KEYS];
 
 // NOTE TTimo the declaration of field_t and Field_Clear is now in qcommon/qcommon.h
-void Field_KeyDownEvent( field_t *edit, int key );
-void Field_CharEvent( field_t *edit, int ch );
-void Field_Draw( field_t *edit, int x, int y, int width, qboolean showCursor, qboolean noColorEscape );
-void Field_BigDraw( field_t *edit, int x, int y, int width, qboolean showCursor, qboolean noColorEscape );
+void Field_KeyDownEvent(field_t *edit, int key);
+void Field_CharEvent(field_t *edit, int ch);
+void Field_Draw(field_t *edit, int x, int y, int width, bool showCursor, bool noColorEscape);
+void Field_BigDraw(field_t *edit, int x, int y, int width, bool showCursor, bool noColorEscape);
 
-#define		COMMAND_HISTORY		32
-extern	field_t	historyEditLines[COMMAND_HISTORY];
+#define COMMAND_HISTORY 32
+extern field_t historyEditLines[COMMAND_HISTORY];
 
-extern	field_t	g_consoleField;
-extern	field_t	chatField;
-extern	int				anykeydown;
-extern	qboolean	chat_team;
-extern	int			chat_playerNum;
+extern field_t g_consoleField;
+extern field_t chatField;
+extern int anykeydown;
 
-void Key_WriteBindings( fileHandle_t f );
-void Key_SetBinding( int keynum, const char *binding );
-const char *Key_GetBinding( int keynum );
-qboolean Key_IsDown( int keynum );
-qboolean Key_GetOverstrikeMode( void );
-void Key_SetOverstrikeMode( qboolean state );
-void Key_ClearStates( void );
+void Key_WriteBindings(fileHandle_t f);
+void Key_SetBinding(int keynum, const char *binding);
+const char *Key_GetBinding(int keynum);
+bool Key_IsDown(int keynum);
+bool Key_GetOverstrikeMode(void);
+void Key_SetOverstrikeMode(bool state);
+void Key_ClearStates(void);
 int Key_GetKey(const char *binding);
-void Key_KeynumToStringBuf( int keynum, char *buf, int buflen );
-void Key_GetBindingBuf( int keynum, char *buf, int buflen );
+void Key_KeynumToStringBuf(int keynum, char *buf, int buflen);
+void Key_GetBindingBuf(int keynum, char *buf, int buflen);
 
 #endif

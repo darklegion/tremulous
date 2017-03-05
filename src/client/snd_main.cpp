@@ -42,39 +42,39 @@ static soundInterface_t si;
 S_ValidateInterface
 =================
 */
-static qboolean S_ValidSoundInterface( soundInterface_t *si )
+static bool S_ValidSoundInterface( soundInterface_t *si )
 {
-	if( !si->Shutdown ) return qfalse;
-	if( !si->StartSound ) return qfalse;
-	if( !si->StartLocalSound ) return qfalse;
-	if( !si->StartBackgroundTrack ) return qfalse;
-	if( !si->StopBackgroundTrack ) return qfalse;
-	if( !si->RawSamples ) return qfalse;
-	if( !si->StopAllSounds ) return qfalse;
-	if( !si->ClearLoopingSounds ) return qfalse;
-	if( !si->AddLoopingSound ) return qfalse;
-	if( !si->AddRealLoopingSound ) return qfalse;
-	if( !si->StopLoopingSound ) return qfalse;
-	if( !si->Respatialize ) return qfalse;
-	if( !si->UpdateEntityPosition ) return qfalse;
-	if( !si->Update ) return qfalse;
-	if( !si->DisableSounds ) return qfalse;
-	if( !si->BeginRegistration ) return qfalse;
-	if( !si->RegisterSound ) return qfalse;
-	if( !si->SoundDuration ) return qfalse;
-	if( !si->ClearSoundBuffer ) return qfalse;
-	if( !si->SoundInfo ) return qfalse;
-	if( !si->SoundList ) return qfalse;
+	if( !si->Shutdown ) return false;
+	if( !si->StartSound ) return false;
+	if( !si->StartLocalSound ) return false;
+	if( !si->StartBackgroundTrack ) return false;
+	if( !si->StopBackgroundTrack ) return false;
+	if( !si->RawSamples ) return false;
+	if( !si->StopAllSounds ) return false;
+	if( !si->ClearLoopingSounds ) return false;
+	if( !si->AddLoopingSound ) return false;
+	if( !si->AddRealLoopingSound ) return false;
+	if( !si->StopLoopingSound ) return false;
+	if( !si->Respatialize ) return false;
+	if( !si->UpdateEntityPosition ) return false;
+	if( !si->Update ) return false;
+	if( !si->DisableSounds ) return false;
+	if( !si->BeginRegistration ) return false;
+	if( !si->RegisterSound ) return false;
+	if( !si->SoundDuration ) return false;
+	if( !si->ClearSoundBuffer ) return false;
+	if( !si->SoundInfo ) return false;
+	if( !si->SoundList ) return false;
 
 #ifdef USE_VOIP
-	if( !si->StartCapture ) return qfalse;
-	if( !si->AvailableCaptureSamples ) return qfalse;
-	if( !si->Capture ) return qfalse;
-	if( !si->StopCapture ) return qfalse;
-	if( !si->MasterGain ) return qfalse;
+	if( !si->StartCapture ) return false;
+	if( !si->AvailableCaptureSamples ) return false;
+	if( !si->Capture ) return false;
+	if( !si->StopCapture ) return false;
+	if( !si->MasterGain ) return false;
 #endif
 
-	return qtrue;
+	return true;
 }
 
 /*
@@ -154,7 +154,7 @@ void S_StopAllSounds( void )
 S_ClearLoopingSounds
 =================
 */
-void S_ClearLoopingSounds( qboolean killall )
+void S_ClearLoopingSounds( bool killall )
 {
 	if( si.ClearLoopingSounds ) {
 		si.ClearLoopingSounds( killall );
@@ -236,7 +236,7 @@ void S_Update( void )
 		if(!(s_muteWhenMinimized->integer && com_minimized->integer) &&
 		   !(s_muteWhenUnfocused->integer && com_unfocused->integer))
 		{
-			s_muted->integer = qfalse;
+			s_muted->integer = false;
 			s_muted->modified = qtrue;
 		}
 	}
@@ -245,7 +245,7 @@ void S_Update( void )
 		if((s_muteWhenMinimized->integer && com_minimized->integer) ||
 		   (s_muteWhenUnfocused->integer && com_unfocused->integer))
 		{
-			s_muted->integer = qtrue;
+			s_muted->integer = true;
 			s_muted->modified = qtrue;
 		}
 	}
@@ -284,7 +284,7 @@ void S_BeginRegistration( void )
 S_RegisterSound
 =================
 */
-sfxHandle_t	S_RegisterSound( const char *sample, qboolean compressed )
+sfxHandle_t	S_RegisterSound( const char *sample, bool compressed )
 {
 	if( si.RegisterSound ) {
 		return si.RegisterSound( sample, compressed );
@@ -430,7 +430,7 @@ void S_Play_f( void ) {
 	}
 
 	for( i = 1; i < c; i++ ) {
-		h = si.RegisterSound( Cmd_Argv(i), qfalse );
+		h = si.RegisterSound( Cmd_Argv(i), false );
 
 		if( h ) {
 			si.StartLocalSound( h, CHAN_LOCAL_SOUND );
@@ -487,7 +487,7 @@ S_Init
 void S_Init( void )
 {
 	cvar_t		*cv;
-	qboolean	started = qfalse;
+	bool	started = false;
 
 	Com_Printf( "------ Initializing Sound ------\n" );
 
@@ -547,7 +547,8 @@ S_Shutdown
 */
 void S_Shutdown( void )
 {
-	if( si.Shutdown ) {
+	if( si.Shutdown )
+    {
 		si.Shutdown( );
 	}
 

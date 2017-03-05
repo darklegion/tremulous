@@ -137,7 +137,7 @@ vm_t				*cgvm;
 
 char				cl_reconnectArgs[MAX_OSPATH];
 char				cl_oldGame[MAX_QPATH];
-qboolean			cl_oldGameSet;
+bool			    cl_oldGameSet;
 
 // Structure containing functions exported from refresh DLL
 refexport_t	re;
@@ -152,9 +152,9 @@ typedef struct serverStatus_s
 	char string[BIG_INFO_STRING];
 	netadr_t address;
 	int time, startTime;
-	qboolean pending;
-	qboolean print;
-	qboolean retrieved;
+	bool pending;
+	bool print;
+	bool retrieved;
 } serverStatus_t;
 
 serverStatus_t cl_serverStatusList[MAX_SERVERSTATUSREQUESTS];
@@ -187,17 +187,6 @@ void CL_InstallUpdate_f()
 void CL_CheckForUpdate_f()
 {
     CL_GetLatestRelease();
-}
-
-/*
-===============
-CL_CDDialog
-
-Called by Com_Error when a cd is needed
-===============
-*/
-void CL_CDDialog( void ) {
-	cls.cddialog = qtrue;	// start it next frame
 }
 
 #ifdef USE_MUMBLE
@@ -248,7 +237,7 @@ void CL_UpdateMumble(void)
 
 #ifdef USE_VOIP
 static
-void CL_UpdateVoipIgnore(const char *idstr, qboolean ignore)
+void CL_UpdateVoipIgnore(const char *idstr, bool ignore)
 {
 	if ((*idstr >= '0') && (*idstr <= '9')) {
 		const int id = atoi(idstr);
@@ -296,9 +285,9 @@ void CL_Voip_f( void )
 	}
 
 	if (strcmp(cmd, "ignore") == 0) {
-		CL_UpdateVoipIgnore(Cmd_Argv(2), qtrue);
+		CL_UpdateVoipIgnore(Cmd_Argv(2), true);
 	} else if (strcmp(cmd, "unignore") == 0) {
-		CL_UpdateVoipIgnore(Cmd_Argv(2), qfalse);
+		CL_UpdateVoipIgnore(Cmd_Argv(2), false);
 	} else if (strcmp(cmd, "gain") == 0) {
 		if (Cmd_Argc() > 3) {
 			CL_UpdateVoipGain(Cmd_Argv(2), atof(Cmd_Argv(3)));
@@ -316,11 +305,11 @@ void CL_Voip_f( void )
 	} else if (strcmp(cmd, "muteall") == 0) {
 		Com_Printf("VoIP: muting incoming voice\n");
 		CL_AddReliableCommand("voip muteall", qfalse);
-		clc.voipMuteAll = qtrue;
+		clc.voipMuteAll = true;
 	} else if (strcmp(cmd, "unmuteall") == 0) {
 		Com_Printf("VoIP: unmuting incoming voice\n");
 		CL_AddReliableCommand("voip unmuteall", qfalse);
-		clc.voipMuteAll = qfalse;
+		clc.voipMuteAll = false;
 	} else {
 		Com_Printf("usage: voip [un]ignore <playerID#>\n"
 		           "       voip [un]muteall\n"
@@ -681,8 +670,8 @@ void CL_StopRecord_f( void ) {
 	FS_Write (&len, 4, clc.demofile);
 	FS_FCloseFile (clc.demofile);
 	clc.demofile = 0;
-	clc.demorecording = qfalse;
-	clc.spDemoRecording = qfalse;
+	clc.demorecording = false;
+	clc.spDemoRecording = false;
 	Com_Printf ("Stopped demo.\n");
 }
 
@@ -777,15 +766,15 @@ void CL_Record_f( void ) {
 	}
 	clc.demorecording = qtrue;
 	if (Cvar_VariableValue("ui_recordSPDemo")) {
-	  clc.spDemoRecording = qtrue;
+	  clc.spDemoRecording = true;
 	} else {
-	  clc.spDemoRecording = qfalse;
+	  clc.spDemoRecording = false;
 	}
 
 	Q_strncpyz( clc.demoName, demoName, sizeof( clc.demoName ) );
 
 	// don't start saving messages until a non-delta compressed message is received
-	clc.demowaiting = qtrue;
+	clc.demowaiting = true;
 
 	// write out the gamestate message
 	MSG_Init (&buf, bufData, sizeof(bufData));
@@ -1128,7 +1117,7 @@ void CL_PlayDemo_f( void ) {
 	Q_strncpyz( clc.demoName, arg, sizeof( clc.demoName ) );
 
 	clc.state = CA_CONNECTED;
-	clc.demoplaying = qtrue;
+	clc.demoplaying = true;
 	Q_strncpyz( clc.servername, arg, sizeof( clc.servername ) );
 	clc.netchan.alternateProtocol = ( protocol == 69 ? 2 : protocol == 70 ? 1 : 0 );
 
@@ -1138,7 +1127,7 @@ void CL_PlayDemo_f( void ) {
 	}
 	// don't get the first snapshot this frame, to prevent the long
 	// time from the gamestate load from messing causing a time skip
-	clc.firstDemoFrameSkipped = qfalse;
+	clc.firstDemoFrameSkipped = false;
 }
 
 
@@ -1256,10 +1245,10 @@ void CL_ShutdownAll(qboolean shutdownRef)
 	else if(re.Shutdown)
 		re.Shutdown(qfalse);		// don't destroy window or context
 
-	cls.uiStarted = qfalse;
-	cls.cgameStarted = qfalse;
-	cls.rendererStarted = qfalse;
-	cls.soundRegistered = qfalse;
+	cls.uiStarted = false;
+	cls.cgameStarted = false;
+	cls.rendererStarted = false;
+	cls.soundRegistered = false;
 }
 
 /*
@@ -1269,7 +1258,7 @@ CL_ClearMemory
 Called by Com_GameRestart
 =================
 */
-void CL_ClearMemory(qboolean shutdownRef)
+static void CL_ClearMemory(qboolean shutdownRef)
 {
 	// shutdown all the client stuff
 	CL_ShutdownAll(shutdownRef);
@@ -1485,11 +1474,11 @@ void CL_Disconnect( qboolean showMainMenu ) {
 	Cvar_Set( "sv_cheats", "1" );
 
 	// not connected to a pure server anymore
-	cl_connectedToPureServer = qfalse;
+	cl_connectedToPureServer = false;
 
 #ifdef USE_VOIP
 	// not connected to voip server anymore.
-	clc.voipEnabled = qfalse;
+	clc.voipEnabled = false;
 #endif
 
 	// Stop recording any video
@@ -1712,14 +1701,14 @@ void CL_Connect_f( void ) {
 		CL_UpdateGUID( NULL, 0 );
 
 	clc.challenge2[0] = '\0';
-	clc.sendSignature = qfalse;
+	clc.sendSignature = false;
 
 	// if we aren't playing on a lan, we need to authenticate
 	// with the cd key
 	if(NET_IsLocalAddress(clc.serverAddress))
 	{
 		clc.state = CA_CHALLENGING;
-		clc.sendSignature = qtrue;
+		clc.sendSignature = true;
 	}
 	else
 	{
@@ -1876,10 +1865,10 @@ void CL_Vid_Restart_f( void ) {
 		FS_ClearPakReferences( FS_UI_REF | FS_CGAME_REF );
 		// reinitialize the filesystem if the game directory or checksum has changed
 
-		cls.rendererStarted = qfalse;
-		cls.uiStarted = qfalse;
-		cls.cgameStarted = qfalse;
-		cls.soundRegistered = qfalse;
+		cls.rendererStarted = false;
+		cls.uiStarted = false;
+		cls.cgameStarted = false;
+		cls.soundRegistered = false;
 
 		// unpause so the cgame definately gets a snapshot and renders a frame
 		Cvar_Set("cl_paused", "0");
@@ -1893,7 +1882,7 @@ void CL_Vid_Restart_f( void ) {
 		// start the cgame if connected
 		if(clc.state > CA_CONNECTED && clc.state != CA_CINEMATIC)
 		{
-			cls.cgameStarted = qtrue;
+			cls.cgameStarted = true;
 			CL_InitCGame();
 			// send pure checksums
 			CL_SendPureChecksums();
@@ -1911,7 +1900,7 @@ Restart the sound subsystem
 void CL_Snd_Shutdown(void)
 {
 	S_Shutdown();
-	cls.soundStarted = qfalse;
+	cls.soundStarted = false;
 }
 
 /*
@@ -2939,7 +2928,7 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg )
 			s = Cmd_Argv( 4 );
 			if ( *s ) {
 				Q_strncpyz( clc.challenge2, s, sizeof( clc.challenge2 ) );
-				clc.sendSignature = qtrue;
+				clc.sendSignature = true;
 			}
 		}
 
@@ -3136,15 +3125,14 @@ CL_CheckPaused
 Check whether client has been paused.
 ==================
 */
-qboolean CL_CheckPaused(void)
-{
-	// if cl_paused->modified is set, the cvar has only been changed in
+bool CL_CheckPaused(void)
+{ // if cl_paused->modified is set, the cvar has only been changed in
 	// this frame. Keep paused in this frame to ensure the server doesn't
 	// lag behind.
 	if(cl_paused->integer || cl_paused->modified)
-		return qtrue;
+		return true;
 	
-	return qfalse;
+	return false;
 }
 
 //============================================================================
@@ -3406,40 +3394,49 @@ After the server has cleared the hunk, these will need to be restarted
 This is the only place that any of these functions are called from
 ============================
 */
-void CL_StartHunkUsers( qboolean rendererOnly ) {
-	if (!com_cl_running) {
+void CL_StartHunkUsers( qboolean rendererOnly )
+{
+	if (!com_cl_running)
+    {
 		return;
 	}
 
-	if ( !com_cl_running->integer ) {
+	if ( !com_cl_running->integer )
+    {
 		return;
 	}
 
-	if ( !cls.rendererStarted ) {
-		cls.rendererStarted = qtrue;
+	if ( !cls.rendererStarted )
+    {
+		cls.rendererStarted = true;
 		CL_InitRenderer();
 	}
 
-	if ( rendererOnly ) {
+	if ( rendererOnly )
+    {
 		return;
 	}
 
-	if ( !cls.soundStarted ) {
-		cls.soundStarted = qtrue;
+	if ( !cls.soundStarted )
+    {
+		cls.soundStarted = true;
 		S_Init();
 	}
 
-	if ( !cls.soundRegistered ) {
-		cls.soundRegistered = qtrue;
+	if ( !cls.soundRegistered )
+    {
+		cls.soundRegistered = true;
 		S_BeginRegistration();
 	}
 
-	if( com_dedicated->integer ) {
+	if( com_dedicated->integer )
+    {
 		return;
 	}
 
-	if ( !cls.uiStarted ) {
-		cls.uiStarted = qtrue;
+	if ( !cls.uiStarted )
+    {
+		cls.uiStarted = true;
 		CL_InitUI();
 	}
 }
@@ -3720,7 +3717,7 @@ void CL_Init( void ) {
 	{
 		CL_ClearState();
 		clc.state = CA_DISCONNECTED;	// no longer CA_UNINITIALIZED
-		cl_oldGameSet = qfalse;
+		cl_oldGameSet = false;
 	}
 
 	CL_InitInput ();
@@ -4174,7 +4171,8 @@ serverStatus_t *CL_GetServerStatus( netadr_t from ) {
 CL_ServerStatus
 ===================
 */
-int CL_ServerStatus( char *serverAddress, char *serverStatusString, int maxLen ) {
+bool CL_ServerStatus( char *serverAddress, char *serverStatusString, int maxLen )
+{
 	int i;
 	netadr_t	to;
 	serverStatus_t *serverStatus;
@@ -4183,19 +4181,19 @@ int CL_ServerStatus( char *serverAddress, char *serverStatusString, int maxLen )
 	if ( !serverAddress ) {
 		for (i = 0; i < MAX_SERVERSTATUSREQUESTS; i++) {
 			cl_serverStatusList[i].address.port = 0;
-			cl_serverStatusList[i].retrieved = qtrue;
+			cl_serverStatusList[i].retrieved = true;
 		}
-		return qfalse;
+		return false;
 	}
 	// get the address
 	if ( !NET_StringToAdr( serverAddress, &to, NA_UNSPEC) ) {
-		return qfalse;
+		return false;
 	}
 	serverStatus = CL_GetServerStatus( to );
 	// if no server status string then reset the server status request for this address
 	if ( !serverStatusString ) {
-		serverStatus->retrieved = qtrue;
-		return qfalse;
+		serverStatus->retrieved = true;
+		return false;
 	}
 
 	// if this server status request has the same address
@@ -4203,33 +4201,33 @@ int CL_ServerStatus( char *serverAddress, char *serverStatusString, int maxLen )
 		// if we received a response for this server status request
 		if (!serverStatus->pending) {
 			Q_strncpyz(serverStatusString, serverStatus->string, maxLen);
-			serverStatus->retrieved = qtrue;
+			serverStatus->retrieved = true;
 			serverStatus->startTime = 0;
-			return qtrue;
+			return true;
 		}
 		// resend the request regularly
 		else if ( serverStatus->startTime < Com_Milliseconds() - cl_serverStatusResendTime->integer ) {
-			serverStatus->print = qfalse;
-			serverStatus->pending = qtrue;
-			serverStatus->retrieved = qfalse;
+			serverStatus->print = false;
+			serverStatus->pending = true;
+			serverStatus->retrieved = false;
 			serverStatus->time = 0;
 			serverStatus->startTime = Com_Milliseconds();
 			NET_OutOfBandPrint( NS_CLIENT, to, "getstatus" );
-			return qfalse;
+			return false;
 		}
 	}
 	// if retrieved
 	else if ( serverStatus->retrieved ) {
 		serverStatus->address = to;
-		serverStatus->print = qfalse;
-		serverStatus->pending = qtrue;
-		serverStatus->retrieved = qfalse;
+		serverStatus->print = false;
+		serverStatus->pending = true;
+		serverStatus->retrieved = false;
 		serverStatus->startTime = Com_Milliseconds();
 		serverStatus->time = 0;
 		NET_OutOfBandPrint( NS_CLIENT, to, "getstatus" );
-		return qfalse;
+		return false;
 	}
-	return qfalse;
+	return false;
 }
 
 /*
@@ -4342,7 +4340,7 @@ void CL_LocalServers_f( void ) {
 
 	for (i = 0; i < MAX_OTHER_SERVERS; i++)
     {
-		qboolean b = cls.localServers[i].visible;
+		bool b = cls.localServers[i].visible;
 		Com_Memset(&cls.localServers[i], 0, sizeof(cls.localServers[i]));
 		cls.localServers[i].visible = b;
 	}
@@ -4679,15 +4677,15 @@ void CL_Ping_f( void ) {
 CL_UpdateVisiblePings_f
 ==================
 */
-qboolean CL_UpdateVisiblePings_f(int source) {
+bool CL_UpdateVisiblePings_f(int source) {
 	int			slots, i;
 	char		buff[MAX_STRING_CHARS];
 	int			pingTime;
 	int			max;
-	qboolean status = qfalse;
+	bool status = false;
 
 	if (source < 0 || source > AS_FAVORITES) {
-		return qfalse;
+		return false;
 	}
 
 	cls.pingUpdateSource = source;
@@ -4730,7 +4728,7 @@ qboolean CL_UpdateVisiblePings_f(int source) {
 						}
 					}
 					if (j >= MAX_PINGREQUESTS) {
-						status = qtrue;
+						status = true;
 						for (j = 0; j < MAX_PINGREQUESTS; j++) {
 							if (!cl_pinglist[j].adr.port) {
 								break;
@@ -4762,7 +4760,7 @@ qboolean CL_UpdateVisiblePings_f(int source) {
 	} 
 
 	if (slots) {
-		status = qtrue;
+		status = true;
 	}
 	for (i = 0; i < MAX_PINGREQUESTS; i++) {
 		if (!cl_pinglist[i].adr.port) {
@@ -4771,7 +4769,7 @@ qboolean CL_UpdateVisiblePings_f(int source) {
 		CL_GetPing( i, buff, MAX_STRING_CHARS, &pingTime );
 		if (pingTime != 0) {
 			CL_ClearPing(i);
-			status = qtrue;
+			status = true;
 		}
 	}
 

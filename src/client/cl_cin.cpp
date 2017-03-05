@@ -114,7 +114,9 @@ typedef struct {
     byte *gray;
     unsigned int xsize, ysize, maxsize, minsize;
 
-    qboolean half, smootheddouble, inMemory;
+    bool half;
+    bool smootheddouble;
+    bool inMemory;
     long normalBuffer0;
     long roq_flags;
     long roqF0;
@@ -1069,8 +1071,8 @@ static void readQuadInfo(byte *qData)
         cinTable[currentHandle].CIN_WIDTH * cinTable[currentHandle].samplesPerPixel;
     cinTable[currentHandle].screenDelta = cinTable[currentHandle].CIN_HEIGHT * cinTable[currentHandle].samplesPerLine;
 
-    cinTable[currentHandle].half = qfalse;
-    cinTable[currentHandle].smootheddouble = qfalse;
+    cinTable[currentHandle].half = false;
+    cinTable[currentHandle].smootheddouble = false;
 
     cinTable[currentHandle].VQ0 = cinTable[currentHandle].VQNormal;
     cinTable[currentHandle].VQ1 = cinTable[currentHandle].VQBuffer;
@@ -1285,7 +1287,7 @@ redump:
             if (cinTable[currentHandle].numQuads != 1) cinTable[currentHandle].numQuads = 0;
             break;
         case ROQ_PACKET:
-            cinTable[currentHandle].inMemory = (qboolean)cinTable[currentHandle].roq_flags;
+            cinTable[currentHandle].inMemory = (bool)cinTable[currentHandle].roq_flags;
             cinTable[currentHandle].RoQFrameSize = 0;  // for header
             break;
         case ROQ_QUAD_HANG:
@@ -1339,7 +1341,7 @@ redump:
     }
     if (cinTable[currentHandle].inMemory && (cinTable[currentHandle].status != FMV_EOF))
     {
-        cinTable[currentHandle].inMemory = qfalse;
+        cinTable[currentHandle].inMemory = false;
         framedata += 8;
         goto redump;
     }
@@ -1598,7 +1600,7 @@ int CIN_PlayCinematic(const char *arg, int x, int y, int w, int h, int systemBit
     }
 
     CIN_SetExtents(currentHandle, x, y, w, h);
-    CIN_SetLooping(currentHandle, (qboolean)((systemBits & CIN_loop) != 0));
+    CIN_SetLooping(currentHandle, ((systemBits & CIN_loop) != 0));
 
     cinTable[currentHandle].CIN_HEIGHT = DEFAULT_CIN_HEIGHT;
     cinTable[currentHandle].CIN_WIDTH = DEFAULT_CIN_WIDTH;
@@ -1662,7 +1664,7 @@ void CIN_SetExtents(int handle, int x, int y, int w, int h)
     cinTable[handle].dirty = qtrue;
 }
 
-void CIN_SetLooping(int handle, qboolean loop)
+void CIN_SetLooping(int handle, bool loop)
 {
     if (handle < 0 || handle >= MAX_VIDEO_HANDLES || cinTable[handle].status == FMV_EOF) return;
     cinTable[handle].looping = loop;

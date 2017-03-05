@@ -40,7 +40,7 @@ typedef struct audioFormat_s
 
 typedef struct aviFileData_s
 {
-  qboolean      fileOpen;
+  bool          fileOpen;
   fileHandle_t  f;
   char          fileName[ MAX_QPATH ];
   int           fileSize;
@@ -57,7 +57,7 @@ typedef struct aviFileData_s
   int           maxRecordSize;
   qboolean      motionJpeg;
 
-  qboolean      audio;
+  bool          audio;
   audioFormat_t a;
   int           numAudioFrames;
 
@@ -321,10 +321,10 @@ Creates an AVI file and gets it into a state where
 writing the actual data can begin
 ===============
 */
-qboolean CL_OpenAVIForWriting( const char *fileName )
+bool CL_OpenAVIForWriting( const char *fileName )
 {
   if( afd.fileOpen )
-    return qfalse;
+    return false;
 
   Com_Memset( &afd, 0, sizeof( aviFileData_t ) );
 
@@ -332,17 +332,17 @@ qboolean CL_OpenAVIForWriting( const char *fileName )
   if( cl_aviFrameRate->integer <= 0 )
   {
     Com_Printf( S_COLOR_RED "cl_aviFrameRate must be >= 1\n" );
-    return qfalse;
+    return false;
   }
 
   if( ( afd.f = FS_FOpenFileWrite( fileName ) ) <= 0 )
-    return qfalse;
+    return false;
 
   if( ( afd.idxF = FS_FOpenFileWrite(
           va( "%s" INDEX_FILE_EXTENSION, fileName ) ) ) <= 0 )
   {
     FS_FCloseFile( afd.f );
-    return qfalse;
+    return false;
   }
 
   Q_strncpyz( afd.fileName, fileName, MAX_QPATH );
@@ -384,7 +384,7 @@ qboolean CL_OpenAVIForWriting( const char *fileName )
 
   if( !Cvar_VariableIntegerValue( "s_initsound" ) )
   {
-    afd.audio = qfalse;
+    afd.audio = false;
   }
   else if( Q_stricmp( Cvar_VariableString( "s_backend" ), "OpenAL" ) )
   {
@@ -392,14 +392,14 @@ qboolean CL_OpenAVIForWriting( const char *fileName )
     {
       Com_Printf( S_COLOR_YELLOW "WARNING: Audio format of %d bit/%d channels not supported",
           afd.a.bits, afd.a.channels );
-      afd.audio = qfalse;
+      afd.audio = false;
     }
     else
-      afd.audio = qtrue;
+      afd.audio = true;
   }
   else
   {
-    afd.audio = qfalse;
+    afd.audio = false;
     Com_Printf( S_COLOR_YELLOW "WARNING: Audio capture is not supported "
         "with OpenAL. Set s_useOpenAL to 0 for audio capture\n" );
   }
@@ -416,9 +416,9 @@ qboolean CL_OpenAVIForWriting( const char *fileName )
   SafeFS_Write( buffer, bufIndex, afd.idxF );
 
   afd.moviSize = 4; // For the "movi"
-  afd.fileOpen = qtrue;
+  afd.fileOpen = true;
 
-  return qtrue;
+  return true;
 }
 
 /*
@@ -426,7 +426,7 @@ qboolean CL_OpenAVIForWriting( const char *fileName )
 CL_CheckFileSize
 ===============
 */
-static qboolean CL_CheckFileSize( int bytesToAdd )
+static bool CL_CheckFileSize( int bytesToAdd )
 {
   unsigned int newFileSize;
 
@@ -446,10 +446,10 @@ static qboolean CL_CheckFileSize( int bytesToAdd )
     // ...And open a new one
     CL_OpenAVIForWriting( va( "%s_", afd.fileName ) );
 
-    return qtrue;
+    return true;
   }
 
-  return qfalse;
+  return false;
 }
 
 /*
@@ -587,7 +587,7 @@ CL_CloseAVI
 Closes the AVI file and writes an index chunk
 ===============
 */
-qboolean CL_CloseAVI( void )
+bool CL_CloseAVI( void )
 {
   int indexRemainder;
   int indexSize = afd.numIndices * 16;
@@ -612,7 +612,7 @@ qboolean CL_CloseAVI( void )
           &afd.idxF, qtrue ) ) <= 0 )
   {
     FS_FCloseFile( afd.f );
-    return qfalse;
+    return false;
   }
 
   indexRemainder = indexSize;
@@ -651,7 +651,7 @@ qboolean CL_CloseAVI( void )
 
   Com_Printf( "Wrote %d:%d frames to %s\n", afd.numVideoFrames, afd.numAudioFrames, afd.fileName );
 
-  return qtrue;
+  return true;
 }
 
 /*
@@ -659,7 +659,7 @@ qboolean CL_CloseAVI( void )
 CL_VideoRecording
 ===============
 */
-qboolean CL_VideoRecording( void )
+bool CL_VideoRecording( void )
 {
   return afd.fileOpen;
 }

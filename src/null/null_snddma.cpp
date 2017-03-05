@@ -27,9 +27,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
 
-qboolean SNDDMA_Init(void)
+bool SNDDMA_Init(void)
 {
-	return qfalse;
+	return false;
 }
 
 int	SNDDMA_GetDMAPos(void)
@@ -49,7 +49,7 @@ void SNDDMA_Submit(void)
 {
 }
 
-sfxHandle_t S_RegisterSound( const char *name, qboolean compressed ) 
+sfxHandle_t S_RegisterSound( const char *name, bool compressed ) 
 {
 	return 0;
 }

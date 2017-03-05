@@ -1139,6 +1139,7 @@ long FS_FOpenFileReadDir(
         if (!unpure && fs_numServerPaks)
         {
             if (!FS_IsExt(filename, ".cfg", len) &&  // for config files
+                !FS_IsExt(filename, ".lua", len) &&  // lua 
                 !FS_IsExt(filename, ".menu", len) &&  // menu files
                 !FS_IsExt(filename, ".game", len) &&  // menu files
                 !FS_IsExt(filename, ".dat", len) &&  // for journal files

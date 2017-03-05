@@ -1122,7 +1122,7 @@ netField_t	playerStateFields[] =
 { PSF(loopSound), 16 }
 };
 
-typedef struct alternatePlayerState_s {
+struct alternatePlayerState_t {
 	int			commandTime;	// cmd->serverTime of last executed command
 	int			pm_type;
 	int			bobCycle;		// for view bobbing and footstep generation
@@ -1189,7 +1189,7 @@ typedef struct alternatePlayerState_s {
 	int			pmove_framecount;
 	int			jumppad_frame;
 	int			entityEventSequence;
-} alternatePlayerState_t;
+};
 
 #define	APSF(x) #x,(size_t)&((alternatePlayerState_t*)0)->x
 

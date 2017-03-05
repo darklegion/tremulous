@@ -346,7 +346,7 @@ intptr_t QDECL VM_DllSyscall( intptr_t arg, ... ) {
   args[0] = arg;
   
   va_start(ap, arg);
-  for (i = 1; i < ARRAY_LEN (args); i++)
+  for (i = 1; i < ARRAY_LEN(args); i++)
     args[i] = va_arg(ap, intptr_t);
   va_end(ap);
   

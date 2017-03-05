@@ -20,6 +20,7 @@ along with Tremulous; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+
 #include "client.h"
 
 /*
@@ -333,8 +334,9 @@ Handles horizontal scrolling and cursor blinking
 x, y, and width are in pixels
 ===================
 */
-void Field_VariableSizeDraw( field_t *edit, int x, int y, int width, int size, qboolean showCursor,
-		qboolean noColorEscape ) {
+static void Field_VariableSizeDraw( field_t *edit, int x, int y, int width, int size, 
+        bool showCursor, bool noColorEscape )
+{
 	int		len;
 	int		drawLen;
 	int		prestep;
@@ -375,7 +377,7 @@ void Field_VariableSizeDraw( field_t *edit, int x, int y, int width, int size, q
 		float	color[4];
 
 		color[0] = color[1] = color[2] = color[3] = 1.0;
-		SCR_DrawSmallStringExt( x, y, str, color, qfalse, noColorEscape );
+		SCR_DrawSmallStringExt( x, y, str, color, false, noColorEscape );
 	} else {
 		// draw big string with drop shadow
 		SCR_DrawBigString( x, y, str, 1.0, noColorEscape );
@@ -400,18 +402,18 @@ void Field_VariableSizeDraw( field_t *edit, int x, int y, int width, int size, q
 		} else {
 			str[0] = cursorChar;
 			str[1] = 0;
-			SCR_DrawBigString( x + ( edit->cursor - prestep - i ) * size, y, str, 1.0, qfalse );
+			SCR_DrawBigString( x + ( edit->cursor - prestep - i ) * size, y, str, 1.0, false );
 
 		}
 	}
 }
 
-void Field_Draw( field_t *edit, int x, int y, int width, qboolean showCursor, qboolean noColorEscape ) 
+void Field_Draw( field_t *edit, int x, int y, int width, bool showCursor, bool noColorEscape ) 
 {
 	Field_VariableSizeDraw( edit, x, y, width, SMALLCHAR_WIDTH, showCursor, noColorEscape );
 }
 
-void Field_BigDraw( field_t *edit, int x, int y, int width, qboolean showCursor, qboolean noColorEscape ) 
+void Field_BigDraw( field_t *edit, int x, int y, int width, bool showCursor, bool noColorEscape ) 
 {
 	Field_VariableSizeDraw( edit, x, y, width, BIGCHAR_WIDTH, showCursor, noColorEscape );
 }
@@ -421,7 +423,8 @@ void Field_BigDraw( field_t *edit, int x, int y, int width, qboolean showCursor,
 Field_Paste
 ================
 */
-void Field_Paste( field_t *edit ) {
+static void Field_Paste( field_t *edit )
+{
 	char	*cbd;
 	int		pasteLen, i;
 
@@ -519,7 +522,8 @@ void Field_KeyDownEvent( field_t *edit, int key )
 Field_CharEvent
 ==================
 */
-void Field_CharEvent( field_t *edit, int ch ) {
+void Field_CharEvent( field_t *edit, int ch )
+{
 	int		len;
 
 	if ( ch == 'v' - 'a' + 1 ) {	// ctrl-v is paste
@@ -608,7 +612,7 @@ Console_Key
 Handles history and console scrollback
 ====================
 */
-void Console_Key (int key)
+static void Console_Key(int key)
 {
     // ctrl-L clears screen
     if ( key == 'l' && keys[K_CTRL].down )
@@ -754,13 +758,15 @@ void Console_Key (int key)
 //============================================================================
 
 
-qboolean Key_GetOverstrikeMode( void ) {
-	return (qboolean)key_overstrikeMode;
+bool Key_GetOverstrikeMode( void )
+{
+	return key_overstrikeMode;
 }
 
 
-void Key_SetOverstrikeMode( qboolean state ) {
-	key_overstrikeMode = (bool)state;
+void Key_SetOverstrikeMode( bool state )
+{
+	key_overstrikeMode = state;
 }
 
 
@@ -769,12 +775,12 @@ void Key_SetOverstrikeMode( qboolean state ) {
 Key_IsDown
 ===================
 */
-qboolean Key_IsDown( int keynum ) {
-	if ( keynum < 0 || keynum >= MAX_KEYS ) {
-		return qfalse;
-	}
+bool Key_IsDown( int keynum )
+{
+	if ( keynum < 0 || keynum >= MAX_KEYS )
+		return false;
 
-	return (qboolean)keys[keynum].down;
+	return keys[keynum].down;
 }
 
 /*
@@ -1105,7 +1111,8 @@ static void Key_CompleteBind( char *args, int argNum )
 CL_InitKeyCommands
 ===================
 */
-void CL_InitKeyCommands( void ) {
+void CL_InitKeyCommands( void )
+{
 	// register our functions
 	Cmd_AddCommand ("bind",Key_Bind_f);
 	Cmd_SetCommandCompletionFunc( "bind", Key_CompleteBind );
@@ -1122,16 +1129,17 @@ CL_BindUICommand
 Returns qtrue if bind command should be executed while user interface is shown
 ===================
 */
-static qboolean CL_BindUICommand( const char *cmd ) {
+static bool CL_BindUICommand( const char *cmd )
+{
 	if ( Key_GetCatcher( ) & KEYCATCH_CONSOLE )
-		return qfalse;
+		return false;
 
 	if ( !Q_stricmp( cmd, "toggleconsole" ) )
-		return qtrue;
+		return true;
 	if ( !Q_stricmp( cmd, "togglemenu" ) )
-		return qtrue;
+		return true;
 
-	return qfalse;
+	return false;
 }
 
 /*
@@ -1141,7 +1149,7 @@ CL_ParseBinding
 Execute the commands in the bind string
 ===================
 */
-void CL_ParseBinding( int key, qboolean down, unsigned time )
+static void CL_ParseBinding( int key, bool down, unsigned time )
 {
 	char buf[ MAX_STRING_CHARS ], *p = buf, *end;
 	bool allCommands, allowUpCmds;
@@ -1198,7 +1206,7 @@ CL_KeyDownEvent
 Called by CL_KeyEvent to handle a keypress
 ===================
 */
-void CL_KeyDownEvent( int key, unsigned time )
+static void CL_KeyDownEvent( int key, unsigned time )
 {
 	keys[key].down = qtrue;
 	keys[key].repeats++;
@@ -1282,7 +1290,7 @@ CL_KeyUpEvent
 Called by CL_KeyEvent to handle a keyrelease
 ===================
 */
-void CL_KeyUpEvent( int key, unsigned time )
+static void CL_KeyUpEvent( int key, unsigned time )
 {
 	keys[key].repeats = 0;
 	keys[key].down = qfalse;
@@ -1318,7 +1326,8 @@ CL_KeyEvent
 Called by the system for both key up and key down events
 ===================
 */
-void CL_KeyEvent (int key, qboolean down, unsigned time) {
+void CL_KeyEvent(int key, qboolean down, unsigned time)
+{
 	if( down )
 		CL_KeyDownEvent( key, time );
 	else
@@ -1332,26 +1341,22 @@ CL_CharEvent
 Normal keyboard characters, already shifted / capslocked / etc
 ===================
 */
-void CL_CharEvent( int key ) {
-	// delete is not a printable character and is
-	// otherwise handled by Field_KeyDownEvent
-	if ( key == 127 ) {
+void CL_CharEvent( int key )
+{
+    // delete is not a printable character and is otherwise handled by
+    // Field_KeyDownEvent
+	if ( key == 127 )
 		return;
-	}
 
 	// distribute the key down event to the apropriate handler
 	if ( Key_GetCatcher( ) & KEYCATCH_CONSOLE )
-	{
 		Field_CharEvent( &g_consoleField, key );
-	}
+
 	else if ( Key_GetCatcher( ) & KEYCATCH_UI )
-	{
-		VM_Call( uivm, UI_KEY_EVENT, key | K_CHAR_FLAG, qtrue );
-	}
+		VM_Call( uivm, UI_KEY_EVENT, key | K_CHAR_FLAG, true );
+
 	else if ( clc.state == CA_DISCONNECTED )
-	{
 		Field_CharEvent( &g_consoleField, key );
-	}
 }
 
 
@@ -1360,17 +1365,15 @@ void CL_CharEvent( int key ) {
 Key_ClearStates
 ===================
 */
-void Key_ClearStates (void)
+void Key_ClearStates(void)
 {
-	int		i;
-
 	anykeydown = 0;
 
-	for ( i=0 ; i < MAX_KEYS ; i++ ) {
-		if ( keys[i].down ) {
+	for ( int i = 0 ; i < MAX_KEYS ; i++ )
+    {
+		if ( keys[i].down )
 			CL_KeyEvent( i, qfalse, 0 );
 
-		}
 		keys[i].down = 0;
 		keys[i].repeats = 0;
 	}
@@ -1381,7 +1384,8 @@ void Key_ClearStates (void)
 Key_KeynumToStringBuf
 ====================
 */
-void Key_KeynumToStringBuf( int keynum, char *buf, int buflen ) {
+void Key_KeynumToStringBuf( int keynum, char *buf, int buflen )
+{
 	Q_strncpyz( buf, Key_KeynumToString( keynum ), buflen );
 }
 
@@ -1390,14 +1394,15 @@ void Key_KeynumToStringBuf( int keynum, char *buf, int buflen ) {
 Key_GetBindingBuf
 ====================
 */
-void Key_GetBindingBuf( int keynum, char *buf, int buflen ) {
-	const char *value;
-
-	value = Key_GetBinding( keynum );
-	if ( value ) {
+void Key_GetBindingBuf( int keynum, char *buf, int buflen )
+{
+	const char* value = Key_GetBinding( keynum );
+	if ( value )
+    {
 		Q_strncpyz( buf, value, buflen );
 	}
-	else {
+	else
+    {
 		*buf = 0;
 	}
 }
@@ -1409,7 +1414,8 @@ static int keyCatchers = 0;
 Key_GetCatcher
 ====================
 */
-int Key_GetCatcher( void ) {
+int Key_GetCatcher( void )
+{
 	return keyCatchers;
 }
 
@@ -1418,7 +1424,8 @@ int Key_GetCatcher( void ) {
 Key_SetCatcher
 ====================
 */
-void Key_SetCatcher( int catcher ) {
+void Key_SetCatcher( int catcher )
+{
 	// If the catcher state is changing, clear all key states
 	if( catcher != keyCatchers )
 		Key_ClearStates( );

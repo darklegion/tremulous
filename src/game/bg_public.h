@@ -65,7 +65,7 @@ enum
   CS_MUSIC            = 2,
   CS_MESSAGE,               // from the map worldspawn's message field
   CS_MOTD,                  // g_motd string for server message of the day
-  CS_WARMUP,                // server time when the match will be restarted
+  CS_WARMUP           = 5,  // server time when the match will be restarted !!! MUST NOT CHANGE, SERVER AND GAME BOTH REFERENCE !!!
 
   CS_VOTE_TIME,             // Vote stuff each needs NUM_TEAMS slots
   CS_VOTE_STRING      = CS_VOTE_TIME + NUM_TEAMS,

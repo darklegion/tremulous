@@ -58,12 +58,12 @@ typedef	struct sndBuffer_s {
 
 typedef struct sfx_s {
 	sndBuffer		*soundData;
-	qboolean		defaultSound;			// couldn't be loaded, so use buzz
-	qboolean		inMemory;				// not in Memory
-	qboolean		soundCompressed;		// not in Memory
+	bool		    defaultSound;			// couldn't be loaded, so use buzz
+	bool		    inMemory;				// not in Memory
+	bool		    soundCompressed;		// not in Memory
 	int				soundCompressionMethod;	
 	int 			soundLength;
-	int			soundChannels;
+	int			    soundChannels;
 	char 			soundName[MAX_QPATH];
 	int				lastTimeUsed;
 	int				duration;
@@ -90,9 +90,9 @@ typedef struct loopSound_s {
 	vec3_t		velocity;
 	sfx_t		*sfx;
 	int			mergeFrame;
-	qboolean	active;
-	qboolean	kill;
-	qboolean	doppler;
+	bool	    active;
+	bool	kill;
+	bool	doppler;
 	float		dopplerScale;
 	float		oldDopplerScale;
 	int			framenum;
@@ -110,10 +110,10 @@ typedef struct
 	float		dopplerScale;
 	float		oldDopplerScale;
 	vec3_t		origin;			// only use if fixed_origin is set
-	qboolean	fixed_origin;	// use origin instead of fetching entnum's origin
+	bool	fixed_origin;	// use origin instead of fetching entnum's origin
 	sfx_t		*thesfx;		// sfx structure
-	qboolean	doppler;
-	qboolean	fullVolume;
+	bool	doppler;
+	bool	fullVolume;
 } channel_t;
 
 
@@ -139,7 +139,7 @@ typedef struct
 	void (*StopBackgroundTrack)( void );
 	void (*RawSamples)(int stream, int samples, int rate, int width, int channels, const byte *data, float volume, int entityNum);
 	void (*StopAllSounds)( void );
-	void (*ClearLoopingSounds)( qboolean killall );
+	void (*ClearLoopingSounds)( bool killall );
 	void (*AddLoopingSound)( int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx );
 	void (*AddRealLoopingSound)( int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx );
 	void (*StopLoopingSound)(int entityNum );
@@ -148,7 +148,7 @@ typedef struct
 	void (*Update)( void );
 	void (*DisableSounds)( void );
 	void (*BeginRegistration)( void );
-	sfxHandle_t (*RegisterSound)( const char *sample, qboolean compressed );
+	sfxHandle_t (*RegisterSound)( const char *sample, bool compressed );
 	int  (*SoundDuration)( sfxHandle_t handle );
 	void (*ClearSoundBuffer)( void );
 	void (*SoundInfo)( void );
@@ -172,7 +172,7 @@ typedef struct
 */
 
 // initializes cycling through a DMA buffer and returns information on it
-qboolean SNDDMA_Init(void);
+bool SNDDMA_Init(void);
 
 // gets the current DMA position
 int		SNDDMA_GetDMAPos(void);
@@ -210,7 +210,7 @@ extern cvar_t *s_doppler;
 
 extern cvar_t *s_testsound;
 
-qboolean S_LoadSound( sfx_t *sfx );
+bool S_LoadSound( sfx_t *sfx );
 
 void		SND_free(sndBuffer *v);
 sndBuffer*	SND_malloc( void );
@@ -248,7 +248,7 @@ extern short *sfxScratchBuffer;
 extern sfx_t *sfxScratchPointer;
 extern int	   sfxScratchIndex;
 
-qboolean S_Base_Init( soundInterface_t *si );
+bool S_Base_Init( soundInterface_t *si );
 
 // OpenAL stuff
 typedef enum
@@ -262,7 +262,7 @@ typedef enum
 
 typedef int srcHandle_t;
 
-qboolean S_AL_Init( soundInterface_t *si );
+bool S_AL_Init( soundInterface_t *si );
 
 #ifdef __cplusplus
 };
