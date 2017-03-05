@@ -603,11 +603,6 @@ void CL_AddReliableCommand(const char *cmd, bool isDisconnectCmd);
 void CL_StartHunkUsers(qboolean rendererOnly);
 
 void CL_Disconnect_f(void);
-void CL_Reconnect_f(void);
-void CL_GetChallengePacket(void);
-void CL_Vid_Restart_f(void);
-void CL_Snd_Restart_f(void);
-void CL_StartDemoLoop(void);
 void CL_NextDemo(void);
 void CL_ReadDemoMessage(void);
 demoState_t CL_DemoState(void);
@@ -623,8 +618,6 @@ void CL_GetPingInfo(int n, char *buf, int buflen);
 void CL_ClearPing(int n);
 int CL_GetPingQueueCount(void);
 
-void CL_ShutdownRef(void);
-void CL_InitRef(void);
 bool CL_ServerStatus(char *serverAddress, char *serverStatusString, int maxLen);
 
 bool CL_CheckPaused(void);
@@ -667,11 +660,6 @@ void CL_ParseServerMessage(msg_t *msg);
 
 //====================================================================
 
-void CL_ServerInfoPacket(netadr_t from, msg_t *msg);
-void CL_LocalServers_f(void);
-void CL_GlobalServers_f(void);
-void CL_FavoriteServers_f(void);
-void CL_Ping_f(void);
 bool CL_UpdateVisiblePings_f(int source);
 
 //

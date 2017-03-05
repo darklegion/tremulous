@@ -577,7 +577,7 @@ void CL_TakeVideoFrame( void )
     return;
 
   re.TakeVideoFrame( afd.width, afd.height,
-      afd.cBuffer, afd.eBuffer, afd.motionJpeg );
+      afd.cBuffer, afd.eBuffer, (qboolean)afd.motionJpeg );
 }
 
 /*
