@@ -37,7 +37,7 @@ are all base 16 encoded strings.
 Returns qtrue on success
 =================
 */
-static qboolean SV_RSA_VerifySignature( const char *pubkey, const char *signature, const char *data, char *fingerprint )
+static bool SV_RSA_VerifySignature( const char *pubkey, const char *signature, const char *data, char *fingerprint )
 {
 	struct rsa_public_key public_key;
 	struct sha256_ctx sha256_hash;
@@ -46,7 +46,7 @@ static qboolean SV_RSA_VerifySignature( const char *pubkey, const char *signatur
 	mpz_t n;
 
 	if ( !*pubkey || !*signature )
-		return qfalse;
+		return false;
 
 	// load public key
 	rsa_public_key_init( &public_key );
@@ -54,13 +54,13 @@ static qboolean SV_RSA_VerifySignature( const char *pubkey, const char *signatur
 	err = mpz_set_str( public_key.n, pubkey, 16 );
 	if ( err ) {
 		rsa_public_key_clear( &public_key );
-		return qfalse;
+		return false;
 	}
 
 	err = !rsa_public_key_prepare( &public_key );
 	if ( err ) {
 		rsa_public_key_clear( &public_key );
-		return qfalse;
+		return false;
 	}
 
 	// load signature
@@ -69,7 +69,7 @@ static qboolean SV_RSA_VerifySignature( const char *pubkey, const char *signatur
 	if ( err ) {
 		mpz_clear( n );
 		rsa_public_key_clear( &public_key );
-		return qfalse;
+		return false;
 	}
 
 	// hash data
@@ -79,7 +79,7 @@ static qboolean SV_RSA_VerifySignature( const char *pubkey, const char *signatur
 	if ( !rsa_sha256_verify( &public_key, &sha256_hash, n ) ) {
 		mpz_clear( n );
 		rsa_public_key_clear( &public_key );
-		return qfalse;
+		return false;
 	}
 
 	// VERIFIED, save the sha256 fingerprint of the key
@@ -93,7 +93,7 @@ static qboolean SV_RSA_VerifySignature( const char *pubkey, const char *signatur
 
 	mpz_clear( n );
 	rsa_public_key_clear( &public_key );
-	return qtrue;
+	return true;
 }
 
 /*
@@ -129,7 +129,7 @@ void SV_GetChallenge(netadr_t from)
 	int		oldestClientTime;
 	int		clientChallenge;
 	challenge_t	*challenge;
-	qboolean wasfound = qfalse;
+	bool wasfound = false;
 	byte    buf[16];
 	mpz_t   n;
 
@@ -158,7 +158,7 @@ void SV_GetChallenge(netadr_t from)
 	{
 		if(!challenge->connected && NET_CompareAdr(from, challenge->adr))
 		{
-			wasfound = qtrue;
+			wasfound = true;
 			
 			if(challenge->time < oldestClientTime)
 				oldestClientTime = challenge->time;
@@ -233,7 +233,7 @@ void SV_DirectConnect( netadr_t from ) {
 	int			count;
 	const char	*ip;
 	char		*challenge2;
-	qboolean	challenge2Verified = qfalse;
+	bool	    challenge2Verified = false;
 	char		fingerprint[SHA256_DIGEST_SIZE * 2 + 1];
 
 	Com_DPrintf ("SVC_DirectConnect ()\n");
@@ -304,7 +304,7 @@ void SV_DirectConnect( netadr_t from ) {
         if ( sv_rsaAuth->integer ) {
 			challenge2 = Info_ValueForKey( userinfo, "challenge2" );
 			if ( !Q_stricmp( challenge2, svs.challenges[i].challenge2 ) ) {
-				challenge2Verified = qtrue;
+				challenge2Verified = true;
 			}
 		}
 
@@ -356,7 +356,7 @@ void SV_DirectConnect( netadr_t from ) {
 	}
 
 	newcl = &temp;
-	Com_Memset (newcl, 0, sizeof(client_t));
+	::memset(newcl, 0, sizeof(client_t));
 
 	// if there is already a slot for this ip, reuse it
 	for (i=0,cl=svs.clients ; i < sv_maxclients->integer ; i++,cl++) {
@@ -537,7 +537,7 @@ void SV_DropClient( client_t *drop, const char *reason ) {
 
 	for (i = 0 ; i < MAX_CHALLENGES ; i++, challenge++) {
 		if ( NET_CompareAdr( drop->netchan.remoteAddress, challenge->adr ) ) {
-			Com_Memset(challenge, 0, sizeof(*challenge));
+			::memset(challenge, 0, sizeof(*challenge));
 			break;
 		}
 	}
@@ -638,7 +638,7 @@ static void SV_SendClientGameState( client_t *client ) {
 	}
 
 	// write the baselines
-	Com_Memset( &nullstate, 0, sizeof( nullstate ) );
+	::memset( &nullstate, 0, sizeof( nullstate ) );
 	for ( start = 0 ; start < MAX_GENTITIES; start++ ) {
 		base = &sv.svEntities[start].baseline;
 		if ( !base->number ) {
@@ -1426,7 +1426,7 @@ Also called by bot code
 */
 void SV_ExecuteClientCommand( client_t *cl, const char *s, bool clientOK ) {
 	ucmd_t	*u;
-	qboolean bProcessed = qfalse;
+	bool bProcessed = false;
 	
 	Cmd_TokenizeString( s );
 
@@ -1434,7 +1434,7 @@ void SV_ExecuteClientCommand( client_t *cl, const char *s, bool clientOK ) {
 	for (u=ucmds ; u->name ; u++) {
 		if (!strcmp (Cmd_Argv(0), u->name) ) {
 			u->func( cl );
-			bProcessed = qtrue;
+			bProcessed = true;
 			break;
 		}
 	}
@@ -1454,7 +1454,7 @@ void SV_ExecuteClientCommand( client_t *cl, const char *s, bool clientOK ) {
 SV_ClientCommand
 ===============
 */
-static qboolean SV_ClientCommand( client_t *cl, msg_t *msg ) {
+static bool SV_ClientCommand( client_t *cl, msg_t *msg ) {
 	int		seq;
 	const char	*s;
 	bool clientOk = true;
@@ -1464,7 +1464,7 @@ static qboolean SV_ClientCommand( client_t *cl, msg_t *msg ) {
 
 	// see if we have already executed it
 	if ( cl->lastClientCommand >= seq ) {
-		return qtrue;
+		return true;
 	}
 
 	Com_DPrintf( "clientCommand: %s : %i : %s\n", cl->name, seq, s );
@@ -1474,7 +1474,7 @@ static qboolean SV_ClientCommand( client_t *cl, msg_t *msg ) {
 		Com_Printf( "Client %s lost %i clientCommands\n", cl->name, 
 			seq - cl->lastClientCommand + 1 );
 		SV_DropClient( cl, "Lost reliable commands" );
-		return qfalse;
+		return false;
 	}
 
 	// malicious users may try using too many string commands
@@ -1503,7 +1503,7 @@ static qboolean SV_ClientCommand( client_t *cl, msg_t *msg ) {
 	cl->lastClientCommand = seq;
 	Com_sprintf(cl->lastClientCommandString, sizeof(cl->lastClientCommandString), "%s", s);
 
-	return qtrue;		// continue procesing
+	return true;		// continue procesing
 }
 
 
@@ -1539,7 +1539,7 @@ On very fast clients, there may be multiple usercmd packed into
 each of the backup packets.
 ==================
 */
-static void SV_UserMove( client_t *cl, msg_t *msg, qboolean delta ) {
+static void SV_UserMove( client_t *cl, msg_t *msg, bool delta ) {
 	int			i, key;
 	int			cmdCount;
 	usercmd_t	nullcmd;
@@ -1571,7 +1571,7 @@ static void SV_UserMove( client_t *cl, msg_t *msg, qboolean delta ) {
 	// also use the last acknowledged server command in the key
 	key ^= MSG_HashKey(cl->netchan.alternateProtocol, cl->reliableCommands[ cl->reliableAcknowledge & (MAX_RELIABLE_COMMANDS-1) ], 32);
 
-	Com_Memset( &nullcmd, 0, sizeof(nullcmd) );
+	::memset( &nullcmd, 0, sizeof(nullcmd) );
 	oldcmd = &nullcmd;
 	for ( i = 0 ; i < cmdCount ; i++ ) {
 		cmd = &cmds[i];
@@ -1645,20 +1645,19 @@ Blocking of voip packets based on source client
 ==================
 */
 
-static qboolean SV_ShouldIgnoreVoipSender(const client_t *cl)
+static bool SV_ShouldIgnoreVoipSender(const client_t *cl)
 {
 	if (!sv_voip->integer)
-		return qtrue;  // VoIP disabled on this server.
+		return true;  // VoIP disabled on this server.
 	else if (!cl->hasVoip)  // client doesn't have VoIP support?!
-		return qtrue;
+		return true;
     
 	// !!! FIXME: implement player blacklist.
 
-	return qfalse;  // don't ignore.
+	return false;  // don't ignore.
 }
 
-static
-void SV_UserVoip(client_t *cl, msg_t *msg, qboolean ignoreData)
+static void SV_UserVoip(client_t *cl, msg_t *msg, bool ignoreData)
 {
 	int sender, generation, sequence, frames, packetsize;
 	uint8_t recips[(MAX_CLIENTS + 7) / 8];
@@ -1891,7 +1890,7 @@ void SV_ExecuteClientMessage( client_t *cl, msg_t *msg ) {
 	// skip legacy speex voip data
 	if ( c == clc_voipSpeex ) {
 #ifdef USE_VOIP
-		SV_UserVoip( cl, msg, qtrue );
+		SV_UserVoip( cl, msg, true );
 		c = MSG_ReadByte( msg );
 #endif
 	}
@@ -1899,16 +1898,16 @@ void SV_ExecuteClientMessage( client_t *cl, msg_t *msg ) {
 	// read optional voip data
 	if ( c == clc_voipOpus ) {
 #ifdef USE_VOIP
-		SV_UserVoip( cl, msg, qfalse );
+		SV_UserVoip( cl, msg, false );
 		c = MSG_ReadByte( msg );
 #endif
 	}
 
 	// read the usercmd_t
 	if ( c == clc_move ) {
-		SV_UserMove( cl, msg, qtrue );
+		SV_UserMove( cl, msg, true );
 	} else if ( c == clc_moveNoDelta ) {
-		SV_UserMove( cl, msg, qfalse );
+		SV_UserMove( cl, msg, false );
 	} else if ( c != clc_EOF ) {
 		Com_Printf( "WARNING: bad command byte for client %i\n", (int) (cl - svs.clients) );
 	}

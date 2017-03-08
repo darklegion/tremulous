@@ -123,7 +123,7 @@ SV_SetConfigstring
 */
 void SV_SetConfigstring (int index, const char *val)
 {
-	qboolean modified[3] = { qfalse, qfalse, qfalse };
+	bool modified[3] = { false, false, false };
 	int		i;
 	client_t	*client;
 
@@ -155,13 +155,13 @@ void SV_SetConfigstring (int index, const char *val)
 			}
 
 			if ( strcmp( info, alternateInfos[index][i - 1] ) ) {
-				modified[i] = qtrue;
+				modified[i] = true;
 				strcpy( alternateInfos[index][i - 1], info );
 			}
 		}
 
 		if ( strcmp( val, sv.configstrings[index].s ) ) {
-			modified[0] = qtrue;
+			modified[0] = true;
 			Z_Free( sv.configstrings[index].s );
 			sv.configstrings[index].s = CopyString( val );
 		}
@@ -409,7 +409,7 @@ void SV_ChangeMaxClients( void ) {
 			oldClients[i] = svs.clients[i];
 		}
 		else {
-			Com_Memset(&oldClients[i], 0, sizeof(client_t));
+			::memset(&oldClients[i], 0, sizeof(client_t));
 		}
 	}
 
@@ -418,7 +418,7 @@ void SV_ChangeMaxClients( void ) {
 
 	// allocate new clients
 	svs.clients = (client_t*)Z_Malloc ( sv_maxclients->integer * sizeof(client_t) );
-	Com_Memset( svs.clients, 0, sv_maxclients->integer * sizeof(client_t) );
+	::memset( svs.clients, 0, sv_maxclients->integer * sizeof(client_t) );
 
 	// copy the clients over
 	for ( i = 0 ; i < count ; i++ ) {
@@ -455,7 +455,7 @@ static void SV_ClearServer(void) {
 			Z_Free( sv.configstrings[i].s );
 		}
 	}
-	Com_Memset (&sv, 0, sizeof(sv));
+	::memset(&sv, 0, sizeof(sv));
 }
 
 /*
@@ -546,7 +546,7 @@ void SV_SpawnServer( char *server) {
 		}
 		sv.configstrings[i].s = CopyString("");
 		sv.configstrings[i].restricted = false;
-		Com_Memset(&sv.configstrings[i].clientList, 0, sizeof(clientList_t));
+		::memset(&sv.configstrings[i].clientList, 0, sizeof(clientList_t));
 	}
 
 	// make sure we are not paused
@@ -828,7 +828,7 @@ void SV_Shutdown( const char *finalmsg ) {
 		
 		Z_Free(svs.clients);
 	}
-	Com_Memset( &svs, 0, sizeof( svs ) );
+	::memset( &svs, 0, sizeof( svs ) );
 
 	Cvar_Set( "sv_running", "0" );
 

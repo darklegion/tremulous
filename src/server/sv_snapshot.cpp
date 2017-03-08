@@ -290,8 +290,8 @@ static void SV_AddEntToSnapshot( svEntity_t *svEnt, sharedEntity_t *gEnt, snapsh
 SV_AddEntitiesVisibleFromPoint
 ===============
 */
-static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *frame, 
-									snapshotEntityNumbers_t *eNums, qboolean portal ) {
+static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *frame, snapshotEntityNumbers_t *eNums )
+{
 	int		e, i;
 	sharedEntity_t *ent;
 	svEntity_t	*svEnt;
@@ -424,7 +424,7 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 					continue;
 				}
 			}
-			SV_AddEntitiesVisibleFromPoint( ent->s.origin2, frame, eNums, qtrue );
+			SV_AddEntitiesVisibleFromPoint( ent->s.origin2, frame, eNums );
 		}
 
 	}
@@ -463,7 +463,7 @@ static void SV_BuildClientSnapshot( client_t *client ) {
 
 	// clear everything in this snapshot
 	entityNumbers.numSnapshotEntities = 0;
-	Com_Memset( frame->areabits, 0, sizeof( frame->areabits ) );
+	::memset( frame->areabits, 0, sizeof( frame->areabits ) );
 
   // https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=62
 	frame->num_entities = 0;
@@ -493,7 +493,7 @@ static void SV_BuildClientSnapshot( client_t *client ) {
 
 	// add all the entities directly visible to the eye, which
 	// may include portal entities that merge other viewpoints
-	SV_AddEntitiesVisibleFromPoint( org, frame, &entityNumbers, qfalse );
+	SV_AddEntitiesVisibleFromPoint( org, frame, &entityNumbers );
 
 	// if there were portals visible, there may be out of order entities
 	// in the list which will need to be resorted for the delta compression

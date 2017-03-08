@@ -198,14 +198,14 @@ bool SV_inPVSIgnorePortals( const vec3_t p1, const vec3_t p2)
 SV_AdjustAreaPortalState
 ========================
 */
-void SV_AdjustAreaPortalState( sharedEntity_t *ent, qboolean open ) {
+void SV_AdjustAreaPortalState( sharedEntity_t *ent, bool open ) {
 	svEntity_t	*svEnt;
 
 	svEnt = SV_SvEntityForGentity( ent );
 	if ( svEnt->areanum2 == -1 ) {
 		return;
 	}
-	CM_AdjustAreaPortalState( svEnt->areanum, svEnt->areanum2, open );
+	CM_AdjustAreaPortalState( svEnt->areanum, svEnt->areanum2, (qboolean)open );
 }
 
 
@@ -396,7 +396,7 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
             SV_GetServerinfo( (char*)VMA(1), args[2] );
             return 0;
         case G_ADJUST_AREA_PORTAL_STATE:
-            SV_AdjustAreaPortalState( (sharedEntity_t*)VMA(1), (qboolean)args[2] );
+            SV_AdjustAreaPortalState( (sharedEntity_t*)VMA(1), (bool)args[2] );
             return 0;
         case G_AREAS_CONNECTED:
             return CM_AreasConnected( args[1], args[2] );
@@ -447,15 +447,15 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
             return 0;
 
         case TRAP_MEMSET:
-            Com_Memset( VMA(1), args[2], args[3] );
+            ::memset( VMA(1), args[2], args[3] );
             return 0;
 
         case TRAP_MEMCPY:
-            Com_Memcpy( VMA(1), VMA(2), args[3] );
+            ::memset( VMA(1), VMA(2), args[3] );
             return 0;
 
         case TRAP_STRNCPY:
-            strncpy( (char*)VMA(1), (const char*)VMA(2), args[3] );
+            ::strncpy( (char*)VMA(1), (const char*)VMA(2), args[3] );
             return args[1];
 
         case TRAP_SIN:
@@ -523,7 +523,7 @@ SV_InitGameVM
 Called for both a full init and a restart
 ==================
 */
-static void SV_InitGameVM( qboolean restart ) {
+static void SV_InitGameVM( bool restart ) {
 	int		i;
 
 	// start the entity parsing at the beginning
@@ -563,7 +563,7 @@ void SV_RestartGameProgs( void ) {
 		Com_Error( ERR_FATAL, "VM_Restart on game failed" );
 	}
 
-	SV_InitGameVM( qtrue );
+	SV_InitGameVM( true );
 }
 
 
@@ -581,7 +581,7 @@ void SV_InitGameProgs( void ) {
 		Com_Error( ERR_FATAL, "VM_Create on game failed" );
 	}
 
-	SV_InitGameVM( qfalse );
+	SV_InitGameVM( false );
 }
 
 

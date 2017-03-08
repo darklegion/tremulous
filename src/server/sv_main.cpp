@@ -105,22 +105,25 @@ FIXME: This is ugly
 ======================
 */
 #if 0 // unused
-static int SV_ReplacePendingServerCommands( client_t *client, const char *cmd ) {
+static bool SV_ReplacePendingServerCommands( client_t *client, const char *cmd )
+{
 	int i, index, csnum1, csnum2;
 
 	for ( i = client->reliableSent+1; i <= client->reliableSequence; i++ ) {
 		index = i & ( MAX_RELIABLE_COMMANDS - 1 );
 		//
-		if ( !Q_strncmp(cmd, client->reliableCommands[ index ], strlen("cs")) ) {
+		if ( !Q_strncmp(cmd, client->reliableCommands[ index ], strlen("cs")) )
+        {
 			sscanf(cmd, "cs %i", &csnum1);
 			sscanf(client->reliableCommands[ index ], "cs %i", &csnum2);
-			if ( csnum1 == csnum2 ) {
+			if ( csnum1 == csnum2 )
+            {
 				Q_strncpyz( client->reliableCommands[ index ], cmd, sizeof( client->reliableCommands[ index ] ) );
-				return qtrue;
+				return true;
 			}
 		}
 	}
-	return qfalse;
+	return false;
 }
 #endif
 
@@ -411,23 +414,22 @@ Find or allocate a bucket for an address
 ================
 */
 static leakyBucket_t *SVC_BucketForAddress( netadr_t address, int burst, int period ) {
-	leakyBucket_t	*bucket = NULL;
-	int						i;
-	long					hash = SVC_HashForAddress( address );
-	int						now = Sys_Milliseconds();
+	leakyBucket_t *bucket = NULL;
+	long hash = SVC_HashForAddress( address );
+	int now = Sys_Milliseconds();
 
-	for ( bucket = bucketHashes[ hash ]; bucket; bucket = bucket->next ) {
-		switch ( bucket->type ) {
+	for ( bucket = bucketHashes[ hash ]; bucket; bucket = bucket->next )
+    {
+		switch ( bucket->type )
+        {
 			case NA_IP:
-				if ( memcmp( bucket->ipv._4, address.ip, 4 ) == 0 ) {
+				if ( ::memcmp( bucket->ipv._4, address.ip, 4 ) == 0 )
 					return bucket;
-				}
 				break;
 
 			case NA_IP6:
-				if ( memcmp( bucket->ipv._6, address.ip6, 16 ) == 0 ) {
+				if ( ::memcmp( bucket->ipv._6, address.ip6, 16 ) == 0 )
 					return bucket;
-				}
 				break;
 
 			default:
@@ -435,7 +437,8 @@ static leakyBucket_t *SVC_BucketForAddress( netadr_t address, int burst, int per
 		}
 	}
 
-	for ( i = 0; i < MAX_BUCKETS; i++ ) {
+	for ( int i = 0; i < MAX_BUCKETS; i++ )
+    {
 		int interval;
 
 		bucket = &buckets[ i ];
@@ -454,14 +457,14 @@ static leakyBucket_t *SVC_BucketForAddress( netadr_t address, int burst, int per
 				bucket->next->prev = bucket->prev;
 			}
 
-			Com_Memset( bucket, 0, sizeof( leakyBucket_t ) );
+			::memset( bucket, 0, sizeof( leakyBucket_t ) );
 		}
 
 		if ( bucket->type == NA_BAD ) {
 			bucket->type = address.type;
 			switch ( address.type ) {
-				case NA_IP:  Com_Memcpy( bucket->ipv._4, address.ip, 4 );   break;
-				case NA_IP6: Com_Memcpy( bucket->ipv._6, address.ip6, 16 ); break;
+                case NA_IP:  ::memcpy( bucket->ipv._4, address.ip, 4 ); break;
+                case NA_IP6: ::memcpy( bucket->ipv._6, address.ip6, 16 ); break;
 				default: break;
 			}
 
@@ -700,7 +703,7 @@ Redirect all printfs
 ===============
 */
 static void SVC_RemoteCommand( netadr_t from, msg_t *msg ) {
-	qboolean	valid;
+	bool valid;
 	char		remaining[1024];
 	// TTimo - scaled down to accumulate, but not overflow anything network wise, print wise etc.
 	// (OOB messages are the bottleneck here)
@@ -725,10 +728,10 @@ static void SVC_RemoteCommand( netadr_t from, msg_t *msg ) {
 			return;
 		}
 
-		valid = qfalse;
+		valid = false;
 		Com_Printf ("Bad rcon from %s: %s\n", NET_AdrToString (from), Cmd_ArgsFrom(2) );
 	} else {
-		valid = qtrue;
+		valid = true;
 		Com_Printf ("Rcon from %s: %s\n", NET_AdrToString (from), Cmd_ArgsFrom(2) );
 	}
 
@@ -976,13 +979,13 @@ static void SV_CheckTimeouts( void ) {
 SV_CheckPaused
 ==================
 */
-static qboolean SV_CheckPaused( void ) {
+static bool SV_CheckPaused( void ) {
 	int		count;
 	client_t	*cl;
 	int		i;
 
 	if ( !cl_paused->integer ) {
-		return qfalse;
+		return false;
 	}
 
 	// only pause if there is just a single client connected
@@ -997,12 +1000,12 @@ static qboolean SV_CheckPaused( void ) {
 		// don't pause
 		if (sv_paused->integer)
 			Cvar_Set("sv_paused", "0");
-		return qfalse;
+		return false;
 	}
 
 	if (!sv_paused->integer)
 		Cvar_Set("sv_paused", "1");
-	return qtrue;
+	return true;
 }
 
 /*

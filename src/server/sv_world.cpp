@@ -149,7 +149,7 @@ void SV_ClearWorld( void ) {
 	clipHandle_t	h;
 	vec3_t			mins, maxs;
 
-	Com_Memset( sv_worldSectors, 0, sizeof(sv_worldSectors) );
+	::memset( sv_worldSectors, 0, sizeof(sv_worldSectors) );
 	sv_numworldSectors = 0;
 
 	// get world map bounds
@@ -469,7 +469,7 @@ void SV_ClipToEntity( trace_t *trace, const vec3_t start, const vec3_t mins, con
 
 	touch = SV_GentityNum( entityNum );
 
-	Com_Memset(trace, 0, sizeof(trace_t));
+	::memset(trace, 0, sizeof(trace_t));
 
 	// if it doesn't have any brushes of a type we
 	// are looking for, ignore it
@@ -605,7 +605,7 @@ void SV_Trace( trace_t *results, const vec3_t start, vec3_t mins, vec3_t maxs, c
 		maxs = vec3_origin;
 	}
 
-	Com_Memset ( &clip, 0, sizeof ( moveclip_t ) );
+	::memset( &clip, 0, sizeof ( moveclip_t ) );
 
 	// clip to world
 	CM_BoxTrace( &clip.trace, start, end, mins, maxs, 0, contentmask, type );

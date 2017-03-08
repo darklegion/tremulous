@@ -301,12 +301,12 @@ SV_AddOperatorCommands
 ==================
 */
 void SV_AddOperatorCommands( void ) {
-	static qboolean	initialized;
+	static bool	initialized = false;
 
 	if ( initialized ) {
 		return;
 	}
-	initialized = qtrue;
+	initialized = true;
 
 	Cmd_AddCommand ("heartbeat", SV_Heartbeat_f);
 	Cmd_AddCommand ("serverinfo", SV_Serverinfo_f);
