@@ -1808,7 +1808,7 @@ void S_AL_RawSamples(int stream, int samples, int rate, int width, int channels,
 		if (!S_AL_GenBuffers(1, &buffer, "stream"))
 			return;
 
-		Com_Memcpy(oldBuffers, &streamBuffers[stream], sizeof (oldBuffers));
+		::memcpy(oldBuffers, &streamBuffers[stream], sizeof (oldBuffers));
 
 		// Reorder buffer array in order of oldest to newest
 		for ( i = 0; i < streamNumBuffers[stream]; ++i )

@@ -128,7 +128,7 @@ bool CL_GetSnapshot( int snapshotNumber, snapshot_t *snapshot )
 	snapshot->snapFlags = clSnap->snapFlags;
 	snapshot->ping = clSnap->ping;
 	snapshot->serverTime = clSnap->serverTime;
-	Com_Memcpy( snapshot->areamask, clSnap->areamask, sizeof( snapshot->areamask ) );
+	::memcpy( snapshot->areamask, clSnap->areamask, sizeof( snapshot->areamask ) );
 
 	int count = clSnap->numEntities;
 	if ( count > MAX_ENTITIES_IN_SNAPSHOT )
@@ -147,7 +147,7 @@ bool CL_GetSnapshot( int snapshotNumber, snapshot_t *snapshot )
 		for ( int i = 0 ; i < count ; i++ )
         {
 			entityState_t *es = &cl.parseEntities[ ( clSnap->parseEntitiesNum + i ) & (MAX_PARSE_ENTITIES-1) ];
-			memcpy( &altSnapshot->entities[i], es, (size_t)&((entityState_t *)0)->weaponAnim );
+			::memcpy( &altSnapshot->entities[i], es, (size_t)&((entityState_t *)0)->weaponAnim );
 			altSnapshot->entities[i].generic1 = es->generic1;
 		}
 	}
@@ -207,7 +207,7 @@ void CL_ConfigstringModified( void )
 	// build the new gameState_t
 	gameState_t	oldGs = cl.gameState;
 
-	Com_Memset( &cl.gameState, 0, sizeof( cl.gameState ) );
+	::memset( &cl.gameState, 0, sizeof( cl.gameState ) );
 
 	// leave the first 0 for uninitialized strings
 	cl.gameState.dataCount = 1;
@@ -229,7 +229,7 @@ void CL_ConfigstringModified( void )
 
 		// append it to the gameState string buffer
 		cl.gameState.stringOffsets[ i ] = cl.gameState.dataCount;
-		Com_Memcpy( cl.gameState.stringData + cl.gameState.dataCount, dup, len + 1 );
+		::memcpy( cl.gameState.stringData + cl.gameState.dataCount, dup, len + 1 );
 		cl.gameState.dataCount += len + 1;
 	}
 
@@ -337,7 +337,7 @@ rescan:
         // reparse the string, because Con_ClearNotify() may have done another
         // Cmd_TokenizeString()
 		Cmd_TokenizeString( s );
-		Com_Memset( cl.cmds, 0, sizeof( cl.cmds ) );
+		::memset( cl.cmds, 0, sizeof( cl.cmds ) );
 		return true;
 	}
 
@@ -704,10 +704,10 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
             return 0;
 
         case CG_MEMSET:
-            Com_Memset( VMA(1), args[2], args[3] );
+            ::memset( VMA(1), args[2], args[3] );
             return 0;
         case CG_MEMCPY:
-            Com_Memcpy( VMA(1), VMA(2), args[3] );
+            ::memcpy( VMA(1), VMA(2), args[3] );
             return 0;
         case CG_STRNCPY:
             safe_strncpy( (char*)VMA(1), (const char*)VMA(2), args[3] );
@@ -1040,7 +1040,7 @@ void CL_FirstSnapshot( void ) {
 		clc.voipMuteAll = false;
 		Cmd_AddCommand ("voip", CL_Voip_f);
 		Cvar_Set("cl_voipSendTarget", "spatial");
-		Com_Memset(clc.voipTargets, ~0, sizeof(clc.voipTargets));
+		::memset(clc.voipTargets, ~0, sizeof(clc.voipTargets));
 	}
 #endif
 }

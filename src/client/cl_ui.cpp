@@ -264,7 +264,7 @@ static void LAN_RemoveServer(int source, const char *addr)
                 int j = i;
                 while (j < *count - 1)
                 {
-                    Com_Memcpy(&servers[j], &servers[j + 1], sizeof(servers[j]));
+                    ::memcpy(&servers[j], &servers[j + 1], sizeof(servers[j]));
                     j++;
                 }
                 (*count)--;
@@ -1099,11 +1099,11 @@ intptr_t CL_UISystemCalls(intptr_t *args)
             return 0;
 
         case UI_MEMSET:
-            Com_Memset(VMA(1), args[2], args[3]);
+            ::memset(VMA(1), args[2], args[3]);
             return 0;
 
         case UI_MEMCPY:
-            Com_Memcpy(VMA(1), VMA(2), args[3]);
+            ::memcpy(VMA(1), VMA(2), args[3]);
             return 0;
 
         case UI_STRNCPY:

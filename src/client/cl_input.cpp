@@ -642,7 +642,7 @@ static usercmd_t CL_CreateCmd(void)
     // keyboard angle adjustment
     CL_AdjustAngles();
 
-    Com_Memset(&cmd, 0, sizeof(cmd));
+    ::memset(&cmd, 0, sizeof(cmd));
 
     CL_CmdButtons(&cmd);
 
@@ -830,7 +830,7 @@ void CL_WritePacket(void)
         return;
     }
 
-    Com_Memset(&nullcmd, 0, sizeof(nullcmd));
+    ::memset(&nullcmd, 0, sizeof(nullcmd));
     oldcmd = &nullcmd;
 
     MSG_Init(&buf, data, sizeof(data));

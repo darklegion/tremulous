@@ -1271,7 +1271,7 @@ redump:
             }
             if (cinTable[currentHandle].numQuads == 0)
             {  // first frame
-                Com_Memcpy(cin.linbuf + cinTable[currentHandle].screenDelta, cin.linbuf,
+                ::memcpy(cin.linbuf + cinTable[currentHandle].screenDelta, cin.linbuf,
                     cinTable[currentHandle].samplesPerLine * cinTable[currentHandle].ysize);
             }
             cinTable[currentHandle].numQuads++;
@@ -1621,7 +1621,7 @@ int CIN_PlayCinematic(const char *arg, int x, int y, int w, int h, int systemBit
 
     Com_DPrintf("CIN_PlayCinematic( %s )\n", arg);
 
-    Com_Memset(&cin, 0, sizeof(cinematics_t));
+    ::memset(&cin, 0, sizeof(cinematics_t));
     currentHandle = CIN_HandleForVideo();
 
     cin.currentHandle = currentHandle;

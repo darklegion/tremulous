@@ -451,7 +451,7 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
             return 0;
 
         case TRAP_MEMCPY:
-            ::memset( VMA(1), VMA(2), args[3] );
+            ::memcpy( VMA(1), VMA(2), args[3] );
             return 0;
 
         case TRAP_STRNCPY:

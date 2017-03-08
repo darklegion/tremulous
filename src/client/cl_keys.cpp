@@ -369,7 +369,7 @@ static void Field_VariableSizeDraw( field_t *edit, int x, int y, int width, int 
 		Com_Error( ERR_DROP, "drawLen >= MAX_STRING_CHARS" );
 	}
 
-	Com_Memcpy( str, edit->buffer + prestep, drawLen );
+	::memcpy( str, edit->buffer + prestep, drawLen );
 	str[ drawLen ] = 0;
 
 	// draw it
@@ -1486,8 +1486,7 @@ void CL_LoadConsoleHistory( void )
 				Com_DPrintf( S_COLOR_YELLOW "WARNING: probable corrupt history\n" );
 				break;
 			}
-			Com_Memcpy( historyEditLines[ i ].buffer,
-					text_p, numChars );
+			::memcpy( historyEditLines[ i ].buffer, text_p, numChars );
 			historyEditLines[ i ].buffer[ numChars ] = '\0';
 			text_p += numChars;
 
