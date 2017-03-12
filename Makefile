@@ -1216,6 +1216,11 @@ $(echo_cmd) "GL2_RENDERER_CC $<"
 $(Q)$(call EXEC_CC,${REF_CC_FLAGS},'$@','$<')
 $(Q)$(call LOG_CC,opengl2,${REF_CC_FLAGS},$@,$<)
 endef
+define DO_RENDERERGL2_CXX
+$(echo_cmd) "RENDERERGL2_CXX $<"
+$(Q)$(call EXEC_CXX,${REF_CC_FLAGS},'$@','$<')
+$(Q)$(call LOG_CXX,opengl2,${REF_CC_FLAGS},$@,$<)
+endef
 
 define DO_REF_STR
 $(echo_cmd) "REF_STR $<"
@@ -2874,7 +2879,12 @@ $(B)/renderergl2/%.o: $(RCOMMONDIR)/%.c
 	$(DO_RENDERER_COMMON_CC)
 $(B)/renderergl2/%.o: $(RGL2DIR)/%.c
 	$(DO_RENDERERGL2_CC)
+$(B)/renderergl2/%.o: $(RCOMMONDIR)/%.cpp
+	$(DO_RENDERER_COMMON_CXX)
+$(B)/renderergl2/%.o: $(RGL2DIR)/%.cpp
+	$(DO_RENDERERGL2_CXX)
 
+$
 $(B)/ded/%.o: $(ASMDIR)/%.s
 	$(DO_DED_AS)
 
