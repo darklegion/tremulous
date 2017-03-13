@@ -89,7 +89,7 @@ CL_cURL_Init
 qboolean CL_cURL_Init()
 {
 #ifdef USE_CURL_DLOPEN
-	cl_cURLLib = Cvar_Get("cl_cURLLib", DEFAULT_CURL_LIB, CVAR_ARCHIVE);
+	cl_cURLLib = Cvar_Get("cl_cURLLib", DEFAULT_CURL_LIB, CVAR_ARCHIVE | CVAR_PROTECTED);
 
 	if(cURLLib)
 		return qtrue;
