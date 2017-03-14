@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __TR_PUBLIC_H
 #define __TR_PUBLIC_H
 
+#include <stdbool.h>
+
 #include "tr_types.h"
 
 #define	REF_API_VERSION		8
@@ -34,7 +36,7 @@ typedef struct {
 	// called before the library is unloaded
 	// if the system is just reconfiguring, pass destroyWindow = qfalse,
 	// which will keep the screen from flashing to the desktop.
-	void	(*Shutdown)( qboolean destroyWindow );
+	void	(*Shutdown)( bool destroyWindow );
 
 	// All data that will be used in a level should be
 	// registered before rendering any frames to prevent disk hits,
@@ -76,8 +78,8 @@ typedef struct {
 		float s1, float t1, float s2, float t2, qhandle_t hShader );	// 0 = white
 
 	// Draw images for cinematic rendering, pass as 32 bit rgba
-	void	(*DrawStretchRaw) (int x, int y, int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty);
-	void	(*UploadCinematic) (int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty);
+	void	(*DrawStretchRaw) (int x, int y, int w, int h, int cols, int rows, const byte *data, int client, bool dirty);
+	void	(*UploadCinematic) (int w, int h, int cols, int rows, const byte *data, int client, bool dirty);
 
 	void	(*BeginFrame)( stereoFrame_t stereoFrame );
 
@@ -97,10 +99,10 @@ typedef struct {
 #endif
 	void	(*RegisterFont)(const char *fontName, int pointSize, fontInfo_t *font);
 	void	(*RemapShader)(const char *oldShader, const char *newShader, const char *offsetTime);
-	qboolean (*GetEntityToken)( char *buffer, int size );
-	qboolean (*inPVS)( const vec3_t p1, const vec3_t p2 );
+	bool (*GetEntityToken)( char *buffer, int size );
+	bool (*inPVS)( const vec3_t p1, const vec3_t p2 );
 
-	void (*TakeVideoFrame)( int h, int w, byte* captureBuffer, byte *encodeBuffer, qboolean motionJpeg );
+	void (*TakeVideoFrame)( int h, int w, byte* captureBuffer, byte *encodeBuffer, bool motionJpeg );
 } refexport_t;
 
 //
@@ -134,7 +136,7 @@ typedef struct {
 	cvar_t	*(*Cvar_Get)( const char *name, const char *value, int flags );
 	void	(*Cvar_Set)( const char *name, const char *value );
 	void	(*Cvar_SetValue) (const char *name, float value);
-	void	(*Cvar_CheckRange)( cvar_t *cv, float minVal, float maxVal, qboolean shouldBeIntegral );
+	void	(*Cvar_CheckRange)( cvar_t *cv, float minVal, float maxVal, bool shouldBeIntegral );
 	void	(*Cvar_SetDescription)( cvar_t *cv, const char *description );
 
 	int		(*Cvar_VariableIntegerValue) (const char *var_name);
@@ -160,7 +162,7 @@ typedef struct {
 	char **	(*FS_ListFiles)( const char *name, const char *extension, int *numfilesfound );
 	void	(*FS_FreeFileList)( char **filelist );
 	void	(*FS_WriteFile)( const char *qpath, const void *buffer, int size );
-	qboolean (*FS_FileExists)( const char *file );
+	bool (*FS_FileExists)( const char *file );
 
 	// cinematic stuff
 	void	(*CIN_UploadCinematic)(int handle);
@@ -180,7 +182,7 @@ typedef struct {
 	// system stuff
 	void	(*Sys_GLimpSafeInit)( void );
 	void	(*Sys_GLimpInit)( void );
-	qboolean (*Sys_LowPhysicalMemory)( void );
+	bool (*Sys_LowPhysicalMemory)( void );
 } refimport_t;
 
 

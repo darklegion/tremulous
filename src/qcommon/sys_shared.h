@@ -104,7 +104,7 @@ char **Sys_ListFiles(const char *directory, const char *extension,
 void Sys_FreeFileList(char **list);
 void Sys_Sleep(int msec);
 
-qboolean Sys_LowPhysicalMemory(void);
+bool Sys_LowPhysicalMemory(void);
 
 void Sys_SetEnv(const char *name, const char *value);
 

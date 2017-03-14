@@ -876,12 +876,12 @@ CL_GameCommand
 See if the current console command is claimed by the cgame
 ====================
 */
-qboolean CL_GameCommand( void )
+bool CL_GameCommand( void )
 {
 	if ( !cgvm )
-		return qfalse;
+		return false;
 
-	return (qboolean)VM_Call( cgvm, CG_CONSOLE_COMMAND );
+	return (bool)VM_Call( cgvm, CG_CONSOLE_COMMAND );
 }
 
 /*

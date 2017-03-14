@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __CRYPTO_H__
 #define __CRYPTO_H__
 
-#include "q_shared.h"
+//#include "q_shared.h"
 //#include "qcommon.h"
 
 #include "nettle/bignum.h"

@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
 #include "../qcommon/sys_shared.h"
+#include "../qcommon/vm.h"
 #include "../qcommon/msg.h"
 #include "../qcommon/net.h"
 #include "../qcommon/huffman.h"
@@ -604,7 +605,7 @@ extern cvar_t *cl_rsaAuth;
 void CL_Init(void);
 void CL_AddReliableCommand(const char *cmd, bool isDisconnectCmd);
 
-void CL_StartHunkUsers(qboolean rendererOnly);
+void CL_StartHunkUsers(bool rendererOnly);
 
 void CL_Disconnect_f(void);
 void CL_NextDemo(void);
@@ -731,7 +732,7 @@ void CIN_CloseAllVideos(void);
 //
 void CL_InitCGame(void);
 void CL_ShutdownCGame(void);
-qboolean CL_GameCommand(void);
+bool CL_GameCommand(void);
 void CL_GameConsoleText(void);
 void CL_CGameRendering(stereoFrame_t stereo);
 void CL_SetCGameTime(void);

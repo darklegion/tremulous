@@ -210,11 +210,11 @@ void Sys_CryptoRandomBytes( byte *string, int len )
 Sys_LowPhysicalMemory
 ==================
 */
-qboolean Sys_LowPhysicalMemory( void )
+bool Sys_LowPhysicalMemory( void )
 {
 	MEMORYSTATUS stat;
 	GlobalMemoryStatus (&stat);
-	return (stat.dwTotalPhys <= MEM_THRESHOLD) ? qtrue : qfalse;
+	return (stat.dwTotalPhys <= MEM_THRESHOLD) ? true : false;
 }
 
 /*

@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 cvar_t *cl_shownet;
 
-void CL_Shutdown(const char *finalmsg, qboolean disconnect, qboolean quit)
+void CL_Shutdown(const char *finalmsg, bool disconnect, bool quit)
 {
 }
 
@@ -51,21 +51,21 @@ void CL_PacketEvent( struct netadr_t from, struct msg_t *msg ) {
 void CL_CharEvent( int key ) {
 }
 
-void CL_Disconnect( qboolean showMainMenu ) {
+void CL_Disconnect( bool showMainMenu ) {
 }
 
 void CL_MapLoading( void ) {
 }
 
-qboolean CL_GameCommand( void ) {
-  return qfalse;
+bool CL_GameCommand( void ) {
+  return false;
 }
 
-void CL_KeyEvent (int key, qboolean down, unsigned time) {
+void CL_KeyEvent (int key, bool down, unsigned time) {
 }
 
-qboolean UI_GameCommand( void ) {
-	return qfalse;
+bool UI_GameCommand( void ) {
+	return false;
 }
 
 void CL_ForwardCommandToServer( const char *string ) {
@@ -84,11 +84,11 @@ void CL_FlushMemory(void)
 {
 }
 
-void CL_ShutdownAll(qboolean shutdownRef)
+void CL_ShutdownAll(bool shutdownRef)
 {
 }
 
-void CL_StartHunkUsers( qboolean rendererOnly )
+void CL_StartHunkUsers( bool rendererOnly )
 {
 }
 

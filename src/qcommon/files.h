@@ -181,39 +181,39 @@ extern "C" {
  =============================================================================
 */
 
-enum FS_Mode {
-	FS_READ,
-	FS_WRITE,
-	FS_APPEND,
-	FS_APPEND_SYNC
-};
-
-enum FS_Origin {
-	FS_SEEK_CUR,
-	FS_SEEK_END,
-	FS_SEEK_SET
-};
+//enum FS_Mode {
+//	FS_READ,
+//	FS_WRITE,
+//	FS_APPEND,
+//	FS_APPEND_SYNC
+//};
+//
+//enum FS_Origin {
+//	FS_SEEK_CUR,
+//	FS_SEEK_END,
+//	FS_SEEK_SET
+//};
 
 const char*  FS_GetCurrentGameDir (void);
-void         FS_FilenameCompletion (const char* dir, const char* ext, qboolean stripExt, void (* callback)(const char* s), qboolean allowNonPureFilesOnDisk);
+void         FS_FilenameCompletion (const char* dir, const char* ext, bool stripExt, void (* callback)(const char* s), bool allowNonPureFilesOnDisk);
 int          FS_FOpenFileByMode (const char* qpath, fileHandle_t* f, enum FS_Mode mode);
-qboolean     FS_ConditionalRestart (int checksumFeed, qboolean disconnect);
+bool     FS_ConditionalRestart (int checksumFeed, bool disconnect);
 void         FS_InitFilesystem (void);
 void         FS_PureServerSetReferencedPaks (const char* pakSums, const char* pakNames);
 void         FS_Restart (int checksumFeed);
 void         FS_PureServerSetLoadedPaks (const char* pakSums, const char* pakNames);
 void         FS_ClearPakReferences (int flags);
-const char*  FS_ReferencedPakNames (qboolean alternate);
+const char*  FS_ReferencedPakNames (bool alternate);
 const char*  FS_ReferencedPakPureChecksums (void);
-const char*  FS_ReferencedPakChecksums (qboolean alternate);
-const char*  FS_LoadedPakPureChecksums (qboolean alternate);
-const char*  FS_LoadedPakNames (qboolean alternate);
-const char*  FS_LoadedPakChecksums (qboolean alternate);
-void         FS_Shutdown (qboolean closemfp);
-qboolean     FS_ComparePaks (char* neededpaks, int len, qboolean dlstring);
-qboolean     FS_CheckDirTraversal (const char* checkdir);
+const char*  FS_ReferencedPakChecksums (bool alternate);
+const char*  FS_LoadedPakPureChecksums (bool alternate);
+const char*  FS_LoadedPakNames (bool alternate);
+const char*  FS_LoadedPakChecksums (bool alternate);
+void         FS_Shutdown (bool closemfp);
+bool     FS_ComparePaks (char* neededpaks, int len, bool dlstring);
+bool     FS_CheckDirTraversal (const char* checkdir);
 void         FS_AddGameDirectory (const char* path, const char* dir);
-qboolean     FS_Which (const char* filename, void* searchPath);
+bool     FS_Which (const char* filename, void* searchPath);
 void         FS_SortFileList (char** filelist, int numfiles);
 int          FS_PathCmp (const char* s1, const char* s2);
 void         FS_ConvertPath (char* s);
@@ -222,14 +222,14 @@ int          FS_GetFileList (const char* path, const char* extension, char* list
 void         FS_FreeFileList (char** list);
 int          FS_GetFilteredFiles (const char *path, const char *extension, const char *filter, char *listbuf, int bufsize);
 char**       FS_ListFiles (const char* path, const char* extension, int* numfiles);
-char**       FS_ListFilteredFiles (const char* path, const char* extension, const char* filter, int* numfiles, qboolean allowNonPureFilesOnDisk);
-qboolean     FS_CompareZipChecksum (const char* zipfile);
+char**       FS_ListFilteredFiles (const char* path, const char* extension, const char* filter, int* numfiles, bool allowNonPureFilesOnDisk);
+bool     FS_CompareZipChecksum (const char* zipfile);
 void         FS_WriteFile (const char* qpath, const void* buffer, int size);
 void         FS_FreeFile (void* buffer);
 long         FS_ReadFile (const char* qpath, void** buffer);
 void         FS_Flush (fileHandle_t f);
-long         FS_ReadFileDir (const char* qpath, void* searchPath, qboolean unpure, void** buffer);
-int          FS_FileIsInPAK_A(qboolean alternate, const char *filename, int *pChecksum);
+long         FS_ReadFileDir (const char* qpath, void* searchPath, bool unpure, void** buffer);
+int          FS_FileIsInPAK_A(bool alternate, const char *filename, int *pChecksum);
 int          FS_FileIsInPAK (const char* filename, int* pChecksum);
 int          FS_FTell (fileHandle_t f);
 int          FS_Seek (fileHandle_t f, long offset, enum FS_Origin origin);
@@ -238,29 +238,29 @@ int          FS_Write (const void* buffer, int len, fileHandle_t h);
 int          FS_Read (void* buffer, int len, fileHandle_t f);
 int          FS_Read2 (void* buffer, int len, fileHandle_t f);
 int          FS_FindVM (void** startSearch, char* found, int foundlen, const char* name, int enableDll);
-long         FS_FOpenFileRead (const char* filename, fileHandle_t* file, qboolean uniqueFILE);
-long         FS_FOpenFileReadDir (const char* filename, void* search, fileHandle_t* file, qboolean uniqueFILE, qboolean unpure);
-qboolean     FS_FilenameCompare (const char* s1, const char* s2);
+long         FS_FOpenFileRead (const char* filename, fileHandle_t* file, bool uniqueFILE);
+long         FS_FOpenFileReadDir (const char* filename, void* search, fileHandle_t* file, bool uniqueFILE, bool unpure);
+bool     FS_FilenameCompare (const char* s1, const char* s2);
 fileHandle_t FS_FCreateOpenPipeFile (const char* filename);
 fileHandle_t FS_FOpenFileAppend (const char* filename);
 fileHandle_t FS_FOpenFileWrite (const char* filename);
 void         FS_FCloseFile (fileHandle_t f);
 void         FS_Rename (const char* from, const char* to);
-void         FS_SV_Rename (const char* from, const char* to, qboolean safe);
+void         FS_SV_Rename (const char* from, const char* to, bool safe);
 long         FS_SV_FOpenFileRead (const char* filename, fileHandle_t* fp);
 fileHandle_t FS_SV_FOpenFileWrite (const char* filename);
-qboolean     FS_SV_FileExists (const char* file);
-qboolean     FS_FileExists (const char* file);
-qboolean     FS_FileInPathExists (const char* testpath);
+bool     FS_SV_FileExists (const char* file);
+bool     FS_FileExists (const char* file);
+bool     FS_FileInPathExists (const char* testpath);
 void         FS_HomeRemove (const char* homePath);
 void         FS_Remove (const char* osPath);
-qboolean     FS_CreatePath (const char* OSPath);
+bool     FS_CreatePath (const char* OSPath);
 char*        FS_BuildOSPath (const char* base, const char* game, const char* qpath);
 long         FS_filelength (fileHandle_t f);
 void         FS_ReplaceSeparators (char *path);
 void         FS_ForceFlush (fileHandle_t f);
 int          FS_LoadStack (void);
-qboolean     FS_Initialized (void);
+bool         FS_Initialized (void);
 
 void         FS_Which_f (void);
 void         FS_TouchFile_f (void);
@@ -276,8 +276,6 @@ extern FILE *missingFiles;
 
 extern char lastValidGame[MAX_OSPATH];
 extern char lastValidBase[MAX_OSPATH];
-
-extern qboolean com_fullyInitialized;
 
 #ifdef __cplusplus
 }

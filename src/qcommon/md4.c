@@ -27,6 +27,8 @@
 	$Id: mdfour.c,v 1.1 2002/08/23 22:03:27 abster Exp $
 */
 
+#include <stdbool.h>
+
 #include "q_shared.h"
 #include "qcommon.h"
 

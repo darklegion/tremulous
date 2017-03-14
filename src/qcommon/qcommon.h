@@ -26,6 +26,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #ifdef __cplusplus
 extern "C" {
+#else
+#include <stdbool.h>
 #endif
 
 #include "cm_public.h"
@@ -107,68 +109,6 @@ enum clc_ops_e {
 	clc_voipOpus,    //
 };
 
-/*
-==============================================================
-
-VIRTUAL MACHINE
-
-==============================================================
-*/
-
-typedef struct vm_s vm_t;
-
-typedef enum {
-	VMI_NATIVE,
-	VMI_BYTECODE,
-	VMI_COMPILED
-} vmInterpret_t;
-
-typedef enum {
-	TRAP_MEMSET = 100,
-	TRAP_MEMCPY,
-	TRAP_STRNCPY,
-	TRAP_SIN,
-	TRAP_COS,
-	TRAP_ATAN2,
-	TRAP_SQRT,
-	TRAP_MATRIXMULTIPLY,
-	TRAP_ANGLEVECTORS,
-	TRAP_PERPENDICULARVECTOR,
-	TRAP_FLOOR,
-	TRAP_CEIL,
-
-	TRAP_TESTPRINTINT,
-	TRAP_TESTPRINTFLOAT
-} sharedTraps_t;
-
-void	VM_Init( void );
-vm_t	*VM_Create( const char *module, intptr_t (*systemCalls)(intptr_t *), 
-				   vmInterpret_t interpret );
-// module should be bare: "cgame", not "cgame.dll" or "vm/cgame.qvm"
-
-void	VM_Free( vm_t *vm );
-void	VM_Clear(void);
-void	VM_Forced_Unload_Start(void);
-void	VM_Forced_Unload_Done(void);
-void	VM_ClearCallLevel(vm_t *vm);
-vm_t	*VM_Restart(vm_t *vm, qboolean unpure);
-
-intptr_t		QDECL VM_Call( vm_t *vm, int callNum, ... );
-
-void	VM_Debug( int level );
-
-void	*VM_ArgPtr( intptr_t intValue );
-void	*VM_ExplicitArgPtr( vm_t *vm, intptr_t intValue );
-
-#define	VMA(x) VM_ArgPtr(args[x])
-static ID_INLINE float _vmf(intptr_t x)
-{
-	floatint_t fi;
-	fi.i = (int) x;
-	return fi.f;
-}
-#define	VMF(x)	_vmf(args[x])
-
 #include "cmd.h"
 
 #include "cvar.h"
@@ -194,8 +134,8 @@ typedef struct {
 void Field_Clear( field_t *edit );
 void Field_AutoComplete( field_t *edit );
 void Field_CompleteKeyname( void );
-void Field_CompleteFilename( const char *dir, const char *ext, qboolean stripExt, qboolean allowNonPureFilesOnDisk );
-void Field_CompleteCommand( char *cmd, qboolean doCommands, qboolean doCvars );
+void Field_CompleteFilename( const char *dir, const char *ext, bool stripExt, bool allowNonPureFilesOnDisk );
+void Field_CompleteCommand( char *cmd, bool doCommands, bool doCvars );
 void Field_CompletePlayerName( const char **names, int count );
 void Field_CompleteList( char *listJson );
 
@@ -246,7 +186,7 @@ void 		QDECL Com_Error( int code, const char *fmt, ... ) __attribute__ ((noretur
 void 		QDECL Com_DPrintf( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
 void        Engine_Exit(const char* p ) __attribute__ ((noreturn));
 void 		Com_Quit_f( void ) __attribute__ ((noreturn));
-void		Com_GameRestart(int checksumFeed, qboolean disconnect);
+void		Com_GameRestart(int checksumFeed, bool disconnect);
 
 int			Com_Milliseconds( void );	// will be journaled properly
 unsigned	Com_BlockChecksum( const void *buffer, int length );
@@ -254,18 +194,18 @@ char		*Com_MD5File(const char *filename, int length, const char *prefix, int pre
 int			Com_Filter(const char* filter, char *name, int casesensitive);
 int			Com_FilterPath(const char *filter, char *name, int casesensitive);
 int			Com_RealTime(qtime_t *qtime);
-qboolean	Com_SafeMode( void );
+bool	Com_SafeMode( void );
 void		Com_RunAndTimeServerPacket(struct netadr_t *evFrom, struct msg_t *buf);
 
-qboolean	Com_IsVoipTarget(uint8_t *voipTargets, int voipTargetsSize, int clientNum);
+bool	Com_IsVoipTarget(uint8_t *voipTargets, int voipTargetsSize, int clientNum);
 
 void		Com_StartupVariable( const char *match );
 // checks for and removes command line "+set var arg" constructs
 // if match is NULL, all set commands will be executed, otherwise
 // only a set with the exact name.  Only used during startup.
 
-qboolean		Com_PlayerNameToFieldString( char *str, int length, const char *name );
-qboolean		Com_FieldStringToPlayerName( char *name, int length, const char *rawname );
+bool		Com_PlayerNameToFieldString( char *str, int length, const char *name );
+bool		Com_FieldStringToPlayerName( char *name, int length, const char *rawname );
 int QDECL	Com_strCompare( const void *a, const void *b );
 
 
@@ -304,8 +244,8 @@ extern	int		time_backend;		// renderer backend time
 
 extern	int		com_frameTime;
 
-extern	qboolean	com_errorEntered;
-extern	qboolean	com_fullyInitialized;
+extern	bool	com_errorEntered;
+extern	bool	com_fullyInitialized;
 
 extern	fileHandle_t	com_journalFile;
 extern	fileHandle_t	com_journalDataFile;
@@ -362,7 +302,7 @@ void Z_LogHeap( void );
 void Hunk_Clear( void );
 void Hunk_ClearToMark( void );
 void Hunk_SetMark( void );
-qboolean Hunk_CheckMark( void );
+bool Hunk_CheckMark( void );
 void Hunk_ClearTempMemory( void );
 void *Hunk_AllocateTempMemory( int size );
 void Hunk_FreeTempMemory( void *buf );
@@ -393,11 +333,11 @@ void CL_InitKeyCommands( void );
 // config files, but the rest of client startup will happen later
 
 void CL_Init( void );
-void CL_Disconnect( qboolean showMainMenu );
-void CL_Shutdown(const char *finalmsg, qboolean disconnect, qboolean quit);
+void CL_Disconnect( bool showMainMenu );
+void CL_Shutdown(const char *finalmsg, bool disconnect, bool quit);
 void CL_Frame( int msec );
-qboolean CL_GameCommand( void );
-void CL_KeyEvent (int key, qboolean down, unsigned time);
+bool CL_GameCommand( void );
+void CL_KeyEvent (int key, bool down, unsigned time);
 
 void CL_CharEvent( int key );
 // char events are for field typing, not game control
@@ -424,10 +364,10 @@ void	CL_ForwardCommandToServer( const char *string );
 void CL_FlushMemory( void );
 // dump all memory on an error
 
-void CL_ShutdownAll(qboolean shutdownRef);
+void CL_ShutdownAll(bool shutdownRef);
 // shutdown client
 
-void CL_StartHunkUsers( qboolean rendererOnly );
+void CL_StartHunkUsers( bool rendererOnly );
 // start all the client stuff using the hunk
 
 void Key_KeynameCompletion( void(*callback)(const char *s) );
@@ -452,13 +392,13 @@ void SV_Shutdown( const char *finalmsg );
 void SV_Frame( int msec );
 void SV_PacketEvent( struct netadr_t from, struct msg_t *msg );
 int SV_FrameMsec(void);
-qboolean SV_GameCommand( void );
+bool SV_GameCommand( void );
 int SV_SendQueuedPackets(void);
 
 //
 // UI interface
 //
-qboolean UI_GameCommand( void );
+bool UI_GameCommand( void );
 
 /*
 ==============================================================
@@ -468,75 +408,11 @@ NON-PORTABLE SYSTEM SERVICES
 ==============================================================
 */
 
-//#include "sys_shared.h"
-
-//#include "dialog.h"
-
-#if 0
-/* This is based on the Adaptive Huffman algorithm described in Sayood's Data
- * Compression book.  The ranks are not actually stored, but implicitly defined
- * by the location of a node within a doubly-linked list */
-
-#define NYT HMAX					/* NYT = Not Yet Transmitted */
-#define INTERNAL_NODE (HMAX+1)
-
-typedef struct nodetype {
-	struct	nodetype *left, *right, *parent; /* tree structure */ 
-	struct	nodetype *next, *prev; /* doubly-linked list */
-	struct	nodetype **head; /* highest ranked node in block */
-	int		weight;
-	int		symbol;
-} node_t;
-
-#define HMAX 256 /* Maximum symbol */
-
-typedef struct {
-	int			blocNode;
-	int			blocPtrs;
-
-	node_t*		tree;
-	node_t*		lhead;
-	node_t*		ltail;
-	node_t*		loc[HMAX+1];
-	node_t**	freelist;
-
-	node_t		nodeList[768];
-	node_t*		nodePtrs[768];
-} huff_t;
-
-typedef struct {
-	huff_t		compressor;
-	huff_t		decompressor;
-} huffman_t;
-
-void	Huff_Compress(msg_t *buf, int offset);
-void	Huff_Decompress(msg_t *buf, int offset);
-void	Huff_Init(huffman_t *huff);
-void	Huff_addRef(huff_t* huff, byte ch);
-int		Huff_Receive (node_t *node, int *ch, byte *fin);
-void	Huff_transmit (huff_t *huff, int ch, byte *fout);
-void	Huff_offsetReceive (node_t *node, int *ch, byte *fin, int *offset);
-void	Huff_offsetTransmit (huff_t *huff, int ch, byte *fout, int *offset);
-void	Huff_putBit( int bit, byte *fout, int *offset);
-int		Huff_getBit( byte *fout, int *offset);
-
-// don't use if you don't know what you're doing.
-int		Huff_getBloc(void);
-void	Huff_setBloc(int _bloc);
-
-extern huffman_t clientHuffTables;
-#endif
-
-int		Parse_AddGlobalDefine(char *string);
-int		Parse_LoadSourceHandle(const char *filename);
-int		Parse_FreeSourceHandle(int handle);
-int		Parse_ReadTokenHandle(int handle, pc_token_t *pc_token);
-int		Parse_SourceFileAndLine(int handle, char *filename, int *line);
-
-#define	SV_ENCODE_START		4
-#define SV_DECODE_START		12
-#define	CL_ENCODE_START		12
-#define CL_DECODE_START		4
+int Parse_AddGlobalDefine(char *string);
+int Parse_LoadSourceHandle(const char *filename);
+int Parse_FreeSourceHandle(int handle);
+int Parse_ReadTokenHandle(int handle, pc_token_t *pc_token);
+int Parse_SourceFileAndLine(int handle, char *filename, int *line);
 
 // flags for sv_allowDownload and cl_allowDownload
 #define DLF_ENABLE 1
@@ -547,4 +423,5 @@ int		Parse_SourceFileAndLine(int handle, char *filename, int *line);
 #ifdef __cplusplus
 };
 #endif
+
 #endif // _QCOMMON_H_

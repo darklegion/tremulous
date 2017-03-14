@@ -592,11 +592,11 @@ SV_GameCommand
 See if the current console command is claimed by the game
 ====================
 */
-qboolean SV_GameCommand( void ) {
+bool SV_GameCommand( void ) {
 	if ( sv.state != SS_GAME ) {
-		return qfalse;
+		return false;
 	}
 
-	return (qboolean)VM_Call( gvm, GAME_CONSOLE_COMMAND );
+	return (bool)VM_Call( gvm, GAME_CONSOLE_COMMAND );
 }
 

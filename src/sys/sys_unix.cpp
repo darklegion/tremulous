@@ -172,9 +172,9 @@ Sys_LowPhysicalMemory
 TODO
 ==================
 */
-qboolean Sys_LowPhysicalMemory( void )
+bool Sys_LowPhysicalMemory( void )
 {
-	return qfalse;
+	return false;
 }
 
 /*

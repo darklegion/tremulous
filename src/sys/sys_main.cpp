@@ -72,6 +72,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
 #include "../qcommon/dialog.h"
+#include "../qcommon/vm.h"
 
 sol::state lua;
 
@@ -610,7 +611,7 @@ void Sys_SigHandler( int signal )
         signalcaught = qtrue;
         VM_Forced_Unload_Start();
 #ifndef DEDICATED
-        CL_Shutdown(va("Received signal %d", signal), qtrue, qtrue);
+        CL_Shutdown(va("Received signal %d", signal), true, true);
 #endif
         SV_Shutdown(msg);
         VM_Forced_Unload_Done();

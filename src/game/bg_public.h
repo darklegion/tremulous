@@ -28,7 +28,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 //tremulous balance header
 #include "../qcommon/q_shared.h"
-#include "../qcommon/cvar.h"
 #include "tremulous.h"
 
 // because games can change separately from the main system version, we need a

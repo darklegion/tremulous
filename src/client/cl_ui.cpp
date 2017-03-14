@@ -1273,9 +1273,9 @@ UI_GameCommand
 See if the current console command is claimed by the ui
 ====================
 */
-qboolean UI_GameCommand(void)
+bool UI_GameCommand(void)
 {
-    if (!uivm) return qfalse;
+    if (!uivm) return false;
 
-    return (qboolean)VM_Call(uivm, UI_CONSOLE_COMMAND - (uiInterface == 2 ? 2 : 0), cls.realtime);
+    return (bool)VM_Call(uivm, UI_CONSOLE_COMMAND - (uiInterface == 2 ? 2 : 0), cls.realtime);
 }

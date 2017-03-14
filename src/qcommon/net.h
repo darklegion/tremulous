@@ -136,4 +136,9 @@ void Netchan_TransmitNextFragment( netchan_t *chan );
 
 bool Netchan_Process( netchan_t *chan, struct msg_t *msg );
 
+#define	SV_ENCODE_START		4
+#define SV_DECODE_START		12
+#define	CL_ENCODE_START		12
+#define CL_DECODE_START		4
+
 #endif

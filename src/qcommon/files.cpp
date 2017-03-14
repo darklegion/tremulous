@@ -36,6 +36,7 @@
 #include "qcommon.h"
 #include "sys_shared.h"
 #include "unzip.h"
+#include "vm.h"
 
 #ifndef DEDICATED
 #include "../client/cl_rest.h"
@@ -173,7 +174,7 @@ FS_Initialized
 ==============
 */
 
-qboolean FS_Initialized(void) { return fs_searchpaths ? qtrue : qfalse; }
+bool FS_Initialized(void) { return fs_searchpaths ? true : false; }
 
 /*
 =================
@@ -400,7 +401,7 @@ FS_CreatePath
 Creates any directories needed to store the given filename
 ============
 */
-qboolean FS_CreatePath(const char *OSPath)
+bool FS_CreatePath(const char *OSPath)
 {
     // make absolutely sure that it can't back up the path
     // FIXME: is c: allowed???
@@ -501,7 +502,7 @@ FS_FileInPathExists
 Tests if path and file exists
 ================
 */
-qboolean FS_FileInPathExists(const char *testpath)
+bool FS_FileInPathExists(const char *testpath)
 {
     FILE *filep;
 
@@ -526,7 +527,7 @@ search the paths.  This is to determine if opening a file to write
 NOTE TTimo: this goes with FS_FOpenFileWrite for opening the file afterwards
 ================
 */
-qboolean FS_FileExists(const char *file)
+bool FS_FileExists(const char *file)
 {
     return FS_FileInPathExists(FS_BuildOSPath(fs_homepath->string, fs_gamedir, file));
 }
@@ -538,7 +539,7 @@ FS_SV_FileExists
 Tests if the file exists
 ================
 */
-qboolean FS_SV_FileExists(const char *file)
+bool FS_SV_FileExists(const char *file)
 {
     char *testpath = FS_BuildOSPath(fs_homepath->string, file, "");
     testpath[strlen(testpath) - 1] = '\0';
@@ -656,7 +657,7 @@ FS_SV_Rename
 
 ===========
 */
-void FS_SV_Rename(const char *from, const char *to, qboolean safe)
+void FS_SV_Rename(const char *from, const char *to, bool safe)
 {
     if (!fs_searchpaths)
     {
@@ -885,7 +886,7 @@ FS_FilenameCompare
 Ignore case and seprator char distinctions
 ===========
 */
-qboolean FS_FilenameCompare(const char *s1, const char *s2)
+bool FS_FilenameCompare(const char *s1, const char *s2)
 {
     int c1, c2;
 
@@ -970,10 +971,8 @@ Tries opening file "filename" in searchpath "search"
 Returns filesize and an open FILE pointer.
 ===========
 */
-extern qboolean com_fullyInitialized;
-
 long FS_FOpenFileReadDir(
-    const char *filename, void *_search, fileHandle_t *file, qboolean uniqueFILE, qboolean unpure)
+    const char *filename, void *_search, fileHandle_t *file, bool uniqueFILE, bool unpure)
 {
     pack_t *pak;
     directory_t *dir;
@@ -1189,7 +1188,7 @@ Used for streaming data out of either a
 separate file or a ZIP file.
 ===========
 */
-long FS_FOpenFileRead(const char *filename, fileHandle_t *file, qboolean uniqueFILE)
+long FS_FOpenFileRead(const char *filename, fileHandle_t *file, bool uniqueFILE)
 {
     searchpath_t *search;
     long len;
@@ -1613,7 +1612,7 @@ CONVENIENCE FUNCTIONS FOR ENTIRE FILES
 ======================================================================================
 */
 
-int FS_FileIsInPAK_A(qboolean alternate, const char *filename, int *pChecksum)
+int FS_FileIsInPAK_A(bool alternate, const char *filename, int *pChecksum)
 {
     if (!fs_searchpaths)
         Com_Error(ERR_FATAL, "Filesystem call made without initialization");
@@ -1672,7 +1671,7 @@ a null buffer will just return the file length without loading
 If searchPath is non-nullptr search only in that specific search path
 ============
 */
-long FS_ReadFileDir(const char *qpath, void *searchPath, qboolean unpure, void **buffer)
+long FS_ReadFileDir(const char *qpath, void *searchPath, bool unpure, void **buffer)
 {
     fileHandle_t h;
     byte *buf;
@@ -2026,7 +2025,7 @@ FS_GetZipChecksum
 Compares whether the given pak file matches a referenced checksum
 =================
 */
-qboolean FS_CompareZipChecksum(const char *zipfile)
+bool FS_CompareZipChecksum(const char *zipfile)
 {
     pack_t *thepak = FS_LoadZipFile(zipfile, "");
 
@@ -2110,7 +2109,7 @@ from all search paths
 ===============
 */
 char **FS_ListFilteredFiles(const char *path, const char *extension, const char *filter,
-    int *numfiles, qboolean allowNonPureFilesOnDisk)
+    int *numfiles, bool allowNonPureFilesOnDisk)
 {
     int nfiles;
     char **listCopy;
@@ -2797,7 +2796,7 @@ FS_Which
 ============
 */
 
-qboolean FS_Which(const char *filename, void *searchPath)
+bool FS_Which(const char *filename, void *searchPath)
 {
     searchpath_t *search = static_cast<searchpath_t *>(searchPath);
 
@@ -3119,7 +3118,7 @@ and return qtrue if it does.
 ================
 */
 
-qboolean FS_CheckDirTraversal(const char *checkdir)
+bool FS_CheckDirTraversal(const char *checkdir)
 {
     if (strstr(checkdir, "../") || strstr(checkdir, "..\\")) return qtrue;
 
@@ -3152,7 +3151,7 @@ we are not interested in a download string format, we want something human-reada
 
 ================
 */
-qboolean FS_ComparePaks(char *neededpaks, int len, qboolean dlstring)
+bool FS_ComparePaks(char *neededpaks, int len, bool dlstring)
 {
     if (!fs_numServerReferencedPaks)
     {
@@ -3257,7 +3256,7 @@ Frees all resources.
 ================
 */
 
-void FS_Shutdown(qboolean closemfp)
+void FS_Shutdown(bool closemfp)
 {
     for (int i = 0; i < MAX_FILE_HANDLES; i++)
     {
@@ -3486,7 +3485,7 @@ Returns a space separated string containing the checksums of all loaded pk3 file
 Servers with sv_pure set will get this string and pass it to clients.
 =====================
 */
-const char *FS_LoadedPakChecksums(qboolean alternate)
+const char *FS_LoadedPakChecksums(bool alternate)
 {
 #warning "FS_LoadedPakChecksums() returns `static char info[BIG_INFO_STRING]`"
     static char info[BIG_INFO_STRING];
@@ -3512,7 +3511,7 @@ Returns a space separated string containing the names of all loaded pk3 files.
 Servers with sv_pure set will get this string and pass it to clients.
 =====================
 */
-const char *FS_LoadedPakNames(qboolean alternate)
+const char *FS_LoadedPakNames(bool alternate)
 {
 #warning "FS_LoadedPakNames() returns `static char info[BIG_INFO_STRING]`"
     static char info[BIG_INFO_STRING];
@@ -3540,7 +3539,7 @@ Servers with sv_pure use these checksums to compare with the checksums the clien
 back to the server.
 =====================
 */
-const char *FS_LoadedPakPureChecksums(qboolean alternate)
+const char *FS_LoadedPakPureChecksums(bool alternate)
 {
 #warning "FS_LoadedPakPureChecksums() returns `static char info[BIG_INFO_STRING]`"
     static char info[BIG_INFO_STRING];
@@ -3566,7 +3565,7 @@ Returns a space separated string containing the checksums of all referenced pk3 
 The server will send this to the clients so they can check which files should be auto-downloaded.
 =====================
 */
-const char *FS_ReferencedPakChecksums(qboolean alternate)
+const char *FS_ReferencedPakChecksums(bool alternate)
 {
 #warning "FS_ReferencedPakChecksums() returns `static char info[BIG_INFO_STRING]`"
     static char info[BIG_INFO_STRING];
@@ -3651,7 +3650,7 @@ Returns a space separated string containing the names of all referenced pk3 file
 The server will send this to the clients so they can check which files should be auto-downloaded.
 =====================
 */
-const char *FS_ReferencedPakNames(qboolean alternate)
+const char *FS_ReferencedPakNames(bool alternate)
 {
 #warning "FS_ReferencedPakNames() returns `static char info[BIG_INFO_STRING]`"
     static char info[BIG_INFO_STRING];
@@ -3896,7 +3895,7 @@ Restart if necessary
 Return qtrue if restarting due to game directory changed, qfalse otherwise
 =================
 */
-qboolean FS_ConditionalRestart(int checksumFeed, qboolean disconnect)
+bool FS_ConditionalRestart(int checksumFeed, bool disconnect)
 {
     if (fs_gamedirvar->modified)
     {
@@ -3904,7 +3903,7 @@ qboolean FS_ConditionalRestart(int checksumFeed, qboolean disconnect)
             (*lastValidGame || FS_FilenameCompare(fs_gamedirvar->string, BASEGAME)) &&
             (*fs_gamedirvar->string || FS_FilenameCompare(lastValidGame, BASEGAME)))
         {
-            Com_GameRestart(checksumFeed, disconnect);
+            Com_GameRestart(checksumFeed, (qboolean)disconnect);
             return qtrue;
         }
         fs_gamedirvar->modified = qfalse;
@@ -3983,8 +3982,8 @@ void FS_Flush(fileHandle_t f)
     fflush(fsh[f].handleFiles.file.o);
 }
 
-void FS_FilenameCompletion(const char *dir, const char *ext, qboolean stripExt,
-    void (*callback)(const char *s), qboolean allowNonPureFilesOnDisk)
+void FS_FilenameCompletion(const char *dir, const char *ext, bool stripExt,
+    void (*callback)(const char *s), bool allowNonPureFilesOnDisk)
 {
     int nfiles;
     char filename[MAX_STRING_CHARS];

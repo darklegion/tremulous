@@ -1323,7 +1323,7 @@ Sends a disconnect message to the server
 This is also called on Com_Error and Com_Quit, so it shouldn't cause any errors
 =====================
 */
-void CL_Disconnect(qboolean showMainMenu)
+void CL_Disconnect(bool showMainMenu)
 {
     if (!com_cl_running || !com_cl_running->integer)
     {
@@ -3106,7 +3106,7 @@ static void CL_ShutdownRef(void)
 CL_ShutdownAll
 =====================
 */
-void CL_ShutdownAll(qboolean shutdownRef)
+void CL_ShutdownAll(bool shutdownRef)
 {
     if (CL_VideoRecording()) CL_CloseAVI();
 
@@ -3172,7 +3172,7 @@ Also called by Com_Error
 void CL_FlushMemory(void)
 {
     CL_ClearMemory(qfalse);
-    CL_StartHunkUsers(qfalse);
+    CL_StartHunkUsers(false);
 }
 
 /*
@@ -3236,7 +3236,7 @@ static void CL_Vid_Restart_f(void)
         CL_InitRef();
 
         // startup all the client stuff
-        CL_StartHunkUsers(qfalse);
+        CL_StartHunkUsers(false);
 
         // start the cgame if connected
         if (clc.state > CA_CONNECTED && clc.state != CA_CINEMATIC)
@@ -3292,7 +3292,7 @@ After the server has cleared the hunk, these will need to be restarted
 This is the only place that any of these functions are called from
 ============================
 */
-void CL_StartHunkUsers(qboolean rendererOnly)
+void CL_StartHunkUsers(bool rendererOnly)
 {
     if (!com_cl_running)
     {
@@ -4976,7 +4976,7 @@ CL_Shutdown
 
 ===============
 */
-void CL_Shutdown(const char *finalmsg, qboolean disconnect, qboolean quit)
+void CL_Shutdown(const char *finalmsg, bool disconnect, bool quit)
 {
     static bool recursive = false;
     int realtime;
@@ -4993,9 +4993,9 @@ void CL_Shutdown(const char *finalmsg, qboolean disconnect, qboolean quit)
     }
     recursive = true;
 
-    noGameRestart = (bool)quit;
+    noGameRestart = quit;
 
-    if (disconnect) CL_Disconnect(qtrue);
+    if (disconnect) CL_Disconnect(true);
 
     CL_ClearMemory(qtrue);
     CL_Snd_Shutdown();

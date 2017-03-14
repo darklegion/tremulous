@@ -168,11 +168,7 @@ typedef int intptr_t;
 
 typedef unsigned char 		byte;
 
-//#ifdef __cplusplus
-//enum qboolean : int {qfalse, qtrue};
-//#else
-typedef enum {qfalse, qtrue}	qboolean;
-//#endif
+typedef enum {qfalse, qtrue} qboolean;
 
 typedef union {
 	float f;
@@ -214,6 +210,62 @@ typedef int		clipHandle_t;
 #define	PITCH				0		// up / down
 #define	YAW					1		// left / right
 #define	ROLL				2		// fall over
+
+/* FILESYSTEM */
+enum FS_Mode {
+	FS_READ,
+	FS_WRITE,
+	FS_APPEND,
+	FS_APPEND_SYNC
+};
+
+enum FS_Origin {
+	FS_SEEK_CUR,
+	FS_SEEK_END,
+	FS_SEEK_SET
+};
+
+/* CVAR */
+
+#define CVAR_ARCHIVE        0x0001  // set to cause it to be saved to vars.rc
+// used for system variables, not for player
+// specific configurations
+#define CVAR_USERINFO       0x0002  // sent to server on connect or change
+#define CVAR_SERVERINFO     0x0004  // sent in response to front end requests
+#define CVAR_SYSTEMINFO     0x0008  // these cvars will be duplicated on all clients
+#define CVAR_INIT           0x0010  // don't allow change from console at all,
+// but can be set from the command line
+#define CVAR_LATCH          0x0020  // will only change when C code next does
+// a Cvar_Get(), so it can't be changed without proper initialization.
+// modified will be set, even though the value hasn't changed yet
+#define CVAR_ROM            0x0040  // display only, cannot be set by user at all
+#define CVAR_USER_CREATED   0x0080  // created by a set command
+#define CVAR_TEMP           0x0100  // can be set even when cheats are disabled, but is not archived
+#define CVAR_CHEAT          0x0200  // can not be changed if cheats are disabled
+#define CVAR_NORESTART      0x0400  // do not clear when a cvar_restart is issued
+
+#define CVAR_SERVER_CREATED 0x0800  // cvar was created by a server the client connected to.
+#define CVAR_VM_CREATED     0x1000  // cvar was created exclusively in one of the VMs.
+#define CVAR_PROTECTED      0x2000  // prevent modifying this var from VMs or the server
+#define CVAR_ALTERNATE_SYSTEMINFO 0x1000000
+// These flags are only returned by the Cvar_Flags() function
+#define CVAR_MODIFIED             0x40000000  // Cvar was modified
+#define CVAR_NONEXISTENT          0x80000000  // Cvar doesn't exist.
+
+#define MAX_CVAR_VALUE_STRING 256
+
+typedef int cvarHandle_t;
+
+// the modules that run in the virtual machine can't access the cvar_t directly,
+// so they must ask for structured updates
+typedef struct {
+    cvarHandle_t handle;
+    int modificationCount;
+    float value;
+    int integer;
+    char string[MAX_CVAR_VALUE_STRING];
+} vmCvar_t;
+
 
 // the game guarantees that no string from the network will ever
 // exceed MAX_STRING_CHARS
@@ -783,7 +835,6 @@ char	*COM_ParseExt( char **data_p, qboolean allowLineBreak );
 int		COM_Compress( char *data_p );
 void	COM_ParseError( char *format, ... ) __attribute__ ((format (printf, 1, 2)));
 void	COM_ParseWarning( char *format, ... ) __attribute__ ((format (printf, 1, 2)));
-//int		COM_ParseInfos( char *buf, int max, char infos[][MAX_INFO_STRING] );
 
 #define MAX_TOKENLENGTH		1024
 
@@ -883,18 +934,7 @@ typedef struct
 } qint64;
 
 //=============================================
-/*
-short	BigShort(short l);
-short	LittleShort(short l);
-int		BigLong (int l);
-int		LittleLong (int l);
-qint64  BigLong64 (qint64 l);
-qint64  LittleLong64 (qint64 l);
-float	BigFloat (const float *l);
-float	LittleFloat (const float *l);
 
-void	Swap_Init (void);
-*/
 const char	* QDECL va(const char *format, ...) __attribute__ ((format (printf, 1, 2)));
 
 #define TRUNCATE_LENGTH	64

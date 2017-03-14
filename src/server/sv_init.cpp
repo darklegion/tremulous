@@ -564,7 +564,7 @@ void SV_SpawnServer(char *server)
     CL_MapLoading();
 
     // make sure all the client stuff is unloaded
-    CL_ShutdownAll(qfalse);
+    CL_ShutdownAll(false);
 
     // clear the whole hunk because we're (re)loading the server
     Hunk_Clear();
@@ -917,5 +917,5 @@ void SV_Shutdown(const char *finalmsg)
     Com_Printf("---------------------------\n");
 
     // disconnect any local clients
-    if (sv_killserver->integer != 2) CL_Disconnect(qfalse);
+    if (sv_killserver->integer != 2) CL_Disconnect(false);
 }

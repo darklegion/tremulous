@@ -1326,7 +1326,7 @@ CL_KeyEvent
 Called by the system for both key up and key down events
 ===================
 */
-void CL_KeyEvent(int key, qboolean down, unsigned time)
+void CL_KeyEvent(int key, bool down, unsigned time)
 {
 	if( down )
 		CL_KeyDownEvent( key, time );
