@@ -20,14 +20,18 @@ along with Tremulous; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+
 #include "msg.h"
+#include "huffman.h"
 
 #include "q_shared.h"
 #include "qcommon.h"
 
+#include "alternatePlayerstate.h"
+
 static huffman_t msgHuff;
 
-static qboolean msgInit = qfalse;
+static bool msgInit = false;
 
 int pcount[256];
 
@@ -36,7 +40,7 @@ int pcount[256];
 
                         MESSAGE IO FUNCTIONS
 
-Handles byte ordering and avoids alignment errors
+Handles uint8_t ordering and avoids alignment errors
 ==============================================================================
 */
 
@@ -44,7 +48,7 @@ int oldsize = 0;
 
 void MSG_initHuffman(void);
 
-void MSG_Init(msg_t *buf, byte *data, int length)
+void MSG_Init(msg_t *buf, uint8_t *data, int length)
 {
     if (!msgInit)
     {
@@ -55,7 +59,7 @@ void MSG_Init(msg_t *buf, byte *data, int length)
     buf->maxsize = length;
 }
 
-void MSG_InitOOB(msg_t *buf, byte *data, int length)
+void MSG_InitOOB(msg_t *buf, uint8_t *data, int length)
 {
     if (!msgInit)
     {
@@ -64,32 +68,32 @@ void MSG_InitOOB(msg_t *buf, byte *data, int length)
     ::memset(buf, 0, sizeof(*buf));
     buf->data = data;
     buf->maxsize = length;
-    buf->oob = qtrue;
+    buf->oob = true;
 }
 
 void MSG_Clear(msg_t *buf)
 {
     buf->cursize = 0;
-    buf->overflowed = qfalse;
+    buf->overflowed = false;
     buf->bit = 0;  //<- in bits
 }
 
-void MSG_Bitstream(msg_t *buf) { buf->oob = qfalse; }
+void MSG_Bitstream(msg_t *buf) { buf->oob = false; }
 void MSG_BeginReading(msg_t *msg)
 {
     msg->readcount = 0;
     msg->bit = 0;
-    msg->oob = qfalse;
+    msg->oob = false;
 }
 
 void MSG_BeginReadingOOB(msg_t *msg)
 {
     msg->readcount = 0;
     msg->bit = 0;
-    msg->oob = qtrue;
+    msg->oob = true;
 }
 
-void MSG_Copy(msg_t *buf, byte *data, int length, msg_t *src)
+void MSG_Copy(msg_t *buf, uint8_t *data, int length, msg_t *src)
 {
     if (length < src->cursize)
     {
@@ -97,7 +101,7 @@ void MSG_Copy(msg_t *buf, byte *data, int length, msg_t *src)
     }
     ::memcpy(buf, src, sizeof(msg_t));
     buf->data = data;
-    ::memset(buf->data, src->data, src->cursize);
+    ::memcpy(buf->data, src->data, src->cursize);
 }
 
 /*
@@ -121,7 +125,7 @@ void MSG_WriteBits(msg_t *msg, int value, int bits)
     // this isn't an exact overflow check, but close enough
     if (msg->maxsize - msg->cursize < 4)
     {
-        msg->overflowed = qtrue;
+        msg->overflowed = true;
         return;
     }
 
@@ -214,7 +218,7 @@ int MSG_ReadBits(msg_t *msg, int bits)
 {
     int value;
     int get;
-    qboolean sgn;
+    bool sgn;
     int i, nbits;
     //	FILE*	fp;
 
@@ -223,11 +227,11 @@ int MSG_ReadBits(msg_t *msg, int bits)
     if (bits < 0)
     {
         bits = -bits;
-        sgn = qtrue;
+        sgn = true;
     }
     else
     {
-        sgn = qfalse;
+        sgn = false;
     }
 
     if (msg->oob)
@@ -321,7 +325,7 @@ void MSG_WriteData(msg_t *buf, const void *data, int length)
     int i;
     for (i = 0; i < length; i++)
     {
-        MSG_WriteByte(buf, ((byte *)data)[i]);
+        MSG_WriteByte(buf, ((uint8_t *)data)[i]);
     }
 }
 
@@ -519,7 +523,7 @@ void MSG_ReadData(msg_t *msg, void *data, int len)
 
     for (i = 0; i < len; i++)
     {
-        ((byte *)data)[i] = MSG_ReadByte(msg);
+        ((uint8_t *)data)[i] = MSG_ReadByte(msg);
     }
 }
 
@@ -786,19 +790,60 @@ typedef struct {
 // using the stringizing operator to save typing...
 #define NETF(x) #x, (size_t) & ((entityState_t *) 0)->x
 
-netField_t entityStateFields[] = {{NETF(pos.trTime), 32}, {NETF(pos.trBase[0]), 0}, {NETF(pos.trBase[1]), 0},
-    {NETF(pos.trDelta[0]), 0}, {NETF(pos.trDelta[1]), 0}, {NETF(pos.trBase[2]), 0}, {NETF(apos.trBase[1]), 0},
-    {NETF(pos.trDelta[2]), 0}, {NETF(apos.trBase[0]), 0}, {NETF(event), 10}, {NETF(angles2[1]), 0}, {NETF(eType), 8},
-    {NETF(torsoAnim), 8}, {NETF(weaponAnim), 8}, {NETF(eventParm), 8}, {NETF(legsAnim), 8},
-    {NETF(groundEntityNum), GENTITYNUM_BITS}, {NETF(pos.trType), 8}, {NETF(eFlags), 19},
-    {NETF(otherEntityNum), GENTITYNUM_BITS}, {NETF(weapon), 8}, {NETF(clientNum), 8}, {NETF(angles[1]), 0},
-    {NETF(pos.trDuration), 32}, {NETF(apos.trType), 8}, {NETF(origin[0]), 0}, {NETF(origin[1]), 0},
-    {NETF(origin[2]), 0}, {NETF(solid), 24}, {NETF(misc), MAX_MISC}, {NETF(modelindex), 8},
-    {NETF(otherEntityNum2), GENTITYNUM_BITS}, {NETF(loopSound), 8}, {NETF(generic1), 10}, {NETF(origin2[2]), 0},
-    {NETF(origin2[0]), 0}, {NETF(origin2[1]), 0}, {NETF(modelindex2), 8}, {NETF(angles[0]), 0}, {NETF(time), 32},
-    {NETF(apos.trTime), 32}, {NETF(apos.trDuration), 32}, {NETF(apos.trBase[2]), 0}, {NETF(apos.trDelta[0]), 0},
-    {NETF(apos.trDelta[1]), 0}, {NETF(apos.trDelta[2]), 0}, {NETF(time2), 32}, {NETF(angles[2]), 0},
-    {NETF(angles2[0]), 0}, {NETF(angles2[2]), 0}, {NETF(constantLight), 32}, {NETF(frame), 16}};
+netField_t entityStateFields[] = {
+    {NETF(pos.trTime), 32},
+    {NETF(pos.trBase[0]), 0},
+    {NETF(pos.trBase[1]), 0},
+    {NETF(pos.trDelta[0]), 0},
+    {NETF(pos.trDelta[1]), 0},
+    {NETF(pos.trBase[2]), 0},
+    {NETF(apos.trBase[1]), 0},
+    {NETF(pos.trDelta[2]), 0},
+    {NETF(apos.trBase[0]), 0},
+    {NETF(event), 10},
+    {NETF(angles2[1]), 0},
+    {NETF(eType), 8},
+    {NETF(torsoAnim), 8},
+    {NETF(weaponAnim), 8},
+    {NETF(eventParm), 8},
+    {NETF(legsAnim), 8},
+    {NETF(groundEntityNum), GENTITYNUM_BITS},
+    {NETF(pos.trType), 8},
+    {NETF(eFlags), 19},
+    {NETF(otherEntityNum), GENTITYNUM_BITS},
+    {NETF(weapon), 8},
+    {NETF(clientNum), 8},
+    {NETF(angles[1]), 0},
+    {NETF(pos.trDuration), 32},
+    {NETF(apos.trType), 8},
+    {NETF(origin[0]), 0},
+    {NETF(origin[1]), 0},
+    {NETF(origin[2]), 0},
+    {NETF(solid), 24},
+    {NETF(misc), MAX_MISC},
+    {NETF(modelindex), 8},
+    {NETF(otherEntityNum2), GENTITYNUM_BITS},
+    {NETF(loopSound), 8},
+    {NETF(generic1), 10},
+    {NETF(origin2[2]), 0},
+    {NETF(origin2[0]), 0},
+    {NETF(origin2[1]), 0},
+    {NETF(modelindex2), 8},
+    {NETF(angles[0]), 0},
+    {NETF(time), 32},
+    {NETF(apos.trTime), 32},
+    {NETF(apos.trDuration), 32},
+    {NETF(apos.trBase[2]), 0},
+    {NETF(apos.trDelta[0]), 0},
+    {NETF(apos.trDelta[1]), 0},
+    {NETF(apos.trDelta[2]), 0},
+    {NETF(time2), 32},
+    {NETF(angles[2]), 0},
+    {NETF(angles2[0]), 0},
+    {NETF(angles2[2]), 0},
+    {NETF(constantLight), 32},
+    {NETF(frame), 16}
+};
 
 // if (int)f == f and (int)f + ( 1<<(FLOAT_INT_BITS-1) ) < ( 1 << FLOAT_INT_BITS )
 // the float will be sent with FLOAT_INT_BITS, otherwise all 32 bits will be sent
@@ -816,8 +861,7 @@ If force is not set, then nothing at all will be generated if the entity is
 identical, under the assumption that the in-order delta code will catch it.
 ==================
 */
-void MSG_WriteDeltaEntity(
-    int alternateProtocol, msg_t *msg, struct entityState_s *from, struct entityState_s *to, qboolean force)
+void MSG_WriteDeltaEntity(int alternateProtocol, msg_t *msg, struct entityState_s *from, struct entityState_s *to, bool force)
 {
     int i, lc;
     int numFields;
@@ -859,8 +903,8 @@ void MSG_WriteDeltaEntity(
         {
             continue;
         }
-        fromF = (int *)((byte *)from + field->offset);
-        toF = (int *)((byte *)to + field->offset);
+        fromF = (int *)((uint8_t *)from + field->offset);
+        toF = (int *)((uint8_t *)to + field->offset);
         if (*fromF != *toF)
         {
             lc = i + 1;
@@ -903,8 +947,8 @@ void MSG_WriteDeltaEntity(
             continue;
         }
 
-        fromF = (int *)((byte *)from + field->offset);
-        toF = (int *)((byte *)to + field->offset);
+        fromF = (int *)((uint8_t *)from + field->offset);
+        toF = (int *)((uint8_t *)to + field->offset);
 
         if (*fromF == *toF)
         {
@@ -1049,8 +1093,8 @@ void MSG_ReadDeltaEntity(int alternateProtocol, msg_t *msg, entityState_t *from,
 
     for (i = 0, field = entityStateFields; i < lc; i++, field++)
     {
-        fromF = (int *)((byte *)from + field->offset);
-        toF = (int *)((byte *)to + field->offset);
+        fromF = (int *)((uint8_t *)from + field->offset);
+        toF = (int *)((uint8_t *)to + field->offset);
         if (alternateProtocol == 2 && i == 13)
         {
             *toF = 0;
@@ -1124,8 +1168,8 @@ void MSG_ReadDeltaEntity(int alternateProtocol, msg_t *msg, entityState_t *from,
     }
     for (i = lc, field = &entityStateFields[lc]; i < numFields; i++, field++)
     {
-        fromF = (int *)((byte *)from + field->offset);
-        toF = (int *)((byte *)to + field->offset);
+        fromF = (int *)((uint8_t *)from + field->offset);
+        toF = (int *)((uint8_t *)to + field->offset);
         // no change
         *toF = *fromF;
     }
@@ -1155,103 +1199,113 @@ plyer_state_t communication
 // using the stringizing operator to save typing...
 #define PSF(x) #x, (size_t) & ((playerState_t *) 0)->x
 
-netField_t playerStateFields[] = {{PSF(commandTime), 32}, {PSF(origin[0]), 0}, {PSF(origin[1]), 0}, {PSF(bobCycle), 8},
-    {PSF(velocity[0]), 0}, {PSF(velocity[1]), 0}, {PSF(viewangles[1]), 0}, {PSF(viewangles[0]), 0},
-    {PSF(weaponTime), -16}, {PSF(origin[2]), 0}, {PSF(velocity[2]), 0}, {PSF(legsTimer), 8}, {PSF(pm_time), -16},
-    {PSF(eventSequence), 16}, {PSF(torsoAnim), 8}, {PSF(weaponAnim), 8}, {PSF(movementDir), 4}, {PSF(events[0]), 8},
-    {PSF(legsAnim), 8}, {PSF(events[1]), 8}, {PSF(pm_flags), 24}, {PSF(groundEntityNum), GENTITYNUM_BITS},
-    {PSF(weaponstate), 4}, {PSF(eFlags), 16}, {PSF(externalEvent), 10}, {PSF(gravity), -16}, {PSF(speed), -16},
-    {PSF(delta_angles[1]), 16}, {PSF(externalEventParm), 8}, {PSF(viewheight), -8}, {PSF(damageEvent), 8},
-    {PSF(damageYaw), 8}, {PSF(damagePitch), 8}, {PSF(damageCount), 8}, {PSF(ammo), 12}, {PSF(clips), 4},
-    {PSF(generic1), 10}, {PSF(pm_type), 8}, {PSF(delta_angles[0]), 16}, {PSF(delta_angles[2]), 16},
-    {PSF(torsoTimer), 12}, {PSF(tauntTimer), 12}, {PSF(eventParms[0]), 8}, {PSF(eventParms[1]), 8}, {PSF(clientNum), 8},
-    {PSF(weapon), 5}, {PSF(viewangles[2]), 0}, {PSF(grapplePoint[0]), 0}, {PSF(grapplePoint[1]), 0},
-    {PSF(grapplePoint[2]), 0}, {PSF(otherEntityNum), GENTITYNUM_BITS}, {PSF(loopSound), 16}};
-
-struct alternatePlayerState_t {
-    int commandTime;  // cmd->serverTime of last executed command
-    int pm_type;
-    int bobCycle;  // for view bobbing and footstep generation
-    int pm_flags;  // ducked, jump_held, etc
-    int pm_time;
-
-    vec3_t origin;
-    vec3_t velocity;
-    int weaponTime;
-    int gravity;
-    int speed;
-    int delta_angles[3];  // add to command angles to get view direction
-    // changed by spawns, rotating objects, and teleporters
-
-    int groundEntityNum;  // ENTITYNUM_NONE = in air
-
-    int legsTimer;  // don't change low priority animations until this runs out
-    int legsAnim;  // mask off ANIM_TOGGLEBIT
-
-    int torsoTimer;  // don't change low priority animations until this runs out
-    int torsoAnim;  // mask off ANIM_TOGGLEBIT
-
-    int movementDir;  // a number 0 to 7 that represents the relative angle
-    // of movement to the view angle (axial and diagonals)
-    // when at rest, the value will remain unchanged
-    // used to twist the legs during strafing
-
-    vec3_t grapplePoint;  // location of grapple to pull towards if PMF_GRAPPLE_PULL
-
-    int eFlags;  // copied to entityState_t->eFlags
-
-    int eventSequence;  // pmove generated events
-    int events[MAX_PS_EVENTS];
-    int eventParms[MAX_PS_EVENTS];
-
-    int externalEvent;  // events set on player from another source
-    int externalEventParm;
-    int externalEventTime;
-
-    int clientNum;  // ranges from 0 to MAX_CLIENTS-1
-    int weapon;  // copied to entityState_t->weapon
-    int weaponstate;
-
-    vec3_t viewangles;  // for fixed views
-    int viewheight;
-
-    // damage feedback
-    int damageEvent;  // when it changes, latch the other parms
-    int damageYaw;
-    int damagePitch;
-    int damageCount;
-
-    int stats[MAX_STATS];
-    int persistant[MAX_PERSISTANT];  // stats that aren't cleared on death
-    int misc[MAX_MISC];  // misc data
-    int ammo[MAX_WEAPONS];
-
-    int generic1;
-    int loopSound;
-    int otherEntityNum;
-
-    // not communicated over the net at all
-    int ping;  // server to game info for scoreboard
-    int pmove_framecount;
-    int jumppad_frame;
-    int entityEventSequence;
+netField_t playerStateFields[] = {
+    {PSF(commandTime), 32},
+    {PSF(origin[0]), 0},
+    {PSF(origin[1]), 0},
+    {PSF(bobCycle), 8},
+    {PSF(velocity[0]), 0},
+    {PSF(velocity[1]), 0},
+    {PSF(viewangles[1]), 0},
+    {PSF(viewangles[0]), 0},
+    {PSF(weaponTime), -16},
+    {PSF(origin[2]), 0},
+    {PSF(velocity[2]), 0},
+    {PSF(legsTimer), 8},
+    {PSF(pm_time), -16},
+    {PSF(eventSequence), 16},
+    {PSF(torsoAnim), 8},
+    {PSF(weaponAnim), 8},
+    {PSF(movementDir), 4},
+    {PSF(events[0]), 8},
+    {PSF(legsAnim), 8},
+    {PSF(events[1]), 8},
+    {PSF(pm_flags), 24},
+    {PSF(groundEntityNum), GENTITYNUM_BITS},
+    {PSF(weaponstate), 4},
+    {PSF(eFlags), 16},
+    {PSF(externalEvent), 10},
+    {PSF(gravity), -16},
+    {PSF(speed), -16},
+    {PSF(delta_angles[1]), 16},
+    {PSF(externalEventParm), 8},
+    {PSF(viewheight), -8},
+    {PSF(damageEvent), 8},
+    {PSF(damageYaw), 8},
+    {PSF(damagePitch), 8},
+    {PSF(damageCount), 8},
+    {PSF(ammo), 12},
+    {PSF(clips), 4},
+    {PSF(generic1), 10},
+    {PSF(pm_type), 8},
+    {PSF(delta_angles[0]), 16},
+    {PSF(delta_angles[2]), 16},
+    {PSF(torsoTimer), 12},
+    {PSF(tauntTimer), 12},
+    {PSF(eventParms[0]), 8},
+    {PSF(eventParms[1]), 8},
+    {PSF(clientNum), 8},
+    {PSF(weapon), 5},
+    {PSF(viewangles[2]), 0},
+    {PSF(grapplePoint[0]), 0},
+    {PSF(grapplePoint[1]), 0},
+    {PSF(grapplePoint[2]), 0},
+    {PSF(otherEntityNum), GENTITYNUM_BITS},
+    {PSF(loopSound), 16}
 };
 
 #define APSF(x) #x, (size_t) & ((alternatePlayerState_t *) 0)->x
 
-netField_t alternatePlayerStateFields[] = {{APSF(commandTime), 32}, {APSF(origin[0]), 0}, {APSF(origin[1]), 0},
-    {APSF(bobCycle), 8}, {APSF(velocity[0]), 0}, {APSF(velocity[1]), 0}, {APSF(viewangles[1]), 0},
-    {APSF(viewangles[0]), 0}, {APSF(weaponTime), -16}, {APSF(origin[2]), 0}, {APSF(velocity[2]), 0},
-    {APSF(legsTimer), 8}, {APSF(pm_time), -16}, {APSF(eventSequence), 16}, {APSF(torsoAnim), 8}, {APSF(movementDir), 4},
-    {APSF(events[0]), 8}, {APSF(legsAnim), 8}, {APSF(events[1]), 8}, {APSF(pm_flags), 16},
-    {APSF(groundEntityNum), GENTITYNUM_BITS}, {APSF(weaponstate), 4}, {APSF(eFlags), 16}, {APSF(externalEvent), 10},
-    {APSF(gravity), -16}, {APSF(speed), -16}, {APSF(delta_angles[1]), 16}, {APSF(externalEventParm), 8},
-    {APSF(viewheight), -8}, {APSF(damageEvent), 8}, {APSF(damageYaw), 8}, {APSF(damagePitch), 8},
-    {APSF(damageCount), 8}, {APSF(generic1), 8}, {APSF(pm_type), 8}, {APSF(delta_angles[0]), 16},
-    {APSF(delta_angles[2]), 16}, {APSF(torsoTimer), 12}, {APSF(eventParms[0]), 8}, {APSF(eventParms[1]), 8},
-    {APSF(clientNum), 8}, {APSF(weapon), 5}, {APSF(viewangles[2]), 0}, {APSF(grapplePoint[0]), 0},
-    {APSF(grapplePoint[1]), 0}, {APSF(grapplePoint[2]), 0}, {APSF(otherEntityNum), GENTITYNUM_BITS},
-    {APSF(loopSound), 16}};
+netField_t alternatePlayerStateFields[] = {
+    {APSF(commandTime), 32},
+    {APSF(origin[0]), 0},
+    {APSF(origin[1]), 0},
+    {APSF(bobCycle), 8},
+    {APSF(velocity[0]), 0},
+    {APSF(velocity[1]), 0},
+    {APSF(viewangles[1]), 0},
+    {APSF(viewangles[0]), 0},
+    {APSF(weaponTime), -16},
+    {APSF(origin[2]), 0},
+    {APSF(velocity[2]), 0},
+    {APSF(legsTimer), 8},
+    {APSF(pm_time), -16},
+    {APSF(eventSequence), 16},
+    {APSF(torsoAnim), 8},
+    {APSF(movementDir), 4},
+    {APSF(events[0]), 8},
+    {APSF(legsAnim), 8},
+    {APSF(events[1]), 8},
+    {APSF(pm_flags), 16},
+    {APSF(groundEntityNum), GENTITYNUM_BITS},
+    {APSF(weaponstate), 4},
+    {APSF(eFlags), 16},
+    {APSF(externalEvent), 10},
+    {APSF(gravity), -16},
+    {APSF(speed), -16},
+    {APSF(delta_angles[1]), 16},
+    {APSF(externalEventParm), 8},
+    {APSF(viewheight), -8},
+    {APSF(damageEvent), 8},
+    {APSF(damageYaw), 8},
+    {APSF(damagePitch), 8},
+    {APSF(damageCount), 8},
+    {APSF(generic1), 8},
+    {APSF(pm_type), 8},
+    {APSF(delta_angles[0]), 16},
+    {APSF(delta_angles[2]), 16},
+    {APSF(torsoTimer), 12},
+    {APSF(eventParms[0]), 8},
+    {APSF(eventParms[1]), 8},
+    {APSF(clientNum), 8},
+    {APSF(weapon), 5},
+    {APSF(viewangles[2]), 0},
+    {APSF(grapplePoint[0]), 0},
+    {APSF(grapplePoint[1]), 0},
+    {APSF(grapplePoint[2]), 0},
+    {APSF(otherEntityNum), GENTITYNUM_BITS},
+    {APSF(loopSound), 16}
+};
 
 /*
 =============
@@ -1290,8 +1344,8 @@ void MSG_WriteDeltaPlayerstate(int alternateProtocol, msg_t *msg, struct playerS
         {
             continue;
         }
-        fromF = (int *)((byte *)from + field->offset);
-        toF = (int *)((byte *)to + field->offset);
+        fromF = (int *)((uint8_t *)from + field->offset);
+        toF = (int *)((uint8_t *)to + field->offset);
         if (*fromF != *toF)
         {
             lc = i + 1;
@@ -1335,8 +1389,8 @@ void MSG_WriteDeltaPlayerstate(int alternateProtocol, msg_t *msg, struct playerS
             continue;
         }
 
-        fromF = (int *)((byte *)from + field->offset);
-        toF = (int *)((byte *)to + field->offset);
+        fromF = (int *)((uint8_t *)from + field->offset);
+        toF = (int *)((uint8_t *)to + field->offset);
 
         if (*fromF == *toF)
         {
@@ -1555,8 +1609,8 @@ void MSG_ReadDeltaPlayerstate(msg_t *msg, playerState_t *from, playerState_t *to
 
     for (i = 0, field = playerStateFields; i < lc; i++, field++)
     {
-        fromF = (int *)((byte *)from + field->offset);
-        toF = (int *)((byte *)to + field->offset);
+        fromF = (int *)((uint8_t *)from + field->offset);
+        toF = (int *)((uint8_t *)to + field->offset);
 
         if (!MSG_ReadBits(msg, 1))
         {
@@ -1603,8 +1657,8 @@ void MSG_ReadDeltaPlayerstate(msg_t *msg, playerState_t *from, playerState_t *to
     }
     for (i = lc, field = &playerStateFields[lc]; i < numFields; i++, field++)
     {
-        fromF = (int *)((byte *)from + field->offset);
-        toF = (int *)((byte *)to + field->offset);
+        fromF = (int *)((uint8_t *)from + field->offset);
+        toF = (int *)((uint8_t *)to + field->offset);
         // no change
         *toF = *fromF;
     }
@@ -1719,8 +1773,8 @@ void MSG_ReadDeltaAlternatePlayerstate(msg_t *msg, alternatePlayerState_t *from,
 
     for (i = 0, field = alternatePlayerStateFields; i < lc; i++, field++)
     {
-        fromF = (int *)((byte *)from + field->offset);
-        toF = (int *)((byte *)to + field->offset);
+        fromF = (int *)((uint8_t *)from + field->offset);
+        toF = (int *)((uint8_t *)to + field->offset);
 
         if (!MSG_ReadBits(msg, 1))
         {
@@ -1767,8 +1821,8 @@ void MSG_ReadDeltaAlternatePlayerstate(msg_t *msg, alternatePlayerState_t *from,
     }
     for (i = lc, field = &alternatePlayerStateFields[lc]; i < numFields; i++, field++)
     {
-        fromF = (int *)((byte *)from + field->offset);
-        toF = (int *)((byte *)to + field->offset);
+        fromF = (int *)((uint8_t *)from + field->offset);
+        toF = (int *)((uint8_t *)to + field->offset);
         // no change
         *toF = *fromF;
     }
@@ -2110,25 +2164,25 @@ void MSG_initHuffman(void)
 {
     int i, j;
 
-    msgInit = qtrue;
+    msgInit = true;
     Huff_Init(&msgHuff);
     for (i = 0; i < 256; i++)
     {
         for (j = 0; j < msg_hData[i]; j++)
         {
-            Huff_addRef(&msgHuff.compressor, (byte)i);  // Do update
-            Huff_addRef(&msgHuff.decompressor, (byte)i);  // Do update
+            Huff_addRef(&msgHuff.compressor, (uint8_t)i);  // Do update
+            Huff_addRef(&msgHuff.decompressor, (uint8_t)i);  // Do update
         }
     }
 }
 
 /*
 void MSG_NUinitHuffman() {
-        byte	*data;
+        uint8_t	*data;
         int		size, i, ch;
         int		array[256];
 
-        msgInit = qtrue;
+        msgInit = true;
 
         Huff_Init(&msgHuff);
         // load it in

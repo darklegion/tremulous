@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/crypto.h"
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
+#include "../qcommon/sys_shared.h"
 #include "../qcommon/msg.h"
 #include "../qcommon/net.h"
 #include "../qcommon/huffman.h"

@@ -35,6 +35,7 @@ and one exported function: Perform
 */
 
 #include "vm_local.h"
+#include "sys_shared.h"
 
 
 vm_t	*currentVM = NULL;

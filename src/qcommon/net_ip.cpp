@@ -94,7 +94,7 @@ typedef int	ioctlarg_t;
 
 #endif
 
-static qboolean usingSocks = qfalse;
+static bool usingSocks = qfalse;
 static int networkingEnabled = 0;
 
 static cvar_t	*net_enabled;
@@ -281,7 +281,7 @@ static struct addrinfo *SearchAddrInfo(struct addrinfo *hints, sa_family_t famil
 Sys_StringToSockaddr
 =============
 */
-static qboolean Sys_StringToSockaddr(const char *s, struct sockaddr *sadr, int sadr_len, sa_family_t family)
+static bool Sys_StringToSockaddr(const char *s, struct sockaddr *sadr, int sadr_len, sa_family_t family)
 {
 	struct addrinfo hints;
 	struct addrinfo *res = NULL;
@@ -368,7 +368,7 @@ static void Sys_SockaddrToString(char *dest, int destlen, struct sockaddr *input
 Sys_StringToAdr
 =============
 */
-qboolean Sys_StringToAdr( const char *s, netadr_t *a, netadrtype_t family ) {
+bool Sys_StringToAdr( const char *s, netadr_t *a, netadrtype_t family ) {
 	struct sockaddr_storage sadr;
 	sa_family_t fam;
 	
@@ -399,9 +399,9 @@ NET_CompareBaseAdrMask
 Compare without port, and up to the bit number given in netmask.
 ===================
 */
-qboolean NET_CompareBaseAdrMask(netadr_t a, netadr_t b, int netmask)
+bool NET_CompareBaseAdrMask(netadr_t a, netadr_t b, int netmask)
 {
-	byte cmpmask, *addra, *addrb;
+	uint8_t cmpmask, *addra, *addrb;
 	int curbyte;
 
 	if (a.alternateProtocol != b.alternateProtocol)
@@ -415,16 +415,16 @@ qboolean NET_CompareBaseAdrMask(netadr_t a, netadr_t b, int netmask)
 
 	if(a.type == NA_IP)
 	{
-		addra = (byte *) &a.ip;
-		addrb = (byte *) &b.ip;
+		addra = (uint8_t *) &a.ip;
+		addrb = (uint8_t *) &b.ip;
 		
 		if(netmask < 0 || netmask > 32)
 			netmask = 32;
 	}
 	else if(a.type == NA_IP6)
 	{
-		addra = (byte *) &a.ip6;
-		addrb = (byte *) &b.ip6;
+		addra = (uint8_t *) &a.ip6;
+		addrb = (uint8_t *) &b.ip6;
 		
 		if(netmask < 0 || netmask > 128)
 			netmask = 128;
@@ -463,7 +463,7 @@ NET_CompareBaseAdr
 Compares without the port
 ===================
 */
-qboolean NET_CompareBaseAdr (netadr_t a, netadr_t b)
+bool NET_CompareBaseAdr (netadr_t a, netadr_t b)
 {
 	return NET_CompareBaseAdrMask(a, b, -1);
 }
@@ -501,7 +501,7 @@ const char	*NET_AdrToStringwPort (netadr_t a)
 }
 
 
-qboolean	NET_CompareAdr (netadr_t a, netadr_t b)
+bool	NET_CompareAdr (netadr_t a, netadr_t b)
 {
 	if(!NET_CompareBaseAdr(a, b))
 		return qfalse;
@@ -518,8 +518,8 @@ qboolean	NET_CompareAdr (netadr_t a, netadr_t b)
 }
 
 
-qboolean	NET_IsLocalAddress( netadr_t adr ) {
-	return (qboolean)(adr.type == NA_LOOPBACK);
+bool	NET_IsLocalAddress( netadr_t adr ) {
+	return (bool)(adr.type == NA_LOOPBACK);
 }
 
 //=============================================================================
@@ -531,7 +531,7 @@ NET_GetPacket
 Receive one packet
 ==================
 */
-qboolean NET_GetPacket(netadr_t *net_from, msg_t *net_message, fd_set *fdr)
+bool NET_GetPacket(netadr_t *net_from, msg_t *net_message, fd_set *fdr)
 {
 	int		a;
 	int 	ret;
@@ -729,10 +729,10 @@ Sys_IsLANAddress
 LAN clients will have their rate var ignored
 ==================
 */
-qboolean Sys_IsLANAddress( netadr_t adr ) {
+bool Sys_IsLANAddress( netadr_t adr ) {
 	int		index, run, addrsize;
-	qboolean differed;
-	byte *compareadr, *comparemask, *compareip;
+	bool differed;
+	uint8_t *compareadr, *comparemask, *compareip;
 
 	if( adr.type == NA_LOOPBACK ) {
 		return qtrue;
@@ -769,8 +769,8 @@ qboolean Sys_IsLANAddress( netadr_t adr ) {
 		{
 			if(adr.type == NA_IP)
 			{
-				compareip = (byte *) &((struct sockaddr_in *) &localIP[index].addr)->sin_addr.s_addr;
-				comparemask = (byte *) &((struct sockaddr_in *) &localIP[index].netmask)->sin_addr.s_addr;
+				compareip = (uint8_t *) &((struct sockaddr_in *) &localIP[index].addr)->sin_addr.s_addr;
+				comparemask = (uint8_t *) &((struct sockaddr_in *) &localIP[index].netmask)->sin_addr.s_addr;
 				compareadr = adr.ip;
 				
 				addrsize = sizeof(adr.ip);
@@ -779,8 +779,8 @@ qboolean Sys_IsLANAddress( netadr_t adr ) {
 			{
 				// TODO? should we check the scope_id here?
 
-				compareip = (byte *) &((struct sockaddr_in6 *) &localIP[index].addr)->sin6_addr;
-				comparemask = (byte *) &((struct sockaddr_in6 *) &localIP[index].netmask)->sin6_addr;
+				compareip = (uint8_t *) &((struct sockaddr_in6 *) &localIP[index].addr)->sin6_addr;
+				comparemask = (uint8_t *) &((struct sockaddr_in6 *) &localIP[index].netmask)->sin6_addr;
 				compareadr = adr.ip6;
 				
 				addrsize = sizeof(adr.ip6);
@@ -1105,7 +1105,7 @@ void NET_OpenSocks( int port ) {
 	struct sockaddr_in	address;
 	struct hostent		*h;
 	int					len;
-	qboolean			rfc1929;
+	bool			rfc1929;
 	unsigned char		buf[64];
 
 	usingSocks = qfalse;
@@ -1469,7 +1469,7 @@ void NET_OpenIP( void ) {
 NET_GetCvars
 ====================
 */
-static qboolean NET_GetCvars( void ) {
+static bool NET_GetCvars( void ) {
 	int modified;
 	int a;
 
@@ -1553,10 +1553,10 @@ static qboolean NET_GetCvars( void ) {
 NET_Config
 ====================
 */
-void NET_Config( qboolean enableNetworking ) {
-	qboolean	modified;
-	qboolean	stop;
-	qboolean	start;
+void NET_Config( bool enableNetworking ) {
+	bool	modified;
+	bool	stop;
+	bool	start;
 	int		a;
 
 	// get any latched changes to cvars
@@ -1689,7 +1689,7 @@ Called from NET_Sleep which uses select() to determine which sockets have seen a
 
 void NET_Event(fd_set *fdr)
 {
-	byte bufData[MAX_MSGLEN + 1];
+	uint8_t bufData[MAX_MSGLEN + 1];
 	netadr_t from;
 	msg_t netmsg;
 

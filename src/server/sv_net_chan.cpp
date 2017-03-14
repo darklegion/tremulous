@@ -40,7 +40,7 @@ static void SV_Netchan_Encode( client_t *client, msg_t *msg ) {
 	long i, index;
 	byte key, *string;
 	int	srdc, sbit;
-	qboolean soob;
+	bool soob;
 
 	if ( msg->cursize < SV_ENCODE_START ) {
 		return;
@@ -94,7 +94,7 @@ SV_Netchan_Decode
 static void SV_Netchan_Decode( client_t *client, msg_t *msg ) {
 	int serverId, messageAcknowledge, reliableAcknowledge;
 	int i, index, srdc, sbit;
-	qboolean soob;
+	bool soob;
 	byte key, *string;
 
 	srdc = msg->readcount;

@@ -34,6 +34,7 @@
 #include "q_platform.h"
 #include "q_shared.h"
 #include "qcommon.h"
+#include "sys_shared.h"
 #include "unzip.h"
 
 #ifndef DEDICATED

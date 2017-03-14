@@ -1,22 +1,23 @@
 #ifndef QCOMMON_MSG_H
 #define QCOMMON_MSG_H 1
 
+#include <stdint.h>
 //
 // msg.c
 //
 struct msg_t {
-    qboolean allowoverflow;  // if false, do a Com_Error
-    qboolean overflowed;  // set to true if the buffer size failed (with allowoverflow set)
-    qboolean oob;  // set to true if the buffer size failed (with allowoverflow set)
-    byte *data;
+    bool allowoverflow;  // if false, do a Com_Error
+    bool overflowed;  // set to true if the buffer size failed (with allowoverflow set)
+    bool oob;  // set to true if the buffer size failed (with allowoverflow set)
+    uint8_t *data;
     int maxsize;
     int cursize;
     int readcount;
     int bit;  // for bitwise reads and writes
 };
 
-void MSG_Init(struct msg_t *buf, byte *data, int length);
-void MSG_InitOOB(struct msg_t *buf, byte *data, int length);
+void MSG_Init(struct msg_t *buf, uint8_t *data, int length);
+void MSG_InitOOB(struct msg_t *buf, uint8_t *data, int length);
 void MSG_Clear(struct msg_t *buf);
 void MSG_WriteData(struct msg_t *buf, const void *data, int length);
 void MSG_Bitstream(struct msg_t *buf);
@@ -25,11 +26,11 @@ void MSG_Bitstream(struct msg_t *buf);
 // copy a struct msg_t in case we need to store it as is for a bit
 // (as I needed this to keep an struct msg_t from a static var for later use)
 // sets data buffer as MSG_Init does prior to do the copy
-void MSG_Copy(struct msg_t *buf, byte *data, int length, struct msg_t *src);
+void MSG_Copy(struct msg_t *buf, uint8_t *data, int length, struct msg_t *src);
 
-struct usercmd_s;
-struct entityState_s;
-struct playerState_s;
+typedef struct usercmd_s usercmd_t;
+typedef struct entityState_s entityState_t;
+typedef struct playerState_s playerState_t;
 
 void MSG_WriteBits(struct msg_t *msg, int value, int bits);
 
@@ -64,14 +65,14 @@ void MSG_WriteDeltaUsercmdKey(struct msg_t *msg, int key, usercmd_t *from, userc
 void MSG_ReadDeltaUsercmdKey(struct msg_t *msg, int key, usercmd_t *from, usercmd_t *to);
 
 void MSG_WriteDeltaEntity(
-    int alternateProtocol, struct msg_t *msg, struct entityState_s *from, struct entityState_s *to, qboolean force);
+    int alternateProtocol, struct msg_t *msg, struct entityState_s *from, struct entityState_s *to, bool force);
 void MSG_ReadDeltaEntity(int alternateProtocol, struct msg_t *msg, entityState_t *from, entityState_t *to, int number);
 
 void MSG_WriteDeltaPlayerstate(int alternateProtocol, struct msg_t *msg, struct playerState_s *from, struct playerState_s *to);
 void MSG_ReadDeltaPlayerstate(struct msg_t *msg, struct playerState_s *from, struct playerState_s *to);
 
 struct alternatePlayerState_t;
-void MSG_ReadDeltaAlternatePlayerstate(struct msg_t *msg, alternatePlayerState_t *from, alternatePlayerState_t *to);
+void MSG_ReadDeltaAlternatePlayerstate(struct msg_t *msg, struct alternatePlayerState_t *from, struct alternatePlayerState_t *to);
 
 void MSG_ReportChangeVectors_f(void);
 

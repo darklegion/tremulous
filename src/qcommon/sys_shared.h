@@ -12,10 +12,11 @@
 #include <stdio.h>
 
 #include "qcommon.h"
+#include "net.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+//#ifdef __cplusplus
+//extern "C" {
+//#endif
 
 #define MAX_JOYSTICK_AXIS 16
 
@@ -56,7 +57,14 @@ void Sys_Print(const char *msg);
 int Sys_Milliseconds(void);
 
 qboolean Sys_RandomBytes(byte *string, int len);
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 void Sys_CryptoRandomBytes(byte *string, int len);
+#ifdef __cplusplus
+}
+#endif
 
 // the system console is shown when a dedicated server is running
 void Sys_DisplaySystemConsole(qboolean show);
@@ -102,7 +110,7 @@ void Sys_SetEnv(const char *name, const char *value);
 
 qboolean Sys_WritePIDFile(void);
 
-#ifdef __cplusplus
-};
-#endif
+//#ifdef __cplusplus
+//};
+//#endif
 #endif

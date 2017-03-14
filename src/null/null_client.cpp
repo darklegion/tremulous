@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
+#include "../qcommon/net.h"
+#include "../qcommon/msg.h"
 
 cvar_t *cl_shownet;
 
@@ -43,7 +45,7 @@ void Key_WriteBindings( fileHandle_t f ) {
 void CL_Frame ( int msec ) {
 }
 
-void CL_PacketEvent( netadr_t from, msg_t *msg ) {
+void CL_PacketEvent( struct netadr_t from, struct msg_t *msg ) {
 }
 
 void CL_CharEvent( int key ) {

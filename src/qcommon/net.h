@@ -1,6 +1,8 @@
 #ifndef QCOMMON_NET_H
 #define QCOMMON_NET_H 1
 
+#include <stdint.h>
+
 /*
 ==============================================================
 
@@ -50,10 +52,10 @@ typedef enum {
 
 #define NET_ADDRSTRMAXLEN 48	// maximum length of an IPv6 address string including trailing '\0'
 struct netadr_t {
-	netadrtype_t	type;
+	enum netadrtype_t type;
 
-	byte	ip[4];
-	byte	ip6[16];
+	uint8_t	ip[4];
+	uint8_t	ip6[16];
 
 	unsigned short	port;
 	unsigned long	scope_id;	// Needed for IPv6 link-local addresses
@@ -64,20 +66,20 @@ struct netadr_t {
 void		NET_Init( void );
 void		NET_Shutdown( void );
 void		NET_Restart_f( void );
-void		NET_Config( qboolean enableNetworking );
+void		NET_Config( bool enableNetworking );
 void		NET_FlushPacketQueue(void);
 void		NET_SendPacket (netsrc_t sock, int length, const void *data, struct netadr_t to);
-void		QDECL NET_OutOfBandPrint( netsrc_t net_socket, struct netadr_t adr, const char *format, ...) __attribute__ ((format (printf, 3, 4)));
-void		QDECL NET_OutOfBandData( netsrc_t sock, struct netadr_t adr, byte *format, int len );
+void		NET_OutOfBandPrint( netsrc_t net_socket, struct netadr_t adr, const char *format, ...) __attribute__ ((format (printf, 3, 4)));
+void		NET_OutOfBandData( netsrc_t sock, struct netadr_t adr, uint8_t *format, int len );
 
-qboolean	NET_CompareAdr (struct netadr_t a, struct netadr_t b);
-qboolean	NET_CompareBaseAdrMask(struct netadr_t a, struct netadr_t b, int netmask);
-qboolean	NET_CompareBaseAdr (struct netadr_t a, struct netadr_t b);
-qboolean	NET_IsLocalAddress (struct netadr_t adr);
+bool	NET_CompareAdr (struct netadr_t a, struct netadr_t b);
+bool	NET_CompareBaseAdrMask(struct netadr_t a, struct netadr_t b, int netmask);
+bool	NET_CompareBaseAdr (struct netadr_t a, struct netadr_t b);
+bool	NET_IsLocalAddress (struct netadr_t adr);
 const char	*NET_AdrToString (struct netadr_t a);
 const char	*NET_AdrToStringwPort (struct netadr_t a);
-int		NET_StringToAdr ( const char *s, struct netadr_t *a, netadrtype_t family);
-qboolean	NET_GetLoopPacket (netsrc_t sock, struct netadr_t *net_from, struct msg_t *net_message);
+int		    NET_StringToAdr ( const char *s, struct netadr_t *a, enum netadrtype_t family);
+bool	NET_GetLoopPacket (netsrc_t sock, struct netadr_t *net_from, struct msg_t *net_message);
 void		NET_JoinMulticast6(void);
 void		NET_LeaveMulticast6(void);
 void		NET_Sleep(int msec);
@@ -88,7 +90,7 @@ void		NET_Sleep(int msec);
 
 #define MAX_DOWNLOAD_WINDOW		48	// ACK window of 48 download chunks. Cannot set this higher, or clients
 						// will overflow the reliable commands buffer
-#define MAX_DOWNLOAD_BLKSIZE		1024	// 896 byte block chunks
+#define MAX_DOWNLOAD_BLKSIZE		1024	// 896 uint8_t block chunks
 
 #define NETCHAN_GENCHECKSUM(challenge, sequence) ((challenge) ^ ((sequence) * (challenge)))
 
@@ -112,14 +114,14 @@ typedef struct {
 	// incoming fragment assembly buffer
 	int			fragmentSequence;
 	int			fragmentLength;	
-	byte		fragmentBuffer[MAX_MSGLEN];
+	uint8_t		fragmentBuffer[MAX_MSGLEN];
 
 	// outgoing fragment buffer
 	// we need to space out the sending of large fragmented messages
-	qboolean	unsentFragments;
+	bool	unsentFragments;
 	int			unsentFragmentStart;
 	int			unsentLength;
-	byte		unsentBuffer[MAX_MSGLEN];
+	uint8_t		unsentBuffer[MAX_MSGLEN];
 
 	int			challenge;
 	int		lastSentTime;
@@ -129,9 +131,9 @@ typedef struct {
 void Netchan_Init( int qport );
 void Netchan_Setup(int alternateProtocol, netsrc_t sock, netchan_t *chan, struct netadr_t adr, int qport, int challenge);
 
-void Netchan_Transmit( netchan_t *chan, int length, const byte *data );
+void Netchan_Transmit( netchan_t *chan, int length, const uint8_t *data );
 void Netchan_TransmitNextFragment( netchan_t *chan );
 
-qboolean Netchan_Process( netchan_t *chan, struct msg_t *msg );
+bool Netchan_Process( netchan_t *chan, struct msg_t *msg );
 
 #endif
