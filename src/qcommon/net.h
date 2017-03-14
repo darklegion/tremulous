@@ -133,6 +133,11 @@ void Netchan_TransmitNextFragment(netchan_t *chan);
 
 bool Netchan_Process(netchan_t *chan, struct msg_t *msg);
 
+void Sys_SendPacket(int length, const void *data, struct netadr_t to);
+bool Sys_StringToAdr(const char *s, struct netadr_t *a, enum netadrtype_t family); // Does NOT parse port numbers, only base addresses.
+bool Sys_IsLANAddress(struct netadr_t adr);
+void Sys_ShowIP(void); 
+
 #define SV_ENCODE_START 4
 #define SV_DECODE_START 12
 #define CL_ENCODE_START 12
