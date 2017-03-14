@@ -480,6 +480,11 @@ void *Sys_LoadDll(const char *name, qboolean useSystemLib)
 {
     void *dllhandle;
 
+    if (COM_CompareExtension(name, ".pk3")) {
+        Com_Printf("Rejecting DLL named \"%s\"", name);
+        return nullptr;
+    }
+
     if(useSystemLib)
         Com_Printf("Trying to load \"%s\"...\n", name);
 

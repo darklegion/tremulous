@@ -24,8 +24,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "../qcommon/crypto.h"
 #include "../qcommon/q_shared.h"
-#include "../qcommon/qcommon.h"
 #include "../game/g_public.h"
+
+#include "../qcommon/msg.h"
+#include "../qcommon/net.h"
+#include "../qcommon/huffman.h"
+
+#include "../qcommon/qcommon.h"
 
 #ifndef SERVER_H
 #define SERVER_H 1
@@ -51,7 +56,7 @@ struct voipServerPacket_t {
 #endif // USE_VOIP
 
 struct svEntity_t {
-    struct worldSector_s *worldSector;
+    struct worldSector_t *worldSector;
     svEntity_t *nextEntityInWorldSector;
 
     entityState_t baseline;  // for delta compression of initial sighting

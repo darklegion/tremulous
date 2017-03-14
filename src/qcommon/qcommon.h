@@ -39,6 +39,7 @@ extern "C" {
 
 //============================================================================
 
+#if 0
 //
 // msg.c
 //
@@ -113,9 +114,11 @@ void MSG_ReadDeltaAlternatePlayerstate( msg_t *msg, struct alternatePlayerState_
 
 
 void MSG_ReportChangeVectors_f( void );
+#endif
 
 //============================================================================
 
+#if 0
 /*
 ==============================================================
 
@@ -249,6 +252,10 @@ void Netchan_TransmitNextFragment( netchan_t *chan );
 
 qboolean Netchan_Process( netchan_t *chan, msg_t *msg );
 
+#endif
+
+struct netadr_t;
+struct msg_t;
 
 /*
 ==============================================================
@@ -682,6 +689,7 @@ NON-PORTABLE SYSTEM SERVICES
 
 #include "dialog.h"
 
+#if 0
 /* This is based on the Adaptive Huffman algorithm described in Sayood's Data
  * Compression book.  The ranks are not actually stored, but implicitly defined
  * by the location of a node within a doubly-linked list */
@@ -734,6 +742,7 @@ int		Huff_getBloc(void);
 void	Huff_setBloc(int _bloc);
 
 extern huffman_t clientHuffTables;
+#endif
 
 int		Parse_AddGlobalDefine(char *string);
 int		Parse_LoadSourceHandle(const char *filename);

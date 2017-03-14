@@ -6,6 +6,8 @@
 #include <sys/types.h>
 
 #include "q_shared.h"
+#include "msg.h"
+#include "net.h"
 #include "qcommon.h"
 
 size_t lua_writestring(char* string, size_t n)

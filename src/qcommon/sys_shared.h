@@ -32,6 +32,9 @@ enum CPU_FEATURES {
   CF_ALTIVEC    = 1 << 7
 };
 
+struct netadr_t;
+enum netadrtype_t;
+
 void Sys_Init(void);
 
 // general development dll loading for virtual machine testing
@@ -62,12 +65,12 @@ cpuFeatures_t Sys_GetProcessorFeatures(void);
 
 void Sys_SetErrorText(const char *text);
 
-void Sys_SendPacket(int length, const void *data, netadr_t to);
+void Sys_SendPacket(int length, const void *data, struct netadr_t to);
 
-qboolean Sys_StringToAdr(const char *s, netadr_t *a, netadrtype_t family);
+qboolean Sys_StringToAdr(const char *s, struct netadr_t *a, enum netadrtype_t family);
 // Does NOT parse port numbers, only base addresses.
 
-qboolean Sys_IsLANAddress(netadr_t adr);
+qboolean Sys_IsLANAddress(struct netadr_t adr);
 void Sys_ShowIP(void);
 
 FILE *Sys_FOpen(const char *ospath, const char *mode);

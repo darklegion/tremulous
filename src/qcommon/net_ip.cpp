@@ -21,8 +21,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#include "../qcommon/q_shared.h"
-#include "../qcommon/qcommon.h"
+#include "net.h"
+#include "q_shared.h"
+#include "qcommon.h"
+#include "msg.h"
 
 #ifdef _WIN32
 #	include <winsock2.h>
@@ -55,7 +57,7 @@ typedef u_long	ioctlarg_t;
 #	define socketError		WSAGetLastError( )
 
 static WSADATA	winsockdata;
-static qboolean	winsockInitialized = qfalse;
+static bool	winsockInitialized = false;
 
 #else
 
@@ -1649,7 +1651,7 @@ void NET_Init( void ) {
 		return;
 	}
 
-	winsockInitialized = qtrue;
+	winsockInitialized = true;
 	Com_Printf( "Winsock Initialized\n" );
 #endif
 
@@ -1673,7 +1675,7 @@ void NET_Shutdown( void ) {
 
 #ifdef _WIN32
 	WSACleanup();
-	winsockInitialized = qfalse;
+	winsockInitialized = false;
 #endif
 }
 

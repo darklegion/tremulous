@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "q_shared.h"
 #include "qcommon.h"
 #include "crypto.h"
+#include "msg.h"
 
 #define JSON_IMPLEMENTATION
 #include "json.h"
@@ -122,7 +123,7 @@ int com_frameNumber;
 
 qboolean com_errorEntered = qfalse;
 qboolean com_fullyInitialized = qfalse;
-qboolean com_gameRestarting = qfalse;
+bool com_gameRestarting = false;
 
 char com_errorMessage[MAXPRINTMSG];
 
@@ -2405,7 +2406,7 @@ void Com_GameRestart(int checksumFeed, qboolean disconnect)
     {
         int clWasRunning;
 
-        com_gameRestarting = qtrue;
+        com_gameRestarting = true;
         clWasRunning = com_cl_running->integer;
 
         // Kill server if we have one
@@ -2440,7 +2441,7 @@ void Com_GameRestart(int checksumFeed, qboolean disconnect)
             CL_StartHunkUsers(qfalse);
         }
 
-        com_gameRestarting = qfalse;
+        com_gameRestarting = false;
     }
 }
 
