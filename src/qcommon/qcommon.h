@@ -381,9 +381,6 @@ void S_ClearSoundBuffer( void );
 
 void SCR_DebugGraph (float value);	// FIXME: move logging to common?
 
-// AVI files have the start of pixel lines 4 byte-aligned
-#define AVI_LINE_PADDING 4
-
 //
 // server interface
 //
@@ -408,11 +405,11 @@ NON-PORTABLE SYSTEM SERVICES
 ==============================================================
 */
 
-int Parse_AddGlobalDefine(char *string);
+bool Parse_AddGlobalDefine(char *string);
 int Parse_LoadSourceHandle(const char *filename);
-int Parse_FreeSourceHandle(int handle);
-int Parse_ReadTokenHandle(int handle, pc_token_t *pc_token);
-int Parse_SourceFileAndLine(int handle, char *filename, int *line);
+bool Parse_FreeSourceHandle(int handle);
+bool Parse_ReadTokenHandle(int handle, pc_token_t *pc_token);
+bool Parse_SourceFileAndLine(int handle, char *filename, int *line);
 
 // flags for sv_allowDownload and cl_allowDownload
 #define DLF_ENABLE 1

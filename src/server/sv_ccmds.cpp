@@ -89,7 +89,7 @@ static void SV_Map_f( void ) {
 	// to be updated on sending the next heartbeat
 	for( a = 0; a < 3; ++a )
 		for( i = 0; i < MAX_MASTER_SERVERS; i++ )
-			sv_masters[ a ][ i ]->modified  = qtrue;
+			sv_masters[ a ][ i ]->modified  = true;
 }
 
 /*
@@ -196,7 +196,7 @@ static void SV_MapRestart_f( void ) {
 		SV_AddServerCommand( client, "map_restart\n" );
 
 		// connect the client again, without the firstTime flag
-		denied = (char*)VM_ExplicitArgPtr( gvm, VM_Call( gvm, GAME_CLIENT_CONNECT, i, qfalse ) );
+		denied = (char*)VM_ExplicitArgPtr( gvm, VM_Call( gvm, GAME_CLIENT_CONNECT, i, false ) );
 		if ( denied ) {
 			// this generally shouldn't happen, because the client
 			// was connected before the level change
@@ -291,7 +291,7 @@ SV_CompleteMapName
 */
 static void SV_CompleteMapName( char *args, int argNum ) {
 	if( argNum == 2 ) {
-		Field_CompleteFilename( "maps", "bsp", qtrue, qfalse );
+		Field_CompleteFilename( "maps", "bsp", true, false );
 	}
 }
 

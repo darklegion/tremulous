@@ -237,7 +237,7 @@ void S_Update( void )
 		   !(s_muteWhenUnfocused->integer && com_unfocused->integer))
 		{
 			s_muted->integer = false;
-			s_muted->modified = qtrue;
+			s_muted->modified = true;
 		}
 	}
 	else
@@ -246,7 +246,7 @@ void S_Update( void )
 		   (s_muteWhenUnfocused->integer && com_unfocused->integer))
 		{
 			s_muted->integer = true;
-			s_muted->modified = qtrue;
+			s_muted->modified = true;
 		}
 	}
 	

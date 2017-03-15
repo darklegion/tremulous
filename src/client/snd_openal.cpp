@@ -2285,7 +2285,7 @@ void S_AL_Update( void )
 				S_AL_Gain(srcList[i].alSource, srcList[i].scaleGain);
 		}
 		
-		s_muted->modified = qfalse;
+		s_muted->modified = false;
 	}
 
 	// Update SFX channels
@@ -2299,8 +2299,8 @@ void S_AL_Update( void )
 	// Doppler
 	if(s_doppler->modified)
 	{
-		s_alDopplerFactor->modified = qtrue;
-		s_doppler->modified = qfalse;
+		s_alDopplerFactor->modified = true;
+		s_doppler->modified = false;
 	}
 
 	// Doppler parameters
@@ -2310,20 +2310,20 @@ void S_AL_Update( void )
 			qalDopplerFactor(s_alDopplerFactor->value);
 		else
 			qalDopplerFactor(0.0f);
-		s_alDopplerFactor->modified = qfalse;
+		s_alDopplerFactor->modified = false;
 	}
 	if(s_alDopplerSpeed->modified)
 	{
 		qalSpeedOfSound(s_alDopplerSpeed->value);
-		s_alDopplerSpeed->modified = qfalse;
+		s_alDopplerSpeed->modified = false;
 	}
 
 	// Clear the modified flags on the other cvars
-	s_alGain->modified = qfalse;
-	s_volume->modified = qfalse;
-	s_musicVolume->modified = qfalse;
-	s_alMinDistance->modified = qfalse;
-	s_alRolloff->modified = qfalse;
+	s_alGain->modified = false;
+	s_volume->modified = false;
+	s_musicVolume->modified = false;
+	s_alMinDistance->modified = false;
+	s_alRolloff->modified = false;
 }
 
 /*

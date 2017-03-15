@@ -2,6 +2,7 @@
 #define QCOMMON_MSG_H 1
 
 #include <stdint.h>
+
 //
 // msg.c
 //

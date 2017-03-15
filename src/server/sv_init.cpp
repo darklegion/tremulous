@@ -363,7 +363,7 @@ static void SV_BoundMaxClients(int minimum)
     // get the current maxclients value
     Cvar_Get("sv_maxclients", "8", 0);
 
-    sv_maxclients->modified = qfalse;
+    sv_maxclients->modified = false;
 
     if (sv_maxclients->integer < minimum)
     {
@@ -530,7 +530,7 @@ static void SV_TouchCGame(void)
     char filename[MAX_QPATH];
 
     Com_sprintf(filename, sizeof(filename), "vm/%s.qvm", "cgame");
-    FS_FOpenFileRead(filename, &f, qfalse);
+    FS_FOpenFileRead(filename, &f, false);
     if (f)
     {
         FS_FCloseFile(f);
@@ -673,7 +673,7 @@ void SV_SpawnServer(char *server)
 
             // connect the client again
             denied =
-                (char *)VM_ExplicitArgPtr(gvm, VM_Call(gvm, GAME_CLIENT_CONNECT, i, qfalse));  // firstTime = qfalse
+                (char *)VM_ExplicitArgPtr(gvm, VM_Call(gvm, GAME_CLIENT_CONNECT, i, false));  // firstTime = false
             if (denied)
             {
                 // this generally shouldn't happen, because the client
@@ -698,17 +698,17 @@ void SV_SpawnServer(char *server)
     {
         // the server sends these to the clients so they will only
         // load pk3s also loaded at the server
-        p = FS_LoadedPakChecksums(qfalse);
+        p = FS_LoadedPakChecksums(false);
         Cvar_Set("sv_paks", p);
-        p = FS_LoadedPakChecksums(qtrue);
+        p = FS_LoadedPakChecksums(true);
         Cvar_Set("sv_alternatePaks", p);
         if (strlen(p) == 0)
         {
             Com_Printf("WARNING: sv_pure set but no PK3 files loaded\n");
         }
-        p = FS_LoadedPakNames(qfalse);
+        p = FS_LoadedPakNames(false);
         Cvar_Set("sv_pakNames", p);
-        p = FS_LoadedPakNames(qtrue);
+        p = FS_LoadedPakNames(true);
         Cvar_Set("sv_alternatePakNames", p);
 
         // if a dedicated pure server we need to touch the cgame because it could be in a
@@ -727,13 +727,13 @@ void SV_SpawnServer(char *server)
     }
     // the server sends these to the clients so they can figure
     // out which pk3s should be auto-downloaded
-    p = FS_ReferencedPakChecksums(qfalse);
+    p = FS_ReferencedPakChecksums(false);
     Cvar_Set("sv_referencedPaks", p);
-    p = FS_ReferencedPakChecksums(qtrue);
+    p = FS_ReferencedPakChecksums(true);
     Cvar_Set("sv_referencedAlternatePaks", p);
-    p = FS_ReferencedPakNames(qfalse);
+    p = FS_ReferencedPakNames(false);
     Cvar_Set("sv_referencedPakNames", p);
-    p = FS_ReferencedPakNames(qtrue);
+    p = FS_ReferencedPakNames(true);
     Cvar_Set("sv_referencedAlternatePakNames", p);
 
     // save systeminfo and serverinfo strings
@@ -759,7 +759,7 @@ void SV_SpawnServer(char *server)
     {
         // restart renderer in order to show console for dedicated servers
         // launched through the regular binary
-        CL_StartHunkUsers(qtrue);
+        CL_StartHunkUsers(true);
     }
 #endif
 
@@ -797,7 +797,7 @@ void SV_Init(void)
     sv_pure = Cvar_Get("sv_pure", "1", CVAR_SYSTEMINFO);
 #ifdef USE_VOIP
     sv_voip = Cvar_Get("sv_voip", "1", CVAR_LATCH);
-    Cvar_CheckRange(sv_voip, 0, 1, qtrue);
+    Cvar_CheckRange(sv_voip, 0, 1, true);
     sv_voipProtocol = Cvar_Get("sv_voipProtocol", sv_voip->integer ? "opus" : "", CVAR_SYSTEMINFO | CVAR_ROM);
 #endif
     Cvar_Get("sv_paks", "", CVAR_SYSTEMINFO | CVAR_ROM);

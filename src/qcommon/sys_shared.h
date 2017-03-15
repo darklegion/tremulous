@@ -56,19 +56,19 @@ void Sys_Print(const char *msg);
 // any game related timing information should come from event timestamps
 int Sys_Milliseconds(void);
 
-qboolean Sys_RandomBytes(byte *string, int len);
+bool Sys_RandomBytes(byte *string, int len);
 
 void Sys_CryptoRandomBytes(byte *string, int len);
 
 // the system console is shown when a dedicated server is running
-void Sys_DisplaySystemConsole(qboolean show);
+void Sys_DisplaySystemConsole(bool show);
 
 cpuFeatures_t Sys_GetProcessorFeatures(void);
 
 void Sys_SetErrorText(const char *text);
 
 FILE *Sys_FOpen(const char *ospath, const char *mode);
-qboolean Sys_Mkdir(const char *path);
+bool Sys_Mkdir(const char *path);
 FILE *Sys_Mkfifo(const char *ospath);
 char *Sys_Cwd(void);
 void Sys_SetDefaultInstallPath(const char *path);
@@ -86,7 +86,7 @@ char *Sys_ConsoleInput(void);
 
 char **Sys_ListFiles(const char *directory, const char *extension,
                      const char *filter,
-                     int *numfiles, qboolean wantsubs);
+                     int *numfiles, bool wantsubs);
 void Sys_FreeFileList(char **list);
 void Sys_Sleep(int msec);
 
@@ -94,7 +94,7 @@ bool Sys_LowPhysicalMemory(void);
 
 void Sys_SetEnv(const char *name, const char *value);
 
-qboolean Sys_WritePIDFile(void);
+bool Sys_WritePIDFile(void);
 
 #ifdef __cplusplus
 }

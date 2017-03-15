@@ -210,17 +210,17 @@ static std::string Sys_PIDFileName( void )
 =================
 Sys_WritePIDFile
 
-Return qtrue if there is an existing stale PID file
+Return true if there is an existing stale PID file
 =================
 */
-qboolean Sys_WritePIDFile( void )
+bool Sys_WritePIDFile( void )
 {
     const char *pidFile = Sys_PIDFileName( ).c_str();
     FILE *f;
-    qboolean  stale = qfalse;
+    bool  stale = false;
 
     if( pidFile == NULL )
-        return qfalse;
+        return false;
 
     // First, check if the pid file is already there
     if( ( f = fopen( pidFile, "r" ) ) != NULL )
@@ -235,10 +235,10 @@ qboolean Sys_WritePIDFile( void )
         {
             pid = atoi( pidBuffer );
             if( !Sys_PIDIsRunning( pid ) )
-                stale = qtrue;
+                stale = true;
         }
         else
-            stale = qtrue;
+            stale = true;
     }
 
     if( ( f = fopen( pidFile, "w" ) ) != NULL )
@@ -478,7 +478,7 @@ First try to load library name from system library path,
 from executable path, then fs_basepath.
 =================
 */
-void *Sys_LoadDll(const char *name, qboolean useSystemLib)
+void *Sys_LoadDll(const char *name, bool useSystemLib)
 {
     void *dllhandle;
 
@@ -597,7 +597,7 @@ Sys_SigHandler
 */
 void Sys_SigHandler( int signal )
 {
-    static qboolean signalcaught = qfalse;
+    static bool signalcaught = false;
 
     if( signalcaught )
     {
@@ -608,7 +608,7 @@ void Sys_SigHandler( int signal )
     {
         char const* msg = va("Received signal %d", signal);
 
-        signalcaught = qtrue;
+        signalcaught = true;
         VM_Forced_Unload_Start();
 #ifndef DEDICATED
         CL_Shutdown(va("Received signal %d", signal), true, true);

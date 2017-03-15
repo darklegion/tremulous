@@ -34,7 +34,7 @@ Verifies the signature of data and on success it returns the sha256
 fingerprint of the public key.  pubkey, signature, and fingerprint
 are all base 16 encoded strings.
 
-Returns qtrue on success
+Returns true on success
 =================
 */
 static bool SV_RSA_VerifySignature( const char *pubkey, const char *signature, const char *data, char *fingerprint )
@@ -449,7 +449,7 @@ gotnewcl:
 	Q_strncpyz( newcl->userinfo, userinfo, sizeof(newcl->userinfo) );
 
 	// get the game a chance to reject this connection or modify the userinfo
-	denied = VM_Call( gvm, GAME_CLIENT_CONNECT, clientNum, qtrue ); // firstTime = qtrue
+	denied = VM_Call( gvm, GAME_CLIENT_CONNECT, clientNum, true ); // firstTime = true
 	if ( denied ) {
 		// we can't just use VM_ArgPtr, because that is only valid inside a VM_Call
 		char *str = (char*)VM_ExplicitArgPtr( gvm, denied );
@@ -645,7 +645,7 @@ static void SV_SendClientGameState( client_t *client ) {
 			continue;
 		}
 		MSG_WriteByte( &msg, svc_baseline );
-		MSG_WriteDeltaEntity( client->netchan.alternateProtocol, &msg, &nullstate, base, qtrue );
+		MSG_WriteDeltaEntity( client->netchan.alternateProtocol, &msg, &nullstate, base, true );
 	}
 
 	MSG_WriteByte( &msg, svc_EOF );
@@ -838,7 +838,7 @@ int SV_WriteDownloadToClient(client_t *cl, msg_t *msg)
 			// Check for pk3 filename extension
 			if(!Q_stricmp(pakptr + 1, "pk3"))
 			{
-				const char *referencedPaks = FS_ReferencedPakNames( (qboolean)(cl->netchan.alternateProtocol == 2) );
+				const char *referencedPaks = FS_ReferencedPakNames( cl->netchan.alternateProtocol == 2 );
 
 				// Check whether the file appears in the list of referenced
 				// paks to prevent downloading of arbitrary files.
@@ -1095,9 +1095,9 @@ static void SV_VerifyPaks_f( client_t *cl ) {
 
 		nChkSum1 = nChkSum2 = 0;
 		// we run the game, so determine which cgame and ui the client "should" be running
-		bGood = (FS_FileIsInPAK_A( (qboolean)(cl->netchan.alternateProtocol == 2), "vm/cgame.qvm", &nChkSum1) == 1);
+		bGood = (FS_FileIsInPAK_A((cl->netchan.alternateProtocol == 2), "vm/cgame.qvm", &nChkSum1) == 1);
 		if (bGood)
-			bGood = (FS_FileIsInPAK_A((qboolean)(cl->netchan.alternateProtocol == 2), "vm/ui.qvm", &nChkSum2) == 1);;
+			bGood = (FS_FileIsInPAK_A((cl->netchan.alternateProtocol == 2), "vm/ui.qvm", &nChkSum2) == 1);
 
 		nClientPaks = Cmd_Argc();
 
@@ -1173,7 +1173,7 @@ static void SV_VerifyPaks_f( client_t *cl ) {
 				break;
 
 			// get the pure checksums of the pk3 files loaded by the server
-			pPaks = FS_LoadedPakPureChecksums((qboolean)(cl->netchan.alternateProtocol == 2));
+			pPaks = FS_LoadedPakPureChecksums(cl->netchan.alternateProtocol == 2);
 			Cmd_TokenizeString( pPaks );
 			nServerPaks = Cmd_Argc();
 			if (nServerPaks > 1024)

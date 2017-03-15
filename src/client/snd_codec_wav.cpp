@@ -202,7 +202,7 @@ void *S_WAV_CodecLoad(const char *filename, snd_info_t *info)
 	void *buffer;
 
 	// Try to open the file
-	FS_FOpenFileRead(filename, &file, qtrue);
+	FS_FOpenFileRead(filename, &file, true);
 	if(!file)
 	{
 		return NULL;

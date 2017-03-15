@@ -744,7 +744,7 @@ static void CM_ProximityToBrush( traceWork_t *tw, cbrush_t *brush )
 	traceWork_t		tw2;
 
 	// cheapish purely linear trace to test for intersection
-	Com_Memset( &tw2, 0, sizeof( tw2 ) );
+	::memset( &tw2, 0, sizeof( tw2 ) );
 	tw2.trace.fraction = 1.0f;
 	tw2.type = TT_CAPSULE;
 	tw2.sphere.radius = 0.0f;
@@ -803,7 +803,7 @@ static void CM_ProximityToPatch( traceWork_t *tw, cPatch_t *patch )
 	traceWork_t		tw2;
 
 	// cheapish purely linear trace to test for intersection
-	Com_Memset( &tw2, 0, sizeof( tw2 ) );
+	::memset( &tw2, 0, sizeof( tw2 ) );
 	tw2.trace.fraction = 1.0f;
 	tw2.type = TT_CAPSULE;
 	tw2.sphere.radius = 0.0f;
@@ -1362,7 +1362,7 @@ void CM_Trace( trace_t *results, const vec3_t start,
 	c_traces++;				// for statistics, may be zeroed
 
 	// fill in a default trace
-	Com_Memset( &tw, 0, sizeof(tw) );
+	::memset( &tw, 0, sizeof(tw) );
 	tw.trace.fraction = 1;	// assume it goes the entire distance until shown otherwise
 	VectorCopy(origin, tw.modelOrigin);
 	tw.type = type;
@@ -1693,7 +1693,7 @@ void CM_BiSphereTrace( trace_t *results, const vec3_t start,
 	c_traces++;				// for statistics, may be zeroed
 
 	// fill in a default trace
-	Com_Memset( &tw, 0, sizeof( tw ) );
+	::memset( &tw, 0, sizeof( tw ) );
 	tw.trace.fraction = 1.0f; // assume it goes the entire distance until shown otherwise
 	VectorCopy( vec3_origin, tw.modelOrigin );
 	tw.type = TT_BISPHERE;

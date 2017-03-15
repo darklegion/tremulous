@@ -114,7 +114,7 @@ static bool GetNews(bool begin)
             }
             clc.activeCURLNotGameRelated = true;
             CL_cURL_BeginDownload("news.dat", "http://grangerhub.com/wp-content/uploads/clientnews.txt");
-            return qfalse;
+            return false;
         }
     }
 

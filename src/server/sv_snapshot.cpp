@@ -98,9 +98,9 @@ static void SV_EmitPacketEntities(int alternateProtocol, clientSnapshot_t *from,
         if (newnum == oldnum)
         {
             // delta update from old position
-            // because the force parm is qfalse, this will not result
+            // because the force parm is false, this will not result
             // in any bytes being emited if the entity has not changed at all
-            MSG_WriteDeltaEntity(alternateProtocol, msg, oldent, newent, qfalse);
+            MSG_WriteDeltaEntity(alternateProtocol, msg, oldent, newent, false);
             oldindex++;
             newindex++;
             continue;
@@ -109,7 +109,7 @@ static void SV_EmitPacketEntities(int alternateProtocol, clientSnapshot_t *from,
         if (newnum < oldnum)
         {
             // this is a new entity, send it from the baseline
-            MSG_WriteDeltaEntity(alternateProtocol, msg, &sv.svEntities[newnum].baseline, newent, qtrue);
+            MSG_WriteDeltaEntity(alternateProtocol, msg, &sv.svEntities[newnum].baseline, newent, true);
             newindex++;
             continue;
         }
@@ -117,7 +117,7 @@ static void SV_EmitPacketEntities(int alternateProtocol, clientSnapshot_t *from,
         if (newnum > oldnum)
         {
             // the old entity isn't present in the new message
-            MSG_WriteDeltaEntity(alternateProtocol, msg, oldent, NULL, qtrue);
+            MSG_WriteDeltaEntity(alternateProtocol, msg, oldent, NULL, true);
             oldindex++;
             continue;
         }
@@ -673,7 +673,7 @@ void SV_SendClientSnapshot(client_t *client)
     SV_BuildClientSnapshot(client);
 
     MSG_Init(&msg, msg_buf, sizeof(msg_buf));
-    msg.allowoverflow = qtrue;
+    msg.allowoverflow = true;
 
     // NOTE, MRE: all server->client messages now acknowledge
     // let the client know which reliable clientCommands we have received

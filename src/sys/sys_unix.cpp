@@ -117,24 +117,24 @@ int Sys_Milliseconds (void)
 Sys_RandomBytes
 ==================
 */
-qboolean Sys_RandomBytes( byte *string, int len )
+bool Sys_RandomBytes( byte *string, int len )
 {
 	FILE *fp;
 
 	fp = fopen( "/dev/urandom", "r" );
 	if( !fp )
-		return qfalse;
+		return false;
 
 	setvbuf( fp, NULL, _IONBF, 0 ); // don't buffer reads from /dev/urandom
 
 	if( fread( string, sizeof( byte ), len, fp ) != len )
 	{
 		fclose( fp );
-		return qfalse;
+		return false;
 	}
 
 	fclose( fp );
-	return qtrue;
+	return true;
 }
 
 /*
@@ -217,14 +217,14 @@ FILE *Sys_FOpen( const char *ospath, const char *mode ) {
 Sys_Mkdir
 ==================
 */
-qboolean Sys_Mkdir( const char *path )
+bool Sys_Mkdir( const char *path )
 {
 	int result = mkdir( path, 0750 );
 
 	if( result != 0 )
-		return (qboolean)(errno == EEXIST);
+		return (bool)(errno == EEXIST);
 
-	return qtrue;
+	return true;
 }
 
 /*
@@ -334,7 +334,7 @@ void Sys_ListFilteredFiles( const char *basedir, const char *subdirs,
 			break;
 		}
 		Com_sprintf( filename, sizeof(filename), "%s/%s", subdirs, d->d_name );
-		if (!Com_FilterPath( filter, filename, qfalse ))
+		if (!Com_FilterPath( filter, filename, false ))
 			continue;
 		list[ *numfiles ] = CopyString( filename );
 		(*numfiles)++;
@@ -349,11 +349,11 @@ Sys_ListFiles
 ==================
 */
 char **Sys_ListFiles( const char *directory, const char *extension,
-        const char *filter, int *numfiles, qboolean wantsubs )
+        const char *filter, int *numfiles, bool wantsubs )
 {
 	struct dirent *d;
 	DIR           *fdir;
-	qboolean      dironly = wantsubs;
+	bool      dironly = wantsubs;
 	char          search[MAX_OSPATH];
 	int           nfiles;
 	char          **listCopy;
@@ -388,7 +388,7 @@ char **Sys_ListFiles( const char *directory, const char *extension,
 
 	if ( extension[0] == '/' && extension[1] == 0 ) {
 		extension = "";
-		dironly = qtrue;
+		dironly = true;
 	}
 
 	extLen = strlen( extension );
@@ -578,7 +578,7 @@ Sys_ClearExecBuffer
 static void Sys_ClearExecBuffer( void )
 {
 	execBufferPointer = execBuffer;
-	Com_Memset( execArgv, 0, sizeof( execArgv ) );
+	::memset( execArgv, 0, sizeof( execArgv ) );
 	execArgc = 0;
 }
 
@@ -733,7 +733,7 @@ dialogResult_t Sys_Dialog( dialogType_t type, const char *message, const char *t
 	typedef void (*dialogCommandBuilder_t)( dialogType_t, const char *, const char * );
 
 	const char              *session = getenv( "DESKTOP_SESSION" );
-	qboolean                tried[ NUM_DIALOG_PROGRAMS ] = { qfalse };
+	bool                tried[ NUM_DIALOG_PROGRAMS ] = { false };
 	dialogCommandBuilder_t  commands[ NUM_DIALOG_PROGRAMS ] = { NULL };
 	dialogCommandType_t     preferredCommandType = NONE;
 	int                     i;
@@ -770,7 +770,7 @@ dialogResult_t Sys_Dialog( dialogType_t type, const char *message, const char *t
 				}
 			}
 
-			tried[ i ] = qtrue;
+			tried[ i ] = true;
 
 			// The preference failed, so start again in order
 			if( preferredCommandType != NONE )
@@ -881,7 +881,7 @@ int Sys_PID( void )
 Sys_PIDIsRunning
 ==============
 */
-qboolean Sys_PIDIsRunning( int pid )
+bool Sys_PIDIsRunning( int pid )
 {
-	return (qboolean)(kill( pid, 0 ) == 0);
+	return kill( pid, 0 ) == 0;
 }

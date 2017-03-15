@@ -1102,7 +1102,7 @@ static void Key_CompleteBind( char *args, int argNum )
 		p = Com_SkipTokens( args, 2, " " );
 
 		if( p > args )
-			Field_CompleteCommand( p, qtrue, qtrue );
+			Field_CompleteCommand( p, true, true );
 	}
 }
 
@@ -1126,7 +1126,7 @@ void CL_InitKeyCommands( void )
 ===================
 CL_BindUICommand
 
-Returns qtrue if bind command should be executed while user interface is shown
+Returns true if bind command should be executed while user interface is shown
 ===================
 */
 static bool CL_BindUICommand( const char *cmd )
@@ -1208,7 +1208,7 @@ Called by CL_KeyEvent to handle a keypress
 */
 static void CL_KeyDownEvent( int key, unsigned time )
 {
-	keys[key].down = qtrue;
+	keys[key].down = true;
 	keys[key].repeats++;
 	if( keys[key].repeats == 1 )
 		anykeydown++;
@@ -1260,23 +1260,23 @@ static void CL_KeyDownEvent( int key, unsigned time )
 			return;
 		}
 
-		VM_Call( uivm, UI_KEY_EVENT, key, qtrue );
+		VM_Call( uivm, UI_KEY_EVENT, key, true );
 		return;
 	}
 
 	// send the bound action
-	CL_ParseBinding( key, qtrue, time );
+	CL_ParseBinding( key, true, time );
 
 	// distribute the key down event to the apropriate handler
 	if ( Key_GetCatcher( ) & KEYCATCH_CONSOLE ) {
 		Console_Key( key );
 	} else if ( Key_GetCatcher( ) & KEYCATCH_UI ) {
 		if ( uivm ) {
-			VM_Call( uivm, UI_KEY_EVENT, key, qtrue );
+			VM_Call( uivm, UI_KEY_EVENT, key, true );
 		} 
 	} else if ( Key_GetCatcher( ) & KEYCATCH_CGAME ) {
 		if ( cgvm ) {
-			VM_Call( cgvm, CG_KEY_EVENT, key, qtrue );
+			VM_Call( cgvm, CG_KEY_EVENT, key, true );
 		} 
 	} else if ( clc.state == CA_DISCONNECTED ) {
 		Console_Key( key );
@@ -1293,7 +1293,7 @@ Called by CL_KeyEvent to handle a keyrelease
 static void CL_KeyUpEvent( int key, unsigned time )
 {
 	keys[key].repeats = 0;
-	keys[key].down = qfalse;
+	keys[key].down = false;
 	anykeydown--;
 
 	if (anykeydown < 0) {
@@ -1310,12 +1310,12 @@ static void CL_KeyUpEvent( int key, unsigned time )
 	// console mode and menu mode, to keep the character from continuing
 	// an action started before a mode switch.
 	//
-	CL_ParseBinding( key, qfalse, time );
+	CL_ParseBinding( key, false, time );
 
 	if ( Key_GetCatcher( ) & KEYCATCH_UI && uivm ) {
-		VM_Call( uivm, UI_KEY_EVENT, key, qfalse );
+		VM_Call( uivm, UI_KEY_EVENT, key, false );
 	} else if ( Key_GetCatcher( ) & KEYCATCH_CGAME && cgvm ) {
-		VM_Call( cgvm, CG_KEY_EVENT, key, qfalse );
+		VM_Call( cgvm, CG_KEY_EVENT, key, false );
 	}
 }
 
@@ -1372,7 +1372,7 @@ void Key_ClearStates(void)
 	for ( int i = 0 ; i < MAX_KEYS ; i++ )
     {
 		if ( keys[i].down )
-			CL_KeyEvent( i, qfalse, 0 );
+			CL_KeyEvent( i, false, 0 );
 
 		keys[i].down = 0;
 		keys[i].repeats = 0;
@@ -1452,7 +1452,7 @@ void CL_LoadConsoleHistory( void )
 	int						i, numChars, numLines = 0;
 	fileHandle_t	f;
 
-	consoleSaveBufferSize = FS_FOpenFileRead( CONSOLE_HISTORY_FILE, &f, qfalse );
+	consoleSaveBufferSize = FS_FOpenFileRead( CONSOLE_HISTORY_FILE, &f, false );
 	if( !f )
 	{
 		Com_Printf( "Couldn't read %s.\n", CONSOLE_HISTORY_FILE );

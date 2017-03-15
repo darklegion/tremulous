@@ -103,7 +103,7 @@ void CMod_LoadShaders( lump_t *l ) {
 	cm.shaders = (dshader_t*)Hunk_Alloc( count * sizeof( *cm.shaders ), h_high );
 	cm.numShaders = count;
 
-	Com_Memcpy( cm.shaders, in, count * sizeof( *cm.shaders ) );
+	::memcpy( cm.shaders, in, count * sizeof( *cm.shaders ) );
 
 	out = cm.shaders;
 	for ( i=0 ; i<count ; i++, in++, out++ ) {
@@ -569,7 +569,7 @@ static void CMod_CreateBrushSideWindings( void )
 		brush->edges = (cbrushedge_t *)Hunk_Alloc( edgesAlloc, h_low );
 
 		// Copy temporary buffer to permanent buffer
-		Com_Memcpy( brush->edges, tempEdges, edgesAlloc );
+		::memcpy( brush->edges, tempEdges, edgesAlloc );
 
 		// Free temporary buffer
 		Z_Free( tempEdges );
@@ -589,7 +589,7 @@ CMod_LoadEntityString
 void CMod_LoadEntityString( lump_t *l ) {
 	cm.entityString = (char*)Hunk_Alloc( l->filelen, h_high );
 	cm.numEntityChars = l->filelen;
-	Com_Memcpy (cm.entityString, cmod_base + l->fileofs, l->filelen);
+	::memcpy (cm.entityString, cmod_base + l->fileofs, l->filelen);
 }
 
 /*
@@ -606,7 +606,7 @@ void CMod_LoadVisibility( lump_t *l ) {
 	if ( !len ) {
 		cm.clusterBytes = ( cm.numClusters + 31 ) & ~31;
 		cm.visibility = (byte*)Hunk_Alloc( cm.clusterBytes, h_high );
-		Com_Memset( cm.visibility, 255, cm.clusterBytes );
+		::memset( cm.visibility, 255, cm.clusterBytes );
 		return;
 	}
 	buf = cmod_base + l->fileofs;
@@ -615,7 +615,7 @@ void CMod_LoadVisibility( lump_t *l ) {
 	cm.visibility = (byte*)Hunk_Alloc( len, h_high );
 	cm.numClusters = LittleLong( ((int *)buf)[0] );
 	cm.clusterBytes = LittleLong( ((int *)buf)[1] );
-	Com_Memcpy (cm.visibility, buf + VIS_HEADER, len - VIS_HEADER );
+	::memcpy (cm.visibility, buf + VIS_HEADER, len - VIS_HEADER );
 }
 
 //==================================================================
@@ -739,7 +739,7 @@ void CM_LoadMap( const char *name, qboolean clientload, int *checksum ) {
 	}
 
 	// free old stuff
-	Com_Memset( &cm, 0, sizeof( cm ) );
+	::memset( &cm, 0, sizeof( cm ) );
 	CM_ClearLevelPatches();
 
 	if ( !name[0] ) {
@@ -814,7 +814,7 @@ CM_ClearMap
 ==================
 */
 void CM_ClearMap( void ) {
-	Com_Memset( &cm, 0, sizeof( cm ) );
+	::memset( &cm, 0, sizeof( cm ) );
 	CM_ClearLevelPatches();
 }
 

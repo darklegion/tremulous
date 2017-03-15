@@ -159,7 +159,7 @@ struct vm_s {
 	void (*destroy)(vm_t* self);
 
 	// for interpreted modules
-	qboolean	currentlyInterpreting;
+	bool currentlyInterpreting;
 
 	bool	compiled;
 	byte		*codeBase;

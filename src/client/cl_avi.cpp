@@ -576,8 +576,7 @@ void CL_TakeVideoFrame( void )
   if( !afd.fileOpen )
     return;
 
-  re.TakeVideoFrame( afd.width, afd.height,
-      afd.cBuffer, afd.eBuffer, (qboolean)afd.motionJpeg );
+  re.TakeVideoFrame( afd.width, afd.height, afd.cBuffer, afd.eBuffer, afd.motionJpeg );
 }
 
 /*
@@ -608,7 +607,7 @@ bool CL_CloseAVI( void )
   // Write index
 
   // Open the temp index file
-  if( ( indexSize = FS_FOpenFileRead( idxFileName, &afd.idxF, qtrue ) ) <= 0 )
+  if( ( indexSize = FS_FOpenFileRead( idxFileName, &afd.idxF, true ) ) <= 0 )
   {
     FS_FCloseFile( afd.f );
     return false;

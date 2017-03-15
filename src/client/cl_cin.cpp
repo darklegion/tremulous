@@ -1203,7 +1203,7 @@ static void RoQReset(void)
     if (currentHandle < 0) return;
 
     FS_FCloseFile(cinTable[currentHandle].iFile);
-    FS_FOpenFileRead(cinTable[currentHandle].fileName, &cinTable[currentHandle].iFile, qtrue);
+    FS_FOpenFileRead(cinTable[currentHandle].fileName, &cinTable[currentHandle].iFile, true);
     // let the background thread start reading ahead
     FS_Read(cin.file, 16, cinTable[currentHandle].iFile);
     RoQ_init();
@@ -1630,7 +1630,7 @@ int CIN_PlayCinematic(const char *arg, int x, int y, int w, int h, int systemBit
 
     cinTable[currentHandle].ROQSize = 0;
     cinTable[currentHandle].ROQSize =
-        FS_FOpenFileRead(cinTable[currentHandle].fileName, &cinTable[currentHandle].iFile, qtrue);
+        FS_FOpenFileRead(cinTable[currentHandle].fileName, &cinTable[currentHandle].iFile, true);
 
     if (cinTable[currentHandle].ROQSize <= 0)
     {
@@ -1794,20 +1794,21 @@ void CIN_DrawCinematic(int handle)
     SCR_AdjustFrom640(&x, &y, &w, &h);
 
     if (cinTable[handle].dirty &&
-        (cinTable[handle].CIN_WIDTH != cinTable[handle].drawX || cinTable[handle].CIN_HEIGHT != cinTable[handle].drawY))
+        (cinTable[handle].CIN_WIDTH != cinTable[handle].drawX
+         || cinTable[handle].CIN_HEIGHT != cinTable[handle].drawY))
     {
         int *buf2 = (int *)Hunk_AllocateTempMemory(256 * 256 * 4);
 
         CIN_ResampleCinematic(handle, buf2);
 
-        re.DrawStretchRaw(x, y, w, h, 256, 256, (byte *)buf2, handle, qtrue);
+        re.DrawStretchRaw(x, y, w, h, 256, 256, (byte *)buf2, handle, true);
         cinTable[handle].dirty = false;
         Hunk_FreeTempMemory(buf2);
         return;
     }
 
     re.DrawStretchRaw(x, y, w, h, cinTable[handle].drawX, cinTable[handle].drawY,
-            buf, handle, (qboolean)cinTable[handle].dirty);
+            buf, handle, cinTable[handle].dirty);
 
     cinTable[handle].dirty = false;
 }
@@ -1909,7 +1910,7 @@ void CIN_UploadCinematic(int handle)
             CIN_ResampleCinematic(handle, buf2);
 
             re.UploadCinematic(
-                cinTable[handle].CIN_WIDTH, cinTable[handle].CIN_HEIGHT, 256, 256, (byte *)buf2, handle, qtrue);
+                cinTable[handle].CIN_WIDTH, cinTable[handle].CIN_HEIGHT, 256, 256, (byte *)buf2, handle, true);
             cinTable[handle].dirty = false;
             Hunk_FreeTempMemory(buf2);
         }
@@ -1917,7 +1918,7 @@ void CIN_UploadCinematic(int handle)
         {
             // Upload video at normal resolution
             re.UploadCinematic(cinTable[handle].CIN_WIDTH, cinTable[handle].CIN_HEIGHT, cinTable[handle].drawX,
-                cinTable[handle].drawY, cinTable[handle].buf, handle, (qboolean)cinTable[handle].dirty);
+                cinTable[handle].drawY, cinTable[handle].buf, handle, cinTable[handle].dirty);
             cinTable[handle].dirty = false;
         }
 

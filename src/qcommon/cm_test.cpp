@@ -469,7 +469,7 @@ int CM_WriteAreaBits (byte *buffer, int area)
 	if ( area == -1)
 #endif
 	{	// for debugging, send everything
-		Com_Memset (buffer, 255, bytes);
+		::memset (buffer, 255, bytes);
 	}
 	else
 	{

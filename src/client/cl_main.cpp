@@ -456,8 +456,8 @@ static void CL_CaptureVoip(void)
             Cvar_Set("cl_voip", "0");
         }
         Cvar_Set("cl_voipProtocol", cl_voip->integer ? "opus" : "");
-        cl_voip->modified = qfalse;
-        cl_rate->modified = qfalse;
+        cl_voip->modified = false;
+        cl_rate->modified = false;
     }
 
     if (!clc.voipCodecInitialized) return;  // just in case this gets called at a bad time.
@@ -467,7 +467,7 @@ static void CL_CaptureVoip(void)
     if (cl_voipUseVAD->modified)
     {
         Cvar_Set("cl_voipSend", (useVad) ? "1" : "0");
-        cl_voipUseVAD->modified = qfalse;
+        cl_voipUseVAD->modified = false;
     }
 
     if ((useVad) && (!cl_voipSend->integer)) Cvar_Set("cl_voipSend", "1");  // lots of things reset this.
@@ -486,7 +486,7 @@ static void CL_CaptureVoip(void)
         else if (audioMult == 0.0f)
             dontCapture = true;  // basically silenced incoming audio.
 
-        cl_voipSend->modified = qfalse;
+        cl_voipSend->modified = false;
 
         if (dontCapture)
         {
@@ -840,7 +840,7 @@ static void CL_Record_f(void)
             continue;
         }
         MSG_WriteByte(&buf, svc_baseline);
-        MSG_WriteDeltaEntity(clc.netchan.alternateProtocol, &buf, &nullstate, ent, qtrue);
+        MSG_WriteDeltaEntity(clc.netchan.alternateProtocol, &buf, &nullstate, ent, true);
     }
 
     MSG_WriteByte(&buf, svc_EOF);
@@ -958,7 +958,7 @@ void CL_DemoCompleted(void)
         }
     }
 
-    CL_Disconnect(qtrue);
+    CL_Disconnect(true);
     CL_NextDemo();
 }
 
@@ -1033,7 +1033,7 @@ static int CL_WalkDemoExt(const char *arg, char *name, int *demofile)
     *demofile = 0;
 
     Com_sprintf(name, MAX_OSPATH, "demos/%s.%s%d", arg, DEMOEXT, PROTOCOL_VERSION);
-    FS_FOpenFileRead(name, demofile, qtrue);
+    FS_FOpenFileRead(name, demofile, true);
 
     if (*demofile)
     {
@@ -1048,7 +1048,7 @@ static int CL_WalkDemoExt(const char *arg, char *name, int *demofile)
         if (demo_protocols[i] == PROTOCOL_VERSION) continue;
 
         Com_sprintf(name, MAX_OSPATH, "demos/%s.%s%d", arg, DEMOEXT, demo_protocols[i]);
-        FS_FOpenFileRead(name, demofile, qtrue);
+        FS_FOpenFileRead(name, demofile, true);
         if (*demofile)
         {
             Com_Printf("Demo file: %s\n", name);
@@ -1074,7 +1074,7 @@ static void CL_CompleteDemoName(char *args, int argNum)
         char demoExt[16];
 
         Com_sprintf(demoExt, sizeof(demoExt), ".%s%d", DEMOEXT, PROTOCOL_VERSION);
-        Field_CompleteFilename("demos", demoExt, qtrue, qtrue);
+        Field_CompleteFilename("demos", demoExt, true, true);
     }
 }
 
@@ -1106,7 +1106,7 @@ void CL_PlayDemo_f(void)
     // open the demo file
     const char *arg = Cmd_Argv(1);
 
-    CL_Disconnect(qtrue);
+    CL_Disconnect(true);
 
     // check for an extension .DEMOEXT_?? (?? is protocol)
     ext_test = strrchr(arg, '.');
@@ -1123,7 +1123,7 @@ void CL_PlayDemo_f(void)
         if (demo_protocols[i] || protocol == PROTOCOL_VERSION)
         {
             Com_sprintf(name, sizeof(name), "demos/%s", arg);
-            FS_FOpenFileRead(name, &clc.demofile, qtrue);
+            FS_FOpenFileRead(name, &clc.demofile, true);
         }
         else
         {
@@ -1308,8 +1308,8 @@ static void CL_OldGame(void)
     {
         // change back to previous fs_game
         cl_oldGameSet = false;
-        Cvar_Set2("fs_game", cl_oldGame, qtrue);
-        FS_ConditionalRestart(clc.checksumFeed, qfalse);
+        Cvar_Set2("fs_game", cl_oldGame, true);
+        FS_ConditionalRestart(clc.checksumFeed, false);
     }
 }
 
@@ -1644,7 +1644,7 @@ void CL_Connect_f(void)
     SV_Frame(0);
 
     noGameRestart = true;
-    CL_Disconnect(qtrue);
+    CL_Disconnect(true);
 
     Q_strncpyz(clc.servername, server, sizeof(clc.servername));
 
@@ -1706,7 +1706,7 @@ static void CL_CompleteRcon(char *args, int argNum)
         // Skip "rcon "
         char *p = Com_SkipTokens(args, 1, " ");
 
-        if (p > args) Field_CompleteCommand(p, qtrue, qtrue);
+        if (p > args) Field_CompleteCommand(p, true, true);
     }
 }
 
@@ -1809,14 +1809,14 @@ static void CL_Snd_Shutdown(void)
 CL_PK3List_f
 ==================
 */
-static void CL_OpenedPK3List_f(void) { Com_Printf("Opened PK3 Names: %s\n", FS_LoadedPakNames(qfalse)); }
+static void CL_OpenedPK3List_f(void) { Com_Printf("Opened PK3 Names: %s\n", FS_LoadedPakNames(false)); }
 
 /*
 ==================
 CL_PureList_f
 ==================
 */
-static void CL_ReferencedPK3List_f(void) { Com_Printf("Referenced PK3 Names: %s\n", FS_ReferencedPakNames(qfalse)); }
+static void CL_ReferencedPK3List_f(void) { Com_Printf("Referenced PK3 Names: %s\n", FS_ReferencedPakNames(false)); }
 
 /*
 ==================
@@ -2185,7 +2185,7 @@ void CL_NextDownload(void)
                 CL_BeginDownload(localName, remoteName);
             }
         }
-        clc.downloadRestart = qtrue;
+        clc.downloadRestart = true;
 
         // move over the rest
         memmove(clc.downloadList, s, strlen(s) + 1);
@@ -2206,7 +2206,7 @@ and determine if we need to download them
 */
 void CL_InitDownloads(void)
 {
-    if (FS_ComparePaks(clc.downloadList, sizeof(clc.downloadList), qtrue))
+    if (FS_ComparePaks(clc.downloadList, sizeof(clc.downloadList), true))
     {
         Com_Printf("Need paks: %s\n", clc.downloadList);
 
@@ -2525,7 +2525,7 @@ void CL_MapLoading(void)
     }
     else
     {
-        CL_Disconnect(qtrue);
+        CL_Disconnect(true);
         Q_strncpyz(clc.servername, "localhost", sizeof(clc.servername));
         clc.state = CA_CHALLENGING;  // so the connect screen is drawn
         Key_SetCatcher(Key_GetCatcher() & KEYCATCH_CONSOLE);
@@ -2840,7 +2840,7 @@ static void CL_CheckTimeout(void)
         if (++cl.timeoutcount > 5)
         {  // timeoutcount saves debugger
             Com_Printf("\nServer connection timed out.\n");
-            CL_Disconnect(qtrue);
+            CL_Disconnect(true);
             return;
         }
     }
@@ -3088,7 +3088,7 @@ CL_ShutdownRef
 */
 static void CL_ShutdownRef(void)
 {
-    if (re.Shutdown) re.Shutdown(qtrue);
+    if (re.Shutdown) re.Shutdown(true);
 
     ::memset(&re, 0, sizeof(re));
 
@@ -3125,7 +3125,7 @@ void CL_ShutdownAll(bool shutdownRef)
     if (shutdownRef)
         CL_ShutdownRef();
     else if (re.Shutdown)
-        re.Shutdown(qfalse);  // don't destroy window or context
+        re.Shutdown(false);  // don't destroy window or context
 
     cls.uiStarted = false;
     cls.cgameStarted = false;
@@ -3140,7 +3140,7 @@ CL_ClearMemory
 Called by Com_GameRestart
 =================
 */
-static void CL_ClearMemory(qboolean shutdownRef)
+static void CL_ClearMemory(bool shutdownRef)
 {
     // shutdown all the client stuff
     CL_ShutdownAll(shutdownRef);
@@ -3171,7 +3171,7 @@ Also called by Com_Error
 */
 void CL_FlushMemory(void)
 {
-    CL_ClearMemory(qfalse);
+    CL_ClearMemory(false);
     CL_StartHunkUsers(false);
 }
 
@@ -3198,7 +3198,7 @@ static void CL_Vid_Restart_f(void)
     // don't let them loop during the restart
     S_StopAllSounds();
 
-    if (!FS_ConditionalRestart(clc.checksumFeed, qtrue))
+    if (!FS_ConditionalRestart(clc.checksumFeed, true))
     {
         // if not running a server clear the whole hunk
         if (com_sv_running->integer)
@@ -4666,13 +4666,13 @@ static void CL_InitRef(void)
 
     Com_sprintf(dllName, sizeof(dllName), "renderer_%s" DLL_EXT, cl_renderer->string);
 
-    if (!(rendererLib = Sys_LoadDll(dllName, qfalse)) && strcmp(cl_renderer->string, cl_renderer->resetString))
+    if (!(rendererLib = Sys_LoadDll(dllName, false)) && strcmp(cl_renderer->string, cl_renderer->resetString))
     {
         Com_Printf("failed:\n\"%s\"\n", Sys_LibraryError());
         Cvar_ForceReset("cl_renderer");
 
         Com_sprintf(dllName, sizeof(dllName), "renderer_opengl1" DLL_EXT);
-        rendererLib = Sys_LoadDll(dllName, qfalse);
+        rendererLib = Sys_LoadDll(dllName, false);
     }
 
     if (!rendererLib)
@@ -4823,7 +4823,7 @@ void CL_Init(void)
     // offset for the power function (for style 1, ignored otherwise)
     // this should be set to the max rate value
     cl_mouseAccelOffset = Cvar_Get("cl_mouseAccelOffset", "5", CVAR_ARCHIVE);
-    Cvar_CheckRange(cl_mouseAccelOffset, 0.001f, 50000.0f, qfalse);
+    Cvar_CheckRange(cl_mouseAccelOffset, 0.001f, 50000.0f, false);
 
     cl_showMouseRate = Cvar_Get("cl_showmouserate", "0", 0);
 
@@ -4867,11 +4867,11 @@ void CL_Init(void)
     j_side_axis = Cvar_Get("j_side_axis", "0", CVAR_ARCHIVE);
     j_up_axis = Cvar_Get("j_up_axis", "4", CVAR_ARCHIVE);
 
-    Cvar_CheckRange(j_pitch_axis, 0, MAX_JOYSTICK_AXIS - 1, qtrue);
-    Cvar_CheckRange(j_yaw_axis, 0, MAX_JOYSTICK_AXIS - 1, qtrue);
-    Cvar_CheckRange(j_forward_axis, 0, MAX_JOYSTICK_AXIS - 1, qtrue);
-    Cvar_CheckRange(j_side_axis, 0, MAX_JOYSTICK_AXIS - 1, qtrue);
-    Cvar_CheckRange(j_up_axis, 0, MAX_JOYSTICK_AXIS - 1, qtrue);
+    Cvar_CheckRange(j_pitch_axis, 0, MAX_JOYSTICK_AXIS - 1, true);
+    Cvar_CheckRange(j_yaw_axis, 0, MAX_JOYSTICK_AXIS - 1, true);
+    Cvar_CheckRange(j_forward_axis, 0, MAX_JOYSTICK_AXIS - 1, true);
+    Cvar_CheckRange(j_side_axis, 0, MAX_JOYSTICK_AXIS - 1, true);
+    Cvar_CheckRange(j_up_axis, 0, MAX_JOYSTICK_AXIS - 1, true);
 
     cl_motdString = Cvar_Get("cl_motdString", "", CVAR_ROM);
 
@@ -4912,7 +4912,7 @@ void CL_Init(void)
     cl_voipShowMeter = Cvar_Get("cl_voipShowMeter", "1", CVAR_ARCHIVE);
 
     cl_voip = Cvar_Get("cl_voip", "1", CVAR_ARCHIVE);
-    Cvar_CheckRange(cl_voip, 0, 1, qtrue);
+    Cvar_CheckRange(cl_voip, 0, 1, true);
     cl_voipProtocol = Cvar_Get("cl_voipProtocol", cl_voip->integer ? "opus" : "", CVAR_USERINFO | CVAR_ROM);
 #endif
 
@@ -4997,7 +4997,7 @@ void CL_Shutdown(const char *finalmsg, bool disconnect, bool quit)
 
     if (disconnect) CL_Disconnect(true);
 
-    CL_ClearMemory(qtrue);
+    CL_ClearMemory(true);
     CL_Snd_Shutdown();
 
     Cmd_RemoveCommand("cmd");

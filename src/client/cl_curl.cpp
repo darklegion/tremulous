@@ -93,11 +93,11 @@ bool CL_cURL_Init()
 		return true;
 
 	Com_Printf("Loading \"%s\"...", cl_cURLLib->string);
-	if( !(cURLLib = Sys_LoadDll(cl_cURLLib->string, qtrue)) )
+	if( !(cURLLib = Sys_LoadDll(cl_cURLLib->string, true)) )
 	{
 #ifdef ALTERNATE_CURL_LIB
 		// On some linux distributions there is no libcurl.so.3, but only libcurl.so.4. That one works too.
-		if( !(cURLLib = Sys_LoadDll(ALTERNATE_CURL_LIB, qtrue)) )
+		if( !(cURLLib = Sys_LoadDll(ALTERNATE_CURL_LIB, true)) )
 #endif
 			return false;
 	}
@@ -346,7 +346,7 @@ void CL_cURL_PerformDownload(void)
 	}
 	FS_FCloseFile(clc.download);
 	if(msg->msg == CURLMSG_DONE && msg->data.result == CURLE_OK) {
-		FS_SV_Rename(clc.downloadTempName, clc.downloadName, qfalse);
+		FS_SV_Rename(clc.downloadTempName, clc.downloadName, false);
 		clc.downloadRestart = true;
 	}
 	else {

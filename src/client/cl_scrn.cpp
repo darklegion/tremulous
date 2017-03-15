@@ -500,7 +500,7 @@ void SCR_DrawScreenField(stereoFrame_t stereoFrame)
                 // connecting clients will only show the connection dialog
                 // refresh to update the time
                 VM_Call(uivm, UI_REFRESH - (uiInterface == 2 ? 2 : 0), cls.realtime);
-                VM_Call(uivm, UI_DRAW_CONNECT_SCREEN - (uiInterface == 2 ? 2 : 0), qfalse);
+                VM_Call(uivm, UI_DRAW_CONNECT_SCREEN - (uiInterface == 2 ? 2 : 0), false);
                 break;
             case CA_LOADING:
             case CA_PRIMED:

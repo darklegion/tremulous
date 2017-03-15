@@ -31,10 +31,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "libmumblelink.h"
 #endif
 
-extern qboolean loadCamera(const char *name);
-extern void startCamera(int time);
-extern qboolean getCameraInfo(int time, vec3_t *origin, vec3_t *angles);
-
 int cgInterface;
 
 /*
@@ -295,7 +291,7 @@ rescan:
 	if ( !strcmp( cmd, "bcs0" ) )
     {
 		Com_sprintf( bigConfigString, BIG_INFO_STRING, "cs %s \"%s", Cmd_Argv(1), Cmd_Argv(2) );
-		return qfalse;
+		return false;
 	}
 
 	if ( !strcmp( cmd, "bcs1" ) )
@@ -385,7 +381,7 @@ CL_ShutdonwCGame
 */
 void CL_ShutdownCGame( void ) {
 	Key_SetCatcher( Key_GetCatcher( ) & ~KEYCATCH_CGAME );
-	cls.cgameStarted = qfalse;
+	cls.cgameStarted = false;
 	if ( !cgvm ) {
 		return;
 	}
@@ -410,8 +406,8 @@ CL_CgameSystemCalls
 The cgame module is making a system call
 ====================
 */
-intptr_t CL_CgameSystemCalls( intptr_t *args ) {
-
+intptr_t CL_CgameSystemCalls( intptr_t *args )
+{
 	if( cgInterface == 2 && args[0] >= CG_R_SETCLIPREGION && args[0] < CG_MEMSET )
     {
 		if( args[0] < CG_S_STOPBACKGROUNDTRACK - 1 )
@@ -489,7 +485,7 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
             Cmd_RemoveCommandSafe( (const char*)VMA(1) );
             return 0;
         case CG_SENDCLIENTCOMMAND:
-            CL_AddReliableCommand((const char*)VMA(1), qfalse);
+            CL_AddReliableCommand((const char*)VMA(1), false);
             return 0;
         case CG_UPDATESCREEN:
             // this is used during lengthy level loading, so pump message loop
@@ -758,17 +754,6 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
             re.RemapShader( (const char*)VMA(1), (const char*)VMA(2), (const char*)VMA(3) );
             return 0;
 
-#if 0
-           case CG_LOADCAMERA:
-           return loadCamera(VMA(1));
-
-           case CG_STARTCAMERA:
-           startCamera(args[1]);
-           return 0;
-
-           case CG_GETCAMERAINFO:
-           return getCameraInfo(args[1], VMA(2), VMA(3));
-#endif
         case CG_GET_ENTITY_TOKEN:
             return re.GetEntityToken( (char*)VMA(1), args[2] );
         case CG_R_INPVS:

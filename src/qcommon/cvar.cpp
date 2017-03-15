@@ -1205,7 +1205,7 @@ cvar_t *Cvar_Unset(cvar_t *cv)
     if (cv->hashNext)
         cv->hashNext->hashPrev = cv->hashPrev;
 
-    Com_Memset(cv, '\0', sizeof(*cv));
+    ::memset(cv, '\0', sizeof(*cv));
 
     return next;
 }
@@ -1453,7 +1453,7 @@ void Cvar_CompleteCvarName(char *args, int argNum)
         char *p = Com_SkipTokens(args, 1, " ");
 
         if (p > args)
-            Field_CompleteCommand(p, qfalse, qtrue);
+            Field_CompleteCommand(p, false, true);
     }
 }
 
@@ -1466,8 +1466,8 @@ Reads in all archived cvars
 */
 void Cvar_Init(void)
 {
-    Com_Memset(cvar_indexes, '\0', sizeof(cvar_indexes));
-    Com_Memset(hashTable, '\0', sizeof(hashTable));
+    ::memset(cvar_indexes, '\0', sizeof(cvar_indexes));
+    ::memset(hashTable, '\0', sizeof(hashTable));
 
     cvar_cheats = Cvar_Get("sv_cheats", "1", CVAR_ROM | CVAR_SYSTEMINFO);
 

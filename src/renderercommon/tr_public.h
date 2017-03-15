@@ -29,6 +29,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define	REF_API_VERSION		8
 
+// AVI files have the start of pixel lines 4 byte-aligned
+#define AVI_LINE_PADDING 4
+
 //
 // these are the functions exported by the refresh module
 //

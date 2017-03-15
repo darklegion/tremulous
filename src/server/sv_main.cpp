@@ -281,7 +281,7 @@ void SV_MasterHeartbeat(const char *message)
 		// do it when needed
 		if(sv_masters[a][i]->modified || (adrs[a][i][0].type == NA_BAD && adrs[a][i][1].type == NA_BAD))
 		{
-			sv_masters[a][i]->modified = qfalse;
+			sv_masters[a][i]->modified = false;
 			
 			if(netenabled & NET_ENABLEV4)
 			{
@@ -323,7 +323,7 @@ void SV_MasterHeartbeat(const char *message)
 			{
 				Com_Printf("Couldn't resolve address: %s\n", sv_masters[a][i]->string);
 				Cvar_Set(sv_masters[a][i]->name, "");
-				sv_masters[a][i]->modified = qfalse;
+				sv_masters[a][i]->modified = false;
 				continue;
 			}
 		}

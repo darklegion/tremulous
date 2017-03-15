@@ -90,8 +90,8 @@ Con_ToggleMenu_f
 ===================
 */
 void Con_ToggleMenu_f( void ) {
-	CL_KeyEvent( K_ESCAPE, qtrue, Sys_Milliseconds() );
-	CL_KeyEvent( K_ESCAPE, qfalse, Sys_Milliseconds() );
+	CL_KeyEvent( K_ESCAPE, true, Sys_Milliseconds() );
+	CL_KeyEvent( K_ESCAPE, false, Sys_Milliseconds() );
 }
 
 /*
@@ -272,7 +272,7 @@ Cmd_CompleteTxtName
 */
 void Cmd_CompleteTxtName( char *args UNUSED, int argNum ) {
 	if( argNum == 2 ) {
-		Field_CompleteFilename( "", "txt", qfalse, qtrue );
+		Field_CompleteFilename( "", "txt", false, true );
 	}
 }
 

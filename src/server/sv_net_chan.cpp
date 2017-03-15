@@ -52,7 +52,7 @@ static void SV_Netchan_Encode( client_t *client, msg_t *msg ) {
 
 	msg->bit = 0;
 	msg->readcount = 0;
-	msg->oob = qfalse;
+	msg->oob = false;
 
 	/* reliableAcknowledge = */ MSG_ReadLong(msg);
 
@@ -101,7 +101,7 @@ static void SV_Netchan_Decode( client_t *client, msg_t *msg ) {
 	sbit = msg->bit;
 	soob = msg->oob;
 
-	msg->oob = qfalse;
+	msg->oob = false;
 
 	serverId = MSG_ReadLong(msg);
 	messageAcknowledge = MSG_ReadLong(msg);

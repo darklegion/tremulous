@@ -227,7 +227,7 @@ bool SV_EntityContact( vec3_t mins, vec3_t maxs, const sharedEntity_t *gEnt, tra
 	CM_TransformedBoxTrace ( &trace, vec3_origin, vec3_origin, mins, maxs,
 		ch, -1, origin, angles, type );
 
-	return (qboolean)trace.startsolid;
+	return trace.startsolid;
 }
 
 
@@ -511,7 +511,7 @@ void SV_ShutdownGameProgs( void ) {
 	if ( !gvm ) {
 		return;
 	}
-	VM_Call( gvm, GAME_SHUTDOWN, qfalse );
+	VM_Call( gvm, GAME_SHUTDOWN, false );
 	VM_Free( gvm );
 	gvm = NULL;
 }
@@ -555,10 +555,10 @@ void SV_RestartGameProgs( void ) {
 	if ( !gvm ) {
 		return;
 	}
-	VM_Call( gvm, GAME_SHUTDOWN, qtrue );
+	VM_Call( gvm, GAME_SHUTDOWN, true );
 
 	// do a restart instead of a free
-	gvm = VM_Restart(gvm, qtrue);
+	gvm = VM_Restart(gvm, true);
 	if ( !gvm ) {
 		Com_Error( ERR_FATAL, "VM_Restart on game failed" );
 	}

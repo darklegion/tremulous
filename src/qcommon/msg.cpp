@@ -118,7 +118,7 @@ int overflows;
 void MSG_WriteBits(msg_t *msg, int value, int bits)
 {
     int i;
-    //	FILE*	fp;
+    //FILE* fp;
 
     oldsize += bits;
 
@@ -187,7 +187,7 @@ void MSG_WriteBits(msg_t *msg, int value, int bits)
     }
     else
     {
-        //		fp = fopen("c:\\netchan.bin", "a");
+        //fp = fopen("c:\\netchan.bin", "a");
         value &= (0xffffffff >> (32 - bits));
         if (bits & 7)
         {
@@ -204,13 +204,13 @@ void MSG_WriteBits(msg_t *msg, int value, int bits)
         {
             for (i = 0; i < bits; i += 8)
             {
-                //				fwrite(bp, 1, 1, fp);
+                //fwrite(bp, 1, 1, fp);
                 Huff_offsetTransmit(&msgHuff.compressor, (value & 0xff), msg->data, &msg->bit);
                 value = (value >> 8);
             }
         }
         msg->cursize = (msg->bit >> 3) + 1;
-        //		fclose(fp);
+        //fclose(fp);
     }
 }
 
@@ -691,9 +691,14 @@ void MSG_WriteDeltaUsercmdKey(msg_t *msg, int key, usercmd_t *from, usercmd_t *t
         MSG_WriteBits(msg, 0, 1);
         MSG_WriteBits(msg, to->serverTime, 32);
     }
-    if (from->angles[0] == to->angles[0] && from->angles[1] == to->angles[1] && from->angles[2] == to->angles[2] &&
-        from->forwardmove == to->forwardmove && from->rightmove == to->rightmove && from->upmove == to->upmove &&
-        from->buttons == to->buttons && from->weapon == to->weapon)
+    if ( from->angles[0] == to->angles[0]
+      && from->angles[1] == to->angles[1]
+      && from->angles[2] == to->angles[2]
+      && from->forwardmove == to->forwardmove
+      && from->rightmove == to->rightmove
+      && from->upmove == to->upmove
+      && from->buttons == to->buttons
+      && from->weapon == to->weapon )
     {
         MSG_WriteBits(msg, 0, 1);  // no change
         oldsize += 7;

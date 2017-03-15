@@ -596,7 +596,7 @@ void Sys_ErrorDialog( const char *error )
 
 			while( ( size = CON_LogRead( buffer, sizeof( buffer ) ) ) > 0 )
 			{
-				Com_Memcpy( p, buffer, size );
+				memcpy( p, buffer, size );
 				p += size;
 			}
 
