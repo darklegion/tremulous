@@ -1403,7 +1403,7 @@ endif
 
 $(B).zip: $(TARGETS)
 ifeq ($(PLATFORM),darwin)
-	@("./make-macosx-app.sh" release $(ARCH); if [ "$$?" -eq 0 ] && [ -d "$(B)/Tremulous.app" ]; then rm -f $@; cd $(B) && zip --symlinks -r9 ../../$@ `find "Tremulous.app" -print | sed -e "s!$(B)/!!g"`; else rm -f $@; cd $(B) && zip -r9 ../../$@ $(NAKED_TARGETS); fi)
+	@("./make-macosx-app.sh" release $(ARCH); if [ "$$?" -eq 0 ] && [ -d "$(B)/Tremulous.app" ]; then rm -f $@; cd $(B) && zip --symlinks -r9 ../../$@ GPL COPYING CC `find "Tremulous.app" -print | sed -e "s!$(B)/!!g"`; else rm -f $@; cd $(B) && zip -r9 ../../$@ $(NAKED_TARGETS); fi)
 else
 	@rm -f $@
 	@(cd $(B) && zip -r9 ../../$@ $(NAKED_TARGETS))
@@ -1737,6 +1737,15 @@ $(B)/scripts:
 	rsync -rupE --exclude=".*" scripts $(B)
 
 TARGETS += $(B)/scripts
+
+$(B)/GPL:
+	rsync GPL $(B)
+$(B)/COPYING:
+	rsync COPYING $(B)
+$(B)/CC:
+	rsync CC $(B)
+
+TARGETS += $(B)/GPL $(B)/COPYING $(B)/CC
 
 #############################################################################
 # LUA
