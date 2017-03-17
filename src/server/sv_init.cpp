@@ -629,7 +629,7 @@ void SV_SpawnServer(char *server)
     // advertise GPP-compatible extensions
     Cvar_Set("sv_gppExtension", "1");
 
-    CM_LoadMap(va("maps/%s.bsp", server), qfalse, &checksum);
+    CM_LoadMap(va("maps/%s.bsp", server), false, &checksum);
 
     // set serverinfo visible name
     Cvar_Set("mapname", server);

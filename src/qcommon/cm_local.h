@@ -32,10 +32,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	BOX_MODEL_HANDLE		255
 #define CAPSULE_MODEL_HANDLE	254
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 typedef struct {
 	cplane_t	*plane;
 	int			children[2];		// negative numbers are leafs
@@ -78,7 +74,7 @@ typedef struct {
 	int			numsides;
 	cbrushside_t	*sides;
 	int			checkcount;		// to avoid repeated testings
-	qboolean	collided; // marker for optimisation
+	bool	    collided; // marker for optimisation
 	cbrushedge_t	*edges;
 	int						numEdges;
 } cbrush_t;
@@ -130,7 +126,7 @@ typedef struct {
 	int			numClusters;
 	int			clusterBytes;
 	byte		*visibility;
-	qboolean	vised;			// if false, visibility is just a single cluster of ffs
+	bool	vised;			// if false, visibility is just a single cluster of ffs
 
 	int			numEntityChars;
 	char		*entityString;
@@ -185,17 +181,17 @@ typedef struct {
 	vec3_t			bounds[2];	// enclosing box of start and end surrounding by size
 	vec3_t			modelOrigin;// origin of the model tracing through
 	int					contents;	// ored contents of the model tracing through
-	qboolean		isPoint;	// optimized case
+	bool		isPoint;	// optimized case
 	trace_t			trace;		// returned from trace call
 	sphere_t		sphere;		// sphere for oriendted capsule collision
 	biSphere_t	biSphere;
-	qboolean		testLateralCollision; // whether or not to test for lateral collision
+	bool		testLateralCollision; // whether or not to test for lateral collision
 } traceWork_t;
 
 typedef struct leafList_s {
 	int		count;
 	int		maxcount;
-	qboolean	overflowed;
+	bool	overflowed;
 	int		*list;
 	vec3_t	bounds[2];
 	int		lastLeaf;		// for overflows where each leaf can't be stored individually
@@ -211,20 +207,17 @@ void CM_StoreBrushes( leafList_t *ll, int nodenum );
 void CM_BoxLeafnums_r( leafList_t *ll, int nodenum );
 
 cmodel_t	*CM_ClipHandleToModel( clipHandle_t handle );
-qboolean CM_BoundsIntersect( const vec3_t mins, const vec3_t maxs, const vec3_t mins2, const vec3_t maxs2 );
-qboolean CM_BoundsIntersectPoint( const vec3_t mins, const vec3_t maxs, const vec3_t point );
+bool CM_BoundsIntersect( const vec3_t mins, const vec3_t maxs, const vec3_t mins2, const vec3_t maxs2 );
+bool CM_BoundsIntersectPoint( const vec3_t mins, const vec3_t maxs, const vec3_t point );
 
 // cm_patch.c
 
 struct patchCollide_s	*CM_GeneratePatchCollide( int width, int height, vec3_t *points );
 void CM_TraceThroughPatchCollide( traceWork_t *tw, const struct patchCollide_s *pc );
-qboolean CM_PositionTestInPatchCollide( traceWork_t *tw, const struct patchCollide_s *pc );
+bool CM_PositionTestInPatchCollide( traceWork_t *tw, const struct patchCollide_s *pc );
 void CM_ClearLevelPatches( void );
 
 // cm_test.c
 void	CM_FloodAreaConnections (void);
 
-#ifdef __cplusplus
-};
-#endif
 #endif

@@ -354,7 +354,7 @@ Just adds default parameters that cgame doesn't need to know about
 void CL_CM_LoadMap( const char *mapname ) {
 	int		checksum;
 
-	CM_LoadMap( mapname, qtrue, &checksum );
+	CM_LoadMap( mapname, true, &checksum );
 }
 
 char * safe_strncpy(char *dest, const char *src, size_t n)
@@ -503,9 +503,9 @@ intptr_t CL_CgameSystemCalls( intptr_t *args )
         case CG_CM_INLINEMODEL:
             return CM_InlineModel( args[1] );
         case CG_CM_TEMPBOXMODEL:
-            return CM_TempBoxModel( (const float*)VMA(1), (const float*)VMA(2), /*int capsule*/ qfalse );
+            return CM_TempBoxModel( (const float*)VMA(1), (const float*)VMA(2), false );
         case CG_CM_TEMPCAPSULEMODEL:
-            return CM_TempBoxModel( (const float*)VMA(1), (const float*)VMA(2), /*int capsule*/ qtrue );
+            return CM_TempBoxModel( (const float*)VMA(1), (const float*)VMA(2), true );
         case CG_CM_POINTCONTENTS:
             return CM_PointContents( (const float*)VMA(1), args[2] );
         case CG_CM_TRANSFORMEDPOINTCONTENTS:

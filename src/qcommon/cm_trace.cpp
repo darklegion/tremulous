@@ -396,7 +396,7 @@ void CM_TestBoundingBoxInCapsule( traceWork_t *tw, clipHandle_t model ) {
 	VectorSet( tw->sphere.offset, 0, 0, size[1][2] - tw->sphere.radius );
 
 	// replace the capsule with the bounding box
-	h = CM_TempBoxModel(tw->size[0], tw->size[1], qfalse);
+	h = CM_TempBoxModel(tw->size[0], tw->size[1], false);
 	// calculate collision
 	cmod = CM_ClipHandleToModel( h );
 	CM_TestInLeaf( tw, &cmod->leaf );
@@ -427,7 +427,7 @@ void CM_PositionTest( traceWork_t *tw ) {
 	ll.list = leafs;
 	ll.storeLeafs = CM_StoreLeafs;
 	ll.lastLeaf = 0;
-	ll.overflowed = qfalse;
+	ll.overflowed = false;
 
 	cm.checkcount++;
 
@@ -485,7 +485,7 @@ void CM_TraceThroughBrush( traceWork_t *tw, cbrush_t *brush ) {
 	float		dist;
 	float		enterFrac, leaveFrac;
 	float		d1, d2;
-	qboolean	getout, startout;
+	bool	getout, startout;
 	float		f;
 	cbrushside_t	*side, *leadside;
 	float		t;
@@ -502,8 +502,8 @@ void CM_TraceThroughBrush( traceWork_t *tw, cbrush_t *brush ) {
 
 	c_brush_traces++;
 
-	getout = qfalse;
-	startout = qfalse;
+	getout = false;
+	startout = false;
 
 	leadside = NULL;
 
@@ -526,10 +526,10 @@ void CM_TraceThroughBrush( traceWork_t *tw, cbrush_t *brush ) {
 				( plane->dist + tw->biSphere.endRadius );
 
 			if( d2 > 0 )
-				getout = qtrue;	// endpoint is not in solid
+				getout = true;	// endpoint is not in solid
 			
 			if( d1 > 0 )
-				startout = qtrue;
+				startout = true;
 
 			// if completely in front of face, no intersection with the entire brush
 			if( d1 > 0 && ( d2 >= SURFACE_CLIP_EPSILON || d2 >= d1 ) )
@@ -539,7 +539,7 @@ void CM_TraceThroughBrush( traceWork_t *tw, cbrush_t *brush ) {
 			if( d1 <= 0 && d2 <= 0 )
 				continue;
 
-			brush->collided = qtrue;
+			brush->collided = true;
 
 			// crosses face
 			if( d1 > d2 )
@@ -600,10 +600,10 @@ void CM_TraceThroughBrush( traceWork_t *tw, cbrush_t *brush ) {
 			d2 = DotProduct( endp, plane->normal ) - dist;
 
 			if (d2 > 0) {
-				getout = qtrue;	// endpoint is not in solid
+				getout = true;	// endpoint is not in solid
 			}
 			if (d1 > 0) {
-				startout = qtrue;
+				startout = true;
 			}
 
 			// if completely in front of face, no intersection with the entire brush
@@ -616,7 +616,7 @@ void CM_TraceThroughBrush( traceWork_t *tw, cbrush_t *brush ) {
 				continue;
 			}
 
-			brush->collided = qtrue;
+			brush->collided = true;
 
 			// crosses face
 			if (d1 > d2) {	// enter
@@ -656,10 +656,10 @@ void CM_TraceThroughBrush( traceWork_t *tw, cbrush_t *brush ) {
 			d2 = DotProduct( tw->end, plane->normal ) - dist;
 
 			if (d2 > 0) {
-				getout = qtrue;	// endpoint is not in solid
+				getout = true;	// endpoint is not in solid
 			}
 			if (d1 > 0) {
-				startout = qtrue;
+				startout = true;
 			}
 
 			// if completely in front of face, no intersection with the entire brush
@@ -672,7 +672,7 @@ void CM_TraceThroughBrush( traceWork_t *tw, cbrush_t *brush ) {
 				continue;
 			}
 
-			brush->collided = qtrue;
+			brush->collided = true;
 
 			// crosses face
 			if (d1 > d2) {	// enter
@@ -846,7 +846,7 @@ void CM_TraceThroughLeaf( traceWork_t *tw, cLeaf_t *leaf ) {
 			continue;
 		}
 
-		b->collided = qfalse;
+		b->collided = false;
 
 		if ( !CM_BoundsIntersect( tw->bounds[0], tw->bounds[1],
 					b->bounds[0], b->bounds[1] ) ) {
@@ -1216,7 +1216,7 @@ void CM_TraceBoundingBoxThroughCapsule( traceWork_t *tw, clipHandle_t model ) {
 	VectorSet( tw->sphere.offset, 0, 0, size[1][2] - tw->sphere.radius );
 
 	// replace the capsule with the bounding box
-	h = CM_TempBoxModel(tw->size[0], tw->size[1], qfalse);
+	h = CM_TempBoxModel(tw->size[0], tw->size[1], false);
 	// calculate collision
 	cmod = CM_ClipHandleToModel( h );
 	CM_TraceThroughLeaf( tw, &cmod->leaf );
@@ -1502,10 +1502,10 @@ void CM_Trace( trace_t *results, const vec3_t start,
 		// check for point special case
 		//
 		if ( tw.size[0][0] == 0 && tw.size[0][1] == 0 && tw.size[0][2] == 0 ) {
-			tw.isPoint = qtrue;
+			tw.isPoint = true;
 			VectorClear( tw.extents );
 		} else {
-			tw.isPoint = qfalse;
+			tw.isPoint = false;
 			tw.extents[0] = tw.size[1][0];
 			tw.extents[1] = tw.size[1][1];
 			tw.extents[2] = tw.size[1][2];
@@ -1586,7 +1586,7 @@ void CM_TransformedBoxTrace( trace_t *results, const vec3_t start, const vec3_t 
 						  const vec3_t origin, const vec3_t angles, traceType_t type ) {
 	trace_t		trace;
 	vec3_t		start_l, end_l;
-	qboolean	rotated;
+	bool	rotated;
 	vec3_t		offset;
 	vec3_t		symetricSize[2];
 	vec3_t		matrix[3], transpose[3];
@@ -1621,9 +1621,9 @@ void CM_TransformedBoxTrace( trace_t *results, const vec3_t start, const vec3_t 
 	// rotate start and end into the models frame of reference
 	if ( model != BOX_MODEL_HANDLE && 
 		(angles[0] || angles[1] || angles[2]) ) {
-		rotated = qtrue;
+		rotated = true;
 	} else {
-		rotated = qfalse;
+		rotated = false;
 	}
 
 	halfwidth = symetricSize[ 1 ][ 0 ];
@@ -1697,7 +1697,7 @@ void CM_BiSphereTrace( trace_t *results, const vec3_t start,
 	tw.trace.fraction = 1.0f; // assume it goes the entire distance until shown otherwise
 	VectorCopy( vec3_origin, tw.modelOrigin );
 	tw.type = TT_BISPHERE;
-	tw.testLateralCollision = qtrue;
+	tw.testLateralCollision = true;
 	tw.trace.lateralFraction = 1.0f;
 
 	if( !cm.numNodes )
@@ -1733,7 +1733,7 @@ void CM_BiSphereTrace( trace_t *results, const vec3_t start,
 		}
 	}
 
-	tw.isPoint = qfalse;
+	tw.isPoint = false;
 	tw.extents[ 0 ] = largestRadius;
 	tw.extents[ 1 ] = largestRadius;
 	tw.extents[ 2 ] = largestRadius;

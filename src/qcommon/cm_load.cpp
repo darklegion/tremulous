@@ -442,18 +442,18 @@ void CMod_LoadBrushSides (lump_t *l)
 CMod_BrushEdgesAreTheSame
 =================
 */
-static qboolean CMod_BrushEdgesAreTheSame( const vec3_t p0, const vec3_t p1,
+static bool CMod_BrushEdgesAreTheSame( const vec3_t p0, const vec3_t p1,
 		const vec3_t q0, const vec3_t q1 )
 {
 	if( VectorCompareEpsilon( p0, q0, CM_EDGE_VERTEX_EPSILON ) &&
 			VectorCompareEpsilon( p1, q1, CM_EDGE_VERTEX_EPSILON ) )
-		return qtrue;
+		return true;
 
 	if( VectorCompareEpsilon( p1, q0, CM_EDGE_VERTEX_EPSILON ) &&
 			VectorCompareEpsilon( p0, q1, CM_EDGE_VERTEX_EPSILON ) )
-		return qtrue;
+		return true;
 
-	return qfalse;
+	return false;
 }
 
 /*
@@ -461,26 +461,26 @@ static qboolean CMod_BrushEdgesAreTheSame( const vec3_t p0, const vec3_t p1,
 CMod_AddEdgeToBrush
 =================
 */
-static qboolean CMod_AddEdgeToBrush( const vec3_t p0, const vec3_t p1,
+static bool CMod_AddEdgeToBrush( const vec3_t p0, const vec3_t p1,
 		cbrushedge_t *edges, int *numEdges )
 {
 	int i;
 
 	if( !edges || !numEdges )
-		return qfalse;
+		return false;
 
 	for( i = 0; i < *numEdges; i++ )
 	{
 		if( CMod_BrushEdgesAreTheSame( p0, p1,
 					edges[ i ].p0, edges[ i ].p1 ) )
-			return qfalse;
+			return false;
 	}
 
 	VectorCopy( p0, edges[ *numEdges ].p0 );
 	VectorCopy( p1, edges[ *numEdges ].p1 );
 	(*numEdges)++;
 
-	return qtrue;
+	return true;
 }
 
 /*
@@ -611,7 +611,7 @@ void CMod_LoadVisibility( lump_t *l ) {
 	}
 	buf = cmod_base + l->fileofs;
 
-	cm.vised = qtrue;
+	cm.vised = true;
 	cm.visibility = (byte*)Hunk_Alloc( len, h_high );
 	cm.numClusters = LittleLong( ((int *)buf)[0] );
 	cm.clusterBytes = LittleLong( ((int *)buf)[1] );
@@ -712,7 +712,7 @@ CM_LoadMap
 Loads in the map and all submodels
 ==================
 */
-void CM_LoadMap( const char *name, qboolean clientload, int *checksum ) {
+void CM_LoadMap( const char *name, bool clientload, int *checksum ) {
 	union {
 		int				*i;
 		void			*v;

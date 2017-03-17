@@ -205,7 +205,7 @@ void SV_AdjustAreaPortalState( sharedEntity_t *ent, bool open ) {
 	if ( svEnt->areanum2 == -1 ) {
 		return;
 	}
-	CM_AdjustAreaPortalState( svEnt->areanum, svEnt->areanum2, (qboolean)open );
+	CM_AdjustAreaPortalState( svEnt->areanum, svEnt->areanum2, open );
 }
 
 

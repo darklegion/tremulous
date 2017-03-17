@@ -234,7 +234,6 @@ void SV_DirectConnect( netadr_t from ) {
 	const char	*ip;
 	char		*challenge2;
 	bool	    challenge2Verified = false;
-	char		fingerprint[SHA256_DIGEST_SIZE * 2 + 1];
 
 	Com_DPrintf ("SVC_DirectConnect ()\n");
 	
@@ -301,9 +300,11 @@ void SV_DirectConnect( netadr_t from ) {
 			return;
 		}
 	
-        if ( sv_rsaAuth->integer ) {
+        if ( sv_rsaAuth->integer )
+        {
 			challenge2 = Info_ValueForKey( userinfo, "challenge2" );
-			if ( !Q_stricmp( challenge2, svs.challenges[i].challenge2 ) ) {
+			if ( !Q_stricmp( challenge2, svs.challenges[i].challenge2 ) )
+            {
 				challenge2Verified = true;
 			}
 		}
@@ -319,7 +320,8 @@ void SV_DirectConnect( netadr_t from ) {
 		ping = svs.time - challengeptr->pingTime;
 
 		// never reject a LAN client based on ping
-		if ( !Sys_IsLANAddress( from ) ) {
+		if ( !Sys_IsLANAddress( from ) )
+        {
 			if ( sv_minPing->value && ping < sv_minPing->value ) {
 				NET_OutOfBandPrint( NS_SERVER, from, "print\nServer is for high pings only\n" );
 				Com_DPrintf ("Client %i rejected on a too low ping\n", i);
@@ -339,15 +341,17 @@ void SV_DirectConnect( netadr_t from ) {
 	}
 
 	// ignore any fingerprint set by the client
-	Info_RemoveKey( userinfo, "fingerprint" );
+	char fingerprint[SHA256_DIGEST_SIZE * 2 + 1];
+	Info_RemoveKey(userinfo, "fingerprint");
 	fingerprint[0] = '\0';
 
-	if ( sv_rsaAuth->integer && ( NET_IsLocalAddress( from ) || challenge2Verified ) ) {
-		if ( SV_RSA_VerifySignature( Cmd_Argv(2), Cmd_Argv(3), Cmd_Argv(1), fingerprint ) ) {
-			if( strlen( fingerprint ) + strlen( userinfo ) + 13 >= MAX_INFO_STRING ) {
-				NET_OutOfBandPrint( NS_SERVER, from,
-					"print\nUserinfo string length exceeded.  "
-					"Try removing setu cvars from your config.\n" );
+	if ( sv_rsaAuth->integer && (NET_IsLocalAddress(from) || challenge2Verified) )
+    {
+		if ( SV_RSA_VerifySignature(Cmd_Argv(2), Cmd_Argv(3), Cmd_Argv(1), fingerprint) )
+        {
+			if( strlen(fingerprint) + strlen(userinfo) + 13 >= MAX_INFO_STRING )
+            {
+				NET_OutOfBandPrint( NS_SERVER, from, "print\nUserinfo string length exceeded.\n" );
 				return;
 			}
 			Info_SetValueForKey( userinfo, "fingerprint", fingerprint );
@@ -359,22 +363,21 @@ void SV_DirectConnect( netadr_t from ) {
 	::memset(newcl, 0, sizeof(client_t));
 
 	// if there is already a slot for this ip, reuse it
-	for (i=0,cl=svs.clients ; i < sv_maxclients->integer ; i++,cl++) {
-		if ( cl->state == CS_FREE ) {
+	for (i=0,cl=svs.clients ; i < sv_maxclients->integer ; i++,cl++)
+    {
+		if ( cl->state == CS_FREE )
 			continue;
-		}
-		if ( NET_CompareBaseAdr( from, cl->netchan.remoteAddress )
-			&& ( cl->netchan.qport == qport 
-			|| from.port == cl->netchan.remoteAddress.port ) ) {
+
+		if ( NET_CompareBaseAdr(from, cl->netchan.remoteAddress)
+			&& (cl->netchan.qport == qport || from.port == cl->netchan.remoteAddress.port) )
+        {
 			Com_Printf ("%s:reconnect\n", NET_AdrToString (from));
 			newcl = cl;
 
 			// this doesn't work because it nukes the players userinfo
-
-//			// disconnect the client from the game first so any flags the
-//			// player might have are dropped
-//			VM_Call( gvm, GAME_CLIENT_DISCONNECT, newcl - svs.clients );
-			//
+			// disconnect the client from the game first so any flags the
+			// player might have are dropped
+            //			VM_Call( gvm, GAME_CLIENT_DISCONNECT, newcl - svs.clients );
 			goto gotnewcl;
 		}
 	}
@@ -480,9 +483,8 @@ gotnewcl:
 	// the server can hold, send a heartbeat to the master.
 	count = 0;
 	for (i=0,cl=svs.clients ; i < sv_maxclients->integer ; i++,cl++) {
-		if ( svs.clients[i].state >= CS_CONNECTED ) {
+		if ( svs.clients[i].state >= CS_CONNECTED )
 			count++;
-		}
 	}
 	if ( count == 1 || count == sv_maxclients->integer ) {
 		SV_Heartbeat_f();
@@ -1338,9 +1340,9 @@ void SV_UserinfoChanged( client_t *cl ) {
 
 	val = Info_ValueForKey( cl->userinfo, "fingerprint" );
 	if( val[0] )
-		len = strlen( cl->fingerprint ) - strlen( val ) + strlen( cl->userinfo );
+		len = strlen(cl->fingerprint) - strlen(val) + strlen(cl->userinfo);
 	else
-		len = strlen( cl->fingerprint ) + 13 + strlen( cl->userinfo );
+		len = strlen(cl->fingerprint) + 13 + strlen(cl->userinfo);
 
 	if( len >= MAX_INFO_STRING )
 		SV_DropClient( cl, "userinfo string length exceeded" );

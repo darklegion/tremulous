@@ -65,8 +65,7 @@ int MSG_LookaheadByte(struct msg_t *msg);
 void MSG_WriteDeltaUsercmdKey(struct msg_t *msg, int key, usercmd_t *from, usercmd_t *to);
 void MSG_ReadDeltaUsercmdKey(struct msg_t *msg, int key, usercmd_t *from, usercmd_t *to);
 
-void MSG_WriteDeltaEntity(
-    int alternateProtocol, struct msg_t *msg, struct entityState_s *from, struct entityState_s *to, bool force);
+void MSG_WriteDeltaEntity(int alternateProtocol, struct msg_t *msg, struct entityState_s *from, struct entityState_s *to, bool force);
 void MSG_ReadDeltaEntity(int alternateProtocol, struct msg_t *msg, entityState_t *from, entityState_t *to, int number);
 
 void MSG_WriteDeltaPlayerstate(int alternateProtocol, struct msg_t *msg, struct playerState_s *from, struct playerState_s *to);

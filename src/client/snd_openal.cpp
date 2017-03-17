@@ -2525,7 +2525,7 @@ bool S_AL_Init( soundInterface_t *si )
     if ( COM_CompareExtension( s_alDriver->string, ".pk3" ) )
 	{
 		Com_Printf( "Rejecting DLL named \"%s\"", s_alDriver->string );
-		return qfalse;
+		return false;
 	}
 
 	// Load QAL
