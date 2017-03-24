@@ -236,7 +236,7 @@ int          FS_Seek (fileHandle_t f, long offset, enum FS_Origin origin);
 void QDECL   FS_Printf (fileHandle_t h, const char* fmt, ...);
 int          FS_Write (const void* buffer, int len, fileHandle_t h);
 int          FS_Read (void* buffer, int len, fileHandle_t f);
-int          FS_Read2 (void* buffer, int len, fileHandle_t f);
+int          FS_Read (void* buffer, int len, fileHandle_t f);
 int          FS_FindVM (void** startSearch, char* found, int foundlen, const char* name, int enableDll);
 long         FS_FOpenFileRead (const char* filename, fileHandle_t* file, bool uniqueFILE);
 long         FS_FOpenFileReadDir (const char* filename, void* search, fileHandle_t* file, bool uniqueFILE, bool unpure);

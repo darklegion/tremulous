@@ -895,7 +895,7 @@ intptr_t CL_UISystemCalls(intptr_t *args)
             return FS_FOpenFileByMode((const char *)VMA(1), (fileHandle_t *)VMA(2), (FS_Mode)args[3]);
 
         case UI_FS_READ:
-            FS_Read2(VMA(1), args[2], args[3]);
+            FS_Read(VMA(1), args[2], args[3]);
             return 0;
 
         case UI_FS_WRITE:

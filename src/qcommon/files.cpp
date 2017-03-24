@@ -134,7 +134,6 @@ struct fileHandleData_t {
     int zipFilePos;
     int zipFileLen;
     bool zipFile;
-    bool streamed;
     char name[MAX_ZPATH];
 
     void close();
@@ -1322,38 +1321,6 @@ int FS_FindVM(void **startSearch, char *found, int foundlen, const char *name, i
     return -1;
 }
 
-/*
-=================
-FS_Read
-
-Properly handles partial reads
-=================
-*/
-int FS_Read2(void *buffer, int len, fileHandle_t f)
-{
-    if (!fs_searchpaths)
-    {
-        Com_Error(ERR_FATAL, "Filesystem call made without initialization");
-    }
-
-    if (!f)
-    {
-        return 0;
-    }
-    if (fsh[f].streamed)
-    {
-        int r;
-        fsh[f].streamed = false;
-        r = FS_Read(buffer, len, f);
-        fsh[f].streamed = true;
-        return r;
-    }
-    else
-    {
-        return FS_Read(buffer, len, f);
-    }
-}
-
 int FS_Read(void *buffer, int len, fileHandle_t f)
 {
     int block, remaining;
@@ -1496,15 +1463,6 @@ int FS_Seek(fileHandle_t f, long offset, enum FS_Origin origin)
     {
         Com_Error(ERR_FATAL, "Filesystem call made without initialization");
         return -1;
-    }
-
-    if (fsh[f].streamed)
-    {
-        int r;
-        fsh[f].streamed = false;
-        r = FS_Seek(f, offset, origin);
-        fsh[f].streamed = true;
-        return r;
     }
 
     if (fsh[f].zipFile == true)
@@ -3963,8 +3921,6 @@ int FS_FOpenFileByMode(const char *qpath, fileHandle_t *f, enum FS_Mode mode)
     if (*f)
     {
         fsh[*f].fileSize = r;
-        fsh[*f].streamed = false;
-        if (mode == FS_READ) fsh[*f].streamed = true;
     }
     fsh[*f].handleSync = sync;
 

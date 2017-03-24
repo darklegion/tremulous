@@ -463,7 +463,7 @@ intptr_t CL_CgameSystemCalls( intptr_t *args )
         case CG_FS_FOPENFILE:
             return FS_FOpenFileByMode( (const char*)VMA(1), (fileHandle_t*)VMA(2), (FS_Mode)args[3] );
         case CG_FS_READ:
-            FS_Read2( VMA(1), args[2], args[3] );
+            FS_Read( VMA(1), args[2], args[3] );
             return 0;
         case CG_FS_WRITE:
             FS_Write( VMA(1), args[2], args[3] );

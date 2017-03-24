@@ -380,7 +380,6 @@ void Engine_Exit(const char* p )
 
 void Com_Quit_f( void )
 {
-    // don't try to shutdown if we are in a recursive error
     char *p = Cmd_Args();
     Engine_Exit(p);
 }
