@@ -65,7 +65,7 @@ Set FPU control word to default value
   #define _RC_NEAR      0x00000000U
   #define _PC_53	0x00010000U
   
-  unsigned int _controlfp(unsigned int new, unsigned int mask);
+  unsigned int _controlfp(unsigned int _new, unsigned int mask);
 #endif
 
 #define FPUCWMASK1 (_MCW_RC | _MCW_EM)
@@ -84,53 +84,6 @@ void Sys_SetFloatEnv(void)
 
 /*
 ================
-Sys_DefaultHomePath
-================
-*/
-char *Sys_DefaultHomePath( void )
-{
-	TCHAR szPath[MAX_PATH];
-	FARPROC qSHGetFolderPath;
-	HMODULE shfolder = LoadLibrary("shfolder.dll");
-
-	if(shfolder == NULL)
-	{
-		Com_Printf("Unable to load SHFolder.dll\n");
-		return NULL;
-	}
-
-	if(!*homePath && com_homepath)
-	{
-		qSHGetFolderPath = GetProcAddress(shfolder, "SHGetFolderPathA");
-		if(qSHGetFolderPath == NULL)
-		{
-			Com_Printf("Unable to find SHGetFolderPath in SHFolder.dll\n");
-			FreeLibrary(shfolder);
-			return NULL;
-		}
-
-		if( !SUCCEEDED( qSHGetFolderPath( NULL, CSIDL_APPDATA,
-						NULL, 0, szPath ) ) )
-		{
-			Com_Printf("Unable to detect CSIDL_APPDATA\n");
-			FreeLibrary(shfolder);
-			return NULL;
-		}
-		
-		Com_sprintf(homePath, sizeof(homePath), "%s%c", szPath, PATH_SEP);
-
-		if(com_homepath->string[0])
-			Q_strcat(homePath, sizeof(homePath), com_homepath->string);
-		else
-			Q_strcat(homePath, sizeof(homePath), HOMEPATH_NAME_WIN);
-	}
-
-	FreeLibrary(shfolder);
-	return homePath;
-}
-
-/*
-================
 Sys_Milliseconds
 ================
 */
@@ -138,11 +91,11 @@ int sys_timeBase;
 int Sys_Milliseconds (void)
 {
 	int             sys_curtime;
-	static qboolean initialized = qfalse;
+	static bool initialized = false;
 
 	if (!initialized) {
 		sys_timeBase = timeGetTime();
-		initialized = qtrue;
+		initialized = true;
 	}
 	sys_curtime = timeGetTime() - sys_timeBase;
 
@@ -154,22 +107,22 @@ int Sys_Milliseconds (void)
 Sys_RandomBytes
 ================
 */
-qboolean Sys_RandomBytes( byte *string, int len )
+bool Sys_RandomBytes( byte *string, int len )
 {
 	HCRYPTPROV  prov;
 
 	if( !CryptAcquireContext( &prov, NULL, NULL,
 		PROV_RSA_FULL, CRYPT_VERIFYCONTEXT ) )  {
 
-		return qfalse;
+		return false;
 	}
 
 	if( !CryptGenRandom( prov, len, (BYTE *)string ) )  {
 		CryptReleaseContext( prov, 0 );
-		return qfalse;
+		return false;
 	}
 	CryptReleaseContext( prov, 0 );
-	return qtrue;
+	return true;
 }
 
 /*
@@ -283,15 +236,15 @@ FILE *Sys_FOpen( const char *ospath, const char *mode ) {
 Sys_Mkdir
 ==============
 */
-qboolean Sys_Mkdir( const char *path )
+bool Sys_Mkdir( const char *path )
 {
 	if( !CreateDirectory( path, NULL ) )
 	{
 		if( GetLastError( ) != ERROR_ALREADY_EXISTS )
-			return qfalse;
+			return false;
 	}
 
-	return qtrue;
+	return true;
 }
 
 /*
@@ -374,7 +327,7 @@ void Sys_ListFilteredFiles( const char *basedir, char *subdirs,
 			break;
 		}
 		Com_sprintf( filename, sizeof(filename), "%s\\%s", subdirs, findinfo.name );
-		if (!Com_FilterPath( filter, filename, qfalse ))
+		if (!Com_FilterPath( filter, filename, false ))
 			continue;
 		list[ *numfiles ] = CopyString( filename );
 		(*numfiles)++;
@@ -388,7 +341,7 @@ void Sys_ListFilteredFiles( const char *basedir, char *subdirs,
 strgtr
 ==============
 */
-static qboolean strgtr(const char *s0, const char *s1)
+static bool strgtr(const char *s0, const char *s1)
 {
 	int l0, l1, i;
 
@@ -401,13 +354,13 @@ static qboolean strgtr(const char *s0, const char *s1)
 
 	for(i=0;i<l0;i++) {
 		if (s1[i] > s0[i]) {
-			return qtrue;
+			return true;
 		}
 		if (s1[i] < s0[i]) {
-			return qfalse;
+			return false;
 		}
 	}
-	return qfalse;
+	return false;
 }
 
 /*
@@ -416,7 +369,7 @@ Sys_ListFiles
 ==============
 */
 char **Sys_ListFiles( const char *directory, const char *extension,
-        const char *filter, int *numfiles, qboolean wantsubs )
+        const char *filter, int *numfiles, bool wantsubs )
 {
 	char		search[MAX_OSPATH];
 	int			nfiles;
@@ -439,7 +392,7 @@ char **Sys_ListFiles( const char *directory, const char *extension,
 		if (!nfiles)
 			return NULL;
 
-		listCopy = Z_Malloc( ( nfiles + 1 ) * sizeof( *listCopy ) );
+		listCopy = (char**)Z_Malloc( ( nfiles + 1 ) * sizeof( *listCopy ) );
 		for ( i = 0 ; i < nfiles ; i++ ) {
 			listCopy[i] = list[i];
 		}
@@ -502,7 +455,7 @@ char **Sys_ListFiles( const char *directory, const char *extension,
 		return NULL;
 	}
 
-	listCopy = Z_Malloc( ( nfiles + 1 ) * sizeof( *listCopy ) );
+	listCopy = (char**)Z_Malloc( ( nfiles + 1 ) * sizeof( *listCopy ) );
 	for ( i = 0 ; i < nfiles ; i++ ) {
 		listCopy[i] = list[i];
 	}
@@ -742,14 +695,14 @@ int Sys_PID( void )
 Sys_PIDIsRunning
 ==============
 */
-qboolean Sys_PIDIsRunning( int pid )
+bool Sys_PIDIsRunning( int pid )
 {
 	DWORD processes[ 1024 ];
 	DWORD numBytes, numProcesses;
 	int i;
 
 	if( !EnumProcesses( processes, sizeof( processes ), &numBytes ) )
-		return qfalse; // Assume it's not running
+		return false; // Assume it's not running
 
 	numProcesses = numBytes / sizeof( DWORD );
 
@@ -757,8 +710,8 @@ qboolean Sys_PIDIsRunning( int pid )
 	for( i = 0; i < numProcesses; i++ )
 	{
 		if( processes[ i ] == pid )
-			return qtrue;
+			return true;
 	}
 
-	return qfalse;
+	return false;
 }

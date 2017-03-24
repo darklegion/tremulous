@@ -2396,7 +2396,8 @@ endif
 ifdef MINGW
   Q3OBJ += \
     $(B)/client/win_resource.o \
-    $(B)/client/sys_win32.o
+    $(B)/client/sys_win32.o \
+    $(B)/client/sys_win32_default_homepath.o
 else
   Q3OBJ += \
     $(B)/client/sys_unix.o
