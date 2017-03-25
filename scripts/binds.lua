@@ -30,6 +30,21 @@ function TeamSay(text)
     client.addReliableCommand('say_team ' .. text)
 end
 
+function Screenshot()
+    draw2D = cvar.new('cg_draw2d')
+    drawGun = cvar.new('cg_drawgun')
+    _a = draw2D.value
+    _b = drawGun.value
+
+    draw2D.value = 0
+    drawGun.value = 0
+
+    client.addReliableCommand('wait 2; screenshotJPEG silent')
+
+    draw2D.value = _a
+    drawGun.value = _b
+end
+
 binds = { 
     a = bind.new('a', "teamstatus"),
     b = bind.new('b', "script TeamSay('^5Humans have ^1' .. human.score.value .. ' ^2Aliens have ^1' .. alien.score.value)"),
@@ -57,4 +72,6 @@ binds = {
     x = bind.new('x'),
     y = bind.new('y'),
     z = bind.new('z', "screenshotJPEG silent")
+
+    f12 = bind.new('f12', "cg_draw2d ")
 } 

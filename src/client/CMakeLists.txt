@@ -23,7 +23,7 @@ add_definitions(
     -DUSE_INTERNAL_JPEG
     -DUSE_RENDERER_DLOPEN
     -DNDEBUG
-    -DPRODUCT_VERSION="1.2.0 pre-release"
+    -DPRODUCT_VERSION="1.3.0 alpha"
     ${SDL2_DEFINES}
     )
 
@@ -78,13 +78,16 @@ add_executable(
     ${PARENT_DIR}/qcommon/cvar.h
     ${PARENT_DIR}/qcommon/files.cpp
     ${PARENT_DIR}/qcommon/files.h
-    ${PARENT_DIR}/qcommon/huffman.c
+    ${PARENT_DIR}/qcommon/huffman.cpp
+    ${PARENT_DIR}/qcommon/huffman.h
     ${PARENT_DIR}/qcommon/ioapi.c
     ${PARENT_DIR}/qcommon/md4.c
-    ${PARENT_DIR}/qcommon/md5.c
+    ${PARENT_DIR}/qcommon/md5.cpp
     ${PARENT_DIR}/qcommon/msg.cpp
+    ${PARENT_DIR}/qcommon/msg.h
     ${PARENT_DIR}/qcommon/net_chan.cpp
     ${PARENT_DIR}/qcommon/net_ip.cpp
+    ${PARENT_DIR}/qcommon/net.h
     ${PARENT_DIR}/qcommon/parse.cpp
     ${PARENT_DIR}/qcommon/puff.c
     ${PARENT_DIR}/qcommon/q_shared.c
