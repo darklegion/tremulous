@@ -23,7 +23,7 @@ NET
 #define NET_DISABLEPRIMPROTO 0x04
 
 #define PACKET_BACKUP 32  // number of old messages that must be kept on client and
-// server for delta comrpession and ping estimation
+                          // server for delta compression and ping estimation
 #define PACKET_MASK (PACKET_BACKUP - 1)
 
 #define MAX_PACKET_USERCMDS 32  // max number of usercmd_t in a packet
@@ -32,7 +32,7 @@ NET
 
 #define PORT_ANY -1
 
-#define MAX_RELIABLE_COMMANDS 128  // max string commands buffered for restransmit
+#define MAX_RELIABLE_COMMANDS 128  // max string commands buffered for retransmit
 
 enum netadrtype_t {
     NA_BAD = 0,  // an address lookup failed

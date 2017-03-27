@@ -158,7 +158,7 @@ static int numIP;
 NET_ErrorString
 ====================
 */
-char *NET_ErrorString(void)
+const char *NET_ErrorString(void)
 {
 #ifdef _WIN32
     // FIXME: replace with FormatMessage?

@@ -44,7 +44,7 @@ message instead of as part of a netcon.
 All fragments will have the same sequence numbers.
 
 The qport field is a workaround for bad address translating routers that
-sometimes remap the client's source port on a packet during gameplay.
+sometimes remap the client's source port on a packet during game play.
 
 If the base part of the net address matches and the qport matches, then the
 channel matches even if the IP port differs.  The IP port should be updated
@@ -328,7 +328,7 @@ bool Netchan_Process(netchan_t *chan, msg_t *msg)
     }
 
     //
-    // if this is the final framgent of a reliable message,
+    // if this is the final fragment of a reliable message,
     // bump incoming_reliable_sequence
     //
     if (fragmented)
@@ -336,7 +336,7 @@ bool Netchan_Process(netchan_t *chan, msg_t *msg)
         // TTimo
         // make sure we add the fragments in correct order
         // either a packet was dropped, or we received this one too soon
-        // we don't reconstruct the fragments. we will wait till this fragment gets to us again
+        // we don't reconstruct the fragments. We will wait till this fragment gets to us again
         // (NOTE: we could probably try to rebuild by out of order chunks if needed)
         if (sequence != chan->fragmentSequence)
         {
