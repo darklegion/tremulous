@@ -42,9 +42,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <psapi.h>
 #include <float.h>
 
-// Used to determine where to store user-specific files
-static char homePath[ MAX_OSPATH ] = { 0 };
-
 #ifndef DEDICATED
 static UINT timerResolution = 0;
 #endif
@@ -65,7 +62,7 @@ Set FPU control word to default value
   #define _RC_NEAR      0x00000000U
   #define _PC_53	0x00010000U
   
-  unsigned int _controlfp(unsigned int _new, unsigned int mask);
+  extern "C" unsigned int _controlfp(unsigned int _new, unsigned int mask);
 #endif
 
 #define FPUCWMASK1 (_MCW_RC | _MCW_EM)

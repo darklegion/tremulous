@@ -1,3 +1,26 @@
+#include "../qcommon/q_shared.h"
+#include "../qcommon/qcommon.h"
+#include "../qcommon/dialog.h"
+#include "sys_local.h"
+
+#include <windows.h>
+#include <lmerr.h>
+#include <lmcons.h>
+#include <lmwksta.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <direct.h>
+#include <io.h>
+#include <conio.h>
+#include <wincrypt.h>
+#include <shlobj.h>
+#include <psapi.h>
+#include <float.h>
+
+
+// Used to determine where to store user-specific files
+static char homePath[ MAX_OSPATH ] = { 0 };
 
 /*
 ================

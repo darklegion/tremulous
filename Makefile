@@ -2541,6 +2541,7 @@ ifdef MINGW
   Q3DOBJ += \
     $(B)/ded/win_resource.o \
     $(B)/ded/sys_win32.o \
+    $(B)/ded/sys_win32_default_homepath.o \
     $(B)/ded/con_win32.o
 else
   Q3DOBJ += \
