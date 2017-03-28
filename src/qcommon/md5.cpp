@@ -15,6 +15,7 @@
  * will fill a supplied 16-byte array with the digest.
  */
 
+#include "files.h"
 #include "q_shared.h"
 #include "qcommon.h"
 

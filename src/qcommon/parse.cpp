@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+#include "files.h"
 #include "q_shared.h"
 #include "qcommon.h"
 
@@ -314,7 +315,7 @@ punctuation_t default_punctuations[] =
   //precompiler operator
   {"#",P_PRECOMP, NULL},
   {"$",P_DOLLAR, NULL},
-  {NULL, 0}
+  {NULL, 0, NULL}
 };
 
 /*

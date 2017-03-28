@@ -26,6 +26,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define _CLIENT_H_
 
 #include "../cgame/cg_public.h"
+#include "../qcommon/cmd.h"
+#include "../qcommon/cvar.h"
+#include "../qcommon/files.h"
 #include "../qcommon/crypto.h"
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"

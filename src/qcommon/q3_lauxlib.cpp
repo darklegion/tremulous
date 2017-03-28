@@ -5,6 +5,7 @@
 #include <iostream>
 #include <sys/types.h>
 
+#include "cvar.h"
 #include "q_shared.h"
 #include "msg.h"
 #include "net.h"

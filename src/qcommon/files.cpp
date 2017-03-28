@@ -22,6 +22,9 @@
 
 #include "files.h"
 
+#include "cmd.h"
+#include "cvar.h"
+
 #include <cctype>
 #include <cstdarg>
 #include <cstdint>

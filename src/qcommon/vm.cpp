@@ -36,6 +36,8 @@ and one exported function: Perform
 
 #include "vm.h"
 #include "vm_local.h"
+#include "cmd.h"
+#include "files.h"
 #include "sys_shared.h"
 
 

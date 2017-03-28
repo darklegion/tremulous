@@ -29,6 +29,7 @@
 
 #include <stdbool.h>
 
+#include "cvar.h"
 #include "q_shared.h"
 #include "qcommon.h"
 

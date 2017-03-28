@@ -22,6 +22,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 // common.c -- misc functions used in client and server
 
+#include "cmd.h"
+#include "cvar.h"
+#include "files.h"
 #include "q_shared.h"
 #include "qcommon.h"
 #include "crypto.h"

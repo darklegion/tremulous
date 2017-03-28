@@ -109,11 +109,9 @@ enum clc_ops_e {
 	clc_voipOpus,    //
 };
 
-#include "cmd.h"
-
 #include "cvar.h"
 
-#include "files.h"
+//#include "files.h"
 
 /*
 ==============================================================

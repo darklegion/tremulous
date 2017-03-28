@@ -27,10 +27,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <stdbool.h>
 
+#include "msg.h"
+#include "cvar.h"
 #include "q_shared.h"
 #include "qcommon.h"
 #include "alternatePlayerstate.h"
-#include "msg.h"
 #include "huffman.h"
 
 static int bloc = 0;
