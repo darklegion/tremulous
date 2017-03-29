@@ -22,9 +22,6 @@
 
 #include "files.h"
 
-#include "cmd.h"
-#include "cvar.h"
-
 #include <cctype>
 #include <cstdarg>
 #include <cstdint>
@@ -34,6 +31,9 @@
 
 #include <string>
 
+#include "cmd.h"
+#include "cvar.h"
+#include "md4.h"
 #include "q_platform.h"
 #include "q_shared.h"
 #include "qcommon.h"

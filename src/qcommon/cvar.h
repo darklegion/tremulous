@@ -20,7 +20,7 @@
 #define CVAR_H
 
 #ifdef __cplusplus
-extern "C" {
+//extern "C" {
 #endif
 
 #include "q_platform.h"
@@ -200,7 +200,7 @@ extern int cvar_modifiedFlags;
 // can then be cleared to allow another change detection.
 
 #ifdef __cplusplus
-}
+//}
 #endif
 
 #endif

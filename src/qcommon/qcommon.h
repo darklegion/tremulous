@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifdef __cplusplus
 extern "C" {
 #else
+
 #include <stdbool.h>
 #endif
 
@@ -109,9 +110,9 @@ enum clc_ops_e {
 	clc_voipOpus,    //
 };
 
-#include "cvar.h"
+//#include "cvar.h"
 
-//#include "files.h"
+typedef struct cvar_s cvar_t;
 
 /*
 ==============================================================
@@ -187,7 +188,6 @@ void 		Com_Quit_f( void ) __attribute__ ((noreturn));
 void		Com_GameRestart(int checksumFeed, bool disconnect);
 
 int			Com_Milliseconds( void );	// will be journaled properly
-unsigned	Com_BlockChecksum( const void *buffer, int length );
 char		*Com_MD5File(const char *filename, int length, const char *prefix, int prefix_len);
 int			Com_Filter(const char* filter, char *name, int casesensitive);
 int			Com_FilterPath(const char *filter, char *name, int casesensitive);
@@ -416,7 +416,7 @@ bool Parse_SourceFileAndLine(int handle, char *filename, int *line);
 #define DLF_NO_DISCONNECT 8
 
 #ifdef __cplusplus
-};
+}
 #endif
 
 #endif // _QCOMMON_H_

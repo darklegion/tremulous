@@ -29,9 +29,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/qcommon.h"
 #include "snd_public.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+typedef struct cvar_s cvar_t;
 
 #define	PAINTBUFFER_SIZE		4096					// this is in samples
 
@@ -264,7 +262,4 @@ typedef int srcHandle_t;
 
 bool S_AL_Init( soundInterface_t *si );
 
-#ifdef __cplusplus
-};
-#endif
 #endif

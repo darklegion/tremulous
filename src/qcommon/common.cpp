@@ -854,7 +854,8 @@ void Z_Free( void *ptr )
     memzone_t *zone;
 
     if (!ptr) {
-        Com_Error( ERR_DROP, "Z_Free: NULL pointer" );
+        Com_Printf(S_COLOR_YELLOW "Z_Free: NULL pointer" );
+        return;
     }
 
     block = (memblock_t *) ( (byte *)ptr - sizeof(memblock_t));
