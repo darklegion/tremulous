@@ -304,9 +304,9 @@ endif
 # Add git version info
 USE_GIT=
 ifeq ($(wildcard .git),.git)
-  GIT_REV=$(shell git show -s --pretty=format:%h-%ad --date=short)
+  GIT_REV=$(shell git describe --tag)
   ifneq ($(GIT_REV),)
-    VERSION:=$(VERSION)-$(GIT_REV)
+    VERSION:=$(GIT_REV)
     USE_GIT=1
   endif
 endif
