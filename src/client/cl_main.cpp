@@ -4881,7 +4881,7 @@ void CL_Init(void)
 
     cl_guidServerUniq = Cvar_Get("cl_guidServerUniq", "1", CVAR_ARCHIVE);
 
-    cl_rsaAuth = Cvar_Get("cl_rsaAuth", "1", CVAR_INIT | CVAR_PROTECTED);
+    cl_rsaAuth = Cvar_Get("cl_rsaAuth", "0", CVAR_INIT | CVAR_PROTECTED);
 
     // ~ and `, as keys and characters
     cl_consoleKeys = Cvar_Get("cl_consoleKeys", "~ ` 0x7e 0x60", CVAR_ARCHIVE);
