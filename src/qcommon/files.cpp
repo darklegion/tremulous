@@ -3784,12 +3784,7 @@ void FS_InitFilesystem(void)
     // graphics screen when the font fails to load
     if (FS_ReadFile("default.cfg", nullptr) <= 0)
     {
-#ifdef USE_RESTCLIENT
-        GetTremulousPk3s(Sys_DefaultHomePath(), BASEGAME);
-        FS_Restart(0);
-        if (FS_ReadFile("default.cfg", nullptr) <= 0)
-#endif
-            Com_Error(ERR_FATAL, "Couldn't load default.cfg");
+        Com_Error(ERR_FATAL, "Couldn't load default.cfg");
     }
 
     Q_strncpyz(lastValidBase, fs_basegame->string, sizeof(lastValidBase));

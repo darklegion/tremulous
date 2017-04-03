@@ -14,9 +14,8 @@
 #include <errno.h>
 #include <string.h>
 
+#include "../qcommon/files.h"
 #include "restclient/restclient.h"
-
-extern "C" int FS_CreatePath(const char*);
 
 bool is_good(std::string filename, int permissions = (R_OK|W_OK))
 {
