@@ -141,8 +141,9 @@ CGAME_NAME="${CGAME}.dylib"
 GAME_NAME="${GAME}.dylib"
 UI_NAME="${UI}.dylib"
 
-GIT_REV=$(git show -s --pretty=format:%h-%ad --date=short)
-VMS_PK3="vms-${IOQ3_VERSION}-${GIT_REV}.pk3"
+GIT_REV=$(git describe --tags)
+VMS_PK3="vms-${GIT_REV}.pk3"
+DATA_PK3="data-${GIT_REV}.pk3"
 
 RENDERER_OPENGL1_NAME="${RENDERER_OPENGL}1.dylib"
 RENDERER_OPENGL2_NAME="${RENDERER_OPENGL}2.dylib"
@@ -258,6 +259,7 @@ fi
 cp src/libs/macosx/*.dylib ${BUILT_PRODUCTS_DIR}/${EXECUTABLE_FOLDER_PATH}
 cp ${ICNSDIR}/${ICNS} ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/$ICNS || exit 1;
 cp	"${BUILT_PRODUCTS_DIR}/${BASEDIR}/${VMS_PK3}" "${BUNDLEBINDIR}/${BASEDIR}/${VMS_PK3}"
+cp	"${BUILT_PRODUCTS_DIR}/${BASEDIR}/${DATA_PK3}" "${BUNDLEBINDIR}/${BASEDIR}/${DATA_PK3}"
 echo -n ${PKGINFO} > ${BUILT_PRODUCTS_DIR}/${CONTENTS_FOLDER_PATH}/PkgInfo || exit 1;
 echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 <!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
