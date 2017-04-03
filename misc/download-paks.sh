@@ -32,7 +32,7 @@ for dir in ./build/*; do
         if [[ -e $package ]]; then
             rm -f $package # only want 1 copy
         fi
-        curl -G $URL/$i -o $package
+        curl -OL $URL/$i
     done
 
     popd
