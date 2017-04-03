@@ -4,7 +4,8 @@ PLATFORM=${PLATFORM:-$P}
 failed=0
 
 if [[ $PLATFORM != "linux" ]]; then
-    (make V=1 clean release) || failed=1
+    rm -rf build
+    make V=1 release || failed=1
     ./misc/download-paks.sh
 fi
 
