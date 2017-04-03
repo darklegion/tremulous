@@ -20,8 +20,9 @@ for dir in ./build/*; do
         continue;
     fi
 
+    # Download
+
     if [[ $dir == "./build/release-darwin-x86_64" ]]; then
-        echo "Got here"
         pushd $dir/Tremulous.app/Contents/MacOS/gpp/ 
     else
         pushd $dir/gpp
@@ -29,7 +30,7 @@ for dir in ./build/*; do
 
     for i in $packages; do
         if [[ -e $package ]]; then
-            rm -f $package
+            rm -f $package # only want 1 copy
         fi
         wget $URL/$i
     done

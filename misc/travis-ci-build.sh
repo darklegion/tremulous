@@ -5,7 +5,7 @@ failed=0
 
 if [[ $PLATFORM != "linux" ]]; then
     (make V=1 clean release) || failed=1
-    ./download-paks.sh
+    ./misc/download-paks.sh
 fi
 
 if [[ $failed -eq 1 ]]; then
