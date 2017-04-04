@@ -17,8 +17,10 @@
 //#include "lua.hpp"
 //#include "../sol/sol.h"
 
+#include "../qcommon/cvar.h"
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
+#include "../qcommon/sys_shared.h"
 #include "../qcommon/unzip.h"
 
 #include "../qcommon/q_platform.h"

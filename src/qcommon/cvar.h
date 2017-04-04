@@ -20,7 +20,7 @@
 #define CVAR_H
 
 #ifdef __cplusplus
-extern "C" {
+//extern "C" {
 #endif
 
 #include "q_platform.h"
@@ -71,12 +71,12 @@ struct cvar_s {
     char *resetString;  // cvar_restart will reset to this value
     char *latchedString;  // for CVAR_LATCH vars
     int flags;
-    qboolean modified;  // set each time the cvar is changed
+    bool modified;  // set each time the cvar is changed
     int modificationCount;  // incremented each time the cvar is changed
     float value;  // atof( string )
     int integer;  // atoi( string )
-    qboolean validate;
-    qboolean integral;
+    bool validate;
+    bool integral;
     float min;
     float max;
     char *description;
@@ -87,20 +87,6 @@ struct cvar_s {
     cvar_t *hashPrev;
     int hashIndex;
 };
-
-#define MAX_CVAR_VALUE_STRING 256
-
-typedef int cvarHandle_t;
-
-// the modules that run in the virtual machine can't access the cvar_t directly,
-// so they must ask for structured updates
-typedef struct {
-    cvarHandle_t handle;
-    int modificationCount;
-    float value;
-    int integer;
-    char string[MAX_CVAR_VALUE_STRING];
-} vmCvar_t;
 
 /*
 ==============================================================
@@ -144,7 +130,7 @@ void Cvar_Update(vmCvar_t *vmCvar);
 void Cvar_Set(const char *var_name, const char *value);
 // will create the variable with no flags if it doesn't exist
 
-cvar_t *Cvar_Set2(const char *var_name, const char *value, qboolean force);
+cvar_t *Cvar_Set2(const char *var_name, const char *value, bool force);
 // same as Cvar_Set, but allows more control over setting of cvar
 
 void Cvar_SetSafe(const char *var_name, const char *value);
@@ -158,9 +144,9 @@ void Cvar_SetValueSafe(const char *var_name, float value);
 // expands value to a string and calls Cvar_Set/Cvar_SetSafe
 
 // Validate String used to validate cvar names
-qboolean Cvar_ValidateString(const char *s);
+bool Cvar_ValidateString(const char *s);
 cvar_t *Cvar_FindVar(const char *var_name);
-const char *Cvar_Validate(cvar_t *var, const char *value, qboolean warn);
+const char *Cvar_Validate(cvar_t *var, const char *value, bool warn);
 void Cvar_Print(cvar_t *v);
 
 float Cvar_VariableValue(const char *var_name);
@@ -183,7 +169,7 @@ void Cvar_ForceReset(const char *var_name);
 void Cvar_SetCheatState(void);
 // reset all testing vars to a safe value
 
-qboolean Cvar_Command(void);
+bool Cvar_Command(void);
 // called by Cmd_ExecuteString when Cmd_Argv(0) doesn't match a known
 // command.  Returns true if the command was a variable reference that
 // was handled. (print or change)
@@ -199,10 +185,10 @@ char *Cvar_InfoString_Big(int bit);
 // returns an info string containing all the cvars that have the given bit set
 // in their flags ( CVAR_USERINFO, CVAR_SERVERINFO, CVAR_SYSTEMINFO, etc )
 void Cvar_InfoStringBuffer(int bit, char *buff, int buffsize);
-void Cvar_CheckRange(cvar_t *cv, float minVal, float maxVal, qboolean shouldBeIntegral);
+void Cvar_CheckRange(cvar_t *cv, float minVal, float maxVal, bool shouldBeIntegral);
 void Cvar_SetDescription(cvar_t *var, const char *var_description);
 
-void Cvar_Restart(qboolean unsetVM);
+void Cvar_Restart(bool unsetVM);
 void Cvar_Restart_f(void);
 
 void Cvar_CompleteCvarName(char *args, int argNum);
@@ -214,7 +200,7 @@ extern int cvar_modifiedFlags;
 // can then be cleared to allow another change detection.
 
 #ifdef __cplusplus
-}
+//}
 #endif
 
 #endif

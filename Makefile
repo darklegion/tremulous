@@ -20,6 +20,9 @@ endif
 ifndef BUILD_SERVER
   BUILD_SERVER     =
 endif
+ifndef BUILD_GRANGER
+  BUILD_GRANGER    =
+endif
 ifndef BUILD_GAME_SO
   BUILD_GAME_SO    =
 endif
@@ -98,7 +101,7 @@ endif
 export CROSS_COMPILING
 
 ifndef VERSION
-VERSION=1.2.0
+VERSION=1.3.0
 endif
 
 ifndef CLIENTBIN
@@ -304,9 +307,9 @@ endif
 # Add git version info
 USE_GIT=
 ifeq ($(wildcard .git),.git)
-  GIT_REV=$(shell git show -s --pretty=format:%h-%ad --date=short)
+  GIT_REV=$(shell git describe --tag)
   ifneq ($(GIT_REV),)
-    VERSION:=$(VERSION)-$(GIT_REV)
+    VERSION:=$(GIT_REV)
     USE_GIT=1
   endif
 endif
@@ -993,14 +996,14 @@ ifneq ($(BUILD_GAME_QVM),0)
     $(B)/$(BASEGAME)/vm/cgame.qvm \
     $(B)/$(BASEGAME)/vm/game.qvm \
     $(B)/$(BASEGAME)/vm/ui.qvm \
-	$(B)/$(BASEGAME)/vms-$(VERSION).pk3
+	$(B)/$(BASEGAME)/vms-gpp-$(VERSION).pk3
 endif
 
 ifneq ($(BUILD_GAME_QVM_11),0)
   TARGETS += \
     $(B)/$(BASEGAME)_11/vm/cgame.qvm \
     $(B)/$(BASEGAME)_11/vm/ui.qvm \
-	$(B)/$(BASEGAME)_11/vms-$(VERSION).pk3
+	$(B)/$(BASEGAME)_11/vms-1.1.0-$(VERSION).pk3
 endif
 
 ifneq ($(BUILD_DATA_PK3),0)
@@ -1160,6 +1163,8 @@ EXEC_CC = $(CC) ${1} -o ${2} -c ${3}
 #LOG_CC = $(file >>$(B)/compile_commands.txt,{ "target": "${1}", "directory": "$(shell pwd)/$(shell dirname $3)", "command": "${CC} ${2} -o ${3} -c ${4}", "file": "$(shell pwd)/${4}", "relative_file": "${4}" })
 
 EXEC_CXX = $(CXX) -std=c++1y ${CXXFLAGS} ${1} -o ${2} -c ${3}
+
+EXEC_CXX = $(CXX) -std=c++1y ${CXXFLAGS} ${1} -o ${2} -c ${3}
 #LOG_CXX = $(file >>$(B)/compile_commands.txt,{ "target": "${1}", "directory": "$(shell pwd)/$(shell dirname $3)", "command": "${CXX} ${2} -o ${3} -c ${4}", "file": "$(shell pwd)/${4}", "relative_file": "${4}"})
 
 # TREMULOUS CLIENT
@@ -1185,6 +1190,11 @@ $(echo_cmd) "RENDERER_COMMON_CC $<"
 $(Q)$(call EXEC_CC,${REF_CC_FLAGS},'$@','$<')
 $(Q)$(call LOG_CC,renderer_common,${REF_CC_FLAGS},$@,$<)
 endef
+define DO_RENDERER_COMMON_CXX
+$(echo_cmd) "RENDERER_COMMON_CXX $<"
+$(Q)$(call EXEC_CXX,${REF_CC_FLAGS},'$@','$<')
+$(Q)$(call LOG_CXX,renderer_common,${REF_CC_FLAGS},$@,$<)
+endef
 ##########################################
 # Renderers
 ##########################################
@@ -1208,6 +1218,11 @@ define DO_RENDERERGL2_CC
 $(echo_cmd) "GL2_RENDERER_CC $<"
 $(Q)$(call EXEC_CC,${REF_CC_FLAGS},'$@','$<')
 $(Q)$(call LOG_CC,opengl2,${REF_CC_FLAGS},$@,$<)
+endef
+define DO_RENDERERGL2_CXX
+$(echo_cmd) "RENDERERGL2_CXX $<"
+$(Q)$(call EXEC_CXX,${REF_CC_FLAGS},'$@','$<')
+$(Q)$(call LOG_CXX,opengl2,${REF_CC_FLAGS},$@,$<)
 endef
 
 define DO_REF_STR
@@ -1731,7 +1746,9 @@ $(B)/granger$(FULLBINEXT): $(GRANGEROBJ)
 	$(echo_cmd) "LD $@"
 	$(Q)$(CC) $(LDFLAGS) -o $@ $(GRANGEROBJ) $(GRANGER_LIBS) 
 
+ifneq ($(BUILD_GRANGER),0)
 TARGETS += $(B)/granger$(FULLBINEXT)
+endif
 
 $(B)/scripts:
 	rsync -rupE --exclude=".*" scripts $(B)
@@ -2364,15 +2381,14 @@ endif
 #-bbq
 ifeq ($(USE_RESTCLIENT),1)
   Q3OBJ += \
-  	$(B)/client/restclient/connection.o \
-  	$(B)/client/restclient/helpers.o \
-  	$(B)/client/restclient/restclient.o
+  $(B)/client/restclient/connection.o \
+  $(B)/client/restclient/helpers.o \
+  $(B)/client/restclient/restclient.o
 endif
 
 ifeq ($(HAVE_VM_COMPILED),true)
   ifneq ($(findstring $(ARCH),x86 x86_64),)
-    Q3OBJ += \
-      $(B)/client/vm_x86.o
+    Q3OBJ += $(B)/client/vm_x86.o
   endif
   ifneq ($(findstring $(ARCH),ppc ppc64),)
     Q3OBJ += $(B)/client/vm_powerpc.o $(B)/client/vm_powerpc_asm.o
@@ -2385,7 +2401,8 @@ endif
 ifdef MINGW
   Q3OBJ += \
     $(B)/client/win_resource.o \
-    $(B)/client/sys_win32.o
+    $(B)/client/sys_win32.o \
+    $(B)/client/sys_win32_default_homepath.o
 else
   Q3OBJ += \
     $(B)/client/sys_unix.o
@@ -2529,6 +2546,7 @@ ifdef MINGW
   Q3DOBJ += \
     $(B)/ded/win_resource.o \
     $(B)/ded/sys_win32.o \
+    $(B)/ded/sys_win32_default_homepath.o \
     $(B)/ded/con_win32.o
 else
   Q3DOBJ += \
@@ -2747,10 +2765,10 @@ $(B)/$(BASEGAME)_11/vm/ui.qvm: $(UIVMOBJ11) $(UIDIR)/ui_syscalls_11.asm $(Q3ASM)
 ## QVM Package
 #############################################################################
 
-$(B)/$(BASEGAME)/vms-$(VERSION).pk3: $(B)/$(BASEGAME)/vm/ui.qvm $(B)/$(BASEGAME)/vm/cgame.qvm $(B)/$(BASEGAME)/vm/game.qvm
+$(B)/$(BASEGAME)/vms-gpp-$(VERSION).pk3: $(B)/$(BASEGAME)/vm/ui.qvm $(B)/$(BASEGAME)/vm/cgame.qvm $(B)/$(BASEGAME)/vm/game.qvm
 	@(cd $(B)/$(BASEGAME) && zip -r vms-$(VERSION).pk3 vm/)
 
-$(B)/$(BASEGAME)_11/vms-$(VERSION).pk3: $(B)/$(BASEGAME)_11/vm/ui.qvm $(B)/$(BASEGAME)_11/vm/cgame.qvm 
+$(B)/$(BASEGAME)_11/vms-1.1.0-$(VERSION).pk3: $(B)/$(BASEGAME)_11/vm/ui.qvm $(B)/$(BASEGAME)_11/vm/cgame.qvm 
 	@(cd $(B)/$(BASEGAME)_11 && zip -r vms-$(VERSION).pk3 vm/)
 
 
@@ -2821,14 +2839,17 @@ $(B)/client/%.o: $(ZDIR)/%.c
 $(B)/client/%.o: $(SDLDIR)/%.c
 	$(DO_CC)
 
+$(B)/client/%.o: $(SDLDIR)/%.cpp
+	$(DO_CXX)
+
 $(B)/client/%.o: $(SYSDIR)/%.c
 	$(DO_CC)
 
 $(B)/client/%.o: $(SYSDIR)/%.cpp
 	$(DO_CXX)
 
-$(B)/client/%.o: $(SYSDIR)/%.m
-	$(DO_CC)
+$(B)/client/%.o: $(SYSDIR)/%.mm
+	$(DO_CXX)
 
 #-wtf
 $(B)/client/restclient/%.o: $(RESTDIR)/%.cpp
@@ -2841,6 +2862,8 @@ $(B)/client/%.o: $(SYSDIR)/%.rc
 
 $(B)/renderercommon/%.o: $(SDLDIR)/%.c
 	$(DO_RENDERER_COMMON_CC)
+$(B)/renderercommon/%.o: $(SDLDIR)/%.cpp
+	$(DO_RENDERER_COMMON_CXX)
 $(B)/renderercommon/%.o: $(JPDIR)/%.c
 	$(DO_RENDERER_COMMON_CC)
 
@@ -2863,7 +2886,12 @@ $(B)/renderergl2/%.o: $(RCOMMONDIR)/%.c
 	$(DO_RENDERER_COMMON_CC)
 $(B)/renderergl2/%.o: $(RGL2DIR)/%.c
 	$(DO_RENDERERGL2_CC)
+$(B)/renderergl2/%.o: $(RCOMMONDIR)/%.cpp
+	$(DO_RENDERER_COMMON_CXX)
+$(B)/renderergl2/%.o: $(RGL2DIR)/%.cpp
+	$(DO_RENDERERGL2_CXX)
 
+$
 $(B)/ded/%.o: $(ASMDIR)/%.s
 	$(DO_DED_AS)
 
@@ -2892,14 +2920,17 @@ $(B)/ded/%.o: $(SYSDIR)/%.c
 $(B)/ded/%.o: $(SYSDIR)/%.cpp
 	$(DO_DED_CXX)
 
-$(B)/ded/%.o: $(SYSDIR)/%.m
-	$(DO_DED_CC)
+$(B)/ded/%.o: $(SYSDIR)/%.mm
+	$(DO_DED_CXX)
 
 $(B)/ded/%.o: $(SYSDIR)/%.rc
 	$(DO_WINDRES)
 
 $(B)/ded/%.o: $(NDIR)/%.c
 	$(DO_DED_CC)
+
+$(B)/ded/%.o: $(NDIR)/%.cpp
+	$(DO_DED_CXX)
 
 # Extra dependencies to ensure the git version is incorporated
 ifeq ($(USE_GIT),1)

@@ -23,13 +23,13 @@ add_definitions(
     -DUSE_INTERNAL_JPEG
     -DUSE_RENDERER_DLOPEN
     -DNDEBUG
-    -DPRODUCT_VERSION="1.2.0 pre-release"
+    -DPRODUCT_VERSION="1.3.0 alpha"
     ${SDL2_DEFINES}
     )
 
 set(PARENT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/..)
 if(APPLE)
-set(APPLE_SOURCES ${PARENT_DIR}/sys/sys_osx.m)
+set(APPLE_SOURCES ${PARENT_DIR}/sys/sys_osx.mm)
 endif(APPLE)
 
 add_executable(
@@ -38,79 +38,82 @@ add_executable(
     ${PARENT_DIR}/asm/ftola.c
     ${PARENT_DIR}/asm/snapvector.c
     #
-    cl_avi.c
-    cl_cgame.c
-    cl_cin.c
-    cl_console.c
-    cl_curl.c
-    cl_input.c
-    cl_keys.c
-    cl_main.c
-    cl_net_chan.c
-    cl_parse.c
+    cl_avi.cpp
+    cl_cgame.cpp
+    cl_cin.cpp
+    cl_console.cpp
+    cl_curl.cpp
+    cl_input.cpp
+    cl_keys.cpp
+    cl_main.cpp
+    cl_net_chan.cpp
+    cl_parse.cpp
     cl_rest.cpp
-    cl_scrn.c
-    cl_ui.c
+    cl_scrn.cpp
+    cl_ui.cpp
     cl_updates.cpp
-    libmumblelink.c
-    qal.c
-    snd_adpcm.c
-    snd_codec.c
-    snd_codec_ogg.c
-    snd_codec_opus.c
-    snd_codec_wav.c
-    snd_dma.c
-    snd_main.c
-    snd_mem.c
-    snd_mix.c
-    snd_openal.c
-    snd_wavelet.c
+    libmumblelink.cpp
+    qal.cpp
+    snd_adpcm.cpp
+    snd_codec.cpp
+    snd_codec_ogg.cpp
+    snd_codec_opus.cpp
+    snd_codec_wav.cpp
+    snd_dma.cpp
+    snd_main.cpp
+    snd_mem.cpp
+    snd_mix.cpp
+    snd_openal.cpp
+    snd_wavelet.cpp
     #
-    ${PARENT_DIR}/qcommon/cm_load.c
-    ${PARENT_DIR}/qcommon/cm_patch.c
-    ${PARENT_DIR}/qcommon/cm_polylib.c
-    ${PARENT_DIR}/qcommon/cm_test.c
-    ${PARENT_DIR}/qcommon/cm_trace.c
+    ${PARENT_DIR}/qcommon/cm_load.cpp
+    ${PARENT_DIR}/qcommon/cm_patch.cpp
+    ${PARENT_DIR}/qcommon/cm_polylib.cpp
+    ${PARENT_DIR}/qcommon/cm_test.cpp
+    ${PARENT_DIR}/qcommon/cm_trace.cpp
     ${PARENT_DIR}/qcommon/cmd.cpp
-    ${PARENT_DIR}/qcommon/common.c
+    ${PARENT_DIR}/qcommon/common.cpp
     ${PARENT_DIR}/qcommon/crypto.c
     ${PARENT_DIR}/qcommon/cvar.cpp
     ${PARENT_DIR}/qcommon/cvar.h
     ${PARENT_DIR}/qcommon/files.cpp
     ${PARENT_DIR}/qcommon/files.h
     ${PARENT_DIR}/qcommon/huffman.c
+    ${PARENT_DIR}/qcommon/huffman.h
     ${PARENT_DIR}/qcommon/ioapi.c
     ${PARENT_DIR}/qcommon/md4.c
-    ${PARENT_DIR}/qcommon/md5.c
-    ${PARENT_DIR}/qcommon/msg.c
-    ${PARENT_DIR}/qcommon/net_chan.c
-    ${PARENT_DIR}/qcommon/net_ip.c
-    ${PARENT_DIR}/qcommon/parse.c
+    ${PARENT_DIR}/qcommon/md5.cpp
+    ${PARENT_DIR}/qcommon/msg.cpp
+    ${PARENT_DIR}/qcommon/msg.h
+    ${PARENT_DIR}/qcommon/net_chan.cpp
+    ${PARENT_DIR}/qcommon/net_ip.cpp
+    ${PARENT_DIR}/qcommon/net.h
+    ${PARENT_DIR}/qcommon/parse.cpp
     ${PARENT_DIR}/qcommon/puff.c
     ${PARENT_DIR}/qcommon/q_shared.c
     ${PARENT_DIR}/qcommon/q3_lauxlib.cpp
     ${PARENT_DIR}/qcommon/q_math.c
     ${PARENT_DIR}/qcommon/unzip.c
-    ${PARENT_DIR}/qcommon/vm.c
-    ${PARENT_DIR}/qcommon/vm_interpreted.c
-    ${PARENT_DIR}/qcommon/vm_x86.c
+    ${PARENT_DIR}/qcommon/vm.cpp
+    ${PARENT_DIR}/qcommon/vm_interpreted.cpp
+    ${PARENT_DIR}/qcommon/vm_x86.cpp
     #
-    ${PARENT_DIR}/sdl/sdl_input.c
-    ${PARENT_DIR}/sdl/sdl_snd.c
+    ${PARENT_DIR}/sdl/sdl_input.cpp
+    ${PARENT_DIR}/sdl/sdl_snd.cpp
     #
-    ${PARENT_DIR}/server/sv_ccmds.c
-    ${PARENT_DIR}/server/sv_client.c
-    ${PARENT_DIR}/server/sv_game.c
-    ${PARENT_DIR}/server/sv_init.c
-    ${PARENT_DIR}/server/sv_main.c
-    ${PARENT_DIR}/server/sv_net_chan.c
-    ${PARENT_DIR}/server/sv_snapshot.c
-    ${PARENT_DIR}/server/sv_world.c
+    ${PARENT_DIR}/server/sv_ccmds.cpp
+    ${PARENT_DIR}/server/sv_client.cpp
+    ${PARENT_DIR}/server/sv_game.cpp
+    ${PARENT_DIR}/server/sv_init.cpp
+    ${PARENT_DIR}/server/sv_main.cpp
+    ${PARENT_DIR}/server/sv_net_chan.cpp
+    ${PARENT_DIR}/server/sv_snapshot.cpp
+    ${PARENT_DIR}/server/sv_world.cpp
     #
-    ${PARENT_DIR}/sys/con_log.c
-    ${PARENT_DIR}/sys/con_tty.c
+    ${PARENT_DIR}/sys/con_log.cpp
+    ${PARENT_DIR}/sys/con_tty.cpp
     ${PARENT_DIR}/sys/sys_main.cpp
-    ${PARENT_DIR}/sys/sys_unix.c
+    ${PARENT_DIR}/sys/sys_unix.cpp
     ${APPLE_SOURCES}
     )
 

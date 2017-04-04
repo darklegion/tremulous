@@ -90,6 +90,8 @@ Each particle template has a number of attributes:
 - `childSystem <particle system>` - specifies a particle system to attach to this particle.
 - `childTrailSystem <trail system>` - specifies a trail system to attach to this particle.
 - `onDeathSystem <particle system>` - specifies a particle system to spawn at the point where this particle died.
+- `physicsRadius` - ???
+- `scaleWithCharge` - ???
 
 Except for vector components, shader fps ... and `period <initial><final> <variance>`, every value can be specified with a random variance.
 The syntax for this is as follows:

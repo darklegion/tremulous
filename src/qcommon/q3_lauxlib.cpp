@@ -5,8 +5,12 @@
 #include <iostream>
 #include <sys/types.h>
 
+#include "cvar.h"
 #include "q_shared.h"
+#include "msg.h"
+#include "net.h"
 #include "qcommon.h"
+#include "sys_shared.h"
 
 size_t lua_writestring(char* string, size_t n)
 {

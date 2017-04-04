@@ -26,9 +26,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #ifdef __cplusplus
 extern "C" {
+#else
+
+#include <stdbool.h>
 #endif
 
-#include "../qcommon/cm_public.h"
+#include "cm_public.h"
 
 //Ignore __attribute__ on non-gcc platforms
 #ifndef __GNUC__
@@ -37,218 +40,8 @@ extern "C" {
 #endif
 #endif
 
-//============================================================================
-
-//
-// msg.c
-//
-typedef struct {
-	qboolean	allowoverflow;	// if false, do a Com_Error
-	qboolean	overflowed;		// set to true if the buffer size failed (with allowoverflow set)
-	qboolean	oob;			// set to true if the buffer size failed (with allowoverflow set)
-	byte	*data;
-	int		maxsize;
-	int		cursize;
-	int		readcount;
-	int		bit;				// for bitwise reads and writes
-} msg_t;
-
-void MSG_Init (msg_t *buf, byte *data, int length);
-void MSG_InitOOB( msg_t *buf, byte *data, int length );
-void MSG_Clear (msg_t *buf);
-void MSG_WriteData (msg_t *buf, const void *data, int length);
-void MSG_Bitstream( msg_t *buf );
-
-// TTimo
-// copy a msg_t in case we need to store it as is for a bit
-// (as I needed this to keep an msg_t from a static var for later use)
-// sets data buffer as MSG_Init does prior to do the copy
-void MSG_Copy(msg_t *buf, byte *data, int length, msg_t *src);
-
-struct usercmd_s;
-struct entityState_s;
-struct playerState_s;
-
-void MSG_WriteBits( msg_t *msg, int value, int bits );
-
-void MSG_WriteChar (msg_t *sb, int c);
-void MSG_WriteByte (msg_t *sb, int c);
-void MSG_WriteShort (msg_t *sb, int c);
-void MSG_WriteLong (msg_t *sb, int c);
-void MSG_WriteFloat (msg_t *sb, float f);
-void MSG_WriteString (msg_t *sb, const char *s);
-void MSG_WriteBigString (msg_t *sb, const char *s);
-void MSG_WriteAngle16 (msg_t *sb, float f);
-int MSG_HashKey(int alternateProtocol, const char *string, int maxlen);
-
-void	MSG_BeginReading (msg_t *sb);
-void	MSG_BeginReadingOOB(msg_t *sb);
-
-int		MSG_ReadBits( msg_t *msg, int bits );
-
-int		MSG_ReadChar (msg_t *sb);
-int		MSG_ReadByte (msg_t *sb);
-int		MSG_ReadShort (msg_t *sb);
-int		MSG_ReadLong (msg_t *sb);
-float	MSG_ReadFloat (msg_t *sb);
-char	*MSG_ReadString (msg_t *sb);
-char	*MSG_ReadBigString (msg_t *sb);
-char	*MSG_ReadStringLine (msg_t *sb);
-float	MSG_ReadAngle16 (msg_t *sb);
-void	MSG_ReadData (msg_t *sb, void *buffer, int size);
-int		MSG_LookaheadByte (msg_t *msg);
-
-void MSG_WriteDeltaUsercmdKey( msg_t *msg, int key, usercmd_t *from, usercmd_t *to );
-void MSG_ReadDeltaUsercmdKey( msg_t *msg, int key, usercmd_t *from, usercmd_t *to );
-
-void MSG_WriteDeltaEntity( int alternateProtocol, msg_t *msg, struct entityState_s *from, struct entityState_s *to
-						   , qboolean force );
-void MSG_ReadDeltaEntity( int alternateProtocol, msg_t *msg, entityState_t *from, entityState_t *to,
-						 int number );
-
-void MSG_WriteDeltaPlayerstate( int alternateProtocol, msg_t *msg, struct playerState_s *from, struct playerState_s *to );
-void MSG_ReadDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct playerState_s *to );
-struct alternatePlayerState_s;
-void MSG_ReadDeltaAlternatePlayerstate( msg_t *msg, struct alternatePlayerState_s *from, struct alternatePlayerState_s *to );
-
-
-void MSG_ReportChangeVectors_f( void );
-
-//============================================================================
-
-/*
-==============================================================
-
-NET
-
-==============================================================
-*/
-
-#define NET_ENABLEV4            0x01
-#define NET_ENABLEV6            0x02
-// if this flag is set, always attempt ipv6 connections instead of ipv4 if a v6 address is found.
-#define NET_PRIOV6              0x04
-// disables ipv6 multicast support if set.
-#define NET_DISABLEMCAST        0x08
-
-#define NET_ENABLEALT1PROTO      0x01
-#define NET_ENABLEALT2PROTO      0x02
-#define NET_DISABLEPRIMPROTO    0x04
-
-
-#define	PACKET_BACKUP	32	// number of old messages that must be kept on client and
-							// server for delta comrpession and ping estimation
-#define	PACKET_MASK		(PACKET_BACKUP-1)
-
-#define	MAX_PACKET_USERCMDS		32		// max number of usercmd_t in a packet
-
-#define	MAX_SNAPSHOT_ENTITIES	256
-
-#define	PORT_ANY			-1
-
-#define	MAX_RELIABLE_COMMANDS	128			// max string commands buffered for restransmit
-
-typedef enum {
-	NA_BAD = 0,					// an address lookup failed
-	NA_LOOPBACK,
-	NA_BROADCAST,
-	NA_IP,
-	NA_IP6,
-	NA_MULTICAST6,
-	NA_UNSPEC
-} netadrtype_t;
-
-typedef enum {
-	NS_CLIENT,
-	NS_SERVER
-} netsrc_t;
-
-#define NET_ADDRSTRMAXLEN 48	// maximum length of an IPv6 address string including trailing '\0'
-typedef struct {
-	netadrtype_t	type;
-
-	byte	ip[4];
-	byte	ip6[16];
-
-	unsigned short	port;
-	unsigned long	scope_id;	// Needed for IPv6 link-local addresses
-
-	int	alternateProtocol;
-} netadr_t;
-
-void		NET_Init( void );
-void		NET_Shutdown( void );
-void		NET_Restart_f( void );
-void		NET_Config( qboolean enableNetworking );
-void		NET_FlushPacketQueue(void);
-void		NET_SendPacket (netsrc_t sock, int length, const void *data, netadr_t to);
-void		QDECL NET_OutOfBandPrint( netsrc_t net_socket, netadr_t adr, const char *format, ...) __attribute__ ((format (printf, 3, 4)));
-void		QDECL NET_OutOfBandData( netsrc_t sock, netadr_t adr, byte *format, int len );
-
-qboolean	NET_CompareAdr (netadr_t a, netadr_t b);
-qboolean	NET_CompareBaseAdrMask(netadr_t a, netadr_t b, int netmask);
-qboolean	NET_CompareBaseAdr (netadr_t a, netadr_t b);
-qboolean	NET_IsLocalAddress (netadr_t adr);
-const char	*NET_AdrToString (netadr_t a);
-const char	*NET_AdrToStringwPort (netadr_t a);
-int		NET_StringToAdr ( const char *s, netadr_t *a, netadrtype_t family);
-qboolean	NET_GetLoopPacket (netsrc_t sock, netadr_t *net_from, msg_t *net_message);
-void		NET_JoinMulticast6(void);
-void		NET_LeaveMulticast6(void);
-void		NET_Sleep(int msec);
-
-
-#define	MAX_MSGLEN				16384		// max length of a message, which may
-											// be fragmented into multiple packets
-
-#define MAX_DOWNLOAD_WINDOW		48	// ACK window of 48 download chunks. Cannot set this higher, or clients
-						// will overflow the reliable commands buffer
-#define MAX_DOWNLOAD_BLKSIZE		1024	// 896 byte block chunks
-
-#define NETCHAN_GENCHECKSUM(challenge, sequence) ((challenge) ^ ((sequence) * (challenge)))
-
-/*
-Netchan handles packet fragmentation and out of order / duplicate suppression
-*/
-
-typedef struct {
-	netsrc_t	sock;
-
-	int			dropped;			// between last packet and previous
-
-	int			alternateProtocol;
-	netadr_t	remoteAddress;
-	int			qport;				// qport value to write when transmitting
-
-	// sequencing variables
-	int			incomingSequence;
-	int			outgoingSequence;
-
-	// incoming fragment assembly buffer
-	int			fragmentSequence;
-	int			fragmentLength;	
-	byte		fragmentBuffer[MAX_MSGLEN];
-
-	// outgoing fragment buffer
-	// we need to space out the sending of large fragmented messages
-	qboolean	unsentFragments;
-	int			unsentFragmentStart;
-	int			unsentLength;
-	byte		unsentBuffer[MAX_MSGLEN];
-
-	int			challenge;
-	int		lastSentTime;
-	int		lastSentSize;
-} netchan_t;
-
-void Netchan_Init( int qport );
-void Netchan_Setup(int alternateProtocol, netsrc_t sock, netchan_t *chan, netadr_t adr, int qport, int challenge);
-
-void Netchan_Transmit( netchan_t *chan, int length, const byte *data );
-void Netchan_TransmitNextFragment( netchan_t *chan );
-
-qboolean Netchan_Process( netchan_t *chan, msg_t *msg );
-
+struct netadr_t;
+struct msg_t;
 
 /*
 ==============================================================
@@ -317,73 +110,9 @@ enum clc_ops_e {
 	clc_voipOpus,    //
 };
 
-/*
-==============================================================
+//#include "cvar.h"
 
-VIRTUAL MACHINE
-
-==============================================================
-*/
-
-typedef struct vm_s vm_t;
-
-typedef enum {
-	VMI_NATIVE,
-	VMI_BYTECODE,
-	VMI_COMPILED
-} vmInterpret_t;
-
-typedef enum {
-	TRAP_MEMSET = 100,
-	TRAP_MEMCPY,
-	TRAP_STRNCPY,
-	TRAP_SIN,
-	TRAP_COS,
-	TRAP_ATAN2,
-	TRAP_SQRT,
-	TRAP_MATRIXMULTIPLY,
-	TRAP_ANGLEVECTORS,
-	TRAP_PERPENDICULARVECTOR,
-	TRAP_FLOOR,
-	TRAP_CEIL,
-
-	TRAP_TESTPRINTINT,
-	TRAP_TESTPRINTFLOAT
-} sharedTraps_t;
-
-void	VM_Init( void );
-vm_t	*VM_Create( const char *module, intptr_t (*systemCalls)(intptr_t *), 
-				   vmInterpret_t interpret );
-// module should be bare: "cgame", not "cgame.dll" or "vm/cgame.qvm"
-
-void	VM_Free( vm_t *vm );
-void	VM_Clear(void);
-void	VM_Forced_Unload_Start(void);
-void	VM_Forced_Unload_Done(void);
-void	VM_ClearCallLevel(vm_t *vm);
-vm_t	*VM_Restart(vm_t *vm, qboolean unpure);
-
-intptr_t		QDECL VM_Call( vm_t *vm, int callNum, ... );
-
-void	VM_Debug( int level );
-
-void	*VM_ArgPtr( intptr_t intValue );
-void	*VM_ExplicitArgPtr( vm_t *vm, intptr_t intValue );
-
-#define	VMA(x) VM_ArgPtr(args[x])
-static ID_INLINE float _vmf(intptr_t x)
-{
-	floatint_t fi;
-	fi.i = (int) x;
-	return fi.f;
-}
-#define	VMF(x)	_vmf(args[x])
-
-#include "cmd.h"
-
-#include "cvar.h"
-
-#include "files.h"
+typedef struct cvar_s cvar_t;
 
 /*
 ==============================================================
@@ -404,8 +133,8 @@ typedef struct {
 void Field_Clear( field_t *edit );
 void Field_AutoComplete( field_t *edit );
 void Field_CompleteKeyname( void );
-void Field_CompleteFilename( const char *dir, const char *ext, qboolean stripExt, qboolean allowNonPureFilesOnDisk );
-void Field_CompleteCommand( char *cmd, qboolean doCommands, qboolean doCvars );
+void Field_CompleteFilename( const char *dir, const char *ext, bool stripExt, bool allowNonPureFilesOnDisk );
+void Field_CompleteCommand( char *cmd, bool doCommands, bool doCvars );
 void Field_CompletePlayerName( const char **names, int count );
 void Field_CompleteList( char *listJson );
 
@@ -456,26 +185,25 @@ void 		QDECL Com_Error( int code, const char *fmt, ... ) __attribute__ ((noretur
 void 		QDECL Com_DPrintf( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
 void        Engine_Exit(const char* p ) __attribute__ ((noreturn));
 void 		Com_Quit_f( void ) __attribute__ ((noreturn));
-void		Com_GameRestart(int checksumFeed, qboolean disconnect);
+void		Com_GameRestart(int checksumFeed, bool disconnect);
 
 int			Com_Milliseconds( void );	// will be journaled properly
-unsigned	Com_BlockChecksum( const void *buffer, int length );
 char		*Com_MD5File(const char *filename, int length, const char *prefix, int prefix_len);
 int			Com_Filter(const char* filter, char *name, int casesensitive);
 int			Com_FilterPath(const char *filter, char *name, int casesensitive);
 int			Com_RealTime(qtime_t *qtime);
-qboolean	Com_SafeMode( void );
-void		Com_RunAndTimeServerPacket(netadr_t *evFrom, msg_t *buf);
+bool	Com_SafeMode( void );
+void		Com_RunAndTimeServerPacket(struct netadr_t *evFrom, struct msg_t *buf);
 
-qboolean	Com_IsVoipTarget(uint8_t *voipTargets, int voipTargetsSize, int clientNum);
+bool	Com_IsVoipTarget(uint8_t *voipTargets, int voipTargetsSize, int clientNum);
 
 void		Com_StartupVariable( const char *match );
 // checks for and removes command line "+set var arg" constructs
 // if match is NULL, all set commands will be executed, otherwise
 // only a set with the exact name.  Only used during startup.
 
-qboolean		Com_PlayerNameToFieldString( char *str, int length, const char *name );
-qboolean		Com_FieldStringToPlayerName( char *name, int length, const char *rawname );
+bool		Com_PlayerNameToFieldString( char *str, int length, const char *name );
+bool		Com_FieldStringToPlayerName( char *name, int length, const char *rawname );
 int QDECL	Com_strCompare( const void *a, const void *b );
 
 
@@ -514,8 +242,8 @@ extern	int		time_backend;		// renderer backend time
 
 extern	int		com_frameTime;
 
-extern	qboolean	com_errorEntered;
-extern	qboolean	com_fullyInitialized;
+extern	bool	com_errorEntered;
+extern	bool	com_fullyInitialized;
 
 extern	fileHandle_t	com_journalFile;
 extern	fileHandle_t	com_journalDataFile;
@@ -572,7 +300,7 @@ void Z_LogHeap( void );
 void Hunk_Clear( void );
 void Hunk_ClearToMark( void );
 void Hunk_SetMark( void );
-qboolean Hunk_CheckMark( void );
+bool Hunk_CheckMark( void );
 void Hunk_ClearTempMemory( void );
 void *Hunk_AllocateTempMemory( int size );
 void Hunk_FreeTempMemory( void *buf );
@@ -603,11 +331,11 @@ void CL_InitKeyCommands( void );
 // config files, but the rest of client startup will happen later
 
 void CL_Init( void );
-void CL_Disconnect( qboolean showMainMenu );
-void CL_Shutdown(const char *finalmsg, qboolean disconnect, qboolean quit);
+void CL_Disconnect( bool showMainMenu );
+void CL_Shutdown(const char *finalmsg, bool disconnect, bool quit);
 void CL_Frame( int msec );
-qboolean CL_GameCommand( void );
-void CL_KeyEvent (int key, qboolean down, unsigned time);
+bool CL_GameCommand( void );
+void CL_KeyEvent (int key, bool down, unsigned time);
 
 void CL_CharEvent( int key );
 // char events are for field typing, not game control
@@ -616,7 +344,7 @@ void CL_MouseEvent( int dx, int dy, int time );
 
 void CL_JoystickEvent( int axis, int value, int time );
 
-void CL_PacketEvent( netadr_t from, msg_t *msg );
+void CL_PacketEvent( struct netadr_t from, struct msg_t *msg );
 
 void CL_ConsolePrint( const char *text );
 
@@ -631,23 +359,14 @@ void	CL_ForwardCommandToServer( const char *string );
 // things like godmode, noclip, etc, are commands directed to the server,
 // so when they are typed in at the console, they will need to be forwarded.
 
-void CL_CDDialog( void );
-// bring up the "need a cd to play" dialog
-
 void CL_FlushMemory( void );
 // dump all memory on an error
 
-void CL_ShutdownAll(qboolean shutdownRef);
+void CL_ShutdownAll(bool shutdownRef);
 // shutdown client
 
-void CL_InitRef(void);
-// initialize renderer interface
-
-void CL_StartHunkUsers( qboolean rendererOnly );
+void CL_StartHunkUsers( bool rendererOnly );
 // start all the client stuff using the hunk
-
-void CL_Snd_Shutdown(void);
-// Restart sound subsystem
 
 void Key_KeynameCompletion( void(*callback)(const char *s) );
 // for keyname autocompletion
@@ -660,24 +379,21 @@ void S_ClearSoundBuffer( void );
 
 void SCR_DebugGraph (float value);	// FIXME: move logging to common?
 
-// AVI files have the start of pixel lines 4 byte-aligned
-#define AVI_LINE_PADDING 4
-
 //
 // server interface
 //
 void SV_Init( void );
 void SV_Shutdown( const char *finalmsg );
 void SV_Frame( int msec );
-void SV_PacketEvent( netadr_t from, msg_t *msg );
+void SV_PacketEvent( struct netadr_t from, struct msg_t *msg );
 int SV_FrameMsec(void);
-qboolean SV_GameCommand( void );
+bool SV_GameCommand( void );
 int SV_SendQueuedPackets(void);
 
 //
 // UI interface
 //
-qboolean UI_GameCommand( void );
+bool UI_GameCommand( void );
 
 /*
 ==============================================================
@@ -687,73 +403,11 @@ NON-PORTABLE SYSTEM SERVICES
 ==============================================================
 */
 
-#include "sys_shared.h"
-
-#include "dialog.h"
-
-/* This is based on the Adaptive Huffman algorithm described in Sayood's Data
- * Compression book.  The ranks are not actually stored, but implicitly defined
- * by the location of a node within a doubly-linked list */
-
-#define NYT HMAX					/* NYT = Not Yet Transmitted */
-#define INTERNAL_NODE (HMAX+1)
-
-typedef struct nodetype {
-	struct	nodetype *left, *right, *parent; /* tree structure */ 
-	struct	nodetype *next, *prev; /* doubly-linked list */
-	struct	nodetype **head; /* highest ranked node in block */
-	int		weight;
-	int		symbol;
-} node_t;
-
-#define HMAX 256 /* Maximum symbol */
-
-typedef struct {
-	int			blocNode;
-	int			blocPtrs;
-
-	node_t*		tree;
-	node_t*		lhead;
-	node_t*		ltail;
-	node_t*		loc[HMAX+1];
-	node_t**	freelist;
-
-	node_t		nodeList[768];
-	node_t*		nodePtrs[768];
-} huff_t;
-
-typedef struct {
-	huff_t		compressor;
-	huff_t		decompressor;
-} huffman_t;
-
-void	Huff_Compress(msg_t *buf, int offset);
-void	Huff_Decompress(msg_t *buf, int offset);
-void	Huff_Init(huffman_t *huff);
-void	Huff_addRef(huff_t* huff, byte ch);
-int		Huff_Receive (node_t *node, int *ch, byte *fin);
-void	Huff_transmit (huff_t *huff, int ch, byte *fout);
-void	Huff_offsetReceive (node_t *node, int *ch, byte *fin, int *offset);
-void	Huff_offsetTransmit (huff_t *huff, int ch, byte *fout, int *offset);
-void	Huff_putBit( int bit, byte *fout, int *offset);
-int		Huff_getBit( byte *fout, int *offset);
-
-// don't use if you don't know what you're doing.
-int		Huff_getBloc(void);
-void	Huff_setBloc(int _bloc);
-
-extern huffman_t clientHuffTables;
-
-int		Parse_AddGlobalDefine(char *string);
-int		Parse_LoadSourceHandle(const char *filename);
-int		Parse_FreeSourceHandle(int handle);
-int		Parse_ReadTokenHandle(int handle, pc_token_t *pc_token);
-int		Parse_SourceFileAndLine(int handle, char *filename, int *line);
-
-#define	SV_ENCODE_START		4
-#define SV_DECODE_START		12
-#define	CL_ENCODE_START		12
-#define CL_DECODE_START		4
+bool Parse_AddGlobalDefine(char *string);
+int Parse_LoadSourceHandle(const char *filename);
+bool Parse_FreeSourceHandle(int handle);
+bool Parse_ReadTokenHandle(int handle, pc_token_t *pc_token);
+bool Parse_SourceFileAndLine(int handle, char *filename, int *line);
 
 // flags for sv_allowDownload and cl_allowDownload
 #define DLF_ENABLE 1
@@ -762,6 +416,7 @@ int		Parse_SourceFileAndLine(int handle, char *filename, int *line);
 #define DLF_NO_DISCONNECT 8
 
 #ifdef __cplusplus
-};
+}
 #endif
+
 #endif // _QCOMMON_H_

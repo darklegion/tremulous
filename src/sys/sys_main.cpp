@@ -35,9 +35,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 #include "../script/cvar.h"
+#include "../script/cmd.h"
 #ifndef DEDICATED
 #include "../script/http_client.h"
 #include "../script/client.h"
+#include "../script/bind.h"
 #endif
 #include "../script/rapidjson.h"
 #include "../script/nettle.h"
@@ -67,8 +69,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "sys_local.h"
 #include "sys_loadlib.h"
 
+#include "../qcommon/files.h"
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
+#include "../qcommon/dialog.h"
+#include "../qcommon/vm.h"
 
 sol::state lua;
 
@@ -206,17 +211,17 @@ static std::string Sys_PIDFileName( void )
 =================
 Sys_WritePIDFile
 
-Return qtrue if there is an existing stale PID file
+Return true if there is an existing stale PID file
 =================
 */
-qboolean Sys_WritePIDFile( void )
+bool Sys_WritePIDFile( void )
 {
     const char *pidFile = Sys_PIDFileName( ).c_str();
     FILE *f;
-    qboolean  stale = qfalse;
+    bool  stale = false;
 
     if( pidFile == NULL )
-        return qfalse;
+        return false;
 
     // First, check if the pid file is already there
     if( ( f = fopen( pidFile, "r" ) ) != NULL )
@@ -231,10 +236,10 @@ qboolean Sys_WritePIDFile( void )
         {
             pid = atoi( pidBuffer );
             if( !Sys_PIDIsRunning( pid ) )
-                stale = qtrue;
+                stale = true;
         }
         else
-            stale = qtrue;
+            stale = true;
     }
 
     if( ( f = fopen( pidFile, "w" ) ) != NULL )
@@ -474,9 +479,14 @@ First try to load library name from system library path,
 from executable path, then fs_basepath.
 =================
 */
-void *Sys_LoadDll(const char *name, qboolean useSystemLib)
+void *Sys_LoadDll(const char *name, bool useSystemLib)
 {
     void *dllhandle;
+
+    if (COM_CompareExtension(name, ".pk3")) {
+        Com_Printf("Rejecting DLL named \"%s\"", name);
+        return nullptr;
+    }
 
     if(useSystemLib)
         Com_Printf("Trying to load \"%s\"...\n", name);
@@ -588,7 +598,7 @@ Sys_SigHandler
 */
 void Sys_SigHandler( int signal )
 {
-    static qboolean signalcaught = qfalse;
+    static bool signalcaught = false;
 
     if( signalcaught )
     {
@@ -599,10 +609,10 @@ void Sys_SigHandler( int signal )
     {
         char const* msg = va("Received signal %d", signal);
 
-        signalcaught = qtrue;
+        signalcaught = true;
         VM_Forced_Unload_Start();
 #ifndef DEDICATED
-        CL_Shutdown(va("Received signal %d", signal), qtrue, qtrue);
+        CL_Shutdown(va("Received signal %d", signal), true, true);
 #endif
         SV_Shutdown(msg);
         VM_Forced_Unload_Done();
@@ -620,6 +630,34 @@ void Sys_SigHandler( int signal )
 # else
 #  define DEFAULT_BASEDIR Sys_BinaryPath()
 # endif
+#endif
+
+#ifdef __APPLE__
+/*
+=================
+Sys_StripAppBundle
+
+Discovers if passed dir is suffixed with the directory structure of a Mac OS X
+.app bundle. If it is, the .app directory structure is stripped off the end and
+the result is returned. If not, dir is returned untouched.
+=================
+*/
+const char *Sys_StripAppBundle( const char *dir )
+{
+	static char cwd[MAX_OSPATH];
+
+	Q_strncpyz(cwd, dir, sizeof(cwd));
+	if(strcmp(Sys_Basename(cwd), "MacOS"))
+		return dir;
+	Q_strncpyz(cwd, Sys_Dirname(cwd), sizeof(cwd));
+	if(strcmp(Sys_Basename(cwd), "Contents"))
+		return dir;
+	Q_strncpyz(cwd, Sys_Dirname(cwd), sizeof(cwd));
+	if(!strstr(Sys_Basename(cwd), ".app"))
+		return dir;
+	Q_strncpyz(cwd, Sys_Dirname(cwd), sizeof(cwd));
+	return cwd;
+}
 #endif
 
 #ifndef DEDICATED
@@ -712,11 +750,13 @@ int main( int argc, char **argv )
     );
 
     script::cvar::init(std::move(lua));
+    script::cmd::init(std::move(lua));
     script::rapidjson::init(std::move(lua));
     script::nettle::init(std::move(lua));
 
 #ifndef DEDICATED
     script::client::init(std::move(lua));
+    script::keybind::init(std::move(lua));
     script::http_client::init(std::move(lua));
 #endif
 

@@ -63,7 +63,7 @@ add_library(
     ${CMAKE_CURRENT_SOURCE_DIR}/../jpeg-8c/jquant2.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../jpeg-8c/jutils.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../sdl/sdl_gamma.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/../sdl/sdl_glimp.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../sdl/sdl_glimp.cpp
     )
 
 add_definitions(

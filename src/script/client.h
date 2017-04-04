@@ -25,20 +25,18 @@
 
 #include <iostream>
 
-//#include "../client/client.h"
+#include "../client/client.h"
+#include "../client/keys.h"
 
 namespace sol
 { 
     class state;
 };
 
-extern "C" void CL_AddReliableCommand(const char *cmd, qboolean isDisconnectCmd);
-
 namespace script 
 {
-    // No Exceptions at this time
-
     struct Client {};
+
     namespace client 
     {
         static inline void init(sol::state&& lua)

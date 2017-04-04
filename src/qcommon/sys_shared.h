@@ -12,6 +12,7 @@
 #include <stdio.h>
 
 #include "qcommon.h"
+#include "net.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,6 +32,9 @@ enum CPU_FEATURES {
   CF_SSE2       = 1 << 6,
   CF_ALTIVEC    = 1 << 7
 };
+
+struct netadr_t;
+enum netadrtype_t;
 
 void Sys_Init(void);
 
@@ -52,26 +56,19 @@ void Sys_Print(const char *msg);
 // any game related timing information should come from event timestamps
 int Sys_Milliseconds(void);
 
-qboolean Sys_RandomBytes(byte *string, int len);
+bool Sys_RandomBytes(byte *string, int len);
+
 void Sys_CryptoRandomBytes(byte *string, int len);
 
 // the system console is shown when a dedicated server is running
-void Sys_DisplaySystemConsole(qboolean show);
+void Sys_DisplaySystemConsole(bool show);
 
 cpuFeatures_t Sys_GetProcessorFeatures(void);
 
 void Sys_SetErrorText(const char *text);
 
-void Sys_SendPacket(int length, const void *data, netadr_t to);
-
-qboolean Sys_StringToAdr(const char *s, netadr_t *a, netadrtype_t family);
-// Does NOT parse port numbers, only base addresses.
-
-qboolean Sys_IsLANAddress(netadr_t adr);
-void Sys_ShowIP(void);
-
 FILE *Sys_FOpen(const char *ospath, const char *mode);
-qboolean Sys_Mkdir(const char *path);
+bool Sys_Mkdir(const char *path);
 FILE *Sys_Mkfifo(const char *ospath);
 char *Sys_Cwd(void);
 void Sys_SetDefaultInstallPath(const char *path);
@@ -83,23 +80,24 @@ char *Sys_DefaultAppPath(void);
 
 void Sys_SetDefaultHomePath(const char *path);
 char *Sys_DefaultHomePath(void);
-const char *Sys_Dirname(char const *path);
+const char *Sys_Dirname(char *path);
 const char *Sys_Basename(char *path);
 char *Sys_ConsoleInput(void);
 
 char **Sys_ListFiles(const char *directory, const char *extension,
                      const char *filter,
-                     int *numfiles, qboolean wantsubs);
+                     int *numfiles, bool wantsubs);
 void Sys_FreeFileList(char **list);
 void Sys_Sleep(int msec);
 
-qboolean Sys_LowPhysicalMemory(void);
+bool Sys_LowPhysicalMemory(void);
 
 void Sys_SetEnv(const char *name, const char *value);
 
-qboolean Sys_WritePIDFile(void);
+bool Sys_WritePIDFile(void);
 
 #ifdef __cplusplus
 }
 #endif
+
 #endif

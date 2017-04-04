@@ -27,6 +27,7 @@
 #include <iostream>
 #include <exception>
 
+#include "../qcommon/cvar.h"
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
 
@@ -110,11 +111,11 @@ namespace script
                 throw CvarLatchedUnsupported();
             else if ( !value )
                 value = my->resetString;
-            value = Cvar_Validate(my, value, qfalse);
+            value = Cvar_Validate(my, value, false);
 
             cvar_modifiedFlags |= my->flags;
 
-            my->modified = qtrue;
+            my->modified = true;
             my->modificationCount++;
             my->string = CopyString(value);
             my->value = atof(my->string);

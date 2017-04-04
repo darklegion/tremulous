@@ -40,6 +40,7 @@ woven in by Terry Thorsen 1/2003.
   version without encryption capabilities).
  */
 
+#include <stdbool.h>
 
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"

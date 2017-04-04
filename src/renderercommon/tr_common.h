@@ -23,10 +23,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef TR_COMMON_H
 #define TR_COMMON_H
 
+#include <stdbool.h>
+
+#include "../qcommon/cvar.h"
 #include "../qcommon/q_shared.h"
 #include "../qcommon/sys_shared.h"
 #include "../renderercommon/tr_public.h"
 #include "qgl.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef enum
 {
@@ -164,5 +171,7 @@ void		GLimp_SetGamma( unsigned char red[256],
 		unsigned char green[256],
 		unsigned char blue[256] );
 
-
+#ifdef __cplusplus
+}
+#endif
 #endif

@@ -4750,7 +4750,7 @@ void UI_UpdateGithubRelease( )
     const char *wrapped;
     int line = 0, linePos = 0;
 
-    if( !uiInfo.githubRelease.nextTime > uiInfo.uiDC.realTime )
+    if( !(uiInfo.githubRelease.nextTime > uiInfo.uiDC.realTime) )
       return;
 
     // Limit checks to 1x every 10seconds
