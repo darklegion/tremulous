@@ -20,6 +20,9 @@ endif
 ifndef BUILD_SERVER
   BUILD_SERVER     =
 endif
+ifndef BUILD_GRANGER
+  BUILD_GRANGER    =
+endif
 ifndef BUILD_GAME_SO
   BUILD_GAME_SO    =
 endif
@@ -98,7 +101,7 @@ endif
 export CROSS_COMPILING
 
 ifndef VERSION
-VERSION=1.2.0
+VERSION=1.3.0
 endif
 
 ifndef CLIENTBIN
@@ -993,14 +996,14 @@ ifneq ($(BUILD_GAME_QVM),0)
     $(B)/$(BASEGAME)/vm/cgame.qvm \
     $(B)/$(BASEGAME)/vm/game.qvm \
     $(B)/$(BASEGAME)/vm/ui.qvm \
-	$(B)/$(BASEGAME)/vms-$(VERSION).pk3
+	$(B)/$(BASEGAME)/vms-gpp-$(VERSION).pk3
 endif
 
 ifneq ($(BUILD_GAME_QVM_11),0)
   TARGETS += \
     $(B)/$(BASEGAME)_11/vm/cgame.qvm \
     $(B)/$(BASEGAME)_11/vm/ui.qvm \
-	$(B)/$(BASEGAME)_11/vms-$(VERSION).pk3
+	$(B)/$(BASEGAME)_11/vms-1.1.0-$(VERSION).pk3
 endif
 
 ifneq ($(BUILD_DATA_PK3),0)
@@ -1743,7 +1746,9 @@ $(B)/granger$(FULLBINEXT): $(GRANGEROBJ)
 	$(echo_cmd) "LD $@"
 	$(Q)$(CC) $(LDFLAGS) -o $@ $(GRANGEROBJ) $(GRANGER_LIBS) 
 
+ifneq ($(BUILD_GRANGER),0)
 TARGETS += $(B)/granger$(FULLBINEXT)
+endif
 
 $(B)/scripts:
 	rsync -rupE --exclude=".*" scripts $(B)
@@ -2760,10 +2765,10 @@ $(B)/$(BASEGAME)_11/vm/ui.qvm: $(UIVMOBJ11) $(UIDIR)/ui_syscalls_11.asm $(Q3ASM)
 ## QVM Package
 #############################################################################
 
-$(B)/$(BASEGAME)/vms-$(VERSION).pk3: $(B)/$(BASEGAME)/vm/ui.qvm $(B)/$(BASEGAME)/vm/cgame.qvm $(B)/$(BASEGAME)/vm/game.qvm
+$(B)/$(BASEGAME)/vms-gpp-$(VERSION).pk3: $(B)/$(BASEGAME)/vm/ui.qvm $(B)/$(BASEGAME)/vm/cgame.qvm $(B)/$(BASEGAME)/vm/game.qvm
 	@(cd $(B)/$(BASEGAME) && zip -r vms-$(VERSION).pk3 vm/)
 
-$(B)/$(BASEGAME)_11/vms-$(VERSION).pk3: $(B)/$(BASEGAME)_11/vm/ui.qvm $(B)/$(BASEGAME)_11/vm/cgame.qvm 
+$(B)/$(BASEGAME)_11/vms-1.1.0-$(VERSION).pk3: $(B)/$(BASEGAME)_11/vm/ui.qvm $(B)/$(BASEGAME)_11/vm/cgame.qvm 
 	@(cd $(B)/$(BASEGAME)_11 && zip -r vms-$(VERSION).pk3 vm/)
 
 
