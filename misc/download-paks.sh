@@ -39,12 +39,12 @@ for dir in ./build/*; do
 
     # Repackage
 
+    pushd $dir
+
     if [[ $dir == "./build/release-darwin-x86_64" ]]; then
-        pushd $dir
         zip -r ../$(basename $dir).zip Tremulous.app
     else
-        pushd build/
-        zip -r $(basename $dir).zip $(basename $dir)/gpp/*.pk3
+        zip -r ../$(basename $dir).zip gpp/*.pk3
     fi
 
     popd
