@@ -10,7 +10,7 @@ map-atcs-1.1.0.pk3
 map-karith-1.1.0.pk3
 map-nexus6-1.1.0.pk3
 map-niveus-1.1.0.pk3
-map-travis-1.1.0.pk3
+map-transit-1.1.0.pk3
 map-tremor-1.1.0.pk3
 map-uncreation-1.1.0.pk3
 "
