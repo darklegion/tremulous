@@ -1,6 +1,6 @@
 //
 // This file is part of Tremulous.
-// Copyright © 2016 Victor Roemer (blowfish) <victor@badsec.org>
+// Copyright © 2017 Victor Roemer (blowfish) <victor@badsec.org>
 // 
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,25 +16,45 @@
 // along with this program; if not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef __cplusplus
-#error __file__ " is only available to C++"
-#endif
-
-#ifndef SCRIPT_NETTLE_H
-#define SCRIPT_NETTLE_H
+#pragma once
 
 #include <iostream>
 
-#include "lua.hpp"
-#include "sol.hpp"
+using std::string;
 
-#include "lnettlelib.h"
+typedef char fingerprint_t[64];
+typedef char guid_t[33];
+typedef char name_t[MAX_NAME_LENGTH];
+typedef char err_t[MAX_STRING_CHARS];
 
-namespace script {
-    namespace nettle {
-        static inline void init(sol::state&& lua)
-        { lua.require("nettle", luaopen_nettle, 1); }
-    };
+struct AdminFlag {
+    unsigned id;
+    name_t name;
 };
 
-#endif
+struct AdminLevel {
+    name_t name;
+    admin_flags_t flags;
+    unsigned level;
+};
+
+struct Admin {
+    bool flag(const name_t flagname)
+    { }
+
+    bool deny(const name_t flagname)
+    { }
+
+    guid_t guid;
+    name_t name;
+
+private:
+    admin_flags_t flags;
+    admin_flags_t denied;
+    unsigned level;
+};
+
+class AdminMgr {
+    bool add(Admin&);
+    bool remove(Admin&);
+}

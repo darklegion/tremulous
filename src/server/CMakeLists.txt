@@ -73,6 +73,7 @@ add_executable(
     ${PARENT_DIR}/sys/con_tty.cpp
     ${PARENT_DIR}/sys/sys_main.cpp
     ${PARENT_DIR}/sys/sys_unix.cpp
+    ${PARENT_DIR}/sys/sys_shared.h
     ${APPLE_SOURCES}
     #
     ${PARENT_DIR}/zlib/adler32.c

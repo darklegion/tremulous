@@ -20,7 +20,7 @@
 #include "../qcommon/cvar.h"
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
-#include "../qcommon/sys_shared.h"
+#include "../sys/sys_shared.h"
 #include "../qcommon/unzip.h"
 
 #include "../qcommon/q_platform.h"

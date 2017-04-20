@@ -10,7 +10,7 @@
 #include "msg.h"
 #include "net.h"
 #include "qcommon.h"
-#include "sys_shared.h"
+#include "../sys/sys_shared.h"
 
 size_t lua_writestring(char* string, size_t n)
 {
