@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "qcommon.h"
 #include "crypto.h"
 #include "msg.h"
-#include "sys_shared.h"
+#include "../sys/sys_shared.h"
 #include "vm.h"
 
 #define JSON_IMPLEMENTATION
@@ -48,10 +48,10 @@ int demo_protocols[] = { PROTOCOL_VERSION, 70, 69, 0 };
 
 #define MAX_NUM_ARGVS 50
 
-#define MIN_DEDICATED_COMHUNKMEGS 1
+#define MIN_DEDICATED_COMHUNKMEGS 16
 #define MIN_COMHUNKMEGS  256
 #define DEF_COMHUNKMEGS  256
-#define DEF_COMZONEMEGS  24
+#define DEF_COMZONEMEGS  48
 #define DEF_COMHUNKMEGS_S XSTRING(DEF_COMHUNKMEGS)
 #define DEF_COMZONEMEGS_S XSTRING(DEF_COMZONEMEGS)
 
