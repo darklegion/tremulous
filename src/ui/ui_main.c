@@ -2692,10 +2692,8 @@ static void UI_LoadMods( void )
   for( i = 0; i < numdirs; i++ )
   {
     dirlen = strlen( dirptr ) + 1;
-    descptr = dirptr + dirlen;
     uiInfo.modList[uiInfo.modCount].modName = String_Alloc( dirptr );
-    uiInfo.modList[uiInfo.modCount].modDescr = String_Alloc( descptr );
-    dirptr += dirlen + strlen( descptr ) + 1;
+    dirptr += dirlen;
     uiInfo.modCount++;
 
     if( uiInfo.modCount >= MAX_MODS )

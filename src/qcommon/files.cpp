@@ -37,7 +37,7 @@
 #include "q_platform.h"
 #include "q_shared.h"
 #include "qcommon.h"
-#include "sys_shared.h"
+#include "../sys/sys_shared.h"
 #include "unzip.h"
 #include "vm.h"
 
@@ -2387,125 +2387,85 @@ static char **Sys_ConcatenateFileLists(char **list0, char **list1)
 FS_GetModList
 
 Returns a list of mod directory names
-A mod directory is a peer to base with a pk3 in it
-The directories are searched in base path, cd path and home path
+A mod directory is a peer to baseq3 with a pk3 or pk3dir in it
 ================
 */
-int FS_GetModList(char *listbuf, int bufsize)
+int	FS_GetModList( char *listbuf, int bufsize )
 {
-    char descPath[MAX_OSPATH];
+    char * start = listbuf;
+    *listbuf = '\0';
+
+    // paths to search for mods
+    const char * const paths[] = {
+        fs_basepath->string,
+        fs_homepath->string
+    };
+
+    char **pFiles = nullptr;
+    for (int i = 0; i < ARRAY_LEN(paths); i++)
+    {
+        int dummy;
+        char **pFiles0 = Sys_ListFiles(paths[i], NULL, NULL, &dummy, true);
+        pFiles = Sys_ConcatenateFileLists(pFiles, pFiles0);
+    }
 
     int nMods = 0;
     int nTotal = 0;
-    *listbuf = 0;
-
-    int dummy;
-    char **pFiles0 = Sys_ListFiles(fs_homepath->string, nullptr, nullptr, &dummy, true);
-    char **pFiles1 = Sys_ListFiles(fs_basepath->string, nullptr, nullptr, &dummy, true);
-    char **pFiles = Sys_ConcatenateFileLists(pFiles0, pFiles1);
-
-    int nPotential = Sys_CountFileList(pFiles);
-    for (int i = 0; i < nPotential; i++)
+    for (int i = 0; i < Sys_CountFileList(pFiles); i++)
     {
-        bool bDrop = false;
-        char *name = pFiles[i];
+        const char* name = pFiles[i];
 
-        // NOTE: cleaner would involve more changes
-        // ignore duplicate mod directories
-        if (i)
-        {
-            bDrop = false;
-            for (int j = 0; j < i; j++)
-            {
-                if (Q_stricmp(pFiles[j], name) == 0)
-                {
-                    // this one can be dropped
-                    bDrop = true;
-                    break;
-                }
-            }
-        }
-
-        if (bDrop)
-        {
+        if ( name[0] == '.' )
             continue;
-        }
 
-        // we drop BASEGAME "." and ".."
-        if (Q_stricmp(name, BASEGAME) && Q_stricmpn(name, ".", 1))
+        // In order to be a valid mod the directory must contain at least one
+        // .pk3 or .pk3dir we didn't keep the information when we merged the
+        // directory names, as to what OS Path it was found under so we will
+        // try each of them here.
+        int nPaks = 0;
+        int nPakDirs = 0;
+        for (int j = 0; j < ARRAY_LEN(paths); j++)
         {
-            // now we need to find some .pk3 files to validate the mod
-            // NOTE TTimo: (actually I'm not sure why .. what if it's a mod under developement with
-            // no .pk3?)
-            // we didn't keep the information when we merged the directory names, as to what OS Path
-            // it was found under
-            //   so it could be in base path, cd path or home path
-            //   we will try each three of them here (yes, it's a bit messy)
-            char *path = FS_BuildOSPath(fs_basepath->string, name, "");
+            const char* path = FS_BuildOSPath(paths[j], name, "");
+            int nDirs = 0; 
 
-            int nPaks = 0;
-            char **pPaks = Sys_ListFiles(path, ".pk3", nullptr, &nPaks, false);
-
-            Sys_FreeFileList(
-                pPaks);  // we only use Sys_ListFiles to check wether .pk3 files are present
-
-            /* try on home path */
-            if (nPaks <= 0)
+            char **pPaks = Sys_ListFiles(path, ".pk3", NULL, &nPaks, false);
+            char **pDirs = Sys_ListFiles(path, "/", NULL, &nDirs, false);
+            for (int k = 0; k < nDirs; k++)
             {
-                path = FS_BuildOSPath(fs_homepath->string, name, "");
-                nPaks = 0;
-                pPaks = Sys_ListFiles(path, ".pk3", nullptr, &nPaks, false);
-                Sys_FreeFileList(pPaks);
+                // we only want to count directories ending with ".pk3dir"
+                if (FS_IsExt(pDirs[k], ".pk3dir", strlen(pDirs[k])))
+                    nPakDirs++;
             }
 
-            int nLen;
-            if (nPaks > 0)
-            {
-                nLen = strlen(name) + 1;
-                // nLen is the length of the mod path
-                // we need to see if there is a description available
-                descPath[0] = '\0';
-                strcpy(descPath, name);
-                strcat(descPath, "/description.txt");
+            // we only use Sys_ListFiles to check whether files are present
+            Sys_FreeFileList(pPaks);
+            Sys_FreeFileList(pDirs);
 
-                fileHandle_t descHandle;
-                int nDescLen = FS_SV_FOpenFileRead(descPath, &descHandle);
-                if (nDescLen > 0 && descHandle)
-                {
-                    FILE *file;
-                    file = FS_FileForHandle(descHandle);
-                    ::memset(descPath, 0, sizeof(descPath));
-                    nDescLen = fread(descPath, 1, 48, file);
-                    if (nDescLen >= 0)
-                    {
-                        descPath[nDescLen] = '\0';
-                    }
-                    FS_FCloseFile(descHandle);
-                }
-                else
-                {
-                    strcpy(descPath, name);
-                }
-                nDescLen = strlen(descPath) + 1;
-
-                if (nTotal + nLen + 1 + nDescLen + 1 < bufsize)
-                {
-                    strcpy(listbuf, name);
-                    listbuf += nLen;
-                    strcpy(listbuf, descPath);
-                    listbuf += nDescLen;
-                    nTotal += nLen + nDescLen;
-                    nMods++;
-                }
-                else
-                {
-                    break;
-                }
-            }
+            if (nPaks > 0 || nPakDirs > 0)
+                break;
         }
-    }
-    Sys_FreeFileList(pFiles);
 
+		if (nPaks > 0 || nPakDirs > 0)
+        {
+			size_t nLen = strlen(name) + 1;
+
+			if (nTotal + nLen + 1 < bufsize)
+            {
+				strcpy(listbuf, name);
+				listbuf += nLen;
+				nTotal += nLen;
+				nMods++;
+			}
+            else
+            {
+                Com_Printf(S_COLOR_RED "Warning: Too many mods!\n");
+				break;
+			}
+		}
+    }
+
+    Sys_FreeFileList( pFiles );
     return nMods;
 }
 
@@ -3315,24 +3275,25 @@ static void FS_Startup(const char *gameName)
     {
         homePath = fs_basepath->string;
     }
+
     fs_homepath = Cvar_Get("fs_homepath", homePath, CVAR_INIT | CVAR_PROTECTED);
     fs_gamedirvar = Cvar_Get("fs_game", BASEGAME, CVAR_INIT | CVAR_SYSTEMINFO);
 
-
 #ifdef DEDICATED
-
     // add search path elements in reverse priority order
     if (fs_basepath->string[0])
-            FS_AddGameDirectory( fs_basepath->string, gameName );
+        FS_AddGameDirectory(fs_basepath->string, gameName);
 
     // NOTE: same filtering below for mods and basegame
-    if (fs_homepath->string[0] && Q_stricmp(fs_homepath->string,fs_basepath->string)) {
-            FS_CreatePath ( fs_homepath->string );
-            FS_AddGameDirectory ( fs_homepath->string, gameName );
+    if (fs_homepath->string[0] && Q_stricmp(fs_homepath->string,fs_basepath->string))
+    {
+        FS_CreatePath(fs_homepath->string);
+        FS_AddGameDirectory(fs_homepath->string, gameName);
     }
 
     // check for additional base game so mods can be based upon other mods
-    if ( fs_basegame->string[0] && Q_stricmp( fs_basegame->string, gameName ) ) {
+    if ( fs_basegame->string[0] && Q_stricmp( fs_basegame->string, gameName ) )
+    {
         if (fs_basepath->string[0])
             FS_AddGameDirectory(fs_basepath->string, fs_basegame->string);
         if (fs_homepath->string[0] && Q_stricmp(fs_homepath->string,fs_basepath->string))
@@ -3340,7 +3301,8 @@ static void FS_Startup(const char *gameName)
     }
 
     // check for additional game folder for mods
-    if ( fs_gamedirvar->string[0] && Q_stricmp( fs_gamedirvar->string, gameName ) ) {
+    if ( fs_gamedirvar->string[0] && Q_stricmp( fs_gamedirvar->string, gameName ) )
+    {
         if (fs_basepath->string[0])
             FS_AddGameDirectory(fs_basepath->string, fs_gamedirvar->string);
         if (fs_homepath->string[0] && Q_stricmp(fs_homepath->string,fs_basepath->string))
@@ -3374,7 +3336,8 @@ static void FS_Startup(const char *gameName)
     // check for additional base game so mods can be based upon other mods
     if (fs_basegame->string[0] && Q_stricmp(fs_basegame->string, gameName))
     {
-        if (fs_basepath->string[0]) FS_AddGameDirectory(fs_basepath->string, fs_basegame->string);
+        if (fs_basepath->string[0])
+            FS_AddGameDirectory(fs_basepath->string, fs_basegame->string);
         if (fs_homepath->string[0] && Q_stricmp(fs_homepath->string, fs_basepath->string))
             FS_AddGameDirectory(fs_homepath->string, fs_basegame->string);
     }
@@ -3382,7 +3345,8 @@ static void FS_Startup(const char *gameName)
     // check for additional game folder for mods
     if (fs_gamedirvar->string[0] && Q_stricmp(fs_gamedirvar->string, gameName))
     {
-        if (fs_basepath->string[0]) FS_AddGameDirectory(fs_basepath->string, fs_gamedirvar->string);
+        if (fs_basepath->string[0])
+            FS_AddGameDirectory(fs_basepath->string, fs_gamedirvar->string);
         if (fs_homepath->string[0] && Q_stricmp(fs_homepath->string, fs_basepath->string))
             FS_AddGameDirectory(fs_homepath->string, fs_gamedirvar->string);
     }
