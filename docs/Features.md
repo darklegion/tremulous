@@ -14,13 +14,13 @@ the build artifacts to the Github releases page. Upon completion a notification
 is sent to the GrangerHub Slack.
 
 Hilights:
-    * TravisCI
-    * Automated builds
-    * Automated release generation
+* TravisCI
+* Automated builds
+* Automated release generation
 
 TODO: 
-    * Add Appveyor
-    * Reenable Coverity scans
+* Add Appveyor
+* Reenable Coverity scans
 
 # CMake support
 
@@ -28,8 +28,8 @@ A CMake system exists to build Tremulous on Linux and OSX. The CMake setup also
 supports building QVM's using the in-tree QVM toolchain.
 
 TODO: 
-    * Windows
-    * Appveyor Windows builds
+* Windows
+* Appveyor Windows builds
 
 
 # C++14
@@ -45,12 +45,12 @@ piggyback off ioquake3's renderer's (maintained by SmileTheory).
 The engine has an embedded Lua runtime and several API's are exposed from the engine,
 including:
 
-    * Cvars
-    * Binds
-    * Passing commands to server
-    * Nettle (Crypto library)
-    * HTTP Client/Restful
-    * JSON (rapidjson)
+* Cvars
+* Binds
+* Passing commands to server
+* Nettle (Crypto library)
+* HTTP Client/Restful
+* JSON (rapidjson)
 
 # Multi-protocol
 
