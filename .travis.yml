@@ -18,8 +18,8 @@ matrix:
   - os: linux
     compiler: gcc
     before_install:
-    - docker build -t wtfbbqhax/tremulous:v1 .
-    - docker run -v $(pwd)/build:/usr/src/build wtfbbqhax/tremulous:v1 ./misc/docker-build.sh
+    - docker pull wtfbbqhax/tremulous:v3
+    - docker run -v $(pwd):/usr/src wtfbbqhax/tremulous:v3 ./misc/docker-build.sh
   - os: osx
     osx_image: xcode8
     compiler: clang
