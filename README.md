@@ -1,6 +1,6 @@
 ![Wtfbbqhax/Tremulous/tremulous-banner.jpg](misc/tremulous-banner.jpg)
 
-[![Travis branch](https://travis-ci.org/GrangerHub/tremulous.svg?branch=master)](https://travis-ci.org/wtfbbqhax/tremulous)
+[![Travis branch](https://travis-ci.org/GrangerHub/tremulous.svg?branch=master)](https://travis-ci.org/GrangerHub/tremulous)
 [![Coverity Scan](https://img.shields.io/coverity/scan/9866.svg?maxAge=3600)](https://scan.coverity.com/projects/wtfbbqhax-tremulous)
 
 # How to Install from GrangerHub's Release Page
