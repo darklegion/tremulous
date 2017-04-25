@@ -1726,7 +1726,7 @@ GRANGEROBJ = \
 
 define DO_GRANGER_CC
   $(echo_cmd) "GRANGER_CC $<"
-  $(Q)$(call EXEC_CC,-std=gnu99 ${GRANGER_CFLAGS} ${OPTIMIZE},'$@','$<')
+  $(Q)$(call EXEC_CC,-std=gnu99 -DGRANGER ${GRANGER_CFLAGS} ${OPTIMIZE},'$@','$<')
   $(Q)$(call LOG_CC,granger,-std=gnu99 ${GRANGER_CFLAGS} ${OPTIMIZE},$@,$<)
 endef
  
