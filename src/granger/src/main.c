@@ -21,9 +21,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "lua/lua.h"
-#include "lua/lauxlib.h"
-#include "lua/lualib.h"
+#include "../../lua-5.3.3/src/lua.h"
+#include "../../lua-5.3.3/src/lauxlib.h"
+#include "../../lua-5.3.3/src/lualib.h"
 #include "premake/premake.h"
 
 #if defined(PLATFORM_WINDOWS)

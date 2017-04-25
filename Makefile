@@ -1730,7 +1730,7 @@ define DO_GRANGER_CC
   $(Q)$(call LOG_CC,granger,-std=gnu99 ${GRANGER_CFLAGS} ${OPTIMIZE},$@,$<)
 endef
  
-$(B)/granger.dir/src/lua/%.o: $(GRANGERDIR)/lua/%.c
+$(B)/granger.dir/src/lua/%.o: $(LUADIR)/%.c
 	$(DO_GRANGER_CC)
 
 $(B)/granger.dir/src/premake/%.o: $(GRANGERDIR)/premake/%.c

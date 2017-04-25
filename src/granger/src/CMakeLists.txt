@@ -24,6 +24,7 @@ add_definitions (
     -DNDEBUG
     -mfpmath=sse
     -ffast-math
+    -DGRANGER
     )
 
 include_directories (
