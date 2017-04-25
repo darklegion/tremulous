@@ -14,34 +14,26 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, see <http://www.gnu.org/licenses/>.
 
-#ifndef QCOMMON_DIALOG_H
-#define QCOMMON_DIALOG_H
+#ifndef SYS_DIALOG_H
+#define SYS_DIALOG_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-typedef enum
+enum dialogResult_t
 {
 	DR_YES = 0,
 	DR_NO = 1,
 	DR_OK = 0,
 	DR_CANCEL = 1
-} dialogResult_t;
+};
 
-typedef enum
+enum dialogType_t
 {
 	DT_INFO,
 	DT_WARNING,
 	DT_ERROR,
 	DT_YES_NO,
 	DT_OK_CANCEL
-} dialogType_t;
+};
 
 dialogResult_t Sys_Dialog( dialogType_t type, const char *message, const char *title );
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

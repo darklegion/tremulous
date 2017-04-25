@@ -66,13 +66,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 #endif
 
+#include "dialog.h"
 #include "sys_local.h"
 #include "sys_loadlib.h"
 
 #include "../qcommon/files.h"
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
-#include "../qcommon/dialog.h"
 #include "../qcommon/vm.h"
 
 sol::state lua;

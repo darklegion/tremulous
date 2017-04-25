@@ -44,7 +44,7 @@ bool MakeDir(std::string destdir, std::string basegame)
     return true;
 }
 
-#include "../qcommon/dialog.h"
+#include "../sys/dialog.h"
 static bool PromptDownloadPk3s(std::string basegame, const std::vector<std::string>& missing)
 {
     std::string msg;
