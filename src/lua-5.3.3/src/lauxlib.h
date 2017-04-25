@@ -13,9 +13,9 @@
 #include <stdio.h>
 
 #include "lua.h"
+#ifndef GRANGER
 #include "../../qcommon/q3_lauxlib.h"
-
-
+#endif
 
 /* extra error code for 'luaL_load' */
 #define LUA_ERRFILE     (LUA_ERRERR+1)
@@ -206,7 +206,6 @@ LUALIB_API void (luaL_openlib) (lua_State *L, const char *libname,
 
 
 // XXX -bbq Check q3_lauxlib.h for the overrides
-#if 0
 /*
 ** {==================================================================
 ** "Abstraction Layer" for basic report of messages and errors
@@ -230,8 +229,6 @@ LUALIB_API void (luaL_openlib) (lua_State *L, const char *libname,
 #endif
 
 /* }================================================================== */
-
-#endif
 
 /*
 ** {============================================================
