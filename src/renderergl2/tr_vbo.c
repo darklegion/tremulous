@@ -499,6 +499,8 @@ void R_InitVaos(void)
 
 	R_BindNullVao();
 
+	VaoCache_Init();
+
 	GL_CheckErrors();
 }
 
@@ -650,3 +652,294 @@ void RB_UpdateTessVao(unsigned int attribBits)
 		qglBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, tess.numIndexes * sizeof(tess.indexes[0]), tess.indexes);
 	}
 }
+
+typedef struct bufferCacheEntry_s
+{
+	void *data;
+	int size;
+	int bufferOffset;
+}
+bufferCacheEntry_t;
+
+typedef struct queuedSurface_s
+{
+	srfVert_t *vertexes;
+	int numVerts;
+	glIndex_t *indexes;
+	int numIndexes;
+}
+queuedSurface_t;
+
+#define VAOCACHE_MAX_BUFFERED_SURFACES (1 << 16)
+#define VAOCACHE_VERTEX_BUFFER_SIZE 12 * 1024 * 1024
+#define VAOCACHE_INDEX_BUFFER_SIZE 12 * 1024 * 1024
+
+#define VAOCACHE_MAX_QUEUED_VERTEXES (1 << 16)
+#define VAOCACHE_MAX_QUEUED_INDEXES (VAOCACHE_MAX_QUEUED_VERTEXES * 6 / 4)
+
+#define VAOCACHE_MAX_QUEUED_SURFACES 4096
+
+static struct
+{
+	vao_t *vao;
+	bufferCacheEntry_t indexEntries[VAOCACHE_MAX_BUFFERED_SURFACES];
+	int indexChainLengths[VAOCACHE_MAX_BUFFERED_SURFACES];
+	int numIndexEntries;
+	int vertexOffset;
+	int indexOffset;
+
+	srfVert_t vertexes[VAOCACHE_MAX_QUEUED_VERTEXES];
+	int vertexCommitSize;
+
+	glIndex_t indexes[VAOCACHE_MAX_QUEUED_INDEXES];
+	int indexCommitSize;
+
+	queuedSurface_t surfaceQueue[VAOCACHE_MAX_QUEUED_SURFACES];
+	int numSurfacesQueued;
+}
+vc = { 0 };
+
+void VaoCache_Commit(void)
+{
+	bufferCacheEntry_t *entry1;
+	queuedSurface_t *surf, *end = vc.surfaceQueue + vc.numSurfacesQueued;
+
+	R_BindVao(vc.vao);
+
+	// search entire cache for exact chain of indexes
+	// FIXME: use faster search
+	for (entry1 = vc.indexEntries; entry1 < vc.indexEntries + vc.numIndexEntries;)
+	{
+		int chainLength = vc.indexChainLengths[entry1 - vc.indexEntries];
+
+		if (chainLength == vc.numSurfacesQueued)
+		{
+			bufferCacheEntry_t *entry2 = entry1;
+			for (surf = vc.surfaceQueue; surf < end; surf++, entry2++)
+			{
+				if (surf->indexes != entry2->data || (surf->numIndexes * sizeof(glIndex_t)) != entry2->size)
+					break;
+			}
+
+			if (surf == end)
+				break;
+		}
+
+		entry1 += chainLength;
+	}
+
+	// if found, use that
+	if (entry1 < vc.indexEntries + vc.numIndexEntries)
+	{
+		tess.firstIndex = entry1->bufferOffset / sizeof(glIndex_t);
+		//ri.Printf(PRINT_ALL, "firstIndex %d numIndexes %d\n", tess.firstIndex, tess.numIndexes);
+		//ri.Printf(PRINT_ALL, "vc.numIndexEntries %d\n", vc.numIndexEntries);
+	}
+	// if not, rebuffer all the indexes but reuse any existing vertexes
+	else
+	{
+		srfVert_t *dstVertex = vc.vertexes;
+		glIndex_t *dstIndex = vc.indexes;
+		int *indexChainLength = vc.indexChainLengths + vc.numIndexEntries;
+
+		tess.firstIndex = vc.indexOffset / sizeof(glIndex_t);
+		vc.vertexCommitSize = 0;
+		vc.indexCommitSize = 0;
+		for (surf = vc.surfaceQueue; surf < end; surf++)
+		{
+			srfVert_t *srcVertex = surf->vertexes;
+			glIndex_t *srcIndex = surf->indexes;
+			int vertexesSize = surf->numVerts * sizeof(srfVert_t);
+			int indexesSize = surf->numIndexes * sizeof(glIndex_t);
+			int i, indexOffset = (vc.vertexOffset + vc.vertexCommitSize) / sizeof(srfVert_t);
+
+			for (i = 0; i < surf->numVerts; i++)
+				*dstVertex++ = *srcVertex++;
+
+			vc.vertexCommitSize += vertexesSize;
+
+			entry1 = vc.indexEntries + vc.numIndexEntries;
+			entry1->data = surf->indexes;
+			entry1->size = indexesSize;
+			entry1->bufferOffset = vc.indexOffset + vc.indexCommitSize;
+			vc.numIndexEntries++;
+
+			*indexChainLength++ = ((surf == vc.surfaceQueue) ? vc.numSurfacesQueued : 0);
+
+			for (i = 0; i < surf->numIndexes; i++)
+				*dstIndex++ = *srcIndex++ + indexOffset;
+
+			vc.indexCommitSize += indexesSize;
+		}
+
+		//ri.Printf(PRINT_ALL, "committing %d to %d, %d to %d\n", vc.vertexCommitSize, vc.vertexOffset, vc.indexCommitSize, vc.indexOffset);
+
+		if (vc.vertexCommitSize)
+		{
+			qglBindBuffer(GL_ARRAY_BUFFER, vc.vao->vertexesVBO);
+			qglBufferSubData(GL_ARRAY_BUFFER, vc.vertexOffset, vc.vertexCommitSize, vc.vertexes);
+			vc.vertexOffset += vc.vertexCommitSize;
+		}
+
+		if (vc.indexCommitSize)
+		{
+			qglBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vc.vao->indexesIBO);
+			qglBufferSubData(GL_ELEMENT_ARRAY_BUFFER, vc.indexOffset, vc.indexCommitSize, vc.indexes);
+			vc.indexOffset += vc.indexCommitSize;
+		}
+	}
+}
+
+void VaoCache_Init(void)
+{
+	srfVert_t vert;
+	int dataSize;
+
+	vc.vao = R_CreateVao("VaoCache", NULL, VAOCACHE_VERTEX_BUFFER_SIZE, NULL, VAOCACHE_INDEX_BUFFER_SIZE, VAO_USAGE_DYNAMIC);
+
+	vc.vao->attribs[ATTR_INDEX_POSITION].enabled       = 1;
+	vc.vao->attribs[ATTR_INDEX_TEXCOORD].enabled       = 1;
+	vc.vao->attribs[ATTR_INDEX_LIGHTCOORD].enabled     = 1;
+	vc.vao->attribs[ATTR_INDEX_NORMAL].enabled         = 1;
+	vc.vao->attribs[ATTR_INDEX_TANGENT].enabled        = 1;
+	vc.vao->attribs[ATTR_INDEX_LIGHTDIRECTION].enabled = 1;
+	vc.vao->attribs[ATTR_INDEX_COLOR].enabled          = 1;
+
+	vc.vao->attribs[ATTR_INDEX_POSITION].count       = 3;
+	vc.vao->attribs[ATTR_INDEX_TEXCOORD].count       = 2;
+	vc.vao->attribs[ATTR_INDEX_LIGHTCOORD].count     = 2;
+	vc.vao->attribs[ATTR_INDEX_NORMAL].count         = 4;
+	vc.vao->attribs[ATTR_INDEX_TANGENT].count        = 4;
+	vc.vao->attribs[ATTR_INDEX_LIGHTDIRECTION].count = 4;
+	vc.vao->attribs[ATTR_INDEX_COLOR].count          = 4;
+
+	vc.vao->attribs[ATTR_INDEX_POSITION].type             = GL_FLOAT;
+	vc.vao->attribs[ATTR_INDEX_TEXCOORD].type             = GL_FLOAT;
+	vc.vao->attribs[ATTR_INDEX_LIGHTCOORD].type           = GL_FLOAT;
+	vc.vao->attribs[ATTR_INDEX_NORMAL].type               = GL_SHORT;
+	vc.vao->attribs[ATTR_INDEX_TANGENT].type              = GL_SHORT;
+	vc.vao->attribs[ATTR_INDEX_LIGHTDIRECTION].type       = GL_SHORT;
+	vc.vao->attribs[ATTR_INDEX_COLOR].type                = GL_UNSIGNED_SHORT;
+
+	vc.vao->attribs[ATTR_INDEX_POSITION].normalized       = GL_FALSE;
+	vc.vao->attribs[ATTR_INDEX_TEXCOORD].normalized       = GL_FALSE;
+	vc.vao->attribs[ATTR_INDEX_LIGHTCOORD].normalized     = GL_FALSE;
+	vc.vao->attribs[ATTR_INDEX_NORMAL].normalized         = GL_TRUE;
+	vc.vao->attribs[ATTR_INDEX_TANGENT].normalized        = GL_TRUE;
+	vc.vao->attribs[ATTR_INDEX_LIGHTDIRECTION].normalized = GL_TRUE;
+	vc.vao->attribs[ATTR_INDEX_COLOR].normalized          = GL_TRUE;
+
+	vc.vao->attribs[ATTR_INDEX_POSITION].offset       = 0;        dataSize  = sizeof(vert.xyz);
+	vc.vao->attribs[ATTR_INDEX_TEXCOORD].offset       = dataSize; dataSize += sizeof(vert.st);
+	vc.vao->attribs[ATTR_INDEX_LIGHTCOORD].offset     = dataSize; dataSize += sizeof(vert.lightmap);
+	vc.vao->attribs[ATTR_INDEX_NORMAL].offset         = dataSize; dataSize += sizeof(vert.normal);
+	vc.vao->attribs[ATTR_INDEX_TANGENT].offset        = dataSize; dataSize += sizeof(vert.tangent);
+	vc.vao->attribs[ATTR_INDEX_LIGHTDIRECTION].offset = dataSize; dataSize += sizeof(vert.lightdir);
+	vc.vao->attribs[ATTR_INDEX_COLOR].offset          = dataSize; dataSize += sizeof(vert.color);
+
+	vc.vao->attribs[ATTR_INDEX_POSITION].stride       = dataSize;
+	vc.vao->attribs[ATTR_INDEX_TEXCOORD].stride       = dataSize;
+	vc.vao->attribs[ATTR_INDEX_LIGHTCOORD].stride     = dataSize;
+	vc.vao->attribs[ATTR_INDEX_NORMAL].stride         = dataSize;
+	vc.vao->attribs[ATTR_INDEX_TANGENT].stride        = dataSize;
+	vc.vao->attribs[ATTR_INDEX_LIGHTDIRECTION].stride = dataSize;
+	vc.vao->attribs[ATTR_INDEX_COLOR].stride          = dataSize;
+
+	Vao_SetVertexPointers(vc.vao);
+
+	vc.numIndexEntries = 0;
+	vc.vertexOffset = 0;
+	vc.indexOffset = 0;
+	vc.vertexCommitSize = 0;
+	vc.indexCommitSize = 0;
+	vc.numSurfacesQueued = 0;
+}
+
+void VaoCache_BindVao(void)
+{
+	R_BindVao(vc.vao);
+}
+
+void VaoCache_CheckAdd(qboolean *endSurface, qboolean *recycleVertexBuffer, qboolean *recycleIndexBuffer, int numVerts, int numIndexes)
+{
+	int vertexesSize = sizeof(srfVert_t) * numVerts;
+	int indexesSize = sizeof(glIndex_t) * numIndexes;
+
+	if (vc.vao->vertexesSize < vc.vertexOffset + vc.vertexCommitSize + vertexesSize)
+	{
+		//ri.Printf(PRINT_ALL, "out of space in vertex cache: %d < %d + %d + %d\n", vc.vao->vertexesSize, vc.vertexOffset, vc.vertexCommitSize, vertexesSize);
+		*recycleVertexBuffer = qtrue;
+		*recycleIndexBuffer = qtrue;
+		*endSurface = qtrue;
+	}
+
+	if (vc.vao->indexesSize < vc.indexOffset + vc.indexCommitSize + indexesSize)
+	{
+		//ri.Printf(PRINT_ALL, "out of space in index cache\n");
+		*recycleIndexBuffer = qtrue;
+		*endSurface = qtrue;
+	}
+
+	if (vc.numIndexEntries + vc.numSurfacesQueued >= VAOCACHE_MAX_BUFFERED_SURFACES)
+	{
+		//ri.Printf(PRINT_ALL, "out of surfaces in index cache\n");
+		*recycleIndexBuffer = qtrue;
+		*endSurface = qtrue;
+	}
+
+	if (vc.numSurfacesQueued == VAOCACHE_MAX_QUEUED_SURFACES)
+	{
+		//ri.Printf(PRINT_ALL, "out of queued surfaces\n");
+		*endSurface = qtrue;
+	}
+
+	if (VAOCACHE_MAX_QUEUED_VERTEXES * sizeof(srfVert_t) < vc.vertexCommitSize + vertexesSize)
+	{
+		//ri.Printf(PRINT_ALL, "out of queued vertexes\n");
+		*endSurface = qtrue;
+	}
+
+	if (VAOCACHE_MAX_QUEUED_INDEXES * sizeof(glIndex_t) < vc.indexCommitSize + indexesSize)
+	{
+		//ri.Printf(PRINT_ALL, "out of queued indexes\n");
+		*endSurface = qtrue;
+	}
+}
+
+void VaoCache_RecycleVertexBuffer(void)
+{
+	qglBindBuffer(GL_ARRAY_BUFFER, vc.vao->vertexesVBO);
+	qglBufferData(GL_ARRAY_BUFFER, vc.vao->vertexesSize, NULL, GL_DYNAMIC_DRAW);
+	vc.vertexOffset = 0;
+}
+
+void VaoCache_RecycleIndexBuffer(void)
+{
+	qglBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vc.vao->indexesIBO);
+	qglBufferData(GL_ELEMENT_ARRAY_BUFFER, vc.vao->indexesSize, NULL, GL_DYNAMIC_DRAW);
+	vc.indexOffset = 0;
+	vc.numIndexEntries = 0;
+}
+
+void VaoCache_InitNewSurfaceSet(void)
+{
+	vc.vertexCommitSize = 0;
+	vc.indexCommitSize = 0;
+	vc.numSurfacesQueued = 0;
+}
+
+void VaoCache_AddSurface(srfVert_t *verts, int numVerts, glIndex_t *indexes, int numIndexes)
+{
+	int vertexesSize = sizeof(srfVert_t) * numVerts;
+	int indexesSize = sizeof(glIndex_t) * numIndexes;
+	queuedSurface_t *queueEntry = vc.surfaceQueue + vc.numSurfacesQueued;
+	queueEntry->vertexes = verts;
+	queueEntry->numVerts = numVerts;
+	queueEntry->indexes = indexes;
+	queueEntry->numIndexes = numIndexes;
+	vc.numSurfacesQueued++;
+
+	vc.vertexCommitSize += vertexesSize;
+	vc.indexCommitSize += indexesSize;
+}
+
