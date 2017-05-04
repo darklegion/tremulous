@@ -1,4 +1,4 @@
-# LUA Scripts
+# Lua Scripts
 
 Scripts packaged with Tremulous. This folder will likely fill up with
 not so useful examples.
