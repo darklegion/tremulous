@@ -1160,12 +1160,7 @@ Q=@
 endif
 
 EXEC_CC = $(CC) ${1} -o ${2} -c ${3}
-#LOG_CC = $(file >>$(B)/compile_commands.txt,{ "target": "${1}", "directory": "$(shell pwd)/$(shell dirname $3)", "command": "${CC} ${2} -o ${3} -c ${4}", "file": "$(shell pwd)/${4}", "relative_file": "${4}" })
-
 EXEC_CXX = $(CXX) -std=c++1y ${CXXFLAGS} ${1} -o ${2} -c ${3}
-
-EXEC_CXX = $(CXX) -std=c++1y ${CXXFLAGS} ${1} -o ${2} -c ${3}
-#LOG_CXX = $(file >>$(B)/compile_commands.txt,{ "target": "${1}", "directory": "$(shell pwd)/$(shell dirname $3)", "command": "${CXX} ${2} -o ${3} -c ${4}", "file": "$(shell pwd)/${4}", "relative_file": "${4}"})
 
 # TREMULOUS CLIENT
 CC_FLAGS=${NOTSHLIBCFLAGS} ${CFLAGS} ${CLIENT_CFLAGS} ${OPTIMIZE}
@@ -1729,6 +1724,12 @@ define DO_GRANGER_CC
   $(Q)$(call EXEC_CC,-std=gnu99 -DGRANGER ${GRANGER_CFLAGS} ${OPTIMIZE},'$@','$<')
   $(Q)$(call LOG_CC,granger,-std=gnu99 ${GRANGER_CFLAGS} ${OPTIMIZE},$@,$<)
 endef
+
+ define DO_GRANGER_CPP
+  $(echo_cmd) "GRANGER_CC $<"
+  $(Q)$(call EXEC_CC,-std=gnu99 -DGRANGER ${GRANGER_CFLAGS} ${OPTIMIZE},'$@','$<')
+  $(Q)$(call LOG_CC,granger,-std=gnu99 ${GRANGER_CFLAGS} ${OPTIMIZE},$@,$<)
+endef
  
 $(B)/granger.dir/src/lua/%.o: $(LUADIR)/%.c
 	$(DO_GRANGER_CC)
@@ -1741,6 +1742,9 @@ $(B)/granger.dir/src/nettle/%.o: $(GRANGERDIR)/nettle/%.c
 
 $(B)/granger.dir/src/%.o: $(GRANGERDIR)/%.c
 	$(DO_GRANGER_CC)
+
+$(B)/granger.dir/src/%.o: $(GRANGERDIR)/%.cpp
+	$(DO_GRANGER_CPP)
 
 $(B)/granger$(FULLBINEXT): $(GRANGEROBJ)
 	$(echo_cmd) "LD $@"
@@ -2891,7 +2895,6 @@ $(B)/renderergl2/%.o: $(RCOMMONDIR)/%.cpp
 $(B)/renderergl2/%.o: $(RGL2DIR)/%.cpp
 	$(DO_RENDERERGL2_CXX)
 
-$
 $(B)/ded/%.o: $(ASMDIR)/%.s
 	$(DO_DED_AS)
 
