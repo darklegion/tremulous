@@ -19,10 +19,6 @@
 #ifndef CVAR_H
 #define CVAR_H
 
-#ifdef __cplusplus
-//extern "C" {
-#endif
-
 #include "q_platform.h"
 #include "q_shared.h"
 
@@ -198,9 +194,5 @@ extern int cvar_modifiedFlags;
 // a single check can determine if any CVAR_USERINFO, CVAR_SERVERINFO,
 // etc, variables have been modified since the last check.  The bit
 // can then be cleared to allow another change detection.
-
-#ifdef __cplusplus
-//}
-#endif
 
 #endif
