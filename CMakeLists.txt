@@ -84,7 +84,10 @@ add_subdirectory(src/server)
 # |    _  |   ' |    | |    | |    | |----' |   '
 #  `.___| /     `.__/| /    |  `---| `.___, /
 #                              \___/
-add_subdirectory(src/granger/src)
+
+if(BUILD_GRANGER)
+  add_subdirectory(src/granger/src)
+endif(BUILD_GRANGER)
 
 #  _______ ___ ___ _______                              __ __
 # |       |   |   |   |   | .----.-----.--------.-----.|__|  |.-----.----.
