@@ -27,18 +27,20 @@ If you want to build against system libraries, the following packages are necess
 
 * GCC/G++ (version 6+ is recommend)
 * CMake (Optional)
+* CURL (for downloading assets)
+* rsync (for asset management)
 * Zip (the tool not the library)
 * Libgl1-mesa
 * LibSDL2
 * LibCURL4
 * LibOpenAL
 * Libfreetype6
-* Lua 5.2
+* Lua 5.2 
 
 On Ubuntu yakkety (specifically) you can install all the packages necessary with the following:
 
 ```
-apt install -y cmake libgl1-mesa-dev libsdl2-dev libcurl4-openssl-dev libopenal-dev libfreetype6-dev mingw-w64 g++-mingw-w64 g++-multilib git zip vim-nox
+apt install -y cmake libgl1-mesa-dev libsdl2-dev libcurl4-openssl-dev libopenal-dev libfreetype6-dev mingw-w64 g++-mingw-w64 g++-multilib git zip vim-nox curl rsync
 
 ```
 
