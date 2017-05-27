@@ -2813,9 +2813,6 @@ $(B)/client/%.o: $(SDIR)/%.cpp
 $(B)/client/%.o: $(CMDIR)/%.cpp
 	$(DO_CXX)
 
-$(B)/client/%.o: $(SPEEXDIR)/%.c
-	$(DO_CC)
-
 $(B)/client/%.o: $(OGGDIR)/src/%.c
 	$(DO_CC)
 
