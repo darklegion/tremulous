@@ -451,7 +451,7 @@ ERR_FATAL if trying to maniuplate a file with the platform library, QVM, or pk3 
 static void FS_CheckFilenameIsMutable(const char *filename, const char *function)
 {
     // Check if the filename ends with the library, QVM, or pk3 extension
-    if (COM_CompareExtension(filename, DLL_EXT) || COM_CompareExtension(filename, ".qvm") ||
+    if (Sys_DllExtension(filename) || COM_CompareExtension(filename, ".qvm") ||
         COM_CompareExtension(filename, ".lua") || COM_CompareExtension(filename, ".pk3"))
     {
         Com_Error(ERR_FATAL, "%s: Not allowed to manipulate '%s' due to %s extension",
