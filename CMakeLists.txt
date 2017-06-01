@@ -48,11 +48,10 @@ add_subdirectory(src/zlib)
 add_subdirectory(src/jpeg-8c)
 
 # audio
-add_subdirectory(src/libspeex)
-add_subdirectory(src/opus-1.1)
-add_subdirectory(src/opusfile-0.5)
-add_subdirectory(src/libogg-1.3.1)
-add_subdirectory(src/libvorbis-1.3.4)
+add_subdirectory(src/opus-1.1.4)
+add_subdirectory(src/opusfile-0.8)
+add_subdirectory(src/libogg-1.3.2)
+add_subdirectory(src/libvorbis-1.3.5)
 
 # engine
 add_subdirectory(src/script)

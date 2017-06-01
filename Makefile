@@ -258,10 +258,10 @@ CGDIR=$(MOUNT_DIR)/cgame
 NDIR=$(MOUNT_DIR)/null
 UIDIR=$(MOUNT_DIR)/ui
 JPDIR=$(MOUNT_DIR)/jpeg-8c
-OGGDIR=$(MOUNT_DIR)/libogg-1.3.1
-VORBISDIR=$(MOUNT_DIR)/libvorbis-1.3.4
-OPUSDIR=$(MOUNT_DIR)/opus-1.1
-OPUSFILEDIR=$(MOUNT_DIR)/opusfile-0.5
+OGGDIR=$(MOUNT_DIR)/libogg-1.3.2
+VORBISDIR=$(MOUNT_DIR)/libvorbis-1.3.5
+OPUSDIR=$(MOUNT_DIR)/opus-1.1.4
+OPUSFILEDIR=$(MOUNT_DIR)/opusfile-0.8
 ZDIR=$(MOUNT_DIR)/zlib
 LUADIR=$(MOUNT_DIR)/lua-5.3.3/src
 GRANGERDIR=$(MOUNT_DIR)/granger/src
@@ -1038,7 +1038,7 @@ endif
 
 ifeq ($(NEED_OPUS),1)
   ifeq ($(USE_INTERNAL_OPUS),1)
-    OPUS_CFLAGS = -DOPUS_BUILD -DHAVE_LRINTF -DFLOATING_POINT -DUSE_ALLOCA \
+    OPUS_CFLAGS = -DOPUS_BUILD -DHAVE_LRINTF -DFLOATING_POINT -DFLOAT_APPROX -DUSE_ALLOCA \
       -I$(OPUSDIR)/include -I$(OPUSDIR)/celt -I$(OPUSDIR)/silk \
       -I$(OPUSDIR)/silk/float -I$(OPUSFILEDIR)/include
   else
@@ -2812,9 +2812,6 @@ $(B)/client/%.o: $(SDIR)/%.cpp
 
 $(B)/client/%.o: $(CMDIR)/%.cpp
 	$(DO_CXX)
-
-$(B)/client/%.o: $(SPEEXDIR)/%.c
-	$(DO_CC)
 
 $(B)/client/%.o: $(OGGDIR)/src/%.c
 	$(DO_CC)

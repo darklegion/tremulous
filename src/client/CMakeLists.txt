@@ -163,12 +163,12 @@ include_directories(
     ${PARENT_DIR}/rapidjson
     ${PARENT_DIR}/SDL2/include
     ${PARENT_DIR}/jpeg-8c
-    ${PARENT_DIR}/libogg-1.3.1/include
+    ${PARENT_DIR}/libogg-1.3.2/include
     ${PARENT_DIR}/lua-5.3.3/include
     ${PARENT_DIR}/sol
     ${PARENT_DIR}/nettle-3.3
-    ${PARENT_DIR}/opus-1.1/include
-    ${PARENT_DIR}/opusfile-0.5/include
+    ${PARENT_DIR}/opus-1.1.4/include
+    ${PARENT_DIR}/opusfile-0.8/include
     ${SDL2_INCLUDE_DIRS}
     ${OPENAL_INCLUDE_DIR}
     )

@@ -75,5 +75,3 @@ add_definitions(
     )
 
 target_link_libraries( renderercommon ${SDL2_LIBRARIES} )
-
-#command /usr/bin/clang -fPIC -fno-common -Isrc/lua-5.3.3/include -Isrc/script/rapidjson  -Isrc/nettle-3.3 -fno-strict-aliasing -fno-common -pipe -D_THREAD_SAFE=1 -Isrc/SDL2/include -DNO_GZIP -Isrc/zlib -DUSE_INTERNAL_JPEG -Isrc/jpeg-8c -DUSE_LOCAL_HEADERS -DSTANDALONE -DPRODUCT_VERSION=\1.2.0-39f5d1c-2016-11-04\ -Wformat=2 -Wno-format-zero-length -Wformat-security -Wno-format-nonliteral -Wstrict-aliasing=2 -Wmissing-format-attribute -Wdisabled-optimization -Werror-implicit-function-declaration -MMD -I/usr/local/include -DUSE_OPENAL -DUSE_OPENAL_DLOPEN -DUSE_CURL -DUSE_VOIP -DUSE_CODEC_OPUS -DOPUS_BUILD -DHAVE_LRINTF -DFLOATING_POINT -DUSE_ALLOCA -Isrc/opus-1.1/include -Isrc/opus-1.1/celt -Isrc/opus-1.1/silk -Isrc/opus-1.1/silk/float -Isrc/opusfile-0.5/include -DUSE_RESTCLIENT -Isrc/restclient -Isrc/libogg-1.3.1/include -DUSE_RENDERER_DLOPEN -DUSE_MUMBLE -DNDEBUG  -arch x86_64 -mfpmath=sse -ffast-math -o build/release-darwin-x86_64/renderergl1/tr_font.o -c src/renderercommon/tr_font.c

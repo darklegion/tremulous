@@ -44,6 +44,7 @@ void *QDECL Sys_LoadGameDll(const char *name,
                             intptr_t(QDECL *systemcalls)(intptr_t, ...));
 
 void Sys_UnloadDll(void *dllHandle);
+bool Sys_DllExtension(const char *name);
 
 void QDECL Sys_Error(const char *error, ...) __attribute__((noreturn, format(printf, 1, 2)));
 void Sys_Quit(void) __attribute__((noreturn));
