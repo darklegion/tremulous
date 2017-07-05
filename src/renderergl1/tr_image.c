@@ -1570,6 +1570,7 @@ qhandle_t RE_RegisterSkin( const char *name ) {
 		return 0;
 	}
 
+    int totalSurfaces = 0;
 	text_p = text.c;
 	while ( text_p && *text_p ) {
 		// get surface name
@@ -1593,19 +1594,23 @@ qhandle_t RE_RegisterSkin( const char *name ) {
 		// parse the shader name
 		token = CommaParse( &text_p );
 
-		if ( skin->numSurfaces >= MAX_SKIN_SURFACES ) {
-			ri.Printf( PRINT_WARNING, "WARNING: Ignoring surfaces in '%s', the max is %d surfaces!\n", name, MAX_SKIN_SURFACES );
-			break;
-		}
 
-		surf = &parseSurfaces[skin->numSurfaces];
-		Q_strncpyz( surf->name, surfName, sizeof( surf->name ) );
-		surf->shader = R_FindShader( token, LIGHTMAP_NONE, qtrue );
-		skin->numSurfaces++;
+        if ( skin->numSurfaces < MAX_SKIN_SURFACES ) {
+            surf = &parseSurfaces[skin->numSurfaces];
+            Q_strncpyz( surf->name, surfName, sizeof( surf->name ) );
+            surf->shader = R_FindShader( token, LIGHTMAP_NONE, qtrue );
+            skin->numSurfaces++;
+        }
+
+        totalSurfaces++;
 	}
 
 	ri.FS_FreeFile( text.v );
 
+    if ( totalSurfaces > MAX_SKIN_SURFACES  ) {
+        ri.Printf( PRINT_WARNING, "WARNING: Ignoring excess surfaces (found %d, max is %d) in skin '%s'!\n",
+                totalSurfaces, MAX_SKIN_SURFACES, name );
+    }
 
 	// never let a skin have 0 shaders
 	if ( skin->numSurfaces == 0 ) {
