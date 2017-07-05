@@ -395,7 +395,7 @@ void R_AddMD3Surfaces( trRefEntity_t *ent ) {
             && !(ent->e.renderfx & (RF_NOSHADOW|RF_DEPTHHACK))
             && shader->sort == SS_OPAQUE )
         {
-            R_AddDrawSurf( (void*)&model->vaoSurface[i], tr.shadowShader, 0, qfalse, qfalse, 0);
+            R_AddDrawSurf( (void*)&model->vaoSurfaces[i], tr.shadowShader, 0, qfalse, qfalse, 0);
         }
 
         // projection shadows work fine with personal models
