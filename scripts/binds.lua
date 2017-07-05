@@ -4,12 +4,12 @@
 
 
 player = {
-    team    = cvar.new('player_team'),
-    stage   = cvar.new('player_stage'),
+    team    = cvar.new('team_teamname'),
+    stage   = cvar.new('team_stage'),
     hp      = cvar.new('player_hp'),
-    kns     = cvar.new('player_kns'),
-    spawns  = cvar.new('player_spawns'),
-    bp      = cvar.new('player_bp'),
+    kns     = cvar.new('team_kns'),
+    spawns  = cvar.new('team_spawns'),
+    bp      = cvar.new('team_bp'),
     maxbp   = cvar.new('player_maxbp'),
     credits = cvar.new('player_credits'),
     score   = cvar.new('player_score'),
@@ -71,7 +71,7 @@ binds = {
     w = bind.new('w'),
     x = bind.new('x'),
     y = bind.new('y'),
-    z = bind.new('z', "screenshotJPEG silent")
+    z = bind.new('z', "screenshotJPEG silent"),
 
     f12 = bind.new('f12', "cg_draw2d ")
 } 
