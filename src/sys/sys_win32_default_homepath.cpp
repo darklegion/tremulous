@@ -2,6 +2,7 @@
 
 #include "../qcommon/cvar.h"
 #include "../qcommon/q_shared.h"
+#include "../qcommon/q_platform.h"
 
 #include <windows.h>
 #include <lmerr.h>
@@ -18,7 +19,6 @@
 #include <psapi.h>
 #include <float.h>
 
-
 // Used to determine where to store user-specific files
 static char homePath[ MAX_OSPATH ] = { 0 };
 
@@ -30,29 +30,12 @@ Sys_DefaultHomePath
 char *Sys_DefaultHomePath( void )
 {
     TCHAR szPath[MAX_PATH];
-    FARPROC qSHGetFolderPath;
-    HMODULE shfolder = LoadLibrary("shfolder.dll");
-
-    if(shfolder == NULL)
-    {
-        Com_Printf("Unable to load SHFolder.dll\n");
-        return NULL;
-    }
 
     if(!*homePath && com_homepath)
     {
-        qSHGetFolderPath = GetProcAddress(shfolder, "SHGetFolderPathA");
-        if(qSHGetFolderPath == NULL)
-        {
-            Com_Printf("Unable to find SHGetFolderPath in SHFolder.dll\n");
-            FreeLibrary(shfolder);
-            return NULL;
-        }
-
-        if( !SUCCEEDED( qSHGetFolderPath( NULL, CSIDL_APPDATA, NULL, 0, szPath ) ) )
+        if( !SUCCEEDED( SHGetFolderPath( NULL, CSIDL_APPDATA, NULL, 0, szPath ) ) )
         {
             Com_Printf("Unable to detect CSIDL_APPDATA\n");
-            FreeLibrary(shfolder);
             return NULL;
         }
         
@@ -64,7 +47,6 @@ char *Sys_DefaultHomePath( void )
             Q_strcat(homePath, sizeof(homePath), HOMEPATH_NAME_WIN);
     }
 
-    FreeLibrary(shfolder);
     return homePath;
 }
 
