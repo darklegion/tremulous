@@ -21,9 +21,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+#ifndef _BG_PUBLIC_H_
+#define _BG_PUBLIC_H_
+
 // bg_public.h -- definitions shared by both the server game and client game modules
 
 //tremulous balance header
+#include "../qcommon/q_shared.h"
 #include "tremulous.h"
 
 // because games can change separately from the main system version, we need a
@@ -60,7 +64,7 @@ enum
   CS_MUSIC            = 2,
   CS_MESSAGE,               // from the map worldspawn's message field
   CS_MOTD,                  // g_motd string for server message of the day
-  CS_WARMUP,                // server time when the match will be restarted
+  CS_WARMUP           = 5,  // server time when the match will be restarted !!! MUST NOT CHANGE, SERVER AND GAME BOTH REFERENCE !!!
 
   CS_VOTE_TIME,             // Vote stuff each needs NUM_TEAMS slots
   CS_VOTE_STRING      = CS_VOTE_TIME + NUM_TEAMS,
@@ -117,7 +121,7 @@ typedef enum
   PM_NOCLIP,        // noclip movement
   PM_SPECTATOR,     // still run into walls
   PM_JETPACK,       // jetpack physics
-  PM_GRABBED,       // like dead, but for when the player is still live
+  PM_GRABBED,       // like dead, but for when the player is still alive
   PM_DEAD,          // no acceleration or turning, but free falling
   PM_FREEZE,        // stuck in place with no control
   PM_INTERMISSION   // no movement or status bar
@@ -126,7 +130,7 @@ typedef enum
 // pmtype_t categories
 #define PM_Paralyzed( x ) ( (x) == PM_DEAD || (x) == PM_FREEZE ||\
                             (x) == PM_INTERMISSION )
-#define PM_Live( x )      ( (x) == PM_NORMAL || (x) == PM_JETPACK ||\
+#define PM_Alive( x )     ( (x) == PM_NORMAL || (x) == PM_JETPACK ||\
                             (x) == PM_GRABBED )
 
 typedef enum
@@ -136,7 +140,6 @@ typedef enum
   WEAPON_DROPPING,
   WEAPON_FIRING,
   WEAPON_RELOADING,
-  WEAPON_NEEDS_RESET,
 } weaponstate_t;
 
 // pmove->pm_flags
@@ -429,13 +432,15 @@ typedef enum
   BA_NUM_BUILDABLES
 } buildable_t;
 
-// reward sounds (stored in ps->persistant[PERS_PLAYEREVENTS])
-#define PLAYEREVENT_DENIEDREWARD      0x0001
-#define PLAYEREVENT_GAUNTLETREWARD    0x0002
-#define PLAYEREVENT_HOLYSHIT          0x0004
+typedef enum
+{
+  RMT_SPHERE,
+  RMT_SPHERICAL_CONE_64,
+  RMT_SPHERICAL_CONE_240
+} rangeMarkerType_t;
 
 // entityState_t->event values
-// entity events are for effects that take place reletive
+// entity events are for effects that take place relative
 // to an existing entities origin.  Very network efficient.
 
 // two bits at the top of the entityState->event field
@@ -520,7 +525,7 @@ typedef enum
   EV_DEATH3,
   EV_OBITUARY,
 
-  EV_GIB_PLAYER,      // gib a previously living player
+  EV_GIB_PLAYER,
 
   EV_BUILD_CONSTRUCT,
   EV_BUILD_DESTROY,
@@ -570,7 +575,7 @@ typedef enum
   MN_CMD_SPEC,
   MN_CMD_ALIEN,
   MN_CMD_HUMAN,
-  MN_CMD_LIVING,
+  MN_CMD_ALIVE,
 
   //alien stuff
   MN_A_CLASS,
@@ -932,6 +937,7 @@ typedef struct
   int       fov;
   float     bob;
   float     bobCycle;
+  float     landBob;
   int       steptime;
 
   float     speed;
@@ -1135,20 +1141,20 @@ void                        BG_BuildableBoundingBox( buildable_t buildable,
 void                        BG_InitBuildableConfigs( void );
 
 const classAttributes_t     *BG_ClassByName( const char *name );
-const classAttributes_t     *BG_Class( class_t class );
-qboolean                    BG_ClassAllowedInStage( class_t class,
+const classAttributes_t     *BG_Class( class_t klass );
+qboolean                    BG_ClassAllowedInStage( class_t klass,
                                                     stage_t stage );
 
-classConfig_t               *BG_ClassConfig( class_t class );
+classConfig_t               *BG_ClassConfig( class_t klass );
 
-void                        BG_ClassBoundingBox( class_t class, vec3_t mins,
+void                        BG_ClassBoundingBox( class_t klass, vec3_t mins,
                                                  vec3_t maxs, vec3_t cmaxs,
                                                  vec3_t dmins, vec3_t dmaxs );
-qboolean                    BG_ClassHasAbility( class_t class, int ability );
+qboolean                    BG_ClassHasAbility( class_t klass, int ability );
 int                         BG_ClassCanEvolveFromTo( class_t fclass,
                                                      class_t tclass,
                                                      int credits, int alienStage, int num );
-qboolean                    BG_AlienCanEvolve( class_t class, int credits, int alienStage );
+qboolean                    BG_AlienCanEvolve( class_t klass, int credits, int alienStage );
 
 void                        BG_InitClassConfigs( void );
 
@@ -1181,7 +1187,8 @@ typedef enum
   ET_PLAYER,
   ET_ITEM,
 
-  ET_BUILDABLE,       // buildable type
+  ET_BUILDABLE,
+  ET_RANGE_MARKER,
 
   ET_LOCATION,
 
@@ -1201,6 +1208,7 @@ typedef enum
   ET_MODELDOOR,
   ET_LIGHTFLARE,
   ET_LEV2_ZAP_CHAIN,
+  ET_WEAPON_DROP,
 
   ET_EVENTS       // any of the EV_* events can be added freestanding
               // by setting eType to ET_EVENTS + eventNum
@@ -1240,7 +1248,7 @@ void BG_ParseCSVBuildableList( const char *string, buildable_t *buildables, int 
 void BG_InitAllowedGameElements( void );
 qboolean BG_WeaponIsAllowed( weapon_t weapon );
 qboolean BG_UpgradeIsAllowed( upgrade_t upgrade );
-qboolean BG_ClassIsAllowed( class_t class );
+qboolean BG_ClassIsAllowed( class_t klass );
 qboolean BG_BuildableIsAllowed( buildable_t buildable );
 
 // Friendly Fire Flags
@@ -1265,18 +1273,17 @@ typedef enum
 
 typedef struct voiceTrack_s
 {
-#ifdef CGAME
+//#ifdef CGAME
   sfxHandle_t            track;
   int                    duration;
-#endif
+//#endif
   char                   *text;
   int                    enthusiasm;
   int                    team;
-  int                    class;
+  int                    klass;
   int                    weapon;
   struct voiceTrack_s    *next;
 } voiceTrack_t;
-
 
 typedef struct voiceCmd_s
 {
@@ -1300,7 +1307,7 @@ voiceCmd_t *BG_VoiceCmdFind( voiceCmd_t *head, char *name, int *cmdNum );
 voiceCmd_t *BG_VoiceCmdByNum( voiceCmd_t *head, int num);
 voiceTrack_t *BG_VoiceTrackByNum( voiceTrack_t *head, int num );
 voiceTrack_t *BG_VoiceTrackFind( voiceTrack_t *head, team_t team,
-                                 class_t class, weapon_t weapon,
+                                 class_t klass, weapon_t weapon,
                                  int enthusiasm, int *trackNum );
 
 int BG_LoadEmoticons( emoticon_t *emoticons, int num );
@@ -1312,3 +1319,7 @@ typedef struct
   const char *name;
 } dummyCmd_t;
 int cmdcmp( const void *a, const void *b );
+
+char *G_CopyString( const char *str );
+
+#endif

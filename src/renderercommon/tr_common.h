@@ -23,9 +23,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef TR_COMMON_H
 #define TR_COMMON_H
 
+#include <stdbool.h>
+
+#include "../qcommon/cvar.h"
 #include "../qcommon/q_shared.h"
+#include "../sys/sys_shared.h"
 #include "../renderercommon/tr_public.h"
 #include "qgl.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef enum
 {
@@ -81,6 +89,7 @@ extern glconfig_t	glConfig;		// outside of TR since it shouldn't be cleared duri
 extern cvar_t *r_stencilbits;			// number of desired stencil bits
 extern cvar_t *r_depthbits;			// number of desired depth bits
 extern cvar_t *r_colorbits;			// number of desired color bits, only relevant for fullscreen
+extern cvar_t *r_alphabits;			// number of desired alpha bits
 extern cvar_t *r_texturebits;			// number of desired texture bits
 extern cvar_t *r_ext_multisample;
 										// 0 = use framebuffer depth
@@ -162,5 +171,7 @@ void		GLimp_SetGamma( unsigned char red[256],
 		unsigned char green[256],
 		unsigned char blue[256] );
 
-
+#ifdef __cplusplus
+}
+#endif
 #endif

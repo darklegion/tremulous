@@ -36,9 +36,9 @@ Q_EXPORT void dllEntry( intptr_t (QDECL *syscallptr)( intptr_t arg,... ) )
 
 int PASSFLOAT( float x )
 {
-  float floatTemp;
-  floatTemp = x;
-  return *(int *)&floatTemp;
+  floatint_t fi;
+  fi.f = x;
+  return fi.i;
 }
 
 void  trap_Print( const char *fmt )
@@ -67,7 +67,7 @@ void  trap_Argv( int n, char *buffer, int bufferLength )
   syscall( G_ARGV, n, buffer, bufferLength );
 }
 
-int   trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, fsMode_t mode )
+int   trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, enum FS_Mode mode )
 {
   return syscall( G_FS_FOPEN_FILE, qpath, f, mode );
 }
@@ -257,11 +257,6 @@ void trap_SnapVector( float *v )
   syscall( G_SNAPVECTOR, v );
 }
 
-void trap_SendGameStat( const char *data )
-{
-  syscall( G_SEND_GAMESTAT, data );
-}
-
 int trap_Parse_AddGlobalDefine( char *define )
 {
   return syscall( G_PARSE_ADD_GLOBAL_DEFINE, define );
@@ -295,5 +290,10 @@ void trap_AddCommand( const char *cmdName )
 void trap_RemoveCommand( const char *cmdName )
 {
   syscall( G_REMOVECOMMAND, cmdName );
+}
+
+int trap_FS_GetFilteredFiles( const char *path, const char *extension, const char *filter, char *listbuf, int bufsize )
+{
+  return syscall( G_FS_GETFILTEREDFILES, path, extension, filter, listbuf, bufsize );
 }
 

@@ -93,7 +93,7 @@ G_FindConfigstringIndex
 
 ================
 */
-int G_FindConfigstringIndex( char *name, int start, int max, qboolean create )
+int G_FindConfigstringIndex( const char *name, int start, int max, qboolean create )
 {
   int   i;
   char  s[ MAX_STRING_CHARS ];
@@ -122,22 +122,22 @@ int G_FindConfigstringIndex( char *name, int start, int max, qboolean create )
   return i;
 }
 
-int G_ParticleSystemIndex( char *name )
+int G_ParticleSystemIndex( const char *name )
 {
   return G_FindConfigstringIndex( name, CS_PARTICLE_SYSTEMS, MAX_GAME_PARTICLE_SYSTEMS, qtrue );
 }
 
-int G_ShaderIndex( char *name )
+int G_ShaderIndex( const char *name )
 {
   return G_FindConfigstringIndex( name, CS_SHADERS, MAX_GAME_SHADERS, qtrue );
 }
 
-int G_ModelIndex( char *name )
+int G_ModelIndex( const char *name )
 {
   return G_FindConfigstringIndex( name, CS_MODELS, MAX_MODELS, qtrue );
 }
 
-int G_SoundIndex( char *name )
+int G_SoundIndex( const char *name )
 {
   return G_FindConfigstringIndex( name, CS_SOUNDS, MAX_SOUNDS, qtrue );
 }
@@ -240,9 +240,6 @@ match (string)self.target and call their .use function
 void G_UseTargets( gentity_t *ent, gentity_t *activator )
 {
   gentity_t   *t;
-
-  if( !ent )
-    return;
 
   if( ent->targetShaderName && ent->targetShaderNewName )
   {
@@ -478,7 +475,6 @@ qboolean G_EntitiesFree( void )
   return qfalse;
 }
 
-
 /*
 =================
 G_FreeEntity
@@ -501,6 +497,181 @@ void G_FreeEntity( gentity_t *ent )
 
 /*
 =================
+G_RemoveEntity
+
+Safely remove an entity, perform reasonable cleanup logic
+=================
+*/
+void G_RemoveEntity( gentity_t *ent )
+{
+  gentity_t *e;
+
+  if( ent->client )
+  {
+    // removing a player causes the player to "unspawn"
+    class_t class = ent->client->pers.classSelection; // back up the spawn queue choice
+    weapon_t weapon = ent->client->pers.humanItemSelection; // back up
+    ent->client->pers.classSelection = PCL_NONE;
+    ent->client->pers.humanItemSelection = WP_NONE;
+    ent->suicideTime = 0; // cancel any timed suicides
+    ClientSpawn( ent, NULL, NULL, NULL );
+    ent->client->pers.classSelection = class; // restore the spawn queue choice
+    ent->client->pers.humanItemSelection = weapon; // restore
+    return;
+  }
+  else if( ent->s.eType == ET_RANGE_MARKER )
+  {
+    for( e = &g_entities[ MAX_CLIENTS ]; e < &g_entities[ level.num_entities ]; ++e )
+    {
+      if( e->rangeMarker == ent )
+      {
+        // clear the buildable's reference to this range marker
+        e->rangeMarker = NULL;
+        break;
+      }
+    }
+  }
+  else if( ent->s.eType == ET_BUILDABLE )
+  {
+    // the range marker (if any) goes away with the buildable
+    G_RemoveRangeMarkerFrom( ent );
+  }
+  else if( !strcmp( ent->classname, "lev2zapchain" ) )
+  {
+    zap_t *z;
+    for( z = &zaps[ 0 ]; z < &zaps[ MAX_ZAPS ]; ++z )
+    {
+      if( z->used && z->effectChannel == ent )
+      {
+        // free the zap slot occupied by this zap effect
+        z->used = qfalse;
+        break;
+      }
+    }
+  }
+  else if( ent->s.eType == ET_MOVER )
+  {
+    if( !strcmp( ent->classname, "func_door" ) ||
+        !strcmp( ent->classname, "func_door_rotating" ) ||
+        !strcmp( ent->classname, "func_door_model" ) ||
+        !strcmp( ent->classname, "func_door_model_clip_brush" ) ||
+        !strcmp( ent->classname, "func_plat" ) )
+    {
+      // each func_door_model entity is paired with a clip brush, remove the other
+      if( ent->clipBrush != NULL )
+        G_FreeEntity( ent->clipBrush );
+      for( e = &g_entities[ MAX_CLIENTS ]; e < &g_entities[ level.num_entities ]; ++e )
+      {
+        if( e->parent == ent )
+        {
+          // this mover has a trigger area brush
+          if( ent->teammaster != NULL && ent->teammaster->teamchain != NULL )
+          {
+            // the mover is part of a team of at least 2
+            e->parent = ent->teammaster->teamchain; // hand the brush over to the next mover in command
+          }
+          else
+            G_FreeEntity( e ); // remove the teamless or to-be-orphaned brush
+          break;
+        }
+      }
+    }
+    // removing a mover opens the relevant portal
+    trap_AdjustAreaPortalState( ent, qtrue );
+  }
+  else if( !strcmp( ent->classname, "path_corner" ) )
+  {
+    for( e = &g_entities[ MAX_CLIENTS ]; e < &g_entities[ level.num_entities ]; ++e )
+    {
+      if( e->nextTrain == ent )
+        e->nextTrain = ent->nextTrain; // redirect func_train and path_corner entities
+    }
+  }
+  else if( !strcmp( ent->classname, "info_player_intermission" ) ||
+           !strcmp( ent->classname, "info_player_deathmatch" ) )
+  {
+    for( e = &g_entities[ MAX_CLIENTS ]; e < &g_entities[ level.num_entities ]; ++e )
+    {
+      if( e->inuse && e != ent &&
+          ( !strcmp( e->classname, "info_player_intermission" ) ||
+            !strcmp( e->classname, "info_player_deathmatch" ) ) )
+      {
+        break;
+      }
+    }
+    // refuse to remove the last info_player_intermission/info_player_deathmatch entity
+    //  (because it is required for initial camera placement)
+    if( e >= &g_entities[ level.num_entities ] )
+      return;
+  }
+  else if( !strcmp( ent->classname, "target_location" ) )
+  {
+    if( ent == level.locationHead )
+      level.locationHead = ent->nextTrain;
+    else
+    {
+      for( e = level.locationHead; e != NULL; e = e->nextTrain )
+      {
+        if( e->nextTrain == ent )
+        {
+          e->nextTrain = ent->nextTrain;
+          break;
+        }
+      }
+    }
+  }
+  else if( !Q_stricmp( ent->classname, "misc_portal_camera" ) )
+  {
+    for( e = &g_entities[ MAX_CLIENTS ]; e < &g_entities[ level.num_entities ]; ++e )
+    {
+      if( e->r.ownerNum == ent - g_entities )
+      {
+        // disown the surface
+        e->r.ownerNum = ENTITYNUM_NONE;
+      }
+    }
+  }
+
+  if( ent->teammaster != NULL )
+  {
+    // this entity is part of a mover team
+    if( ent == ent->teammaster )
+    {
+      // the entity is the master
+      gentity_t *snd = ent->teamchain;
+      for( e = snd; e != NULL; e = e->teamchain )
+        e->teammaster = snd; // put the 2nd entity (if any) in command
+      if( snd )
+      {
+        if( !strcmp( ent->classname, snd->classname ) )
+        {
+          // transfer certain activity properties
+          snd->think = ent->think;
+          snd->nextthink = ent->nextthink;
+        }
+        snd->flags &= ~FL_TEAMSLAVE; // put the 2nd entity (if any) in command
+      }
+    }
+    else
+    {
+      // the entity is a slave
+      for( e = ent->teammaster; e != NULL; e = e->teamchain )
+      {
+        if( e->teamchain == ent )
+        {
+          // unlink it from the chain
+          e->teamchain = ent->teamchain;
+          break;
+        }
+      }
+    }
+  }
+
+  G_FreeEntity( ent );
+}
+
+/*
+=================
 G_TempEntity
 
 Spawns an event entity that will be auto-removed
@@ -508,7 +679,7 @@ The origin will be snapped to save net bandwidth, so care
 must be taken if the origin is right on a surface (snap towards start vector first)
 =================
 */
-gentity_t *G_TempEntity( vec3_t origin, int event )
+gentity_t *G_TempEntity( const vec3_t origin, int event )
 {
   gentity_t *e;
   vec3_t    snapped;
@@ -563,7 +734,7 @@ void G_KillBox( gentity_t *ent )
   {
     hit = &g_entities[ touch[ i ] ];
 
-    if( !hit->client )
+    if( ent->client && !hit->client ) // players can telefrag only other players
       continue;
 
     // impossible to telefrag self
@@ -701,7 +872,7 @@ G_SetOrigin
 Sets the pos trajectory for a fixed position
 ================
 */
-void G_SetOrigin( gentity_t *ent, vec3_t origin )
+void G_SetOrigin( gentity_t *ent, const vec3_t origin )
 {
   VectorCopy( origin, ent->s.pos.trBase );
   ent->s.pos.trType = TR_STATIONARY;
@@ -710,7 +881,6 @@ void G_SetOrigin( gentity_t *ent, vec3_t origin )
   VectorClear( ent->s.pos.trDelta );
 
   VectorCopy( origin, ent->r.currentOrigin );
-  VectorCopy( origin, ent->s.origin );
 }
 
 // from quakestyle.telefragged.com
@@ -777,13 +947,13 @@ gentity_t *G_ClosestEnt( vec3_t origin, gentity_t **entities, int numEntities )
     return NULL;
 
   closestEnt = entities[ 0 ];
-  d = DistanceSquared( origin, closestEnt->s.origin );
+  d = DistanceSquared( origin, closestEnt->r.currentOrigin );
 
   for( i = 1; i < numEntities; i++ )
   {
     gentity_t *ent = entities[ i ];
 
-    nd = DistanceSquared( origin, ent->s.origin );
+    nd = DistanceSquared( origin, ent->r.currentOrigin );
     if( nd < d )
     {
       d = nd;

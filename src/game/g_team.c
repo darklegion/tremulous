@@ -48,7 +48,7 @@ G_TeamCommand
 Broadcasts a command to only a specific team
 ================
 */
-void G_TeamCommand( team_t team, char *cmd )
+void G_TeamCommand( team_t team, const char *cmd )
 {
   int   i;
 
@@ -218,6 +218,16 @@ void G_ChangeTeam( gentity_t *ent, team_t newTeam )
     ent->client->pers.credit =
       (int)( ent->client->pers.credit *
              HUMAN_MAX_CREDITS / ALIEN_MAX_CREDITS + 0.5f );
+  }
+
+  if( !g_cheats.integer )
+  {
+    if( ent->client->noclip )
+    {
+      ent->client->noclip = qfalse;
+      ent->r.contents = ent->client->cliprcontents;
+    }
+    ent->flags &= ~( FL_GODMODE | FL_NOTARGET );
   }
 
   // Copy credits to ps for the client

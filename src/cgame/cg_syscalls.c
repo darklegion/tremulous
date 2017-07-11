@@ -38,9 +38,9 @@ Q_EXPORT void dllEntry( intptr_t (QDECL  *syscallptr)( intptr_t arg,... ) )
 
 int PASSFLOAT( float x )
 {
-  float floatTemp;
-  floatTemp = x;
-  return *(int *)&floatTemp;
+  floatint_t fi;
+  fi.f = x;
+  return fi.i;
 }
 
 void trap_Print( const char *fmt )
@@ -100,7 +100,7 @@ void  trap_LiteralArgs( char *buffer, int bufferLength )
   syscall( CG_LITERAL_ARGS, buffer, bufferLength );
 }
 
-int trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, fsMode_t mode )
+int trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, enum FS_Mode mode )
 {
   return syscall( CG_FS_FOPENFILE, qpath, f, mode );
 }
@@ -120,7 +120,7 @@ void  trap_FS_FCloseFile( fileHandle_t f )
   syscall( CG_FS_FCLOSEFILE, f );
 }
 
-void trap_FS_Seek( fileHandle_t f, long offset, fsOrigin_t origin )
+void trap_FS_Seek( fileHandle_t f, long offset, enum FS_Origin origin )
 {
   syscall( CG_FS_SEEK, f, offset, origin );
 }
@@ -292,10 +292,12 @@ sfxHandle_t trap_S_RegisterSound( const char *sample, qboolean compressed )
   return syscall( CG_S_REGISTERSOUND, sample, compressed );
 }
 
+#ifndef MODULE_INTERFACE_11
 int trap_S_SoundDuration( sfxHandle_t handle )
 {
   return syscall( CG_S_SOUNDDURATION, handle );
 }
+#endif
 
 void  trap_S_StartBackgroundTrack( const char *intro, const char *loop )
 {
@@ -382,10 +384,12 @@ void  trap_R_SetColor( const float *rgba )
   syscall( CG_R_SETCOLOR, rgba );
 }
 
+#ifndef MODULE_INTERFACE_11
 void  trap_R_SetClipRegion( const float *region )
 {
   syscall( CG_R_SETCLIPREGION, region );
 }
+#endif
 
 void  trap_R_DrawStretchPic( float x, float y, float w, float h,
                  float s1, float t1, float s2, float t2, qhandle_t hShader )
@@ -424,7 +428,11 @@ void trap_GetCurrentSnapshotNumber( int *snapshotNumber, int *serverTime )
   syscall( CG_GETCURRENTSNAPSHOTNUMBER, snapshotNumber, serverTime );
 }
 
+#ifdef MODULE_INTERFACE_11
+qboolean  trap_GetSnapshot( int snapshotNumber, moduleAlternateSnapshot_t *snapshot )
+#else
 qboolean  trap_GetSnapshot( int snapshotNumber, snapshot_t *snapshot )
+#endif
 {
   return syscall( CG_GETSNAPSHOT, snapshotNumber, snapshot );
 }
@@ -585,10 +593,17 @@ void trap_Key_SetBinding( int keynum, const char *binding ) {
   syscall( CG_KEY_SETBINDING, keynum, binding );
 }
 
+#ifndef MODULE_INTERFACE_11
 void trap_Key_SetOverstrikeMode( qboolean state ) {
   syscall( CG_KEY_SETOVERSTRIKEMODE, state );
 }
 
 qboolean trap_Key_GetOverstrikeMode( void ) {
   return syscall( CG_KEY_GETOVERSTRIKEMODE );
+}
+#endif
+
+void trap_Field_CompleteList( char *listJson )
+{
+  syscall( CG_FIELD_COMPLETELIST, listJson );
 }

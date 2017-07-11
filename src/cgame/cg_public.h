@@ -21,6 +21,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+#ifndef _CG_PUBLIC_H_
+#define _CG_PUBLIC_H_
+
+#include "../qcommon/q_shared.h"
 
 #define CMD_BACKUP      64
 #define CMD_MASK      (CMD_BACKUP - 1)
@@ -120,7 +124,9 @@ typedef enum
   CG_R_ADDLIGHTTOSCENE,
   CG_R_RENDERSCENE,
   CG_R_SETCOLOR,
+#ifndef MODULE_INTERFACE_11
   CG_R_SETCLIPREGION,
+#endif
   CG_R_DRAWSTRETCHPIC,
   CG_R_MODELBOUNDS,
   CG_R_LERPTAG,
@@ -139,6 +145,13 @@ typedef enum
   CG_KEY_GETCATCHER,
   CG_KEY_SETCATCHER,
   CG_KEY_GETKEY,
+#ifdef MODULE_INTERFACE_11
+  CG_PARSE_ADD_GLOBAL_DEFINE,
+  CG_PARSE_LOAD_SOURCE,
+  CG_PARSE_FREE_SOURCE,
+  CG_PARSE_READ_TOKEN,
+  CG_PARSE_SOURCE_FILE_AND_LINE,
+#endif
   CG_S_STOPBACKGROUNDTRACK,
   CG_REAL_TIME,
   CG_SNAPVECTOR,
@@ -173,6 +186,7 @@ typedef enum
   CG_KEY_GETBINDINGBUF,
   CG_KEY_SETBINDING,
 
+#ifndef MODULE_INTERFACE_11
   CG_PARSE_ADD_GLOBAL_DEFINE,
   CG_PARSE_LOAD_SOURCE,
   CG_PARSE_FREE_SOURCE,
@@ -183,6 +197,8 @@ typedef enum
   CG_KEY_GETOVERSTRIKEMODE,
 
   CG_S_SOUNDDURATION,
+  CG_FIELD_COMPLETELIST,
+#endif
 
   CG_MEMSET = 200,
   CG_MEMCPY,
@@ -254,9 +270,17 @@ typedef enum
   // pass text that has been printed to the console to cgame
   // use Cmd_Argc() / Cmd_Argv() to read it
 
-  CG_VOIP_STRING
+  CG_VOIP_STRING,
   // char *(*CG_VoIPString)( void );
   // returns a string of comma-delimited clientnums based on cl_voipSendTarget
+  
+  CG_CONSOLE_COMPLETARGUMENT
+  // qboolean (*CG_Console_CompleteArgument)( int argNum )
+  // Requests CGAME to try to complete the command line
+  // argument. argNum indicates which argument we're completing. CGAME
+  // uses trap_Argv and trap_Argc to read the command line
+  // contents. Returns true if a completion function is found in
+  // CGAME, otherwise client tries another completion method.  
 } cgameExport_t;
 
-//----------------------------------------------
+#endif

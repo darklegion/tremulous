@@ -37,11 +37,8 @@ typedef struct gclient_s gclient_t;
 #define INFINITE      1000000
 
 #define FRAMETIME     100         // msec
-#define CARNAGE_REWARD_TIME 3000
-#define REWARD_SPRITE_TIME  2000
 
 #define INTERMISSION_DELAY_TIME 1000
-#define SP_INTERMISSION_DELAY_TIME 5000
 
 // gentity->flags
 #define FL_GODMODE        0x00000010
@@ -74,6 +71,12 @@ typedef enum
 
 #define SP_PODIUM_MODEL   "models/mapobjects/podium/podium4.md3"
 
+typedef struct gitem_s
+{
+  int  ammo; // ammo held
+  int  clips; // clips held
+} gitem_t;
+
 //============================================================================
 
 struct gentity_s
@@ -86,6 +89,7 @@ struct gentity_s
   //================================
 
   struct gclient_s  *client;        // NULL if not a client
+  gitem_t    item;
 
   qboolean          inuse;
 
@@ -121,7 +125,6 @@ struct gentity_s
   int               soundLoop;
   gentity_t         *parent;
   gentity_t         *nextTrain;
-  gentity_t         *prevTrain;
   vec3_t            pos1, pos2;
   float             rotatorAngle;
   gentity_t         *clipBrush;     // clipping brush for model doors
@@ -130,7 +133,6 @@ struct gentity_s
 
   int               timestamp;      // body queue sinking, etc
 
-  float             angle;          // set in editor, -1 = up, -2 = down
   char              *target;
   char              *targetname;
   char              *team;
@@ -159,7 +161,6 @@ struct gentity_s
   void              (*die)( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod );
 
   int               pain_debounce_time;
-  int               fly_sound_debounce_time;  // wind tunnel
   int               last_move_time;
 
   int               health;
@@ -195,8 +196,8 @@ struct gentity_s
 
   team_t            buildableTeam;      // buildable item team
   gentity_t         *parentNode;        // for creep and defence/spawn dependencies
+  gentity_t         *rangeMarker;
   qboolean          active;             // for power repeater, but could be useful elsewhere
-  qboolean          locked;             // used for turret tracking
   qboolean          powered;            // for human buildables
   struct namelog_s  *builtBy;           // person who built this
   int               dcc;                // number of controlling dccs
@@ -217,7 +218,6 @@ struct gentity_s
   int               credits[ MAX_CLIENTS ];     // human credits for each client
   int               killedBy;                   // clientNum of killer
 
-  gentity_t         *targeted;          // true if the player is currently a valid target of a turret
   vec3_t            turretAim;          // aim vector for turrets
   vec3_t            turretAimRate;      // track turn speed for norfenturrets
   int               turretSpinupTime;   // spinup delay for norfenturrets
@@ -238,8 +238,6 @@ struct gentity_s
   int               lastDamageTime;
   int               nextRegenTime;
 
-  qboolean          ownerClear;                     // used for missle tracking
-
   qboolean          pointAgainstWorld;              // don't use the bbox for map collisions
 
   int               buildPointZone;                 // index for zone
@@ -252,11 +250,6 @@ typedef enum
   CON_CONNECTING,
   CON_CONNECTED
 } clientConnected_t;
-
-// the auto following clients don't follow a specific client
-// number, but instead follow the first two active players
-#define FOLLOW_ACTIVE1  -1
-#define FOLLOW_ACTIVE2  -2
 
 // client data that stays across multiple levels or tournament restarts
 // this is achieved by writing all the data to cvar strings at game shutdown
@@ -280,6 +273,7 @@ typedef struct namelog_s
   char              name[ MAX_NAMELOG_NAMES ][ MAX_NAME_LENGTH ];
   addr_t            ip[ MAX_NAMELOG_ADDRS ];
   char              guid[ 33 ];
+  qboolean          guidless;
   int               slot;
   qboolean          banned;
 
@@ -313,6 +307,7 @@ typedef struct
   int                 teamInfo;           // level.time of team overlay update (disabled = 0)
   float               flySpeed;           // for spectator/noclip moves
   qboolean            disableBlueprintErrors; // should the buildable blueprint never be hidden from the players?
+  int                 buildableRangeMarkerMask;
 
   class_t             classSelection;     // player class (copied to ent->client->ps.stats[ STAT_CLASS ] once spawned)
   float               evolveHealthFraction;
@@ -323,7 +318,7 @@ typedef struct
   namelog_t           *namelog;
   g_admin_admin_t     *admin;
 
-  int                 aliveSeconds;       // time player has been alive in seconds
+  int                 secondsAlive;       // time player has been alive in seconds
   qboolean            hasHealed;          // has healed a player (basi regen aura) in the last 10sec (for score use)
 
   // used to save persistant[] values while in SPECTATOR_FOLLOW mode
@@ -337,7 +332,9 @@ typedef struct
   int                 floodTime;
 
   vec3_t              lastDeathLocation;
+  int                 alternateProtocol;
   char                guid[ 33 ];
+  qboolean            guidless;
   addr_t              ip;
   char                voice[ MAX_VOICE_NAME_LEN ];
   qboolean            useUnlagged;
@@ -346,7 +343,7 @@ typedef struct
   int                 infoChangeTime;
 } clientPersistant_t;
 
-#define MAX_UNLAGGED_MARKERS 10
+#define MAX_UNLAGGED_MARKERS 256
 typedef struct unlagged_s {
   vec3_t      origin;
   vec3_t      mins;
@@ -372,6 +369,7 @@ struct gclient_s
   qboolean            readyToExit;    // wishes to leave the intermission
 
   qboolean            noclip;
+  int                 cliprcontents;  // the backup layer of ent->r.contents for when noclipping
 
   int                 lastCmdTime;    // level.time of last usercmd_t, for EF_CONNECTION
                                       // we can't just use pers.lastCommand.time, because
@@ -445,8 +443,8 @@ struct gclient_s
   int                 trampleBuildablesHit[ MAX_TRAMPLE_BUILDABLES_TRACKED ];
 
   int                 lastCrushTime;        // Tyrant crush
+  int                 lastDropTime;         // Weapon drop with /drop
 };
-
 
 typedef struct spawnQueue_s
 {
@@ -535,6 +533,7 @@ typedef struct
 #define MAX_SPAWN_VARS      64
 #define MAX_SPAWN_VARS_CHARS  4096
 #define MAX_BUILDLOG          128
+#define MAX_PLAYER_MODEL      256
 
 typedef struct
 {
@@ -542,7 +541,7 @@ typedef struct
 
   struct gentity_s  *gentities;
   int               gentitySize;
-  int               num_entities;   // current number, <= MAX_GENTITIES
+  int               num_entities;   // MAX_CLIENTS <= num_entities <= ENTITYNUM_MAX_NORMAL
 
   int               warmupTime;     // restart match at this time
 
@@ -594,6 +593,7 @@ typedef struct
   char              spawnVarChars[ MAX_SPAWN_VARS_CHARS ];
 
   // intermission state
+  qboolean          exited;
   int               intermissionQueued;           // intermission was qualified, but
                                                   // wait INTERMISSION_DELAY_TIME before
                                                   // actually going there so the last
@@ -619,8 +619,8 @@ typedef struct
   float             averageNumHumanClients;
   int               numHumanSamples;
 
-  int               numLiveAlienClients;
-  int               numLiveHumanClients;
+  int               numAlienClientsAlive;
+  int               numHumanClientsAlive;
 
   int               alienBuildPoints;
   int               alienBuildPointQueue;
@@ -674,6 +674,9 @@ typedef struct
 
   emoticon_t        emoticons[ MAX_EMOTICONS ];
   int               emoticonCount;
+  
+  char              *playerModel[ MAX_PLAYER_MODEL ];
+  int               playerModelCount;
 
   namelog_t         *namelogs;
 
@@ -689,7 +692,7 @@ typedef struct
 #define CMD_SPEC          0x0010 // must be a spectator
 #define CMD_ALIEN         0x0020
 #define CMD_HUMAN         0x0040
-#define CMD_LIVING        0x0080
+#define CMD_ALIVE         0x0080
 #define CMD_INTERMISSION  0x0100 // valid during intermission
 
 typedef struct
@@ -727,7 +730,7 @@ int       G_ClientNumbersFromString( char *s, int *plist, int max );
 char      *ConcatArgs( int start );
 char      *ConcatArgsPrintable( int start );
 void      G_Say( gentity_t *ent, saymode_t mode, const char *chatText );
-void      G_DecolorString( char *in, char *out, int len );
+void      G_DecolorString( const char *in, char *out, int len );
 void      G_UnEscapeString( char *in, char *out, int len );
 void      G_SanitiseString( char *in, char *out, int len );
 void      Cmd_PrivateMessage_f( gentity_t *ent );
@@ -790,7 +793,8 @@ qboolean          G_FindCreep( gentity_t *self );
 void              G_BuildableThink( gentity_t *ent, int msec );
 qboolean          G_BuildableRange( vec3_t origin, float r, buildable_t buildable );
 void              G_ClearDeconMarks( void );
-itemBuildError_t  G_CanBuild( gentity_t *ent, buildable_t buildable, int distance, vec3_t origin, vec3_t normal );
+itemBuildError_t  G_CanBuild( gentity_t *ent, buildable_t buildable, int distance,
+                              vec3_t origin, vec3_t normal, int *groundEntNum );
 qboolean          G_BuildIfValid( gentity_t *ent, buildable_t buildable );
 void              G_SetBuildableAnim( gentity_t *ent, buildableAnimNumber_t anim, qboolean force );
 void              G_SetIdleBuildableAnim( gentity_t *ent, buildableAnimNumber_t anim );
@@ -799,7 +803,7 @@ void              FinishSpawningBuildable( gentity_t *ent );
 void              G_LayoutSave( char *name );
 int               G_LayoutList( const char *map, char *list, int len );
 void              G_LayoutSelect( void );
-void              G_LayoutLoad( void );
+void              G_LayoutLoad( char *lstr );
 void              G_BaseSelfDestruct( team_t team );
 int               G_NextQueueTime( int queuedBP, int totalBP, int queueBaseRate );
 void              G_QueueBuildPoints( gentity_t *self );
@@ -814,6 +818,8 @@ buildLog_t        *G_BuildLogNew( gentity_t *actor, buildFate_t fate );
 void              G_BuildLogSet( buildLog_t *log, gentity_t *ent );
 void              G_BuildLogAuto( gentity_t *actor, gentity_t *buildable, buildFate_t fate );
 void              G_BuildLogRevert( int id );
+void              G_RemoveRangeMarkerFrom( gentity_t *self );
+void              G_UpdateBuildableRangeMarkers( void );
 
 //
 // g_utils.c
@@ -822,10 +828,10 @@ void              G_BuildLogRevert( int id );
 qboolean    G_AddressParse( const char *str, addr_t *addr );
 qboolean    G_AddressCompare( const addr_t *a, const addr_t *b );
 
-int         G_ParticleSystemIndex( char *name );
-int         G_ShaderIndex( char *name );
-int         G_ModelIndex( char *name );
-int         G_SoundIndex( char *name );
+int         G_ParticleSystemIndex( const char *name );
+int         G_ShaderIndex( const char *name );
+int         G_ModelIndex( const char *name );
+int         G_SoundIndex( const char *name );
 void        G_KillBox (gentity_t *ent);
 gentity_t   *G_Find (gentity_t *from, int fieldofs, const char *match);
 gentity_t   *G_PickTarget (char *targetname);
@@ -834,15 +840,14 @@ void        G_SetMovedir ( vec3_t angles, vec3_t movedir);
 
 void        G_InitGentity( gentity_t *e );
 gentity_t   *G_Spawn( void );
-gentity_t   *G_TempEntity( vec3_t origin, int event );
+gentity_t   *G_TempEntity( const vec3_t origin, int event );
 void        G_Sound( gentity_t *ent, int channel, int soundIndex );
 void        G_FreeEntity( gentity_t *e );
+void        G_RemoveEntity( gentity_t *ent );
 qboolean    G_EntitiesFree( void );
 
 void        G_TouchTriggers( gentity_t *ent );
-void        G_TouchSolids( gentity_t *ent );
 
-float       *tv( float x, float y, float z );
 char        *vtos( const vec3_t v );
 
 float       vectoyaw( const vec3_t vec );
@@ -850,7 +855,7 @@ float       vectoyaw( const vec3_t vec );
 void        G_AddPredictableEvent( gentity_t *ent, int event, int eventParm );
 void        G_AddEvent( gentity_t *ent, int event, int eventParm );
 void        G_BroadcastEvent( int event, int eventParm );
-void        G_SetOrigin( gentity_t *ent, vec3_t origin );
+void        G_SetOrigin( gentity_t *ent, const vec3_t origin );
 void        AddRemap(const char *oldShader, const char *newShader, float timeOffset);
 const char  *BuildShaderStateConfig( void );
 
@@ -877,7 +882,6 @@ qboolean  G_RadiusDamage( vec3_t origin, gentity_t *attacker, float damage, floa
 qboolean  G_SelectiveRadiusDamage( vec3_t origin, gentity_t *attacker, float damage, float radius,
                                    gentity_t *ignore, int mod, int team );
 float     G_RewardAttackers( gentity_t *self );
-void      body_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath );
 void      AddScore( gentity_t *ent, int score );
 void      G_LogDestruction( gentity_t *self, gentity_t *actor, int mod );
 
@@ -887,12 +891,13 @@ void      G_InitDamageLocations( void );
 #define DAMAGE_RADIUS         0x00000001  // damage was indirect
 #define DAMAGE_NO_ARMOR       0x00000002  // armour does not protect from this damage
 #define DAMAGE_NO_KNOCKBACK   0x00000004  // do not affect velocity, just view angles
-#define DAMAGE_NO_PROTECTION  0x00000008  // armor, shields, invulnerability, and godmode have no effect
+#define DAMAGE_NO_PROTECTION  0x00000008  // kills everything except godmode
 #define DAMAGE_NO_LOCDAMAGE   0x00000010  // do not apply locational damage
 
 //
 // g_missile.c
 //
+void      G_BounceMissile( gentity_t *ent, trace_t *trace );
 void      G_RunMissile( gentity_t *ent );
 
 gentity_t *fire_flamer( gentity_t *self, vec3_t start, vec3_t aimdir );
@@ -924,7 +929,16 @@ void G_Checktrigger_stages( team_t team, stage_t stage );
 //
 // g_misc.c
 //
-void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles );
+void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles, float speed );
+
+//
+// g_playermodel.c
+//
+void G_InitPlayerModel(void);
+qboolean G_IsValidPlayerModel(const char *model);
+void G_FreePlayerModel(void);
+void G_GetPlayerModelSkins( const char *modelname, char skins[][ 64 ], int maxskins, int *numskins );
+char *GetSkin( char *modelname, char *wish );
 
 //
 // g_weapon.c
@@ -944,6 +958,9 @@ typedef struct zap_s
   gentity_t     *effectChannel;
 } zap_t;
 
+#define MAX_ZAPS MAX_CLIENTS
+extern zap_t zaps[ MAX_ZAPS ];
+
 void      G_ForceWeaponChange( gentity_t *ent, weapon_t weapon );
 void      G_GiveClientMaxAmmo( gentity_t *ent, qboolean buyingEnergyAmmo );
 void      CalcMuzzlePoint( gentity_t *ent, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint );
@@ -962,15 +979,14 @@ void      G_ClearPlayerZapEffects( gentity_t *player );
 // g_client.c
 //
 void      G_AddCreditToClient( gclient_t *client, short credit, qboolean cap );
-team_t    TeamCount( int ignoreClientNum, int team );
-void      G_SetClientViewAngle( gentity_t *ent, vec3_t angle );
+void      G_SetClientViewAngle( gentity_t *ent, const vec3_t angle );
 gentity_t *G_SelectTremulousSpawnPoint( team_t team, vec3_t preference, vec3_t origin, vec3_t angles );
 gentity_t *G_SelectSpawnPoint( vec3_t avoidPoint, vec3_t origin, vec3_t angles );
 gentity_t *G_SelectAlienLockSpawnPoint( vec3_t origin, vec3_t angles );
 gentity_t *G_SelectHumanLockSpawnPoint( vec3_t origin, vec3_t angles );
 void      respawn( gentity_t *ent );
 void      BeginIntermission( void );
-void      ClientSpawn( gentity_t *ent, gentity_t *spawn, vec3_t origin, vec3_t angles );
+void      ClientSpawn( gentity_t *ent, gentity_t *spawn, const vec3_t origin, const vec3_t angles );
 void      player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod );
 qboolean  SpotWouldTelefrag( gentity_t *spot );
 
@@ -987,6 +1003,13 @@ void      G_UnregisterCommands( void );
 void FireWeapon( gentity_t *ent );
 void FireWeapon2( gentity_t *ent );
 void FireWeapon3( gentity_t *ent );
+
+//
+// g_weapondrop.c
+//
+gentity_t *LaunchWeapon( gentity_t *client, weapon_t weap, vec3_t origin, vec3_t velocity );
+gentity_t *G_DropWeapon( gentity_t *ent, weapon_t w, float angle );
+void G_RunWeaponDrop(gentity_t *ent);
 
 //
 // g_main.c
@@ -1011,7 +1034,7 @@ int  G_TimeTilSuddenDeath( void );
 //
 // g_client.c
 //
-char *ClientConnect( int clientNum, qboolean firstTime );
+const char *ClientConnect( int clientNum, qboolean firstTime );
 char *ClientUserinfoChanged( int clientNum, qboolean forceName );
 void ClientDisconnect( int clientNum );
 void ClientBegin( int clientNum );
@@ -1033,7 +1056,7 @@ void G_RunClient( gentity_t *ent );
 // g_team.c
 //
 team_t    G_TeamFromString( char *str );
-void      G_TeamCommand( team_t team, char *cmd );
+void      G_TeamCommand( team_t team, const char *cmd );
 qboolean  OnSameTeam( gentity_t *ent1, gentity_t *ent2 );
 void      G_LeaveTeam( gentity_t *self );
 void      G_ChangeTeam( gentity_t *ent, team_t newTeam );
@@ -1060,7 +1083,8 @@ void      G_StopMapRotation( void );
 qboolean  G_MapRotationActive( void );
 void      G_InitMapRotations( void );
 void      G_ShutdownMapRotations( void );
-qboolean  G_MapExists( char *name );
+qboolean  G_MapExists( const char *name );
+qboolean  G_LayoutExists( const char *map, const char *layout );
 void      G_ClearRotationStack( void );
 
 //
@@ -1163,7 +1187,8 @@ extern  vmCvar_t  g_shove;
 
 extern  vmCvar_t  g_mapConfigs;
 
-extern  vmCvar_t  g_layouts;
+extern  vmCvar_t  g_nextLayout;
+extern  vmCvar_t  g_layouts[ 9 ];
 extern  vmCvar_t  g_layoutAuto;
 
 extern  vmCvar_t  g_emoticonsAllowedInNames;
@@ -1186,12 +1211,12 @@ int       trap_RealTime( qtime_t *qtime );
 int       trap_Argc( void );
 void      trap_Argv( int n, char *buffer, int bufferLength );
 void      trap_Args( char *buffer, int bufferLength );
-int       trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, fsMode_t mode );
+int       trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, enum FS_Mode mode );
 void      trap_FS_Read( void *buffer, int len, fileHandle_t f );
 void      trap_FS_Write( const void *buffer, int len, fileHandle_t f );
 void      trap_FS_FCloseFile( fileHandle_t f );
 int       trap_FS_GetFileList( const char *path, const char *extension, char *listbuf, int bufsize );
-int       trap_FS_Seek( fileHandle_t f, long offset, int origin ); // fsOrigin_t
+int       trap_FS_Seek( fileHandle_t f, long offset, enum FS_Mode origin ); // fsOrigin_t
 void      trap_SendConsoleCommand( int exec_when, const char *text );
 void      trap_Cvar_Register( vmCvar_t *cvar, const char *var_name, const char *value, int flags );
 void      trap_Cvar_Update( vmCvar_t *cvar );
@@ -1220,13 +1245,11 @@ void      trap_LinkEntity( gentity_t *ent );
 void      trap_UnlinkEntity( gentity_t *ent );
 int       trap_EntitiesInBox( const vec3_t mins, const vec3_t maxs, int *entityList, int maxcount );
 qboolean  trap_EntityContact( const vec3_t mins, const vec3_t maxs, const gentity_t *ent );
-int       trap_BotAllocateClient( void );
-void      trap_BotFreeClient( int clientNum );
 void      trap_GetUsercmd( int clientNum, usercmd_t *cmd );
 qboolean  trap_GetEntityToken( char *buffer, int bufferSize );
 
 void      trap_SnapVector( float *v );
-void      trap_SendGameStat( const char *data );
 
 void      trap_AddCommand( const char *cmdName );
 void      trap_RemoveCommand( const char *cmdName );
+int       trap_FS_GetFilteredFiles( const char *path, const char *extension, const char *filter, char *listbuf, int bufsize );

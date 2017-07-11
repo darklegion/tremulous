@@ -75,10 +75,6 @@ static const char rcsid[] =
 static char* med3(char *, char *, char *, cmp_t *);
 static void  swapfunc(char *, char *, int, int);
 
-#ifndef min
-#define min(a, b) ((a) < (b) ? (a) : (b))
-#endif
-
 /*
  * Qsort routine from Bentley & McIlroy's "Engineering a Sort Function".
  */
@@ -194,9 +190,9 @@ loop: SWAPINIT(a, es);
   }
 
   pn = (char *)a + n * es;
-  r = min(pa - (char *)a, pb - pa);
+  r = MIN(pa - (char *)a, pb - pa);
   vecswap(a, pb - r, r);
-  r = min(pd - pc, pn - pd - es);
+  r = MIN(pd - pc, pn - pd - es);
   vecswap(pb, pn - r, r);
   if ((r = pb - pa) > es)
     qsort(a, r / es, es, cmp);
@@ -269,7 +265,7 @@ char *strrchr( const char *string, int c )
   int   i, length = strlen( string );
   char  *p;
 
-  for( i = length - 1; i >= 0; i-- )
+  for( i = length /*sic*/; i >= 0; i-- )
   {
     p = (char *)&string[ i ];
 
@@ -289,7 +285,7 @@ char *strchr( const char *string, int c )
 
     string++;
   }
-  return (char *)0;
+  return c == '\0' ? (char *)string : (char *)0;
 }
 
 char *strstr( const char *string, const char *strCharSet )

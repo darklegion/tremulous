@@ -437,3 +437,4 @@ char CG_GetColorCharForHealth( int clientnum )
     health_char = '3';
   return health_char;
 }
+

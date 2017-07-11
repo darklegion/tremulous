@@ -13,7 +13,6 @@ if [ $# == 0 ] || [ $# -gt 2 ]; then
 	echo "Optional architectures are:"
 	echo " x86"
 	echo " x86_64"
-	echo " ppc"
 	echo
 	exit 1
 fi
@@ -39,14 +38,11 @@ if [ "$2" != "" ]; then
 		CURRENT_ARCH="x86"
 	elif [ "$2" == "x86_64" ]; then
 		CURRENT_ARCH="x86_64"
-	elif [ "$2" == "ppc" ]; then
-		CURRENT_ARCH="ppc"
 	else
 		echo "Invalid architecture: $2"
 		echo "Valid architectures are:"
 		echo " x86"
 		echo " x86_64"
-		echo " ppc"
 		echo
 		exit 1
 	fi
@@ -77,30 +73,21 @@ function symlinkArch()
 
     IS32=`file "${SRCFILE}.${EXT}" | grep "i386"`
     IS64=`file "${SRCFILE}.${EXT}" | grep "x86_64"`
-    ISPPC=`file "${SRCFILE}.${EXT}" | grep "ppc"`
 
     if [ "${IS32}" != "" ]; then
-        if [ ! -L "${DSTFILE}x86.${EXT}" ]; then
-            ln -s "${SRCFILE}.${EXT}" "${DSTFILE}x86.${EXT}"
+        if [ ! -L "${DSTFILE}.${EXT}" ]; then
+            ln -s "${SRCFILE}.${EXT}" "${DSTFILE}.${EXT}"
         fi
-    elif [ -L "${DSTFILE}x86.${EXT}" ]; then
-        rm "${DSTFILE}x86.${EXT}"
+    elif [ -L "${DSTFILE}.${EXT}" ]; then
+        rm "${DSTFILE}.${EXT}"
     fi
 
     if [ "${IS64}" != "" ]; then
-        if [ ! -L "${DSTFILE}x86_64.${EXT}" ]; then
-            ln -s "${SRCFILE}.${EXT}" "${DSTFILE}x86_64.${EXT}"
+        if [ ! -L "${DSTFILE}.${EXT}" ]; then
+            ln -s "${SRCFILE}.${EXT}" "${DSTFILE}.${EXT}"
         fi
-    elif [ -L "${DSTFILE}x86_64.${EXT}" ]; then
-        rm "${DSTFILE}x86_64.${EXT}"
-    fi
-
-    if [ "${ISPPC}" != "" ]; then
-        if [ ! -L "${DSTFILE}ppc.${EXT}" ]; then
-            ln -s "${SRCFILE}.${EXT}" "${DSTFILE}ppc.${EXT}"
-        fi
-    elif [ -L "${DSTFILE}ppc.${EXT}" ]; then
-        rm "${DSTFILE}ppc.${EXT}"
+    elif [ -L "${DSTFILE}.${EXT}" ]; then
+        rm "${DSTFILE}.${EXT}"
     fi
 
     popd > /dev/null
@@ -109,7 +96,6 @@ function symlinkArch()
 SEARCH_ARCHS=" \
 	x86 \
 	x86_64 \
-	ppc \
 "
 
 HAS_LIPO=`command -v lipo`
@@ -141,7 +127,7 @@ IOQ3_MP_CGAME_ARCHS=""
 IOQ3_MP_GAME_ARCHS=""
 IOQ3_MP_UI_ARCHS=""
 
-BASEDIR="base"
+BASEDIR="gpp"
 
 CGAME="cgame"
 GAME="game"
@@ -154,6 +140,10 @@ DEDICATED_NAME="tremded"
 CGAME_NAME="${CGAME}.dylib"
 GAME_NAME="${GAME}.dylib"
 UI_NAME="${UI}.dylib"
+
+GIT_REV=$(git describe --tags)
+VMS_PK3="vms-${GIT_REV}.pk3"
+DATA_PK3="data-${GIT_REV}.pk3"
 
 RENDERER_OPENGL1_NAME="${RENDERER_OPENGL}1.dylib"
 RENDERER_OPENGL2_NAME="${RENDERER_OPENGL}2.dylib"
@@ -176,13 +166,13 @@ EXECUTABLE_NAME="tremulous"
 for ARCH in $SEARCH_ARCHS; do
 	CURRENT_ARCH=${ARCH}
 	BUILT_PRODUCTS_DIR="${OBJROOT}/${TARGET_NAME}-darwin-${CURRENT_ARCH}"
-	IOQ3_CLIENT="${EXECUTABLE_NAME}.${CURRENT_ARCH}"
-	IOQ3_SERVER="${DEDICATED_NAME}.${CURRENT_ARCH}"
-	IOQ3_RENDERER_GL1="${RENDERER_OPENGL}1_${CURRENT_ARCH}.dylib"
-	IOQ3_RENDERER_GL2="${RENDERER_OPENGL}2_${CURRENT_ARCH}.dylib"
-	IOQ3_CGAME="${CGAME}${CURRENT_ARCH}.dylib"
-	IOQ3_GAME="${GAME}${CURRENT_ARCH}.dylib"
-	IOQ3_UI="${UI}${CURRENT_ARCH}.dylib"
+	IOQ3_CLIENT="${EXECUTABLE_NAME}"
+	IOQ3_SERVER="${DEDICATED_NAME}"
+	IOQ3_RENDERER_GL1="${RENDERER_OPENGL}1.dylib"
+	IOQ3_RENDERER_GL2="${RENDERER_OPENGL}2.dylib"
+	IOQ3_CGAME="${CGAME}.dylib"
+	IOQ3_GAME="${GAME}.dylib"
+	IOQ3_UI="${UI}.dylib"
 
 	if [ ! -d ${BUILT_PRODUCTS_DIR} ]; then
 		CURRENT_ARCH=""
@@ -227,7 +217,7 @@ done
 cd `dirname $0`
 
 if [ ! -f Makefile ]; then
-	echo "$0 must be run from the ioquake3 build directory"
+	echo "$0 must be run from the ioquake3 build directory `dirname $0`"
 	exit 1
 fi
 
@@ -268,6 +258,8 @@ fi
 # copy and generate some application bundle resources
 cp src/libs/macosx/*.dylib ${BUILT_PRODUCTS_DIR}/${EXECUTABLE_FOLDER_PATH}
 cp ${ICNSDIR}/${ICNS} ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/$ICNS || exit 1;
+cp	"${BUILT_PRODUCTS_DIR}/${BASEDIR}/${VMS_PK3}" "${BUNDLEBINDIR}/${BASEDIR}/${VMS_PK3}"
+cp	"${BUILT_PRODUCTS_DIR}/${BASEDIR}/${DATA_PK3}" "${BUNDLEBINDIR}/${BASEDIR}/${DATA_PK3}"
 echo -n ${PKGINFO} > ${BUILT_PRODUCTS_DIR}/${CONTENTS_FOLDER_PATH}/PkgInfo || exit 1;
 echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 <!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
@@ -341,8 +333,8 @@ action ${BUNDLEBINDIR}/${DEDICATED_NAME}				"${IOQ3_SERVER_ARCHS}"
 # renderers
 action ${BUNDLEBINDIR}/${RENDERER_OPENGL1_NAME}		"${IOQ3_RENDERER_GL1_ARCHS}"
 action ${BUNDLEBINDIR}/${RENDERER_OPENGL2_NAME}		"${IOQ3_RENDERER_GL2_ARCHS}"
-symlinkArch "${RENDERER_OPENGL}1" "${RENDERER_OPENGL}1" "_" "${BUNDLEBINDIR}"
-symlinkArch "${RENDERER_OPENGL}2" "${RENDERER_OPENGL}2" "_" "${BUNDLEBINDIR}"
+#symlinkArch "${RENDERER_OPENGL}1" "${RENDERER_OPENGL}1" "_" "${BUNDLEBINDIR}"
+#symlinkArch "${RENDERER_OPENGL}2" "${RENDERER_OPENGL}2" "_" "${BUNDLEBINDIR}"
 
 # game
 action ${BUNDLEBINDIR}/${BASEDIR}/${CGAME_NAME}			"${IOQ3_CGAME_ARCHS}"

@@ -20,9 +20,17 @@ along with Tremulous; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+#ifndef _SYS_LOCAL_H_
+#define _SYS_LOCAL_H_
+
 
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
+#include "../sys/sys_shared.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 // Require a minimum version of SDL
 #define MINSDL_MAJOR 2
@@ -45,10 +53,6 @@ unsigned int CON_LogSize( void );
 unsigned int CON_LogWrite( const char *in );
 unsigned int CON_LogRead( char *out, unsigned int outSize );
 
-#ifdef MACOS_X
-char *Sys_StripAppBundle( char *pwd );
-#endif
-
 void Sys_GLimpSafeInit( void );
 void Sys_GLimpInit( void );
 void Sys_PlatformInit( void );
@@ -58,4 +62,10 @@ void Sys_ErrorDialog( const char *error );
 void Sys_AnsiColorPrint( const char *msg );
 
 int Sys_PID( void );
-qboolean Sys_PIDIsRunning( int pid );
+bool Sys_PIDIsRunning( int pid );
+
+#ifdef __cplusplus
+};
+#endif
+#endif
+

@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../renderercommon/tr_types.h"
 #include "../game/bg_public.h"
 #include "cg_public.h"
+#include "binaryshader.h"
 #include "../ui/ui_shared.h"
 
 // The entire cgame module is unloaded and reloaded on each level change,
@@ -69,6 +70,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define CHAR_WIDTH          32
 #define CHAR_HEIGHT         48
 #define TEXT_ICON_SPACE     4
+
+#define TEAMCHAT_WIDTH     80
+#define TEAMCHAT_HEIGHT     8
 
 // very large characters
 #define GIANT_WIDTH         32
@@ -203,7 +207,9 @@ typedef enum
   PMT_STATIC_TRANSFORM,
   PMT_TAG,
   PMT_CENT_ANGLES,
-  PMT_NORMAL
+  PMT_NORMAL,
+  PMT_LAST_NORMAL,
+  PMT_OPPORTUNISTIC_NORMAL
 } pMoveType_t;
 
 typedef enum
@@ -357,6 +363,9 @@ typedef struct particleSystem_s
   //for PMT_NORMAL
   qboolean              normalValid;
   vec3_t                normal;
+  //for PMT_LAST_NORMAL and PMT_OPPORTUNISTIC_NORMAL
+  qboolean              lastNormalIsCurrent;
+  vec3_t                lastNormal;
   
   int                   charge;
 } particleSystem_t;
@@ -383,6 +392,8 @@ typedef struct particle_s
 {
   baseParticle_t    *class;
   particleEjector_t *parent;
+
+  particleSystem_t  *childParticleSystem;
 
   int               birthTime;
   int               lifeTime;
@@ -599,8 +610,10 @@ typedef struct buildableStatus_s
 
 typedef struct buildableCache_s
 {
-  vec3_t   cachedOrigin;   // If either the cached entity origin or the
-  vec3_t   cachedNormal;   // cached surfNormal change the cache is invalid
+  vec3_t   cachedOrigin;   // If any of the values differ from their
+  vec3_t   cachedAngles;   //  cached versions, then the cache is invalid
+  vec3_t   cachedNormal;
+  buildable_t cachedType;
   vec3_t   axis[ 3 ];
   vec3_t   origin;
 } buildableCache_t;
@@ -1150,13 +1163,11 @@ typedef struct
   int           nearUsableBuildable;
   
   int           nextWeaponClickTime;
+  // binary shaders - by /dev/humancontroller
+  int           numBinaryShadersUsed;
+  cgBinaryShaderSetting_t binaryShaderSettings[ NUM_BINARY_SHADERS ];
 } cg_t;
 
-
-// all of the model, shader, and sound references that are
-// loaded at gamestate time are stored in cgMedia_t
-// Other media that can be tied to clients, weapons, or items are
-// stored in the clientInfo_t, itemInfo_t, weaponInfo_t, and powerupInfo_t
 typedef struct
 {
   qhandle_t   charsetShader;
@@ -1190,6 +1201,15 @@ typedef struct
   qhandle_t   greenBuildShader;
   qhandle_t   redBuildShader;
   qhandle_t   humanSpawningShader;
+
+  // binary shaders + range markers
+  qhandle_t   sphereModel;
+  qhandle_t   sphericalCone64Model;
+  qhandle_t   sphericalCone240Model;
+
+  qhandle_t   plainColorShader;
+  qhandle_t   binaryAlpha1Shader;
+  cgMediaBinaryShader_t binaryShaders[ NUM_BINARY_SHADERS ];
 
   // disconnect
   qhandle_t   disconnectPS;
@@ -1398,6 +1418,14 @@ typedef struct
 
   voice_t       *voices;
   clientList_t  ignoreList;
+
+  // Kill Message
+  char          killMsgKillers[ TEAMCHAT_HEIGHT ][ 33*3+1 ];
+  char          killMsgVictims[ TEAMCHAT_HEIGHT ][ 33*3+1 ];
+  int           killMsgWeapons[ TEAMCHAT_HEIGHT ];
+  int           killMsgMsgTimes[ TEAMCHAT_HEIGHT ];
+  int           killMsgPos;
+  int           killMsgLastPos;
 } cgs_t;
 
 typedef struct
@@ -1469,6 +1497,7 @@ extern  vmCvar_t    cg_thirdPersonRange;
 extern  vmCvar_t    cg_stereoSeparation;
 extern  vmCvar_t    cg_lagometer;
 extern  vmCvar_t    cg_drawSpeed;
+extern  vmCvar_t    cg_maxSpeedTimeWindow;
 extern  vmCvar_t    cg_synchronousClients;
 extern  vmCvar_t    cg_stats;
 extern  vmCvar_t    cg_paused;
@@ -1504,6 +1533,16 @@ extern  vmCvar_t    cg_disableCommandDialogs;
 extern  vmCvar_t    cg_disableScannerPlane;
 extern  vmCvar_t    cg_tutorial;
 
+extern  vmCvar_t    cg_rangeMarkerDrawSurface;
+extern  vmCvar_t    cg_rangeMarkerDrawIntersection;
+extern  vmCvar_t    cg_rangeMarkerDrawFrontline;
+extern  vmCvar_t    cg_rangeMarkerSurfaceOpacity;
+extern  vmCvar_t    cg_rangeMarkerLineOpacity;
+extern  vmCvar_t    cg_rangeMarkerLineThickness;
+extern  vmCvar_t    cg_rangeMarkerForBlueprint;
+extern  vmCvar_t    cg_rangeMarkerBuildableTypes;
+extern  vmCvar_t    cg_binaryShaderScreenScale;
+
 extern  vmCvar_t    cg_painBlendUpRate;
 extern  vmCvar_t    cg_painBlendDownRate;
 extern  vmCvar_t    cg_painBlendMax;
@@ -1535,6 +1574,16 @@ extern  vmCvar_t    cg_emoticons;
 
 extern  vmCvar_t    cg_chatTeamPrefix;
 
+extern  vmCvar_t    cg_killMsg;
+extern  vmCvar_t    cg_killMsgTime;
+extern  vmCvar_t    cg_killMsgHeight;
+
+extern  vmCvar_t    cg_killMsgTime;
+extern  vmCvar_t    cg_killMsgHeight;
+
+extern  vmCvar_t    thz_radar;
+extern  vmCvar_t    thz_radarrange;
+
 //
 // cg_main.c
 //
@@ -1559,9 +1608,13 @@ void        CG_SetScoreSelection( void *menu );
 qboolean    CG_ClientIsReady( int clientNum );
 void        CG_BuildSpectatorString( void );
 
-qboolean    CG_FileExists( char *filename );
+qboolean    CG_FileExists( const char *filename );
 void        CG_RemoveNotifyLine( void );
 void        CG_AddNotifyText( void );
+qboolean    CG_GetRangeMarkerPreferences( qboolean *drawSurface, qboolean *drawIntersection,
+                                          qboolean *drawFrontline, float *surfaceOpacity,
+                                          float *lineOpacity, float *lineThickness );
+void        CG_UpdateBuildableRangeMarkerMask( void );
 
 
 //
@@ -1604,6 +1657,12 @@ void        CG_DrawTopBottom(float x, float y, float w, float h, float size);
 qboolean    CG_WorldToScreen( vec3_t point, float *x, float *y );
 char        *CG_KeyBinding( const char *bind );
 char        CG_GetColorCharForHealth( int clientnum );
+void        CG_DrawSphere( const vec3_t center, float radius, int customShader, const float *shaderRGBA );
+void        CG_DrawSphericalCone( const vec3_t tip, const vec3_t rotation, float radius,
+                                  qboolean a240, int customShader, const float *shaderRGBA );
+void        CG_DrawRangeMarker( rangeMarkerType_t rmType, const vec3_t origin, const float *angles, float range,
+                                qboolean drawSurface, qboolean drawIntersection, qboolean drawFrontline,
+                                const vec3_t rgb, float surfaceOpacity, float lineOpacity, float lineThickness );
 
 //
 // cg_draw.c
@@ -1654,6 +1713,7 @@ void        CG_DrawBuildableStatus( void );
 void        CG_InitBuildables( void );
 void        CG_HumanBuildableExplosion( vec3_t origin, vec3_t dir );
 void        CG_AlienBuildableExplosion( vec3_t origin, vec3_t dir );
+qboolean    CG_GetBuildableRangeMarkerProperties( buildable_t bType, rangeMarkerType_t *rmType, float *range, vec3_t rgb );
 
 //
 // cg_animation.c
@@ -1690,6 +1750,7 @@ void        CG_CheckEvents( centity_t *cent );
 void        CG_EntityEvent( centity_t *cent, vec3_t position );
 void        CG_PainEvent( centity_t *cent, int health );
 
+void          CG_AddToKillMsg( const char* killername, const char* victimname, int icon );
 
 //
 // cg_ents.c
@@ -1704,6 +1765,7 @@ void        CG_PositionEntityOnTag( refEntity_t *entity, const refEntity_t *pare
                                     qhandle_t parentModel, char *tagName );
 void        CG_PositionRotatedEntityOnTag( refEntity_t *entity, const refEntity_t *parent,
                                            qhandle_t parentModel, char *tagName );
+void        CG_RangeMarker( centity_t *cent );
 
 
 //
@@ -1738,6 +1800,7 @@ void        CG_DrawItemSelectText( rectDef_t *rect, float scale, int textStyle )
 void        CG_UpdateEntityPositions( void );
 void        CG_Scanner( rectDef_t *rect, qhandle_t shader, vec4_t color );
 void        CG_AlienSense( rectDef_t *rect );
+void        THZ_DrawScanner( rectDef_t *rect );
 
 //
 // cg_marks.c
@@ -1771,6 +1834,7 @@ void          CG_ParseServerinfo( void );
 void          CG_SetConfigValues( void );
 void          CG_ShaderStateChanged(void);
 void          CG_UnregisterCommands( void );
+void          CG_CenterPrint_f( void );
 
 //
 // cg_playerstate.c
@@ -1815,6 +1879,7 @@ qboolean            CG_IsParticleSystemInfinite( particleSystem_t *ps );
 qboolean            CG_IsParticleSystemValid( particleSystem_t **ps );
 
 void                CG_SetParticleSystemNormal( particleSystem_t *ps, vec3_t normal );
+void                CG_SetParticleSystemLastNormal( particleSystem_t *ps, const float *normal );
 
 void                CG_AddParticles( void );
 
@@ -1850,6 +1915,20 @@ void  CG_WritePTRCode( int code );
 //
 const char *CG_TutorialText( void );
 
+// cg_main.c
+qboolean    CG_GetRangeMarkerPreferences( qboolean *drawSurface, qboolean *drawIntersection,
+                                          qboolean *drawFrontline, float *surfaceOpacity,
+                                          float *lineOpacity, float *lineThickness );
+// cg_drawtools.c
+void        CG_DrawRangeMarker( rangeMarkerType_t rmType, const vec3_t origin, const float *angles, float range,
+                                qboolean drawSurface, qboolean drawIntersection, qboolean drawFrontline,
+                                const vec3_t rgb, float surfaceOpacity, float lineOpacity, float lineThickness );
+// cg_buildable.c
+qboolean    CG_GetBuildableRangeMarkerProperties( buildable_t bType, rangeMarkerType_t *rmType, float *range, vec3_t rgb );
+void        CG_GhostBuildableRangeMarker( buildable_t buildable, const vec3_t origin, const vec3_t normal );
+// cg_ents.c
+void        CG_RangeMarker( centity_t *cent );
+
 //
 //===============================================
 
@@ -1883,11 +1962,11 @@ void          trap_LiteralArgs( char *buffer, int bufferLength );
 
 // filesystem access
 // returns length of file
-int           trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, fsMode_t mode );
+int           trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, enum FS_Mode mode );
 void          trap_FS_Read( void *buffer, int len, fileHandle_t f );
 void          trap_FS_Write( const void *buffer, int len, fileHandle_t f );
 void          trap_FS_FCloseFile( fileHandle_t f );
-void          trap_FS_Seek( fileHandle_t f, long offset, fsOrigin_t origin ); // fsOrigin_t
+void          trap_FS_Seek( fileHandle_t f, long offset, enum FS_Origin origin ); // fsOrigin_t
 int           trap_FS_GetFileList( const char *path, const char *extension,
                                    char *listbuf, int bufsize );
 
@@ -2009,9 +2088,144 @@ void          trap_GetGameState( gameState_t *gamestate );
 // snapshot latency can be calculated.
 void          trap_GetCurrentSnapshotNumber( int *snapshotNumber, int *serverTime );
 
+#ifdef MODULE_INTERFACE_11
+typedef struct {
+	int			commandTime;	// cmd->serverTime of last executed command
+	int			pm_type;
+	int			bobCycle;		// for view bobbing and footstep generation
+	int			pm_flags;		// ducked, jump_held, etc
+	int			pm_time;
+
+	vec3_t		origin;
+	vec3_t		velocity;
+	int			weaponTime;
+	int			gravity;
+	int			speed;
+	int			delta_angles[3];	// add to command angles to get view direction
+									// changed by spawns, rotating objects, and teleporters
+
+	int			groundEntityNum;// ENTITYNUM_NONE = in air
+
+	int			legsTimer;		// don't change low priority animations until this runs out
+	int			legsAnim;		// mask off ANIM_TOGGLEBIT
+
+	int			torsoTimer;		// don't change low priority animations until this runs out
+	int			torsoAnim;		// mask off ANIM_TOGGLEBIT
+
+	int			movementDir;	// a number 0 to 7 that represents the reletive angle
+								// of movement to the view angle (axial and diagonals)
+								// when at rest, the value will remain unchanged
+								// used to twist the legs during strafing
+
+	vec3_t		grapplePoint;	// location of grapple to pull towards if PMF_GRAPPLE_PULL
+
+	int			eFlags;			// copied to entityState_t->eFlags
+
+	int			eventSequence;	// pmove generated events
+	int			events[MAX_PS_EVENTS];
+	int			eventParms[MAX_PS_EVENTS];
+
+	int			externalEvent;	// events set on player from another source
+	int			externalEventParm;
+	int			externalEventTime;
+
+	int			clientNum;		// ranges from 0 to MAX_CLIENTS-1
+	int			weapon;			// copied to entityState_t->weapon
+	int			weaponstate;
+
+	vec3_t		viewangles;		// for fixed views
+	int			viewheight;
+
+	// damage feedback
+	int			damageEvent;	// when it changes, latch the other parms
+	int			damageYaw;
+	int			damagePitch;
+	int			damageCount;
+
+	int			stats[MAX_STATS];
+	int			persistant[MAX_PERSISTANT];	// stats that aren't cleared on death
+	int			misc[MAX_MISC];	// misc data
+	int			ammo[16];
+
+	int			generic1;
+	int			loopSound;
+	int			otherEntityNum;
+
+	// not communicated over the net at all
+	int			ping;			// server to game info for scoreboard
+	int			pmove_framecount;	// FIXME: don't transmit over the network
+	int			jumppad_frame;
+	int			entityEventSequence;
+} moduleAlternatePlayerState_t;
+
+typedef struct {
+	int		number;			// entity index
+	int		eType;			// entityType_t
+	int		eFlags;
+
+	trajectory_t	pos;	// for calculating position
+	trajectory_t	apos;	// for calculating angles
+
+	int		time;
+	int		time2;
+
+	vec3_t	origin;
+	vec3_t	origin2;
+
+	vec3_t	angles;
+	vec3_t	angles2;
+
+	int		otherEntityNum;	// shotgun sources, etc
+	int		otherEntityNum2;
+
+	int		groundEntityNum;	// ENTITYNUM_NONE = in air
+
+	int		constantLight;	// r + (g<<8) + (b<<16) + (intensity<<24)
+	int		loopSound;		// constantly loop this sound
+
+	int		modelindex;
+	int		modelindex2;
+	int		clientNum;		// 0 to (MAX_CLIENTS - 1), for players and corpses
+	int		frame;
+
+	int		solid;			// for client side prediction, trap_linkentity sets this properly
+
+	int		event;			// impulse events -- muzzle flashes, footsteps, etc
+	int		eventParm;
+
+	// for players
+	int		misc;			// bit flags
+	int		weapon;			// determines weapon and flash model, etc
+	int		legsAnim;		// mask off ANIM_TOGGLEBIT
+	int		torsoAnim;		// mask off ANIM_TOGGLEBIT
+
+	int		generic1;
+} moduleAlternateEntityState_t;
+
+typedef struct
+{
+  int           snapFlags;                            // SNAPFLAG_RATE_DELAYED, etc
+  int           ping;
+
+  int           serverTime;                           // server time the message is valid for (in msec)
+
+  byte          areamask[ MAX_MAP_AREA_BYTES ];       // portalarea visibility bits
+
+  moduleAlternatePlayerState_t ps;                    // complete information about the current player at this time
+
+  int           numEntities;                          // all of the entities that need to be presented
+  moduleAlternateEntityState_t entities[ MAX_ENTITIES_IN_SNAPSHOT ]; // at the time of this snapshot
+
+  int           numServerCommands;                    // text based server commands to execute when this
+  int           serverCommandSequence;                // snapshot becomes current
+} moduleAlternateSnapshot_t;
+
+qboolean      trap_GetSnapshot( int snapshotNumber, moduleAlternateSnapshot_t *snapshot );
+#else
 // a snapshot get can fail if the snapshot (or the entties it holds) is so
 // old that it has fallen out of the client system queue
 qboolean      trap_GetSnapshot( int snapshotNumber, snapshot_t *snapshot );
+#endif
 
 // retrieve a text command from the server stream
 // the current snapshot will hold the number of the most recent command

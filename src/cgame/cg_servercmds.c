@@ -562,9 +562,9 @@ void CG_Menu( int menu, int arg )
       type      = DT_COMMAND;
       break;
 
-    case MN_CMD_LIVING:
-      //longMsg   = "You must be living to perform this action.";
-      shortMsg  = "Must be living to use this command";
+    case MN_CMD_ALIVE:
+      //longMsg   = "You must be alive to perform this action.";
+      shortMsg  = "Must be alive to use this command";
       type      = DT_COMMAND;
       break;
 
@@ -876,7 +876,7 @@ static void CG_Say( int clientNum, saymode_t mode, const char *text )
   char *name;
   char prefix[ 11 ] = "";
   char *ignore = "";
-  char *location = "";
+  const char *location = "";
   char *color;
   char *maybeColon;
 
@@ -896,9 +896,6 @@ static void CG_Say( int clientNum, saymode_t mode, const char *text )
       Com_sprintf( prefix, sizeof( prefix ), "[%s%c" S_COLOR_WHITE "] ",
                    tcolor, toupper( *( BG_TeamName( ci->team ) ) ) );
 
-    if( Com_ClientListContains( &cgs.ignoreList, clientNum ) )
-      ignore = "[skipnotify]";
-
     if( ( mode == SAY_TEAM || mode == SAY_AREA ) &&
         cg.snap->ps.pm_type != PM_INTERMISSION )
     {
@@ -912,12 +909,12 @@ static void CG_Say( int clientNum, saymode_t mode, const char *text )
         if( locent )
           locationNum = locent->currentState.generic1;
         else
-          locationNum = 0;
+          locationNum = -1;
       }
       else
         locationNum = ci->location;
 
-      if( locationNum > 0 && locationNum < MAX_LOCATIONS )
+      if( locationNum >= 0 && locationNum < MAX_LOCATIONS )
       {
         const char *s = CG_ConfigString( CS_LOCATIONS + locationNum );
 
@@ -946,30 +943,58 @@ static void CG_Say( int clientNum, saymode_t mode, const char *text )
       if( cg_teamChatsOnly.integer )
         ignore = "[skipnotify]";
 
+#ifdef MODULE_INTERFACE_11
+      CG_Printf( "%s%s%s" S_COLOR_WHITE "%s " S_COLOR_GREEN "%s\n",
+                 ignore, prefix, name, maybeColon, text );
+#else
       CG_Printf( "%s%s%s" S_COLOR_WHITE "%s %c" S_COLOR_GREEN "%s\n",
                  ignore, prefix, name, maybeColon, INDENT_MARKER, text );
+#endif
       break;
     case SAY_TEAM:
+#ifdef MODULE_INTERFACE_11
+      CG_Printf( "%s%s(%s" S_COLOR_WHITE ")%s%s " S_COLOR_CYAN "%s\n",
+                 ignore, prefix, name, location, maybeColon, text );
+#else
       CG_Printf( "%s%s(%s" S_COLOR_WHITE ")%s%s %c" S_COLOR_CYAN "%s\n",
                  ignore, prefix, name, location, maybeColon, INDENT_MARKER, text );
+#endif
       break;
     case SAY_ADMINS:
     case SAY_ADMINS_PUBLIC:
+#ifdef MODULE_INTERFACE_11
+      CG_Printf( "%s%s%s%s" S_COLOR_WHITE "%s " S_COLOR_MAGENTA "%s\n",
+                 ignore, prefix,
+                 ( mode == SAY_ADMINS ) ? "[ADMIN]" : "[PLAYER]",
+                 name, maybeColon, text );
+#else
       CG_Printf( "%s%s%s%s" S_COLOR_WHITE "%s %c" S_COLOR_MAGENTA "%s\n",
                  ignore, prefix,
                  ( mode == SAY_ADMINS ) ? "[ADMIN]" : "[PLAYER]",
                  name, maybeColon, INDENT_MARKER, text );
+#endif
       break;
     case SAY_AREA:
+#ifdef MODULE_INTERFACE_11
+      CG_Printf( "%s%s<%s" S_COLOR_WHITE ">%s%s " S_COLOR_BLUE "%s\n",
+                 ignore, prefix, name, location, maybeColon, text );
+#else
       CG_Printf( "%s%s<%s" S_COLOR_WHITE ">%s%s %c" S_COLOR_BLUE "%s\n",
                  ignore, prefix, name, location, maybeColon, INDENT_MARKER, text );
+#endif
       break;
     case SAY_PRIVMSG:
     case SAY_TPRIVMSG:
       color = ( mode == SAY_TPRIVMSG ) ? S_COLOR_CYAN : S_COLOR_GREEN;
+#ifdef MODULE_INTERFACE_11
+      CG_Printf( "%s%s[%s" S_COLOR_WHITE " -> %s" S_COLOR_WHITE "]%s %s%s\n",
+                 ignore, prefix, name, cgs.clientinfo[ cg.clientNum ].name,
+                 maybeColon, color, text );
+#else
       CG_Printf( "%s%s[%s" S_COLOR_WHITE " -> %s" S_COLOR_WHITE "]%s %c%s%s\n",
                  ignore, prefix, name, cgs.clientinfo[ cg.clientNum ].name,
                  maybeColon, INDENT_MARKER, color, text );
+#endif
       if( !ignore[0] )
       {
         CG_CenterPrint( va( "%sPrivate message from: " S_COLOR_WHITE "%s", 
@@ -1120,10 +1145,6 @@ static void CG_ParseVoice( void )
   if( !track )
     return;
 
-  // don't play audio track for lamers
-  if( Com_ClientListContains( &cgs.ignoreList, clientNum ) )
-    return;
-
   switch( vChan )
   {
     case VOICE_CHAN_ALL:
@@ -1145,7 +1166,7 @@ static void CG_ParseVoice( void )
 CG_CenterPrint_f
 =================
 */
-static void CG_CenterPrint_f( void )
+void CG_CenterPrint_f( void )
 {
   CG_CenterPrint( CG_Argv( 1 ), SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
 }
@@ -1174,16 +1195,6 @@ static void CG_Chat_f( void )
   trap_Argv( 2, mode, sizeof( mode ) );
 
   CG_Say( atoi( id ), atoi( mode ), CG_Argv( 3 ) );
-}
-
-/*
-=================
-CG_ClientLevelShot_f
-=================
-*/
-static void CG_ClientLevelShot_f( void )
-{
-  cg.levelShot = qtrue;
 }
 
 /*
@@ -1270,7 +1281,6 @@ void CG_UnregisterCommands( void )
 static consoleCommand_t svcommands[ ] =
 {
   { "chat", CG_Chat_f },
-  { "clientLevelShot", CG_ClientLevelShot_f },
   { "cmds", CG_GameCmds_f },
   { "cp", CG_CenterPrint_f },
   { "cs", CG_ConfigStringModified },

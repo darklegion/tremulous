@@ -23,15 +23,11 @@ enum
   ITEM_TYPE_BIND          // keyboard control configuration
 };
 
-// The first items in these enums are the defaults if menus do not specify
-enum
-{
-  ALIGN_LEFT,   // left alignment
-  ALIGN_CENTER, // center alignment
-  ALIGN_RIGHT,  // right alignment
-  ASPECT_NONE,  // no aspect compensation
-  ALIGN_NONE
-};
+#define ALIGN_LEFT   0 // left alignment
+#define ALIGN_CENTER 1 // center alignment
+#define ALIGN_RIGHT  2 // right alignment
+#define ASPECT_NONE  3 // no aspect compensation
+#define ALIGN_NONE   4
 
 enum
 {
@@ -114,7 +110,9 @@ enum
   FEEDER_TREMHUMANBUILD,       // human buildables
   FEEDER_IGNORE_LIST,          // ignored players
   FEEDER_HELP_LIST,            // help topics
-  FEEDER_RESOLUTIONS           // display resolutions
+  FEEDER_RESOLUTIONS,           // display resolutions
+  FEEDER_TREMVOICECMD,      // voice commands
+  FEEDER_GITHUB_RELEASE           // latest update info 
 };
 
 // display flags
@@ -198,6 +196,8 @@ enum
   CG_CONSOLE,
   CG_TUTORIAL,
   CG_CLOCK,
+  CG_KILLFEED,
+  CG_PLAYER_THZ_SCANNER,
 
   UI_NETSOURCE,
   UI_NETMAPPREVIEW,
@@ -217,7 +217,9 @@ enum
   UI_HSELLINFOPANE,
   UI_ABUILDINFOPANE,
   UI_HBUILDINFOPANE,
-  UI_HELPINFOPANE
+  UI_HELPINFOPANE,
+
+  UI_VOICECMDINFOPANE
 };
 
 #endif

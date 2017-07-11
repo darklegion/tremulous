@@ -203,33 +203,8 @@ int    LongSwap (int l)
 	return ((int)b1<<24) + ((int)b2<<16) + ((int)b3<<8) + b4;
 }
 
-int	LongNoSwap (int l)
+float FloatSwap(const float *f)
 {
-	return l;
-}
-
-qint64 Long64Swap (qint64 ll)
-{
-	qint64	result;
-
-	result.b0 = ll.b7;
-	result.b1 = ll.b6;
-	result.b2 = ll.b5;
-	result.b3 = ll.b4;
-	result.b4 = ll.b3;
-	result.b5 = ll.b2;
-	result.b6 = ll.b1;
-	result.b7 = ll.b0;
-
-	return result;
-}
-
-qint64 Long64NoSwap (qint64 ll)
-{
-	return ll;
-}
-
-float FloatSwap (const float *f) {
 	floatint_t out;
 
 	out.f = *f;
@@ -238,7 +213,7 @@ float FloatSwap (const float *f) {
 	return out.f;
 }
 
-float FloatNoSwap (const float *f)
+float FloatNoSwap(const float *f)
 {
 	return *f;
 }
@@ -1030,7 +1005,7 @@ does a varargs printf into a temp buffer, so I don't need to have
 varargs versions of all text functions.
 ============
 */
-char	* QDECL va( char *format, ... ) {
+const char	* QDECL va(const char *format, ... ) {
 	va_list		argptr;
 	static char string[2][32000]; // in case va is called by nested functions
 	static int	index = 0;
@@ -1408,7 +1383,7 @@ void Info_SetValueForKey_Big( char *s, const char *key, const char *value ) {
 Com_CharIsOneOfCharset
 ==================
 */
-static qboolean Com_CharIsOneOfCharset( char c, char *set )
+static qboolean Com_CharIsOneOfCharset( char c, const char *set )
 {
 	int i;
 
@@ -1426,7 +1401,7 @@ static qboolean Com_CharIsOneOfCharset( char c, char *set )
 Com_SkipCharset
 ==================
 */
-char *Com_SkipCharset( char *s, char *sep )
+char *Com_SkipCharset( char *s, const char *sep )
 {
 	char	*p = s;
 
@@ -1446,7 +1421,7 @@ char *Com_SkipCharset( char *s, char *sep )
 Com_SkipTokens
 ==================
 */
-char *Com_SkipTokens( char *s, int numTokens, char *sep )
+char *Com_SkipTokens( char *s, int numTokens, const char *sep )
 {
 	int		sepCount = 0;
 	char	*p = s;
@@ -1537,6 +1512,7 @@ Com_ClientListParse
 */
 void Com_ClientListParse( clientList_t *list, const char *s )
 {
+  char t[ 9 ];
   if( !list )
     return;
   list->lo = 0;
@@ -1545,5 +1521,7 @@ void Com_ClientListParse( clientList_t *list, const char *s )
     return;
   if( strlen( s ) != 16 )
     return;
-  sscanf( s, "%x%x", &list->hi, &list->lo );
+  Q_strncpyz( t, s, 9 );
+  sscanf( t, "%x", &list->hi );
+  sscanf( s + 8, "%x", &list->lo );
 }

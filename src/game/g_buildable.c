@@ -82,7 +82,7 @@ gentity_t *G_CheckSpawnPoint( int spawnNum, const vec3_t origin,
     VectorSet( cmins, -MAX_ALIEN_BBOX, -MAX_ALIEN_BBOX, -MAX_ALIEN_BBOX );
     VectorSet( cmaxs,  MAX_ALIEN_BBOX,  MAX_ALIEN_BBOX,  MAX_ALIEN_BBOX );
 
-    displacement = ( maxs[ 2 ] + MAX_ALIEN_BBOX ) * M_ROOT3;
+    displacement = ( maxs[ 2 ] + MAX_ALIEN_BBOX ) * M_ROOT3 + 1.0f;
     VectorMA( origin, displacement, normal, localOrigin );
   }
   else if( spawn == BA_H_SPAWN )
@@ -158,7 +158,7 @@ qboolean G_FindPower( gentity_t *self, qboolean searchUnspawned )
     if( ( ent->s.modelindex == BA_H_REACTOR || ent->s.modelindex == BA_H_REPEATER ) &&
         ( searchUnspawned || ent->spawned ) && ent->powered && ent->health > 0 )
     {
-      VectorSubtract( self->s.origin, ent->s.origin, temp_v );
+      VectorSubtract( self->r.currentOrigin, ent->r.currentOrigin, temp_v );
       distance = VectorLength( temp_v );
 
       // Always prefer a reactor if there is one in range
@@ -276,7 +276,7 @@ gentity_t *G_PowerEntityForPoint( const vec3_t origin )
   dummy.parentNode = NULL;
   dummy.buildableTeam = TEAM_HUMANS;
   dummy.s.modelindex = BA_NONE;
-  VectorCopy( origin, dummy.s.origin );
+  VectorCopy( origin, dummy.r.currentOrigin );
 
   if( G_FindPower( &dummy, qfalse ) )
     return dummy.parentNode;
@@ -438,7 +438,7 @@ gentity_t *G_InPowerZone( gentity_t *self )
     if( ( ent->s.modelindex == BA_H_REACTOR || ent->s.modelindex == BA_H_REPEATER ) &&
         ent->spawned && ent->powered )
     {
-      VectorSubtract( self->s.origin, ent->s.origin, temp_v );
+      VectorSubtract( self->r.currentOrigin, ent->r.currentOrigin, temp_v );
       distance = VectorLength( temp_v );
 
       if( ent->s.modelindex == BA_H_REACTOR && distance <= REACTOR_BASESIZE )
@@ -478,7 +478,7 @@ int G_FindDCC( gentity_t *self )
     //if entity is a dcc calculate the distance to it
     if( ent->s.modelindex == BA_H_DCC && ent->spawned )
     {
-      VectorSubtract( self->s.origin, ent->s.origin, temp_v );
+      VectorSubtract( self->r.currentOrigin, ent->r.currentOrigin, temp_v );
       distance = VectorLength( temp_v );
       if( distance < DC_RANGE && ent->powered )
       {
@@ -583,10 +583,10 @@ qboolean G_FindCreep( gentity_t *self )
   vec3_t    temp_v;
 
   //don't check for creep if flying through the air
-  if( self->s.groundEntityNum == -1 )
+  if( !self->client && self->s.groundEntityNum == ENTITYNUM_NONE )
     return qtrue;
 
-  //if self does not have a parentNode or it's parentNode is invalid find a new one
+  //if self does not have a parentNode or its parentNode is invalid, then find a new one
   if( self->client || self->parentNode == NULL || !self->parentNode->inuse ||
       self->parentNode->health <= 0 )
   {
@@ -599,7 +599,7 @@ qboolean G_FindCreep( gentity_t *self )
             ent->s.modelindex == BA_A_OVERMIND ) &&
           ent->spawned && ent->health > 0 )
       {
-        VectorSubtract( self->s.origin, ent->s.origin, temp_v );
+        VectorSubtract( self->r.currentOrigin, ent->r.currentOrigin, temp_v );
         distance = VectorLength( temp_v );
         if( distance < minDistance )
         {
@@ -641,7 +641,7 @@ static qboolean G_IsCreepHere( vec3_t origin )
 
   dummy.parentNode = NULL;
   dummy.s.modelindex = BA_NONE;
-  VectorCopy( origin, dummy.s.origin );
+  VectorCopy( origin, dummy.r.currentOrigin );
 
   return G_FindCreep( &dummy );
 }
@@ -665,8 +665,8 @@ static void G_CreepSlow( gentity_t *self )
 
   VectorSet( range, creepSize, creepSize, creepSize );
 
-  VectorAdd( self->s.origin, range, maxs );
-  VectorSubtract( self->s.origin, range, mins );
+  VectorAdd( self->r.currentOrigin, range, maxs );
+  VectorSubtract( self->r.currentOrigin, range, mins );
 
   //find humans
   num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
@@ -789,6 +789,7 @@ void AGeneric_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, i
   else
     self->nextthink = level.time; //blast immediately
 
+  G_RemoveRangeMarkerFrom( self );
   G_LogDestruction( self, attacker, mod );
 }
 
@@ -865,9 +866,9 @@ void ASpawn_Think( gentity_t *self )
   if( self->spawned )
   {
     //only suicide if at rest
-    if( self->s.groundEntityNum )
+    if( self->s.groundEntityNum != ENTITYNUM_NONE )
     {
-      if( ( ent = G_CheckSpawnPoint( self->s.number, self->s.origin,
+      if( ( ent = G_CheckSpawnPoint( self->s.number, self->r.currentOrigin,
               self->s.origin2, BA_A_SPAWN, NULL ) ) != NULL )
       {
         // If the thing blocking the spawn is a buildable, kill it. 
@@ -1071,8 +1072,8 @@ void ABarricade_Shrink( gentity_t *self, qboolean shrink )
     trace_t tr;
     int anim;
 
-    trap_Trace( &tr, self->s.origin, self->r.mins, self->r.maxs,
-                self->s.origin, self->s.number, MASK_PLAYERSOLID );
+    trap_Trace( &tr, self->r.currentOrigin, self->r.mins, self->r.maxs,
+                self->r.currentOrigin, self->s.number, MASK_PLAYERSOLID );
     if ( tr.startsolid || tr.fraction < 1.0f )
     {
       self->r.maxs[ 2 ] = (int)( self->r.maxs[ 2 ] * BARRICADE_SHRINKPROP );
@@ -1142,8 +1143,8 @@ void ABarricade_Touch( gentity_t *self, gentity_t *other, trace_t *trace )
 
   // Client must be high enough to pass over. Note that STEPSIZE (18) is
   // hardcoded here because we don't include bg_local.h!
-  client_z = other->s.origin[ 2 ] + other->r.mins[ 2 ];
-  min_z = self->s.origin[ 2 ] - 18 +
+  client_z = other->r.currentOrigin[ 2 ] + other->r.mins[ 2 ];
+  min_z = self->r.currentOrigin[ 2 ] - 18 +
           (int)( self->r.maxs[ 2 ] * BARRICADE_SHRINKPROP );
   if( client_z < min_z )
     return;
@@ -1172,8 +1173,8 @@ void AAcidTube_Think( gentity_t *self )
 
   AGeneric_Think( self );
 
-  VectorAdd( self->s.origin, range, maxs );
-  VectorSubtract( self->s.origin, range, mins );
+  VectorAdd( self->r.currentOrigin, range, maxs );
+  VectorSubtract( self->r.currentOrigin, range, mins );
 
   // attack nearby humans
   if( self->spawned && self->health > 0 && self->powered )
@@ -1236,7 +1237,7 @@ static qboolean AHive_CheckTarget( gentity_t *self, gentity_t *enemy )
   // Check if the tip of the hive can see the target
   VectorMA( self->s.pos.trBase, self->r.maxs[ 2 ], self->s.origin2,
             tip_origin );
-  if( Distance( tip_origin, enemy->s.origin ) > HIVE_SENSE_RANGE )
+  if( Distance( tip_origin, enemy->r.currentOrigin ) > HIVE_SENSE_RANGE )
     return qfalse;
 
   trap_Trace( &trace, tip_origin, NULL, NULL, enemy->s.pos.trBase,
@@ -1282,8 +1283,8 @@ void AHive_Think( gentity_t *self )
     vec3_t mins, maxs,
            range = { HIVE_SENSE_RANGE, HIVE_SENSE_RANGE, HIVE_SENSE_RANGE };
 
-    VectorAdd( self->s.origin, range, maxs );
-    VectorSubtract( self->s.origin, range, mins );
+    VectorAdd( self->r.currentOrigin, range, maxs );
+    VectorSubtract( self->r.currentOrigin, range, mins );
 
     num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
 
@@ -1466,7 +1467,6 @@ void ATrapper_FindEnemy( gentity_t *ent, int range )
   int       start;
 
   // iterate through entities
-  // note that if we exist then level.num_entities != 0
   start = rand( ) / ( RAND_MAX / level.num_entities + 1 );
   for( i = start; i < level.num_entities + start; i++ )
   {
@@ -1594,7 +1594,6 @@ think function
 */
 void HSpawn_Disappear( gentity_t *self )
 {
-  self->s.eFlags |= EF_NODRAW; //don't draw the model once its destroyed
   self->timestamp = level.time;
   G_QueueBuildPoints( self );
   G_RewardAttackers( self );
@@ -1663,6 +1662,7 @@ void HSpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
     self->nextthink = level.time; //blast immediately
   }
 
+  G_RemoveRangeMarkerFrom( self );
   G_LogDestruction( self, attacker, mod );
 }
 
@@ -1686,9 +1686,9 @@ void HSpawn_Think( gentity_t *self )
   if( self->spawned )
   {
     //only suicide if at rest
-    if( self->s.groundEntityNum )
+    if( self->s.groundEntityNum != ENTITYNUM_NONE )
     {
-      if( ( ent = G_CheckSpawnPoint( self->s.number, self->s.origin,
+      if( ( ent = G_CheckSpawnPoint( self->s.number, self->r.currentOrigin,
               self->s.origin2, BA_H_SPAWN, NULL ) ) != NULL )
       {
         // If the thing blocking the spawn is a buildable, kill it. 
@@ -1749,6 +1749,7 @@ static void HRepeater_Die( gentity_t *self, gentity_t *inflictor, gentity_t *att
     self->nextthink = level.time; //blast immediately
   }
 
+  G_RemoveRangeMarkerFrom( self );
   G_LogDestruction( self, attacker, mod );
 
   if( self->usesBuildPointZone )
@@ -1855,13 +1856,13 @@ void HReactor_Think( gentity_t *self )
 
   if( self->dcc )
   {
-    VectorAdd( self->s.origin, dccrange, maxs );
-    VectorSubtract( self->s.origin, dccrange, mins );
+    VectorAdd( self->r.currentOrigin, dccrange, maxs );
+    VectorSubtract( self->r.currentOrigin, dccrange, mins );
   }
   else
   {
-    VectorAdd( self->s.origin, range, maxs );
-    VectorSubtract( self->s.origin, range, mins );
+    VectorAdd( self->r.currentOrigin, range, maxs );
+    VectorSubtract( self->r.currentOrigin, range, mins );
   }
 
   if( self->spawned && ( self->health > 0 ) )
@@ -1880,7 +1881,7 @@ void HReactor_Think( gentity_t *self )
         continue;
 
       tent = G_TempEntity( enemy->s.pos.trBase, EV_TESLATRAIL );
-      tent->s.generic1 = self->s.number; //src
+      tent->s.misc = self->s.number; //src
       tent->s.clientNum = enemy->s.number; //dest
       VectorCopy( self->s.pos.trBase, tent->s.origin2 );
       fired = qtrue;
@@ -2045,8 +2046,8 @@ void HMedistat_Think( gentity_t *self )
 
   if( self->spawned )
   {
-    VectorAdd( self->s.origin, self->r.maxs, maxs );
-    VectorAdd( self->s.origin, self->r.mins, mins );
+    VectorAdd( self->r.currentOrigin, self->r.maxs, maxs );
+    VectorAdd( self->r.currentOrigin, self->r.mins, mins );
 
     mins[ 2 ] += fabs( self->r.mins[ 2 ] ) + self->r.maxs[ 2 ];
     maxs[ 2 ] += 60; //player height
@@ -2071,7 +2072,7 @@ void HMedistat_Think( gentity_t *self )
       if( self->enemy == player && player->client &&
           player->client->ps.stats[ STAT_TEAM ] == TEAM_HUMANS &&
           player->health < player->client->ps.stats[ STAT_MAX_HEALTH ] &&
-          PM_Live( player->client->ps.pm_type ) )
+          PM_Alive( player->client->ps.pm_type ) )
       {
         occupied = qtrue;
         player->client->ps.stats[ STAT_STATE ] |= SS_HEALING_ACTIVE;
@@ -2094,7 +2095,7 @@ void HMedistat_Think( gentity_t *self )
         {
           if( ( player->health < player->client->ps.stats[ STAT_MAX_HEALTH ] ||
                 player->client->ps.stats[ STAT_STAMINA ] < STAMINA_MAX ) &&
-              PM_Live( player->client->ps.pm_type ) )
+              PM_Alive( player->client->ps.pm_type ) )
           {
             self->enemy = player;
 
@@ -2128,12 +2129,15 @@ void HMedistat_Think( gentity_t *self )
       if( self->enemy->client->ps.stats[ STAT_STAMINA ] > STAMINA_MAX )
         self->enemy->client->ps.stats[ STAT_STAMINA ] = STAMINA_MAX;
 
-      self->enemy->health++;
+      if( self->enemy->health < self->enemy->client->ps.stats[ STAT_MAX_HEALTH ] )
+      {
+        self->enemy->health++;
+        self->enemy->client->ps.stats[ STAT_HEALTH ] = self->enemy->health;
+      }
 
       //if they're completely healed, give them a medkit
       if( self->enemy->health >= self->enemy->client->ps.stats[ STAT_MAX_HEALTH ] )
       {
-        self->enemy->health =  self->enemy->client->ps.stats[ STAT_MAX_HEALTH ];
         if( !BG_InventoryContainsUpgrade( UP_MEDKIT, self->enemy->client->ps.stats ) )
           BG_AddUpgradeToInventory( UP_MEDKIT, self->enemy->client->ps.stats );
       }
@@ -2237,9 +2241,9 @@ qboolean HMGTurret_TrackEnemy( gentity_t *self )
   vectoangles( dirToTarget, self->turretAim );
 
   //fire if target is within accuracy
-  return ( abs( angularDiff[ YAW ] ) - MGTURRET_ANGULARSPEED <=
+  return ( fabs( angularDiff[ YAW ] ) - MGTURRET_ANGULARSPEED <=
            MGTURRET_ACCURACY_TO_FIRE ) &&
-         ( abs( angularDiff[ PITCH ] ) - MGTURRET_ANGULARSPEED <=
+         ( fabs( angularDiff[ PITCH ] ) - MGTURRET_ANGULARSPEED <=
            MGTURRET_ACCURACY_TO_FIRE );
 }
 
@@ -2260,15 +2264,12 @@ void HMGTurret_FindEnemy( gentity_t *self )
   gentity_t *target;
   int       start;
 
-  if( self->enemy )
-    self->enemy->targeted = NULL;
-
   self->enemy = NULL;
     
   // Look for targets in a box around the turret
   VectorSet( range, MGTURRET_RANGE, MGTURRET_RANGE, MGTURRET_RANGE );
-  VectorAdd( self->s.origin, range, maxs );
-  VectorSubtract( self->s.origin, range, mins );
+  VectorAdd( self->r.currentOrigin, range, maxs );
+  VectorSubtract( self->r.currentOrigin, range, mins );
   num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
 
   if( num == 0 )
@@ -2282,7 +2283,6 @@ void HMGTurret_FindEnemy( gentity_t *self )
       continue;
 
     self->enemy = target;
-    self->enemy->targeted = self;
     return;
   }
 }
@@ -2463,7 +2463,7 @@ void HTeslaGen_Think( gentity_t *self )
     self->s.eFlags &= ~EF_FIRING;
 
     // Move the muzzle from the entity origin up a bit to fire over turrets
-    VectorMA( self->s.origin, self->r.maxs[ 2 ], self->s.origin2, origin );
+    VectorMA( self->r.currentOrigin, self->r.maxs[ 2 ], self->s.origin2, origin );
 
     VectorSet( range, TESLAGEN_RANGE, TESLAGEN_RANGE, TESLAGEN_RANGE );
     VectorAdd( origin, range, maxs );
@@ -2648,16 +2648,16 @@ void G_BuildableTouchTriggers( gentity_t *ent )
 
   BG_BuildableBoundingBox( ent->s.modelindex, bmins, bmaxs );
 
-  VectorAdd( ent->s.origin, bmins, mins );
-  VectorAdd( ent->s.origin, bmaxs, maxs );
+  VectorAdd( ent->r.currentOrigin, bmins, mins );
+  VectorAdd( ent->r.currentOrigin, bmaxs, maxs );
 
   VectorSubtract( mins, range, mins );
   VectorAdd( maxs, range, maxs );
 
   num = trap_EntitiesInBox( mins, maxs, touch, MAX_GENTITIES );
 
-  VectorAdd( ent->s.origin, bmins, mins );
-  VectorAdd( ent->s.origin, bmaxs, maxs );
+  VectorAdd( ent->r.currentOrigin, bmins, mins );
+  VectorAdd( ent->r.currentOrigin, bmaxs, maxs );
 
   for( i = 0; i < num; i++ )
   {
@@ -2716,28 +2716,31 @@ void G_BuildableThink( gentity_t *ent, int msec )
   {
     ent->time1000 -= 1000;
 
-    if( !ent->spawned && ent->health > 0 )
-      ent->health += (int)( ceil( (float)maxHealth / (float)( buildTime * 0.001f ) ) );
-    else if( ent->health > 0 && ent->health < maxHealth )
+    if( ent->health > 0 && ent->health < maxHealth )
     {
-      if( ent->buildableTeam == TEAM_ALIENS && regenRate &&
-        ( ent->lastDamageTime + ALIEN_REGEN_DAMAGE_TIME ) < level.time )
+      if( !ent->spawned )
+        ent->health += (int)( ceil( (float)maxHealth / (float)( buildTime * 0.001f ) ) );
+      else
       {
-        ent->health += regenRate;
+        if( ent->buildableTeam == TEAM_ALIENS && regenRate &&
+          ( ent->lastDamageTime + ALIEN_REGEN_DAMAGE_TIME ) < level.time )
+        {
+          ent->health += regenRate;
+        }
+        else if( ent->buildableTeam == TEAM_HUMANS && ent->dcc &&
+          ( ent->lastDamageTime + HUMAN_REGEN_DAMAGE_TIME ) < level.time )
+        {
+          ent->health += DC_HEALRATE * ent->dcc;
+        }
       }
-      else if( ent->buildableTeam == TEAM_HUMANS && ent->dcc &&
-        ( ent->lastDamageTime + HUMAN_REGEN_DAMAGE_TIME ) < level.time )
-      {
-        ent->health += DC_HEALRATE * ent->dcc;
-      }
-    }
 
-    if( ent->health >= maxHealth )
-    {
-      int i;
-      ent->health = maxHealth;
-      for( i = 0; i < MAX_CLIENTS; i++ )
-        ent->credits[ i ] = 0;
+      if( ent->health >= maxHealth )
+      {
+        int i;
+        ent->health = maxHealth;
+        for( i = 0; i < MAX_CLIENTS; i++ )
+          ent->credits[ i ] = 0;
+      }
     }
   }
 
@@ -2750,7 +2753,7 @@ void G_BuildableThink( gentity_t *ent, int msec )
   ent->dcc = ( ent->buildableTeam != TEAM_HUMANS ) ? 0 : G_FindDCC( ent );
 
   // Set health
-  ent->s.generic1 = MAX( ent->health, 0 );
+  ent->s.misc = MAX( ent->health, 0 );
 
   // Set flags
   ent->s.eFlags &= ~( EF_B_POWERED | EF_B_SPAWNED | EF_B_MARKED );
@@ -2767,7 +2770,8 @@ void G_BuildableThink( gentity_t *ent, int msec )
   G_BuildableTouchTriggers( ent );
 
   // Fall back on normal physics routines
-  G_Physics( ent, msec );
+  if( msec != 0 )
+    G_Physics( ent, msec );
 }
 
 
@@ -2900,9 +2904,9 @@ static int G_CompareBuildablesForRemoval( const void *a, const void *b )
 
   // Prefer the one that collides with the thing we're building
   aMatches = G_BuildablesIntersect( cmpBuildable, cmpOrigin,
-      buildableA->s.modelindex, buildableA->s.origin );
+      buildableA->s.modelindex, buildableA->r.currentOrigin );
   bMatches = G_BuildablesIntersect( cmpBuildable, cmpOrigin,
-      buildableB->s.modelindex, buildableB->s.origin );
+      buildableB->s.modelindex, buildableB->r.currentOrigin );
   if( aMatches && !bMatches )
     return -1;
   else if( !aMatches && bMatches )
@@ -3022,6 +3026,7 @@ void G_FreeMarkedBuildables( gentity_t *deconner, char *readable, int rsize,
     if( nums )
       Q_strcat( nums, nsize, va( " %d", (int)( ent - g_entities ) ) );
 
+    G_RemoveRangeMarkerFrom( ent );
     G_FreeEntity( ent );
   }
 
@@ -3101,7 +3106,7 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
   }
   else
   {
-    Com_Error( ERR_FATAL, "team is %d\n", team );
+    Com_Error( ERR_FATAL, "team is %d", team );
     return IBE_NONE;
   }
 
@@ -3117,7 +3122,7 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
       if( ent->s.eType != ET_BUILDABLE )
         continue;
 
-      if( G_BuildablesIntersect( buildable, origin, ent->s.modelindex, ent->s.origin ) )
+      if( G_BuildablesIntersect( buildable, origin, ent->s.modelindex, ent->r.currentOrigin ) )
         return IBE_NOROOM;
     }
 
@@ -3133,7 +3138,7 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
     if( ent->s.eType != ET_BUILDABLE )
       continue;
 
-    collision = G_BuildablesIntersect( buildable, origin, ent->s.modelindex, ent->s.origin );
+    collision = G_BuildablesIntersect( buildable, origin, ent->s.modelindex, ent->r.currentOrigin );
 
     if( collision )
     {
@@ -3153,7 +3158,7 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
     // Check if this is a repeater and it's in range
     if( buildable == BA_H_REPEATER &&
         buildable == ent->s.modelindex &&
-        Distance( ent->s.origin, origin ) < REPEATER_BASESIZE )
+        Distance( ent->r.currentOrigin, origin ) < REPEATER_BASESIZE )
     {
       repeaterInRange = qtrue;
       repeaterInRangeCount++;
@@ -3344,7 +3349,8 @@ G_CanBuild
 Checks to see if a buildable can be built
 ================
 */
-itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance, vec3_t origin, vec3_t normal )
+itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance,
+                             vec3_t origin, vec3_t normal, int *groundEntNum )
 {
   vec3_t            angles;
   vec3_t            entity_origin;
@@ -3367,7 +3373,7 @@ itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance
   trap_Trace( &tr3, ps->origin, NULL, NULL, entity_origin, ent->s.number, MASK_PLAYERSOLID );
 
   VectorCopy( entity_origin, origin );
-
+  *groundEntNum = tr1.entityNum;
   VectorCopy( tr1.plane.normal, normal );
   minNormal = BG_Buildable( buildable )->minNormal;
   invert = BG_Buildable( buildable )->invertNormal;
@@ -3461,7 +3467,7 @@ itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance
           break;
 
         default:
-          Com_Error( ERR_FATAL, "No reason for denying build of %d\n", buildable );
+          Com_Error( ERR_FATAL, "No reason for denying build of %d", buildable );
           break;
       }
     }
@@ -3492,21 +3498,67 @@ itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance
 
 /*
 ================
+G_AddRangeMarkerForBuildable
+================
+*/
+static void G_AddRangeMarkerForBuildable( gentity_t *self )
+{
+  gentity_t *rm;
+
+  switch( self->s.modelindex )
+  {
+    case BA_A_SPAWN:
+    case BA_A_OVERMIND:
+    case BA_A_ACIDTUBE:
+    case BA_A_TRAPPER:
+    case BA_A_HIVE:
+    case BA_H_MGTURRET:
+    case BA_H_TESLAGEN:
+    case BA_H_DCC:
+    case BA_H_REACTOR:
+    case BA_H_REPEATER:
+      break;
+    default:
+      return;
+  }
+
+  rm = G_Spawn();
+  rm->classname = "buildablerangemarker";
+  rm->r.svFlags = SVF_BROADCAST | SVF_CLIENTMASK;
+  rm->s.eType = ET_RANGE_MARKER;
+  rm->s.modelindex = self->s.modelindex;
+
+  self->rangeMarker = rm;
+}
+
+/*
+================
+G_RemoveRangeMarkerFrom
+================
+*/
+void G_RemoveRangeMarkerFrom( gentity_t *self )
+{
+  if( self->rangeMarker )
+  {
+    G_FreeEntity( self->rangeMarker );
+    self->rangeMarker = NULL;
+  }
+}
+
+/*
+================
 G_Build
 
 Spawns a buildable
 ================
 */
 static gentity_t *G_Build( gentity_t *builder, buildable_t buildable,
-    const vec3_t origin, const vec3_t normal, const vec3_t angles )
+  const vec3_t origin, const vec3_t normal, const vec3_t angles, int groundEntNum )
 {
   gentity_t *built;
-  vec3_t    localOrigin;
   char      readable[ MAX_STRING_CHARS ];
   char      buildnums[ MAX_STRING_CHARS ];
   buildLog_t *log;
-
-  VectorCopy( origin, localOrigin );
 
   if( builder->client )
     log = G_BuildLogNew( builder, BF_CONSTRUCT );
@@ -3517,19 +3569,20 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable,
   G_FreeMarkedBuildables( builder, readable, sizeof( readable ),
     buildnums, sizeof( buildnums ) );
 
-  // Spawn the buildable
-  built = G_Spawn();
+  if( builder->client )
+  {
+    // Spawn the buildable
+    built = G_Spawn();
+  }
+  else
+    built = builder;
+
   built->s.eType = ET_BUILDABLE;
   built->killedBy = ENTITYNUM_NONE;
   built->classname = BG_Buildable( buildable )->entityName;
   built->s.modelindex = buildable;
   built->buildableTeam = built->s.modelindex2 = BG_Buildable( buildable )->team;
   BG_BuildableBoundingBox( buildable, built->r.mins, built->r.maxs );
-
-  // when building the initial layout, spawn the entity slightly off its
-  // target surface so that it can be "dropped" onto it
-  if( !builder->client )
-    VectorMA( localOrigin, 1.0f, normal, localOrigin );
 
   built->health = 1;
 
@@ -3650,7 +3703,6 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable,
       break;
   }
 
-  built->s.number = built - g_entities;
   built->r.contents = CONTENTS_BODY;
   built->clipmask = MASK_PLAYERSOLID;
   built->enemy = NULL;
@@ -3663,24 +3715,29 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable,
   else
     built->builtBy = NULL;
 
-  G_SetOrigin( built, localOrigin );
-
-  // gently nudge the buildable onto the surface :)
-  VectorScale( normal, -50.0f, built->s.pos.trDelta );
+  G_SetOrigin( built, origin );
 
   // set turret angles
   VectorCopy( builder->s.angles2, built->s.angles2 );
 
-  VectorCopy( angles, built->s.angles );
-  built->s.angles[ PITCH ] = 0.0f;
+  VectorCopy( angles, built->s.apos.trBase );
+  VectorCopy( angles, built->r.currentAngles );
+  built->s.apos.trBase[ PITCH ] = 0.0f;
+  built->r.currentAngles[ PITCH ] = 0.0f;
   built->s.angles2[ YAW ] = angles[ YAW ];
   built->s.angles2[ PITCH ] = MGTURRET_VERTICALCAP;
-  built->s.pos.trType = BG_Buildable( buildable )->traj;
-  built->s.pos.trTime = level.time;
   built->physicsBounce = BG_Buildable( buildable )->bounce;
-  built->s.groundEntityNum = -1;
 
-  built->s.generic1 = MAX( built->health, 0 );
+  built->s.groundEntityNum = groundEntNum;
+  if( groundEntNum == ENTITYNUM_NONE )
+  {
+    built->s.pos.trType = BG_Buildable( buildable )->traj;
+    built->s.pos.trTime = level.time;
+    // gently nudge the buildable onto the surface :)
+    VectorScale( normal, -50.0f, built->s.pos.trDelta );
+  }
+
+  built->s.misc = MAX( built->health, 0 );
 
   if( BG_Buildable( buildable )->team == TEAM_ALIENS )
   {
@@ -3726,6 +3783,8 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable,
   if( log )
     G_BuildLogSet( log, built );
 
+  G_AddRangeMarkerForBuildable( built );
+
   return built;
 }
 
@@ -3738,13 +3797,14 @@ qboolean G_BuildIfValid( gentity_t *ent, buildable_t buildable )
 {
   float         dist;
   vec3_t        origin, normal;
+  int           groundEntNum;
 
   dist = BG_Class( ent->client->ps.stats[ STAT_CLASS ] )->buildDist;
 
-  switch( G_CanBuild( ent, buildable, dist, origin, normal ) )
+  switch( G_CanBuild( ent, buildable, dist, origin, normal, &groundEntNum ) )
   {
     case IBE_NONE:
-      G_Build( ent, buildable, origin, normal, ent->s.apos.trBase );
+      G_Build( ent, buildable, origin, normal, ent->s.apos.trBase, groundEntNum );
       return qtrue;
 
     case IBE_NOALIENBP:
@@ -3828,7 +3888,8 @@ static gentity_t *G_FinishSpawningBuildable( gentity_t *ent, qboolean force )
   else
     VectorSet( normal, 0.0f, 0.0f, 1.0f );
 
-  built = G_Build( ent, buildable, ent->s.pos.trBase, normal, ent->s.angles );
+  built = G_Build( ent, buildable, ent->r.currentOrigin,
+                   normal, ent->r.currentAngles, ENTITYNUM_NONE );
 
   built->takedamage = qtrue;
   built->spawned = qtrue; //map entities are already spawned
@@ -3837,14 +3898,15 @@ static gentity_t *G_FinishSpawningBuildable( gentity_t *ent, qboolean force )
 
   // drop towards normal surface
   VectorScale( built->s.origin2, -4096.0f, dest );
-  VectorAdd( dest, built->s.origin, dest );
+  VectorAdd( dest, built->r.currentOrigin, dest );
 
-  trap_Trace( &tr, built->s.origin, built->r.mins, built->r.maxs, dest, built->s.number, built->clipmask );
+  trap_Trace( &tr, built->r.currentOrigin, built->r.mins, built->r.maxs, dest, built->s.number, built->clipmask );
 
   if( tr.startsolid && !force )
   {
     G_Printf( S_COLOR_YELLOW "G_FinishSpawningBuildable: %s startsolid at %s\n",
-              built->classname, vtos( built->s.origin ) );
+              built->classname, vtos( built->r.currentOrigin ) );
+    G_RemoveRangeMarkerFrom( built );
     G_FreeEntity( built );
     return NULL;
   }
@@ -3865,13 +3927,13 @@ static gentity_t *G_FinishSpawningBuildable( gentity_t *ent, qboolean force )
 ============
 G_SpawnBuildableThink
 
-Complete spawning a buildable using it's placeholder
+Complete spawning a buildable using its placeholder
 ============
 */
 static void G_SpawnBuildableThink( gentity_t *ent )
 {
   G_FinishSpawningBuildable( ent, qfalse );
-  G_FreeEntity( ent );
+  G_BuildableThink( ent, 0 );
 }
 
 /*
@@ -3894,20 +3956,93 @@ void G_SpawnBuildable( gentity_t *ent, buildable_t buildable )
   ent->think = G_SpawnBuildableThink;
 }
 
+void G_ParseCSVBuildablePlusList( const char *string, int *buildables, int buildablesSize )
+{
+  char      buffer[ MAX_STRING_CHARS ];
+  int       i = 0;
+  char      *p, *q;
+  qboolean  EOS = qfalse;
+
+  Q_strncpyz( buffer, string, MAX_STRING_CHARS );
+
+  p = q = buffer;
+
+  while( *p != '\0' && i < buildablesSize - 1 )
+  {
+    //skip to first , or EOS
+    while( *p != ',' && *p != '\0' )
+      p++;
+
+    if( *p == '\0' )
+      EOS = qtrue;
+
+    *p = '\0';
+
+    //strip leading whitespace
+    while( *q == ' ' )
+      q++;
+
+    if( !Q_stricmp( q, "alien" ) )
+    {
+      buildable_t b;
+      for( b = BA_A_SPAWN; b <= BA_A_HIVE && i < buildablesSize - 1; ++b )
+        buildables[ i++ ] = b;
+
+      if( i < buildablesSize - 1 )
+        buildables[ i++ ] = BA_NUM_BUILDABLES + TEAM_ALIENS;
+    }
+    else if( !Q_stricmp( q, "human" ) )
+    {
+      buildable_t b;
+      for( b = BA_H_SPAWN; b <= BA_H_REPEATER && i < buildablesSize - 1; ++b )
+        buildables[ i++ ] = b;
+
+      if( i < buildablesSize - 1 )
+        buildables[ i++ ] = BA_NUM_BUILDABLES + TEAM_HUMANS;
+    }
+    else if( !Q_stricmp( q, "ivo_spectator" ) )
+      buildables[ i++ ] = BA_NUM_BUILDABLES + TEAM_NONE;
+    else if( !Q_stricmp( q, "ivo_alien" ) )
+      buildables[ i++ ] = BA_NUM_BUILDABLES + TEAM_ALIENS;
+    else if( !Q_stricmp( q, "ivo_human" ) )
+      buildables[ i++ ] = BA_NUM_BUILDABLES + TEAM_HUMANS;
+    else
+    {
+      buildables[ i ] = BG_BuildableByName( q )->number;
+      if( buildables[ i ] == BA_NONE )
+        Com_Printf( S_COLOR_YELLOW "WARNING: unknown buildable or special identifier %s\n", q );
+      else
+        i++;
+    }
+
+    if( !EOS )
+    {
+      p++;
+      q = p;
+    }
+    else
+      break;
+  }
+
+  buildables[ i ] = BA_NONE;
+}
+
 /*
 ============
 G_LayoutSave
 ============
 */
-void G_LayoutSave( char *name )
+void G_LayoutSave( char *lstr )
 {
+  char *lstrPipePtr;
+  qboolean bAllowed[ BA_NUM_BUILDABLES + NUM_TEAMS ];
   char map[ MAX_QPATH ];
   char fileName[ MAX_OSPATH ];
   fileHandle_t f;
   int len;
   int i;
   gentity_t *ent;
-  char *s;
+  const char *s;
 
   trap_Cvar_VariableStringBuffer( "mapname", map, sizeof( map ) );
   if( !map[ 0 ] )
@@ -3915,7 +4050,22 @@ void G_LayoutSave( char *name )
     G_Printf( "LayoutSave( ): no map is loaded\n" );
     return;
   }
-  Com_sprintf( fileName, sizeof( fileName ), "layouts/%s/%s.dat", map, name );
+
+  if( ( lstrPipePtr = strchr( lstr, '|' ) ) )
+  {
+    int bList[ BA_NUM_BUILDABLES + NUM_TEAMS ];
+    *lstrPipePtr = '\0';
+    G_ParseCSVBuildablePlusList( lstr, &bList[ 0 ], sizeof( bList ) / sizeof( bList[ 0 ] ) );
+    memset( bAllowed, 0, sizeof( bAllowed ) );
+    for( i = 0; bList[ i ] != BA_NONE; i++ )
+      bAllowed[ bList[ i ] ] = qtrue;
+    *lstrPipePtr = '|';
+    lstr = lstrPipePtr + 1;
+  }
+  else
+    bAllowed[ BA_NONE ] = qtrue; // allow all
+
+  Com_sprintf( fileName, sizeof( fileName ), "layouts/%s/%s.dat", map, lstr );
 
   len = trap_FS_FOpenFile( fileName, &f, FS_WRITE );
   if( len < 0 )
@@ -3928,18 +4078,44 @@ void G_LayoutSave( char *name )
 
   for( i = MAX_CLIENTS; i < level.num_entities; i++ )
   {
+    const char *name;
+
     ent = &level.gentities[ i ];
-    if( ent->s.eType != ET_BUILDABLE )
+    if( ent->s.eType == ET_BUILDABLE )
+    {
+      if( !bAllowed[ BA_NONE ] && !bAllowed[ ent->s.modelindex ] )
+        continue;
+      name = BG_Buildable( ent->s.modelindex )->name;
+    }
+    else if( ent->count == 1 && !strcmp( ent->classname, "info_player_intermission" ) )
+    {
+      if( !bAllowed[ BA_NONE ] && !bAllowed[ BA_NUM_BUILDABLES + TEAM_NONE ] )
+        continue;
+      name = "ivo_spectator";
+    }
+    else if( ent->count == 1 && !strcmp( ent->classname, "info_alien_intermission" ) )
+    {
+      if( !bAllowed[ BA_NONE ] && !bAllowed[ BA_NUM_BUILDABLES + TEAM_ALIENS ] )
+        continue;
+      name = "ivo_alien";
+    }
+    else if( ent->count == 1 && !strcmp( ent->classname, "info_human_intermission" ) )
+    {
+      if( !bAllowed[ BA_NONE ] && !bAllowed[ BA_NUM_BUILDABLES + TEAM_HUMANS ] )
+        continue;
+      name = "ivo_human";
+    }
+    else
       continue;
 
     s = va( "%s %f %f %f %f %f %f %f %f %f %f %f %f\n",
-      BG_Buildable( ent->s.modelindex )->name,
-      ent->s.pos.trBase[ 0 ],
-      ent->s.pos.trBase[ 1 ],
-      ent->s.pos.trBase[ 2 ],
-      ent->s.angles[ 0 ],
-      ent->s.angles[ 1 ],
-      ent->s.angles[ 2 ],
+      name,
+      ent->r.currentOrigin[ 0 ],
+      ent->r.currentOrigin[ 1 ],
+      ent->r.currentOrigin[ 2 ],
+      ent->r.currentAngles[ 0 ],
+      ent->r.currentAngles[ 1 ],
+      ent->r.currentAngles[ 2 ],
       ent->s.origin2[ 0 ],
       ent->s.origin2[ 1 ],
       ent->s.origin2[ 2 ],
@@ -4002,25 +4178,29 @@ int G_LayoutList( const char *map, char *list, int len )
 ============
 G_LayoutSelect
 
-set level.layout based on g_layouts or g_layoutAuto
+set level.layout based on g_nextLayout, g_layouts or g_layoutAuto
 ============
 */
 void G_LayoutSelect( void )
 {
-  char fileName[ MAX_OSPATH ];
-  char layouts[ MAX_CVAR_VALUE_STRING ];
-  char layouts2[ MAX_CVAR_VALUE_STRING ];
+  char layouts[ ( MAX_CVAR_VALUE_STRING - 1 ) * 9 + 1 ];
+  char layouts2[ ( MAX_CVAR_VALUE_STRING - 1 ) * 9 + 1 ];
   char *l;
   char map[ MAX_QPATH ];
   char *s;
   int cnt = 0;
   int layoutNum;
 
-  Q_strncpyz( layouts, g_layouts.string, sizeof( layouts ) );
+  Q_strncpyz( layouts, g_nextLayout.string, sizeof( layouts ) );
+  if( !layouts[ 0 ] )
+  {
+    for( layoutNum = 0; layoutNum < 9; ++layoutNum )
+      Q_strcat( layouts, sizeof( layouts ), g_layouts[ layoutNum ].string );
+  }
   trap_Cvar_VariableStringBuffer( "mapname", map, sizeof( map ) );
 
   // one time use cvar
-  trap_Cvar_Set( "g_layouts", "" );
+  trap_Cvar_Set( "g_nextLayout", "" );
 
   // pick an included layout at random if no list has been provided
   if( !layouts[ 0 ] && g_layoutAuto.integer )
@@ -4040,16 +4220,7 @@ void G_LayoutSelect( void )
     if( !*s )
       break;
 
-    if( !Q_stricmp( s, "*BUILTIN*" ) )
-    {
-      Q_strcat( layouts, sizeof( layouts ), s );
-      Q_strcat( layouts, sizeof( layouts ), " " );
-      cnt++;
-      continue;
-    }
-
-    Com_sprintf( fileName, sizeof( fileName ), "layouts/%s/%s.dat", map, s );
-    if( trap_FS_FOpenFile( fileName, NULL, FS_READ ) > 0 )
+    if( strchr( s, '+' ) || strchr( s, '|' ) || G_LayoutExists( map, s ) )
     {
       Q_strcat( layouts, sizeof( layouts ), s );
       Q_strcat( layouts, sizeof( layouts ), " " );
@@ -4094,24 +4265,37 @@ static void G_LayoutBuildItem( buildable_t buildable, vec3_t origin,
   gentity_t *builder;
 
   builder = G_Spawn( );
-  builder->client = 0;
-  VectorCopy( origin, builder->s.pos.trBase );
-  VectorCopy( angles, builder->s.angles );
+  builder->classname = "builder";
+  VectorCopy( origin, builder->r.currentOrigin );
+  VectorCopy( angles, builder->r.currentAngles );
   VectorCopy( origin2, builder->s.origin2 );
   VectorCopy( angles2, builder->s.angles2 );
   G_SpawnBuildable( builder, buildable );
 }
 
+static void G_SpawnIntermissionViewOverride( char *cn, vec3_t origin, vec3_t angles )
+{
+  gentity_t *spot = G_Find( NULL, FOFS( classname ), cn );
+  if( !spot )
+  {
+    spot = G_Spawn();
+    spot->classname = cn;
+  }
+  spot->count = 1;
+
+  VectorCopy( origin, spot->r.currentOrigin );
+  VectorCopy( angles, spot->r.currentAngles );
+}
+
 /*
 ============
 G_LayoutLoad
-
-load the layout .dat file indicated by level.layout and spawn buildables
-as if a builder was creating them
 ============
 */
-void G_LayoutLoad( void )
+void G_LayoutLoad( char *lstr )
 {
+  char *lstrPlusPtr, *lstrPipePtr;
+  qboolean bAllowed[ BA_NUM_BUILDABLES + NUM_TEAMS ];
   fileHandle_t f;
   int len;
   char *layout, *layoutHead;
@@ -4123,29 +4307,49 @@ void G_LayoutLoad( void )
   vec3_t origin2 = { 0.0f, 0.0f, 0.0f };
   vec3_t angles2 = { 0.0f, 0.0f, 0.0f };
   char line[ MAX_STRING_CHARS ];
-  int i = 0;
+  int i;
 
-  if( !level.layout[ 0 ] || !Q_stricmp( level.layout, "*BUILTIN*" ) )
+  if( !lstr[ 0 ] || !Q_stricmp( lstr, "*BUILTIN*" ) )
     return;
 
+  loadAnotherLayout:
+  lstrPlusPtr = strchr( lstr, '+' );
+  if( lstrPlusPtr )
+    *lstrPlusPtr = '\0';
+
+  if( ( lstrPipePtr = strchr( lstr, '|' ) ) )
+  {
+    int bList[ BA_NUM_BUILDABLES + NUM_TEAMS ];
+    *lstrPipePtr = '\0';
+    G_ParseCSVBuildablePlusList( lstr, &bList[ 0 ], sizeof( bList ) / sizeof( bList[ 0 ] ) );
+    memset( bAllowed, 0, sizeof( bAllowed ) );
+    for( i = 0; bList[ i ] != BA_NONE; i++ )
+      bAllowed[ bList[ i ] ] = qtrue;
+    *lstrPipePtr = '|';
+    lstr = lstrPipePtr + 1;
+  }
+  else
+    bAllowed[ BA_NONE ] = qtrue; // allow all
+
   trap_Cvar_VariableStringBuffer( "mapname", map, sizeof( map ) );
-  len = trap_FS_FOpenFile( va( "layouts/%s/%s.dat", map, level.layout ),
+  len = trap_FS_FOpenFile( va( "layouts/%s/%s.dat", map, lstr ),
     &f, FS_READ );
   if( len < 0 )
   {
-    G_Printf( "ERROR: layout %s could not be opened\n", level.layout );
+    G_Printf( "ERROR: layout %s could not be opened\n", lstr );
     return;
   }
   layoutHead = layout = BG_Alloc( len + 1 );
   trap_FS_Read( layout, len, f );
   layout[ len ] = '\0';
   trap_FS_FCloseFile( f );
+  i = 0;
   while( *layout )
   {
     if( i >= sizeof( line ) - 1 )
     {
       G_Printf( S_COLOR_RED "ERROR: line overflow in %s before \"%s\"\n",
-       va( "layouts/%s/%s.dat", map, level.layout ), line );
+       va( "layouts/%s/%s.dat", map, lstr ), line );
       break;
     }
     line[ i++ ] = *layout;
@@ -4161,15 +4365,40 @@ void G_LayoutLoad( void )
         &angles2[ 0 ], &angles2[ 1 ], &angles2[ 2 ] );
 
       buildable = BG_BuildableByName( buildName )->number;
-      if( buildable <= BA_NONE || buildable >= BA_NUM_BUILDABLES )
+      if( !Q_stricmp( buildName, "ivo_spectator" ) )
+      {
+        if( bAllowed[ BA_NONE ] || bAllowed[ BA_NUM_BUILDABLES + TEAM_NONE ] )
+          G_SpawnIntermissionViewOverride( "info_player_intermission", origin, angles );
+      }
+      else if( !Q_stricmp( buildName, "ivo_alien" ) )
+      {
+        if( bAllowed[ BA_NONE ] || bAllowed[ BA_NUM_BUILDABLES + TEAM_ALIENS ] )
+          G_SpawnIntermissionViewOverride( "info_alien_intermission", origin, angles );
+      }
+      else if( !Q_stricmp( buildName, "ivo_human" ) )
+      {
+        if( bAllowed[ BA_NONE ] || bAllowed[ BA_NUM_BUILDABLES + TEAM_HUMANS ] )
+          G_SpawnIntermissionViewOverride( "info_human_intermission", origin, angles );
+      }
+      else if( buildable <= BA_NONE || buildable >= BA_NUM_BUILDABLES )
         G_Printf( S_COLOR_YELLOW "WARNING: bad buildable name (%s) in layout."
           " skipping\n", buildName );
       else
-        G_LayoutBuildItem( buildable, origin, angles, origin2, angles2 );
+      {
+        if( bAllowed[ BA_NONE ] || bAllowed[ buildable ] )
+          G_LayoutBuildItem( buildable, origin, angles, origin2, angles2 );
+      }
     }
     layout++;
   }
   BG_Free( layoutHead );
+
+  if( lstrPlusPtr )
+  {
+    *lstrPlusPtr = '+';
+    lstr = lstrPlusPtr + 1;
+    goto loadAnotherLayout;
+  }
 }
 
 /*
@@ -4218,8 +4447,8 @@ void G_BuildLogSet( buildLog_t *log, gentity_t *ent )
   log->deconstruct = ent->deconstruct;
   log->deconstructTime = ent->deconstructTime;
   log->builtBy = ent->builtBy;
-  VectorCopy( ent->s.pos.trBase, log->origin );
-  VectorCopy( ent->s.angles, log->angles );
+  VectorCopy( ent->r.currentOrigin, log->origin );
+  VectorCopy( ent->r.currentAngles, log->angles );
   VectorCopy( ent->s.origin2, log->origin2 );
   VectorCopy( ent->s.angles2, log->angles2 );
   log->powerSource = ent->parentNode ? ent->parentNode->s.modelindex : BA_NONE;
@@ -4273,15 +4502,13 @@ void G_BuildLogRevertThink( gentity_t *ent )
   }
 
   built = G_FinishSpawningBuildable( ent, qtrue );
-  if( ( built->deconstruct = ent->deconstruct ) )
-    built->deconstructTime = ent->deconstructTime;
   built->buildTime = built->s.time = 0;
   G_KillBox( built );
 
   G_LogPrintf( "revert: restore %d %s\n",
     (int)( built - g_entities ), BG_Buildable( built->s.modelindex )->name );
 
-  G_FreeEntity( ent );
+  G_BuildableThink( built, 0 );
 }
 
 void G_BuildLogRevert( int id )
@@ -4314,6 +4541,7 @@ void G_BuildLogRevert( int id )
             if( ent->s.eType == ET_BUILDABLE )
               G_LogPrintf( "revert: remove %d %s\n",
                 (int)( ent - g_entities ), BG_Buildable( ent->s.modelindex )->name );
+            G_RemoveRangeMarkerFrom( ent );
             G_FreeEntity( ent );
             break;
           }
@@ -4323,10 +4551,10 @@ void G_BuildLogRevert( int id )
     else
     {
       gentity_t  *builder = G_Spawn();
+      builder->classname = "builder";
 
-      builder->client = NULL;
-      VectorCopy( log->origin, builder->s.pos.trBase );
-      VectorCopy( log->angles, builder->s.angles );
+      VectorCopy( log->origin, builder->r.currentOrigin );
+      VectorCopy( log->angles, builder->r.currentAngles );
       VectorCopy( log->origin2, builder->s.origin2 );
       VectorCopy( log->angles2, builder->s.angles2 );
       builder->s.modelindex = log->modelindex;
@@ -4372,6 +4600,93 @@ void G_BuildLogRevert( int id )
         }
       }
     }
+  }
+}
+
+/*
+================
+G_UpdateBuildableRangeMarkers
+================
+*/
+void G_UpdateBuildableRangeMarkers( void )
+{
+  // is the entity 64-bit client-masking extension available?
+  qboolean maskingExtension = ( trap_Cvar_VariableIntegerValue( "sv_gppExtension" ) >= 1 );
+
+  gentity_t *e;
+  for( e = &g_entities[ MAX_CLIENTS ]; e < &g_entities[ level.num_entities ]; ++e )
+  {
+    buildable_t bType;
+    team_t bTeam;
+    int i;
+
+    if( e->s.eType != ET_BUILDABLE || !e->rangeMarker )
+      continue;
+
+    bType = e->s.modelindex;
+    bTeam = BG_Buildable( bType )->team;
+
+    e->rangeMarker->s.pos = e->s.pos;
+    if( bType == BA_A_HIVE || bType == BA_H_TESLAGEN )
+      VectorMA( e->s.pos.trBase, e->r.maxs[ 2 ], e->s.origin2, e->rangeMarker->s.pos.trBase );
+    else if( bType == BA_A_TRAPPER || bType == BA_H_MGTURRET )
+      vectoangles( e->s.origin2, e->rangeMarker->s.apos.trBase );
+
+    e->rangeMarker->r.singleClient = 0;
+    e->rangeMarker->r.hack.generic1 = 0;
+
+    // remove any previously added NOCLIENT flags from the hack below
+    e->rangeMarker->r.svFlags &= ~SVF_NOCLIENT;
+
+    for( i = 0; i < level.maxclients; ++i )
+    {
+      gclient_t *client;
+      team_t team;
+      qboolean weaponDisplays, wantsToSee;
+
+      client = &level.clients[ i ];
+      if( client->pers.connected != CON_CONNECTED )
+        continue;
+
+      if( i >= 32 && !maskingExtension )
+      {
+        // resort to not sending range markers at all
+        if( !trap_Cvar_VariableIntegerValue( "g_rangeMarkerWarningGiven" ) )
+        {
+          trap_SendServerCommand( -1, "print \"" S_COLOR_YELLOW "WARNING: There is no "
+            "support for entity 64-bit client-masking on this server. Please update "
+            "your server executable. Until then, range markers will not be displayed "
+            "while there are clients with client numbers above 31 in the game.\n\"" );
+          trap_Cvar_Set( "g_rangeMarkerWarningGiven", "1" );
+        }
+
+        for( e = &g_entities[ MAX_CLIENTS ]; e < &g_entities[ level.num_entities ]; ++e )
+        {
+          if( e->s.eType == ET_BUILDABLE && e->rangeMarker )
+            e->rangeMarker->r.svFlags |= SVF_NOCLIENT;
+        }
+
+        return;
+      }
+
+      team = client->pers.teamSelection;
+      if( team != TEAM_NONE )
+      {
+        weaponDisplays = ( BG_InventoryContainsWeapon( WP_HBUILD, client->ps.stats ) ||
+          client->ps.weapon == WP_ABUILD || client->ps.weapon == WP_ABUILD2 );
+      }
+      wantsToSee = !!( client->pers.buildableRangeMarkerMask & ( 1 << bType ) );
+
+      if( ( team == TEAM_NONE || ( team == bTeam && weaponDisplays ) ) && wantsToSee )
+      {
+        if( i >= 32 )
+          e->rangeMarker->r.hack.generic1 |= 1 << ( i - 32 );
+        else
+          e->rangeMarker->r.singleClient |= 1 << i;
+      }
+    }
+
+    trap_LinkEntity( e->rangeMarker );
   }
 }
 

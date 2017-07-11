@@ -42,9 +42,7 @@ This is the only way control passes into the module.
 This must be the very first function compiled into the .q3vm file
 ================
 */
-Q_EXPORT intptr_t vmMain( int command, int arg0, int arg1, int arg2, int arg3,
-                                       int arg4, int arg5, int arg6, int arg7,
-                                       int arg8, int arg9, int arg10, int arg11 )
+Q_EXPORT intptr_t vmMain( int command, int arg0, int arg1, int arg2 )
 {
   switch( command )
   {
@@ -85,8 +83,10 @@ Q_EXPORT intptr_t vmMain( int command, int arg0, int arg1, int arg2, int arg3,
       CG_EventHandling( arg0 );
       return 0;
 
+#ifndef MODULE_INTERFACE_11
     case CG_VOIP_STRING:
       return (intptr_t)CG_VoIPString( );
+#endif
 
     default:
       CG_Error( "vmMain: unknown command %i", command );
@@ -151,6 +151,7 @@ vmCvar_t  cg_thirdPersonRange;
 vmCvar_t  cg_stereoSeparation;
 vmCvar_t  cg_lagometer;
 vmCvar_t  cg_drawSpeed;
+vmCvar_t  cg_maxSpeedTimeWindow;
 vmCvar_t  cg_synchronousClients;
 vmCvar_t  cg_stats;
 vmCvar_t  cg_paused;
@@ -190,6 +191,16 @@ vmCvar_t  cg_disableCommandDialogs;
 vmCvar_t  cg_disableScannerPlane;
 vmCvar_t  cg_tutorial;
 
+vmCvar_t  cg_rangeMarkerDrawSurface;
+vmCvar_t  cg_rangeMarkerDrawIntersection;
+vmCvar_t  cg_rangeMarkerDrawFrontline;
+vmCvar_t  cg_rangeMarkerSurfaceOpacity;
+vmCvar_t  cg_rangeMarkerLineOpacity;
+vmCvar_t  cg_rangeMarkerLineThickness;
+vmCvar_t  cg_rangeMarkerForBlueprint;
+vmCvar_t  cg_rangeMarkerBuildableTypes;
+vmCvar_t  cg_binaryShaderScreenScale;
+
 vmCvar_t  cg_painBlendUpRate;
 vmCvar_t  cg_painBlendDownRate;
 vmCvar_t  cg_painBlendMax;
@@ -221,6 +232,13 @@ vmCvar_t  cg_emoticons;
 
 vmCvar_t  cg_chatTeamPrefix;
 
+vmCvar_t  cg_killMsg;
+vmCvar_t  cg_killMsgTime;
+vmCvar_t  cg_killMsgHeight;
+
+vmCvar_t  thz_radar;
+vmCvar_t  thz_radarrange;
+
 typedef struct
 {
   vmCvar_t  *vmCvar;
@@ -248,6 +266,7 @@ static cvarTable_t cvarTable[ ] =
   { &cg_addMarks, "cg_marks", "1", CVAR_ARCHIVE },
   { &cg_lagometer, "cg_lagometer", "0", CVAR_ARCHIVE },
   { &cg_drawSpeed, "cg_drawSpeed", "0", CVAR_ARCHIVE },
+  { &cg_maxSpeedTimeWindow, "cg_maxSpeedTimeWindow", "2000", CVAR_ARCHIVE },
   { &cg_teslaTrailTime, "cg_teslaTrailTime", "250", CVAR_ARCHIVE  },
   { &cg_gun_x, "cg_gunX", "0", CVAR_CHEAT },
   { &cg_gun_y, "cg_gunY", "0", CVAR_CHEAT },
@@ -305,8 +324,20 @@ static cvarTable_t cvarTable[ ] =
   { &cg_disableUpgradeDialogs, "cg_disableUpgradeDialogs", "0", CVAR_ARCHIVE },
   { &cg_disableBuildDialogs, "cg_disableBuildDialogs", "0", CVAR_ARCHIVE },
   { &cg_disableCommandDialogs, "cg_disableCommandDialogs", "0", CVAR_ARCHIVE },
-  { &cg_disableScannerPlane, "cg_disableScannerPlane", "0", CVAR_ARCHIVE },
+  { &cg_disableScannerPlane, "cg_disableScannerPlane", "1", CVAR_ARCHIVE },
   { &cg_tutorial, "cg_tutorial", "1", CVAR_ARCHIVE },
+
+  { &cg_rangeMarkerDrawSurface, "cg_rangeMarkerDrawSurface", "1", CVAR_ARCHIVE },
+  { &cg_rangeMarkerDrawIntersection, "cg_rangeMarkerDrawIntersection", "1", CVAR_ARCHIVE },
+  { &cg_rangeMarkerDrawFrontline, "cg_rangeMarkerDrawFrontline", "1", CVAR_ARCHIVE },
+  { &cg_rangeMarkerSurfaceOpacity, "cg_rangeMarkerSurfaceOpacity", "0.08", CVAR_ARCHIVE },
+  { &cg_rangeMarkerLineOpacity, "cg_rangeMarkerLineOpacity", "0.4", CVAR_ARCHIVE },
+  { &cg_rangeMarkerLineThickness, "cg_rangeMarkerLineThickness", "4.0", CVAR_ARCHIVE },
+  { &cg_rangeMarkerForBlueprint, "cg_rangeMarkerForBlueprint", "1", CVAR_ARCHIVE },
+  { &cg_rangeMarkerBuildableTypes, "cg_rangeMarkerBuildableTypes", "support", CVAR_ARCHIVE },
+  { NULL, "cg_buildableRangeMarkerMask", "", CVAR_USERINFO },
+  { &cg_binaryShaderScreenScale, "cg_binaryShaderScreenScale", "1.0", CVAR_ARCHIVE },
+
   { &cg_hudFiles, "cg_hudFiles", "ui/hud.txt", CVAR_ARCHIVE},
   { NULL, "cg_alienConfig", "", CVAR_ARCHIVE },
   { NULL, "cg_humanConfig", "", CVAR_ARCHIVE },
@@ -354,7 +385,16 @@ static cvarTable_t cvarTable[ ] =
 
   { &cg_emoticons, "cg_emoticons", "1", CVAR_LATCH|CVAR_ARCHIVE},
 
-  { &cg_chatTeamPrefix, "cg_chatTeamPrefix", "1", CVAR_ARCHIVE}
+  { &cg_chatTeamPrefix, "cg_chatTeamPrefix", "1", CVAR_ARCHIVE},
+
+  { &cg_killMsg, "cg_killMsg", "1", CVAR_ARCHIVE },
+  { &cg_killMsgTime, "cg_killMsgTime", "4000", CVAR_ARCHIVE },
+  { &cg_killMsgHeight, "cg_killMsgHeight", "7", CVAR_ARCHIVE },
+
+  // Old school thz stuff
+  { &thz_radar, "thz_radar", "0", CVAR_CHEAT},
+  { &thz_radarrange, "thz_radarrange", "600", CVAR_ARCHIVE},
+
 };
 
 static size_t cvarTableSize = ARRAY_LEN( cvarTable );
@@ -418,6 +458,60 @@ static void CG_SetUIVars( void )
 
 /*
 =================
+CG_SetPVars
+=================
+*/
+static void CG_SetPVars( void )
+{
+    playerState_t *ps;
+
+    if( !cg.snap ) return;
+    ps = &cg.snap->ps;
+
+    trap_Cvar_Set( "player_hp", va( "%d", ps->stats[ STAT_HEALTH ] ));
+    trap_Cvar_Set( "player_maxhp",va( "%d", ps->stats[ STAT_MAX_HEALTH ] ));
+
+    switch( ps->stats[ STAT_TEAM ] )
+    {
+    case TEAM_NONE:
+    trap_Cvar_Set( "team_bp", "0" );
+    trap_Cvar_Set( "team_kns", "0" );
+    trap_Cvar_Set( "team_teamname", "spectator" );
+    trap_Cvar_Set( "team_stage", "0" );
+    break;
+
+    case TEAM_ALIENS:
+    //trap_Cvar_Set( "team_bp", va( "%d", cgs.alienBuildPoints ));
+    trap_Cvar_Set( "team_kns", va("%d", cgs.alienNextStageThreshold) );
+    trap_Cvar_Set( "team_teamname", "aliens" );
+    trap_Cvar_Set( "team_stage", va( "%d", cgs.alienStage+1 ) );
+    break;
+
+    case TEAM_HUMANS:
+    //trap_Cvar_Set( "team_bp", va("%d",cgs.humanBuildPoints) );
+    trap_Cvar_Set( "team_kns", va("%d",cgs.humanNextStageThreshold) );
+    trap_Cvar_Set( "team_teamname", "humans" );
+    trap_Cvar_Set( "team_stage", va( "%d", cgs.humanStage+1 ) );
+    break;
+    }
+    
+    trap_Cvar_Set( "player_credits", va( "%d", cg.snap->ps.persistant[ PERS_CREDIT ] ) );
+    trap_Cvar_Set( "player_score", va( "%d", cg.snap->ps.persistant[ PERS_SCORE ] ) );
+
+    if ( CG_LastAttacker( ) != -1 )
+        trap_Cvar_Set( "player_attackername", cgs.clientinfo[ CG_LastAttacker( ) ].name );
+    else
+        trap_Cvar_Set( "player_attackername", "" );
+
+    if ( CG_CrosshairPlayer( ) != -1 )
+        trap_Cvar_Set( "player_crosshairname", cgs.clientinfo[ CG_CrosshairPlayer( ) ].name );
+    else
+        trap_Cvar_Set( "player_crosshairname", "" );
+
+}
+
+/*
+=================
 CG_UpdateCvars
 =================
 */
@@ -426,6 +520,8 @@ void CG_UpdateCvars( void )
   int         i;
   cvarTable_t *cv;
 
+  CG_SetPVars( );
+
   for( i = 0, cv = cvarTable; i < cvarTableSize; i++, cv++ )
     if( cv->vmCvar )
       trap_Cvar_Update( cv->vmCvar );
@@ -433,7 +529,7 @@ void CG_UpdateCvars( void )
   // check for modications here
 
   CG_SetUIVars( );
-
+  CG_UpdateBuildableRangeMarkerMask();
 }
 
 
@@ -475,10 +571,9 @@ void CG_RemoveNotifyLine( void )
     cg.consoleText[ i ] = cg.consoleText[ i + offset ];
 
   //pop up the first consoleLine
+  cg.numConsoleLines--;
   for( i = 0; i < cg.numConsoleLines; i++ )
     cg.consoleLines[ i ] = cg.consoleLines[ i + 1 ];
-
-  cg.numConsoleLines--;
 }
 
 /*
@@ -502,18 +597,22 @@ void CG_AddNotifyText( void )
 
   bufferLen = strlen( buffer );
   textLen = strlen( cg.consoleText );
-  
+
   // Ignore console messages that were just printed
   if( cg_noPrintDuplicate.integer && textLen >= bufferLen &&
       !strcmp( cg.consoleText + textLen - bufferLen, buffer ) )
     return;
-      
-  if( cg.numConsoleLines == MAX_CONSOLE_LINES )
-    CG_RemoveNotifyLine( );
 
-  Q_strcat( cg.consoleText, MAX_CONSOLE_TEXT, buffer );
+  if( cg.numConsoleLines == MAX_CONSOLE_LINES )
+  {
+    CG_RemoveNotifyLine( );
+    textLen = strlen( cg.consoleText );
+  }
+
+  Q_strncpyz( cg.consoleText + textLen, buffer, MAX_CONSOLE_TEXT - textLen );
   cg.consoleLines[ cg.numConsoleLines ].time = cg.time;
-  cg.consoleLines[ cg.numConsoleLines ].length = bufferLen;
+  cg.consoleLines[ cg.numConsoleLines ].length =
+    MIN( bufferLen, MAX_CONSOLE_TEXT - textLen - 1 );
   cg.numConsoleLines++;
 }
 
@@ -590,7 +689,7 @@ CG_FileExists
 Test if a specific file exists or not
 =================
 */
-qboolean CG_FileExists( char *filename )
+qboolean CG_FileExists( const char *filename )
 {
   return trap_FS_FOpenFile( filename, NULL, FS_READ );
 }
@@ -808,6 +907,23 @@ static void CG_RegisterGraphics( void )
 
   cgs.media.alienBleedPS              = CG_RegisterParticleSystem( "alienBleedPS" );
   cgs.media.humanBleedPS              = CG_RegisterParticleSystem( "humanBleedPS" );
+
+  cgs.media.sphereModel               = trap_R_RegisterModel( "models/generic/sphere" );
+  cgs.media.sphericalCone64Model      = trap_R_RegisterModel( "models/generic/sphericalCone64" );
+  cgs.media.sphericalCone240Model     = trap_R_RegisterModel( "models/generic/sphericalCone240" );
+
+  cgs.media.plainColorShader          = trap_R_RegisterShader( "gfx/plainColor" );
+  cgs.media.binaryAlpha1Shader        = trap_R_RegisterShader( "gfx/binary/alpha1" );
+
+  for( i = 0; i < NUM_BINARY_SHADERS; ++i )
+  {
+    cgs.media.binaryShaders[ i ].f1 = trap_R_RegisterShader( va( "gfx/binary/%03i_F1", i ) );
+    cgs.media.binaryShaders[ i ].f2 = trap_R_RegisterShader( va( "gfx/binary/%03i_F2", i ) );
+    cgs.media.binaryShaders[ i ].f3 = trap_R_RegisterShader( va( "gfx/binary/%03i_F3", i ) );
+    cgs.media.binaryShaders[ i ].b1 = trap_R_RegisterShader( va( "gfx/binary/%03i_B1", i ) );
+    cgs.media.binaryShaders[ i ].b2 = trap_R_RegisterShader( va( "gfx/binary/%03i_B2", i ) );
+    cgs.media.binaryShaders[ i ].b3 = trap_R_RegisterShader( va( "gfx/binary/%03i_B3", i ) );
+  }
 
   CG_BuildableStatusParse( "ui/assets/human/buildstat.cfg", &cgs.humanBuildStat );
   CG_BuildableStatusParse( "ui/assets/alien/buildstat.cfg", &cgs.alienBuildStat );
@@ -1295,11 +1411,11 @@ void CG_LoadMenus( const char *menuFile )
 
   if( !f )
   {
-    trap_Error( va( S_COLOR_YELLOW "menu file not found: %s, using default\n", menuFile ) );
+    trap_Error( va( S_COLOR_YELLOW "menu file not found: %s, using default", menuFile ) );
     len = trap_FS_FOpenFile( "ui/hud.txt", &f, FS_READ );
 
     if( !f )
-      trap_Error( va( S_COLOR_RED "default menu file not found: ui/hud.txt, unable to continue!\n" ) );
+      trap_Error( va( S_COLOR_RED "default menu file not found: ui/hud.txt, unable to continue!" ) );
   }
 
   if( len >= MAX_MENUDEFFILE )
@@ -1909,3 +2025,25 @@ static char *CG_VoIPString( void )
   return voipString;
 }
 
+#ifdef MODULE_INTERFACE_11
+int trap_S_SoundDuration( sfxHandle_t handle )
+{
+  return 1;
+}
+
+void trap_R_SetClipRegion( const float *region )
+{
+}
+
+static qboolean keyOverstrikeMode = qfalse;
+
+void trap_Key_SetOverstrikeMode( qboolean state )
+{
+  keyOverstrikeMode = state;
+}
+
+qboolean trap_Key_GetOverstrikeMode( void )
+{
+  return keyOverstrikeMode;
+}
+#endif

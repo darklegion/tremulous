@@ -480,8 +480,12 @@ static qboolean CG_RegisterClientModelname( clientInfo_t *ci, const char *modelN
   // if any skins failed to load, return failure
   if( !CG_RegisterClientSkin( ci, modelName, skinName ) )
   {
-    Com_Printf( "Failed to load skin file: %s : %s\n", modelName, skinName );
-    return qfalse;
+    Com_Printf( "Failed to load skin file: %s : %s. Loading default\n", modelName, skinName );
+    if( !CG_RegisterClientSkin( ci, modelName, "default" ) )
+    {
+        Com_Printf( S_COLOR_RED "Failed to load default skin file!\n" );
+        return qfalse;
+    }
   }
 
   return qtrue;
@@ -619,7 +623,7 @@ static int CG_GetCorpseNum( class_t class )
     if( !Q_stricmp( modelName, match->modelName ) &&
         !Q_stricmp( skinName, match->skinName ) )
     {
-      // this clientinfo is identical, so use it's handles
+      // this clientinfo is identical, so use its handles
       return i;
     }
   }
@@ -746,13 +750,6 @@ void CG_NewClientInfo( int clientNum )
   // the old value
   memset( &newInfo, 0, sizeof( newInfo ) );
  
-  // grab our own ignoreList 
-  if( clientNum == cg.predictedPlayerState.clientNum )
-  {
-    v = Info_ValueForKey( configstring, "ig" );
-    Com_ClientListParse( &cgs.ignoreList, v );
-  }
-
   // isolate the player's name
   v = Info_ValueForKey( configstring, "n" );
   Q_strncpyz( newInfo.name, v, sizeof( newInfo.name ) );
@@ -2160,7 +2157,7 @@ void CG_Corpse( centity_t *cent )
   int           renderfx;
   qboolean      shadow = qfalse;
   float         shadowPlane;
-  vec3_t        origin, liveZ, deadZ;
+  vec3_t        origin, aliveZ, deadZ;
   float         scale;
 
   corpseNum = CG_GetCorpseNum( es->clientNum );
@@ -2180,10 +2177,8 @@ void CG_Corpse( centity_t *cent )
   memset( &head, 0, sizeof( head ) );
 
   VectorCopy( cent->lerpOrigin, origin );
-  BG_ClassBoundingBox( es->clientNum, liveZ, NULL, NULL, deadZ, NULL );
-  origin[ 2 ] -= ( liveZ[ 2 ] - deadZ[ 2 ] );
-
-  VectorCopy( es->angles, cent->lerpAngles );
+  BG_ClassBoundingBox( es->clientNum, aliveZ, NULL, NULL, deadZ, NULL );
+  origin[ 2 ] -= ( aliveZ[ 2 ] - deadZ[ 2 ] );
 
   // get the rotation information
   if( !ci->nonsegmented )
@@ -2388,7 +2383,7 @@ centity_t *CG_GetPlayerLocation( void )
   vec3_t      origin;
 
   best = NULL;
-  bestlen = 3.0f * 8192.0f * 8192.0f;
+  bestlen = 0.0f;
 
   VectorCopy( cg.predictedPlayerState.origin, origin );
 
@@ -2400,7 +2395,7 @@ centity_t *CG_GetPlayerLocation( void )
 
     len = DistanceSquared(origin, eloc->lerpOrigin);
 
-    if( len > bestlen )
+    if( best != NULL && len > bestlen )
       continue;
 
     if( !trap_R_inPVS( origin, eloc->lerpOrigin ) )

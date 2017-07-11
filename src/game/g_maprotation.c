@@ -118,9 +118,21 @@ G_MapExists
 Check if a map exists
 ===============
 */
-qboolean G_MapExists( char *name )
+qboolean G_MapExists( const char *name )
 {
-  return trap_FS_FOpenFile( va( "maps/%s.bsp", name ), NULL, FS_READ );
+  return trap_FS_FOpenFile( va( "maps/%s.bsp", name ), NULL, FS_READ ) > 0;
+}
+
+/*
+===============
+G_LayoutExists
+
+Check if a layout exists for a map
+===============
+*/
+qboolean G_LayoutExists( const char *map, const char *layout )
+{
+  return !Q_stricmp( layout, "*BUILTIN*" ) || trap_FS_FOpenFile( va( "layouts/%s/%s.dat", map, layout ), NULL, FS_READ ) > 0;
 }
 
 /*
@@ -863,16 +875,15 @@ static void G_IssueMapChange( int index, int rotation )
   node_t *node = mapRotations.rotations[ rotation ].nodes[ index ];
   map_t  *map = &node->u.map;
 
-  // allow a manually defined g_layouts setting to override the maprotation
-  if( !g_layouts.string[ 0 ] && map->layouts[ 0 ] )
+  // allow a manually defined g_nextLayout setting to override the maprotation
+  if( !g_nextLayout.string[ 0 ] && map->layouts[ 0 ] )
   {
-    trap_Cvar_Set( "g_layouts", map->layouts );
+    trap_Cvar_Set( "g_nextLayout", map->layouts );
   }
 
-  trap_SendConsoleCommand( EXEC_APPEND, va( "map %s\n", map->name ) );
-
-  // Load up map defaults if g_mapConfigs is set
   G_MapConfigs( map->name );
+
+  trap_SendConsoleCommand( EXEC_APPEND, va( "map \"%s\"\n", map->name ) );
 
   if( strlen( map->postCommand ) > 0 )
     trap_SendConsoleCommand( EXEC_APPEND, map->postCommand );

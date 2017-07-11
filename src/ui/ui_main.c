@@ -33,19 +33,24 @@ USER INTERFACE MAIN
 
 uiInfo_t uiInfo;
 
-static const char *MonthAbbrev[ ] =
-{
-  "Jan", "Feb", "Mar",
-  "Apr", "May", "Jun",
-  "Jul", "Aug", "Sep",
-  "Oct", "Nov", "Dec"
-};
+#ifdef MODULE_INTERFACE_11
+#undef AS_GLOBAL
+#undef AS_LOCAL
+#define AS_GLOBAL                      2
+#define AS_LOCAL                       0
+#endif
 
 static const char *netSources[ ] =
 {
+#ifdef MODULE_INTERFACE_11
+  "LAN",
+  "Mplayer",
+  "Internet",
+#else
   "Internet",
   "Mplayer",
   "LAN",
+#endif
   "Favorites"
 };
 
@@ -146,9 +151,8 @@ void UI_SetMousePosition( int x, int y );
 void UI_Refresh( int realtime );
 qboolean UI_IsFullscreen( void );
 void UI_SetActiveMenu( uiMenuCommand_t menu );
-Q_EXPORT intptr_t vmMain( int command, int arg0, int arg1, int arg2, int arg3,
-                          int arg4, int arg5, int arg6, int arg7,
-                          int arg8, int arg9, int arg10, int arg11  )
+
+Q_EXPORT intptr_t vmMain( int command, int arg0, int arg1, int arg2 )
 {
   switch( command )
   {
@@ -171,12 +175,14 @@ Q_EXPORT intptr_t vmMain( int command, int arg0, int arg1, int arg2, int arg3,
       UI_MouseEvent( arg0, arg1 );
       return 0;
 
+#ifndef MODULE_INTERFACE_11
     case UI_MOUSE_POSITION:
       return UI_MousePosition( );
 
     case UI_SET_MOUSE_POSITION:
       UI_SetMousePosition( arg0, arg1 );
       return 0;
+#endif
 
     case UI_REFRESH:
       UI_Refresh( arg0 );
@@ -1087,8 +1093,9 @@ static void UI_StartServerRefresh( qboolean full )
   trap_Cvar_Set( va( "ui_lastServerRefresh_%i_time", ui_netSource.integer ),
                  va( "%i", time ) );
   trap_Cvar_Set( va( "ui_lastServerRefresh_%i", ui_netSource.integer ),
-                 va( "%s-%i, %i at %i:%02i", MonthAbbrev[q.tm_mon],
-                     q.tm_mday, 1900 + q.tm_year, q.tm_hour, q.tm_min ) );
+                 va( "%04i-%02i-%02i %02i:%02i:%02i",
+                     q.tm_year+1900, q.tm_mon+1, q.tm_mday,
+                     q.tm_hour, q.tm_min, q.tm_sec ) );
 
   if( !full )
   {
@@ -1120,7 +1127,11 @@ static void UI_StartServerRefresh( qboolean full )
   {
     qboolean global = ui_netSource.integer == AS_GLOBAL;
 
-    trap_Cmd_ExecuteText( EXEC_APPEND, va( "globalservers %d full empty\n",
+#ifdef MODULE_INTERFACE_11
+    trap_Cmd_ExecuteText( EXEC_APPEND, va( "globalservers %d 69 full empty\n",
+#else
+    trap_Cmd_ExecuteText( EXEC_APPEND, va( "globalservers %d 70 full empty\n",
+#endif
                           global ? 0 : 1 ) );
   }
 }
@@ -1169,6 +1180,8 @@ void UI_Refresh( int realtime )
     UI_BuildServerStatus( qfalse );
     UI_BuildFindPlayerList( qfalse );
     UI_UpdateNews( qfalse );
+    // FIXME: CHECK FOR "AUTOMATICALLLY CHECK FOR UPDATES == true"
+    //UI_UpdateGithubRelease( );
   }
 
   // draw cursor
@@ -1456,7 +1469,7 @@ void UI_LoadMenus( const char *menuFile, qboolean reset )
   handle = trap_Parse_LoadSource( menuFile );
 
   if( !handle )
-    trap_Error( va( S_COLOR_RED "menu list '%s' not found, unable to continue!\n", menuFile ) );
+    trap_Error( va( S_COLOR_RED "menu list '%s' not found, unable to continue!", menuFile ) );
 
   if( reset )
     Menu_Reset();
@@ -1618,6 +1631,7 @@ static void UI_DrawInfoPane( menuItem_t *item, rectDef_t *rect, float text_x, fl
   switch( item->type )
   {
     case INFOTYPE_TEXT:
+    case INFOTYPE_VOICECMD:
       s = item->v.text;
       break;
 
@@ -1953,6 +1967,11 @@ static void UI_OwnerDraw( float x, float y, float w, float h,
                        &rect, text_x, text_y, scale, textalign, textvalign, foreColor, textStyle );
       break;
 
+    case UI_VOICECMDINFOPANE:
+      UI_DrawInfoPane( &uiInfo.voiceCmdList[ uiInfo.voiceCmdIndex ],
+                       &rect, text_x, text_y, scale, textalign, textvalign, foreColor, textStyle );
+      break;
+
     case UI_ACLASSINFOPANE:
       UI_DrawInfoPane( &uiInfo.alienClassList[ uiInfo.alienClassIndex ],
                        &rect, text_x, text_y, scale, textalign, textvalign, foreColor, textStyle );
@@ -2130,10 +2149,10 @@ static qboolean UI_NetSource_HandleKey( int key )
         ui_netSource.integer++;
     }
 
-    if( ui_netSource.integer >= numNetSources )
-      ui_netSource.integer = 0;
-    else if( ui_netSource.integer < 0 )
+    if( ui_netSource.integer < 0 )
       ui_netSource.integer = numNetSources - 1;
+    else if( ui_netSource.integer >= numNetSources )
+      ui_netSource.integer = 0;
 
     UI_BuildServerDisplayList( qtrue );
 
@@ -2602,6 +2621,56 @@ static void UI_LoadHumanBuilds( void )
   }
 }
 
+
+/*
+===============
+UI_LoadVoiceCmds
+===============
+*/
+static void UI_LoadVoiceCmds( void )
+{
+  voice_t *v;
+  voiceCmd_t *c;
+
+  const char *cmd;
+  char mode[2];
+  char ui_voice[ MAX_VOICE_CMD_LEN ];
+
+  trap_Cvar_VariableStringBuffer("ui_voicemenu", mode, sizeof(mode));
+  trap_Cvar_VariableStringBuffer("voice", ui_voice, sizeof(ui_voice));
+
+  uiInfo.voiceCmdCount = 0;
+
+  switch (mode[0]) {
+      default:
+      case '1':
+          cmd = "vsay";
+          break;
+      case '2':
+          cmd = "vsay_team";
+          break;
+      case '3':
+          cmd = "vsay_local";
+          break;
+  };
+
+
+  v = BG_VoiceByName(uiInfo.voices, ui_voice);
+  if (!v)
+      return;
+
+  for( c = v->cmds; c; c = c->next )
+  {
+      uiInfo.voiceCmdList[ uiInfo.voiceCmdCount ].text = c->cmd;
+      uiInfo.voiceCmdList[ uiInfo.voiceCmdCount ].cmd = String_Alloc(va("cmd %s %s\n", cmd, c->cmd));
+      uiInfo.voiceCmdList[ uiInfo.voiceCmdCount ].type = INFOTYPE_VOICECMD;
+      uiInfo.voiceCmdList[ uiInfo.voiceCmdCount ].v.text = c->tracks[0].text;
+
+      uiInfo.voiceCmdCount++;
+  }
+}
+
+
 /*
 ===============
 UI_LoadMods
@@ -2623,10 +2692,8 @@ static void UI_LoadMods( void )
   for( i = 0; i < numdirs; i++ )
   {
     dirlen = strlen( dirptr ) + 1;
-    descptr = dirptr + dirlen;
     uiInfo.modList[uiInfo.modCount].modName = String_Alloc( dirptr );
-    uiInfo.modList[uiInfo.modCount].modDescr = String_Alloc( descptr );
-    dirptr += dirlen + strlen( descptr ) + 1;
+    dirptr += dirlen;
     uiInfo.modCount++;
 
     if( uiInfo.modCount >= MAX_MODS )
@@ -2862,7 +2929,7 @@ static void UI_RunMenuScript( char **args )
     if( Q_stricmp( name, "StartServer" ) == 0 )
     {
       trap_Cvar_SetValue( "dedicated", Com_Clamp( 0, 2, ui_dedicated.integer ) );
-      trap_Cmd_ExecuteText( EXEC_APPEND, va( "wait ; wait ; map %s\n",
+      trap_Cmd_ExecuteText( EXEC_APPEND, va( "wait ; wait ; map \"%s\"\n",
                             uiInfo.mapList[ui_selectedMap.integer].mapLoadName ) );
     }
     else if( Q_stricmp( name, "resetDefaults" ) == 0 )
@@ -2882,6 +2949,12 @@ static void UI_RunMenuScript( char **args )
       UI_ServerInfo();
     else if( Q_stricmp( name, "getNews" ) == 0 )
       UI_UpdateNews( qtrue );
+    else if( Q_stricmp( name, "checkForUpdate" ) == 0 )
+      UI_UpdateGithubRelease( );
+    else if( Q_stricmp( name, "downloadUpdate" ) == 0 )
+      trap_Cmd_ExecuteText(EXEC_APPEND, "downloadUpdate" );
+    else if( Q_stricmp( name, "installUpdate" ) == 0 )
+      trap_Cmd_ExecuteText(EXEC_APPEND, "installUpdate" );
     else if( Q_stricmp( name, "saveControls" ) == 0 )
       Controls_SetConfig( qtrue );
     else if( Q_stricmp( name, "loadControls" ) == 0 )
@@ -2974,11 +3047,6 @@ static void UI_RunMenuScript( char **args )
     else if( Q_stricmp( name, "LoadAlienUpgrades" ) == 0 )
     {
       UI_LoadAlienUpgrades( );
-
-      //disallow the menu if it would be empty
-
-      if( uiInfo.alienUpgradeCount <= 0 )
-        Menus_CloseAll( );
     }
     else if( Q_stricmp( name, "UpgradeToNewClass" ) == 0 )
     {
@@ -2997,6 +3065,15 @@ static void UI_RunMenuScript( char **args )
     else if( Q_stricmp( name, "BuildHumanBuildable" ) == 0 )
     {
       if( ( cmd = uiInfo.humanBuildList[ uiInfo.humanBuildIndex ].cmd ) )
+        trap_Cmd_ExecuteText( EXEC_APPEND, cmd );
+    }
+    else if ( Q_stricmp( name, "LoadVoiceCmds" ) == 0 )
+    {
+      UI_LoadVoiceCmds( );
+    }
+    else if ( Q_stricmp( name, "ExecuteVoiceCmd" ) == 0 )
+    {
+      if( ( cmd = uiInfo.voiceCmdList[ uiInfo.voiceCmdIndex ].cmd ) )
         trap_Cmd_ExecuteText( EXEC_APPEND, cmd );
     }
     else if( Q_stricmp( name, "Say" ) == 0 )
@@ -3036,19 +3113,19 @@ static void UI_RunMenuScript( char **args )
       if( uiInfo.previewMovie >= 0 )
         trap_CIN_StopCinematic( uiInfo.previewMovie );
 
-      trap_Cmd_ExecuteText( EXEC_APPEND, va( "cinematic %s.roq 2\n", uiInfo.movieList[uiInfo.movieIndex] ) );
+      trap_Cmd_ExecuteText( EXEC_APPEND, va( "cinematic \"%s.roq\" 2\n", uiInfo.movieList[uiInfo.movieIndex] ) );
     }
     else if( Q_stricmp( name, "RunMod" ) == 0 )
     {
       trap_Cvar_Set( "fs_game", uiInfo.modList[uiInfo.modIndex].modName );
-      trap_Cmd_ExecuteText( EXEC_APPEND, "vid_restart;" );
+      trap_Cmd_ExecuteText( EXEC_APPEND, "vid_restart\n" );
     }
     else if( Q_stricmp( name, "RunDemo" ) == 0 )
-      trap_Cmd_ExecuteText( EXEC_APPEND, va( "demo %s\n", uiInfo.demoList[uiInfo.demoIndex] ) );
+      trap_Cmd_ExecuteText( EXEC_APPEND, va( "demo \"%s\"\n", uiInfo.demoList[uiInfo.demoIndex] ) );
     else if( Q_stricmp( name, "Tremulous" ) == 0 )
     {
       trap_Cvar_Set( "fs_game", "" );
-      trap_Cmd_ExecuteText( EXEC_APPEND, "vid_restart;" );
+      trap_Cmd_ExecuteText( EXEC_APPEND, "vid_restart\n" );
     }
     else if( Q_stricmp( name, "closeJoin" ) == 0 )
     {
@@ -3124,7 +3201,7 @@ static void UI_RunMenuScript( char **args )
       }
     }
     else if( Q_stricmp( name, "Quit" ) == 0 )
-      trap_Cmd_ExecuteText( EXEC_APPEND, "quit" );
+      trap_Cmd_ExecuteText( EXEC_APPEND, "quit\n" );
     else if( Q_stricmp( name, "Leave" ) == 0 )
     {
       trap_Cmd_ExecuteText( EXEC_APPEND, "disconnect\n" );
@@ -3160,7 +3237,7 @@ static void UI_RunMenuScript( char **args )
     {
       if( ui_selectedMap.integer >= 0 && ui_selectedMap.integer < uiInfo.mapCount )
       {
-        trap_Cmd_ExecuteText( EXEC_APPEND, va( "callvote map %s\n",
+        trap_Cmd_ExecuteText( EXEC_APPEND, va( "callvote map \"%s\"\n",
                               uiInfo.mapList[ui_selectedMap.integer].mapLoadName ) );
       }
     }
@@ -3168,7 +3245,7 @@ static void UI_RunMenuScript( char **args )
     {
       if( ui_selectedMap.integer >= 0 && ui_selectedMap.integer < uiInfo.mapCount )
       {
-        trap_Cmd_ExecuteText( EXEC_APPEND, va( "callvote nextmap %s\n",
+        trap_Cmd_ExecuteText( EXEC_APPEND, va( "callvote nextmap \"%s\"\n",
                               uiInfo.mapList[ui_selectedMap.integer].mapLoadName ) );
       }
     }
@@ -3179,9 +3256,9 @@ static void UI_RunMenuScript( char **args )
         char buffer[ MAX_CVAR_VALUE_STRING ];
         trap_Cvar_VariableStringBuffer( "ui_reason", buffer, sizeof( buffer ) ); 
 
-        trap_Cmd_ExecuteText( EXEC_APPEND, va( "callvote kick %d %s\n",
+        trap_Cmd_ExecuteText( EXEC_APPEND, va( "callvote kick %d%s\n",
                                                uiInfo.clientNums[ uiInfo.playerIndex ],
-                                               buffer ) );
+                                               ( buffer[ 0 ] ? va( " \"%s\"", buffer ) : "" ) ) );
         trap_Cvar_Set( "ui_reason", "" );
       }
     }
@@ -3192,9 +3269,9 @@ static void UI_RunMenuScript( char **args )
         char buffer[ MAX_CVAR_VALUE_STRING ];
         trap_Cvar_VariableStringBuffer( "ui_reason", buffer, sizeof( buffer ) ); 
 
-        trap_Cmd_ExecuteText( EXEC_APPEND, va( "callvote mute %d %s\n",
+        trap_Cmd_ExecuteText( EXEC_APPEND, va( "callvote mute %d%s\n",
                                                uiInfo.clientNums[ uiInfo.playerIndex ],
-                                               buffer ) );
+                                               ( buffer[ 0 ] ? va( " \"%s\"", buffer ) : "" ) ) );
         trap_Cvar_Set( "ui_reason", "" );
       }
     }
@@ -3213,9 +3290,9 @@ static void UI_RunMenuScript( char **args )
         char buffer[ MAX_CVAR_VALUE_STRING ];
         trap_Cvar_VariableStringBuffer( "ui_reason", buffer, sizeof( buffer ) ); 
 
-        trap_Cmd_ExecuteText( EXEC_APPEND, va( "callteamvote kick %d %s\n",
+        trap_Cmd_ExecuteText( EXEC_APPEND, va( "callteamvote kick %d%s\n",
                                                uiInfo.teamClientNums[ uiInfo.teamPlayerIndex ],
-                                               buffer ) );
+                                               ( buffer[ 0 ] ? va( " \"%s\"", buffer ) : "" ) ) );
         trap_Cvar_Set( "ui_reason", "" );
       }
     }
@@ -3226,9 +3303,9 @@ static void UI_RunMenuScript( char **args )
         char buffer[ MAX_CVAR_VALUE_STRING ];
         trap_Cvar_VariableStringBuffer( "ui_reason", buffer, sizeof( buffer ) ); 
 
-        trap_Cmd_ExecuteText( EXEC_APPEND, va( "callteamvote denybuild %d %s\n",
+        trap_Cmd_ExecuteText( EXEC_APPEND, va( "callteamvote denybuild %d%s\n",
                                                uiInfo.teamClientNums[ uiInfo.teamPlayerIndex ],
-                                               buffer ) );
+                                               ( buffer[ 0 ] ? va( " \"%s\"", buffer ) : "" ) ) );
         trap_Cvar_Set( "ui_reason", "" );
       }
     }
@@ -3408,6 +3485,8 @@ static int UI_FeederCount( int feederID )
     return uiInfo.serverStatusInfo.numLines;
   else if( feederID == FEEDER_NEWS )
     return uiInfo.newsInfo.numLines;
+  else if( feederID == FEEDER_GITHUB_RELEASE )
+    return uiInfo.githubRelease.numLines;
   else if( feederID == FEEDER_FINDPLAYER )
     return uiInfo.numFoundPlayerServers;
   else if( feederID == FEEDER_PLAYER_LIST )
@@ -3461,6 +3540,8 @@ static int UI_FeederCount( int feederID )
     else
       return uiInfo.numResolutions;
   }
+  else if ( feederID == FEEDER_TREMVOICECMD )
+      return uiInfo.voiceCmdCount;
 
   return 0;
 }
@@ -3626,6 +3707,11 @@ static const char *UI_FeederItemText( int feederID, int index, int column, qhand
     if( index >= 0 && index < uiInfo.newsInfo.numLines )
       return uiInfo.newsInfo.text[index];
   }
+  else if( feederID == FEEDER_GITHUB_RELEASE )
+  {
+    if( index >= 0 && index < uiInfo.githubRelease.numLines )
+      return uiInfo.githubRelease.text[index];
+  }
   else if( feederID == FEEDER_FINDPLAYER )
   {
     if( index >= 0 && index < uiInfo.numFoundPlayerServers )
@@ -3748,6 +3834,11 @@ static const char *UI_FeederItemText( int feederID, int index, int column, qhand
     Com_sprintf( resolution, sizeof( resolution ), "Custom (%dx%d)", w, h );
 
     return resolution;
+  }
+  else if ( feederID == FEEDER_TREMVOICECMD )
+  {
+    if( index >= 0 && index < uiInfo.voiceCmdCount )
+      return uiInfo.voiceCmdList[ index ].text;
   }
 
   return "";
@@ -3886,6 +3977,8 @@ static void UI_FeederSelection( int feederID, int index )
 
     uiInfo.resolutionIndex = index;
   }
+  else if ( feederID == FEEDER_TREMVOICECMD )
+      uiInfo.voiceCmdIndex = index;
 }
 
 static int UI_FeederInitialise( int feederID )
@@ -3982,7 +4075,7 @@ void UI_ParseResolutions( void )
   p = buf;
   uiInfo.numResolutions = 0;
 
-  while( String_Parse( &p, &out ) )
+  while( uiInfo.numResolutions < MAX_RESOLUTIONS && String_Parse( &p, &out ) )
   {
     Q_strncpyz( w, out, sizeof( w ) );
     s = strchr( w, 'x' );
@@ -4012,6 +4105,8 @@ void UI_Init( qboolean inGameLoad )
 
   UI_RegisterCvars();
   UI_InitMemory();
+  BG_InitMemory(); // FIXIT-M: Merge with UI_InitMemory or something
+
 
   // cache redundant calulations
   trap_GetGlconfig( &uiInfo.uiDC.glconfig );
@@ -4038,7 +4133,6 @@ void UI_Init( qboolean inGameLoad )
   uiInfo.uiDC.drawSides = &UI_DrawSides;
   uiInfo.uiDC.drawTopBottom = &UI_DrawTopBottom;
   uiInfo.uiDC.clearScene = &trap_R_ClearScene;
-  uiInfo.uiDC.drawSides = &UI_DrawSides;
   uiInfo.uiDC.addRefEntityToScene = &trap_R_AddRefEntityToScene;
   uiInfo.uiDC.renderScene = &trap_R_RenderScene;
   uiInfo.uiDC.registerFont = &trap_R_RegisterFont;
@@ -4099,8 +4193,8 @@ void UI_Init( qboolean inGameLoad )
   uiInfo.previewMovie = -1;
 
   UI_ParseResolutions( );
+  uiInfo.voices = BG_VoiceInit( );
 }
-
 
 /*
 =================
@@ -4199,7 +4293,6 @@ void UI_SetActiveMenu( uiMenuCommand_t menu )
         trap_Key_ClearStates();
         trap_Cvar_Set( "cl_paused", "0" );
         Menus_CloseAll( );
-
         return;
 
       case UIMENU_MAIN:
@@ -4216,7 +4309,6 @@ void UI_SetActiveMenu( uiMenuCommand_t menu )
           else
             Menus_ActivateByName( "error_popmenu" );
         }
-
         return;
 
       case UIMENU_INGAME:
@@ -4444,7 +4536,7 @@ UI_DrawConnectScreen
 */
 void UI_DrawConnectScreen( qboolean overlay )
 {
-  char      *s;
+  const char *s;
   uiClientState_t cstate;
   char      info[MAX_INFO_VALUE];
   char text[256];
@@ -4516,7 +4608,6 @@ void UI_DrawConnectScreen( qboolean overlay )
         int prompt = trap_Cvar_VariableValue( "com_downloadPrompt" );
         
         if( prompt & DLP_SHOW ) {
-          Com_Printf("Opening download prompt...\n");
           trap_Key_SetCatcher( KEYCATCH_UI );
           Menus_ActivateByName("download_popmenu");
           trap_Cvar_Set( "com_downloadPrompt", "0" );
@@ -4586,60 +4677,126 @@ UI_UpdateNews
 */
 void UI_UpdateNews( qboolean begin )
 {
-  char newsString[ MAX_NEWS_STRING ];
-  const char *c;
-  const char *wrapped;
-  int line = 0;
-  int linePos = 0;
-  qboolean finished;
+    char newsString[ MAX_NEWS_STRING ];
+    const char *c;
+    const char *wrapped;
+    int line = 0;
+    int linePos = 0;
+    qboolean finished;
 
-  if( begin && !uiInfo.newsInfo.refreshActive ) {
-    uiInfo.newsInfo.refreshtime = uiInfo.uiDC.realTime + 10000;
-    uiInfo.newsInfo.refreshActive = qtrue;
-  }
-  else if( !uiInfo.newsInfo.refreshActive ) // do nothing
-    return; 
-  else if( uiInfo.uiDC.realTime > uiInfo.newsInfo.refreshtime ) {
-    strcpy( uiInfo.newsInfo.text[ 0 ], 
-      "^1Error: Timed out while contacting the server.");
-    uiInfo.newsInfo.numLines = 1;
-    return; 
-  }
-
-  // start the news fetching
-  finished = trap_GetNews( begin );
-
-  // parse what comes back. Parse newlines and otherwise chop when necessary
-  trap_Cvar_VariableStringBuffer( "cl_newsString", newsString, 
-    sizeof( newsString ) );
-
-  // FIXME remove magic width constant
-  wrapped = Item_Text_Wrap( newsString, 0.25f, 325 * uiInfo.uiDC.aspectScale );
-
-  for( c = wrapped; *c != '\0'; ++c ) {
-    if( linePos == (MAX_NEWS_LINEWIDTH - 1) || *c == '\n' ) {
-      uiInfo.newsInfo.text[ line ][ linePos ] = '\0';
-
-      if( line == ( MAX_NEWS_LINES  - 1 ) )
-        break;
-
-      linePos = 0;
-      line++;
-
-      if( *c != '\n' ) {
-        uiInfo.newsInfo.text[ line ][ linePos ] = *c;
-        linePos++;
-      }
-    } else if( isprint( *c ) ) {
-      uiInfo.newsInfo.text[ line ][ linePos ] = *c;
-      linePos++;
+    if( begin && !uiInfo.newsInfo.refreshActive )
+    {
+        uiInfo.newsInfo.refreshtime = uiInfo.uiDC.realTime + 10000;
+        uiInfo.newsInfo.refreshActive = qtrue;
     }
-  }
+    else if( !uiInfo.newsInfo.refreshActive ) // do nothing
+    {
+        return; 
+    }
+    else if( uiInfo.uiDC.realTime > uiInfo.newsInfo.refreshtime )
+    {
+        strcpy( uiInfo.newsInfo.text[ 0 ], "^1Error: Timed out while contacting the server.");
+        uiInfo.newsInfo.numLines = 1;
+        return; 
+    }
 
-  uiInfo.newsInfo.text[ line ] [linePos ] = '\0';
-  uiInfo.newsInfo.numLines = line + 1;
+    // start the news fetching
+    finished = trap_GetNews( begin );
 
-  if( finished )
-    uiInfo.newsInfo.refreshActive = qfalse;
+    // parse what comes back. Parse newlines and otherwise chop when necessary
+    trap_Cvar_VariableStringBuffer( "cl_newsString", newsString, sizeof( newsString ) );
+
+    // FIXME remove magic width constant
+    wrapped = Item_Text_Wrap( newsString, 0.25f, 325 * uiInfo.uiDC.aspectScale );
+
+    for( c = wrapped; *c != '\0'; ++c )
+    {
+        if( linePos == (MAX_NEWS_LINEWIDTH - 1) || *c == '\n' )
+        {
+            uiInfo.newsInfo.text[ line ][ linePos ] = '\0';
+
+            if( line == ( MAX_NEWS_LINES  - 1 ) )
+                break;
+
+            linePos = 0;
+            line++;
+
+            if( *c != '\n' )
+            {
+                uiInfo.newsInfo.text[ line ][ linePos ] = *c;
+                linePos++;
+            }
+        } 
+        else if( isprint( *c ) )
+        {
+            uiInfo.newsInfo.text[ line ][ linePos ] = *c;
+            linePos++;
+        }
+    }
+
+    uiInfo.newsInfo.text[ line ] [linePos ] = '\0';
+    uiInfo.newsInfo.numLines = line + 1;
+
+    if( finished )
+        uiInfo.newsInfo.refreshActive = qfalse;
 }
 
+void UI_UpdateGithubRelease( )
+{
+    char newsString[ MAX_NEWS_STRING ];
+    const char *c;
+    const char *wrapped;
+    int line = 0, linePos = 0;
+
+    if( !(uiInfo.githubRelease.nextTime > uiInfo.uiDC.realTime) )
+      return;
+
+    // Limit checks to 1x every 10seconds
+    uiInfo.githubRelease.nextTime = uiInfo.uiDC.realTime  + 10000;
+    trap_Cmd_ExecuteText(EXEC_INSERT, "checkForUpdate");
+
+    // parse what comes back. Parse newlines and otherwise chop when necessary
+    trap_Cvar_VariableStringBuffer("cl_latestRelease", newsString, sizeof(newsString));
+
+    // FIXME remove magic width constant
+    wrapped = Item_Text_Wrap(newsString, 0.33f, 450 * uiInfo.uiDC.aspectScale);
+
+    for( c = wrapped; *c != '\0'; ++c )
+    {
+        if( linePos == (MAX_NEWS_LINEWIDTH - 1) || *c == '\n' )
+        {
+            uiInfo.githubRelease.text[ line ][ linePos ] = '\0';
+
+            if( line == (MAX_NEWS_LINES  - 1) )
+                break;
+
+            linePos = 0;
+            line++;
+
+            if( *c != '\n' )
+            {
+                uiInfo.githubRelease.text[ line ][ linePos ] = *c;
+                linePos++;
+            }
+        } 
+        else if( isprint( *c ) )
+        {
+            uiInfo.githubRelease.text[ line ][ linePos ] = *c;
+            linePos++;
+        }
+    }
+
+    uiInfo.githubRelease.text[ line ] [linePos ] = '\0';
+    uiInfo.githubRelease.numLines = line + 1;
+}
+
+#ifdef MODULE_INTERFACE_11
+void trap_R_SetClipRegion( const float *region )
+{
+}
+
+qboolean trap_GetNews( qboolean force )
+{
+  return qtrue;
+}
+#endif

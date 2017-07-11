@@ -96,15 +96,10 @@ typedef enum
 {
   F_INT,
   F_FLOAT,
-  F_LSTRING,      // string on disk, pointer in memory, TAG_LEVEL
-  F_GSTRING,      // string on disk, pointer in memory, TAG_GAME
+  F_STRING,
   F_VECTOR,
   F_VECTOR4,
-  F_ANGLEHACK,
-  F_ENTITY,     // index on disk, pointer in memory
-  F_ITEM,       // index on disk, pointer in memory
-  F_CLIENT,     // index on disk, pointer in memory
-  F_IGNORE
+  F_ANGLEHACK
 } fieldtype_t;
 
 typedef struct
@@ -112,36 +107,33 @@ typedef struct
   char  *name;
   size_t ofs;
   fieldtype_t type;
-  int   flags;
 } field_t;
 
 field_t fields[ ] =
 {
   {"acceleration", FOFS(acceleration), F_VECTOR},
   {"alpha", FOFS(pos1), F_VECTOR},
-  {"angle", FOFS(s.angles), F_ANGLEHACK},
-  {"angles", FOFS(s.angles), F_VECTOR},
+  {"angle", FOFS(s.apos.trBase), F_ANGLEHACK},
+  {"angles", FOFS(s.apos.trBase), F_VECTOR},
   {"animation", FOFS(animation), F_VECTOR4},
   {"bounce", FOFS(physicsBounce), F_FLOAT},
-  {"classname", FOFS(classname), F_LSTRING},
+  {"classname", FOFS(classname), F_STRING},
   {"count", FOFS(count), F_INT},
   {"dmg", FOFS(damage), F_INT},
   {"health", FOFS(health), F_INT},
-  {"light", 0, F_IGNORE},
-  {"message", FOFS(message), F_LSTRING},
-  {"model", FOFS(model), F_LSTRING},
-  {"model2", FOFS(model2), F_LSTRING},
-  {"origin", FOFS(s.origin), F_VECTOR},
+  {"message", FOFS(message), F_STRING},
+  {"model", FOFS(model), F_STRING},
+  {"model2", FOFS(model2), F_STRING},
+  {"origin", FOFS(s.pos.trBase), F_VECTOR},
   {"radius", FOFS(pos2), F_VECTOR},
   {"random", FOFS(random), F_FLOAT},
   {"rotatorAngle", FOFS(rotatorAngle), F_FLOAT},
   {"spawnflags", FOFS(spawnflags), F_INT},
   {"speed", FOFS(speed), F_FLOAT},
-  {"target", FOFS(target), F_LSTRING},
-  {"targetname", FOFS(targetname), F_LSTRING},
-  {"targetShaderName", FOFS(targetShaderName), F_LSTRING},
-  {"targetShaderNewName", FOFS(targetShaderNewName), F_LSTRING},
-  {"team", FOFS(team), F_LSTRING},
+  {"target", FOFS(target), F_STRING},
+  {"targetname", FOFS(targetname), F_STRING},
+  {"targetShaderName", FOFS(targetShaderName), F_STRING},
+  {"targetShaderNewName", FOFS(targetShaderNewName), F_STRING},
   {"wait", FOFS(wait), F_FLOAT}
 };
 
@@ -314,8 +306,9 @@ qboolean G_CallSpawn( gentity_t *ent )
 
     if( buildable == BA_A_SPAWN || buildable == BA_H_SPAWN )
     {
-      ent->s.angles[ YAW ] += 180.0f;
-      AngleNormalize360( ent->s.angles[ YAW ] );
+      ent->r.currentAngles[ YAW ] += 180.0f;
+      AngleNormalize360( ent->r.currentAngles[ YAW ] );
+      ent->s.apos.trBase[ YAW ] = ent->r.currentAngles[ YAW ];
     }
 
     G_SpawnBuildable( ent, buildable );
@@ -400,7 +393,7 @@ void G_ParseField( const char *key, const char *value, gentity_t *ent )
 
   switch( f->type )
   {
-    case F_LSTRING:
+    case F_STRING:
       *(char **)( b + f->ofs ) = G_NewString( value );
       break;
 
@@ -435,10 +428,6 @@ void G_ParseField( const char *key, const char *value, gentity_t *ent )
       ( (float *)( b + f->ofs ) )[ 1 ] = v;
       ( (float *)( b + f->ofs ) )[ 2 ] = 0;
       break;
-
-    default:
-    case F_IGNORE:
-      break;
   }
 }
 
@@ -472,9 +461,8 @@ void G_SpawnGEntityFromSpawnVars( void )
     return;
   }
 
-  // move editor origin to pos
-  VectorCopy( ent->s.origin, ent->s.pos.trBase );
-  VectorCopy( ent->s.origin, ent->r.currentOrigin );
+  VectorCopy( ent->s.pos.trBase, ent->r.currentOrigin );
+  VectorCopy( ent->s.apos.trBase, ent->r.currentAngles );
 
   // if we didn't get a classname, don't bother spawning anything
   if( !G_CallSpawn( ent ) )
@@ -601,6 +589,15 @@ void SP_worldspawn( void )
   if( G_SpawnString( "alienMaxStage", "", &s ) )
     trap_Cvar_Set( "g_alienMaxStage", s );
 
+  if( G_SpawnString( "humanRepeaterBuildPoints", "", &s ) )
+    trap_Cvar_Set( "g_humanRepeaterBuildPoints", s );
+
+  if( G_SpawnString( "humanBuildPoints", "", &s ) )
+    trap_Cvar_Set( "g_humanBuildPoints", s );
+
+  if( G_SpawnString( "alienBuildPoints", "", &s ) )
+    trap_Cvar_Set( "g_alienBuildPoints", s );
+
   G_SpawnString( "disabledEquipment", "", &s );
   trap_Cvar_Set( "g_disabledEquipment", s );
 
@@ -611,7 +608,12 @@ void SP_worldspawn( void )
   trap_Cvar_Set( "g_disabledBuildables", s );
 
   g_entities[ ENTITYNUM_WORLD ].s.number = ENTITYNUM_WORLD;
+  g_entities[ ENTITYNUM_WORLD ].r.ownerNum = ENTITYNUM_NONE;
   g_entities[ ENTITYNUM_WORLD ].classname = "worldspawn";
+
+  g_entities[ ENTITYNUM_NONE ].s.number = ENTITYNUM_NONE;
+  g_entities[ ENTITYNUM_NONE ].r.ownerNum = ENTITYNUM_NONE;
+  g_entities[ ENTITYNUM_NONE ].classname = "nothing";
 
   if( g_restarted.integer )
     trap_Cvar_Set( "g_restarted", "0" );

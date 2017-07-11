@@ -66,7 +66,9 @@ typedef enum
   UI_R_ADDLIGHTTOSCENE,
   UI_R_RENDERSCENE,
   UI_R_SETCOLOR,
+#ifndef MODULE_INTERFACE_11
   UI_R_SETCLIPREGION,
+#endif
   UI_R_DRAWSTRETCHPIC,
   UI_UPDATESCREEN,
   UI_CM_LERPTAG,
@@ -95,6 +97,13 @@ typedef enum
   UI_MEMORY_REMAINING,
   UI_R_REGISTERFONT,
   UI_R_MODELBOUNDS,
+#ifdef MODULE_INTERFACE_11
+  UI_PARSE_ADD_GLOBAL_DEFINE,
+  UI_PARSE_LOAD_SOURCE,
+  UI_PARSE_FREE_SOURCE,
+  UI_PARSE_READ_TOKEN,
+  UI_PARSE_SOURCE_FILE_AND_LINE,
+#endif
   UI_S_STOPBACKGROUNDTRACK,
   UI_S_STARTBACKGROUNDTRACK,
   UI_REAL_TIME,
@@ -122,12 +131,18 @@ typedef enum
   UI_FS_SEEK,
   UI_SET_PBCLSTATUS,
 
+#ifndef MODULE_INTERFACE_11
   UI_PARSE_ADD_GLOBAL_DEFINE,
   UI_PARSE_LOAD_SOURCE,
   UI_PARSE_FREE_SOURCE,
   UI_PARSE_READ_TOKEN,
   UI_PARSE_SOURCE_FILE_AND_LINE,
   UI_GETNEWS,
+#endif
+
+  // XXX THERE IS ROOM FOR _1_ (or 2? Did i count from 0?)
+  // SYSCALL BETWEEN UI_GETNEWS and UI_MEMSET
+  //UI_RESERVED_SYSCALL = 99,
 
   UI_MEMSET = 100,
   UI_MEMCPY,
@@ -137,9 +152,8 @@ typedef enum
   UI_ATAN2,
   UI_SQRT,
   UI_FLOOR,
-  UI_CEIL
-}
-uiImport_t;
+  UI_CEIL,
+} uiImport_t;
 
 typedef enum
 {
@@ -175,11 +189,13 @@ typedef enum
   UI_MOUSE_EVENT,
   //  void  UI_MouseEvent( int dx, int dy );
 
+#ifndef MODULE_INTERFACE_11
   UI_MOUSE_POSITION,
   //  int   UI_MousePosition( void );
 
   UI_SET_MOUSE_POSITION,
   //  void  UI_SetMousePosition( int x, int y );
+#endif
 
   UI_REFRESH,
   //  void  UI_Refresh( int time );

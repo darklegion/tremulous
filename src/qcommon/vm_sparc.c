@@ -1567,7 +1567,7 @@ void VM_Compile(vm_t *vm, vmHeader_t *header)
 	fi.dst_by_i_count = (struct dst_insn **) vm->instructionPointers;
 	memset(fi.dst_by_i_count, 0, header->instructionCount * sizeof(void *));
 
-	vm->compiled = qfalse;
+	vm->compiled = false;
 
 	emit_vm_thunk(&fi);
 
@@ -1635,7 +1635,7 @@ void VM_Compile(vm_t *vm, vmHeader_t *header)
 	}
 
 	vm->destroy = VM_Destroy_Compiled;
-	vm->compiled = qtrue;
+	vm->compiled = true;
 }
 
 int VM_CallCompiled(vm_t *vm, int *args)
@@ -1649,7 +1649,7 @@ int VM_CallCompiled(vm_t *vm, int *args)
 
 	currentVM = vm;
 
-	vm->currentlyInterpreting = qtrue;
+	vm->currentlyInterpreting = true;
 
 	programStack -= ( 8 + 4 * MAX_VMMAIN_ARGS );
 	argPointer = (int *)&image[ programStack + 8 ];
@@ -1665,7 +1665,7 @@ int VM_CallCompiled(vm_t *vm, int *args)
 	}
 
 	vm->programStack = stackOnEntry;
-	vm->currentlyInterpreting = qfalse;
+	vm->currentlyInterpreting = false;
 
 	return retVal;
 }

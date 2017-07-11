@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "bg_public.h"
 #include "bg_local.h"
 
-int  trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, fsMode_t mode );
+int  trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, enum FS_Mode  mode );
 int  trap_FS_GetFileList( const char *path, const char *extension, char *listbuf, int bufsize );
 int trap_Parse_LoadSource( const char *filename );
 int trap_Parse_FreeSource( int handle );
@@ -45,14 +45,14 @@ int trap_S_SoundDuration( sfxHandle_t handle );
 BG_VoiceParseError
 ============
 */
-static void BG_VoiceParseError( fileHandle_t handle, char *err )
+static void BG_VoiceParseError( fileHandle_t handle, const char *err )
 {
   int line;
   char filename[ MAX_QPATH ];
 
   trap_Parse_SourceFileAndLine( handle, filename, &line );
   trap_Parse_FreeSource( handle );
-  Com_Error( ERR_FATAL, "%s on line %d of %s\n", err, line, filename );
+  Com_Error( ERR_FATAL, "%s on line %d of %s", err, line, filename );
 }
 
 /*
@@ -188,9 +188,9 @@ static qboolean BG_VoiceParseTrack( int handle, voiceTrack_t *voiceTrack )
       while( foundToken && token.type == TT_NUMBER )
       {
         found = qtrue;
-        if( voiceTrack->class < 0 )
-          voiceTrack->class = 0;
-        voiceTrack->class |= ( 1 << token.intvalue );
+        if( voiceTrack->klass < 0 )
+          voiceTrack->klass = 0;
+        voiceTrack->klass |= ( 1 << token.intvalue );
         foundToken = trap_Parse_ReadToken( handle, &token );
       }
       if( !found )
@@ -333,7 +333,7 @@ static voiceTrack_t *BG_VoiceParseCommand( int handle )
     }
 
     voiceTracks->team = -1;
-    voiceTracks->class = -1;
+    voiceTracks->klass = -1;
     voiceTracks->weapon = -1;
     voiceTracks->enthusiasm = 0;
     voiceTracks->text = NULL;
@@ -378,7 +378,7 @@ static voiceCmd_t *BG_VoiceParse( char *name )
 
         trap_Parse_SourceFileAndLine( handle, filename, &line );
         Com_Error( ERR_FATAL, "BG_VoiceParse(): "
-          "parse error on line %d of %s\n", line, filename );
+          "parse error on line %d of %s", line, filename );
       }
     }
       
@@ -389,7 +389,7 @@ static voiceCmd_t *BG_VoiceParse( char *name )
 
         trap_Parse_SourceFileAndLine( handle, filename, &line );
         Com_Error( ERR_FATAL, "BG_VoiceParse(): "
-          "command \"%s\" exceeds MAX_VOICE_CMD_LEN (%d) on line %d of %s\n",
+          "command \"%s\" exceeds MAX_VOICE_CMD_LEN (%d) on line %d of %s",
           token.string, MAX_VOICE_CMD_LEN, line, filename );
     }
    
@@ -478,7 +478,7 @@ void BG_PrintVoices( voice_t *voices, int debugLevel )
         if( debugLevel > 2 )
         {
           Com_Printf( "    team -> %d\n", voiceTrack->team );
-          Com_Printf( "    class -> %d\n", voiceTrack->class );
+          Com_Printf( "    class -> %d\n", voiceTrack->klass );
           Com_Printf( "    weapon -> %d\n", voiceTrack->weapon );
           Com_Printf( "    enthusiasm -> %d\n", voiceTrack->enthusiasm );
 #ifdef CGAME
@@ -603,7 +603,7 @@ voiceTrack_t *BG_VoiceTrackFind( voiceTrack_t *head, team_t team,
   while( vt )
   {
     if( ( vt->team >= 0 && !( vt->team  & ( 1 << team ) ) ) || 
-        ( vt->class >= 0 && !( vt->class & ( 1 << class ) ) ) || 
+        ( vt->klass >= 0 && !( vt->klass & ( 1 << class ) ) ) || 
         ( vt->weapon >= 0 && !( vt->weapon & ( 1 << weapon ) ) ) ||
         vt->enthusiasm > enthusiasm )
     {
@@ -633,7 +633,7 @@ voiceTrack_t *BG_VoiceTrackFind( voiceTrack_t *head, team_t team,
   {
     j++;
     if( ( vt->team >= 0 && !( vt->team  & ( 1 << team ) ) ) || 
-        ( vt->class >= 0 && !( vt->class & ( 1 << class ) ) ) || 
+        ( vt->klass >= 0 && !( vt->klass & ( 1 << class ) ) ) || 
         ( vt->weapon >= 0 && !( vt->weapon & ( 1 << weapon ) ) ) ||
         vt->enthusiasm != highestMatch )
     {
