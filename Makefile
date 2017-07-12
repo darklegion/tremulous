@@ -2870,8 +2870,12 @@ $(B)/renderercommon/%.o: $(JPDIR)/%.c
 
 $(B)/renderergl1/%.o: $(RCOMMONDIR)/%.c
 	$(DO_RENDERER_COMMON_CC)
+$(B)/renderergl1/%.o: $(RCOMMONDIR)/%.cpp
+	$(DO_RENDERER_COMMON_CXX)
 $(B)/renderergl1/%.o: $(RGL1DIR)/%.c
 	$(DO_RENDERERGL1_CC)
+$(B)/renderergl1/%.o: $(RGL1DIR)/%.cpp
+	$(DO_RENDERERGL1_CXX)
 $(B)/renderergl1/%.o: $(CMDIR)/%.c
 	$(DO_RENDERERGL1_CC)
 $(B)/renderergl1/%.o: $(CMDIR)/%.cpp

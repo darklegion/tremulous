@@ -31,10 +31,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../renderercommon/tr_public.h"
 #include "qgl.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 typedef enum
 {
 	IMGTYPE_COLORALPHA, // for color, lightmap, diffuse, and specular
@@ -68,7 +64,7 @@ typedef struct image_s {
 	int			TMU;				// only needed for voodoo2
 
 	imgType_t   type;
-	imgFlags_t  flags;
+	int /*imgFlags_t*/  flags;
 
 	struct image_s*	next;
 } image_t;
@@ -124,8 +120,8 @@ qboolean	R_GetModeInfo( int *width, int *height, float *windowAspect, int mode )
 float R_NoiseGet4f( float x, float y, float z, float t );
 void  R_NoiseInit( void );
 
-image_t     *R_FindImageFile( const char *name, imgType_t type, imgFlags_t flags );
-image_t *R_CreateImage( const char *name, byte *pic, int width, int height, imgType_t type, imgFlags_t flags, int internalFormat );
+image_t     *R_FindImageFile( const char *name, imgType_t type, int/*imgFlags_t*/ flags );
+image_t *R_CreateImage( const char *name, byte *pic, int width, int height, imgType_t type, int flags, int internalFormat );
 
 void R_IssuePendingRenderCommands( void );
 qhandle_t		 RE_RegisterShaderLightMap( const char *name, int lightmapIndex );
@@ -171,7 +167,4 @@ void		GLimp_SetGamma( unsigned char red[256],
 		unsigned char green[256],
 		unsigned char blue[256] );
 
-#ifdef __cplusplus
-}
-#endif
 #endif

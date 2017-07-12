@@ -1171,8 +1171,4 @@ void CL_SetCGameTime( void ) {
 			return;		// end of demo
 		}
 	}
-
 }
-
-
-

@@ -5,18 +5,18 @@ Copyright (C) 2000-2013 Darklegion Development
 
 This file is part of Tremulous.
 
-Quake III Arena source code is free software; you can redistribute it
+Tremulous is free software; you can redistribute it
 and/or modify it under the terms of the GNU General Public License as
 published by the Free Software Foundation; either version 2 of the License,
 or (at your option) any later version.
 
-Quake III Arena source code is distributed in the hope that it will be
+Tremulous is distributed in the hope that it will be
 useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Quake III Arena source code; if not, write to the Free Software
+along with Tremulous; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
@@ -189,13 +189,11 @@ void R_MDRAddAnimSurfaces( trRefEntity_t *ent ) {
 	int				lodnum = 0;
 	int				fogNum = 0;
 	int				cull;
-	int             cubemapIndex;
 	bool	personalModel;
 
 	header = (mdrHeader_t *) tr.currentModel->modelData;
 	
-	personalModel = (ent->e.renderfx & RF_THIRD_PERSON) && !(tr.viewParms.isPortal 
-	                 || (tr.viewParms.flags & (VPF_SHADOWMAP | VPF_DEPTHSHADOW)));
+	personalModel = (ent->e.renderfx & RF_THIRD_PERSON) && !tr.viewParms.isPortal;
 	
 	if ( ent->e.renderfx & RF_WRAP_FRAMES )
 	{
@@ -252,8 +250,6 @@ void R_MDRAddAnimSurfaces( trRefEntity_t *ent ) {
 	// fogNum?
 	fogNum = R_MDRComputeFogNum( header, ent );
 
-	cubemapIndex = R_CubemapForPoint(ent->e.origin);
-
 	surface = (mdrSurface_t *)( (byte *)lod + lod->ofsSurfaces );
 
 	for ( i = 0 ; i < lod->numSurfaces ; i++ )
@@ -289,7 +285,7 @@ void R_MDRAddAnimSurfaces( trRefEntity_t *ent ) {
 			&& !(ent->e.renderfx & ( RF_NOSHADOW | RF_DEPTHHACK ) )
 			&& shader->sort == SS_OPAQUE )
 		{
-			R_AddDrawSurf( (surfaceType_t*)surface, tr.shadowShader, 0, false, false, 0 );
+			R_AddDrawSurf( (surfaceType_t*)surface, tr.shadowShader, 0, qfalse );
 		}
 
 		// projection shadows work fine with personal models
@@ -298,11 +294,11 @@ void R_MDRAddAnimSurfaces( trRefEntity_t *ent ) {
 			&& (ent->e.renderfx & RF_SHADOW_PLANE )
 			&& shader->sort == SS_OPAQUE )
 		{
-			R_AddDrawSurf( (surfaceType_t*)surface, tr.projectionShadowShader, 0, false, false, 0 );
+			R_AddDrawSurf( (surfaceType_t*)surface, tr.projectionShadowShader, 0, qfalse );
 		}
 
 		if (!personalModel)
-			R_AddDrawSurf( (surfaceType_t*)surface, shader, fogNum, false, false, cubemapIndex );
+			R_AddDrawSurf( (surfaceType_t*)surface, shader, fogNum, qfalse );
 
 		surface = (mdrSurface_t *)( (byte *)surface + surface->ofsEnd );
 	}
@@ -413,10 +409,12 @@ void RB_MDRSurfaceAnim( mdrSurface_t *surface )
 		tess.xyz[baseVertex + j][1] = tempVert[1];
 		tess.xyz[baseVertex + j][2] = tempVert[2];
 
-		R_VaoPackNormal(tess.normal[baseVertex + j], tempNormal);
+		tess.normal[baseVertex + j][0] = tempNormal[0];
+		tess.normal[baseVertex + j][1] = tempNormal[1];
+		tess.normal[baseVertex + j][2] = tempNormal[2];
 
-		tess.texCoords[baseVertex + j][0] = v->texCoords[0];
-		tess.texCoords[baseVertex + j][1] = v->texCoords[1];
+		tess.texCoords[baseVertex + j][0][0] = v->texCoords[0];
+		tess.texCoords[baseVertex + j][0][1] = v->texCoords[1];
 
 		v = (mdrVertex_t *)&v->weights[v->numWeights];
 	}

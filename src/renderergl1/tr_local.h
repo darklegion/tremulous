@@ -64,8 +64,8 @@ typedef struct {
 
 	float		axisLength;		// compensate for non-normalized axis
 
-	qboolean	needDlights;	// true for bmodels that touch a dlight
-	qboolean	lightingCalculated;
+	bool	needDlights;	// true for bmodels that touch a dlight
+	bool	lightingCalculated;
 	vec3_t		lightDir;		// normalized direction towards light
 	vec3_t		ambientLight;	// color normalized to 0-255
 	int			ambientLightInt;	// 32 bit rgba packed
@@ -265,14 +265,14 @@ typedef struct {
 	texModInfo_t	*texMods;
 
 	int				videoMapHandle;
-	qboolean		isLightmap;
-	qboolean		isVideoMap;
+	bool		isLightmap;
+	bool		isVideoMap;
 } textureBundle_t;
 
 #define NUM_TEXTURE_BUNDLES 2
 
 typedef struct {
-	qboolean		active;
+	bool		active;
 	
 	textureBundle_t	bundle[NUM_TEXTURE_BUNDLES];
 
@@ -288,7 +288,7 @@ typedef struct {
 
 	acff_t			adjustColorsForFog;
 
-	qboolean		isDetail;
+	bool		isDetail;
 } shaderStage_t;
 
 struct shaderCommands_s;
@@ -325,20 +325,20 @@ typedef struct shader_s {
 
 	float		sort;					// lower numbered shaders draw before higher numbered
 
-	qboolean	defaultShader;			// we want to return index 0 if the shader failed to
+	bool	defaultShader;			// we want to return index 0 if the shader failed to
 										// load for some reason, but R_FindShader should
 										// still keep a name allocated for it, so if
 										// something calls RE_RegisterShader again with
 										// the same name, we don't try looking for it again
 
-	qboolean	explicitlyDefined;		// found in a .shader file
+	bool	explicitlyDefined;		// found in a .shader file
 
 	int			surfaceFlags;			// if explicitlyDefined, this will have SURF_* flags
 	int			contentFlags;
 
-	qboolean	entityMergable;			// merge across entites optimizable (smoke, blood)
+	bool	entityMergable;			// merge across entites optimizable (smoke, blood)
 
-	qboolean	isSky;
+	bool	isSky;
 	skyParms_t	sky;
 	fogParms_t	fogParms;
 
@@ -347,16 +347,16 @@ typedef struct shader_s {
 	int			multitextureEnv;		// 0, GL_MODULATE, GL_ADD (FIXME: put in stage)
 
 	cullType_t	cullType;				// CT_FRONT_SIDED, CT_BACK_SIDED, or CT_TWO_SIDED
-	qboolean	polygonOffset;			// set for decals and other items that must be offset 
-	qboolean	noMipMaps;				// for console fonts, 2D elements, etc.
-	qboolean	noPicMip;				// for images that must always be full resolution
+	bool	polygonOffset;			// set for decals and other items that must be offset 
+	bool	noMipMaps;				// for console fonts, 2D elements, etc.
+	bool	noPicMip;				// for images that must always be full resolution
 
 	fogPass_t	fogPass;				// draw a blended pass, possibly with depth test equals
 
-	qboolean	needsNormal;			// not all shaders will need all data to be gathered
-	qboolean	needsST1;
-	qboolean	needsST2;
-	qboolean	needsColor;
+	bool	needsNormal;			// not all shaders will need all data to be gathered
+	bool	needsST1;
+	bool	needsST2;
+	bool	needsColor;
 
 	int			numDeforms;
 	deformStage_t	deforms[MAX_SHADER_DEFORMS];
@@ -390,7 +390,7 @@ typedef struct {
 
 	// 1 bits will prevent the associated area from rendering at all
 	byte		areamask[MAX_MAP_AREA_BYTES];
-	qboolean	areamaskModified;	// qtrue if areamask changed since last scene
+	bool	areamaskModified;	// qtrue if areamask changed since last scene
 
 	float		floatTime;			// tr.refdef.time / 1000.0
 
@@ -443,16 +443,16 @@ typedef struct {
 	fogParms_t	parms;
 
 	// for clipping distance in fog when outside
-	qboolean	hasSurface;
+	bool	hasSurface;
 	float		surface[4];
 } fog_t;
 
 typedef struct {
-	orientationr_t	or;
+	orientationr_t	orientation;
 	orientationr_t	world;
 	vec3_t		pvsOrigin;			// may be different than or.origin for portals
-	qboolean	isPortal;			// true if this view is through a portal
-	qboolean	isMirror;			// the portal is a mirror, invert the face culling
+	bool	isPortal;			// true if this view is through a portal
+	bool	isMirror;			// the portal is a mirror, invert the face culling
 	int			frameSceneNum;		// copied from tr.frameSceneNum
 	int			frameCount;			// copied from tr.frameCount
 	cplane_t	portalPlane;		// clip anything behind this if mirroring
@@ -824,7 +824,7 @@ typedef struct {
 typedef struct {
 	int			currenttextures[2];
 	int			currenttmu;
-	qboolean	finishCalled;
+	bool	finishCalled;
 	int			texEnv[2];
 	int			faceCulling;
 	unsigned long	glStateBits;
@@ -849,15 +849,15 @@ typedef struct {
 typedef struct {
 	trRefdef_t	refdef;
 	viewParms_t	viewParms;
-	orientationr_t	or;
+	orientationr_t	orientation;
 	backEndCounters_t	pc;
-	qboolean	isHyperspace;
+	bool	isHyperspace;
 	trRefEntity_t	*currentEntity;
-	qboolean	skyRenderedThisView;	// flag for drawing sun
+	bool	skyRenderedThisView;	// flag for drawing sun
 
-	qboolean	projection2D;	// if qtrue, drawstretchpic doesn't need to change modes
+	bool	projection2D;	// if qtrue, drawstretchpic doesn't need to change modes
 	byte		color2D[4];
-	qboolean	vertexes2D;		// shader needs to be finished
+	bool	vertexes2D;		// shader needs to be finished
 	trRefEntity_t	entity2D;	// currentEntity will point at this when doing 2D rendering
 } backEndState_t;
 
@@ -870,7 +870,7 @@ typedef struct {
 ** by the frontend.
 */
 typedef struct {
-	qboolean				registered;		// cleared at shutdown, set at beginRegistration
+	bool				registered;		// cleared at shutdown, set at beginRegistration
 
 	int						visCount;		// incremented every time a new vis cluster is entered
 	int						frameCount;		// incremented every frame
@@ -880,7 +880,7 @@ typedef struct {
 
 	int						frameSceneNum;	// zeroed at RE_BeginFrame
 
-	qboolean				worldMapLoaded;
+	bool				worldMapLoaded;
 	world_t					*world;
 
 	const byte				*externalVisData;	// from RE_SetWorldVisData, shared with CM_Load
@@ -915,7 +915,7 @@ typedef struct {
 	int						identityLightByte;	// identityLight * 255
 	int						overbrightBits;		// r_overbrightBits->integer, but set to 0 if no hw gamma
 
-	orientationr_t			or;					// for current entity
+	orientationr_t			orientation;					// for current entity
 
 	trRefdef_t				refdef;
 
@@ -1084,7 +1084,7 @@ void R_RenderView( viewParms_t *parms );
 void R_AddMD3Surfaces( trRefEntity_t *e );
 void R_AddNullModelSurfaces( trRefEntity_t *e );
 void R_AddBeamSurfaces( trRefEntity_t *e );
-void R_AddRailSurfaces( trRefEntity_t *e, qboolean isUnderwater );
+void R_AddRailSurfaces( trRefEntity_t *e, bool isUnderwater );
 void R_AddLightningBoltSurfaces( trRefEntity_t *e );
 
 void R_AddPolygonSurfaces( void );
@@ -1104,8 +1104,8 @@ int R_CullLocalBox (vec3_t bounds[2]);
 int R_CullPointAndRadius( vec3_t origin, float radius );
 int R_CullLocalPointAndRadius( vec3_t origin, float radius );
 
-void R_SetupProjection(viewParms_t *dest, float zProj, qboolean computeFrustum);
-void R_RotateForEntity( const trRefEntity_t *ent, const viewParms_t *viewParms, orientationr_t *or );
+void R_SetupProjection(viewParms_t *dest, float zProj, bool computeFrustum);
+void R_RotateForEntity( const trRefEntity_t *ent, const viewParms_t *viewParms, orientationr_t *orientation );
 
 /*
 ** GL wrapper/helper functions
@@ -1154,8 +1154,8 @@ void	GL_Cull( int cullType );
 
 #define GLS_DEFAULT			GLS_DEPTHMASK_TRUE
 
-void	RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty);
-void	RE_UploadCinematic (int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty);
+void	RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *data, int client, bool dirty);
+void	RE_UploadCinematic (int w, int h, int cols, int rows, const byte *data, int client, bool dirty);
 
 void		RE_BeginFrame( stereoFrame_t stereoFrame );
 void		RE_BeginRegistration( glconfig_t *glconfig );
@@ -1163,9 +1163,9 @@ void		RE_LoadWorldMap( const char *mapname );
 void		RE_SetWorldVisData( const byte *vis );
 qhandle_t	RE_RegisterModel( const char *name );
 qhandle_t	RE_RegisterSkin( const char *name );
-void		RE_Shutdown( qboolean destroyWindow );
+void		RE_Shutdown( bool destroyWindow );
 
-qboolean	R_GetEntityToken( char *buffer, int size );
+bool	R_GetEntityToken( char *buffer, int size );
 
 model_t		*R_AllocModel( void );
 
@@ -1195,7 +1195,7 @@ const void *RB_TakeVideoFrameCmd( const void *data );
 //
 // tr_shader.c
 //
-shader_t	*R_FindShader( const char *name, int lightmapIndex, qboolean mipRawImage );
+shader_t	*R_FindShader( const char *name, int lightmapIndex, bool mipRawImage );
 shader_t	*R_GetShaderByHandle( qhandle_t hShader );
 shader_t	*R_GetShaderByState( int index, long *cycleTime );
 shader_t *R_FindShaderByName( const char *name );
@@ -1275,7 +1275,7 @@ WORLD MAP
 
 void R_AddBrushModelSurfaces( trRefEntity_t *e );
 void R_AddWorldSurfaces( void );
-qboolean R_inPVS( const vec3_t p1, const vec3_t p2 );
+bool R_inPVS( const vec3_t p1, const vec3_t p2 );
 
 
 /*
@@ -1302,7 +1302,7 @@ LIGHTS
 
 void R_DlightBmodel( bmodel_t *bmodel );
 void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent );
-void R_TransformDlights( int count, dlight_t *dl, orientationr_t *or );
+void R_TransformDlights( int count, dlight_t *dl, orientationr_t *orientation );
 int R_LightForPoint( vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir );
 
 
@@ -1406,7 +1406,7 @@ ANIMATED MODELS
 
 void R_MDRAddAnimSurfaces( trRefEntity_t *ent );
 void RB_MDRSurfaceAnim( mdrSurface_t *surface );
-qboolean R_LoadIQM (model_t *mod, void *buffer, int filesize, const char *name );
+bool R_LoadIQM (model_t *mod, void *buffer, int filesize, const char *name );
 void R_AddIQMSurfaces( trRefEntity_t *ent );
 void RB_IQMSurfaceAnim( surfaceType_t *surface );
 int R_IQMLerpTag( orientation_t *tag, iqmData_t *data,
@@ -1519,7 +1519,7 @@ typedef struct {
 	int width;
 	int height;
 	char *fileName;
-	qboolean jpeg;
+	bool jpeg;
 } screenshotCommand_t;
 
 typedef struct {
@@ -1528,7 +1528,7 @@ typedef struct {
 	int						height;
 	byte					*captureBuffer;
 	byte					*encodeBuffer;
-	qboolean			motionJpeg;
+	bool			motionJpeg;
 } videoFrameCommand_t;
 
 typedef struct
@@ -1598,7 +1598,7 @@ void RE_SaveJPG(char * filename, int quality, int image_width, int image_height,
 size_t RE_SaveJPGToBuffer(byte *buffer, size_t bufSize, int quality,
 		          int image_width, int image_height, byte *image_buffer, int padding);
 void RE_TakeVideoFrame( int width, int height,
-		byte *captureBuffer, byte *encodeBuffer, qboolean motionJpeg );
+		byte *captureBuffer, byte *encodeBuffer, bool motionJpeg );
 
 
 #endif //TR_LOCAL_H

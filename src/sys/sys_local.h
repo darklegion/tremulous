@@ -28,10 +28,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/qcommon.h"
 #include "../sys/sys_shared.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 // Require a minimum version of SDL
 #define MINSDL_MAJOR 2
 #define MINSDL_MINOR 0
@@ -64,8 +60,5 @@ void Sys_AnsiColorPrint( const char *msg );
 int Sys_PID( void );
 bool Sys_PIDIsRunning( int pid );
 
-#ifdef __cplusplus
-};
-#endif
 #endif
 
