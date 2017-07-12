@@ -854,7 +854,6 @@ intptr_t CL_UISystemCalls(intptr_t *args)
             return 0;
 
         case UI_CVAR_CREATE:
-#warning "FIXME: Wtf is going on here?"
             Cvar_Register(NULL, (const char *)VMA(1), (const char *)VMA(2), args[3]);
             return 0;
 
@@ -1107,7 +1106,6 @@ intptr_t CL_UISystemCalls(intptr_t *args)
             return 0;
 
         case UI_STRNCPY:
-#warning "FIXME: call safe_strncpy instead"
             strncpy((char *)VMA(1), (const char *)VMA(2), args[3]);
             return args[1];
 

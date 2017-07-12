@@ -490,20 +490,20 @@ static ID_INLINE bool ShaderRequiresCPUDeforms(const shader_t * shader)
 		const deformStage_t *ds = &shader->deforms[0];
 
 		if (shader->numDeforms > 1)
-			return qtrue;
+			return true;
 
 		switch (ds->deformation)
 		{
 			case DEFORM_WAVE:
 			case DEFORM_BULGE:
-				return qfalse;
+				return false;
 
 			default:
-				return qtrue;
+				return true;
 		}
 	}
 
-	return qfalse;
+	return false;
 }
 
 enum
@@ -733,7 +733,7 @@ typedef struct {
 
 	// 1 bits will prevent the associated area from rendering at all
 	byte		areamask[MAX_MAP_AREA_BYTES];
-	bool	areamaskModified;	// qtrue if areamask changed since last scene
+	bool	areamaskModified;	// true if areamask changed since last scene
 
 	float		floatTime;			// tr.refdef.time / 1000.0
 
@@ -1433,7 +1433,7 @@ typedef struct {
 	trRefEntity_t	*currentEntity;
 	bool	skyRenderedThisView;	// flag for drawing sun
 
-	bool	projection2D;	// if qtrue, drawstretchpic doesn't need to change modes
+	bool	projection2D;	// if true, drawstretchpic doesn't need to change modes
 	byte		color2D[4];
 	bool	vertexes2D;		// shader needs to be finished
 	trRefEntity_t	entity2D;	// currentEntity will point at this when doing 2D rendering
@@ -1843,7 +1843,7 @@ void R_RotateForEntity( const trRefEntity_t *ent, const viewParms_t *viewParms, 
 void	GL_BindToTMU( image_t *image, int tmu );
 void	GL_SetDefaultState (void);
 void	GL_TextureMode( const char *string );
-void	GL_CheckErrs( char *file, int line );
+void	GL_CheckErrs( const char *file, int line );
 #define GL_CheckErrors(...) GL_CheckErrs(__FILE__, __LINE__)
 void	GL_State( unsigned long stateVector );
 void    GL_SetProjectionMatrix(mat4_t matrix);
@@ -2060,8 +2060,8 @@ LIGHTS
 void R_DlightBmodel( bmodel_t *bmodel );
 void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent );
 void R_TransformDlights( int count, dlight_t *dl, orientationr_t *orientation );
-int R_LightForPoint( vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir );
-int R_LightDirForPoint( vec3_t point, vec3_t lightDir, vec3_t normal, world_t *world );
+bool R_LightForPoint( vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir );
+bool R_LightDirForPoint( vec3_t point, vec3_t lightDir, vec3_t normal, world_t *world );
 int R_CubemapForPoint( vec3_t point );
 
 

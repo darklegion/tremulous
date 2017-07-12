@@ -3497,7 +3497,7 @@ bool Parse_AddGlobalDefine(char *string)
 Parse_CopyDefine
 ===============
 */
-static define_t *Parse_CopyDefine(source_t *source, define_t *define)
+static define_t *Parse_CopyDefine(define_t *define)
 {
   define_t *newdefine;
   token_t *token, *newtoken, *lasttoken;
@@ -3546,7 +3546,7 @@ static void Parse_AddGlobalDefinesToSource(source_t *source)
 
   for (define = globaldefines; define; define = define->next)
   {
-    newdefine = Parse_CopyDefine(source, define);
+    newdefine = Parse_CopyDefine(define);
     Parse_AddDefineToHash(newdefine, source->definehash);
   }
 }

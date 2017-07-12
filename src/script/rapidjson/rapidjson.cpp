@@ -317,7 +317,6 @@ class Encoder
 
 static int json_encode(lua_State* L)
 {
-#warning "BALD Exception handler in rapidjson LUA interface"
     try
     {
         Encoder encode(L, 2);

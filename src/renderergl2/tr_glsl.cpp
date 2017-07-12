@@ -53,12 +53,11 @@ extern const char *fallbackShader_texturecolor_fp;
 extern const char *fallbackShader_tonemap_vp;
 extern const char *fallbackShader_tonemap_fp;
 
-typedef struct uniformInfo_s
+struct uniformInfo_t
 {
-	char *name;
+	const char *name;
 	int type;
-}
-uniformInfo_t;
+};
 
 // These must be in the same order as in uniform_t in tr_local.h.
 static uniformInfo_t uniformsInfo[] =

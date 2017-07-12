@@ -43,7 +43,7 @@ QGL_EXT_direct_state_access_PROCS;
 
 void GLimp_InitExtraExtensions()
 {
-	char *extension;
+	const char *extension;
 	const char* result[3] = { "...ignoring %s\n", "...using %s\n", "...%s not found\n" };
 
 	// Check OpenGL version

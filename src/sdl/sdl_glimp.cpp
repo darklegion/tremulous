@@ -96,7 +96,7 @@ void GLimp_Minimize( void )
 GLimp_LogComment
 ===============
 */
-void GLimp_LogComment( char *comment )
+void GLimp_LogComment( const char *comment )
 {
 }
 
@@ -547,13 +547,10 @@ static int GLimp_SetMode( bool failSafe, bool fullscreen, bool noborder )
 GLimp_StartDriverAndSetMode
 ===============
 */
-static qboolean GLimp_StartDriverAndSetMode( bool failSafe, bool fullscreen, bool noborder )
+static bool GLimp_StartDriverAndSetMode( bool failSafe, bool fullscreen, bool noborder )
 {
-	rserr_t err;
-
 	if (!SDL_WasInit(SDL_INIT_VIDEO))
 	{
-		const char *driverName;
 
 		if (SDL_Init(SDL_INIT_VIDEO) != 0)
 		{
@@ -561,7 +558,7 @@ static qboolean GLimp_StartDriverAndSetMode( bool failSafe, bool fullscreen, boo
 			return qfalse;
 		}
 
-		driverName = SDL_GetCurrentVideoDriver( );
+		const char *driverName = SDL_GetCurrentVideoDriver( );
 		ri.Printf( PRINT_ALL, "SDL using driver \"%s\"\n", driverName );
 		ri.Cvar_Set( "r_sdlDriver", driverName );
 	}
@@ -571,24 +568,24 @@ static qboolean GLimp_StartDriverAndSetMode( bool failSafe, bool fullscreen, boo
 		ri.Printf( PRINT_ALL, "Fullscreen not allowed with in_nograb 1\n");
 		ri.Cvar_Set( "r_fullscreen", "0" );
 		r_fullscreen->modified = qfalse;
-		fullscreen = qfalse;
+		fullscreen = false;
 	}
 
-	err = (rserr_t)GLimp_SetMode( failSafe, fullscreen, noborder );
+	rserr_t err = (rserr_t)GLimp_SetMode( failSafe, fullscreen, noborder );
 
 	switch ( err )
 	{
 		case RSERR_INVALID_FULLSCREEN:
 			ri.Printf( PRINT_ALL, "...WARNING: fullscreen unavailable in this mode\n" );
-			return qfalse;
+			return false;
 		case RSERR_INVALID_MODE:
 			ri.Printf( PRINT_ALL, "...WARNING: could not set the given mode\n" );
-			return qfalse;
+			return false;
 		default:
 			break;
 	}
 
-	return qtrue;
+	return true;
 }
 
 static bool GLimp_HaveExtension(const char *ext)

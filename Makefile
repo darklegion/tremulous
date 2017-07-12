@@ -1043,7 +1043,7 @@ endif
 
 ifeq ($(NEED_OPUS),1)
   ifeq ($(USE_INTERNAL_OPUS),1)
-    OPUS_CFLAGS = -DOPUS_BUILD -DHAVE_LRINTF -DFLOATING_POINT -DFLOAT_APPROX -DUSE_ALLOCA \
+    OPUS_CFLAGS = -DOPUS_BUILD -DHAVE_LRINTF -DFLOATING_POINT -DFLOAT_APPROX -DUSE_ALLOCA -D __OPTIMIZE__ \
       -I$(OPUSDIR)/include -I$(OPUSDIR)/celt -I$(OPUSDIR)/silk \
       -I$(OPUSDIR)/silk/float -I$(OPUSFILEDIR)/include
   else
@@ -1649,7 +1649,7 @@ $(Q3ASM): $(Q3ASMOBJ)
 # GRANGER
 #############################################################################
 
-GRANGER_CFLAGS += -Wall -Wextra -fPIC -fpic
+GRANGER_CFLAGS +=-fPIC -fpic
 
 ifeq ($(PLATFORM),darwin)
 GRANGER_CFLAGS += -DLUA_USE_MACOSX
@@ -1777,7 +1777,8 @@ TARGETS += $(B)/GPL $(B)/COPYING $(B)/CC
 # LUA
 #############################################################################
 
-LUACFLAGS=-Wall -Wextra -fPIC -fpic
+#LUACFLAGS=-Wall -Wextra -fPIC -fpic
+LUACFLAGS=-fPIC -fpic
 
 ifeq ($(PLATFORM),darwin)
 LUACFLAGS += -DLUA_USE_MACOSX
@@ -1872,7 +1873,7 @@ $(B)/script/rapidjson/%.o: $(LUA_RAPIDJSONDIR)/%.cpp
 # Nettle
 #############################################################################
 
-NETTLECFLAGS=-Wall -Wextra -DLUA_COMPAT_5_2 -fPIC -fpic
+NETTLECFLAGS=-fPIC -fpic
 
 define DO_NETTLE_CC
   $(echo_cmd) "NETTLE_CC $<"

@@ -65,7 +65,6 @@ static Node node(int op, Node l, Node r, Symbol sym)
 
 static Node constnode(int op, Symbol sym)
 {
-    int i;
     struct dag *p;
     p = dagnode(op, NULL, NULL, sym);
     ++nodecount;

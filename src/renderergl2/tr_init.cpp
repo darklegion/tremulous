@@ -285,7 +285,7 @@ static void InitOpenGL( void )
 GL_CheckErrors
 ==================
 */
-void GL_CheckErrs( char *file, int line ) {
+void GL_CheckErrs( const char *file, int line ) {
 	int		err;
 	char	s[64];
 

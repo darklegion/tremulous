@@ -451,12 +451,11 @@ float MSG_ReadFloat(msg_t *msg)
 char *MSG_ReadString(msg_t *msg)
 {
     static char string[MAX_STRING_CHARS];
-    int l, c;
 
-    l = 0;
+    size_t l = 0;
     do
     {
-        c = MSG_ReadByte(msg);  // use ReadByte so -1 is out of bounds
+        int c = MSG_ReadByte(msg);  // use ReadByte so -1 is out of bounds
         if (c == -1 || c == 0)
         {
             break;
@@ -474,12 +473,11 @@ char *MSG_ReadString(msg_t *msg)
 char *MSG_ReadBigString(msg_t *msg)
 {
     static char string[BIG_INFO_STRING];
-    int l, c;
 
-    l = 0;
+    size_t l = 0;
     do
     {
-        c = MSG_ReadByte(msg);  // use ReadByte so -1 is out of bounds
+        int c = MSG_ReadByte(msg);  // use ReadByte so -1 is out of bounds
         if (c == -1 || c == 0)
         {
             break;
@@ -497,12 +495,11 @@ char *MSG_ReadBigString(msg_t *msg)
 char *MSG_ReadStringLine(msg_t *msg)
 {
     static char string[MAX_STRING_CHARS];
-    int l, c;
 
-    l = 0;
+    size_t l = 0;
     do
     {
-        c = MSG_ReadByte(msg);  // use ReadByte so -1 is out of bounds
+        int c = MSG_ReadByte(msg);  // use ReadByte so -1 is out of bounds
         if (c == -1 || c == 0 || c == '\n')
         {
             break;

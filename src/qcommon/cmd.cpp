@@ -430,7 +430,7 @@ Cmd_Argv
 ============
 */
 const char* Cmd_Argv( int arg ) {
-	if ( (unsigned)arg >= cmd.argc ) {
+	if ( arg >= cmd.argc ) {
 		return (char*)"\0";
 	}
 	return cmd.argv[arg];	

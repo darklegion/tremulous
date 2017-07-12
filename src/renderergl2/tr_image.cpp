@@ -45,10 +45,10 @@ void R_GammaCorrect( byte *buffer, int bufSize ) {
 	}
 }
 
-typedef struct {
-	char *name;
+struct textureMode_t {
+	const char *name;
 	int	minimize, maximize;
-} textureMode_t;
+};
 
 textureMode_t modes[] = {
 	{"GL_NEAREST", GL_NEAREST, GL_NEAREST},
@@ -156,8 +156,8 @@ void R_ImageList_f( void ) {
 	for ( i = 0 ; i < tr.numImages ; i++ )
 	{
 		image_t *image = tr.images[i];
-		char *format = "????   ";
-		char *sizeSuffix;
+		const char *format = "????   ";
+		const char *sizeSuffix;
 		int estSize;
 		int displaySize;
 
@@ -2268,7 +2268,7 @@ void R_LoadDDS(const char *filename, byte **pic, int *width, int *height, GLenum
 
 typedef struct
 {
-	char *ext;
+	const char *ext;
 	void (*ImageLoader)( const char *, unsigned char **, int *, int * );
 } imageExtToLoaderMap_t;
 
@@ -2962,7 +2962,7 @@ compatable with our normal parsing rules.
 static char *CommaParse( char **data_p ) {
 	int c = 0, len;
 	char *data;
-	static	char	com_token[MAX_TOKEN_CHARS];
+	static	char com_token[MAX_TOKEN_CHARS];
 
 	data = *data_p;
 	len = 0;

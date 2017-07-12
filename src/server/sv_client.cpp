@@ -1661,7 +1661,7 @@ static bool SV_ShouldIgnoreVoipSender(const client_t *cl)
 
 static void SV_UserVoip(client_t *cl, msg_t *msg, bool ignoreData)
 {
-	int sender, generation, sequence, frames, packetsize;
+	int sender, generation, sequence, frames;
 	uint8_t recips[(MAX_CLIENTS + 7) / 8];
 	int recip1 = 0, recip2 = 0, recip3 = 0; // silence warning
 	int flags = 0;
@@ -1682,17 +1682,17 @@ static void SV_UserVoip(client_t *cl, msg_t *msg, bool ignoreData)
 		recip2 = MSG_ReadLong(msg);
 		recip3 = MSG_ReadLong(msg);
 	}
-	packetsize = MSG_ReadShort(msg);
+    size_t packetsize = MSG_ReadShort(msg);
 
 	if (msg->readcount > msg->cursize)
 		return;   // short/invalid packet, bail.
 
-	if (packetsize > sizeof (encoded)) {  // overlarge packet?
-		int bytesleft = packetsize;
+	if (packetsize > sizeof(encoded)) {  // overlarge packet?
+		size_t bytesleft = packetsize;
 		while (bytesleft) {
-			int br = bytesleft;
-			if (br > sizeof (encoded))
-				br = sizeof (encoded);
+			size_t br = bytesleft;
+			if (br > sizeof(encoded))
+				br = sizeof(encoded);
 			MSG_ReadData(msg, encoded, br);
 			bytesleft -= br;
 		}

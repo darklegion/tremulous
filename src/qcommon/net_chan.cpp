@@ -357,8 +357,8 @@ bool Netchan_Process(netchan_t *chan, msg_t *msg)
         }
 
         // copy the fragment to the fragment buffer
-        if (fragmentLength < 0 || msg->readcount + fragmentLength > msg->cursize ||
-            chan->fragmentLength + fragmentLength > sizeof(chan->fragmentBuffer))
+        if (fragmentLength < 0 || msg->readcount + fragmentLength > msg->cursize
+            || (size_t)(chan->fragmentLength + fragmentLength) > sizeof(chan->fragmentBuffer))
         {
             if (showdrop->integer || showpackets->integer)
             {

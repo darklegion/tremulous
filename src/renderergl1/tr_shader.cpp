@@ -1256,7 +1256,7 @@ skyParms <outerbox> <cloudheight> <innerbox>
 */
 static void ParseSkyParms( char **text ) {
 	char		*token;
-	static char	*suf[6] = {"rt", "bk", "lf", "ft", "up", "dn"};
+	const char	*suf[6] = {"rt", "bk", "lf", "ft", "up", "dn"};
 	char		pathname[MAX_QPATH];
 	int			i;
 	int/*imgFlags_t*/ imgFlags = IMGFLAG_MIPMAP | IMGFLAG_PICMIP;
@@ -1354,10 +1354,10 @@ void ParseSort( char **text ) {
 
 // this table is also present in q3map
 
-typedef struct {
-	char	*name;
+struct infoParm_t {
+	const char *name;
 	unsigned clearSolid, surfaceFlags, contents;
-} infoParm_t;
+};
 
 infoParm_t	infoParms[] = {
 	// server relevant contents

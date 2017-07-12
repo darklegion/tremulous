@@ -200,7 +200,7 @@ struct client_t {
     bool muteAllVoip;
     bool ignoreVoipFromClient[MAX_CLIENTS];
     voipServerPacket_t *voipPacket[VOIP_QUEUE_LENGTH];
-    int queuedVoipPackets;
+    size_t queuedVoipPackets;
     int queuedVoipIndex;
 #endif
 

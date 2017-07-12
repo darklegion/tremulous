@@ -181,11 +181,11 @@ qhandle_t R_RegisterIQM(const char *name, model_t *mod)
 }
 
 
-typedef struct
+struct modelExtToLoaderMap_t
 {
-	char *ext;
+	const char *ext;
 	qhandle_t (*ModelLoader)( const char *, model_t * );
-} modelExtToLoaderMap_t;
+};
 
 // Note that the ordering indicates the order of preference used
 // when there are multiple models of different formats available
@@ -541,7 +541,7 @@ static bool R_LoadMDR( model_t *mod, void *buffer, int filesize, const char *mod
 	mdrVertex_t			*v, *curv;
 	mdrWeight_t			*weight, *curweight;
 	mdrTag_t			*tag, *curtag;
-	int					size;
+	size_t 				size;
 	shader_t			*sh;
 
 	pinmodel = (mdrHeader_t *)buffer;
