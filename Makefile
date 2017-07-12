@@ -2633,7 +2633,7 @@ CGOBJ11_ = \
   $(B)/$(BASEGAME)/cgame/bg_lib.o \
   $(B)/$(BASEGAME)/cgame/bg_alloc.o \
   $(B)/$(BASEGAME)/cgame/bg_voice.o \
-  $(B)/$(BASEGAME)/cgame/cg_consolecmds.o \
+  $(B)/$(BASEGAME)/11/cgame/cg_consolecmds.o \
   $(B)/$(BASEGAME)/cgame/cg_buildable.o \
   $(B)/$(BASEGAME)/cgame/cg_animation.o \
   $(B)/$(BASEGAME)/cgame/cg_animmapobj.o \

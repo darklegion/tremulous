@@ -86,6 +86,9 @@ Q_EXPORT intptr_t vmMain( int command, int arg0, int arg1, int arg2 )
 #ifndef MODULE_INTERFACE_11
     case CG_VOIP_STRING:
       return (intptr_t)CG_VoIPString( );
+
+    case CG_CONSOLE_COMPLETARGUMENT:
+      return CG_Console_CompleteArgument( arg0 );
 #endif
 
     default:

@@ -257,7 +257,68 @@ qboolean CG_ConsoleCommand( void )
   return qtrue;
 }
 
+#ifndef MODULE_INTERFACE_11
+/*
+==================
+CG_CompleteCallVote_f
+==================
+*/
+void CG_CompleteCallVote_f( int argNum ) {
+  switch( argNum ) {
+    case 2:
+      trap_Field_CompleteList(
+    "["
+    "\"allowbuild\","
+    "\"cancel\","
+    "\"denybuild\","
+    "\"draw\","
+    "\"extend\","
+    "\"kick\","
+    "\"map\","
+    "\"map_restart\","
+    "\"mute\","
+    "\"nextmap\","
+    "\"poll\","
+    "\"sudden_death\","
+    "\"unmute\" ]" );
+      break;
+  }
+}
 
+static consoleCommandCompletions_t commandCompletions[ ] =
+{
+  { "callvote", CG_CompleteCallVote_f }
+};
+
+/*
+=================
+CG_Console_CompleteArgument
+
+Try to complete the client command line argument given in
+argNum. Returns true if a completion function is found in CGAME,
+otherwise client tries another completion method.
+
+The string has been tokenized and can be retrieved with
+Cmd_Argc() / Cmd_Argv()
+=================
+*/
+qboolean CG_Console_CompleteArgument( int argNum )
+{
+  consoleCommandCompletions_t *cmd;
+
+  // Skip command prefix character
+  cmd = bsearch( CG_Argv( 0 ) + 1, commandCompletions,
+    ARRAY_LEN( commandCompletions ), sizeof( commandCompletions[ 0 ] ),
+    cmdcmp );
+
+  if( !cmd )
+    return qfalse;
+
+  cmd->function( argNum );
+  return qtrue;
+}
+#endif
+  
 /*
 =================
 CG_InitConsoleCommands
