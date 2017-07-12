@@ -6,7 +6,7 @@
 
 #include "restclient/connection.h"
 
-#include "../client/cl_curl.h"
+#include "../../src/client/cl_curl.h"
 #include <cstring>
 #include <string>
 #include <iostream>

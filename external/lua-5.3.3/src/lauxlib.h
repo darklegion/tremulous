@@ -14,7 +14,7 @@
 
 #include "lua.h"
 #ifndef GRANGER
-#include "../../qcommon/q3_lauxlib.h"
+#include "../../../src/qcommon/q3_lauxlib.h"
 #endif
 
 /* extra error code for 'luaL_load' */
