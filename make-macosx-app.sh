@@ -256,7 +256,7 @@ if [ ! -d ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH} ]; then
 fi
 
 # copy and generate some application bundle resources
-cp src/libs/macosx/*.dylib ${BUILT_PRODUCTS_DIR}/${EXECUTABLE_FOLDER_PATH}
+cp external/libs/macosx/*.dylib ${BUILT_PRODUCTS_DIR}/${EXECUTABLE_FOLDER_PATH}
 cp ${ICNSDIR}/${ICNS} ${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/$ICNS || exit 1;
 cp	"${BUILT_PRODUCTS_DIR}/${BASEDIR}/${VMS_PK3}" "${BUNDLEBINDIR}/${BASEDIR}/${VMS_PK3}"
 cp	"${BUILT_PRODUCTS_DIR}/${BASEDIR}/${DATA_PK3}" "${BUNDLEBINDIR}/${BASEDIR}/${DATA_PK3}"

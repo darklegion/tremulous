@@ -1402,7 +1402,6 @@ void Script_SetAsset( itemDef_t *item, char **args )
         // check for a model
         if( item->type == ITEM_TYPE_MODEL )
         {
-#warning "Script_SetAsset() is not implemented!"        
         }
     }
 }
@@ -5014,7 +5013,7 @@ Iterate each command, get its numeric binding
 */
 void Controls_GetConfig( void )
 {
-    int i;
+    size_t i;
     int twokeys[ 2 ];
 
     for( i = 0; i < g_bindCount; i++ )
@@ -5071,7 +5070,7 @@ void Controls_SetDefaults( void )
 
 int BindingIDFromName( const char *name )
 {
-    int i;
+    size_t i;
     for( i = 0; i < g_bindCount; i++ )
     {
         if( Q_stricmp( name, g_bindings[i].command ) == 0 )

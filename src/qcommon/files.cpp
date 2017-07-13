@@ -372,7 +372,7 @@ Qpath may have either forward or backwards slashes
 char *FS_BuildOSPath(const char *base, const char *game, const char *qpath)
 {
     char temp[MAX_OSPATH];
-#warning "FIXME FS_BuildOSPath() returns static buffer with function scope"
+    // "FIXME FS_BuildOSPath() returns static buffer with function scope"
 
     // This code will alternate between 2 different buffers-
     // XXX 3 or more calls to FS_BuildOSPath in a row are not safe.
@@ -3412,7 +3412,6 @@ Servers with sv_pure set will get this string and pass it to clients.
 */
 const char *FS_LoadedPakChecksums(bool alternate)
 {
-#warning "FS_LoadedPakChecksums() returns `static char info[BIG_INFO_STRING]`"
     static char info[BIG_INFO_STRING];
     info[0] = 0;
 
@@ -3438,7 +3437,6 @@ Servers with sv_pure set will get this string and pass it to clients.
 */
 const char *FS_LoadedPakNames(bool alternate)
 {
-#warning "FS_LoadedPakNames() returns `static char info[BIG_INFO_STRING]`"
     static char info[BIG_INFO_STRING];
     info[0] = 0;
 
@@ -3466,7 +3464,6 @@ back to the server.
 */
 const char *FS_LoadedPakPureChecksums(bool alternate)
 {
-#warning "FS_LoadedPakPureChecksums() returns `static char info[BIG_INFO_STRING]`"
     static char info[BIG_INFO_STRING];
     info[0] = 0;
 
@@ -3492,7 +3489,6 @@ The server will send this to the clients so they can check which files should be
 */
 const char *FS_ReferencedPakChecksums(bool alternate)
 {
-#warning "FS_ReferencedPakChecksums() returns `static char info[BIG_INFO_STRING]`"
     static char info[BIG_INFO_STRING];
     info[0] = 0;
 
@@ -3530,7 +3526,6 @@ The string has a specific order, "cgame ui @ ref1 ref2 ref3 ..."
 */
 const char *FS_ReferencedPakPureChecksums(void)
 {
-#warning "FS_ReferencedPakPureChecksums() returns `static char info[BIG_INFO_STRING]`"
     static char info[BIG_INFO_STRING];
     info[0] = 0;
 
@@ -3577,7 +3572,6 @@ The server will send this to the clients so they can check which files should be
 */
 const char *FS_ReferencedPakNames(bool alternate)
 {
-#warning "FS_ReferencedPakNames() returns `static char info[BIG_INFO_STRING]`"
     static char info[BIG_INFO_STRING];
     info[0] = 0;
 
@@ -3639,7 +3633,6 @@ void FS_PureServerSetLoadedPaks(const char *pakSums, const char *pakNames)
 {
     Cmd_TokenizeString(pakSums);
 
-#warning "FS_PureServerSetLoadedPaks() Forced reassignment of MAX_SEARCH_PATHS"
     int c = Cmd_Argc();
     if (c > MAX_SEARCH_PATHS) c = MAX_SEARCH_PATHS;
 
@@ -3669,7 +3662,6 @@ void FS_PureServerSetLoadedPaks(const char *pakSums, const char *pakNames)
     {
         Cmd_TokenizeString(pakNames);
 
-#warning "FS_PureServerSetLoadedPaks() Forced reassignment of MAX_SEARCH_PATHS"
         int d = Cmd_Argc();
         if (d > MAX_SEARCH_PATHS) d = MAX_SEARCH_PATHS;
 
@@ -3690,7 +3682,6 @@ void FS_PureServerSetReferencedPaks(const char *pakSums, const char *pakNames)
 {
     Cmd_TokenizeString(pakSums);
 
-#warning "FS_PureServerSetLoadedPaks() Forced reassignment of MAX_SEARCH_PATHS"
     unsigned c = Cmd_Argc();
     if (c > MAX_SEARCH_PATHS) c = MAX_SEARCH_PATHS;
 

@@ -626,7 +626,7 @@ Cvar_SetSafe
 */
 void Cvar_SetSafe(const char *var_name, const char *value)
 {
-    int flags = Cvar_Flags(var_name);
+    unsigned flags = Cvar_Flags(var_name);
 
     if ((flags != CVAR_NONEXISTENT) && (flags & CVAR_PROTECTED))
     {
@@ -1419,7 +1419,7 @@ void Cvar_Update(vmCvar_t *vmCvar)
     cvar_t *cv = nullptr;
     assert(vmCvar);
 
-    if ((unsigned)vmCvar->handle >= cvar_numIndexes)
+    if (vmCvar->handle >= cvar_numIndexes)
     {
         Com_Error(ERR_DROP, "Cvar_Update: handle out of range");
     }

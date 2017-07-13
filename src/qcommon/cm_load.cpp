@@ -313,7 +313,6 @@ CMod_LoadPlanes
 */
 void CMod_LoadPlanes (lump_t *l)
 {
-	int			i, j;
 	cplane_t	*out;
 	dplane_t 	*in;
 	int			count;
@@ -719,7 +718,6 @@ void CM_LoadMap( const char *name, bool clientload, int *checksum ) {
 		int				*i;
 		void			*v;
 	} buf;
-	int				i;
 	dheader_t		header;
 	int				length;
 	static unsigned	last_checksum;
@@ -770,7 +768,7 @@ void CM_LoadMap( const char *name, bool clientload, int *checksum ) {
 	*checksum = last_checksum;
 
 	header = *(dheader_t *)buf.i;
-	for (i=0 ; i<sizeof(dheader_t)/4 ; i++) {
+	for (size_t i = 0 ; i<sizeof(dheader_t)/4 ; i++) {
 		((int *)&header)[i] = LittleLong ( ((int *)&header)[i]);
 	}
 

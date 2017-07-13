@@ -601,9 +601,8 @@ void trap_Key_SetOverstrikeMode( qboolean state ) {
 qboolean trap_Key_GetOverstrikeMode( void ) {
   return syscall( CG_KEY_GETOVERSTRIKEMODE );
 }
-#endif
 
-void trap_Field_CompleteList( char *listJson )
-{
+void trap_Field_CompleteList( char *listJson ) {
   syscall( CG_FIELD_COMPLETELIST, listJson );
 }
+#endif

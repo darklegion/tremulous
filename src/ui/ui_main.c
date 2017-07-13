@@ -872,7 +872,7 @@ static void UI_BuildServerStatus( qboolean force )
 UI_BuildServerDisplayList
 ==================
 */
-static void UI_BuildServerDisplayList( qboolean force )
+static void UI_BuildServerDisplayList( int force )
 {
   int i, count, clients, maxClients, ping, len, visible;
   char info[MAX_STRING_CHARS];
@@ -4649,7 +4649,7 @@ UI_RegisterCvars
 */
 void UI_RegisterCvars( void )
 {
-  int     i;
+  size_t i;
   cvarTable_t *cv;
 
   for( i = 0, cv = cvarTable ; i < cvarTableSize ; i++, cv++ )
@@ -4663,7 +4663,7 @@ UI_UpdateCvars
 */
 void UI_UpdateCvars( void )
 {
-  int     i;
+  size_t i;
   cvarTable_t *cv;
 
   for( i = 0, cv = cvarTable ; i < cvarTableSize ; i++, cv++ )

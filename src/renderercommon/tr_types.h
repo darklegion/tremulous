@@ -198,7 +198,7 @@ typedef struct {
 	glHardwareType_t		hardwareType;
 
 	qboolean				deviceSupportsGamma;
-	textureCompression_t	textureCompression;
+	int/*textureCompression_t*/	textureCompression;
 	qboolean				textureEnvAddAvailable;
 
 	int						vidWidth, vidHeight;

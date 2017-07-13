@@ -133,6 +133,10 @@ ifndef MOUNT_DIR
 MOUNT_DIR=src
 endif
 
+ifndef EXTERNAL_DIR
+EXTERNAL_DIR=external
+endif
+
 ifndef ASSETS_DIR
 ASSETS_DIR=assets
 endif
@@ -243,6 +247,7 @@ endif
 
 BD=$(BUILD_DIR)/debug-$(PLATFORM)-$(ARCH)
 BR=$(BUILD_DIR)/release-$(PLATFORM)-$(ARCH)
+
 CDIR=$(MOUNT_DIR)/client
 SDIR=$(MOUNT_DIR)/server
 RCOMMONDIR=$(MOUNT_DIR)/renderercommon
@@ -257,24 +262,24 @@ GDIR=$(MOUNT_DIR)/game
 CGDIR=$(MOUNT_DIR)/cgame
 NDIR=$(MOUNT_DIR)/null
 UIDIR=$(MOUNT_DIR)/ui
-JPDIR=$(MOUNT_DIR)/jpeg-8c
-OGGDIR=$(MOUNT_DIR)/libogg-1.3.2
-VORBISDIR=$(MOUNT_DIR)/libvorbis-1.3.5
-OPUSDIR=$(MOUNT_DIR)/opus-1.1.4
-OPUSFILEDIR=$(MOUNT_DIR)/opusfile-0.8
-ZDIR=$(MOUNT_DIR)/zlib
-LUADIR=$(MOUNT_DIR)/lua-5.3.3/src
 GRANGERDIR=$(MOUNT_DIR)/granger/src
-RESTDIR=$(MOUNT_DIR)/restclient
-NETTLEDIR=$(MOUNT_DIR)/nettle-3.3
+JPDIR=$(EXTERNAL_DIR)/jpeg-8c
+OGGDIR=$(EXTERNAL_DIR)/libogg-1.3.2
+VORBISDIR=$(EXTERNAL_DIR)/libvorbis-1.3.5
+OPUSDIR=$(EXTERNAL_DIR)/opus-1.1.4
+OPUSFILEDIR=$(EXTERNAL_DIR)/opusfile-0.8
+ZDIR=$(EXTERNAL_DIR)/zlib
+LUADIR=$(EXTERNAL_DIR)/lua-5.3.3/src
+RESTDIR=$(EXTERNAL_DIR)/restclient
+NETTLEDIR=$(EXTERNAL_DIR)/nettle-3.3
 LUA_RAPIDJSONDIR=$(MOUNT_DIR)/script/rapidjson
 Q3ASMDIR=$(MOUNT_DIR)/tools/asm
 LBURGDIR=$(MOUNT_DIR)/tools/lcc/lburg
 Q3CPPDIR=$(MOUNT_DIR)/tools/lcc/cpp
 Q3LCCETCDIR=$(MOUNT_DIR)/tools/lcc/etc
 Q3LCCSRCDIR=$(MOUNT_DIR)/tools/lcc/src
-SDLHDIR=$(MOUNT_DIR)/SDL2
-LIBSDIR=$(MOUNT_DIR)/libs
+SDLHDIR=$(EXTERNAL_DIR)/SDL2
+LIBSDIR=$(EXTERNAL_DIR)/libs
 TEMPDIR=/tmp
 
 bin_path=$(shell which $(1) 2> /dev/null)
@@ -1038,7 +1043,7 @@ endif
 
 ifeq ($(NEED_OPUS),1)
   ifeq ($(USE_INTERNAL_OPUS),1)
-    OPUS_CFLAGS = -DOPUS_BUILD -DHAVE_LRINTF -DFLOATING_POINT -DFLOAT_APPROX -DUSE_ALLOCA \
+    OPUS_CFLAGS = -DOPUS_BUILD -DHAVE_LRINTF -DFLOATING_POINT -DFLOAT_APPROX -DUSE_ALLOCA -D __OPTIMIZE__ \
       -I$(OPUSDIR)/include -I$(OPUSDIR)/celt -I$(OPUSDIR)/silk \
       -I$(OPUSDIR)/silk/float -I$(OPUSFILEDIR)/include
   else
@@ -1644,7 +1649,7 @@ $(Q3ASM): $(Q3ASMOBJ)
 # GRANGER
 #############################################################################
 
-GRANGER_CFLAGS += -Wall -Wextra -fPIC -fpic
+GRANGER_CFLAGS +=-fPIC -fpic
 
 ifeq ($(PLATFORM),darwin)
 GRANGER_CFLAGS += -DLUA_USE_MACOSX
@@ -1772,7 +1777,8 @@ TARGETS += $(B)/GPL $(B)/COPYING $(B)/CC
 # LUA
 #############################################################################
 
-LUACFLAGS=-Wall -Wextra -fPIC -fpic
+#LUACFLAGS=-Wall -Wextra -fPIC -fpic
+LUACFLAGS=-fPIC -fpic
 
 ifeq ($(PLATFORM),darwin)
 LUACFLAGS += -DLUA_USE_MACOSX
@@ -1823,7 +1829,7 @@ define DO_LUA_CC
   $(Q)$(call LOG_CC,lua,${LUACFLAGS} ${OPTIMIZE},$@,$<)
 endef
 
-LUACFLAGS += -I$(MOUNT_DIR)/lua-5.3.3/include
+LUACFLAGS += -I$(EXTERNAL_DIR)/lua-5.3.3/include
 CFLAGS += $(LUACFLAGS)
 CXXFLAGS += $(LUACFLAGS)
 
@@ -1835,7 +1841,7 @@ $(B)/lua/%.o: $(LUADIR)/%.c
 # FIXME Disabled for the time being
 #############################################################################
 
-SCRIPT_INCLUDES=-Isrc/qcommon -Isrc/rapidjson -Isrc/sol -Isrc/nettle-3.3
+SCRIPT_INCLUDES=-Isrc/qcommon -I$(EXTERNAL_DIR)/rapidjson -I$(EXTERNAL_DIR)/sol -I$(EXTERNAL_DIR)/nettle-3.3
 define DO_SCRIPT_CXX
   $(echo_cmd) "SCRIPT_CXX $<"
   $(Q)$(call EXEC_CXX,${NOTSHLIBCFLAGS} ${SCRIPT_INCLUDES} ${LUACFLAGS} ${OPTIMIZE},'$@','$<')
@@ -1867,7 +1873,7 @@ $(B)/script/rapidjson/%.o: $(LUA_RAPIDJSONDIR)/%.cpp
 # Nettle
 #############################################################################
 
-NETTLECFLAGS=-Wall -Wextra -DLUA_COMPAT_5_2 -fPIC -fpic
+NETTLECFLAGS=-fPIC -fpic
 
 define DO_NETTLE_CC
   $(echo_cmd) "NETTLE_CC $<"
@@ -1905,7 +1911,6 @@ CFLAGS += -I$(NETTLEDIR)
 
 $(B)/nettle/%.o: $(NETTLEDIR)/nettle/%.c
 	$(DO_NETTLE_CC)
-
 
 #############################################################################
 # CLIENT/SERVER
@@ -2629,7 +2634,7 @@ CGOBJ11_ = \
   $(B)/$(BASEGAME)/cgame/bg_lib.o \
   $(B)/$(BASEGAME)/cgame/bg_alloc.o \
   $(B)/$(BASEGAME)/cgame/bg_voice.o \
-  $(B)/$(BASEGAME)/cgame/cg_consolecmds.o \
+  $(B)/$(BASEGAME)/11/cgame/cg_consolecmds.o \
   $(B)/$(BASEGAME)/cgame/cg_buildable.o \
   $(B)/$(BASEGAME)/cgame/cg_animation.o \
   $(B)/$(BASEGAME)/cgame/cg_animmapobj.o \
@@ -2870,8 +2875,12 @@ $(B)/renderercommon/%.o: $(JPDIR)/%.c
 
 $(B)/renderergl1/%.o: $(RCOMMONDIR)/%.c
 	$(DO_RENDERER_COMMON_CC)
+$(B)/renderergl1/%.o: $(RCOMMONDIR)/%.cpp
+	$(DO_RENDERER_COMMON_CXX)
 $(B)/renderergl1/%.o: $(RGL1DIR)/%.c
 	$(DO_RENDERERGL1_CC)
+$(B)/renderergl1/%.o: $(RGL1DIR)/%.cpp
+	$(DO_RENDERERGL1_CXX)
 $(B)/renderergl1/%.o: $(CMDIR)/%.c
 	$(DO_RENDERERGL1_CC)
 $(B)/renderergl1/%.o: $(CMDIR)/%.cpp

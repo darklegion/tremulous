@@ -1434,6 +1434,12 @@ typedef struct
   void ( *function )( void );
 } consoleCommand_t;
 
+typedef struct
+{
+  char *cmd;
+  void (*function)( int argNum );
+} consoleCommandCompletions_t;
+
 //==============================================================================
 
 extern  cgs_t     cgs;
@@ -1822,6 +1828,7 @@ void          CG_ProcessSnapshots( void );
 //
 // cg_consolecmds.c
 //
+qboolean CG_Console_CompleteArgument( int argNum );
 qboolean      CG_ConsoleCommand( void );
 void          CG_InitConsoleCommands( void );
 qboolean      CG_RequestScores( void );
@@ -2278,6 +2285,7 @@ qboolean      trap_GetEntityToken( char *buffer, int bufferSize );
 int           trap_GetDemoState( void );
 int           trap_GetDemoPos( void );
 void          trap_GetDemoName( char *buffer, int size );
+void          trap_Field_CompleteList( char *listJson  );
 
 // cg_drawCrosshair settings
 #define CROSSHAIR_ALWAYSOFF       0

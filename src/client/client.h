@@ -296,7 +296,6 @@ struct clientConnection_t {
     char demoName[MAX_QPATH];
     bool spDemoRecording;
     bool demorecording;
-#warning "Where is demoplaying initialized?"
     bool demoplaying;
     bool demowaiting;  // don't record until a non-delta message is received
     bool firstDemoFrameSkipped;

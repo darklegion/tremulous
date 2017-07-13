@@ -642,7 +642,8 @@ int Com_HexStrToInt( const char *str )
 	// check for hex code
 	if( str[ 0 ] == '0' && str[ 1 ] == 'x' )
 	{
-		int i, n = 0;
+        size_t i;
+		int n = 0;
 
 		for( i = 2; i < strlen( str ); i++ )
 		{
@@ -1385,7 +1386,7 @@ Com_CharIsOneOfCharset
 */
 static qboolean Com_CharIsOneOfCharset( char c, const char *set )
 {
-	int i;
+	size_t i;
 
 	for( i = 0; i < strlen( set ); i++ )
 	{

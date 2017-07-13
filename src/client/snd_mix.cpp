@@ -35,7 +35,6 @@ int*     snd_p;
 int      snd_linear_count;
 short*   snd_out;
 
-#warning "Remove id386 throughout"
 #undef id386
 
 #if	!id386                                        // if configured not to use asm

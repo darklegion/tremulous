@@ -70,7 +70,7 @@ typedef struct {
 	void	(*ClearScene)( void );
 	void	(*AddRefEntityToScene)( const refEntity_t *re );
 	void	(*AddPolyToScene)( qhandle_t hShader , int numVerts, const polyVert_t *verts, int num );
-	int		(*LightForPoint)( vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir );
+	bool	(*LightForPoint)( vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir );
 	void	(*AddLightToScene)( const vec3_t org, float intensity, float r, float g, float b );
 	void	(*AddAdditiveLightToScene)( const vec3_t org, float intensity, float r, float g, float b );
 	void	(*RenderScene)( const refdef_t *fd );
@@ -125,7 +125,7 @@ typedef struct {
 	// stack based memory allocation for per-level things that
 	// won't be freed
 #ifdef HUNK_DEBUG
-	void	*(*Hunk_AllocDebug)( int size, ha_pref pref, char *label, char *file, int line );
+	void	*(*Hunk_AllocDebug)( int size, ha_pref pref, const char *label, const char *file, int line );
 #else
 	void	*(*Hunk_Alloc)( int size, ha_pref pref );
 #endif
@@ -193,9 +193,11 @@ typedef struct {
 // If the module can't init to a valid rendering state, NULL will be
 // returned.
 #ifdef USE_RENDERER_DLOPEN
+extern "C" {
 typedef	refexport_t* (QDECL *GetRefAPI_t) (int apiVersion, refimport_t * rimp);
+}
 #else
-refexport_t*GetRefAPI( int apiVersion, refimport_t *rimp );
+refexport_t* GetRefAPI( int apiVersion, refimport_t *rimp );
 #endif
 
 #endif	// __TR_PUBLIC_H

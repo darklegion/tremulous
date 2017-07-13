@@ -14,7 +14,6 @@
 
 size_t lua_writestring(char* string, size_t n)
 {
-#warning "FIXME: Tremded is not printing ANYTHING NOW"
 #ifndef DEDICATED
     CL_ConsolePrint( string );
 #endif
@@ -26,7 +25,6 @@ size_t lua_writestring(char* string, size_t n)
 
 int lua_writeline(void)
 {
-#warning "FIXME: Tremded is not printing ANYTHING NOW"
 #ifndef DEDICATED
     CL_ConsolePrint( "\n" );
 #endif

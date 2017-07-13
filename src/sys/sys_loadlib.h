@@ -23,10 +23,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef _SYS_LOADLIB_H_
 #define _SYS_LOADLIB_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #ifdef DEDICATED
 #	ifdef _WIN32
 #		include <windows.h>
@@ -57,7 +53,4 @@ extern "C" {
 
 void * QDECL Sys_LoadDll(const char *name, bool useSystemLib);
 
-#ifdef __cplusplus
-};
-#endif
 #endif

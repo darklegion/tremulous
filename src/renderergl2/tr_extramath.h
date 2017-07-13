@@ -34,7 +34,7 @@ void Mat4Identity( mat4_t out );
 void Mat4Copy( const mat4_t in, mat4_t out );
 void Mat4Multiply( const mat4_t in1, const mat4_t in2, mat4_t out );
 void Mat4Transform( const mat4_t in1, const vec4_t in2, vec4_t out );
-qboolean Mat4Compare(const mat4_t a, const mat4_t b);
+bool Mat4Compare(const mat4_t a, const mat4_t b);
 void Mat4Dump( const mat4_t in );
 void Mat4Translation( vec3_t vec, mat4_t out );
 void Mat4Ortho( float left, float right, float bottom, float top, float znear, float zfar, mat4_t out );
@@ -77,7 +77,7 @@ static ID_INLINE int VectorCompare5(const vec5_t v1, const vec5_t v2)
 void VectorLerp( vec3_t a, vec3_t b, float lerp, vec3_t c);
 
 
-qboolean SpheresIntersect(vec3_t origin1, float radius1, vec3_t origin2, float radius2);
+bool SpheresIntersect(vec3_t origin1, float radius1, vec3_t origin2, float radius2);
 void BoundingSphereOfSpheres(vec3_t origin1, float radius1, vec3_t origin2, float radius2, vec3_t origin3, float *radius3);
 
 #ifndef SGN
