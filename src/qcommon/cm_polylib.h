@@ -26,10 +26,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef CM_POLYLIB_H
 #define CM_POLYLIB_H 1
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 typedef struct
 {
 	int		numpoints;
@@ -74,7 +70,4 @@ void	ChopWindingInPlace (winding_t **w, vec3_t normal, vec_t dist, vec_t epsilon
 
 void pw(winding_t *w);
 
-#ifdef __cplusplus
-};
-#endif
 #endif

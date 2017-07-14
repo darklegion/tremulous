@@ -24,10 +24,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __QCURL_H__
 #define __QCURL_H__
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
 
@@ -100,9 +96,5 @@ void CL_cURL_Shutdown( void );
 void CL_cURL_BeginDownload( const char *localName, const char *remoteURL );
 void CL_cURL_PerformDownload( void );
 void CL_cURL_Cleanup( void );
-
-#ifdef __cplusplus
-};
-#endif
 
 #endif	// __QCURL_H__

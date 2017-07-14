@@ -31,24 +31,20 @@ key up events are sent even if in console mode
 
 field_t	historyEditLines[COMMAND_HISTORY];
 
-int			nextHistoryLine;		// the last line in the history buffer, not masked
-int			historyLine;	// the line being displayed from history buffer
-							// will be <= nextHistoryLine
+int nextHistoryLine; // the last line in the history buffer, not masked
+int historyLine;	// the line being displayed from history buffer will be <= nextHistoryLine
 
-field_t		g_consoleField;
+field_t g_consoleField;
 
-
-bool	key_overstrikeMode;
+bool key_overstrikeMode;
 
 int anykeydown;
 qkey_t keys[MAX_KEYS];
 
-
-typedef struct {
+struct keyname_t {
 	const char* name;
 	int keynum;
-} keyname_t;
-
+};
 
 // names not in this list can either be lowercase ascii, or '0xnn' hex sequences
 keyname_t keynames[] =
@@ -70,7 +66,6 @@ keyname_t keynames[] =
 	{"COMMAND", K_COMMAND},
 
 	{"CAPSLOCK", K_CAPSLOCK},
-
 	
 	{"F1", K_F1},
 	{"F2", K_F2},

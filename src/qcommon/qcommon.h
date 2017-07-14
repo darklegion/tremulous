@@ -24,12 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef _QCOMMON_H_
 #define _QCOMMON_H_
 
-#ifdef __cplusplus
-extern "C" {
-#else
-
 #include <stdbool.h>
-#endif
 
 #include "cm_public.h"
 
@@ -214,7 +209,6 @@ extern	cvar_t	*com_timescale;
 extern	cvar_t	*com_sv_running;
 extern	cvar_t	*com_cl_running;
 extern	cvar_t	*com_version;
-extern	cvar_t	*com_blood;
 extern	cvar_t	*com_buildScript;		// for building release pak files
 extern	cvar_t	*com_journal;
 extern	cvar_t	*com_cameraMode;
@@ -414,9 +408,5 @@ bool Parse_SourceFileAndLine(int handle, char *filename, int *line);
 #define DLF_NO_REDIRECT 2
 #define DLF_NO_UDP 4
 #define DLF_NO_DISCONNECT 8
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // _QCOMMON_H_

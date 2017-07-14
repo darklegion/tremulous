@@ -19,10 +19,6 @@
 #ifndef CMD_H
 #define CMD_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /*
 ==============================================================
 
@@ -65,7 +61,7 @@ then searches for a command or variable that matches the first token.
 
 */
 
-typedef void (*xcommand_t)(void);
+using xcommand_t = void(*)();
 
 void Cmd_Init(void);
 
@@ -112,9 +108,5 @@ void Cmd_ExecuteString(const char *text);
 
 void Cmd_SaveCmdContext(void);
 void Cmd_RestoreCmdContext(void);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

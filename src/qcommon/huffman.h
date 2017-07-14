@@ -3,10 +3,6 @@
 
 #include <stdint.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /* This is based on the Adaptive Huffman algorithm described in Sayood's Data
  * Compression book.  The ranks are not actually stored, but implicitly defined
  * by the location of a node within a doubly-linked list */
@@ -59,9 +55,5 @@ int Huff_getBloc(void);
 void Huff_setBloc(int _bloc);
 
 extern huffman_t clientHuffTables;
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif
