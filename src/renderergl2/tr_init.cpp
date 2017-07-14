@@ -1218,7 +1218,7 @@ void R_Register( void )
 	//
 	// temporary variables that can change at any time
 	//
-	r_showImages = ri.Cvar_Get( "r_showImages", "0", CVAR_TEMP );
+	r_showImages = ri.Cvar_Get( "r_showImages", "0", CVAR_CHEAT|CVAR_TEMP );
 
 	r_debugLight = ri.Cvar_Get( "r_debuglight", "0", CVAR_TEMP );
 	r_debugSort = ri.Cvar_Get( "r_debugSort", "0", CVAR_CHEAT );
