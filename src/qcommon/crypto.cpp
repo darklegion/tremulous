@@ -29,8 +29,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "crypto.h"
 #include "../sys/sys_shared.h"
 
-#define TO_REAL_PTR(x) (x - sizeof(size_t))
-#define TO_MOCK_PTR(x) (x + sizeof(size_t))
+#define TO_REAL_PTR(x) ((uint8_t*)x - sizeof(size_t))
+#define TO_MOCK_PTR(x) ((uint8_t*)x + sizeof(size_t))
 #define REAL_PTR_SIZE(x) (*((size_t *)x))
 #define MOCK_PTR_SIZE(x) (REAL_PTR_SIZE(TO_REAL_PTR(x)))
 
