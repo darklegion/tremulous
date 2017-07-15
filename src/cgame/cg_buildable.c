@@ -894,7 +894,7 @@ static void CG_BuildableStatusDisplay( centity_t *cent )
 
   // center point
   origin[ 2 ] += mins[ 2 ];
-  origin[ 2 ] += ( abs( mins[ 2 ] ) + abs( maxs[ 2 ] ) ) / 2;
+  origin[ 2 ] += ( fabs( mins[ 2 ] ) + fabs( maxs[ 2 ] ) ) / 2;
 
   entNum = cg.predictedPlayerState.clientNum;
 

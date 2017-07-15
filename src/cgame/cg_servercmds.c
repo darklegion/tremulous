@@ -1077,7 +1077,7 @@ voice clientNum vChan cmdNum trackNum [sayText]
 static void CG_ParseVoice( void )
 {
   int clientNum;
-  voiceChannel_t vChan;
+  int vChan;
   char sayText[ MAX_SAY_TEXT] = {""};
   voiceTrack_t *track;
   clientInfo_t *ci;
