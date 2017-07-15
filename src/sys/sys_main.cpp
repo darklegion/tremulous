@@ -749,9 +749,9 @@ int main( int argc, char **argv )
         Q_strcat(args, sizeof(args), " " );
     }
 
+    CON_Init( );
     Com_Init( args );
     NET_Init( );
-    CON_Init( );
 
     lua.open_libraries
     (
