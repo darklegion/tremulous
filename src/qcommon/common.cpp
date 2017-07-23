@@ -3364,6 +3364,9 @@ void Field_CompleteCommand( char *cmd, bool doCommands, bool doCvars )
     else
         completionString = Cmd_Argv( completionArgument - 1 );
 
+    if ( completionString == nullptr )
+        return;
+
 #ifndef DEDICATED
     // Unconditionally add a '\' to the start of the buffer
     if( completionField->buffer[ 0 ] &&
