@@ -341,6 +341,7 @@ Dlls will call this directly
  
 ============
 */
+__attribute__((no_sanitize_address))
 intptr_t QDECL VM_DllSyscall( intptr_t arg, ... ) {
 #if !id386 || defined __clang__
   // rcg010206 - see commentary above
@@ -811,7 +812,7 @@ an OP_ENTER instruction, which will subtract space for
 locals from sp
 ==============
 */
-
+__attribute__((no_sanitize_address))
 intptr_t QDECL VM_Call( vm_t *vm, int callnum, ... )
 {
 	vm_t	*oldVM;

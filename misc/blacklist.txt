@@ -1,3 +1,0 @@
-# fun:VM_Call
-# fun:VM_DllSyscall
-src:src/qcommon/vm.cpp
