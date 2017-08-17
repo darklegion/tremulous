@@ -35,7 +35,6 @@ endif(APPLE)
 add_executable(
     tremulous
     #
-    ${PARENT_DIR}/asm/ftola.c
     ${PARENT_DIR}/asm/snapvector.c
     #
     cl_avi.cpp

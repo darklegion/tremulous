@@ -179,9 +179,6 @@ typedef struct {
 	void	(*IN_Shutdown)( void );
 	void	(*IN_Restart)( void );
 
-	// math
-	long    (*ftol)(float f);
-
 	// system stuff
 	void	(*Sys_GLimpSafeInit)( void );
 	void	(*Sys_GLimpInit)( void );

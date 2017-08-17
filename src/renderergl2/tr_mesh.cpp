@@ -216,7 +216,7 @@ int R_ComputeLOD( trRefEntity_t *ent ) {
 		}
 
 		flod *= tr.currentModel->numLods;
-		lod = ri.ftol(flod);
+		lod = static_cast<int>(flod);
 
 		if ( lod < 0 )
 		{

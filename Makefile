@@ -2182,13 +2182,11 @@ ifeq ($(ARCH),x86)
   Q3OBJ += \
     $(B)/client/snd_mixa.o \
     $(B)/client/matha.o \
-    $(B)/client/snapvector.o \
-    $(B)/client/ftola.o
+    $(B)/client/snapvector.o
 endif
 ifeq ($(ARCH),x86_64)
   Q3OBJ += \
-    $(B)/client/snapvector.o \
-    $(B)/client/ftola.o
+    $(B)/client/snapvector.o
 endif
 
 ifeq ($(NEED_OPUS),1)
@@ -2517,13 +2515,11 @@ Q3DOBJ = \
 ifeq ($(ARCH),x86)
   Q3DOBJ += \
       $(B)/ded/matha.o \
-      $(B)/ded/snapvector.o \
-      $(B)/ded/ftola.o
+      $(B)/ded/snapvector.o
 endif
 ifeq ($(ARCH),x86_64)
   Q3DOBJ += \
-      $(B)/ded/snapvector.o \
-      $(B)/ded/ftola.o
+      $(B)/ded/snapvector.o
 endif
 
 Q3DOBJ += $(LUAOBJ) $(SCRIPTOBJ) $(NETTLEOBJ)

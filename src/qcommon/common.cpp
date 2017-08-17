@@ -106,11 +106,7 @@ cvar_t *com_basegame;
 cvar_t *com_homepath;
 cvar_t *com_busyWait;
 
-#if idx64
-int (*Q_VMftol)(void);
-#elif id386
-long (QDECL *Q_ftol)(float f);
-int (QDECL *Q_VMftol)(void);
+#if id386
 void (QDECL *Q_SnapVector)(vec3_t vec);
 #endif
 
@@ -2486,7 +2482,7 @@ static void Com_DetectAltivec(void)
 /*
 =================
 Com_DetectSSE
-Find out whether we have SSE support for Q_ftol function
+Find out whether we have SSE support
 =================
 */
 
@@ -2501,18 +2497,12 @@ static void Com_DetectSSE(void)
             Q_SnapVector = qsnapvectorsse;
         else
             Q_SnapVector = qsnapvectorx87;
-
-        Q_ftol = qftolsse;
 #endif
-        Q_VMftol = qvmftolsse;
-
         Com_Printf("Have SSE support\n");
 #if !idx64
     }
     else
     {
-        Q_ftol = qftolx87;
-        Q_VMftol = qvmftolx87;
         Q_SnapVector = qsnapvectorx87;
 
         Com_Printf("No SSE support on this machine\n");
