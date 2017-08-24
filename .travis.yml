@@ -27,13 +27,6 @@ matrix:
     script:
     - true
   - os: linux
-    env: PLATFORM=linux ARCH=x86
-    before_install:
-    - docker pull wtfbbqhax/tremulous:v3
-    - docker run -e PLATFORM -v $(pwd):/usr/src wtfbbqhax/tremulous:v3 ./misc/docker-build.sh
-    script:
-    - true
-  - os: linux
     env: PLATFORM=mingw32
     before_install:
     - docker pull wtfbbqhax/tremulous:v3
@@ -44,7 +37,7 @@ matrix:
     env: PLATFORM=mingw32 ARCH=x86
     before_install:
     - docker pull wtfbbqhax/tremulous:v3
-    - docker run -e PLATFORM -v $(pwd):/usr/src wtfbbqhax/tremulous:v3 ./misc/docker-build.sh
+    - docker run -e ARCH -e PLATFORM -v $(pwd):/usr/src wtfbbqhax/tremulous:v3 ./misc/docker-build.sh
     script:
     - true
   - os: osx
