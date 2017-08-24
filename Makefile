@@ -343,12 +343,12 @@ ifneq (,$(findstring "$(PLATFORM)", "linux" "gnu_kfreebsd" "kfreebsd-gnu" "gnu")
 
   ifeq ($(ARCH),x86_64)
     OPTIMIZEVM = -O3
-    OPTIMIZE = $(OPTIMIZEVM) -ffast-math
+    OPTIMIZE = $(OPTIMIZEVM) -ffast-math -msse2
     HAVE_VM_COMPILED = true
   else
   ifeq ($(ARCH),x86)
-    OPTIMIZEVM = -O3 -march=i586
-    OPTIMIZE = $(OPTIMIZEVM) -ffast-math
+    OPTIMIZEVM = -O3
+    OPTIMIZE = $(OPTIMIZEVM) -ffast-math -msse2 -mfpmath=387+sse
     HAVE_VM_COMPILED=true
   else
   ifeq ($(ARCH),ppc)
@@ -440,13 +440,13 @@ ifeq ($(PLATFORM),darwin)
     BASE_CFLAGS += -arch ppc64 -faltivec
   endif
   ifeq ($(ARCH),x86)
-    OPTIMIZEVM += -march=prescott -mfpmath=sse
+    OPTIMIZEVM += -mfpmath=sse2
     # x86 vm will crash without -mstackrealign since MMX instructions will be
     # used no matter what and they corrupt the frame pointer in VM calls
     BASE_CFLAGS += -arch i386 -m32 -mstackrealign
   endif
   ifeq ($(ARCH),x86_64)
-    OPTIMIZEVM += -arch x86_64 -mfpmath=sse
+    OPTIMIZEVM += -arch x86_64 -mfpmath=sse2
   endif
 
   # When compiling on OSX for OSX, we're not cross compiling as far as the
@@ -598,14 +598,14 @@ ifdef MINGW
 
   ifeq ($(ARCH),x86_64)
     OPTIMIZEVM = -O3
-    OPTIMIZE = $(OPTIMIZEVM) -ffast-math
+    OPTIMIZE = $(OPTIMIZEVM) -ffast-math -msse2
     HAVE_VM_COMPILED = true
     BASE_CFLAGS += -m64
   endif
 
   ifeq ($(ARCH),x86)
-    OPTIMIZEVM = -O3 -march=i686
-    OPTIMIZE = $(OPTIMIZEVM) -ffast-math
+    OPTIMIZEVM = -O3
+    OPTIMIZE = $(OPTIMIZEVM) -ffast-math -msse2 -mfpmath=387+sse
     HAVE_VM_COMPILED = true
     BASE_CFLAGS += -m32
   endif
@@ -1649,7 +1649,15 @@ $(Q3ASM): $(Q3ASMOBJ)
 # GRANGER
 #############################################################################
 
-GRANGER_CFLAGS +=-fPIC -fpic
+ifeq ($(ARCH),x86_64)
+    ARCHFLAG=-m64
+else
+ifeq ($(ARCH),x86)
+    ARCHFLAG=-m32
+endif
+endif
+
+GRANGER_CFLAGS += $(ARCHFLAG) -fPIC -fpic
 
 ifeq ($(PLATFORM),darwin)
 GRANGER_CFLAGS += -DLUA_USE_MACOSX
@@ -1778,7 +1786,7 @@ TARGETS += $(B)/GPL $(B)/COPYING $(B)/CC
 #############################################################################
 
 #LUACFLAGS=-Wall -Wextra -fPIC -fpic
-LUACFLAGS=-fPIC -fpic
+LUACFLAGS= $(ARCHFLAG) -fPIC -fpic
 
 ifeq ($(PLATFORM),darwin)
 LUACFLAGS += -DLUA_USE_MACOSX
@@ -1873,7 +1881,7 @@ $(B)/script/rapidjson/%.o: $(LUA_RAPIDJSONDIR)/%.cpp
 # Nettle
 #############################################################################
 
-NETTLECFLAGS=-fPIC -fpic
+NETTLECFLAGS=$(ARCHFLAG) -fPIC -fpic
 
 define DO_NETTLE_CC
   $(echo_cmd) "NETTLE_CC $<"
