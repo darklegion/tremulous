@@ -440,13 +440,13 @@ ifeq ($(PLATFORM),darwin)
     BASE_CFLAGS += -arch ppc64 -faltivec
   endif
   ifeq ($(ARCH),x86)
-    OPTIMIZEVM += -mfpmath=sse2
+    OPTIMIZEVM += -mfpmath=387+sse
     # x86 vm will crash without -mstackrealign since MMX instructions will be
     # used no matter what and they corrupt the frame pointer in VM calls
     BASE_CFLAGS += -arch i386 -m32 -mstackrealign
   endif
   ifeq ($(ARCH),x86_64)
-    OPTIMIZEVM += -arch x86_64 -mfpmath=sse2
+    OPTIMIZEVM += -arch x86_64 -mfpmath=sse -msse2
   endif
 
   # When compiling on OSX for OSX, we're not cross compiling as far as the
