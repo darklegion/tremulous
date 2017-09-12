@@ -3041,6 +3041,7 @@ clean-release:
 
 clean2:
 	@echo "CLEAN $(B)"
+	@rm -rf $(B)/scripts
 	@rm -f $(OBJ)
 	@rm -f $(OBJ_D_FILES)
 	@rm -f $(STRINGOBJ)
