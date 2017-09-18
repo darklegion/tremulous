@@ -789,7 +789,6 @@ int main( int argc, char **argv )
     {
         try
         { 
-            IN_Frame( );
             Com_Frame( );
         } 
         catch (sol::error& e)

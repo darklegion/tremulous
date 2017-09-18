@@ -97,6 +97,12 @@ void Sys_SetEnv(const char *name, const char *value);
 
 bool Sys_WritePIDFile(void);
 
+// Input subsystem
+void IN_Init( void *windowData );
+void IN_Frame( void );
+void IN_Shutdown( void );
+void IN_Restart( void );
+
 #ifdef __cplusplus
 }
 #endif
