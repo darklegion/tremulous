@@ -24,9 +24,13 @@
 extern "C" {
 #endif
 
-size_t lua_writestring(char* string, size_t n);
-int lua_writeline(void);
-int lua_writestringerror(const char *fmt, ...);
+size_t qlua_writestring(char* string, size_t n);
+int qlua_writeline(void);
+int qlua_writestringerror(const char *fmt, ...);
+
+#define lua_writestring      qlua_writestring
+#define lua_writeline        qlua_writeline
+#define lua_writestringerror qlua_writestringerror
 
 #define LUA_TMPNAMTEMPLATE	"/tmp/tremulous_XXXXXX"
 
