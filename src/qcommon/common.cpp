@@ -1982,46 +1982,40 @@ be freed by the game later.
 */
 void Com_QueueEvent( int time, sysEventType_t type, int value, int value2, int ptrLength, void *ptr )
 {
-    // try to combine all sequential mouse moves in one event
-    if ( type == SE_MOUSE )
+    sysEvent_t  *ev;
+
+    // combine mouse movement with previous mouse event
+    if ( type == SE_MOUSE && eventHead != eventTail )
     {
-        // get previous event from queue
-        sysEvent_t* ev = &eventQueue[ ( eventHead + MAX_QUEUED_EVENTS - 1 ) & MASK_QUEUED_EVENTS ];
+        ev = &eventQueue[ ( eventHead + MAX_QUEUED_EVENTS - 1 ) & MASK_QUEUED_EVENTS ];
+
         if ( ev->evType == SE_MOUSE )
         {
-            if ( eventTail == eventHead && eventTail )
-            {
-                ev->evValue = 0;
-                ev->evValue2 = 0;
-                eventTail--;
-            }
-
-            if ( time == 0 )
-                time = Sys_Milliseconds();
-
             ev->evValue += value;
             ev->evValue2 += value2;
-            ev->evTime = time;
             return;
         }
     }
 
-    sysEvent_t* ev = &eventQueue[ eventHead & MASK_QUEUED_EVENTS ];
+    ev = &eventQueue[ eventHead & MASK_QUEUED_EVENTS ];
+
     if ( eventHead - eventTail >= MAX_QUEUED_EVENTS )
     {
         Com_Printf("Com_QueueEvent: overflow\n");
-
         // we are discarding an event, but don't leak memory
         if ( ev->evPtr )
+        {
             Z_Free( ev->evPtr );
-
+        }
         eventTail++;
     }
 
     eventHead++;
 
     if ( time == 0 )
+    {
         time = Sys_Milliseconds();
+    }
 
     ev->evTime = time;
     ev->evType = type;
