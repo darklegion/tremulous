@@ -2,7 +2,7 @@
 ===========================================================================
 Copyright (C) 2011 James Canete (use.less01@gmail.com)
 
-This file is part of Tremulous.
+This file is part of Tremulous Arena source code.
 
 Quake III Arena source code is free software; you can redistribute it
 and/or modify it under the terms of the GNU General Public License as
@@ -22,226 +22,257 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // tr_extensions.c - extensions needed by the renderer not in sdl_glimp.c
 
 #ifdef USE_LOCAL_HEADERS
-#	include "SDL.h"
+#include "SDL.h"
 #else
-#	include <SDL.h>
+#include <SDL.h>
 #endif
 
 #include "tr_local.h"
 #include "tr_dsa.h"
 
-#define GLE(ret, name, ...) name##proc * qgl##name;
+#define GLE(ret, name, ...) name##proc *qgl##name;
 QGL_1_3_PROCS;
 QGL_1_5_PROCS;
 QGL_2_0_PROCS;
 QGL_3_0_PROCS;
+QGL_ARB_framebuffer_object_PROCS;
+QGL_ARB_vertex_array_object_PROCS;
 QGL_EXT_direct_state_access_PROCS;
 #undef GLE
 
 void GLimp_InitExtraExtensions()
 {
-	const char *extension;
-	const char* result[3] = { "...ignoring %s\n", "...using %s\n", "...%s not found\n" };
+    const char *extension;
+    const char *result[3] = {"...ignoring %s\n", "...using %s\n", "...%s not found\n"};
 
-	// Check OpenGL version
-	sscanf(glConfig.version_string, "%d.%d", &glRefConfig.openglMajorVersion, &glRefConfig.openglMinorVersion);
-	if (glRefConfig.openglMajorVersion < 2)
-		ri.Error(ERR_FATAL, "OpenGL 2.0 required!");
-	ri.Printf(PRINT_ALL, "...using OpenGL %s\n", glConfig.version_string);
+    // Check OpenGL version
+    sscanf(glConfig.version_string, "%d.%d", &glRefConfig.openglMajorVersion, &glRefConfig.openglMinorVersion);
+    if (glRefConfig.openglMajorVersion < 2) ri.Error(ERR_FATAL, "OpenGL 2.0 required!");
+    ri.Printf(PRINT_ALL, "...using OpenGL %s\n", glConfig.version_string);
 
-	// Check if we need Intel graphics specific fixes.
-	glRefConfig.intelGraphics = false;
-	if (strstr((char *)qglGetString(GL_RENDERER), "Intel"))
-		glRefConfig.intelGraphics = true;
+    bool q_gl_version_at_least_3_0 = (glRefConfig.openglMajorVersion >= 3);
+    bool q_gl_version_at_least_3_2 = (glRefConfig.openglMajorVersion > 3 ||
+            (glRefConfig.openglMajorVersion == 3 && glRefConfig.openglMinorVersion > 2));
 
-	// set DSA fallbacks
+    // Check if we need Intel graphics specific fixes.
+    glRefConfig.intelGraphics = qfalse;
+    if (strstr((char *)qglGetString(GL_RENDERER), "Intel")) glRefConfig.intelGraphics = qtrue;
+
+        // set DSA fallbacks
 #define GLE(ret, name, ...) qgl##name = GLDSA_##name;
-	QGL_EXT_direct_state_access_PROCS;
+    QGL_EXT_direct_state_access_PROCS;
 #undef GLE
 
-	// GL function loader, based on https://gist.github.com/rygorous/16796a0c876cf8a5f542caddb55bce8a
-#define GLE(ret, name, ...) qgl##name = (name##proc *) SDL_GL_GetProcAddress("gl" #name);
+    // GL function loader, based on https://gist.github.com/rygorous/16796a0c876cf8a5f542caddb55bce8a
+#define GLE(ret, name, ...) qgl##name = (name##proc *)SDL_GL_GetProcAddress("gl" #name);
 
-	// OpenGL 1.3, was GL_ARB_texture_compression
-	QGL_1_3_PROCS;
+    // OpenGL 1.3, was GL_ARB_texture_compression
+    QGL_1_3_PROCS;
 
-	// OpenGL 1.5, was GL_ARB_vertex_buffer_object and GL_ARB_occlusion_query
-	QGL_1_5_PROCS;
-	glRefConfig.occlusionQuery = true;
+    // OpenGL 1.5, was GL_ARB_vertex_buffer_object and GL_ARB_occlusion_query
+    QGL_1_5_PROCS;
+    glRefConfig.occlusionQuery = qtrue;
 
-	// OpenGL 2.0, was GL_ARB_shading_language_100, GL_ARB_vertex_program, GL_ARB_shader_objects, and GL_ARB_vertex_shader
-	QGL_2_0_PROCS;
+    // OpenGL 2.0, was GL_ARB_shading_language_100, GL_ARB_vertex_program, GL_ARB_shader_objects, and
+    // GL_ARB_vertex_shader
+    QGL_2_0_PROCS;
 
-	// OpenGL 3.0, was GL_EXT_framebuffer_object, GL_EXT_framebuffer_blit, GL_EXT_framebuffer_multisample, and GL_ARB_vertex_array_object
-	// QGL_*_PROCS becomes several functions, do not remove {}
-	if (glRefConfig.openglMajorVersion >= 3)
-	{
-		QGL_3_0_PROCS;
+    // OpenGL 3.0 - no matching extension
+    // QGL_*_PROCS becomes several functions, do not remove {}
+    if (q_gl_version_at_least_3_0)
+    {
+        QGL_3_0_PROCS;
+    }
 
-		glRefConfig.framebufferObject = !!r_ext_framebuffer_object->integer;
-		glRefConfig.framebufferBlit = qtrue;
-		glRefConfig.framebufferMultisample = qtrue;
+    // OpenGL 3.0 - GL_ARB_framebuffer_object
+    extension = "GL_ARB_framebuffer_object";
+    glRefConfig.framebufferObject = qfalse;
+    glRefConfig.framebufferBlit = qfalse;
+    glRefConfig.framebufferMultisample = qfalse;
+    if (q_gl_version_at_least_3_0 || SDL_GL_ExtensionSupported(extension))
+    {
+        glRefConfig.framebufferObject = !!r_ext_framebuffer_object->integer;
+        glRefConfig.framebufferBlit = qtrue;
+        glRefConfig.framebufferMultisample = qtrue;
 
-		qglGetIntegerv(GL_MAX_RENDERBUFFER_SIZE_EXT, &glRefConfig.maxRenderbufferSize);
-		qglGetIntegerv(GL_MAX_COLOR_ATTACHMENTS_EXT, &glRefConfig.maxColorAttachments);
+        qglGetIntegerv(GL_MAX_RENDERBUFFER_SIZE, &glRefConfig.maxRenderbufferSize);
+        qglGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &glRefConfig.maxColorAttachments);
 
-		ri.Printf(PRINT_ALL, result[glRefConfig.framebufferObject], "OpenGL 3.0+ framebuffer procs");
+        QGL_ARB_framebuffer_object_PROCS;
 
-		glRefConfig.vertexArrayObject = !!r_arb_vertex_array_object->integer;
+        ri.Printf(PRINT_ALL, result[glRefConfig.framebufferObject], extension);
+    }
+    else
+    {
+        ri.Printf(PRINT_ALL, result[2], extension);
+    }
 
-		ri.Printf(PRINT_ALL, result[glRefConfig.vertexArrayObject], "OpenGL 3.0+ vertex array object procs");
-	}
-	else
-	{
-		ri.Printf(PRINT_ALL, result[2], "OpenGL 3.0+ framebuffer procs");
-		ri.Printf(PRINT_ALL, result[2], "OpenGL 3.0+ vertex array object procs");
+    // OpenGL 3.0 - GL_ARB_vertex_array_object
+    extension = "GL_ARB_vertex_array_object";
+    glRefConfig.vertexArrayObject = qfalse;
+    if (q_gl_version_at_least_3_0 || SDL_GL_ExtensionSupported(extension))
+    {
+        if (q_gl_version_at_least_3_0)
+        {
+            // force VAO, core context requires it
+            glRefConfig.vertexArrayObject = qtrue;
+        }
+        else
+        {
+            glRefConfig.vertexArrayObject = !!r_arb_vertex_array_object->integer;
+        }
 
-	}
+        QGL_ARB_vertex_array_object_PROCS;
 
-	// Determine GLSL version
-	if (1)
-	{
-		char version[256];
+        ri.Printf(PRINT_ALL, result[glRefConfig.vertexArrayObject], extension);
+    }
+    else
+    {
+        ri.Printf(PRINT_ALL, result[2], extension);
+    }
 
-		Q_strncpyz(version, (char *)qglGetString(GL_SHADING_LANGUAGE_VERSION), sizeof(version));
+    // OpenGL 3.0 - GL_ARB_texture_float
+    extension = "GL_ARB_texture_float";
+    glRefConfig.textureFloat = qfalse;
+    if (q_gl_version_at_least_3_0 || SDL_GL_ExtensionSupported(extension))
+    {
+        glRefConfig.textureFloat = !!r_ext_texture_float->integer;
 
-		sscanf(version, "%d.%d", &glRefConfig.glslMajorVersion, &glRefConfig.glslMinorVersion);
+        ri.Printf(PRINT_ALL, result[glRefConfig.textureFloat], extension);
+    }
+    else
+    {
+        ri.Printf(PRINT_ALL, result[2], extension);
+    }
 
-		ri.Printf(PRINT_ALL, "...using GLSL version %s\n", version);
-	}
+    // OpenGL 3.2 - GL_ARB_depth_clamp
+    extension = "GL_ARB_depth_clamp";
+    glRefConfig.depthClamp = qfalse;
+    if (q_gl_version_at_least_3_2 || SDL_GL_ExtensionSupported(extension))
+    {
+        glRefConfig.depthClamp = qtrue;
 
-	glRefConfig.memInfo = MI_NONE;
+        ri.Printf(PRINT_ALL, result[glRefConfig.depthClamp], extension);
+    }
+    else
+    {
+        ri.Printf(PRINT_ALL, result[2], extension);
+    }
 
-	// GL_NVX_gpu_memory_info
-	extension = "GL_NVX_gpu_memory_info";
-	if( SDL_GL_ExtensionSupported( extension ) )
-	{
-		glRefConfig.memInfo = MI_NVX;
+    // OpenGL 3.2 - GL_ARB_seamless_cube_map
+    extension = "GL_ARB_seamless_cube_map";
+    glRefConfig.seamlessCubeMap = qfalse;
+    if (q_gl_version_at_least_3_2 || SDL_GL_ExtensionSupported(extension))
+    {
+        glRefConfig.seamlessCubeMap = !!r_arb_seamless_cube_map->integer;
 
-		ri.Printf(PRINT_ALL, result[1], extension);
-	}
-	else
-	{
-		ri.Printf(PRINT_ALL, result[2], extension);
-	}
+        ri.Printf(PRINT_ALL, result[glRefConfig.seamlessCubeMap], extension);
+    }
+    else
+    {
+        ri.Printf(PRINT_ALL, result[2], extension);
+    }
 
-	// GL_ATI_meminfo
-	extension = "GL_ATI_meminfo";
-	if( SDL_GL_ExtensionSupported( extension ) )
-	{
-		if (glRefConfig.memInfo == MI_NONE)
-		{
-			glRefConfig.memInfo = MI_ATI;
+    // Determine GLSL version
+    if (1)
+    {
+        char version[256];
 
-			ri.Printf(PRINT_ALL, result[1], extension);
-		}
-		else
-		{
-			ri.Printf(PRINT_ALL, result[0], extension);
-		}
-	}
-	else
-	{
-		ri.Printf(PRINT_ALL, result[2], extension);
-	}
+        Q_strncpyz(version, (char *)qglGetString(GL_SHADING_LANGUAGE_VERSION), sizeof(version));
 
-	// GL_ARB_texture_float
-	extension = "GL_ARB_texture_float";
-	glRefConfig.textureFloat = false;
-	if( SDL_GL_ExtensionSupported( extension ) )
-	{
-		glRefConfig.textureFloat = !!r_ext_texture_float->integer;
+        sscanf(version, "%d.%d", &glRefConfig.glslMajorVersion, &glRefConfig.glslMinorVersion);
 
-		ri.Printf(PRINT_ALL, result[glRefConfig.textureFloat], extension);
-	}
-	else
-	{
-		ri.Printf(PRINT_ALL, result[2], extension);
-	}
+        ri.Printf(PRINT_ALL, "...using GLSL version %s\n", version);
+    }
 
-	glRefConfig.textureCompression = TCR_NONE;
+    glRefConfig.memInfo = MI_NONE;
 
-	// GL_ARB_texture_compression_rgtc
-	extension = "GL_ARB_texture_compression_rgtc";
-	if (SDL_GL_ExtensionSupported(extension))
-	{
-		bool useRgtc = r_ext_compressed_textures->integer >= 1;
+    // GL_NVX_gpu_memory_info
+    extension = "GL_NVX_gpu_memory_info";
+    if (SDL_GL_ExtensionSupported(extension))
+    {
+        glRefConfig.memInfo = MI_NVX;
 
-		if (useRgtc)
-			glRefConfig.textureCompression |= TCR_RGTC;
+        ri.Printf(PRINT_ALL, result[1], extension);
+    }
+    else
+    {
+        ri.Printf(PRINT_ALL, result[2], extension);
+    }
 
-		ri.Printf(PRINT_ALL, result[useRgtc], extension);
-	}
-	else
-	{
-		ri.Printf(PRINT_ALL, result[2], extension);
-	}
+    // GL_ATI_meminfo
+    extension = "GL_ATI_meminfo";
+    if (SDL_GL_ExtensionSupported(extension))
+    {
+        if (glRefConfig.memInfo == MI_NONE)
+        {
+            glRefConfig.memInfo = MI_ATI;
 
-	glRefConfig.swizzleNormalmap = r_ext_compressed_textures->integer && !(glRefConfig.textureCompression & TCR_RGTC);
+            ri.Printf(PRINT_ALL, result[1], extension);
+        }
+        else
+        {
+            ri.Printf(PRINT_ALL, result[0], extension);
+        }
+    }
+    else
+    {
+        ri.Printf(PRINT_ALL, result[2], extension);
+    }
 
-	// GL_ARB_texture_compression_bptc
-	extension = "GL_ARB_texture_compression_bptc";
-	if (SDL_GL_ExtensionSupported(extension))
-	{
-		bool useBptc = r_ext_compressed_textures->integer >= 2;
+    glRefConfig.textureCompression = TCR_NONE;
 
-		if (useBptc)
-			glRefConfig.textureCompression |= TCR_BPTC;
+    // GL_ARB_texture_compression_rgtc
+    extension = "GL_ARB_texture_compression_rgtc";
+    if (SDL_GL_ExtensionSupported(extension))
+    {
+        bool useRgtc = r_ext_compressed_textures->integer >= 1;
 
-		ri.Printf(PRINT_ALL, result[useBptc], extension);
-	}
-	else
-	{
-		ri.Printf(PRINT_ALL, result[2], extension);
-	}
+        if (useRgtc) glRefConfig.textureCompression |= TCR_RGTC;
 
-	// GL_ARB_depth_clamp
-	extension = "GL_ARB_depth_clamp";
-	glRefConfig.depthClamp = false;
-	if( SDL_GL_ExtensionSupported( extension ) )
-	{
-		glRefConfig.depthClamp = true;
+        ri.Printf(PRINT_ALL, result[useRgtc], extension);
+    }
+    else
+    {
+        ri.Printf(PRINT_ALL, result[2], extension);
+    }
 
-		ri.Printf(PRINT_ALL, result[glRefConfig.depthClamp], extension);
-	}
-	else
-	{
-		ri.Printf(PRINT_ALL, result[2], extension);
-	}
+    glRefConfig.swizzleNormalmap = r_ext_compressed_textures->integer && !(glRefConfig.textureCompression & TCR_RGTC);
 
-	// GL_ARB_seamless_cube_map
-	extension = "GL_ARB_seamless_cube_map";
-	glRefConfig.seamlessCubeMap = false;
-	if( SDL_GL_ExtensionSupported( extension ) )
-	{
-		glRefConfig.seamlessCubeMap = !!r_arb_seamless_cube_map->integer;
+    // GL_ARB_texture_compression_bptc
+    extension = "GL_ARB_texture_compression_bptc";
+    if (SDL_GL_ExtensionSupported(extension))
+    {
+        bool useBptc = r_ext_compressed_textures->integer >= 2;
 
-		ri.Printf(PRINT_ALL, result[glRefConfig.seamlessCubeMap], extension);
-	}
-	else
-	{
-		ri.Printf(PRINT_ALL, result[2], extension);
-	}
+        if (useBptc) glRefConfig.textureCompression |= TCR_BPTC;
 
-	// GL_EXT_direct_state_access
-	extension = "GL_EXT_direct_state_access";
-	glRefConfig.directStateAccess = false;
-	if (SDL_GL_ExtensionSupported(extension))
-	{
-		glRefConfig.directStateAccess = !!r_ext_direct_state_access->integer;
+        ri.Printf(PRINT_ALL, result[useBptc], extension);
+    }
+    else
+    {
+        ri.Printf(PRINT_ALL, result[2], extension);
+    }
 
-		// QGL_*_PROCS becomes several functions, do not remove {}
-		if (glRefConfig.directStateAccess)
-		{
-			QGL_EXT_direct_state_access_PROCS;
-		}
+    // GL_EXT_direct_state_access
+    extension = "GL_EXT_direct_state_access";
+    glRefConfig.directStateAccess = qfalse;
+    if (SDL_GL_ExtensionSupported(extension))
+    {
+        glRefConfig.directStateAccess = !!r_ext_direct_state_access->integer;
 
-		ri.Printf(PRINT_ALL, result[glRefConfig.directStateAccess], extension);
-	}
-	else
-	{
-		ri.Printf(PRINT_ALL, result[2], extension);
-	}
+        // QGL_*_PROCS becomes several functions, do not remove {}
+        if (glRefConfig.directStateAccess)
+        {
+            QGL_EXT_direct_state_access_PROCS;
+        }
+
+        ri.Printf(PRINT_ALL, result[glRefConfig.directStateAccess], extension);
+    }
+    else
+    {
+        ri.Printf(PRINT_ALL, result[2], extension);
+    }
 
 #undef GLE
 }
