@@ -4178,7 +4178,6 @@ static void CL_GlobalServers_f(void)
         Com_Printf("usage: globalservers <master# 0-%d> [keywords]\n", MAX_MASTER_SERVERS);
         return;
     }
-    Com_Printf("^1globalservers: %d\n", masterNum);
 
     netAlternateProtocols = Cvar_VariableIntegerValue("net_alternateProtocols");
 
