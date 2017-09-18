@@ -2688,7 +2688,9 @@ static void CL_ServersResponsePacket(const netadr_t *from, msg_t *msg, bool exte
     byte *buffend;
     char label[MAX_FEATLABEL_CHARS] = "";
 
-    Com_DPrintf("CL_ServersResponsePacket%s\n", (extended) ? " (extended)" : "");
+    Com_DPrintf("CL_ServersResponsePacket from %s %s\n",
+            NET_AdrToStringwPort(*from),
+            extended ? " (extended)" : "");
 
     if (cls.numglobalservers == -1)
     {
@@ -4165,16 +4167,18 @@ CL_GlobalServers_f
 static void CL_GlobalServers_f(void)
 {
     int netAlternateProtocols, a;
-    netadr_t to;
-    int count, i, masterNum;
+    int i;
     char command[1024];
     const char *masteraddress;
 
-    if ((count = Cmd_Argc()) < 2 || (masterNum = atoi(Cmd_Argv(1))) < 0 || masterNum > MAX_MASTER_SERVERS - 1)
+    int masterNum;
+    int count = Cmd_Argc();
+    if ( count < 2 || (masterNum = atoi(Cmd_Argv(1))) < 0 || masterNum > MAX_MASTER_SERVERS )
     {
-        Com_Printf("usage: globalservers <master# 0-%d> [keywords]\n", MAX_MASTER_SERVERS - 1);
+        Com_Printf("usage: globalservers <master# 0-%d> [keywords]\n", MAX_MASTER_SERVERS);
         return;
     }
+    Com_Printf("^1globalservers: %d\n", masterNum);
 
     netAlternateProtocols = Cvar_VariableIntegerValue("net_alternateProtocols");
 
@@ -4185,7 +4189,32 @@ static void CL_GlobalServers_f(void)
         if (a == 1 && !(netAlternateProtocols & NET_ENABLEALT1PROTO)) continue;
         if (a == 2 && !(netAlternateProtocols & NET_ENABLEALT1PROTO)) continue;
 
-        sprintf(command, "sv_%smaster%d", (a == 0 ? "" : a == 1 ? "alt1" : "alt2"), masterNum + 1);
+        // request from all master servers
+        if ( masterNum == 0 )
+        {
+            int numAddress = 0;
+
+            for ( int i = 1; i <= MAX_MASTER_SERVERS; i++ )
+            {
+                sprintf(command, "sv_master%d", i);
+                masteraddress = Cvar_VariableString(command);
+
+                if(!*masteraddress)
+                    continue;
+
+                numAddress++;
+
+                Com_sprintf(command, sizeof(command), "globalservers %d %s %s\n", i, Cmd_Argv(2), Cmd_ArgsFrom(3));
+                Cbuf_AddText(command);
+            }
+
+            if ( !numAddress )
+                Com_Printf("CL_GlobalServers_f: Error: No master server addresses.\n");
+
+            return;
+        }
+
+        sprintf(command, "sv_%smaster%d", (a == 0 ? "" : a == 1 ? "alt1" : "alt2"), masterNum);
         masteraddress = Cvar_VariableString(command);
 
         if (!*masteraddress)
@@ -4197,51 +4226,32 @@ static void CL_GlobalServers_f(void)
 
         // reset the list, waiting for response
         // -1 is used to distinguish a "no response"
+        netadr_t to;
+        int i = NET_StringToAdr(masteraddress, &to, NA_UNSPEC);
 
-        i = NET_StringToAdr(masteraddress, &to, NA_UNSPEC);
-
-        if (!i)
+        if ( i == 0 )
         {
             Com_Printf("CL_GlobalServers_f: Error: could not resolve address of%s master %s\n",
                 (a == 0 ? "" : a == 1 ? " alternate-1" : " alternate-2"), masteraddress);
             continue;
         }
-        else if (i == 2)
+        else if ( i == 2 )
+        {
             to.port = BigShort(a == 0 ? PORT_MASTER : a == 1 ? ALT1PORT_MASTER : ALT2PORT_MASTER);
+        }
         to.alternateProtocol = a;
 
-        Com_Printf("Requesting servers from%s master %s...\n", (a == 0 ? "" : a == 1 ? " alternate-1" : " alternate-2"),
-            masteraddress);
+        Com_Printf("Requesting servers from%s master %s...\n",
+                a == 0 ? "" : a == 1 ? " alternate-1" : " alternate-2",
+                masteraddress);
 
         cls.numglobalservers = -1;
         cls.pingUpdateSource = AS_GLOBAL;
 
-#if 0
-	// Use the extended query for IPv6 masters
-	if (to.type == NA_IP6 || to.type == NA_MULTICAST6)
-	{
-		int v4enabled = Cvar_VariableIntegerValue("net_enabled") & NET_ENABLEV4;
-		
-		if(v4enabled)
-		{
-			Com_sprintf(command, sizeof(command), "getserversExt %d %s",
-				PROTOCOL_VERSION, Cmd_Argv(2));
-		}
-		else
-		{
-			Com_sprintf(command, sizeof(command), "getserversExt %d %s ipv6",
-				PROTOCOL_VERSION, Cmd_Argv(2));
-		}
-	}
-    else
-    {
-        Com_sprintf(command, sizeof(command), "getservers %d %s",
-               PROTOCOL_VERSION, Cmd_Argv(2));
-    }
-#endif
-        Com_sprintf(command, sizeof(command), "getserversExt %s %i%s", com_gamename->string,
-            (a == 0 ? PROTOCOL_VERSION : a == 1 ? 70 : 69),
-            (Cvar_VariableIntegerValue("net_enabled") & NET_ENABLEV4 ? "" : " ipv6"));
+        Com_sprintf(command, sizeof(command), "getserversExt %s %i%s",
+                com_gamename->string,
+                a == 0 ? PROTOCOL_VERSION : a == 1 ? 70 : 69,
+                Cvar_VariableIntegerValue("net_enabled") & NET_ENABLEV4 ? "" : " ipv6");
 
         for (i = 3; i < count; i++)
         {
