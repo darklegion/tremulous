@@ -44,9 +44,9 @@ void Huff_Decompress(struct msg_t *buf, int offset);
 void Huff_Init(huffman_t *huff);
 void Huff_addRef(huff_t *huff, uint8_t ch);
 int Huff_Receive(node_t *node, int *ch, uint8_t *fin);
-void Huff_transmit(huff_t *huff, int ch, uint8_t *fout);
-void Huff_offsetReceive(node_t *node, int *ch, uint8_t *fin, int *offset);
-void Huff_offsetTransmit(huff_t *huff, int ch, uint8_t *fout, int *offset);
+void Huff_transmit(huff_t *huff, int ch, uint8_t *fout, int maxoffset);
+void Huff_offsetReceive(node_t *node, int *ch, uint8_t *fin, int *offset, int maxoffset);
+void Huff_offsetTransmit(huff_t *huff, int ch, uint8_t *fout, int *offset, int maxoffset);
 void Huff_putBit(int bit, uint8_t *fout, int *offset);
 int Huff_getBit(uint8_t *fout, int *offset);
 
