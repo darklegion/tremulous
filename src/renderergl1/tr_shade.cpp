@@ -219,7 +219,6 @@ R_BindAnimatedImage
 =================
 */
 static void R_BindAnimatedImage( textureBundle_t *bundle ) {
-	int		index;
 
 	if ( bundle->isVideoMap ) {
 		ri.CIN_RunCinematic(bundle->videoMapHandle);
@@ -234,15 +233,14 @@ static void R_BindAnimatedImage( textureBundle_t *bundle ) {
 
 	// it is necessary to do this messy calc to make sure animations line up
 	// exactly with waveforms of the same frequency
-	index = static_cast<int>(tess.shaderTime * bundle->imageAnimationSpeed * FUNCTABLE_SIZE);
-	index >>= FUNCTABLE_SIZE2;
-
-	if ( index < 0 ) {
-		index = 0;	// may happen with shader time offsets
+	int i = static_cast<int>(tess.shaderTime * bundle->imageAnimationSpeed * FUNCTABLE_SIZE) >> FUNCTABLE_SIZE2;
+	if ( i < 0 )
+    {
+		i = 0;	// may happen with shader time offsets
 	}
-	index %= bundle->numImageAnimations;
+	i %= bundle->numImageAnimations;
 
-	GL_Bind( bundle->image[ index ] );
+	GL_Bind( bundle->image[ i ] );
 }
 
 /*
