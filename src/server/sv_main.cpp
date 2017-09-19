@@ -31,8 +31,7 @@ cvar_t *sv_voipProtocol;
 #endif
 
 serverStatic_t	svs;				// persistant server info
-server_t		sv;					// local server
-vm_t			*gvm = NULL;				// game virtual machine
+server_t sv {};					    // local server
 
 cvar_t	*sv_fps = NULL;			// time rate for running non-clients
 cvar_t	*sv_timeout;			// seconds without any message
@@ -1129,7 +1128,7 @@ void SV_Frame( int msec ) {
 		sv.time += frameMsec;
 
 		// let everything in the world think and move
-		VM_Call (gvm, GAME_RUN_FRAME, sv.time);
+		VM_Call (sv.gvm, GAME_RUN_FRAME, sv.time);
 	}
 
 	if ( com_speeds->integer ) {

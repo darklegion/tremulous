@@ -508,12 +508,12 @@ Called every time a map changes
 ===============
 */
 void SV_ShutdownGameProgs( void ) {
-	if ( !gvm ) {
+	if ( !sv.gvm ) {
 		return;
 	}
-	VM_Call( gvm, GAME_SHUTDOWN, false );
-	VM_Free( gvm );
-	gvm = NULL;
+	VM_Call( sv.gvm, GAME_SHUTDOWN, false );
+	VM_Free( sv.gvm );
+	sv.gvm = NULL;
 }
 
 /*
@@ -539,7 +539,7 @@ static void SV_InitGameVM( bool restart ) {
 	
 	// use the current msec count for a random seed
 	// init for this gamestate
-	VM_Call (gvm, GAME_INIT, sv.time, Com_Milliseconds(), restart);
+	VM_Call (sv.gvm, GAME_INIT, sv.time, Com_Milliseconds(), restart);
 }
 
 
@@ -552,14 +552,14 @@ Called on a map_restart, but not on a normal map change
 ===================
 */
 void SV_RestartGameProgs( void ) {
-	if ( !gvm ) {
+	if ( !sv.gvm ) {
 		return;
 	}
-	VM_Call( gvm, GAME_SHUTDOWN, true );
+	VM_Call( sv.gvm, GAME_SHUTDOWN, true );
 
 	// do a restart instead of a free
-	gvm = VM_Restart(gvm, true);
-	if ( !gvm ) {
+	sv.gvm = VM_Restart(sv.gvm, true);
+	if ( !sv.gvm ) {
 		Com_Error( ERR_FATAL, "VM_Restart on game failed" );
 	}
 
@@ -576,8 +576,8 @@ Called on a normal map change, not on a map_restart
 */
 void SV_InitGameProgs( void ) {
 	// load the dll or bytecode
-	gvm = VM_Create( "game", SV_GameSystemCalls, (vmInterpret_t)Cvar_VariableValue( "vm_game" ) );
-	if ( !gvm ) {
+	sv.gvm = VM_Create( "game", SV_GameSystemCalls, (vmInterpret_t)Cvar_VariableValue( "vm_game" ) );
+	if ( !sv.gvm ) {
 		Com_Error( ERR_FATAL, "VM_Create on game failed" );
 	}
 
@@ -597,6 +597,6 @@ bool SV_GameCommand( void ) {
 		return false;
 	}
 
-	return (bool)VM_Call( gvm, GAME_CONSOLE_COMMAND );
+	return (bool)VM_Call( sv.gvm, GAME_CONSOLE_COMMAND );
 }
 

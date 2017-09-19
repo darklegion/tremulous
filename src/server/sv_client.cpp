@@ -377,7 +377,7 @@ void SV_DirectConnect( netadr_t from ) {
 			// this doesn't work because it nukes the players userinfo
 			// disconnect the client from the game first so any flags the
 			// player might have are dropped
-            //			VM_Call( gvm, GAME_CLIENT_DISCONNECT, newcl - svs.clients );
+            //			VM_Call( sv.gvm, GAME_CLIENT_DISCONNECT, newcl - svs.clients );
 			goto gotnewcl;
 		}
 	}
@@ -452,10 +452,10 @@ gotnewcl:
 	Q_strncpyz( newcl->userinfo, userinfo, sizeof(newcl->userinfo) );
 
 	// get the game a chance to reject this connection or modify the userinfo
-	denied = VM_Call( gvm, GAME_CLIENT_CONNECT, clientNum, true ); // firstTime = true
+	denied = VM_Call( sv.gvm, GAME_CLIENT_CONNECT, clientNum, true ); // firstTime = true
 	if ( denied ) {
 		// we can't just use VM_ArgPtr, because that is only valid inside a VM_Call
-		char *str = (char*)VM_ExplicitArgPtr( gvm, denied );
+		char *str = (char*)VM_ExplicitArgPtr( sv.gvm, denied );
 
 		NET_OutOfBandPrint( NS_SERVER, from, "print\n%s\n", str );
 		Com_DPrintf ("Game rejected a connection: %s.\n", str);
@@ -552,7 +552,7 @@ void SV_DropClient( client_t *drop, const char *reason ) {
 
 	// call the prog function for removing a client
 	// this will remove the body, among other things
-	VM_Call( gvm, GAME_CLIENT_DISCONNECT, drop - svs.clients );
+	VM_Call( sv.gvm, GAME_CLIENT_DISCONNECT, drop - svs.clients );
 
 	// add the disconnect command
 	SV_SendServerCommand( drop, "disconnect \"%s\"", reason);
@@ -693,7 +693,7 @@ void SV_ClientEnterWorld( client_t *client, usercmd_t *cmd ) {
 		memset(&client->lastUsercmd, '\0', sizeof(client->lastUsercmd));
 
 	// call the game begin function
-	VM_Call( gvm, GAME_CLIENT_BEGIN, client - svs.clients );
+	VM_Call( sv.gvm, GAME_CLIENT_BEGIN, client - svs.clients );
 }
 
 /*
@@ -1361,7 +1361,7 @@ static void SV_UpdateUserinfo_f( client_t *cl ) {
 
 	SV_UserinfoChanged( cl );
 	// call prog code to allow overrides
-	VM_Call( gvm, GAME_CLIENT_USERINFO_CHANGED, cl - svs.clients );
+	VM_Call( sv.gvm, GAME_CLIENT_USERINFO_CHANGED, cl - svs.clients );
 }
 
 
@@ -1444,7 +1444,7 @@ void SV_ExecuteClientCommand( client_t *cl, const char *s, bool clientOK ) {
 	if (clientOK) {
 		// pass unknown strings to the game
 		if (!u->name && sv.state == SS_GAME && (cl->state == CS_ACTIVE || cl->state == CS_PRIMED)) {
-			VM_Call( gvm, GAME_CLIENT_COMMAND, cl - svs.clients );
+			VM_Call( sv.gvm, GAME_CLIENT_COMMAND, cl - svs.clients );
 		}
 	}
 	else if (!bProcessed)
@@ -1526,7 +1526,7 @@ void SV_ClientThink (client_t *cl, usercmd_t *cmd) {
 		return;		// may have been kicked during the last usercmd
 	}
 
-	VM_Call( gvm, GAME_CLIENT_THINK, cl - svs.clients );
+	VM_Call( sv.gvm, GAME_CLIENT_THINK, cl - svs.clients );
 }
 
 /*
