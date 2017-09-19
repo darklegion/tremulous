@@ -424,6 +424,12 @@ struct clientStatic_t {
     qhandle_t whiteShader;
     qhandle_t consoleShader;
 
+    vm_t *cgame;
+    int cgInterface;
+
+    vm_t *ui;
+    int uiInterface;
+
     struct {
         struct rsa_public_key public_key;
         struct rsa_private_key private_key;
@@ -437,9 +443,6 @@ extern bool cl_oldGameSet;
 
 //=============================================================================
 
-extern vm_t *cgvm;  // interface to cgame dll or vm
-extern vm_t *uivm;  // interface to ui dll or vm
-extern int uiInterface;
 extern refexport_t re;  // interface to refresh .dll
 
 //

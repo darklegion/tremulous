@@ -344,9 +344,9 @@ IN_GetUIMousePosition
 */
 static void IN_GetUIMousePosition( int *x, int *y )
 {
-	if( uivm )
+	if( cls.ui )
 	{
-		int pos = VM_Call( uivm, UI_MOUSE_POSITION );
+		int pos = VM_Call( cls.ui, UI_MOUSE_POSITION );
 		*x = pos & 0xFFFF;
 		*y = ( pos >> 16 ) & 0xFFFF;
 
@@ -367,11 +367,11 @@ IN_SetUIMousePosition
 */
 static void IN_SetUIMousePosition( int x, int y )
 {
-	if( uivm )
+	if( cls.ui )
 	{
 		x = x * 640 / cls.glconfig.vidWidth;
 		y = y * 480 / cls.glconfig.vidHeight;
-		VM_Call( uivm, UI_SET_MOUSE_POSITION, x, y );
+		VM_Call( cls.ui, UI_SET_MOUSE_POSITION, x, y );
 	}
 }
 
@@ -447,7 +447,7 @@ static void IN_DeactivateMouse( void )
 		SDL_SetRelativeMouseMode( SDL_FALSE );
 
 		// Don't warp the mouse unless the cursor is within the window
-		if( SDL_GetWindowFlags( SDL_window ) & SDL_WINDOW_MOUSE_FOCUS && uiInterface != 2 )
+		if( SDL_GetWindowFlags( SDL_window ) & SDL_WINDOW_MOUSE_FOCUS && cls.uiInterface != 2 )
     {
 			int x, y;
 			IN_GetUIMousePosition( &x, &y );
@@ -1233,7 +1233,7 @@ void IN_Frame( void )
 		// Loading in windowed mode
 		IN_DeactivateMouse( );
 	}
-	else if( !cls.glconfig.isFullscreen && cursorShowing && uiInterface != 2 )
+	else if( !cls.glconfig.isFullscreen && cursorShowing && cls.uiInterface != 2 )
 	{
 		// Use WM cursor when not fullscreen
 		IN_DeactivateMouse( );
@@ -1246,7 +1246,7 @@ void IN_Frame( void )
 	else
 		IN_ActivateMouse( );
 
-	if( !mouseActive && uiInterface != 2 )
+	if( !mouseActive && cls.uiInterface != 2 )
 	{
 		SDL_GetMouseState( &x, &y );
 		IN_SetUIMousePosition( x, y );

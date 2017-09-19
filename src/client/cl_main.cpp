@@ -133,7 +133,6 @@ cvar_t *cl_rsaAuth;
 clientActive_t cl;
 clientConnection_t clc;
 clientStatic_t cls;
-vm_t *cgvm;
 
 char cl_reconnectArgs[MAX_OSPATH];
 char cl_oldGame[MAX_QPATH];
@@ -387,12 +386,12 @@ static void CL_VoipParseTargets(void)
             {
                 if (!Q_stricmpn(target, "attacker", 8))
                 {
-                    val = VM_Call(cgvm, CG_LAST_ATTACKER);
+                    val = VM_Call(cls.cgame, CG_LAST_ATTACKER);
                     target += 8;
                 }
                 else if (!Q_stricmpn(target, "crosshair", 9))
                 {
-                    val = VM_Call(cgvm, CG_CROSSHAIR_PLAYER);
+                    val = VM_Call(cls.cgame, CG_CROSSHAIR_PLAYER);
                     target += 9;
                 }
                 else
@@ -1383,9 +1382,9 @@ void CL_Disconnect(bool showMainMenu)
         clc.demofile = 0;
     }
 
-    if (uivm && showMainMenu)
+    if (cls.ui && showMainMenu)
     {
-        VM_Call(uivm, UI_SET_ACTIVE_MENU - (uiInterface == 2 ? 2 : 0), UIMENU_NONE);
+        VM_Call(cls.ui, UI_SET_ACTIVE_MENU - (cls.uiInterface == 2 ? 2 : 0), UIMENU_NONE);
     }
 
     SCR_StopCinematic();
@@ -2945,11 +2944,11 @@ void CL_Frame(int msec)
         }
     }
 
-    if (clc.state == CA_DISCONNECTED && !(Key_GetCatcher() & KEYCATCH_UI) && !com_sv_running->integer && uivm)
+    if (clc.state == CA_DISCONNECTED && !(Key_GetCatcher() & KEYCATCH_UI) && !com_sv_running->integer && cls.ui)
     {
         // if disconnected, bring up the menu
         S_StopAllSounds();
-        VM_Call(uivm, UI_SET_ACTIVE_MENU - (uiInterface == 2 ? 2 : 0), UIMENU_MAIN);
+        VM_Call(cls.ui, UI_SET_ACTIVE_MENU - (cls.uiInterface == 2 ? 2 : 0), UIMENU_MAIN);
     }
 
     // if recording an avi, lock to a fixed fps

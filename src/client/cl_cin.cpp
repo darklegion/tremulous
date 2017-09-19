@@ -1653,9 +1653,9 @@ int CIN_PlayCinematic(const char *arg, int x, int y, int w, int h, int systemBit
     if (cinTable[currentHandle].alterGameState)
     {
         // close the menu
-        if (uivm)
+        if (cls.ui)
         {
-            VM_Call(uivm, UI_SET_ACTIVE_MENU - (uiInterface == 2 ? 2 : 0), UIMENU_NONE);
+            VM_Call(cls.ui, UI_SET_ACTIVE_MENU - cls.uiInterface == 2 ? 2 : 0, UIMENU_NONE);
         }
     }
     else

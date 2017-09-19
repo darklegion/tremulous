@@ -26,9 +26,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cl_updates.h"
 
-vm_t *uivm;
-int uiInterface;
-
 /*
 ====================
 GetClientState
@@ -761,7 +758,7 @@ The ui module is making a system call
 */
 intptr_t CL_UISystemCalls(intptr_t *args)
 {
-    if (uiInterface == 2)
+    if (cls.uiInterface == 2)
     {
         if (args[0] >= UI_R_SETCLIPREGION && args[0] < UI_MEMSET)
         {
@@ -1185,13 +1182,13 @@ void CL_ShutdownUI(void)
 {
     Key_SetCatcher(Key_GetCatcher() & ~KEYCATCH_UI);
     cls.uiStarted = false;
-    if (!uivm)
+    if (!cls.ui)
     {
         return;
     }
-    VM_Call(uivm, UI_SHUTDOWN);
-    VM_Free(uivm);
-    uivm = NULL;
+    VM_Call(cls.ui, UI_SHUTDOWN);
+    VM_Free(cls.ui);
+    cls.ui = NULL;
 }
 
 /*
@@ -1209,8 +1206,8 @@ void CL_InitUI(void)
         if (interpret != VMI_COMPILED && interpret != VMI_BYTECODE) interpret = VMI_COMPILED;
     }
 
-    uivm = VM_Create("ui", CL_UISystemCalls, interpret);
-    if (!uivm)
+    cls.ui = VM_Create("ui", CL_UISystemCalls, interpret);
+    if (!cls.ui)
     {
         Com_Printf("Failed to find a valid UI vm. The following paths were searched:\n");
         Cmd_ExecuteString("path /\n");
@@ -1218,45 +1215,45 @@ void CL_InitUI(void)
     }
 
     // sanity check
-    int v = VM_Call(uivm, UI_GETAPIVERSION);
+    int v = VM_Call(cls.ui, UI_GETAPIVERSION);
     if (v != UI_API_VERSION)
     {
-        // Free uivm now, so UI_SHUTDOWN doesn't get called later.
-        VM_Free(uivm);
-        uivm = NULL;
+        // Free cls.ui now, so UI_SHUTDOWN doesn't get called later.
+        VM_Free(cls.ui);
+        cls.ui = NULL;
 
         cls.uiStarted = false;
         Com_Error(ERR_DROP, "User Interface is version %d, expected %d", v, UI_API_VERSION);
     }
 
     Cmd_TokenizeString("");
-    uiInterface = 0;
+    cls.uiInterface = 0;
     probingUI = true;
     if (setjmp(uiProbingJB) == 0)
     {
-        if (VM_Call(uivm, UI_CONSOLE_COMMAND, 0) < 0)
+        if (VM_Call(cls.ui, UI_CONSOLE_COMMAND, 0) < 0)
         {
-            uiInterface = 2;
+            cls.uiInterface = 2;
         }
     }
     else
     {
-        uiInterface = 2;
-        VM_ClearCallLevel(uivm);
+        cls.uiInterface = 2;
+        VM_ClearCallLevel(cls.ui);
     }
     probingUI = false;
 
     if (clc.state >= CA_CONNECTED && clc.state <= CA_ACTIVE &&
-        (clc.netchan.alternateProtocol == 2) != (uiInterface == 2))
+        (clc.netchan.alternateProtocol == 2) != (cls.uiInterface == 2))
     {
         Com_Printf(S_COLOR_YELLOW "WARNING: %s protocol %i, but a ui module using the %s interface was found\n",
             (clc.demoplaying ? "Demo was recorded using" : "Server uses"),
             (clc.netchan.alternateProtocol == 0 ? PROTOCOL_VERSION : clc.netchan.alternateProtocol == 1 ? 70 : 69),
-            (uiInterface == 2 ? "1.1" : "non-1.1"));
+            (cls.uiInterface == 2 ? "1.1" : "non-1.1"));
     }
 
     // init for this gamestate
-    VM_Call(uivm, UI_INIT, (clc.state >= CA_AUTHORIZING && clc.state < CA_ACTIVE));
+    VM_Call(cls.ui, UI_INIT, (clc.state >= CA_AUTHORIZING && clc.state < CA_ACTIVE));
 
     // show where the ui folder was loaded from
     Cmd_ExecuteString("which ui/\n");
@@ -1273,7 +1270,7 @@ See if the current console command is claimed by the ui
 */
 bool UI_GameCommand(void)
 {
-    if (!uivm) return false;
+    if (!cls.ui) return false;
 
-    return (bool)VM_Call(uivm, UI_CONSOLE_COMMAND - (uiInterface == 2 ? 2 : 0), cls.realtime);
+    return (bool)VM_Call(cls.ui, UI_CONSOLE_COMMAND - (cls.uiInterface == 2 ? 2 : 0), cls.realtime);
 }

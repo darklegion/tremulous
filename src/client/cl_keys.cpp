@@ -1239,23 +1239,23 @@ static void CL_KeyDownEvent( int key, unsigned time )
 		// escape always gets out of CGAME stuff
 		if (Key_GetCatcher( ) & KEYCATCH_CGAME) {
 			Key_SetCatcher( Key_GetCatcher( ) & ~KEYCATCH_CGAME );
-			VM_Call (cgvm, CG_EVENT_HANDLING, CGAME_EVENT_NONE);
+			VM_Call (cls.cgame, CG_EVENT_HANDLING, CGAME_EVENT_NONE);
 			return;
 		}
 
 		if ( !( Key_GetCatcher( ) & KEYCATCH_UI ) ) {
 			if ( clc.state == CA_ACTIVE && !clc.demoplaying ) {
-				VM_Call( uivm, UI_SET_ACTIVE_MENU - ( uiInterface == 2 ? 2 : 0 ), UIMENU_INGAME );
+				VM_Call( cls.ui, UI_SET_ACTIVE_MENU - ( cls.uiInterface == 2 ? 2 : 0 ), UIMENU_INGAME );
 			}
 			else if ( clc.state != CA_DISCONNECTED ) {
 				CL_Disconnect_f();
 				S_StopAllSounds();
-				VM_Call( uivm, UI_SET_ACTIVE_MENU - ( uiInterface == 2 ? 2 : 0 ), UIMENU_MAIN );
+				VM_Call( cls.ui, UI_SET_ACTIVE_MENU - ( cls.uiInterface == 2 ? 2 : 0 ), UIMENU_MAIN );
 			}
 			return;
 		}
 
-		VM_Call( uivm, UI_KEY_EVENT, key, true );
+		VM_Call( cls.ui, UI_KEY_EVENT, key, true );
 		return;
 	}
 
@@ -1266,12 +1266,12 @@ static void CL_KeyDownEvent( int key, unsigned time )
 	if ( Key_GetCatcher( ) & KEYCATCH_CONSOLE ) {
 		Console_Key( key );
 	} else if ( Key_GetCatcher( ) & KEYCATCH_UI ) {
-		if ( uivm ) {
-			VM_Call( uivm, UI_KEY_EVENT, key, true );
+		if ( cls.ui ) {
+			VM_Call( cls.ui, UI_KEY_EVENT, key, true );
 		} 
 	} else if ( Key_GetCatcher( ) & KEYCATCH_CGAME ) {
-		if ( cgvm ) {
-			VM_Call( cgvm, CG_KEY_EVENT, key, true );
+		if ( cls.cgame ) {
+			VM_Call( cls.cgame, CG_KEY_EVENT, key, true );
 		} 
 	} else if ( clc.state == CA_DISCONNECTED ) {
 		Console_Key( key );
@@ -1307,10 +1307,10 @@ static void CL_KeyUpEvent( int key, unsigned time )
 	//
 	CL_ParseBinding( key, false, time );
 
-	if ( Key_GetCatcher( ) & KEYCATCH_UI && uivm ) {
-		VM_Call( uivm, UI_KEY_EVENT, key, false );
-	} else if ( Key_GetCatcher( ) & KEYCATCH_CGAME && cgvm ) {
-		VM_Call( cgvm, CG_KEY_EVENT, key, false );
+	if ( Key_GetCatcher( ) & KEYCATCH_UI && cls.ui ) {
+		VM_Call( cls.ui, UI_KEY_EVENT, key, false );
+	} else if ( Key_GetCatcher( ) & KEYCATCH_CGAME && cls.cgame ) {
+		VM_Call( cls.cgame, CG_KEY_EVENT, key, false );
 	}
 }
 
@@ -1348,7 +1348,7 @@ void CL_CharEvent( int key )
 		Field_CharEvent( &g_consoleField, key );
 
 	else if ( Key_GetCatcher( ) & KEYCATCH_UI )
-		VM_Call( uivm, UI_KEY_EVENT, key | K_CHAR_FLAG, true );
+		VM_Call( cls.ui, UI_KEY_EVENT, key | K_CHAR_FLAG, true );
 
 	else if ( clc.state == CA_DISCONNECTED )
 		Field_CharEvent( &g_consoleField, key );

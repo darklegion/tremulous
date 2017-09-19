@@ -31,8 +31,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "libmumblelink.h"
 #endif
 
-int cgInterface;
-
 /*
 ====================
 CL_GetGameState
@@ -133,7 +131,7 @@ bool CL_GetSnapshot( int snapshotNumber, snapshot_t *snapshot )
 		count = MAX_ENTITIES_IN_SNAPSHOT;
 	}
 
-	if ( cgInterface == 2 )
+	if ( cls.cgInterface == 2 )
     {
 		alternateSnapshot_t *altSnapshot = (alternateSnapshot_t *)snapshot;
 		altSnapshot->ps = clSnap->alternatePs;
@@ -382,12 +380,12 @@ CL_ShutdonwCGame
 void CL_ShutdownCGame( void ) {
 	Key_SetCatcher( Key_GetCatcher( ) & ~KEYCATCH_CGAME );
 	cls.cgameStarted = false;
-	if ( !cgvm ) {
+	if ( !cls.cgame ) {
 		return;
 	}
-	VM_Call( cgvm, CG_SHUTDOWN );
-	VM_Free( cgvm );
-	cgvm = NULL;
+	VM_Call( cls.cgame, CG_SHUTDOWN );
+	VM_Free( cls.cgame );
+	cls.cgame = NULL;
 }
 
 static int	FloatAsInt( float f ) {
@@ -408,7 +406,7 @@ The cgame module is making a system call
 */
 intptr_t CL_CgameSystemCalls( intptr_t *args )
 {
-	if( cgInterface == 2 && args[0] >= CG_R_SETCLIPREGION && args[0] < CG_MEMSET )
+	if( cls.cgInterface == 2 && args[0] >= CG_R_SETCLIPREGION && args[0] < CG_MEMSET )
     {
 		if( args[0] < CG_S_STOPBACKGROUNDTRACK - 1 )
 			args[0] += 1;
@@ -797,36 +795,36 @@ void CL_InitCGame( void ) {
 			interpret = VMI_COMPILED;
 	}
 
-	cgvm = VM_Create( "cgame", CL_CgameSystemCalls, interpret );
-	if ( !cgvm ) {
+	cls.cgame = VM_Create( "cgame", CL_CgameSystemCalls, interpret );
+	if ( !cls.cgame ) {
 		Com_Error( ERR_DROP, "VM_Create on cgame failed" );
 	}
 	clc.state = CA_LOADING;
 
 	Cvar_VariableStringBuffer( "cl_voipSendTarget", backup, sizeof( backup ) );
 	Cvar_Set( "cl_voipSendTarget", "" );
-	cgInterface = 0;
+	cls.cgInterface = 0;
 	probingCG = true;
 	if ( setjmp( cgProbingJB ) == 0 ) {
-		VM_Call( cgvm, CG_VOIP_STRING );
+		VM_Call( cls.cgame, CG_VOIP_STRING );
 	} else {
-		VM_ClearCallLevel( cgvm );
-		cgInterface = 2;
+		VM_ClearCallLevel( cls.cgame );
+		cls.cgInterface = 2;
 	}
 	probingCG = false;
 	Cvar_Set( "cl_voipSendTarget", backup );
 
-	if ( ( clc.netchan.alternateProtocol == 2 ) != ( cgInterface == 2 ) ) {
+	if ( ( clc.netchan.alternateProtocol == 2 ) != ( cls.cgInterface == 2 ) ) {
 		Com_Error( ERR_DROP, "%s protocol %i, but a cgame module using the %s interface was found",
 		           ( clc.demoplaying ? "Demo was recorded using" : "Server uses" ),
 		           ( clc.netchan.alternateProtocol == 0 ? PROTOCOL_VERSION : clc.netchan.alternateProtocol == 1 ? 70 : 69 ),
-		           ( cgInterface == 2 ? "1.1" : "non-1.1" ) );
+		           ( cls.cgInterface == 2 ? "1.1" : "non-1.1" ) );
 	}
 
 	// init for this gamestate
 	// use the lastExecutedServerCommand instead of the serverCommandSequence
 	// otherwise server commands sent just before a gamestate are dropped
-	VM_Call( cgvm, CG_INIT, clc.serverMessageSequence, clc.lastExecutedServerCommand, clc.clientNum );
+	VM_Call( cls.cgame, CG_INIT, clc.serverMessageSequence, clc.lastExecutedServerCommand, clc.clientNum );
 
 	// reset any CVAR_CHEAT cvars registered by cgame
 	if ( !clc.demoplaying && !cl_connectedToCheatServer )
@@ -863,10 +861,10 @@ See if the current console command is claimed by the cgame
 */
 bool CL_GameCommand( void )
 {
-	if ( !cgvm )
+	if ( !cls.cgame )
 		return false;
 
-	return (bool)VM_Call( cgvm, CG_CONSOLE_COMMAND );
+	return (bool)VM_Call( cls.cgame, CG_CONSOLE_COMMAND );
 }
 
 /*
@@ -876,10 +874,10 @@ CL_GameConsoleText
 */
 void CL_GameConsoleText( void )
 {
-	if ( !cgvm )
+	if ( !cls.cgame )
 		return;
 
-	VM_Call( cgvm, CG_CONSOLE_TEXT );
+	VM_Call( cls.cgame, CG_CONSOLE_TEXT );
 }
 
 /*
@@ -889,7 +887,7 @@ CL_CGameRendering
 */
 void CL_CGameRendering( stereoFrame_t stereo )
 {
-	VM_Call( cgvm, CG_DRAW_ACTIVE_FRAME, cl.serverTime, stereo, clc.demoplaying );
+	VM_Call( cls.cgame, CG_DRAW_ACTIVE_FRAME, cl.serverTime, stereo, clc.demoplaying );
 	VM_Debug( 0 );
 }
 
