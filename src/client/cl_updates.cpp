@@ -11,6 +11,7 @@
 
 #include "restclient/restclient.h"
 #include "restclient/connection.h"
+#include "semantic_version.h"
 
 #include "rapidjson.h"
 
@@ -136,6 +137,22 @@ void UpdateManager::refresh()
 
     rapidjson::Value &release = d[0];
     std::string txt;
+    
+    semver::v2::Version current { PRODUCT_VERSION + 1 };
+    semver::v2::Version latest { release["tag_name"].GetString() + 1 };
+
+    if ( current == latest )
+    {
+        txt += "You are up to date\n\n";
+    }
+    else if ( current < latest )
+    {
+        txt += "A new release is available!\n\n";
+    }
+    else if ( current > latest )
+    { 
+        txt += "Wow! You are ahead of the release.\n\n";
+    }
     
     txt += release["tag_name"].GetString();
     if (release["prerelease"].IsTrue())

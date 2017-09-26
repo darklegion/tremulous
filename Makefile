@@ -272,6 +272,7 @@ ZDIR=$(EXTERNAL_DIR)/zlib
 LUADIR=$(EXTERNAL_DIR)/lua-5.3.3/src
 RESTDIR=$(EXTERNAL_DIR)/restclient
 NETTLEDIR=$(EXTERNAL_DIR)/nettle-3.3
+SEMVERDIR=$(EXTERNAL_DIR)/semver
 LUA_RAPIDJSONDIR=$(MOUNT_DIR)/script/rapidjson
 Q3ASMDIR=$(MOUNT_DIR)/tools/asm
 LBURGDIR=$(MOUNT_DIR)/tools/lcc/lburg
@@ -1431,6 +1432,7 @@ makedirs:
 	@if [ ! -d $(B)/script ]; then $(MKDIR) $(B)/script;fi
 	@if [ ! -d $(B)/script/rapidjson ]; then $(MKDIR) $(B)/script/rapidjson;fi
 	@if [ ! -d $(B)/nettle ]; then $(MKDIR) $(B)/nettle;fi
+	@if [ ! -d $(B)/semver ]; then $(MKDIR) $(B)/semver;fi
 	@if [ ! -d $(B)/client ];then $(MKDIR) $(B)/client;fi
 	@if [ ! -d $(B)/client/opus ];then $(MKDIR) $(B)/client/opus;fi
 	@if [ ! -d $(B)/client/vorbis ];then $(MKDIR) $(B)/client/vorbis;fi
@@ -1921,6 +1923,26 @@ $(B)/nettle/%.o: $(NETTLEDIR)/nettle/%.c
 	$(DO_NETTLE_CC)
 
 #############################################################################
+# Semver 
+#############################################################################
+
+SEMVERCFLAGS=$(ARCHFLAG) -fPIC -fpic -I$(SEMVERDIR)/src//include
+
+define DO_SEMVER_CXX
+  $(echo_cmd) "SEMVER_CC $<"
+  $(CXX) -std=c++1y ${CXXFLAGS} ${SEMVERCFLAGS} -o $@ -c $<
+endef
+
+SEMVEROBJ = \
+  $(B)/semver/semantic_version_v1.o \
+  $(B)/semver/semantic_version_v2.o
+
+CFLAGS += -I$(SEMVERDIR)/src/include
+
+$(B)/semver/%.o: $(SEMVERDIR)/src/lib/%.cpp
+	$(DO_SEMVER_CXX)
+
+#############################################################################
 # CLIENT/SERVER
 #############################################################################
 
@@ -2010,7 +2032,7 @@ else
     $(B)/client/con_tty.o
 endif
 
-Q3OBJ += $(LUAOBJ) $(SCRIPTOBJ) $(NETTLEOBJ)
+Q3OBJ += $(LUAOBJ) $(SCRIPTOBJ) $(NETTLEOBJ) $(SEMVEROBJ)
 
 Q3R2OBJ = \
   $(B)/renderergl2/tr_animation.o \
