@@ -66,9 +66,10 @@
     itemDef
     {
       type ITEM_TYPE_MULTI
-      text "Video Quality:"
-      cvar "ui_glCustom"
-      cvarFloatList { "High Quality" 0 "Normal" 1 "Fast" 2 "Fastest" 3 "Custom" 4 }
+      text "Renderer:"
+      cvar "cl_renderer"
+      cvarStrList { "OpenGL 1", "opengl1",
+                    "OpenGL 2", "opengl2" }
       rect X (Y+(ELEM_H+ELEM_GAP)) W ELEM_H
       textalign ALIGN_RIGHT
       textalignx TOFF_X
@@ -79,7 +80,6 @@
       action
       {
         play "sound/misc/menu1.wav";
-        uiScript update "ui_glCustom"
       }
     }
 
