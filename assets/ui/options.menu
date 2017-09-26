@@ -257,24 +257,6 @@
 
     itemDef
     {
-      type ITEM_TYPE_YESNO
-      text "Automatically Check for Updates:"
-      cvar "cl_autoUpdateCheck"
-      rect X (Y+(11*(ELEM_H+ELEM_GAP))) W ELEM_H
-      textalign ALIGN_RIGHT
-      textalignx TOFF_X
-      textvalign VALIGN_CENTER
-      textscale .25
-      forecolor 1 1 1 1
-      visible MENU_TRUE
-      action
-      {
-        play "sound/misc/menu1.wav";
-      }
-    }
-
-    itemDef
-    {
       text "For further options please use the in-game options menu"
       type ITEM_TYPE_TEXT
       style WINDOW_STYLE_EMPTY
