@@ -189,8 +189,7 @@
             rect X (Y+(6*ELEM_H)) W ELEM_H
             textscale .416
             textalign ALIGN_RIGHT
-            backcolor 0 0 0 0
-            forecolor 0 1 0 1
+            forecolor 1 1 1 1
             visible MENU_TRUE
             // FIXME: Show only if autoupdates is not enabled?
             // FIXME: Show "An update is ready to install"

@@ -47,7 +47,6 @@
       backcolor 0 0 0 .75
       visible MENU_TRUE
       decoration
-      background "gfx/misc/redbuild"
       border WINDOW_BORDER_KCGRADIENT
       borderSize 1.0
       borderColor 0.5 0.5 0.5 1
@@ -72,56 +71,56 @@
       visible MENU_TRUE
     }
 
-    itemDef
-    {
-      name OKCancel
-      text "Download"
-      type ITEM_TYPE_BUTTON
-      style WINDOW_STYLE_EMPTY
-      rect (W-((2*BORDER)+(2*BUTT_W))) (H-(BORDER+BUTT_H)) BUTT_W BUTT_H
-      textalign ALIGN_CENTER
-      textvalign VALIGN_CENTER
-      textscale .4
-      forecolor 1 1 1 1
-      backcolor .5 0 0 .25
-      visible MENU_TRUE
-      cvarTest "ui_autoupdate_action"
-      showCvar { AU_ACT_GET }
-      action
-      {
-        play "sound/misc/menu1.wav";
-        uiScript DownloadUpdate;
-        close install_update 
-      }
-    }
-
-    itemDef
-    {
-      name OKCancel
-      text "Install"
-      type ITEM_TYPE_BUTTON
-      style WINDOW_STYLE_EMPTY
-      rect (W-((2*BORDER)+(2*BUTT_W))) (H-(BORDER+BUTT_H)) BUTT_W BUTT_H
-      textalign ALIGN_CENTER
-      textvalign VALIGN_CENTER
-      textscale .4
-      forecolor 1 1 1 1
-      backcolor .5 0 0 .25
-      visible MENU_TRUE
-      cvarTest "ui_autoupdate_action"
-      showCvar { AU_ACT_RUN }
-      action
-      {
-        play "sound/misc/menu1.wav";
-        uiScript InstallUpdate;
-        close install_update 
-      }
-    }
+//    itemDef
+//    {
+//      name OKCancel
+//      text "Download"
+//      type ITEM_TYPE_BUTTON
+//      style WINDOW_STYLE_EMPTY
+//      rect (W-((2*BORDER)+(2*BUTT_W))) (H-(BORDER+BUTT_H)) BUTT_W BUTT_H
+//      textalign ALIGN_CENTER
+//      textvalign VALIGN_CENTER
+//      textscale .4
+//      forecolor 1 1 1 1
+//      backcolor .5 0 0 .25
+//      visible MENU_TRUE
+//      cvarTest "ui_autoupdate_action"
+//      showCvar { AU_ACT_GET }
+//      action
+//      {
+//        play "sound/misc/menu1.wav";
+//        uiScript DownloadUpdate;
+//        close install_update 
+//      }
+//    }
+//
+//    itemDef
+//    {
+//      name OKCancel
+//      text "Install"
+//      type ITEM_TYPE_BUTTON
+//      style WINDOW_STYLE_EMPTY
+//      rect (W-((2*BORDER)+(2*BUTT_W))) (H-(BORDER+BUTT_H)) BUTT_W BUTT_H
+//      textalign ALIGN_CENTER
+//      textvalign VALIGN_CENTER
+//      textscale .4
+//      forecolor 1 1 1 1
+//      backcolor .5 0 0 .25
+//      visible MENU_TRUE
+//      cvarTest "ui_autoupdate_action"
+//      showCvar { AU_ACT_RUN }
+//      action
+//      {
+//        play "sound/misc/menu1.wav";
+//        uiScript InstallUpdate;
+//        close install_update 
+//      }
+//    }
 
     itemDef
     {
       name "OKCancel"
-      text "Cancel"
+      text "Ok"
       type ITEM_TYPE_BUTTON
       style WINDOW_STYLE_EMPTY
       rect (W-(BORDER+BUTT_W)) (H-(BORDER+BUTT_H)) BUTT_W BUTT_H
