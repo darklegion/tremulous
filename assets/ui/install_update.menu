@@ -38,6 +38,11 @@
     {
         uiScript checkForUpdate;
     }
+    onESC
+    {
+      play "sound/misc/menu1.wav";
+      close install_update
+    }
 
     itemDef
     {
