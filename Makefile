@@ -286,7 +286,7 @@ TEMPDIR=/tmp
 bin_path=$(shell which $(1) 2> /dev/null)
 
 # We won't need this if we only build the server
-ifneq ($(BUILD_CLIENT),0)
+ifeq ($(BUILD_CLIENT),1)
   # set PKG_CONFIG_PATH to influence this, e.g.
   # PKG_CONFIG_PATH=/opt/cross/i386-mingw32msvc/lib/pkgconfig
   ifneq ($(call bin_path, pkg-config),)
@@ -1839,7 +1839,7 @@ define DO_LUA_CC
   $(Q)$(call LOG_CC,lua,${LUACFLAGS} ${OPTIMIZE},$@,$<)
 endef
 
-LUACFLAGS += -I$(EXTERNAL_DIR)/lua-5.3.3/include
+LUACFLAGS += -I$(EXTERNAL_DIR)/lua-5.3.3/include -I$(EXTERNAL_DIR)/sol
 CFLAGS += $(LUACFLAGS)
 CXXFLAGS += $(LUACFLAGS)
 

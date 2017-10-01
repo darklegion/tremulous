@@ -21,12 +21,12 @@ add_library(
 
 include_directories(
     # these are in global namespace
-    ${CMAKE_CURRENT_SOURCE_DIR}/../lua-5.3.3/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../sol
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../external/lua-5.3.3/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../external/sol
     ${CMAKE_CURRENT_SOURCE_DIR}/../qcommon
     # these have they're own namespace
-    ${CMAKE_CURRENT_SOURCE_DIR}/../nettle-3.3
-    ${CMAKE_CURRENT_SOURCE_DIR}/../rapidjson
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../external/nettle-3.3
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../external/rapidjson
     )
 
 target_link_libraries(

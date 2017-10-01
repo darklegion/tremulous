@@ -23,8 +23,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <iostream>
 
-#include "../lua-5.3.3/include/lua.hpp"
-#include "../sol/sol.hpp"
+#include "lua.hpp"
+#include "sol.hpp"
 
 #include <errno.h>
 #include <string.h>

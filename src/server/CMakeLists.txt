@@ -15,6 +15,7 @@ add_definitions(
     -DNDEBUG
     )
 
+set(EXTERNAL_DIR ${CMAKE_SOURCE_DIR}/external)
 set(PARENT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/..)
 if(APPLE)
 set(APPLE_SOURCES ${PARENT_DIR}/sys/sys_osx.mm)
@@ -41,12 +42,12 @@ add_executable(
     ${PARENT_DIR}/qcommon/cm_trace.cpp
     ${PARENT_DIR}/qcommon/cmd.cpp
     ${PARENT_DIR}/qcommon/common.cpp
-    ${PARENT_DIR}/qcommon/crypto.c
+    ${PARENT_DIR}/qcommon/crypto.cpp
     ${PARENT_DIR}/qcommon/cvar.cpp
     ${PARENT_DIR}/qcommon/files.cpp
-    ${PARENT_DIR}/qcommon/huffman.c
+    ${PARENT_DIR}/qcommon/huffman.cpp
     ${PARENT_DIR}/qcommon/huffman.h
-    ${PARENT_DIR}/qcommon/ioapi.c
+    ${PARENT_DIR}/qcommon/ioapi.cpp
     ${PARENT_DIR}/qcommon/md4.cpp
     ${PARENT_DIR}/qcommon/msg.h
     ${PARENT_DIR}/qcommon/msg.cpp
@@ -57,7 +58,7 @@ add_executable(
     ${PARENT_DIR}/qcommon/q3_lauxlib.cpp
     ${PARENT_DIR}/qcommon/q_math.c
     ${PARENT_DIR}/qcommon/q_shared.c
-    ${PARENT_DIR}/qcommon/unzip.c
+    ${PARENT_DIR}/qcommon/unzip.cpp
     ${PARENT_DIR}/qcommon/vm.cpp
     ${PARENT_DIR}/qcommon/vm_interpreted.cpp
     ${PARENT_DIR}/qcommon/vm_x86.cpp
@@ -66,7 +67,6 @@ add_executable(
     ${PARENT_DIR}/null/null_input.cpp
     ${PARENT_DIR}/null/null_snddma.cpp
     #
-    ${PARENT_DIR}/asm/ftola.c
     ${PARENT_DIR}/asm/snapvector.c
     #
     ${PARENT_DIR}/sys/con_log.cpp
@@ -76,12 +76,12 @@ add_executable(
     ${PARENT_DIR}/sys/sys_shared.h
     ${APPLE_SOURCES}
     #
-    ${PARENT_DIR}/zlib/adler32.c
-    ${PARENT_DIR}/zlib/crc32.c
-    ${PARENT_DIR}/zlib/inffast.c
-    ${PARENT_DIR}/zlib/inflate.c
-    ${PARENT_DIR}/zlib/inftrees.c
-    ${PARENT_DIR}/zlib/zutil.c
+    ${EXTERNAL_DIR}/zlib/adler32.c
+    ${EXTERNAL_DIR}/zlib/crc32.c
+    ${EXTERNAL_DIR}/zlib/inffast.c
+    ${EXTERNAL_DIR}/zlib/inflate.c
+    ${EXTERNAL_DIR}/zlib/inftrees.c
+    ${EXTERNAL_DIR}/zlib/zutil.c
     )
 
 if(APPLE)
@@ -106,9 +106,9 @@ target_link_libraries(
     
 include_directories(
     ${PARENT_DIR}/script
-    ${PARENT_DIR}/lua-5.3.3/include
-    ${PARENT_DIR}/sol
-    ${PARENT_DIR}/script/rapidjson
-    ${PARENT_DIR}/nettle-3.3
-    ${PARENT_DIR}/zlib
+    ${EXTERNAL_DIR}/lua-5.3.3/include
+    ${EXTERNAL_DIR}/sol
+    ${EXTERNAL_DIR}/script/rapidjson
+    ${EXTERNAL_DIR}/nettle-3.3
+    ${EXTERNAL_DIR}/zlib
     )

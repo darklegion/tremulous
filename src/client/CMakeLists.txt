@@ -15,8 +15,6 @@ include(${CMAKE_SOURCE_DIR}/cmake/SDL2.cmake)
 add_definitions(
     -DUSE_LOCAL_HEADERS
     -DUSE_RESTCLIENT
-    -DUSE_VOIP
-    -DUSE_MUMBLE
     -DUSE_CODEC_OPUS
     -DUSE_OPENAL
     -DUSE_OPENAL_DLOPEN
@@ -28,6 +26,7 @@ add_definitions(
     )
 
 set(PARENT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/..)
+set(EXTERNAL_DIR ${CMAKE_SOURCE_DIR}/external)
 if(APPLE)
 set(APPLE_SOURCES ${PARENT_DIR}/sys/sys_osx.mm)
 endif(APPLE)
@@ -72,14 +71,14 @@ add_executable(
     ${PARENT_DIR}/qcommon/cm_trace.cpp
     ${PARENT_DIR}/qcommon/cmd.cpp
     ${PARENT_DIR}/qcommon/common.cpp
-    ${PARENT_DIR}/qcommon/crypto.c
+    ${PARENT_DIR}/qcommon/crypto.cpp
     ${PARENT_DIR}/qcommon/cvar.cpp
     ${PARENT_DIR}/qcommon/cvar.h
     ${PARENT_DIR}/qcommon/files.cpp
     ${PARENT_DIR}/qcommon/files.h
-    ${PARENT_DIR}/qcommon/huffman.c
+    ${PARENT_DIR}/qcommon/huffman.cpp
     ${PARENT_DIR}/qcommon/huffman.h
-    ${PARENT_DIR}/qcommon/ioapi.c
+    ${PARENT_DIR}/qcommon/ioapi.cpp
     ${PARENT_DIR}/qcommon/md4.cpp
     ${PARENT_DIR}/qcommon/md5.cpp
     ${PARENT_DIR}/qcommon/msg.cpp
@@ -88,11 +87,11 @@ add_executable(
     ${PARENT_DIR}/qcommon/net_ip.cpp
     ${PARENT_DIR}/qcommon/net.h
     ${PARENT_DIR}/qcommon/parse.cpp
-    ${PARENT_DIR}/qcommon/puff.c
+    ${PARENT_DIR}/qcommon/puff.cpp
     ${PARENT_DIR}/qcommon/q_shared.c
     ${PARENT_DIR}/qcommon/q3_lauxlib.cpp
     ${PARENT_DIR}/qcommon/q_math.c
-    ${PARENT_DIR}/qcommon/unzip.c
+    ${PARENT_DIR}/qcommon/unzip.cpp
     ${PARENT_DIR}/qcommon/vm.cpp
     ${PARENT_DIR}/qcommon/vm_interpreted.cpp
     ${PARENT_DIR}/qcommon/vm_x86.cpp
@@ -115,6 +114,9 @@ add_executable(
     ${PARENT_DIR}/sys/sys_unix.cpp
     ${PARENT_DIR}/sys/sys_shared.h
     ${APPLE_SOURCES}
+
+    ${EXTERNAL_DIR}/semver/src/lib/semantic_version_v1.cpp
+    ${EXTERNAL_DIR}/semver/src/lib/semantic_version_v2.cpp
     )
 
 if(APPLE)
@@ -156,18 +158,20 @@ target_link_libraries(
 
 include_directories(
     ${PARENT_DIR}
-    ${PARENT_DIR}/zlib
     ${PARENT_DIR}/qcommon
-    ${PARENT_DIR}/restclient
-    ${PARENT_DIR}/rapidjson
-    ${PARENT_DIR}/SDL2/include
-    ${PARENT_DIR}/jpeg-8c
-    ${PARENT_DIR}/libogg-1.3.2/include
-    ${PARENT_DIR}/lua-5.3.3/include
-    ${PARENT_DIR}/sol
-    ${PARENT_DIR}/nettle-3.3
-    ${PARENT_DIR}/opus-1.1.4/include
-    ${PARENT_DIR}/opusfile-0.8/include
+    ${EXTERNAL_DIR}/zlib
+    ${EXTERNAL_DIR}/restclient
+    ${EXTERNAL_DIR}/rapidjson
+    ${EXTERNAL_DIR}/SDL2/include
+    ${EXTERNAL_DIR}/jpeg-8c
+    ${EXTERNAL_DIR}/libogg-1.3.2/include
+    ${EXTERNAL_DIR}/lua-5.3.3/include
+    ${EXTERNAL_DIR}/sol
+    ${EXTERNAL_DIR}/nettle-3.3
+    ${EXTERNAL_DIR}/opus-1.1.4/include
+    ${EXTERNAL_DIR}/opusfile-0.8/include
+    ${EXTERNAL_DIR}/restclient
+    ${EXTERNAL_DIR}/semver/src/include
     ${SDL2_INCLUDE_DIRS}
     ${OPENAL_INCLUDE_DIR}
     )
@@ -177,7 +181,7 @@ if (USE_INTERNAL_SDL2)
 add_custom_command(
     TARGET tremulous
     POST_BUILD COMMAND ${CMAKE_COMMAND}
-    ARGS -E copy ${CMAKE_SOURCE_DIR}/src/SDL2/libs/Darwin/libSDL2-2.0.0.dylib ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/libSDL2-2.0.0.dylib
+    ARGS -E copy ${CMAKE_SOURCE_DIR}/external/SDL2/libs/Darwin/libSDL2-2.0.0.dylib ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/libSDL2-2.0.0.dylib
     )
 endif(USE_INTERNAL_SDL2)
 

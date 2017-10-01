@@ -9,33 +9,33 @@ include_directories(
     )
 
 set(renderergl1_SRCS
-    tr_animation.c
-    tr_backend.c
-    tr_bsp.c
-    tr_cmds.c
-    tr_curve.c
-    tr_flares.c
-    tr_image.c
-    tr_init.c
-    tr_light.c
+    tr_animation.cpp
+    tr_backend.cpp
+    tr_bsp.cpp
+    tr_cmds.cpp
+    tr_curve.cpp
+    tr_flares.cpp
+    tr_image.cpp
+    tr_init.cpp
+    tr_light.cpp
     tr_local.h
-    tr_main.c
-    tr_marks.c
-    tr_mesh.c
-    tr_model.c
-    tr_model_iqm.c
-    tr_scene.c
-    tr_shade.c
-    tr_shade_calc.c
-    tr_shader.c
-    tr_shadows.c
-    tr_sky.c
-    tr_subs.c
-    tr_surface.c
-    tr_world.c
+    tr_main.cpp
+    tr_marks.cpp
+    tr_mesh.cpp
+    tr_model.cpp
+    tr_model_iqm.cpp
+    tr_scene.cpp
+    tr_shade.cpp
+    tr_shade_calc.cpp
+    tr_shader.cpp
+    tr_shadows.cpp
+    tr_sky.cpp
+    tr_subs.cpp
+    tr_surface.cpp
+    tr_world.cpp
     tr_local.h
+    ${CMAKE_SOURCE_DIR}/src/qcommon/puff.cpp
     ${CMAKE_SOURCE_DIR}/src/qcommon/q_shared.c
-    ${CMAKE_SOURCE_DIR}/src/qcommon/puff.c
     ${CMAKE_SOURCE_DIR}/src/qcommon/q_math.c
     )
 
