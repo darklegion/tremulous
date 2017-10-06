@@ -286,7 +286,7 @@ TEMPDIR=/tmp
 bin_path=$(shell which $(1) 2> /dev/null)
 
 # We won't need this if we only build the server
-ifeq ($(BUILD_CLIENT),1)
+ifneq ($(BUILD_CLIENT),0)
   # set PKG_CONFIG_PATH to influence this, e.g.
   # PKG_CONFIG_PATH=/opt/cross/i386-mingw32msvc/lib/pkgconfig
   ifneq ($(call bin_path, pkg-config),)
