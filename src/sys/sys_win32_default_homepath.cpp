@@ -1,8 +1,8 @@
 #include "sys_local.h"
 
-#include "../qcommon/cvar.h"
-#include "../qcommon/q_shared.h"
-#include "../qcommon/q_platform.h"
+#include "qcommon/cvar.h"
+#include "qcommon/q_shared.h"
+#include "qcommon/q_platform.h"
 
 #include <windows.h>
 #include <lmerr.h>

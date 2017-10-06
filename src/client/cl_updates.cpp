@@ -16,15 +16,14 @@
 #include "rapidjson.h"
 
 //#include "lua.hpp"
-//#include "../sol/sol.h"
+//#include "sol.h"
 
-#include "../qcommon/cvar.h"
-#include "../qcommon/q_shared.h"
-#include "../qcommon/qcommon.h"
-#include "../sys/sys_shared.h"
-#include "../qcommon/unzip.h"
-
-#include "../qcommon/q_platform.h"
+#include "qcommon/cvar.h"
+#include "qcommon/q_shared.h"
+#include "qcommon/qcommon.h"
+#include "sys/sys_shared.h"
+#include "qcommon/unzip.h"
+#include "qcommon/q_platform.h"
 
 #include "nettle/rsa.h"
 #include "nettle/sha2.h"

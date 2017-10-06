@@ -34,15 +34,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <windows.h>
 #endif
 
-#include "../script/cvar.h"
-#include "../script/cmd.h"
+#include "script/cvar.h"
+#include "script/cmd.h"
 #ifndef DEDICATED
-#include "../script/http_client.h"
-#include "../script/client.h"
-#include "../script/bind.h"
+#include "script/http_client.h"
+#include "script/client.h"
+#include "script/bind.h"
 #endif
-#include "../script/rapidjson.h"
-#include "../script/nettle.h"
+#include "script/rapidjson.h"
+#include "script/nettle.h"
 
 #include <signal.h>
 #include <stdlib.h>
@@ -70,10 +70,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "sys_local.h"
 #include "sys_loadlib.h"
 
-#include "../qcommon/files.h"
-#include "../qcommon/q_shared.h"
-#include "../qcommon/qcommon.h"
-#include "../qcommon/vm.h"
+#include "qcommon/files.h"
+#include "qcommon/q_shared.h"
+#include "qcommon/qcommon.h"
+#include "qcommon/vm.h"
 
 sol::state lua;
 

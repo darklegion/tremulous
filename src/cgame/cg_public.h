@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef _CG_PUBLIC_H_
 #define _CG_PUBLIC_H_
 
-#include "../qcommon/q_shared.h"
+#include "qcommon/q_shared.h"
 
 #define CMD_BACKUP      64
 #define CMD_MASK      (CMD_BACKUP - 1)

@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "qcommon.h"
 #include "crypto.h"
 #include "msg.h"
-#include "../sys/sys_shared.h"
+#include "sys/sys_shared.h"
 #include "vm.h"
 
 #define JSON_IMPLEMENTATION

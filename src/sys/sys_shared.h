@@ -11,8 +11,8 @@
 
 #include <stdio.h>
 
-#include "../qcommon/qcommon.h"
-#include "../qcommon/net.h"
+#include "qcommon/qcommon.h"
+#include "qcommon/net.h"
 
 #ifdef __cplusplus
 extern "C" {

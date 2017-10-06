@@ -4637,8 +4637,8 @@ void Item_TextField_Paint(itemDef_t *item)
 {
     char buff[1024];
     vec4_t newColor;
+    menuDef_t *parent;
     int offset = (item->text && *item->text) ? ITEM_VALUE_OFFSET : 0;
-    menuDef_t *parent = (menuDef_t *)item->parent;
     editFieldDef_t *editPtr = item->typeData.edit;
     char cursor = DC->getOverstrikeMode() ? '|' : '_';
     qboolean editing = (item->window.flags & WINDOW_HASFOCUS && g_editingField);

@@ -25,8 +25,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef _SND_LOCAL_H
 #define _SND_LOCAL_H
 
-#include "../qcommon/q_shared.h"
-#include "../qcommon/qcommon.h"
+#include "qcommon/q_shared.h"
+#include "qcommon/qcommon.h"
 #include "snd_public.h"
 
 typedef struct cvar_s cvar_t;
@@ -98,20 +98,20 @@ typedef struct loopSound_s {
 
 typedef struct
 {
-	int			allocTime;
-	int			startSample;	// START_SAMPLE_IMMEDIATE = set immediately on next mix
-	int			entnum;			// to allow overriding a specific sound
-	int			entchannel;		// to allow overriding a specific sound
-	int			leftvol;		// 0-255 volume after spatialization
-	int			rightvol;		// 0-255 volume after spatialization
-	int			master_vol;		// 0-255 volume before spatialization
-	float		dopplerScale;
-	float		oldDopplerScale;
-	vec3_t		origin;			// only use if fixed_origin is set
-	bool	fixed_origin;	// use origin instead of fetching entnum's origin
-	sfx_t		*thesfx;		// sfx structure
-	bool	doppler;
-	bool	fullVolume;
+	sfx_t *thesfx;		// sfx structure
+	int allocTime;
+	int startSample;	// START_SAMPLE_IMMEDIATE = set immediately on next mix
+	int entnum;			// to allow overriding a specific sound
+	int entchannel;		// to allow overriding a specific sound
+	int leftvol;		// 0-255 volume after spatialization
+	int rightvol;		// 0-255 volume after spatialization
+	int master_vol;		// 0-255 volume before spatialization
+	float dopplerScale;
+	float oldDopplerScale;
+	vec3_t origin;		// only use if fixed_origin is set
+	bool fixed_origin;	// use origin instead of fetching entnum's origin
+	bool doppler;
+	bool fullVolume;
 } channel_t;
 
 

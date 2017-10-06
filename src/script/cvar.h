@@ -27,9 +27,9 @@
 #include <iostream>
 #include <exception>
 
-#include "../qcommon/cvar.h"
-#include "../qcommon/q_shared.h"
-#include "../qcommon/qcommon.h"
+#include "qcommon/cvar.h"
+#include "qcommon/q_shared.h"
+#include "qcommon/qcommon.h"
 
 namespace sol
 {

@@ -39,7 +39,7 @@ and one exported function: Perform
 #include "cmd.h"
 #include "cvar.h"
 #include "files.h"
-#include "../sys/sys_shared.h"
+#include "sys/sys_shared.h"
 
 
 vm_t	*currentVM = NULL;

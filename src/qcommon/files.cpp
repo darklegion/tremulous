@@ -37,12 +37,12 @@
 #include "q_platform.h"
 #include "q_shared.h"
 #include "qcommon.h"
-#include "../sys/sys_shared.h"
+#include "sys/sys_shared.h"
 #include "unzip.h"
 #include "vm.h"
 
 #ifndef DEDICATED
-#include "../client/cl_rest.h"
+#include "client/cl_rest.h"
 #endif
 
 #ifdef WIN32

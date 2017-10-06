@@ -24,10 +24,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef UI_LOCAL_H
 #define UI_LOCAL_H
 
-#include "../client/keycodes.h"
-#include "../game/bg_public.h"
-#include "../qcommon/q_shared.h"
-#include "../renderercommon/tr_types.h"
+#include "client/keycodes.h"
+#include "game/bg_public.h"
+#include "qcommon/q_shared.h"
+#include "renderercommon/tr_types.h"
 #include "ui_public.h"
 #include "ui_shared.h"
 
@@ -42,11 +42,11 @@ void UI_ClearScores(void);
 void UI_LoadArenas(void);
 void UI_ServerInfo(void);
 void UI_UpdateNews(qboolean);
-void UI_UpdateGithubRelease();
+void UI_UpdateGithubRelease(void);
 
 void UI_RegisterCvars(void);
 void UI_UpdateCvars(void);
-void UI_DrawConnectScreen(qboolean overlay);
+void UI_DrawConnectScreen(void);
 
 // new ui stuff
 #define MAX_MAPS 128

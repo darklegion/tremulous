@@ -24,9 +24,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define _SYS_LOCAL_H_
 
 
-#include "../qcommon/q_shared.h"
-#include "../qcommon/qcommon.h"
-#include "../sys/sys_shared.h"
+#include "qcommon/q_shared.h"
+#include "qcommon/qcommon.h"
+#include "sys/sys_shared.h"
 
 // Require a minimum version of SDL
 #define MINSDL_MAJOR 2

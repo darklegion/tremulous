@@ -25,11 +25,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <stdbool.h>
 
-#include "../qcommon/cvar.h"
-#include "../qcommon/q_shared.h"
-#include "../sys/sys_shared.h"
-#include "../renderercommon/tr_public.h"
-#include "qgl.h"
+#include "qcommon/cvar.h"
+#include "qcommon/q_shared.h"
+#include "sys/sys_shared.h"
+
+#include "renderercommon/tr_public.h"
+#include "renderercommon/iqm.h"
+#include "renderercommon/qgl.h"
 
 typedef enum
 {

@@ -24,7 +24,7 @@
 extern "C" {
 #endif
 
-size_t qlua_writestring(char* string, size_t n);
+size_t qlua_writestring(const char* string, size_t n);
 int qlua_writeline(void);
 int qlua_writestringerror(const char *fmt, ...);
 

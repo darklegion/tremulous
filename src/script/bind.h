@@ -23,8 +23,8 @@
 #ifndef SCRIPT_KEY_H
 #define SCRIPT_KEY_H
 
-#include "../client/client.h"
-#include "../client/keys.h"
+#include "client/client.h"
+#include "client/keys.h"
 
 namespace sol
 { 

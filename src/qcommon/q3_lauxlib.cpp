@@ -10,14 +10,14 @@
 #include "msg.h"
 #include "net.h"
 #include "qcommon.h"
-#include "../sys/sys_shared.h"
+#include "sys/sys_shared.h"
 
-size_t qlua_writestring(char* string, size_t n)
+size_t qlua_writestring(const char* string, size_t n)
 {
 #ifndef DEDICATED
     CL_ConsolePrint( string );
 #endif
-    Q_StripIndentMarker( string );
+    Q_StripIndentMarker( const_cast<char*>(string) );
     Sys_Print( string );
 
     return n;

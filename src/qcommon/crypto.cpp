@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "q_shared.h"
 #include "qcommon.h"
 #include "crypto.h"
-#include "../sys/sys_shared.h"
+#include "sys/sys_shared.h"
 
 #define TO_REAL_PTR(x) ((uint8_t*)x - sizeof(size_t))
 #define TO_MOCK_PTR(x) ((uint8_t*)x + sizeof(size_t))

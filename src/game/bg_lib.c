@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #ifdef Q3_VM
 
-#include "../qcommon/q_shared.h"
+#include "qcommon/q_shared.h"
 
 /*-
  * Copyright (c) 1992, 1993

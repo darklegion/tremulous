@@ -25,8 +25,8 @@
 
 #include <iostream>
 
-#include "../client/client.h"
-#include "../client/keys.h"
+#include "client/client.h"
+#include "client/keys.h"
 
 namespace sol
 { 

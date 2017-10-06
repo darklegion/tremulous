@@ -120,7 +120,7 @@ extern "C" {
 
 #ifdef Q3_VM
 
-#include "../game/bg_lib.h"
+#include "game/bg_lib.h"
 
 typedef int intptr_t;
 
@@ -161,7 +161,7 @@ typedef int intptr_t;
 #endif
 
 
-#include "q_platform.h"
+#include "qcommon/q_platform.h"
 
 //=============================================================
 
@@ -909,7 +909,7 @@ COLLISION DETECTION
 ==============================================================
 */
 
-#include "surfaceflags.h"			// shared with the q3map utility
+#include "qcommon/surfaceflags.h"			// shared with the q3map utility
 
 // plane types are used to speed some tests
 // 0-2 are axial planes

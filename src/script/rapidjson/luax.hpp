@@ -5,7 +5,7 @@
 #include <limits>
 #include <cstdint>
 
-#include "q3_lauxlib.h"
+#include "qcommon/q3_lauxlib.h"
 
 #include "lua.hpp"
 

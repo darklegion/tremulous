@@ -27,18 +27,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <stdbool.h> 
 
-#include "../qcommon/cvar.h"
-#include "../qcommon/q_shared.h"
-#include "../qcommon/qfiles.h"
-#include "../qcommon/qcommon.h"
-#include "../renderercommon/tr_public.h"
-#include "../renderercommon/tr_common.h"
+#include "qcommon/cvar.h"
+#include "qcommon/q_shared.h"
+#include "qcommon/qfiles.h"
+#include "qcommon/qcommon.h"
+#include "renderercommon/tr_public.h"
+#include "renderercommon/tr_common.h"
 #include "tr_extratypes.h"
 #include "tr_extramath.h"
 #include "tr_fbo.h"
 #include "tr_postprocess.h"
-#include "../renderercommon/iqm.h"
-#include "../renderercommon/qgl.h"
+#include "renderercommon/iqm.h"
 
 #define GL_INDEX_TYPE		GL_UNSIGNED_INT
 typedef unsigned int glIndex_t;

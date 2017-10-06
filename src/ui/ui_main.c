@@ -180,7 +180,7 @@ Q_EXPORT intptr_t vmMain(int command, int arg0, int arg1, int arg2)
             return UI_ConsoleCommand(arg0);
 
         case UI_DRAW_CONNECT_SCREEN:
-            UI_DrawConnectScreen(arg0);
+            UI_DrawConnectScreen();
             return 0;
     }
 
@@ -4392,32 +4392,18 @@ static void UI_DisplayDownloadInfo(const char *downloadName, float centerPoint, 
 UI_DrawConnectScreen
 ========================
 */
-void UI_DrawConnectScreen(qboolean overlay)
+void UI_DrawConnectScreen()
 {
     const char *s;
     uiClientState_t cstate;
     char info[MAX_INFO_VALUE];
     char text[256];
-    float centerPoint, yStart, scale;
+    float centerPoint = 320, yStart = 130, scale = 0.5f;
 
     menuDef_t *menu = Menus_FindByName("Connect");
 
-    if (!overlay && menu)
+    if ( menu )
         Menu_Paint(menu, qtrue);
-
-    if (!overlay)
-    {
-        centerPoint = 320;
-        yStart = 130;
-        scale = 0.5f;
-    }
-    else
-    {
-        centerPoint = 320;
-        yStart = 32;
-        scale = 0.6f;
-        return;
-    }
 
     // see what information we should display
     trap_GetClientState(&cstate);

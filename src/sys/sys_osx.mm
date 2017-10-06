@@ -29,8 +29,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // Please note that this file is just some Mac-specific bits. Most of the
 // Mac OS X code is shared with other Unix platforms in sys_unix.c ...
 
-#include "../qcommon/q_shared.h"
-#include "../qcommon/qcommon.h"
+#include "qcommon/q_shared.h"
+#include "qcommon/qcommon.h"
 #include "dialog.h"
 #include "sys_local.h"
 

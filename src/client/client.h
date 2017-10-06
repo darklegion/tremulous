@@ -25,20 +25,20 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef _CLIENT_H_
 #define _CLIENT_H_
 
-#include "../cgame/cg_public.h"
-#include "../qcommon/cmd.h"
-#include "../qcommon/cvar.h"
-#include "../qcommon/files.h"
-#include "../qcommon/crypto.h"
-#include "../qcommon/q_shared.h"
-#include "../qcommon/qcommon.h"
-#include "../sys/sys_shared.h"
-#include "../qcommon/vm.h"
-#include "../qcommon/msg.h"
-#include "../qcommon/net.h"
-#include "../qcommon/huffman.h"
-#include "../renderercommon/tr_public.h"
-#include "../ui/ui_public.h"
+#include "cgame/cg_public.h"
+#include "qcommon/cmd.h"
+#include "qcommon/cvar.h"
+#include "qcommon/files.h"
+#include "qcommon/crypto.h"
+#include "qcommon/q_shared.h"
+#include "qcommon/qcommon.h"
+#include "sys/sys_shared.h"
+#include "qcommon/vm.h"
+#include "qcommon/msg.h"
+#include "qcommon/net.h"
+#include "qcommon/huffman.h"
+#include "renderercommon/tr_public.h"
+#include "ui/ui_public.h"
 #include "keys.h"
 #include "snd_public.h"
 
@@ -48,7 +48,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <opus.h>
 #endif
 
-#include "../qcommon/alternatePlayerstate.h"
+#include "qcommon/alternatePlayerstate.h"
 
 struct alternateEntityState_t {
     int number;  // entity index

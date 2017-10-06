@@ -23,7 +23,7 @@
 #ifndef SCRIPT_CMD_H
 #define SCRIPT_CMD_H
 
-#include "../qcommon/cmd.h"
+#include "qcommon/cmd.h"
 
 namespace sol
 { 

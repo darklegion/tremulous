@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #ifdef USE_OPENAL_DLOPEN
 
-#include "../sys/sys_loadlib.h"
+#include "sys/sys_loadlib.h"
 
 LPALENABLE qalEnable;
 LPALDISABLE qalDisable;

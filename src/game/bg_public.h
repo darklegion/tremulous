@@ -27,8 +27,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // bg_public.h -- definitions shared by both the server game and client game modules
 
 //tremulous balance header
-#include "../qcommon/q_shared.h"
-#include "tremulous.h"
+#include "qcommon/q_shared.h"
+#include "game/tremulous.h"
 
 // because games can change separately from the main system version, we need a
 // second version that must match between game and cgame
