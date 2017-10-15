@@ -682,6 +682,16 @@ cmd_function_t *Cmd_FindCommand( const char *cmd_name )
 
 /*
 ============
+Cmd_FindCommand
+============
+*/
+bool Cmd_CommadExists( const char *cmd_name )
+{
+	return Cmd_FindCommand( cmd_name ) ? true : false;
+}
+
+/*
+============
 Cmd_AddCommand
 ============
 */
@@ -923,4 +933,3 @@ void Cmd_Init (void) {
 	Cmd_AddCommand ("echo",Cmd_Echo_f);
 	Cmd_AddCommand ("wait", Cmd_Wait_f);
 }
-

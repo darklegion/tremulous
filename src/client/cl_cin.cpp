@@ -1452,6 +1452,8 @@ static void RoQShutdown(void)
             Cvar_Set("nextmap", "");
         }
         CL_handle = -1;
+
+        CL_ProtocolSpecificCommandsInit();
     }
     cinTable[currentHandle].fileName[0] = 0;
     currentHandle = -1;

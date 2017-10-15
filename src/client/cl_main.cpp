@@ -1411,6 +1411,8 @@ void CL_Disconnect(bool showMainMenu)
 
     clc.state = CA_DISCONNECTED;
 
+    CL_ProtocolSpecificCommandsInit();
+
     // allow cheats locally
     Cvar_Set("sv_cheats", "1");
 
@@ -1651,6 +1653,7 @@ void CL_Connect_f(void)
     {
         Com_Printf("Bad server address\n");
         clc.state = CA_DISCONNECTED;
+        CL_ProtocolSpecificCommandsInit();
         return;
     }
     if (clc.serverAddress.port == 0)
@@ -2502,6 +2505,7 @@ void CL_MapLoading(void)
     {
         clc.state = CA_DISCONNECTED;
         Key_SetCatcher(KEYCATCH_CONSOLE);
+        CL_ProtocolSpecificCommandsInit();
         return;
     }
 
@@ -4768,6 +4772,19 @@ static void CL_InitRef(void)
 
 /*
 ====================
+CL_ProtocolSpecificCommandsInit
+
+For adding/remove commands that depend on a/some
+specific protocols, whenever the protcol may change
+====================
+*/
+void CL_ProtocolSpecificCommandsInit(void)
+{
+  Con_MessageModesInit();
+}
+
+/*
+====================
 CL_Init
 ====================
 */
@@ -5046,4 +5063,3 @@ void CL_Shutdown(const char *finalmsg, bool disconnect, bool quit)
 
     Com_Printf("-----------------------\n");
 }
-

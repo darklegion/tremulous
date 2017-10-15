@@ -845,6 +845,8 @@ void CL_InitCGame( void ) {
 	// make sure everything is paged in
 	if (!Sys_LowPhysicalMemory()) {
 		Com_TouchMemory();
+
+	CL_ProtocolSpecificCommandsInit();
 	}
 
 	// clear anything that got printed
