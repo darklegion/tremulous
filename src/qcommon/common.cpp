@@ -320,17 +320,29 @@ void QDECL Com_Error( int code, const char *fmt, ... )
         com_errorEntered = false;
         longjmp (abortframe, -1);
     }
-    else if (code == ERR_DROP)
+    else if (code == ERR_DROP || code == ERR_RECONNECT)
     {
         Com_Printf ("********************\nERROR: %s\n********************\n", com_errorMessage);
         VM_Forced_Unload_Start();
-        SV_Shutdown (va("Server crashed: %s",  com_errorMessage));
+        SV_Shutdown(va("Server crashed: %s",  com_errorMessage));
         CL_Disconnect( true );
         CL_FlushMemory( );
         VM_Forced_Unload_Done();
         FS_PureServerSetLoadedPaks("", "");
         com_errorEntered = false;
-        longjmp (abortframe, -1);
+
+        static int reconnectCount = 0;
+        if ( code == ERR_RECONNECT && reconnectCount <= 0 )
+        {
+            reconnectCount++;
+            Cbuf_AddText("reconnect\n");
+        }
+        else
+        {
+            reconnectCount = 0;
+        }
+
+        longjmp(abortframe, -1);
     }
     else
     {
@@ -340,11 +352,10 @@ void QDECL Com_Error( int code, const char *fmt, ... )
         VM_Forced_Unload_Done();
     }
 
-    Com_Shutdown ();
+    Com_Shutdown();
 
-    Sys_Error ("%s", com_errorMessage);
+    Sys_Error("%s", com_errorMessage);
 }
-
 
 /*
 =============

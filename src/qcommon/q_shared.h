@@ -323,10 +323,11 @@ typedef enum {
 
 // parameters to the main Error routine
 typedef enum {
-	ERR_FATAL,					// exit the entire game with a popup window
-	ERR_DROP,					// print to console and disconnect from game
-	ERR_SERVERDISCONNECT,		// don't kill server
-	ERR_DISCONNECT,				// client disconnected from the server
+    ERR_FATAL,					// exit the entire game with a popup window
+    ERR_DROP,					// print to console and disconnect from game
+    ERR_SERVERDISCONNECT,		// don't kill server
+    ERR_DISCONNECT,				// client disconnected from the server
+    ERR_RECONNECT
 } errorParm_t;
 
 
