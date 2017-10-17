@@ -1,7 +1,7 @@
 build
 Makefile.local
 *.swp
-.tags
+*tags
 misc/patches
 misc/last-merged-ioq3-revision.temp
 *~
