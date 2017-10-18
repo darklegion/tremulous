@@ -807,9 +807,14 @@ void Cmd_CompleteArgument( const char *command, char *args, int argNum )
 {
     cmd_function_t	*cmd;
 
+    // FIXIT-H: There needs to be a way to toggle this functionality at runtime
+    // rather than just crashing when a cgame doesn't provide support. #45
+    //  https://github.com/GrangerHub/tremulous/issues/45
+#if 0
 #ifndef DEDICATED
     // Forward command argument completion to CGAME VM
     if( cls.cgame && !VM_Call( cls.cgame, CG_CONSOLE_COMPLETARGUMENT, argNum ) )
+#endif
 #endif
     // Call local completion if VM doesn't pick up
     for( cmd = cmd_functions; cmd; cmd = cmd->next )
