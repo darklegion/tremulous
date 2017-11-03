@@ -4189,7 +4189,7 @@ static void CL_GlobalServers_f(void)
         // indent
         if (a == 0 && (netAlternateProtocols & NET_DISABLEPRIMPROTO)) continue;
         if (a == 1 && !(netAlternateProtocols & NET_ENABLEALT1PROTO)) continue;
-        if (a == 2 && !(netAlternateProtocols & NET_ENABLEALT1PROTO)) continue;
+        if (a == 2 && !(netAlternateProtocols & NET_ENABLEALT2PROTO)) continue;
 
         // request from all master servers
         if ( masterNum == 0 )

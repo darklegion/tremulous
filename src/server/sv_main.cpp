@@ -266,7 +266,7 @@ void SV_MasterHeartbeat(const char *message)
 		continue;
 	if(a == 1 && !(netAlternateProtocols & NET_ENABLEALT1PROTO))
 		continue;
-	if(a == 2 && !(netAlternateProtocols & NET_ENABLEALT1PROTO))
+	if(a == 2 && !(netAlternateProtocols & NET_ENABLEALT2PROTO))
 		continue;
 
 	// send to group masters
