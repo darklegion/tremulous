@@ -284,7 +284,7 @@ DIRECTORY SCANNING
 Sys_ListFilteredFiles
 ==============
 */
-void Sys_ListFilteredFiles( const char *basedir, char *subdirs,
+void Sys_ListFilteredFiles( const char *basedir, const char *subdirs,
         const char *filter, char **list, int *numfiles )
 {
 	char		search[MAX_OSPATH], newsubdirs[MAX_OSPATH];
