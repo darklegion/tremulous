@@ -26,7 +26,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // following another player or playing back a demo, it will be checked
 // when the snapshot transitions like all the other entities
 
-
 #include "cg_local.h"
 
 /*

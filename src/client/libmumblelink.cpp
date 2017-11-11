@@ -21,6 +21,9 @@
 
 */
 
+#include "libmumblelink.h"
+
+#include <fcntl.h>
 #ifdef _WIN32
 #include <windows.h>
 #define uint32_t UINT32
@@ -30,18 +33,15 @@
 #define _POSIX_C_SOURCE 199309L
 #endif
 #include <sys/mman.h>
-#include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/time.h>
+#include <sys/types.h>
 #endif
 
-#include <fcntl.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
-
-#include "libmumblelink.h"
+#include <cstdint>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
 #ifndef MIN
 #define MIN(a, b) ((a)<(b)?(a):(b))

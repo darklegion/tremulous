@@ -21,17 +21,16 @@
    access functions to crctables and pkeys
 */
 
-#include "q_shared.h"
-#include "qcommon.h"
-
 #define NOUNCRYPT
-
 #include "unzip.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stddef.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <cstddef>
+
+#include "q_shared.h"
+#include "qcommon.h"
 
 #include "zconf.h"
 #include "zlib.h"

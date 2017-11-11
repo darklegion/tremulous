@@ -20,29 +20,30 @@ along with Tremulous; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+
 // common.c -- misc functions used in client and server
 
-#include "cmd.h"
-#include "cvar.h"
-#include "files.h"
-#include "q_shared.h"
 #include "qcommon.h"
-#include "crypto.h"
-#include "msg.h"
-#include "sys/sys_shared.h"
-#include "vm.h"
-
-#define JSON_IMPLEMENTATION
-#include "json.h"
 
 #include <setjmp.h>
-
-#ifndef _WIN32
-#include <netinet/in.h>
-#include <sys/stat.h> // umask
-#else
+#ifdef WIN32
 #include <winsock.h>
+#else
+#include <netinet/in.h>
+//#include <sys/stat.h> // umask
 #endif
+
+#include "sys/sys_shared.h"
+
+#include "cmd.h"
+#include "crypto.h"
+#include "cvar.h"
+#include "files.h"
+#define JSON_IMPLEMENTATION
+#include "json.h"
+#include "msg.h"
+#include "q_shared.h"
+#include "vm.h"
 
 int demo_protocols[] = { PROTOCOL_VERSION, 70, 69, 0 };
 

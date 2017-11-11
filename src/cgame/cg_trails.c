@@ -22,7 +22,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // cg_trails.c -- the trail system
 
-
 #include "cg_local.h"
 
 static baseTrailSystem_t  baseTrailSystems[ MAX_BASETRAIL_SYSTEMS ];

@@ -21,18 +21,18 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#include <stdlib.h>
-#include <stdio.h>
+#include <cstdlib>
+#include <cstdio>
 
 #ifdef USE_LOCAL_HEADERS
-#	include "SDL.h"
+# include "SDL.h"
 #else
-#	include <SDL.h>
+# include <SDL.h>
 #endif
 
+#include "client/snd_local.h"
 #include "qcommon/cvar.h"
 #include "qcommon/q_shared.h"
-#include "client/snd_local.h"
 
 bool snd_inited = false;
 

@@ -24,14 +24,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __QCURL_H__
 #define __QCURL_H__
 
+#ifdef USE_LOCAL_HEADERS
+#include "curl/curl.h"
+#else
+#include <curl/curl.h>
+#endif
+
 #include "qcommon/q_shared.h"
 #include "qcommon/qcommon.h"
-
-#ifdef USE_LOCAL_HEADERS
-  #include "curl/curl.h"
-#else
-  #include <curl/curl.h>
-#endif
 
 #ifdef USE_CURL_DLOPEN
 #ifdef WIN32

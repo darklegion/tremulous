@@ -22,9 +22,23 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-
 #ifndef __QAL_H__
 #define __QAL_H__
+
+#ifdef USE_LOCAL_HEADERS
+# include "AL/al.h"
+# include "AL/alc.h"
+#else
+# if defined(_MSC_VER) || defined(__APPLE__)
+// MSVC users must install the OpenAL SDK which doesn't use the AL/*.h scheme.
+// OSX framework also needs this
+#  include <al.h>
+#  include <alc.h>
+# else
+#  include <AL/al.h>
+#  include <AL/alc.h>
+# endif
+#endif
 
 #include "qcommon/q_shared.h"
 #include "qcommon/qcommon.h"
@@ -32,21 +46,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifdef USE_OPENAL_DLOPEN
 #define AL_NO_PROTOTYPES
 #define ALC_NO_PROTOTYPES
-#endif
-
-#ifdef USE_LOCAL_HEADERS
-#include "AL/al.h"
-#include "AL/alc.h"
-#else
-#if defined(_MSC_VER) || defined(__APPLE__)
-  // MSVC users must install the OpenAL SDK which doesn't use the AL/*.h scheme.
-  // OSX framework also needs this
-  #include <al.h>
-  #include <alc.h>
-#else
-  #include <AL/al.h>
-  #include <AL/alc.h>
-#endif
 #endif
 
 /* Hack to enable compiling both on OpenAL SDK and OpenAL-soft. */

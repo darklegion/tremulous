@@ -22,8 +22,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 // null_main.c -- null system driver to aid porting efforts
 
-#include <errno.h>
-#include <stdio.h>
+#include <cerrno>
+#include <cstdio>
+
 #include "qcommon/qcommon.h"
 
 int			sys_curtime;

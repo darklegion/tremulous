@@ -23,15 +23,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef TR_COMMON_H
 #define TR_COMMON_H
 
-#include <stdbool.h>
-
 #include "qcommon/cvar.h"
 #include "qcommon/q_shared.h"
 #include "sys/sys_shared.h"
 
-#include "renderercommon/tr_public.h"
-#include "renderercommon/iqm.h"
-#include "renderercommon/qgl.h"
+#include "iqm.h"
+#include "qgl.h"
+#include "tr_public.h"
 
 typedef enum
 {

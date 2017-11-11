@@ -21,21 +21,21 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-
-#include "qcommon/q_shared.h"
-#include "qcommon/qcommon.h"
-#include "qcommon/cvar.h"
 #include "sys_local.h"
+
+#include <fcntl.h>
+#include <sys/time.h>
+#include <termios.h>
+#include <unistd.h>
+
+#include <csignal>
 
 #ifndef DEDICATED
 #include "client/client.h"
 #endif
-
-#include <unistd.h>
-#include <signal.h>
-#include <termios.h>
-#include <fcntl.h>
-#include <sys/time.h>
+#include "qcommon/cvar.h"
+#include "qcommon/q_shared.h"
+#include "qcommon/qcommon.h"
 
 /*
 =============================================================

@@ -23,7 +23,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // cg_event.c -- handle entity events at snapshot or playerstate transitions
 
-
 #include "cg_local.h"
 
 /*

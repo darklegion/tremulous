@@ -24,6 +24,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef UI_PUBLIC_H
 #define UI_PUBLIC_H
 
+#include "qcommon/q_shared.h"
+
 #define UI_API_VERSION 6
 
 typedef struct {

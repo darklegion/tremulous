@@ -21,10 +21,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+#include "sys_local.h"
+
+#include <windows.h>
+
 #include "qcommon/q_shared.h"
 #include "qcommon/qcommon.h"
-#include "sys_local.h"
-#include "windows.h"
 
 #define QCONSOLE_HISTORY 32
 

@@ -20,6 +20,7 @@ along with Tremulous; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+
 // cl.input.c  -- builds an intended movement command to send to the server
 
 #include "client.h"

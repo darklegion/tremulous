@@ -23,13 +23,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // cl_cgame.c  -- client system interaction with client game
 
-#include <setjmp.h>
 #include "client.h"
-#include "snd_public.h"
+
+#include <setjmp.h>
 
 #ifdef USE_MUMBLE
 #include "libmumblelink.h"
 #endif
+#include "snd_public.h"
 
 /*
 ====================

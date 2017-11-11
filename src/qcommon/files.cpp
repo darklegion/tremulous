@@ -22,13 +22,17 @@
 
 #include "files.h"
 
+#ifdef WIN32
+#include <io.h>
+#include <windows.h>
+#endif
+
 #include <cctype>
 #include <cstdarg>
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-
 #include <string>
 
 #include "cmd.h"
@@ -37,18 +41,13 @@
 #include "q_platform.h"
 #include "q_shared.h"
 #include "qcommon.h"
-#include "sys/sys_shared.h"
 #include "unzip.h"
 #include "vm.h"
 
 #ifndef DEDICATED
 #include "client/cl_rest.h"
 #endif
-
-#ifdef WIN32
-#include <windows.h>
-#include <io.h>	// for _read
-#endif
+#include "sys/sys_shared.h"
 
 using namespace std;
 

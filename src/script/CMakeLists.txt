@@ -23,7 +23,7 @@ include_directories(
     # these are in global namespace
     ${CMAKE_CURRENT_SOURCE_DIR}/../../external/lua-5.3.3/include
     ${CMAKE_CURRENT_SOURCE_DIR}/../../external/sol
-    ${CMAKE_CURRENT_SOURCE_DIR}/../qcommon
+    ${CMAKE_CURRENT_SOURCE_DIR}/../common
     # these have they're own namespace
     ${CMAKE_CURRENT_SOURCE_DIR}/../../external/nettle-3.3
     ${CMAKE_CURRENT_SOURCE_DIR}/../../external/rapidjson

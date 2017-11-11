@@ -34,9 +34,9 @@ set(renderergl1_SRCS
     tr_surface.cpp
     tr_world.cpp
     tr_local.h
-    ${CMAKE_SOURCE_DIR}/src/qcommon/puff.cpp
-    ${CMAKE_SOURCE_DIR}/src/qcommon/q_shared.c
-    ${CMAKE_SOURCE_DIR}/src/qcommon/q_math.c
+    ${CMAKE_SOURCE_DIR}/src/common/puff.cpp
+    ${CMAKE_SOURCE_DIR}/src/common/q_shared.c
+    ${CMAKE_SOURCE_DIR}/src/common/q_math.c
     )
 
 if(NOT USE_RENDERER_DLOPEN)

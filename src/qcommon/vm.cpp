@@ -36,11 +36,12 @@ and one exported function: Perform
 
 #include "vm.h"
 #include "vm_local.h"
+
+#include "sys/sys_shared.h"
+
 #include "cmd.h"
 #include "cvar.h"
 #include "files.h"
-#include "sys/sys_shared.h"
-
 
 vm_t	*currentVM = NULL;
 vm_t	*lastVM    = NULL;

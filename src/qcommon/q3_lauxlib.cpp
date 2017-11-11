@@ -1,16 +1,17 @@
-
-#include <stdarg.h>
 #include "q3_lauxlib.h"
 
-#include <iostream>
 #include <sys/types.h>
 
+#include <cstdarg>
+#include <iostream>
+
+#include "sys/sys_shared.h"
+
 #include "cvar.h"
-#include "q_shared.h"
 #include "msg.h"
 #include "net.h"
+#include "q_shared.h"
 #include "qcommon.h"
-#include "sys/sys_shared.h"
 
 size_t qlua_writestring(const char* string, size_t n)
 {

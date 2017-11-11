@@ -21,15 +21,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#ifdef USE_LOCAL_HEADERS
-#	include "SDL.h"
-#else
-#	include <SDL.h>
-#endif
+#include <cstdarg>
+#include <cstdio>
+#include <cstdlib>
 
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
+#ifdef USE_LOCAL_HEADERS
+# include "SDL.h"
+#else
+# include <SDL.h>
+#endif
 
 #include "client/client.h"
 #include "sys/sys_local.h"

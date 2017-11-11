@@ -1,6 +1,8 @@
 #ifndef QCOMMON_ALTERNATEPLAYERSTATE_H
 #define QCOMMON_ALTERNATEPLAYERSTATE_H 1
 
+#include "q_shared.h"
+
 struct alternatePlayerState_t {
     int commandTime;  // cmd->serverTime of last executed command
     int pm_type;

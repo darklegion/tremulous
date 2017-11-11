@@ -1,32 +1,28 @@
 #include "cl_updates.h"
-#include "cl_rest.h"
+
+#include <libgen.h>
+#include <unistd.h>
+
+#include "nettle/rsa.h"
+#include "nettle/sha2.h"
+#include "rapidjson.h"
+#include "restclient/connection.h"
+#include "restclient/restclient.h"
+#include "semantic_version.h"
 
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include <array>
 
-#include <libgen.h>
-#include <unistd.h>
-
-#include "restclient/restclient.h"
-#include "restclient/connection.h"
-#include "semantic_version.h"
-
-#include "rapidjson.h"
-
-//#include "lua.hpp"
-//#include "sol.h"
-
 #include "qcommon/cvar.h"
+#include "qcommon/q_platform.h"
 #include "qcommon/q_shared.h"
 #include "qcommon/qcommon.h"
-#include "sys/sys_shared.h"
 #include "qcommon/unzip.h"
-#include "qcommon/q_platform.h"
+#include "sys/sys_shared.h"
 
-#include "nettle/rsa.h"
-#include "nettle/sha2.h"
+#include "cl_rest.h"
 
 using namespace std;
 

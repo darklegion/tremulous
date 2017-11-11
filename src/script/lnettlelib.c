@@ -1,10 +1,10 @@
 #include <string.h>
 
-#include "lua.h"
 #include "lauxlib.h"
-//#include "../qcommon/q3_lauxlib.h" FIXME? This doesn't seem to be hooked correctly into
-//                                          tremded.exe
+#include "lua.h"
 #include "nettle/sha2.h"
+
+//#include "../qcommon/q3_lauxlib.h" FIXME? This doesn't seem to be hooked correctly into tremded.exe
 
 #define SHA256_CTX "sha256_ctx*"
 

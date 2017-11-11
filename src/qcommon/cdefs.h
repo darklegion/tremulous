@@ -57,6 +57,23 @@
 # endif
 #endif
 
-
+#ifndef SO_PUBLIC
+#if defined _WIN32 || defined __CYGWIN__
+#  ifdef __GNUC__
+#    define SO_PUBLIC __attribute__((dllimport))
+#  else
+#    define SO_PUBLIC __declspec(dllimport)
+#  endif
+#  define DLL_LOCAL
+#else
+#  ifdef HAVE_VISIBILITY
+#    define SO_PUBLIC  __attribute__ ((visibility("default")))
+#    define SO_PRIVATE __attribute__ ((visibility("hidden")))
+#  else
+#    define SO_PUBLIC
+#    define SO_PRIVATE
+#  endif
+#endif
+#endif
 
 #endif

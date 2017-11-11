@@ -33,7 +33,6 @@ OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #include "snd_local.h"
 
-
 /* Intel ADPCM step variation table */
 static int indexTable[16] = {
     -1, -1, -1, -1, 2, 4, 6, 8,

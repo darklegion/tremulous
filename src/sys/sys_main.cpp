@@ -21,41 +21,29 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+#include "sys_local.h"
+
+#include <setjmp.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+#ifdef WIN32
+#include <windows.h>
+#endif
+
+#include <cctype>
+#include <cerrno>
+#include <climits>
+#include <csignal>
+#include <cstdarg>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <cstring>
 #include <iostream>
 
 #include "lua.hpp"
 #include "sol.hpp"
-
-#include <errno.h>
-#include <string.h>
-#include <unistd.h>
-
-#ifdef _WIN32
-#include <windows.h>
-#endif
-
-#include "script/cvar.h"
-#include "script/cmd.h"
-#ifndef DEDICATED
-#include "script/http_client.h"
-#include "script/client.h"
-#include "script/bind.h"
-#endif
-#include "script/rapidjson.h"
-#include "script/nettle.h"
-
-#include <signal.h>
-#include <stdlib.h>
-#include <limits.h>
-#include <sys/types.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <sys/stat.h>
-#include <string.h>
-#include <ctype.h>
-#include <errno.h>
-#include <setjmp.h>
-
 #ifndef DEDICATED
 #ifdef USE_LOCAL_HEADERS
 # include "SDL.h"
@@ -66,14 +54,22 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 #endif
 
-#include "dialog.h"
-#include "sys_local.h"
-#include "sys_loadlib.h"
-
 #include "qcommon/files.h"
 #include "qcommon/q_shared.h"
 #include "qcommon/qcommon.h"
 #include "qcommon/vm.h"
+#ifndef DEDICATED
+#include "script/bind.h"
+#include "script/client.h"
+#include "script/http_client.h"
+#endif
+#include "script/cmd.h"
+#include "script/cvar.h"
+#include "script/rapidjson.h"
+#include "script/nettle.h"
+
+#include "dialog.h"
+#include "sys_loadlib.h"
 
 sol::state lua;
 

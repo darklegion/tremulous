@@ -22,20 +22,20 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 // cl_main.c  -- client main loop
 
-#include "cl_updates.h"
 #include "client.h"
 
-#include <limits.h>
+#ifndef _WIN32
+#include <sys/stat.h>
+#endif
+
+#include <climits>
 
 #include "sys/sys_loadlib.h"
 #include "sys/sys_local.h"
 
+#include "cl_updates.h"
 #ifdef USE_MUMBLE
 #include "libmumblelink.h"
-#endif
-
-#ifndef _WIN32
-#include <sys/stat.h>
 #endif
 
 #ifdef USE_MUMBLE

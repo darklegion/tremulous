@@ -23,8 +23,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __TR_PUBLIC_H
 #define __TR_PUBLIC_H
 
-#include <stdbool.h>
-
 #include "renderercommon/tr_types.h"
 
 #define	REF_API_VERSION		8

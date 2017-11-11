@@ -21,8 +21,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#include "qcommon/cvar.h"
 #include "server.h"
+
+#include "qcommon/cvar.h"
 
 char alternateInfos[2][2][BIG_INFO_STRING];
 

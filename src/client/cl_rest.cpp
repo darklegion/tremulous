@@ -6,13 +6,13 @@
 
 #include "cl_rest.h"
 
-#include <iostream>
-#include <fstream>
-#include <vector>
-
 #include <unistd.h>
-#include <errno.h>
-#include <string.h>
+
+#include <cerrno>
+#include <cstring>
+#include <fstream>
+#include <iostream>
+#include <vector>
 
 #include "qcommon/files.h"
 #include "restclient/restclient.h"
