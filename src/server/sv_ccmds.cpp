@@ -22,7 +22,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+#include "qcommon/autocomplete.h"
 #include "server.h"
+
+#define CS_WARMUP 5 // !!! MUST NOT CHANGE, SERVER AND GAME BOTH REFERENCE !!!
 
 /*
 ===============================================================================
@@ -73,6 +76,9 @@ static void SV_Map_f( void ) {
 	// and thus nuke the arguments of the map command
 	Q_strncpyz(mapname, map, sizeof(mapname));
 
+   	// The map isn't restarting 
+	Cvar_SetSafe( "g_restartingFlags", "0" );
+ 
 	// start up the map
 	SV_SpawnServer( mapname );
 

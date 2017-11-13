@@ -24,9 +24,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __TR_PUBLIC_H
 #define __TR_PUBLIC_H
 
+#include "client/cl_cin.h"
+#include "qcommon/q_platform.h"
 #include "renderercommon/tr_types.h"
 
 #define	REF_API_VERSION		8
+
+typedef struct cvar_s cvar_t;
 
 // AVI files have the start of pixel lines 4 byte-aligned
 #define AVI_LINE_PADDING 4
@@ -34,9 +38,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 // these are the functions exported by the refresh module
 //
-typedef struct {
+struct refexport_t {
 	// called before the library is unloaded
-	// if the system is just reconfiguring, pass destroyWindow = qfalse,
+	// if the system is just reconfiguring, pass destroyWindow = false,
 	// which will keep the screen from flashing to the desktop.
 	void	(*Shutdown)( bool destroyWindow );
 
@@ -105,7 +109,7 @@ typedef struct {
 	bool (*inPVS)( const vec3_t p1, const vec3_t p2 );
 
 	void (*TakeVideoFrame)( int h, int w, byte* captureBuffer, byte *encodeBuffer, bool motionJpeg );
-} refexport_t;
+};
 
 //
 // these are the functions imported by the refresh module

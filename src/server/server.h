@@ -39,10 +39,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "qcommon/vm.h"
 #include "sys/sys_shared.h"
 
-//=============================================================================
+#include "sv_game.h"
 
-#define PERS_SCORE 0  // !!! MUST NOT CHANGE, SERVER AND GAME BOTH REFERENCE !!!
-#define CS_WARMUP 5 // !!! MUST NOT CHANGE, SERVER AND GAME BOTH REFERENCE !!!
+//=============================================================================
 
 #define MAX_ENT_CLUSTERS 16
 
@@ -332,13 +331,13 @@ int SV_RateMsec(client_t *client);
 //
 // sv_init.c
 //
-void SV_SetConfigstring(int index, const char *val);
-void SV_GetConfigstring(int index, char *buffer, int bufferSize);
-void SV_SetConfigstringRestrictions(int index, const clientList_t *clientList);
+SO_PUBLIC void SV_SetConfigstring(int index, const char *val);
+SO_PUBLIC void SV_GetConfigstring(int index, char *buffer, int bufferSize);
+SO_PUBLIC void SV_SetConfigstringRestrictions(int index, const clientList_t *clientList);
 void SV_UpdateConfigstrings(client_t *client);
 
-void SV_SetUserinfo(int index, const char *val);
-void SV_GetUserinfo(int index, char *buffer, int bufferSize);
+SO_PUBLIC void SV_SetUserinfo(int index, const char *val);
+SO_PUBLIC void SV_GetUserinfo(int index, char *buffer, int bufferSize);
 
 void SV_ChangeMaxClients(void);
 void SV_SpawnServer(char *server);
@@ -390,7 +389,7 @@ sharedEntity_t *SV_GEntityForSvEntity(svEntity_t *svEnt);
 void SV_InitGameProgs(void);
 void SV_ShutdownGameProgs(void);
 void SV_RestartGameProgs(void);
-bool SV_inPVS(const vec3_t p1, const vec3_t p2);
+SO_PUBLIC bool SV_inPVS(const vec3_t p1, const vec3_t p2);
 
 //============================================================
 //
@@ -400,11 +399,11 @@ bool SV_inPVS(const vec3_t p1, const vec3_t p2);
 void SV_ClearWorld(void);
 // called after the world model has been loaded, before linking any entities
 
-void SV_UnlinkEntity(sharedEntity_t *ent);
+SO_PUBLIC void SV_UnlinkEntity(sharedEntity_t *ent);
 // call before removing an entity, and before trying to move one,
 // so it doesn't clip against itself
 
-void SV_LinkEntity(sharedEntity_t *ent);
+SO_PUBLIC void SV_LinkEntity(sharedEntity_t *ent);
 // Needs to be called any time an entity changes origin, mins, maxs,
 // or solid.  Automatically unlinks if needed.
 // sets ent->r.absmin and ent->r.absmax
@@ -415,7 +414,7 @@ clipHandle_t SV_ClipHandleForEntity(const sharedEntity_t *ent);
 
 void SV_SectorList_f(void);
 
-int SV_AreaEntities(const vec3_t mins, const vec3_t maxs, int *entityList, int maxcount);
+SO_PUBLIC int SV_AreaEntities(const vec3_t mins, const vec3_t maxs, int *entityList, int maxcount);
 // fills in a table of entity numbers with entities that have bounding boxes
 // that intersect the given area.  It is possible for a non-axial bmodel
 // to be returned that doesn't actually intersect the area on an exact
@@ -423,10 +422,10 @@ int SV_AreaEntities(const vec3_t mins, const vec3_t maxs, int *entityList, int m
 // returns the number of pointers filled in
 // The world entity is never returned in this list.
 
-int SV_PointContents(const vec3_t p, int passEntityNum);
+SO_PUBLIC int SV_PointContents(const vec3_t p, int passEntityNum);
 // returns the CONTENTS_* value from the world and all entities at the given point.
 
-void SV_Trace(trace_t *results, const vec3_t start, vec3_t mins, vec3_t maxs, const vec3_t end, int passEntityNum,
+SO_PUBLIC void SV_Trace(trace_t *results, const vec3_t start, vec3_t mins, vec3_t maxs, const vec3_t end, int passEntityNum,
     int contentmask, traceType_t type);
 // mins and maxs are relative
 

@@ -815,11 +815,11 @@ void MSG_ReportChangeVectors_f(void)
     }
 }
 
-typedef struct {
+struct netField_t {
     const char *name;
     size_t offset;
     int bits;  // 0 = float
-} netField_t;
+};
 
 // using the stringizing operator to save typing...
 #define NETF(x) #x, (size_t) & ((entityState_t *) 0)->x
@@ -895,7 +895,7 @@ If force is not set, then nothing at all will be generated if the entity is
 identical, under the assumption that the in-order delta code will catch it.
 ==================
 */
-void MSG_WriteDeltaEntity(int alternateProtocol, msg_t *msg, struct entityState_s *from, struct entityState_s *to, bool force)
+void MSG_WriteDeltaEntity(int alternateProtocol, msg_t *msg, entityState_t *from, entityState_t *to, bool force)
 {
     int i, lc;
     int numFields;
@@ -1347,7 +1347,7 @@ MSG_WriteDeltaPlayerstate
 
 =============
 */
-void MSG_WriteDeltaPlayerstate(int alternateProtocol, msg_t *msg, struct playerState_s *from, struct playerState_s *to)
+void MSG_WriteDeltaPlayerstate(int alternateProtocol, msg_t *msg, playerState_t *from, playerState_t *to)
 {
     int i;
     playerState_t dummy;

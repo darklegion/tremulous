@@ -80,9 +80,9 @@ static int get_bit(uint8_t *fin)
     return t;
 }
 
-static node_t **get_ppnode(huff_t *huff)
+static huffNode_t **get_ppnode(huff_t *huff)
 {
-    node_t **tppnode;
+    huffNode_t **tppnode;
     if (!huff->freelist)
     {
         return &(huff->nodePtrs[huff->blocPtrs++]);
@@ -90,21 +90,21 @@ static node_t **get_ppnode(huff_t *huff)
     else
     {
         tppnode = huff->freelist;
-        huff->freelist = (node_t **)*tppnode;
+        huff->freelist = (huffNode_t **)*tppnode;
         return tppnode;
     }
 }
 
-static void free_ppnode(huff_t *huff, node_t **ppnode)
+static void free_ppnode(huff_t *huff, huffNode_t **ppnode)
 {
-    *ppnode = (node_t *)huff->freelist;
+    *ppnode = (huffNode_t *)huff->freelist;
     huff->freelist = ppnode;
 }
 
 /* Swap the location of these two nodes in the tree */
-static void swap(huff_t *huff, node_t *node1, node_t *node2)
+static void swap(huff_t *huff, huffNode_t *node1, huffNode_t *node2)
 {
-    node_t *par1, *par2;
+    huffNode_t *par1, *par2;
 
     par1 = node1->parent;
     par2 = node2->parent;
@@ -146,9 +146,9 @@ static void swap(huff_t *huff, node_t *node1, node_t *node2)
 }
 
 /* Swap these two nodes in the linked list (update ranks) */
-static void swaplist(node_t *node1, node_t *node2)
+static void swaplist(huffNode_t *node1, huffNode_t *node2)
 {
-    node_t *par1;
+    huffNode_t *par1;
 
     par1 = node1->next;
     node1->next = node2->next;
@@ -185,9 +185,9 @@ static void swaplist(node_t *node1, node_t *node2)
 }
 
 /* Do the increments */
-static void increment(huff_t *huff, node_t *node)
+static void increment(huff_t *huff, huffNode_t *node)
 {
-    node_t *lnode;
+    huffNode_t *lnode;
 
     if (!node)
     {
@@ -238,7 +238,7 @@ static void increment(huff_t *huff, node_t *node)
 
 void Huff_addRef(huff_t *huff, uint8_t ch)
 {
-    node_t *tnode, *tnode2;
+    huffNode_t *tnode, *tnode2;
     if (huff->loc[ch] == NULL)
     { /* if this is the first transmission of this node */
         tnode = &(huff->nodeList[huff->blocNode++]);
@@ -328,7 +328,7 @@ void Huff_addRef(huff_t *huff, uint8_t ch)
 }
 
 /* Get a symbol */
-int Huff_Receive(node_t *node, int *ch, uint8_t *fin)
+int Huff_Receive(huffNode_t *node, int *ch, uint8_t *fin)
 {
     while (node && node->symbol == INTERNAL_NODE)
     {
@@ -350,7 +350,7 @@ int Huff_Receive(node_t *node, int *ch, uint8_t *fin)
 }
 
 /* Get a symbol */
-void Huff_offsetReceive(node_t *node, int *ch, uint8_t *fin, int *offset, int maxoffset)
+void Huff_offsetReceive(huffNode_t *node, int *ch, uint8_t *fin, int *offset, int maxoffset)
 {
     bloc = *offset;
     while (node && node->symbol == INTERNAL_NODE)
@@ -382,7 +382,7 @@ void Huff_offsetReceive(node_t *node, int *ch, uint8_t *fin, int *offset, int ma
 }
 
 /* Send the prefix code for this node */
-static void send(node_t *node, node_t *child, uint8_t *fout, int maxoffset)
+static void send(huffNode_t *node, huffNode_t *child, uint8_t *fout, int maxoffset)
 {
     if (node->parent)
     {
@@ -413,7 +413,7 @@ void Huff_transmit(huff_t *huff, int ch, uint8_t *fout, int maxoffset)
     int i;
     if (huff->loc[ch] == NULL)
     {
-        /* node_t hasn't been transmitted, send a NYT, then the symbol */
+        /* huffNode_t hasn't been transmitted, send a NYT, then the symbol */
         Huff_transmit(huff, NYT, fout, maxoffset);
         for (i = 7; i >= 0; i--)
         {

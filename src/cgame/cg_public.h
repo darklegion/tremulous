@@ -40,7 +40,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // Snapshots are generated at regular time intervals by the server,
 // but they may not be sent if a client's rate level is exceeded, or
 // they may be dropped by the network.
-typedef struct {
+struct snapshot_t {
     int snapFlags;  // SNAPFLAG_RATE_DELAYED, etc
     int ping;
 
@@ -55,9 +55,14 @@ typedef struct {
 
     int numServerCommands;  // text based server commands to execute when this
     int serverCommandSequence;  // snapshot becomes current
-} snapshot_t;
+};
 
-enum { CGAME_EVENT_NONE, CGAME_EVENT_TEAMMENU, CGAME_EVENT_SCOREBOARD, CGAME_EVENT_EDITHUD };
+enum {
+    CGAME_EVENT_NONE,
+    CGAME_EVENT_TEAMMENU,
+    CGAME_EVENT_SCOREBOARD,
+    CGAME_EVENT_EDITHUD
+};
 
 /*
 ==================================================================
@@ -69,7 +74,7 @@ functions imported from the main executable
 
 #define CGAME_IMPORT_API_VERSION 4
 
-typedef enum {
+enum cgameImport_t {
     CG_PRINT,
     CG_ERROR,
     CG_MILLISECONDS,
@@ -205,7 +210,7 @@ typedef enum {
     CG_TESTPRINTINT,
     CG_TESTPRINTFLOAT,
     CG_ACOS
-} cgameImport_t;
+};
 
 /*
 ==================================================================
@@ -215,7 +220,7 @@ functions exported to the main executable
 ==================================================================
 */
 
-typedef enum {
+enum cgameExport_t {
     CG_INIT,
     // void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
     // called when the level loads or when the renderer is restarted
@@ -230,14 +235,14 @@ typedef enum {
     // oportunity to flush and close any open files
 
     CG_CONSOLE_COMMAND,
-    // qboolean (*CG_ConsoleCommand)( void );
+    // bool (*CG_ConsoleCommand)( void );
     // a console command has been issued locally that is not recognized by the
     // main game system.
-    // use Cmd_Argc() / Cmd_Argv() to read the command, return qfalse if the
+    // use Cmd_Argc() / Cmd_ArgvBuffer() to read the command, return false if the
     // command is not known to the game
 
     CG_DRAW_ACTIVE_FRAME,
-    // void (*CG_DrawActiveFrame)( int serverTime, stereoFrame_t stereoView, qboolean demoPlayback );
+    // void (*CG_DrawActiveFrame)( int serverTime, stereoFrame_t stereoView, bool demoPlayback );
     // Generates and draws a game scene and status information at the given time.
     // If demoPlayback is set, local movement prediction will not be enabled
 
@@ -248,7 +253,7 @@ typedef enum {
     // int (*CG_LastAttacker)( void );
 
     CG_KEY_EVENT,
-    // void  (*CG_KeyEvent)( int key, qboolean down );
+    // void  (*CG_KeyEvent)( int key, bool down );
 
     CG_MOUSE_EVENT,
     // void  (*CG_MouseEvent)( int dx, int dy );
@@ -258,19 +263,19 @@ typedef enum {
     CG_CONSOLE_TEXT,
     // void (*CG_ConsoleText)( void );
     // pass text that has been printed to the console to cgame
-    // use Cmd_Argc() / Cmd_Argv() to read it
+    // use Cmd_Argc() / Cmd_ArgvBuffer() to read it
 
     CG_VOIP_STRING,
     // char *(*CG_VoIPString)( void );
     // returns a string of comma-delimited clientnums based on cl_voipSendTarget
 
     CG_CONSOLE_COMPLETARGUMENT
-    // qboolean (*CG_Console_CompleteArgument)( int argNum )
+    // bool (*CG_Console_CompleteArgument)( int argNum )
     // Requests CGAME to try to complete the command line
     // argument. argNum indicates which argument we're completing. CGAME
-    // uses trap_Argv and trap_Argc to read the command line
+    // uses Cmd_ArgvBuffer and Cmd_Argc to read the command line
     // contents. Returns true if a completion function is found in
     // CGAME, otherwise client tries another completion method.
-} cgameExport_t;
+};
 
 #endif

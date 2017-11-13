@@ -4,8 +4,6 @@
 #include "lua.h"
 #include "nettle/sha2.h"
 
-//#include "../qcommon/q3_lauxlib.h" FIXME? This doesn't seem to be hooked correctly into tremded.exe
-
 #define SHA256_CTX "sha256_ctx*"
 
 static int lsha256(lua_State *L)

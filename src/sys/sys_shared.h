@@ -11,12 +11,10 @@
 
 #include <stdio.h>
 
+namespace sol { class state; }
+
 #include "qcommon/qcommon.h"
 #include "qcommon/net.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #define MAX_JOYSTICK_AXIS 16
 
@@ -55,7 +53,7 @@ void Sys_Print(const char *msg);
 
 // Sys_Milliseconds should only be used for profiling purposes,
 // any game related timing information should come from event timestamps
-int Sys_Milliseconds(void);
+SO_PUBLIC int Sys_Milliseconds(void);
 
 bool Sys_RandomBytes(byte *string, int len);
 
@@ -103,8 +101,9 @@ void IN_Frame( void );
 void IN_Shutdown( void );
 void IN_Restart( void );
 
-#ifdef __cplusplus
-}
-#endif
+SO_PUBLIC void Lua_Delete(void);
+SO_PUBLIC void Lua_Init(void);
+
+SO_PUBLIC void* Sys_GetLua();
 
 #endif

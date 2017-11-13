@@ -33,12 +33,6 @@ endif
 ifndef BUILD_GAME_SO
   BUILD_GAME_SO    =
 endif
-ifndef BUILD_GAME_QVM
-  BUILD_GAME_QVM   =
-endif
-ifndef BUILD_GAME_QVM_11
-  BUILD_GAME_QVM_11 =
-endif
 ifndef BUILD_RENDERER_OPENGL2
   BUILD_RENDERER_OPENGL2=
 endif
@@ -67,6 +61,10 @@ ifeq ($(PLATFORM),mingw32)
 endif
 ifeq ($(PLATFORM),mingw64)
   MINGW=1
+endif
+
+ifeq ($(PLATFORM),darwin)
+  DARWIN=1
 endif
 
 ifeq ($(COMPILE_ARCH),i86pc)
@@ -123,8 +121,6 @@ ifndef BASEGAME
 BASEGAME=gpp
 endif
 
-BASEGAME_CFLAGS=-I../../${MOUNT_DIR}
-
 ifndef COPYDIR
 COPYDIR="/usr/local/games/tremulous"
 endif
@@ -136,6 +132,8 @@ endif
 ifndef MOUNT_DIR
 MOUNT_DIR=src
 endif
+
+BASEGAME_CFLAGS=-I../../${MOUNT_DIR}
 
 ifndef EXTERNAL_DIR
 EXTERNAL_DIR=external
@@ -151,10 +149,6 @@ endif
 
 ifndef TEMPDIR
 TEMPDIR=/tmp
-endif
-
-ifndef GENERATE_DEPENDENCIES
-GENERATE_DEPENDENCIES=1
 endif
 
 ifndef USE_OPENAL
@@ -282,16 +276,10 @@ RESTDIR=$(EXTERNAL_DIR)/restclient
 NETTLEDIR=$(EXTERNAL_DIR)/nettle-3.3
 SEMVERDIR=$(EXTERNAL_DIR)/semver
 LUA_RAPIDJSONDIR=$(MOUNT_DIR)/script/rapidjson
-Q3ASMDIR=$(MOUNT_DIR)/tools/asm
-LBURGDIR=$(MOUNT_DIR)/tools/lcc/lburg
-Q3CPPDIR=$(MOUNT_DIR)/tools/lcc/cpp
-Q3LCCETCDIR=$(MOUNT_DIR)/tools/lcc/etc
-Q3LCCSRCDIR=$(MOUNT_DIR)/tools/lcc/src
 SDLHDIR=$(EXTERNAL_DIR)/SDL2
 CURLHDIR=$(EXTERNAL_DIR)/libcurl-7.35.0
 ALHDIR=$(EXTERNAL_DIR)/AL
 LIBSDIR=$(EXTERNAL_DIR)/libs
-TEMPDIR=/tmp
 
 bin_path=$(shell which $(1) 2> /dev/null)
 
@@ -344,7 +332,7 @@ ifneq (,$(findstring "$(PLATFORM)", "linux" "gnu_kfreebsd" "kfreebsd-gnu" "gnu")
   BASE_CFLAGS += -DUSE_ICON
   CLIENT_CFLAGS += $(SDL_CFLAGS)
 
-  OPTIMIZEVM = -O3
+  OPTIMIZEVM = -O3 -fvisibility=hidden
   OPTIMIZE = $(OPTIMIZEVM) -ffast-math
 
   ifeq ($(ARCH),x86_64)
@@ -386,6 +374,9 @@ ifneq (,$(findstring "$(PLATFORM)", "linux" "gnu_kfreebsd" "kfreebsd-gnu" "gnu")
   SHLIBLDFLAGS=-shared
   #$(LDFLAGS)
 
+  CLIENT_LDFLAGS=-rdynamic
+  SERVER_LDFLAGS=-rdynamic
+
   THREAD_LIBS=-lpthread
   LIBS=-ldl -lm
   GRANGER_LIBS=-lm -ldl
@@ -424,12 +415,12 @@ else # ifeq Linux
 # SETUP AND BUILD -- MAC OS X
 #############################################################################
 
-ifeq ($(PLATFORM),darwin)
+ifdef DARWIN
   HAVE_VM_COMPILED=true
   LIBS = -framework Cocoa
   CLIENT_LIBS=
   RENDERER_LIBS=
-  OPTIMIZEVM=
+  OPTIMIZEVM= -fvisibility=hidden
   #CXXFLAGS+=-stdlib=libc++
 
   # FIXME This is probably bad idea to comment this out 
@@ -604,15 +595,14 @@ ifdef MINGW
     endif
   endif
 
+  OPTIMIZEVM = -O3 -fvisibility=hidden
   ifeq ($(ARCH),x86_64)
-    OPTIMIZEVM = -O3
     OPTIMIZE = $(OPTIMIZEVM) -ffast-math -msse2
     HAVE_VM_COMPILED = true
     BASE_CFLAGS += -m64
   endif
 
   ifeq ($(ARCH),x86)
-    OPTIMIZEVM = -O3
     OPTIMIZE = $(OPTIMIZEVM) -ffast-math -msse2 -mfpmath=387+sse
     HAVE_VM_COMPILED = true
     BASE_CFLAGS += -m32
@@ -624,15 +614,6 @@ ifdef MINGW
   SHLIBLDFLAGS=-shared
 
   BINEXT=.exe
-
-  ifeq ($(CROSS_COMPILING),0)
-    TOOLS_BINEXT=.exe
-  endif
-
-  ifeq ($(COMPILE_PLATFORM),cygwin)
-    TOOLS_BINEXT=.exe
-    TOOLS_CC=$(CC)
-  endif
 
   LIBS= -lws2_32 -lwinmm -lpsapi
   # clang 3.4 doesn't support this
@@ -700,7 +681,7 @@ ifeq ($(PLATFORM),freebsd)
   CLIENT_CFLAGS += $(SDL_CFLAGS)
   HAVE_VM_COMPILED = true
 
-  OPTIMIZEVM = -O3
+  OPTIMIZEVM = -O3 -fvisibility=hidden
   OPTIMIZE = $(OPTIMIZEVM) -ffast-math
 
   SHLIBEXT=so
@@ -770,7 +751,6 @@ endif
 
 ifneq ($(HAVE_VM_COMPILED),true)
   BASE_CFLAGS += -DNO_VM_COMPILED
-  BUILD_GAME_QVM=0
 endif
 
 TARGETS =
@@ -806,21 +786,6 @@ ifneq ($(BUILD_GAME_SO),0)
     $(B)/$(BASEGAME)/cgame$(SHLIBNAME) \
     $(B)/$(BASEGAME)/game$(SHLIBNAME) \
     $(B)/$(BASEGAME)/ui$(SHLIBNAME)
-endif
-
-ifneq ($(BUILD_GAME_QVM),0)
-  TARGETS += \
-    $(B)/$(BASEGAME)/vm/cgame.qvm \
-    $(B)/$(BASEGAME)/vm/game.qvm \
-    $(B)/$(BASEGAME)/vm/ui.qvm \
-	$(B)/$(BASEGAME)/vms-gpp-$(VERSION).pk3
-endif
-
-ifneq ($(BUILD_GAME_QVM_11),0)
-  TARGETS += \
-    $(B)/$(BASEGAME)_11/vm/cgame.qvm \
-    $(B)/$(BASEGAME)_11/vm/ui.qvm \
-	$(B)/$(BASEGAME)_11/vms-1.1.0-$(VERSION).pk3
 endif
 
 ifneq ($(BUILD_DATA_PK3),0)
@@ -949,12 +914,6 @@ ifeq ($(BUILD_STANDALONE),1)
   BASE_CFLAGS += -DSTANDALONE
 endif
 
-ifeq ($(GENERATE_DEPENDENCIES),1)
-  DEPEND_CFLAGS = -MMD
-else
-  DEPEND_CFLAGS =
-endif
-
 ifeq ($(NO_STRIP),1)
   STRIP_FLAG =
 else
@@ -975,7 +934,7 @@ EXEC_CC = $(CC) ${1} -o ${2} -c ${3}
 EXEC_CXX = $(CXX) -std=c++1y ${CXXFLAGS} ${1} -o ${2} -c ${3}
 
 # TREMULOUS CLIENT
-CC_FLAGS=${NOTSHLIBCFLAGS} ${CFLAGS} ${CLIENT_CFLAGS} ${OPTIMIZE}
+CC_FLAGS=-DTremulous_EXPORTS ${NOTSHLIBCFLAGS} ${CFLAGS} ${CLIENT_CFLAGS} ${OPTIMIZE}
 define DO_CC
 $(echo_cmd) "CC $<"
 $(Q)$(call EXEC_CC,-std=gnu99 ${CC_FLAGS},'$@','$<')
@@ -1006,7 +965,7 @@ endef
 # Renderers
 ##########################################
 # OpenGL 1 Renderer
-REF_CC_FLAGS=${SHLIBCFLAGS} ${CFLAGS} ${CLIENT_CFLAGS} ${OPTIMIZE}
+REF_CC_FLAGS=-DTremulous_EXPORTS ${SHLIBCFLAGS} ${CFLAGS} ${CLIENT_CFLAGS} ${OPTIMIZE}
 define DO_RENDERERGL1_CC
 $(echo_cmd) "GL1_RENDERER_CC $<"
 $(Q)$(call EXEC_CC,${REF_CC_FLAGS},'$@','$<')
@@ -1017,9 +976,6 @@ $(echo_cmd) "GL1_RENDERER_CXX $<"
 $(Q)$(call EXEC_CXX,${REF_CC_FLAGS},'$@','$<')
 $(Q)$(call LOG_CXX,opengl1,${REF_CC_FLAGS},$@,$<)
 endef
-##########################################
-# Renderers
-##########################################
 # OpenGL 2 Renderer
 define DO_RENDERERGL2_CC
 $(echo_cmd) "GL2_RENDERER_CC $<"
@@ -1042,40 +998,6 @@ cp $@ $(B)/glsl/
 $(Q)echo ";" >> $@
 endef
 
-ifeq ($(GENERATE_DEPENDENCIES),1)
-  DO_QVM_DEP=cat $(@:%.o=%.d) | sed -e 's/\.o/\.asm/g' >> $(@:%.o=%.d)
-endif
-
-SHLIB_CC_FLAGS=${BASEGAME_CFLAGS} ${SHLIBCFLAGS} ${CFLAGS} ${OPTIMIZEVM}
-define DO_SHLIB_CC
-$(echo_cmd) "SHLIB_CC $<"
-$(Q)$(call EXEC_CC,${SHLIB_CC_FLAGS},'$@','$<')
-$(Q)$(call LOG_CC,qcommon,${SHLIB_CC_FLAGS},$@,$<)
-$(Q)$(DO_QVM_DEP)
-endef
-
-GAME_CC_FLAGS=${BASEGAME_CFLAGS} ${SHLIBCFLAGS} ${CFLAGS} ${OPTIMIZEVM}
-define DO_GAME_CC
-$(echo_cmd) "GAME_CC $<"
-$(Q)$(call EXEC_CC,-DGAME ${GAME_CC_FLAGS},'$@','$<')
-$(Q)$(call LOG_CC,game,-DGAME ${GAME_CC_FLAGS},$@,$<)
-$(Q)$(DO_QVM_DEP)
-endef
-
-define DO_CGAME_CC
-$(echo_cmd) "CGAME_CC $<"
-$(Q)$(call EXEC_CC,-DCGAME ${GAME_CC_FLAGS},'$@','$<')
-$(Q)$(call LOG_CC,cgame,-DCGAME ${GAME_CC_FLAGS},$@,$<)
-$(Q)$(DO_QVM_DEP)
-endef
-
-define DO_UI_CC
-$(echo_cmd) "UI_CC $<"
-$(Q)$(call EXEC_CC,-DUI ${GAME_CC_FLAGS},'$@','$<')
-$(Q)$(call LOG_CC,ui,-DUI ${GAME_CC_FLAGS},$@,$<)
-$(Q)$(DO_QVM_DEP)
-endef
-
 AS_FLAGS=${CFLAGS} ${OPTIMIZE} -x assembler-with-cpp
 define DO_AS
 $(echo_cmd) "AS $<"
@@ -1089,7 +1011,7 @@ $(Q)$(call EXEC_CC,${AS_FLAGS},'$@','$<')
 $(Q)$(call LOG_CC,tremded,${AS_FLAGS},$@,$<)
 endef
 
-DED_CC_FLAGS=-DDEDICATED ${NOTSHLIBCFLAGS} ${CFLAGS} ${SERVER_CFLAGS} ${OPTIMIZE}
+DED_CC_FLAGS=-DTremulous_EXPORTS -DDEDICATED ${NOTSHLIBCFLAGS} ${CFLAGS} ${SERVER_CFLAGS} ${OPTIMIZE}
 define DO_DED_CC
 $(echo_cmd) "DED_CC $<"
 $(Q)$(call EXEC_CC,-std=gnu99 ${DED_CC_FLAGS},'$@','$<')
@@ -1186,7 +1108,6 @@ targets: makedirs
 	@echo "  COMPILE_ARCH: $(COMPILE_ARCH)"
 	@echo "  CC: $(CC)"
 	@echo "  CXX: $(CXX)"
-	@echo "  TOOLS_CC $(TOOLS_CC)"
 ifeq ($(PLATFORM),mingw32)
 	@echo "  WINDRES: $(WINDRES)"
 endif
@@ -1253,206 +1174,11 @@ makedirs:
 	@if [ ! -d $(B)/$(BASEGAME)/game ];then $(MKDIR) $(B)/$(BASEGAME)/game;fi
 	@if [ ! -d $(B)/$(BASEGAME)/ui ];then $(MKDIR) $(B)/$(BASEGAME)/ui;fi
 	@if [ ! -d $(B)/$(BASEGAME)/qcommon ];then $(MKDIR) $(B)/$(BASEGAME)/qcommon;fi
-	@if [ ! -d $(B)/$(BASEGAME)/11 ];then $(MKDIR) $(B)/$(BASEGAME)/11;fi
-	@if [ ! -d $(B)/$(BASEGAME)/11/cgame ];then $(MKDIR) $(B)/$(BASEGAME)/11/cgame;fi
-	@if [ ! -d $(B)/$(BASEGAME)/11/ui ];then $(MKDIR) $(B)/$(BASEGAME)/11/ui;fi
-	@if [ ! -d $(B)/$(BASEGAME)/vm ];then $(MKDIR) $(B)/$(BASEGAME)/vm;fi
-	@if [ ! -d $(B)/$(BASEGAME)_11 ];then $(MKDIR) $(B)/$(BASEGAME)_11;fi
-	@if [ ! -d $(B)/$(BASEGAME)_11/vm ];then $(MKDIR) $(B)/$(BASEGAME)_11/vm;fi
 	@if [ ! -d $(B)/granger.dir ];then $(MKDIR) $(B)/granger.dir;fi
 	@if [ ! -d $(B)/granger.dir/src ];then $(MKDIR) $(B)/granger.dir/src;fi
 	@if [ ! -d $(B)/granger.dir/src/lua ];then $(MKDIR) $(B)/granger.dir/src/lua;fi
 	@if [ ! -d $(B)/granger.dir/src/premake ];then $(MKDIR) $(B)/granger.dir/src/premake;fi
 	@if [ ! -d $(B)/granger.dir/src/nettle ];then $(MKDIR) $(B)/granger.dir/src/nettle;fi
-	@if [ ! -d $(B)/tools ];then $(MKDIR) $(B)/tools;fi
-	@if [ ! -d $(B)/tools/asm ];then $(MKDIR) $(B)/tools/asm;fi
-	@if [ ! -d $(B)/tools/etc ];then $(MKDIR) $(B)/tools/etc;fi
-	@if [ ! -d $(B)/tools/rcc ];then $(MKDIR) $(B)/tools/rcc;fi
-	@if [ ! -d $(B)/tools/cpp ];then $(MKDIR) $(B)/tools/cpp;fi
-	@if [ ! -d $(B)/tools/lburg ];then $(MKDIR) $(B)/tools/lburg;fi
-
-#############################################################################
-# QVM BUILD TOOLS
-#############################################################################
-
-ifndef TOOLS_CC
-  # A compiler which probably produces native binaries
-  TOOLS_CC = gcc
-  #$(CC)
-endif
-
-ifndef YACC
-  YACC = yacc
-endif
-
-TOOLS_OPTIMIZE = -g -Wall -fno-strict-aliasing
-TOOLS_CFLAGS += $(TOOLS_OPTIMIZE) \
-                -DTEMPDIR=\"$(TEMPDIR)\" -DSYSTEM=\"\" \
-				-I$(MOUNT_DIR) \
-                -I$(Q3LCCSRCDIR) \
-                -I$(LBURGDIR)
-TOOLS_LIBS =
-TOOLS_LDFLAGS =
-
-ifeq ($(GENERATE_DEPENDENCIES),1)
-  TOOLS_CFLAGS += -MMD
-endif
-
-define DO_YACC
-$(echo_cmd) "YACC $<"
-$(Q)$(YACC) $<
-$(Q)mv -f y.tab.c $@
-endef
-
-define DO_TOOLS_CC
-$(echo_cmd) "TOOLS_CC $<"
-$(Q)$(TOOLS_CC) $(TOOLS_CFLAGS) -o $@ -c $<
-endef
-
-define DO_TOOLS_CC_DAGCHECK
-$(echo_cmd) "TOOLS_CC_DAGCHECK $<"
-$(Q)$(TOOLS_CC) $(TOOLS_CFLAGS) -Wno-unused -o $@ -c $<
-endef
-
-LBURG       = $(B)/tools/lburg/lburg$(TOOLS_BINEXT)
-DAGCHECK_C  = $(B)/tools/rcc/dagcheck.c
-Q3RCC       = $(B)/tools/q3rcc$(TOOLS_BINEXT)
-Q3CPP       = $(B)/tools/q3cpp$(TOOLS_BINEXT)
-Q3LCC       = $(B)/tools/q3lcc$(TOOLS_BINEXT)
-Q3ASM       = $(B)/tools/q3asm$(TOOLS_BINEXT)
-
-LBURGOBJ= \
-  $(B)/tools/lburg/lburg.o \
-  $(B)/tools/lburg/gram.o
-
-# override GNU Make built-in rule for converting gram.y to gram.c
-%.c: %.y
-ifeq ($(USE_YACC),1)
-	$(DO_YACC)
-endif
-
-$(B)/tools/lburg/%.o: $(LBURGDIR)/%.c
-	$(DO_TOOLS_CC)
-
-$(LBURG): $(LBURGOBJ)
-	$(echo_cmd) "LD $@"
-	$(Q)$(TOOLS_CC) -std=gnu99 $(TOOLS_CFLAGS) $(TOOLS_LDFLAGS) -o $@ $^ $(TOOLS_LIBS)
-
-Q3RCCOBJ = \
-  $(B)/tools/rcc/alloc.o \
-  $(B)/tools/rcc/bind.o \
-  $(B)/tools/rcc/bytecode.o \
-  $(B)/tools/rcc/dag.o \
-  $(B)/tools/rcc/dagcheck.o \
-  $(B)/tools/rcc/decl.o \
-  $(B)/tools/rcc/enode.o \
-  $(B)/tools/rcc/error.o \
-  $(B)/tools/rcc/event.o \
-  $(B)/tools/rcc/expr.o \
-  $(B)/tools/rcc/gen.o \
-  $(B)/tools/rcc/init.o \
-  $(B)/tools/rcc/inits.o \
-  $(B)/tools/rcc/input.o \
-  $(B)/tools/rcc/lex.o \
-  $(B)/tools/rcc/list.o \
-  $(B)/tools/rcc/main.o \
-  $(B)/tools/rcc/null.o \
-  $(B)/tools/rcc/output.o \
-  $(B)/tools/rcc/prof.o \
-  $(B)/tools/rcc/profio.o \
-  $(B)/tools/rcc/simp.o \
-  $(B)/tools/rcc/stmt.o \
-  $(B)/tools/rcc/string.o \
-  $(B)/tools/rcc/sym.o \
-  $(B)/tools/rcc/symbolic.o \
-  $(B)/tools/rcc/trace.o \
-  $(B)/tools/rcc/tree.o \
-  $(B)/tools/rcc/types.o
-
-$(DAGCHECK_C): $(LBURG) $(Q3LCCSRCDIR)/dagcheck.md
-	$(echo_cmd) "LBURG $(Q3LCCSRCDIR)/dagcheck.md"
-	$(Q)$(LBURG) $(Q3LCCSRCDIR)/dagcheck.md $@
-
-$(B)/tools/rcc/dagcheck.o: $(DAGCHECK_C)
-	$(DO_TOOLS_CC_DAGCHECK)
-
-$(B)/tools/rcc/%.o: $(Q3LCCSRCDIR)/%.c
-	$(DO_TOOLS_CC)
-
-$(Q3RCC): $(Q3RCCOBJ)
-	$(echo_cmd) "LD $@"
-	$(Q)$(TOOLS_CC) $(TOOLS_CFLAGS) $(TOOLS_LDFLAGS) -o $@ $^ $(TOOLS_LIBS)
-
-Q3CPPOBJ = \
-  $(B)/tools/cpp/cpp.o \
-  $(B)/tools/cpp/lex.o \
-  $(B)/tools/cpp/nlist.o \
-  $(B)/tools/cpp/tokens.o \
-  $(B)/tools/cpp/macro.o \
-  $(B)/tools/cpp/eval.o \
-  $(B)/tools/cpp/include.o \
-  $(B)/tools/cpp/hideset.o \
-  $(B)/tools/cpp/getopt.o \
-  $(B)/tools/cpp/unix.o
-
-$(B)/tools/cpp/%.o: $(Q3CPPDIR)/%.c
-	$(DO_TOOLS_CC)
-
-$(Q3CPP): $(Q3CPPOBJ)
-	$(echo_cmd) "LD $@"
-	$(Q)$(TOOLS_CC) $(TOOLS_CFLAGS) $(TOOLS_LDFLAGS) -o $@ $^ $(TOOLS_LIBS)
-
-Q3LCCOBJ = \
-	$(B)/tools/etc/lcc.o \
-	$(B)/tools/etc/bytecode.o
-
-$(B)/tools/etc/%.o: $(Q3LCCETCDIR)/%.c
-	$(DO_TOOLS_CC)
-
-$(Q3LCC): $(Q3LCCOBJ) $(Q3RCC) $(Q3CPP)
-	$(echo_cmd) "LD $@"
-	$(Q)$(TOOLS_CC) $(TOOLS_CFLAGS) $(TOOLS_LDFLAGS) -o $@ $(Q3LCCOBJ) $(TOOLS_LIBS)
-
-define DO_Q3LCC
-$(echo_cmd) "Q3LCC $<"
-$(Q)$(Q3LCC) $(BASEGAME_CFLAGS) -o $@ $<
-endef
-
-define DO_CGAME_Q3LCC
-$(echo_cmd) "CGAME_Q3LCC $<"
-$(Q)$(Q3LCC) $(BASEGAME_CFLAGS) -DCGAME -o $@ $<
-endef
-
-define DO_GAME_Q3LCC
-$(echo_cmd) "GAME_Q3LCC $<"
-$(Q)$(Q3LCC) $(BASEGAME_CFLAGS) -DGAME -o $@ $<
-endef
-
-define DO_UI_Q3LCC
-$(echo_cmd) "UI_Q3LCC $<"
-$(Q)$(Q3LCC) $(BASEGAME_CFLAGS) -DUI -o $@ $<
-endef
-
-define DO_CGAME_Q3LCC_11
-$(echo_cmd) "CGAME_Q3LCC_11 $<"
-$(Q)$(Q3LCC) $(BASEGAME_CFLAGS) -DMODULE_INTERFACE_11 -DCGAME -o $@ $<
-endef
-
-define DO_UI_Q3LCC_11
-$(echo_cmd) "UI_Q3LCC_11 $<"
-$(Q)$(Q3LCC) $(BASEGAME_CFLAGS) -DMODULE_INTERFACE_11 -DUI -o $@ $<
-endef
-
-Q3ASMOBJ = \
-  $(B)/tools/asm/q3asm.o \
-  $(B)/tools/asm/cmdlib.o
-
-$(B)/tools/asm/%.o: $(Q3ASMDIR)/%.c
-	$(DO_TOOLS_CC)
-
-$(Q3ASM): $(Q3ASMOBJ)
-	$(echo_cmd) "LD $@"
-	$(Q)$(TOOLS_CC) $(TOOLS_CFLAGS) $(TOOLS_LDFLAGS) -o $@ $^ $(TOOLS_LIBS)
 
 #############################################################################
 # GRANGER
@@ -1594,8 +1320,7 @@ TARGETS += $(B)/GPL $(B)/COPYING $(B)/CC
 # LUA
 #############################################################################
 
-#LUACFLAGS=-Wall -Wextra -fPIC -fpic
-LUACFLAGS= $(ARCHFLAG) -fPIC -fpic
+LUACFLAGS= -DTremulous_EXPORTS $(ARCHFLAG) -fPIC -fpic  
 
 ifeq ($(PLATFORM),darwin)
 LUACFLAGS += -DLUA_USE_MACOSX
@@ -1748,6 +1473,14 @@ CFLAGS += -I$(SEMVERDIR)/src/include
 
 $(B)/semver/%.o: $(SEMVERDIR)/src/lib/%.cpp
 	$(DO_SEMVER_CXX)
+
+#############################################################################
+## Assets Package
+#############################################################################
+
+$(B)/$(BASEGAME)/data-$(VERSION).pk3: $(ASSETS_DIR)/ui/main.menu
+	@(cd $(ASSETS_DIR) && zip -r data-$(VERSION).pk3 *)
+	@mv $(ASSETS_DIR)/data-$(VERSION).pk3 $(B)/$(BASEGAME)
 
 #############################################################################
 # CLIENT/SERVER
@@ -2267,10 +2000,18 @@ ifeq ($(USE_MUMBLE),1)
 endif
 
 ifneq ($(USE_RENDERER_DLOPEN),0)
+ifdef MINGW
+$(B)/$(CLIENTBIN)$(FULLBINEXT): $(Q3OBJ) $(LIBSDLMAIN)
+	$(echo_cmd) "LD $@"
+	$(Q)$(CXX) -std=c++1y $(CXXFLAGS) $(CLIENT_LDFLAGS) $(LDFLAGS) $(Q3OBJ) \
+		$(LIBSDLMAIN) $(CLIENT_LIBS) $(LIBS) -Wl,--out-implib,$(B)/lib$(CLIENTBIN)_exe.a -o $@ 
+else
 $(B)/$(CLIENTBIN)$(FULLBINEXT): $(Q3OBJ) $(LIBSDLMAIN)
 	$(echo_cmd) "LD $@"
 	$(Q)$(CXX) -std=c++1y $(CXXFLAGS) $(CLIENT_LDFLAGS) $(LDFLAGS) $(Q3OBJ) \
 		$(LIBSDLMAIN) $(CLIENT_LIBS) $(LIBS) -o $@ 
+
+endif
 
 $(B)/renderer_opengl1$(SHLIBNAME): $(Q3ROBJ) $(JPGOBJ)
 	$(echo_cmd) "LD $@"
@@ -2281,6 +2022,19 @@ $(B)/renderer_opengl2$(SHLIBNAME): $(Q3R2OBJ) $(Q3R2STRINGOBJ) $(JPGOBJ)
 	$(echo_cmd) "LD $@"
 	$(Q)$(CXX) $(SHLIBLDFLAGS) -o $@ $(Q3R2OBJ) $(Q3R2STRINGOBJ) $(JPGOBJ) \
 		$(THREAD_LIBS) $(LIBSDLMAIN) $(RENDERER_LIBS) $(LDFLAGS)
+else
+ifdef MINGW
+$(B)/$(CLIENTBIN)$(FULLBINEXT): $(Q3OBJ) $(Q3ROBJ) $(JPGOBJ) $(LIBSDLMAIN)
+	$(echo_cmd) "LD $@"
+	$(Q)$(CXX) -std=c++1y $(CXXFLAGS) $(CLIENT_CFLAGS) $(CFLAGS) $(CLIENT_LDFLAGS) $(LDFLAGS) \
+		-o $@ $(Q3OBJ) $(Q3ROBJ) $(JPGOBJ) \
+		$(LIBSDLMAIN) $(CLIENT_LIBS) $(RENDERER_LIBS) $(LIBS)  -Wl,--out-implib,$(B)/lib$(CLIENTBIN)_exe.a
+
+$(B)/$(CLIENTBIN)_opengl2$(FULLBINEXT): $(Q3OBJ) $(Q3R2OBJ) $(Q3R2STRINGOBJ) $(JPGOBJ) $(LIBSDLMAIN)
+	$(echo_cmd) "LD $@"
+	$(Q)$(CXX) -std=c++1y $(CXXFLAGS) $(CLIENT_CFLAGS) $(CFLAGS) $(CLIENT_LDFLAGS) $(LDFLAGS) \
+		-o $@ $(Q3OBJ) $(Q3R2OBJ) $(Q3R2STRINGOBJ) $(JPGOBJ) \
+		$(LIBSDLMAIN) $(CLIENT_LIBS) $(RENDERER_LIBS) $(LIBS) -Wl,--out-implib,$(B)/lib$(CLIENTBIN)_exe.a
 else
 $(B)/$(CLIENTBIN)$(FULLBINEXT): $(Q3OBJ) $(Q3ROBJ) $(JPGOBJ) $(LIBSDLMAIN)
 	$(echo_cmd) "LD $@"
@@ -2293,6 +2047,7 @@ $(B)/$(CLIENTBIN)_opengl2$(FULLBINEXT): $(Q3OBJ) $(Q3R2OBJ) $(Q3R2STRINGOBJ) $(J
 	$(Q)$(CXX) -std=c++1y $(CXXFLAGS) $(CLIENT_CFLAGS) $(CFLAGS) $(CLIENT_LDFLAGS) $(LDFLAGS) \
 		-o $@ $(Q3OBJ) $(Q3R2OBJ) $(Q3R2STRINGOBJ) $(JPGOBJ) \
 		$(LIBSDLMAIN) $(CLIENT_LIBS) $(RENDERER_LIBS) $(LIBS)
+endif
 endif
 
 ifneq ($(strip $(LIBSDLMAIN)),)
@@ -2405,15 +2160,49 @@ ifeq ($(PLATFORM),darwin)
     $(B)/ded/sys_osx.o
 endif
 
+ifdef MINGW
 $(B)/$(SERVERBIN)$(FULLBINEXT): $(Q3DOBJ)
 	$(echo_cmd) "LD $@"
-	$(Q)$(CXX) $(CFLAGS) $(LDFLAGS) -o $@ $(Q3DOBJ) $(LIBS)
+	$(Q)$(CXX) $(CFLAGS) $(LDFLAGS) -Wl,--out-implib,$(B)/lib$(SERVERBIN)_exe.a -o $@ $(Q3DOBJ) $(LIBS)
+else
+$(B)/$(SERVERBIN)$(FULLBINEXT): $(Q3DOBJ)
+	$(echo_cmd) "LD $@"
+	$(Q)$(CXX) $(CFLAGS) $(SERVER_LDFLAGS) $(LDFLAGS) -o $@ $(Q3DOBJ) $(LIBS)
+endif
 
 #############################################################################
-## TREMULOUS CGAME
+## SHLIB 
 #############################################################################
 
-CGOBJ_ = \
+SHLIB_CC_FLAGS=${BASEGAME_CFLAGS} ${SHLIBCFLAGS} ${CFLAGS} ${OPTIMIZEVM}
+SHLIB_CXX_FLAGS=${BASEGAME_CFLAGS} ${SHLIBCFLAGS} ${CFLAGS} ${OPTIMIZEVM}
+
+define DO_SHLIB_CC
+$(echo_cmd) "SHLIB_CC $<"
+$(Q)$(call EXEC_CC,${SHLIB_CC_FLAGS},'$@','$<')
+$(Q)$(call LOG_CC,qcommon,${SHLIB_CC_FLAGS},$@,$<)
+endef
+
+define DO_SHLIB_CXX
+$(echo_cmd) "SHLIB_CXX $<"
+$(Q)$(call EXEC_CC,${SHLIB_CXX_FLAGS},'$@','$<')
+$(Q)$(call LOG_CC,qcommon,${SHLIB_CXX_FLAGS},$@,$<)
+endef
+
+$(B)/$(BASEGAME)/qcommon/%.o: $(CMDIR)/%.c
+	$(DO_SHLIB_CC)
+
+$(B)/$(BASEGAME)/qcommon/%.o: $(CMDIR)/%.cpp
+	$(DO_SHLIB_CXX)
+
+#############################################################################
+## CGAME
+#############################################################################
+
+GAME_CC_FLAGS=${BASEGAME_CFLAGS} ${SHLIBCFLAGS} ${CFLAGS} ${OPTIMIZEVM}
+GAME_CXX_FLAGS=-std=c++1y ${BASEGAME_CFLAGS} ${SHLIBCFLAGS} ${CFLAGS} ${CXXFLAGS} ${OPTIMIZEVM}
+
+CGOBJ = \
   $(B)/$(BASEGAME)/cgame/cg_main.o \
   $(B)/$(BASEGAME)/cgame/bg_misc.o \
   $(B)/$(BASEGAME)/cgame/bg_pmove.o \
@@ -2446,85 +2235,77 @@ CGOBJ_ = \
   $(B)/$(BASEGAME)/cgame/ui_shared.o \
   \
   $(B)/$(BASEGAME)/qcommon/q_math.o \
-  $(B)/$(BASEGAME)/qcommon/q_shared.o
+  $(B)/$(BASEGAME)/qcommon/q_shared.o \
+  $(B)/$(BASEGAME)/cgame/cg_syscalls.o
 
-CGOBJ = $(CGOBJ_) $(B)/$(BASEGAME)/cgame/cg_syscalls.o
-CGVMOBJ = $(CGOBJ_:%.o=%.asm)
+define DO_CGAME_CC
+$(echo_cmd) "CGAME_CC $<"
+$(Q)$(call EXEC_CC,-DCGAME ${GAME_CC_FLAGS},'$@','$<')
+$(Q)$(call LOG_CC,cgame,-DCGAME ${GAME_CC_FLAGS},$@,$<)
+endef
 
-$(B)/$(BASEGAME)/cgame$(SHLIBNAME): $(CGOBJ)
+define DO_CGAME_CXX
+$(echo_cmd) "CGAME_CXX $<"
+$(Q)$(call EXEC_CXX,-DCGAME ${GAME_CXX_FLAGS},'$@','$<')
+$(Q)$(call LOG_CXX,cgame,-DCGAME ${GAME_CXX_FLAGS},$@,$<)
+endef
+
+$(B)/$(BASEGAME)/cgame/bg_%.o: $(GDIR)/bg_%.cpp
+	$(DO_CGAME_CXX)
+$(B)/$(BASEGAME)/cgame/ui_%.o: $(UIDIR)/ui_%.cpp
+	$(DO_CGAME_CXX)
+$(B)/$(BASEGAME)/cgame/%.o: $(CGDIR)/%.cpp
+	$(DO_CGAME_CXX)
+
+$(B)/$(BASEGAME)/cgame/bg_%.o: $(GDIR)/bg_%.c
+	$(DO_CGAME_CC)
+$(B)/$(BASEGAME)/cgame/ui_%.o: $(UIDIR)/ui_%.c
+	$(DO_CGAME_CC)
+$(B)/$(BASEGAME)/cgame/%.o: $(CGDIR)/%.c
+	$(DO_CGAME_CC)
+
+ifdef MINGW
+$(B)/$(BASEGAME)/cgame$(SHLIBNAME): $(B)/$(CLIENTBIN)$(FULLBINEXT) $(CGOBJ)
 	$(echo_cmd) "LD $@"
-	$(Q)$(CC) $(SHLIBLDFLAGS) $(LDFLAGS) -o $@ $(CGOBJ)
-
-$(B)/$(BASEGAME)/vm/cgame.qvm: $(CGVMOBJ) $(CGDIR)/cg_syscalls.asm $(Q3ASM)
-	$(echo_cmd) "Q3ASM $@"
-	$(Q)$(Q3ASM) -o $@ $(CGVMOBJ) $(CGDIR)/cg_syscalls.asm
-
-#############################################################################
-## TREMULOUS CGAME (1.1 COMPATIBLE)
-#############################################################################
-
-CGOBJ11_ = \
-  $(B)/$(BASEGAME)/11/cgame/cg_main.o \
-  $(B)/$(BASEGAME)/cgame/bg_misc.o \
-  $(B)/$(BASEGAME)/cgame/bg_pmove.o \
-  $(B)/$(BASEGAME)/cgame/bg_slidemove.o \
-  $(B)/$(BASEGAME)/cgame/bg_lib.o \
-  $(B)/$(BASEGAME)/cgame/bg_alloc.o \
-  $(B)/$(BASEGAME)/cgame/bg_voice.o \
-  $(B)/$(BASEGAME)/11/cgame/cg_consolecmds.o \
-  $(B)/$(BASEGAME)/cgame/cg_buildable.o \
-  $(B)/$(BASEGAME)/cgame/cg_animation.o \
-  $(B)/$(BASEGAME)/cgame/cg_animmapobj.o \
-  $(B)/$(BASEGAME)/cgame/cg_draw.o \
-  $(B)/$(BASEGAME)/cgame/cg_drawtools.o \
-  $(B)/$(BASEGAME)/cgame/cg_ents.o \
-  $(B)/$(BASEGAME)/cgame/cg_event.o \
-  $(B)/$(BASEGAME)/cgame/cg_marks.o \
-  $(B)/$(BASEGAME)/cgame/cg_players.o \
-  $(B)/$(BASEGAME)/cgame/cg_playerstate.o \
-  $(B)/$(BASEGAME)/cgame/cg_predict.o \
-  $(B)/$(BASEGAME)/11/cgame/cg_servercmds.o \
-  $(B)/$(BASEGAME)/11/cgame/cg_snapshot.o \
-  $(B)/$(BASEGAME)/cgame/cg_view.o \
-  $(B)/$(BASEGAME)/cgame/cg_weapons.o \
-  $(B)/$(BASEGAME)/cgame/cg_scanner.o \
-  $(B)/$(BASEGAME)/cgame/cg_attachment.o \
-  $(B)/$(BASEGAME)/cgame/cg_trails.o \
-  $(B)/$(BASEGAME)/cgame/cg_particles.o \
-  $(B)/$(BASEGAME)/cgame/cg_tutorial.o \
-  $(B)/$(BASEGAME)/cgame/cg_rangemarker.o \
-  $(B)/$(BASEGAME)/cgame/ui_shared.o \
-  \
-  $(B)/$(BASEGAME)/qcommon/q_math.o \
-  $(B)/$(BASEGAME)/qcommon/q_shared.o
-
-CGVMOBJ11 = $(CGOBJ11_:%.o=%.asm)
-
-$(B)/$(BASEGAME)_11/vm/cgame.qvm: $(CGVMOBJ11) $(CGDIR)/cg_syscalls_11.asm $(Q3ASM)
-	$(echo_cmd) "Q3ASM_11 $@"
-	$(Q)$(Q3ASM) -o $@ $(CGVMOBJ11) $(CGDIR)/cg_syscalls_11.asm
+	$(Q)$(CXX) $(SHLIBLDFLAGS) $(LDFLAGS) -o $@ $(CGOBJ) -L$(B) -ltremulous_exe 
+else
+ifdef DARWIN
+$(B)/$(BASEGAME)/cgame$(SHLIBNAME): $(B)/$(CLIENTBIN) $(CGOBJ)
+	$(echo_cmd) "LD $@"
+	$(Q)$(CXX) -bundle -bundle_loader $(B)/$(CLIENTBIN) $(LDFLAGS) -o $@ $(CGOBJ)
+else
+$(B)/$(BASEGAME)/cgame$(SHLIBNAME): $(B)/$(CLIENTBIN) $(CGOBJ)
+	$(echo_cmd) "LD $@"
+	$(Q)$(CXX) $(SHLIBLDFLAGS) $(LDFLAGS) -o $@ $(CGOBJ)
+endif
+endif
 
 #############################################################################
-## TREMULOUS GAME
+## GAME
 #############################################################################
 
-GOBJ_ = \
-  $(B)/$(BASEGAME)/game/g_main.o \
+GOBJ = \
+  $(B)/$(BASEGAME)/game/bg_alloc.o \
+  $(B)/$(BASEGAME)/game/bg_lib.o \
   $(B)/$(BASEGAME)/game/bg_misc.o \
   $(B)/$(BASEGAME)/game/bg_pmove.o \
   $(B)/$(BASEGAME)/game/bg_slidemove.o \
-  $(B)/$(BASEGAME)/game/bg_lib.o \
-  $(B)/$(BASEGAME)/game/bg_alloc.o \
   $(B)/$(BASEGAME)/game/bg_voice.o \
   $(B)/$(BASEGAME)/game/g_active.o \
+  $(B)/$(BASEGAME)/game/g_admin.o \
+  $(B)/$(BASEGAME)/game/g_lua.o \
+  $(B)/$(BASEGAME)/game/g_buildable.o \
   $(B)/$(BASEGAME)/game/g_client.o \
   $(B)/$(BASEGAME)/game/g_cmds.o \
   $(B)/$(BASEGAME)/game/g_combat.o \
-  $(B)/$(BASEGAME)/game/g_physics.o \
-  $(B)/$(BASEGAME)/game/g_buildable.o \
+  $(B)/$(BASEGAME)/game/g_main.o \
+  $(B)/$(BASEGAME)/game/g_maprotation.o \
   $(B)/$(BASEGAME)/game/g_misc.o \
   $(B)/$(BASEGAME)/game/g_missile.o \
   $(B)/$(BASEGAME)/game/g_mover.o \
+  $(B)/$(BASEGAME)/game/g_namelog.o \
+  $(B)/$(BASEGAME)/game/g_physics.o \
+  $(B)/$(BASEGAME)/game/g_playermodel.o \
   $(B)/$(BASEGAME)/game/g_session.o \
   $(B)/$(BASEGAME)/game/g_spawn.o \
   $(B)/$(BASEGAME)/game/g_svcmds.o \
@@ -2532,34 +2313,52 @@ GOBJ_ = \
   $(B)/$(BASEGAME)/game/g_team.o \
   $(B)/$(BASEGAME)/game/g_trigger.o \
   $(B)/$(BASEGAME)/game/g_utils.o \
-  $(B)/$(BASEGAME)/game/g_maprotation.o \
-  $(B)/$(BASEGAME)/game/g_playermodel.o \
   $(B)/$(BASEGAME)/game/g_weapon.o \
   $(B)/$(BASEGAME)/game/g_weapondrop.o \
-  $(B)/$(BASEGAME)/game/g_admin.o \
-  $(B)/$(BASEGAME)/game/g_namelog.o \
-  \
   $(B)/$(BASEGAME)/qcommon/q_math.o \
   $(B)/$(BASEGAME)/qcommon/q_shared.o
 
-GOBJ = $(GOBJ_) $(B)/$(BASEGAME)/game/g_syscalls.o
-GVMOBJ = $(GOBJ_:%.o=%.asm)
+#GOBJ += $(LUAOBJ)
 
-$(B)/$(BASEGAME)/game$(SHLIBNAME): $(GOBJ)
+define DO_GAME_CC
+$(echo_cmd) "GAME_CC $<"
+$(Q)$(call EXEC_CC,-DGAME ${GAME_CC_FLAGS},'$@','$<')
+$(Q)$(call LOG_CC,game,-DGAME ${GAME_CC_FLAGS},$@,$<)
+endef
+
+define DO_GAME_CXX
+$(echo_cmd) "GAME_CXX $<"
+$(Q)$(call EXEC_CXX,-DGAME ${GAME_CXX_FLAGS},'$@','$<')
+$(Q)$(call LOG_CXX,game,-DGAME ${GAME_CXX_FLAGS},$@,$<)
+endef
+
+$(B)/$(BASEGAME)/game/%.o: $(GDIR)/%.c
+	$(DO_GAME_CC)
+
+$(B)/$(BASEGAME)/game/%.o: $(GDIR)/%.cpp
+	$(DO_GAME_CXX)
+
+ifeq ($(PLATFORM),darwin)
+$(B)/$(BASEGAME)/game$(SHLIBNAME): $(B)/$(CLIENTBIN)$(FULLBINEXT) $(GOBJ)
 	$(echo_cmd) "LD $@"
-	$(Q)$(CC) $(SHLIBLDFLAGS) $(LDFLAGS) -o $@ $(GOBJ)
-
-$(B)/$(BASEGAME)/vm/game.qvm: $(GVMOBJ) $(GDIR)/g_syscalls.asm $(Q3ASM)
-	$(echo_cmd) "Q3ASM $@"
-	$(Q)$(Q3ASM) -o $@ $(GVMOBJ) $(GDIR)/g_syscalls.asm
-
-
-
+	$(Q)$(CXX) -bundle -bundle_loader $(B)/$(SERVERBIN) $(LDFLAGS) -o $@ $(GOBJ)
+else
+ifeq ($(PLATFORM),mingw32)
+$(B)/$(BASEGAME)/game$(SHLIBNAME): $(B)/$(CLIENTBIN) $(GOBJ)
+	$(echo_cmd) "LD $@"
+	#$(Q)$(CXX) $(SHLIBLDFLAGS) $(LDFLAGS) -o $@ $(GOBJ) -L$(B) -ltremded_exe 
+	$(Q)$(CXX) $(SHLIBLDFLAGS) $(LDFLAGS) -o $@ $(GOBJ) -L$(B) -ltremulous_exe 
+else
+$(B)/$(BASEGAME)/game$(SHLIBNAME): $(B)/$(CLIENTBIN) $(GOBJ)
+	$(echo_cmd) "LD $@"
+	$(Q)$(CXX) $(SHLIBLDFLAGS) $(LDFLAGS) -o $@ $(GOBJ)
+endif
+endif
 #############################################################################
-## TREMULOUS UI
+## UI
 #############################################################################
 
-UIOBJ_ = \
+UIOBJ = \
   $(B)/$(BASEGAME)/ui/ui_main.o \
   $(B)/$(BASEGAME)/ui/ui_atoms.o \
   $(B)/$(BASEGAME)/ui/ui_shared.o \
@@ -2570,61 +2369,48 @@ UIOBJ_ = \
   $(B)/$(BASEGAME)/ui/bg_misc.o \
   $(B)/$(BASEGAME)/ui/bg_lib.o \
   $(B)/$(BASEGAME)/qcommon/q_math.o \
-  $(B)/$(BASEGAME)/qcommon/q_shared.o
+  $(B)/$(BASEGAME)/qcommon/q_shared.o \
+  $(B)/$(BASEGAME)/ui/ui_syscalls.o
 
-UIOBJ = $(UIOBJ_) $(B)/$(BASEGAME)/ui/ui_syscalls.o
-UIVMOBJ = $(UIOBJ_:%.o=%.asm)
+define DO_UI_CC
+$(echo_cmd) "UI_CC $<"
+$(Q)$(call EXEC_CC,-DUI ${GAME_CC_FLAGS},'$@','$<')
+$(Q)$(call LOG_CC,ui,-DUI ${GAME_CC_FLAGS},$@,$<)
+endef
 
-$(B)/$(BASEGAME)/ui$(SHLIBNAME): $(UIOBJ)
+define DO_UI_CXX
+$(echo_cmd) "UI_CXX $<"
+$(Q)$(call EXEC_CC,-DUI ${GAME_CXX_FLAGS},'$@','$<')
+$(Q)$(call LOG_CC,ui,-DUI ${GAME_CXX_FLAGS},$@,$<)
+endef
+
+$(B)/$(BASEGAME)/ui/bg_%.o: $(GDIR)/bg_%.cpp
+	$(DO_UI_CXX)
+$(B)/$(BASEGAME)/ui/ui_%.o: $(UIDIR)/ui_%.cpp
+	$(DO_UI_CXX)
+$(B)/$(BASEGAME)/ui/%.o: $(CGDIR)/%.cpp
+	$(DO_UI_CXX)
+
+$(B)/$(BASEGAME)/ui/bg_%.o: $(GDIR)/bg_%.c
+	$(DO_UI_CC)
+$(B)/$(BASEGAME)/ui/ui_%.o: $(UIDIR)/ui_%.c
+	$(DO_UI_CC)
+
+ifdef MINGW
+$(B)/$(BASEGAME)/ui$(SHLIBNAME): $(B)/$(CLIENTBIN)$(FULLBINEXT) $(UIOBJ)
 	$(echo_cmd) "LD $@"
-	$(Q)$(CC) -I${ASSETS_DIR}/ui $(SHLIBLDFLAGS) $(LDFLAGS) -o $@ $(UIOBJ)
-
-$(B)/$(BASEGAME)/vm/ui.qvm: $(UIVMOBJ) $(UIDIR)/ui_syscalls.asm $(Q3ASM)
-	$(echo_cmd) "Q3ASM $@"
-	$(Q)$(Q3ASM) -o $@ $(UIVMOBJ) $(UIDIR)/ui_syscalls.asm
-
-#############################################################################
-## TREMULOUS UI (1.1 compatibility)
-#############################################################################
-
-UIOBJ11_ = \
-  $(B)/$(BASEGAME)/11/ui/ui_main.o \
-  $(B)/$(BASEGAME)/ui/ui_atoms.o \
-  $(B)/$(BASEGAME)/ui/ui_shared.o \
-  $(B)/$(BASEGAME)/ui/ui_gameinfo.o \
-  \
-  $(B)/$(BASEGAME)/ui/bg_alloc.o \
-  $(B)/$(BASEGAME)/ui/bg_voice.o \
-  $(B)/$(BASEGAME)/ui/bg_misc.o \
-  $(B)/$(BASEGAME)/ui/bg_lib.o \
-  $(B)/$(BASEGAME)/qcommon/q_math.o \
-  $(B)/$(BASEGAME)/qcommon/q_shared.o
-UIVMOBJ11 = $(UIOBJ11_:%.o=%.asm)
-
-# XXX no dynamic library?
-
-$(B)/$(BASEGAME)_11/vm/ui.qvm: $(UIVMOBJ11) $(UIDIR)/ui_syscalls_11.asm $(Q3ASM)
-	$(echo_cmd) "Q3ASM $@"
-	$(Q)$(Q3ASM) -o $@ $(UIVMOBJ11) $(UIDIR)/ui_syscalls_11.asm
-
-#############################################################################
-## QVM Package
-#############################################################################
-
-$(B)/$(BASEGAME)/vms-gpp-$(VERSION).pk3: $(B)/$(BASEGAME)/vm/ui.qvm $(B)/$(BASEGAME)/vm/cgame.qvm $(B)/$(BASEGAME)/vm/game.qvm
-	@(cd $(B)/$(BASEGAME) && zip -r vms-$(VERSION).pk3 vm/)
-
-$(B)/$(BASEGAME)_11/vms-1.1.0-$(VERSION).pk3: $(B)/$(BASEGAME)_11/vm/ui.qvm $(B)/$(BASEGAME)_11/vm/cgame.qvm 
-	@(cd $(B)/$(BASEGAME)_11 && zip -r vms-$(VERSION).pk3 vm/)
-
-
-#############################################################################
-## Assets Package
-#############################################################################
-
-$(B)/$(BASEGAME)/data-$(VERSION).pk3: $(ASSETS_DIR)/ui/main.menu
-	@(cd $(ASSETS_DIR) && zip -r data-$(VERSION).pk3 *)
-	@mv $(ASSETS_DIR)/data-$(VERSION).pk3 $(B)/$(BASEGAME)
+	$(Q)$(CXX) -I${ASSETS_DIR}/ui $(SHLIBLDFLAGS) $(LDFLAGS) -o $@ $(UIOBJ) -L$(B) -ltremulous_exe 
+else
+ifdef DARWIN
+$(B)/$(BASEGAME)/ui$(SHLIBNAME): $(B)/$(CLIENTBIN) $(UIOBJ)
+	$(echo_cmd) "LD $@"
+	$(Q)$(CXX) -I${ASSETS_DIR}/ui -bundle -bundle_loader $(B)/$(CLIENTBIN) $(LDFLAGS) -o $@ $(UIOBJ)
+else
+$(B)/$(BASEGAME)/ui$(SHLIBNAME): $(B)/$(CLIENTBIN) $(UIOBJ)
+	$(echo_cmd) "LD $@"
+	$(Q)$(CXX) -I${ASSETS_DIR}/ui $(SHLIBLDFLAGS) $(LDFLAGS) -o $@ $(UIOBJ)
+endif
+endif
 
 #############################################################################
 ## CLIENT/SERVER RULES
@@ -2636,6 +2422,9 @@ $(B)/client/%.o: $(ASMDIR)/%.s
 # k8 so inline assembler knows about SSE
 $(B)/client/%.o: $(ASMDIR)/%.c
 	$(DO_CC) -march=k8
+
+$(B)/client/%.o: $(ASMDIR)/%.cpp
+	$(DO_CXX)
 
 $(B)/client/%.o: $(CDIR)/%.c
 	$(DO_CC)
@@ -2745,6 +2534,9 @@ $(B)/ded/%.o: $(ASMDIR)/%.s
 $(B)/ded/%.o: $(ASMDIR)/%.c
 	$(DO_DED_CC) -march=k8
 
+$(B)/ded/%.o: $(ASMDIR)/%.cpp
+	$(DO_DED_CXX)
+
 $(B)/ded/%.o: $(SDIR)/%.c
 	$(DO_DED_CC)
 
@@ -2785,74 +2577,6 @@ ifeq ($(USE_GIT),1)
   $(B)/ded/common.o : .git/index
 endif
 
-
-#############################################################################
-## GAME MODULE RULES
-#############################################################################
-
-# CGAME
-$(B)/$(BASEGAME)/cgame/bg_%.o: $(GDIR)/bg_%.c
-	$(DO_CGAME_CC)
-
-$(B)/$(BASEGAME)/cgame/ui_%.o: $(UIDIR)/ui_%.c
-	$(DO_CGAME_CC)
-
-$(B)/$(BASEGAME)/cgame/%.o: $(CGDIR)/%.c
-	$(DO_CGAME_CC)
-
-$(B)/$(BASEGAME)/cgame/bg_%.asm: $(GDIR)/bg_%.c $(Q3LCC)
-	$(DO_CGAME_Q3LCC)
-
-$(B)/$(BASEGAME)/cgame/ui_%.asm: $(UIDIR)/ui_%.c $(Q3LCC)
-	$(DO_CGAME_Q3LCC)
-
-$(B)/$(BASEGAME)/cgame/%.asm: $(CGDIR)/%.c $(Q3LCC)
-	$(DO_CGAME_Q3LCC)
-
-# CGAME (1.1 COMPATIBLE)
-#$(B)/$(BASEGAME)_11/cgame/bg_%.o: $(GDIR)/bg_%.c
-#	$(DO_CGAME_CC_11)
-#
-#$(B)/$(BASEGAME)_11/cgame/ui_%.o: $(UIDIR)/ui_%.c
-#	$(DO_CGAME_CC_11)
-#
-#$(B)/$(BASEGAME)_11/cgame/%.o: $(CGDIR)/%.c
-#	$(DO_CGAME_CC_11)
-
-$(B)/$(BASEGAME)/11/cgame/%.asm: $(CGDIR)/%.c $(Q3LCC)
-	$(DO_CGAME_Q3LCC_11)
-
-# GAME
-$(B)/$(BASEGAME)/game/%.o: $(GDIR)/%.c
-	$(DO_GAME_CC)
-
-$(B)/$(BASEGAME)/game/%.asm: $(GDIR)/%.c $(Q3LCC)
-	$(DO_GAME_Q3LCC)
-
-# UI
-$(B)/$(BASEGAME)/ui/bg_%.o: $(GDIR)/bg_%.c
-	$(DO_UI_CC)
-
-$(B)/$(BASEGAME)/ui/%.o: $(UIDIR)/%.c
-	$(DO_UI_CC)
-
-$(B)/$(BASEGAME)/ui/bg_%.asm: $(GDIR)/bg_%.c $(Q3LCC)
-	$(DO_UI_Q3LCC)
-
-$(B)/$(BASEGAME)/ui/%.asm: $(UIDIR)/%.c $(Q3LCC)
-	$(DO_UI_Q3LCC)
-
-# UI (1.1 COMPATIBLE)
-$(B)/$(BASEGAME)/11/ui/%.asm: $(UIDIR)/%.c $(Q3LCC)
-	$(DO_UI_Q3LCC_11)
-
-$(B)/$(BASEGAME)/qcommon/%.o: $(CMDIR)/%.c
-	$(DO_SHLIB_CC)
-
-$(B)/$(BASEGAME)/qcommon/%.asm: $(CMDIR)/%.c $(Q3LCC)
-	$(DO_Q3LCC)
-
-
 #############################################################################
 # MISC
 #############################################################################
@@ -2860,7 +2584,6 @@ $(B)/$(BASEGAME)/qcommon/%.asm: $(CMDIR)/%.c $(Q3LCC)
 OBJ = $(Q3OBJ) $(Q3ROBJ) $(Q3R2OBJ) $(Q3DOBJ) $(JPGOBJ) \
   $(GOBJ) $(CGOBJ) $(UIOBJ) $(LUAOBJ) $(SCRIPTOBJ) $(NETTLEOBJ) \
   $(GVMOBJ) $(CGVMOBJ) $(UIVMOBJ) $(GRANGEROBJ)
-TOOLSOBJ = $(LBURGOBJ) $(Q3CPPOBJ) $(Q3RCCOBJ) $(Q3LCCOBJ) $(Q3ASMOBJ)
 STRINGOBJ = $(Q3R2STRINGOBJ)
 
 clean: clean-debug clean-release
@@ -2880,21 +2603,7 @@ clean2:
 	@rm -f $(STRINGOBJ)
 	@rm -f $(TARGETS)
 
-toolsclean: toolsclean-debug toolsclean-release
-
-toolsclean-debug:
-	@$(MAKE) toolsclean2 B=$(BD)
-
-toolsclean-release:
-	@$(MAKE) toolsclean2 B=$(BR)
-
-toolsclean2:
-	@echo "TOOLS_CLEAN $(B)"
-	@rm -f $(TOOLSOBJ)
-	@rm -f $(TOOLSOBJ_D_FILES)
-	@rm -f $(LBURG) $(DAGCHECK_C) $(Q3RCC) $(Q3CPP) $(Q3LCC) $(Q3ASM)
-
-distclean: clean toolsclean
+distclean: clean
 	@rm -rf $(BUILD_DIR)
 
 dist:
@@ -2906,17 +2615,13 @@ dist:
 
 ifneq ($(B),)
   OBJ_D_FILES=$(filter %.d,$(OBJ:%.o=%.d))
-  TOOLSOBJ_D_FILES=$(filter %.d,$(TOOLSOBJ:%.o=%.d))
-  -include $(OBJ_D_FILES) $(TOOLSOBJ_D_FILES)
+  -include $(OBJ_D_FILES)
 endif
 
 .PHONY: all clean clean2 clean-debug clean-release \
 	debug default dist distclean makedirs release targets \
-	toolsclean toolsclean2 toolsclean-debug toolsclean-release \
-	$(OBJ_D_FILES) $(TOOLSOBJ_D_FILES) $(B)/scripts \
+	$(OBJ_D_FILES) $(B)/scripts \
 	$(B)/$(BASEGAME)/data-$(VERSION).pk3 \
-	$(B)/$(BASEGAME)_11/vms-$(VERSION).pk3 \
-	$(B)/$(BASEGAME)/vms-$(VERSION).pk3 \
 	$(B).zip
 
 # If the target name contains "clean", don't do a parallel build

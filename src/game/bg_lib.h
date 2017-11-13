@@ -29,6 +29,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #if !defined( BG_LIB_H ) && defined( Q3_VM )
 #define BG_LIB_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef NULL
 #define NULL ((void *)0)
 #endif
@@ -134,5 +138,9 @@ double  fabs( double x );
 double  acos( double x );
 float   pow( float x, float y );
 double  rint( double v );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // BG_LIB_H

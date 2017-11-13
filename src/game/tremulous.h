@@ -557,7 +557,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MGTURRET_VERTICALCAP        30  // +/- maximum pitch
 #define MGTURRET_REPEAT             150
 #define MGTURRET_K_SCALE            1.0f
-#define MGTURRET_RANGE              400.0f
+#define MGTURRET_RANGE              400
 #define MGTURRET_SPREAD             200
 #define MGTURRET_DMG                HDM(8)
 #define MGTURRET_SPINUP_TIME        750 // time between target sighted and fire
@@ -596,11 +596,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define REACTOR_HEALTH              HBHM(930)
 #define REACTOR_SPLASHDAMAGE        200
 #define REACTOR_SPLASHRADIUS        300
-#define REACTOR_ATTACK_RANGE        100.0f
+#define REACTOR_ATTACK_RANGE        100
 #define REACTOR_ATTACK_REPEAT       1000
 #define REACTOR_ATTACK_DAMAGE       40
 #define REACTOR_ATTACK_DCC_REPEAT   1000
-#define REACTOR_ATTACK_DCC_RANGE    150.0f
+#define REACTOR_ATTACK_DCC_RANGE    150
 #define REACTOR_ATTACK_DCC_DAMAGE   40
 #define REACTOR_VALUE               HBVM(30)
 

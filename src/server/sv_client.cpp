@@ -228,12 +228,12 @@ void SV_DirectConnect( netadr_t from ) {
 	int			version;
 	int			qport;
 	int			challenge;
-	char		*password;
+	const char		*password;
 	int			startIndex;
 	intptr_t		denied;
 	int			count;
 	const char	*ip;
-	char		*challenge2;
+	const char		*challenge2;
 	bool	    challenge2Verified = false;
 
 	Com_DPrintf ("SVC_DirectConnect ()\n");
@@ -1255,7 +1255,7 @@ into a more C friendly form.
 =================
 */
 void SV_UserinfoChanged( client_t *cl ) {
-	char	*val;
+	const char	*val;
 	const char *ip;
 	int		i;
 	int	len;

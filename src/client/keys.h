@@ -24,13 +24,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef _KEYS_H_
 #define _KEYS_H_
 
+#include "qcommon/q_shared.h"
 #include "keycodes.h"
 
-typedef struct {
+struct qkey_t {
     bool down;
     int repeats;  // if > 1, it is autorepeating
     char *binding;
-} qkey_t;
+};
+
+struct field_t;
 
 extern bool key_overstrikeMode;
 extern qkey_t keys[MAX_KEYS];
@@ -43,7 +46,6 @@ void Field_BigDraw(field_t *edit, int x, int y, int width, bool showCursor, bool
 
 #define COMMAND_HISTORY 32
 extern field_t historyEditLines[COMMAND_HISTORY];
-
 extern field_t g_consoleField;
 extern field_t chatField;
 extern int anykeydown;
@@ -51,14 +53,17 @@ extern bool chat_team;
 extern int chat_playerNum;
 
 void Key_WriteBindings(fileHandle_t f);
-void Key_SetBinding(int keynum, const char *binding);
-const char *Key_GetBinding(int keynum);
-bool Key_IsDown(int keynum);
-bool Key_GetOverstrikeMode(void);
-void Key_SetOverstrikeMode(bool state);
-void Key_ClearStates(void);
 int Key_GetKey(const char *binding);
-void Key_KeynumToStringBuf(int keynum, char *buf, int buflen);
-void Key_GetBindingBuf(int keynum, char *buf, int buflen);
+
+SO_PUBLIC bool Key_GetOverstrikeMode(void);
+SO_PUBLIC bool Key_IsDown(int keynum);
+SO_PUBLIC const char *Key_GetBinding(int keynum);
+SO_PUBLIC int Key_GetCatcher(void);
+SO_PUBLIC void Key_ClearStates(void);
+SO_PUBLIC void Key_GetBindingBuf(int keynum, char *buf, int buflen);
+SO_PUBLIC void Key_KeynumToStringBuf(int keynum, char *buf, int buflen);
+SO_PUBLIC void Key_SetBinding(int keynum, const char *binding);
+SO_PUBLIC void Key_SetCatcher(int catcher);
+SO_PUBLIC void Key_SetOverstrikeMode(bool state);
 
 #endif

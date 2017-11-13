@@ -29,16 +29,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define UI_API_VERSION 6
 
-typedef struct {
+struct uiClientState_t {
     connstate_t connState;
     int connectPacketCount;
     int clientNum;
     char servername[MAX_STRING_CHARS];
     char updateInfoString[MAX_STRING_CHARS];
     char messageString[MAX_STRING_CHARS];
-} uiClientState_t;
+};
 
-typedef enum {
+enum uiImport_t {
     UI_ERROR,
     UI_PRINT,
     UI_MILLISECONDS,
@@ -153,13 +153,23 @@ typedef enum {
     UI_SQRT,
     UI_FLOOR,
     UI_CEIL,
-} uiImport_t;
+};
 
-typedef enum { UIMENU_NONE, UIMENU_MAIN, UIMENU_INGAME } uiMenuCommand_t;
+enum uiMenuCommand_t {
+    UIMENU_NONE,
+    UIMENU_MAIN,
+    UIMENU_INGAME
+};
 
-typedef enum { SORT_HOST, SORT_GAME, SORT_MAP, SORT_CLIENTS, SORT_PING } serverSortField_t;
+enum serverSortField_t {
+    SORT_HOST,
+    SORT_GAME,
+    SORT_MAP,
+    SORT_CLIENTS,
+    SORT_PING
+};
 
-typedef enum {
+enum uiExport_t {
     UI_GETAPIVERSION = 0,  // system reserved
 
     UI_INIT,
@@ -186,20 +196,20 @@ typedef enum {
     //  void  UI_Refresh( int time );
 
     UI_IS_FULLSCREEN,
-    //  qboolean UI_IsFullscreen( void );
+    //  bool UI_IsFullscreen( void );
 
     UI_SET_ACTIVE_MENU,
     //  void  UI_SetActiveMenu( uiMenuCommand_t menu );
 
     UI_CONSOLE_COMMAND,
-    //  qboolean UI_ConsoleCommand( int realTime );
+    //  bool UI_ConsoleCommand( int realTime );
 
     UI_DRAW_CONNECT_SCREEN
-    //  void  UI_DrawConnectScreen( qboolean overlay );
+    //  void  UI_DrawConnectScreen( bool overlay );
 
     // if !overlay, the background will be drawn, otherwise it will be
     // overlayed over whatever the cgame has drawn.
     // a GetClientState syscall will be made to get the current strings
-} uiExport_t;
+};
 
 #endif

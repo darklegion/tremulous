@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+#include "qcommon/parse.h"
 #include "client.h"
 
 #include "cl_updates.h"
@@ -31,7 +32,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 GetClientState
 ====================
 */
-static void GetClientState(uiClientState_t *state)
+void CL_GetClientState(uiClientState_t *state)
 {
     state->connectPacketCount = clc.connectPacketCount;
     state->connState = clc.state;
@@ -94,7 +95,7 @@ void LAN_SaveServersToCache(void)
 GetNews
 ====================
 */
-static bool GetNews(bool begin)
+bool CL_GetNews(bool begin)
 {
     bool finished = false;
     fileHandle_t fileIn;
@@ -140,7 +141,7 @@ static bool GetNews(bool begin)
 LAN_ResetPings
 ====================
 */
-static void LAN_ResetPings(int source)
+void LAN_ResetPings(int source)
 {
     int count, i;
     serverInfo_t *servers = NULL;
@@ -176,7 +177,7 @@ static void LAN_ResetPings(int source)
 LAN_AddServer
 ====================
 */
-static int LAN_AddServer(int source, const char *name, const char *address)
+int LAN_AddServer(int source, const char *name, const char *address)
 {
     int max, *count, i;
     netadr_t adr;
@@ -229,7 +230,7 @@ static int LAN_AddServer(int source, const char *name, const char *address)
 LAN_RemoveServer
 ====================
 */
-static void LAN_RemoveServer(int source, const char *addr)
+void LAN_RemoveServer(int source, const char *addr)
 {
     int *count, i;
     serverInfo_t *servers = NULL;
@@ -276,7 +277,7 @@ static void LAN_RemoveServer(int source, const char *addr)
 LAN_GetServerCount
 ====================
 */
-static int LAN_GetServerCount(int source)
+int LAN_GetServerCount(int source)
 {
     switch (source)
     {
@@ -299,7 +300,7 @@ static int LAN_GetServerCount(int source)
 LAN_GetLocalServerAddressString
 ====================
 */
-static void LAN_GetServerAddressString(int source, int n, char *buf, int buflen)
+void LAN_GetServerAddressString(int source, int n, char *buf, int buflen)
 {
     switch (source)
     {
@@ -343,7 +344,7 @@ static void LAN_GetServerAddressString(int source, int n, char *buf, int buflen)
 LAN_GetServerInfo
 ====================
 */
-static void LAN_GetServerInfo(int source, int n, char *buf, int buflen)
+void LAN_GetServerInfo(int source, int n, char *buf, int buflen)
 {
     char info[MAX_STRING_CHARS];
     serverInfo_t *server = NULL;
@@ -412,7 +413,7 @@ static void LAN_GetServerInfo(int source, int n, char *buf, int buflen)
 LAN_GetServerPing
 ====================
 */
-static int LAN_GetServerPing(int source, int n)
+int LAN_GetServerPing(int source, int n)
 {
     serverInfo_t *server = NULL;
     switch (source)
@@ -482,7 +483,7 @@ static serverInfo_t *LAN_GetServerPtr(int source, int n)
 LAN_CompareServers
 ====================
 */
-static int LAN_CompareServers(int source, int sortKey, int sortDir, int s1, int s2)
+int LAN_CompareServers(int source, int sortKey, int sortDir, int s1, int s2)
 {
     int res;
     serverInfo_t *server1, *server2;
@@ -575,34 +576,10 @@ static int LAN_CompareServers(int source, int sortKey, int sortDir, int s1, int 
 
 /*
 ====================
-LAN_GetPingQueueCount
-====================
-*/
-static int LAN_GetPingQueueCount(void) { return (CL_GetPingQueueCount()); }
-/*
-====================
-LAN_ClearPing
-====================
-*/
-static void LAN_ClearPing(int n) { CL_ClearPing(n); }
-/*
-====================
-LAN_GetPing
-====================
-*/
-static void LAN_GetPing(int n, char *buf, int buflen, int *pingtime) { CL_GetPing(n, buf, buflen, pingtime); }
-/*
-====================
-LAN_GetPingInfo
-====================
-*/
-static void LAN_GetPingInfo(int n, char *buf, int buflen) { CL_GetPingInfo(n, buf, buflen); }
-/*
-====================
 LAN_MarkServerVisible
 ====================
 */
-static void LAN_MarkServerVisible(int source, int n, bool visible)
+void LAN_MarkServerVisible(int source, int n, bool visible)
 {
     if (n == -1)
     {
@@ -662,7 +639,7 @@ static void LAN_MarkServerVisible(int source, int n, bool visible)
 LAN_ServerIsVisible
 =======================
 */
-static bool LAN_ServerIsVisible(int source, int n)
+bool LAN_ServerIsVisible(int source, int n)
 {
     switch (source)
     {
@@ -690,33 +667,11 @@ static bool LAN_ServerIsVisible(int source, int n)
 }
 
 /*
-=======================
-LAN_UpdateVisiblePings
-=======================
-*/
-static bool LAN_UpdateVisiblePings(int source) { return CL_UpdateVisiblePings_f(source); }
-/*
-====================
-LAN_GetServerStatus
-====================
-*/
-static bool LAN_GetServerStatus(char *serverAddress, char *serverStatus, int maxLen)
-{
-    return CL_ServerStatus(serverAddress, serverStatus, maxLen);
-}
-
-/*
-====================
-CL_GetGlConfig
-====================
-*/
-static void CL_GetGlconfig(glconfig_t *config) { *config = cls.glconfig; }
-/*
 ====================
 GetConfigString
 ====================
 */
-static bool GetConfigString(int i, char *buf, int size)
+bool CL_GetConfigString(int i, char *buf, int size)
 {
     int offset;
 
@@ -1007,7 +962,7 @@ intptr_t CL_UISystemCalls(intptr_t *args)
             return 0;
 
         case UI_GETCLIENTSTATE:
-            GetClientState((uiClientState_t *)VMA(1));
+            CL_GetClientState((uiClientState_t *)VMA(1));
             return 0;
 
         case UI_GETGLCONFIG:
@@ -1015,7 +970,7 @@ intptr_t CL_UISystemCalls(intptr_t *args)
             return 0;
 
         case UI_GETCONFIGSTRING:
-            return GetConfigString(args[1], (char *)VMA(2), args[3]);
+            return CL_GetConfigString(args[1], (char *)VMA(2), args[3]);
 
         case UI_LAN_LOADCACHEDSERVERS:
             LAN_LoadCachedServers();
@@ -1033,18 +988,18 @@ intptr_t CL_UISystemCalls(intptr_t *args)
             return 0;
 
         case UI_LAN_GETPINGQUEUECOUNT:
-            return LAN_GetPingQueueCount();
+            return CL_GetPingQueueCount();
 
         case UI_LAN_CLEARPING:
-            LAN_ClearPing(args[1]);
+            CL_ClearPing(args[1]);
             return 0;
 
         case UI_LAN_GETPING:
-            LAN_GetPing(args[1], (char *)VMA(2), args[3], (int *)VMA(4));
+            CL_GetPing(args[1], (char *)VMA(2), args[3], (int *)VMA(4));
             return 0;
 
         case UI_LAN_GETPINGINFO:
-            LAN_GetPingInfo(args[1], (char *)VMA(2), args[3]);
+            CL_GetPingInfo(args[1], (char *)VMA(2), args[3]);
             return 0;
 
         case UI_LAN_GETSERVERCOUNT:
@@ -1069,17 +1024,17 @@ intptr_t CL_UISystemCalls(intptr_t *args)
             return LAN_ServerIsVisible(args[1], args[2]);
 
         case UI_LAN_UPDATEVISIBLEPINGS:
-            return LAN_UpdateVisiblePings(args[1]);
+            return CL_UpdateVisiblePings_f(args[1]);
 
         case UI_LAN_RESETPINGS:
             LAN_ResetPings(args[1]);
             return 0;
 
         case UI_LAN_SERVERSTATUS:
-            return LAN_GetServerStatus((char *)VMA(1), (char *)VMA(2), args[3]);
+            return CL_ServerStatus((char *)VMA(1), (char *)VMA(2), args[3]);
 
         case UI_GETNEWS:
-            return GetNews((bool)args[1]);
+            return CL_GetNews((bool)args[1]);
 
         case UI_LAN_COMPARESERVERS:
             return LAN_CompareServers(args[1], args[2], args[3], args[4], args[5]);

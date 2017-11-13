@@ -25,10 +25,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __Q_PLATFORM_H
 #define __Q_PLATFORM_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 // this is for determining if we have an asm version of a C function
 #define idx64 0
 
@@ -429,10 +425,28 @@ float FloatSwap (const float *f);
  #define PLATFORM_STRING OS_STRING "-" ARCH_STRING "-debug"
 #endif
 
+#ifdef __cplusplus
+#define EXTERN_C extern "C"
+#else
+#define EXTERN_C
 #endif
 
-#ifdef __cplusplus
-}
+#ifndef SO_PUBLIC
+#if defined _WIN32
+  #if defined Tremulous_EXPORTS 
+  #  define SO_PUBLIC EXTERN_C __declspec(dllexport)
+  #else
+  #  define SO_PUBLIC EXTERN_C __declspec(dllimport)
+  #endif
+#else
+  #  define SO_PUBLIC  EXTERN_C __attribute__ ((visibility("default")))
+  #endif
 #endif
+
+#define UNUSED __attribute__((unused))
+
+#define NORETURN __attribute__((noreturn))
+
+#endif // don't include the C bits if included from qasm.h
 
 #endif

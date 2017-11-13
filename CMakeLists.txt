@@ -88,15 +88,6 @@ if(BUILD_GRANGER)
   add_subdirectory(src/granger/src)
 endif(BUILD_GRANGER)
 
-#  _______ ___ ___ _______                              __ __
-# |       |   |   |   |   | .----.-----.--------.-----.|__|  |.-----.----.
-# |   -  _|   |   |       | |  __|  _  |        |  _  ||  |  ||  -__|   _|
-# |_______|\_____/|__|_|__| |____|_____|__|__|__|   __||__|__||_____|__|
-#                                               |__|
-# TODO: DO NOT build unless building a QVM
-
-add_subdirectory(src/tools)
-
 #
 # ,   . `
 # |   | |

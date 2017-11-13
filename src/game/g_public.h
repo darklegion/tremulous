@@ -31,40 +31,40 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define GAME_API_VERSION 9
 
 // entity->svFlags
-// the server does not know how to interpret most of the values
-// in entityStates (level eType), so the game must explicitly flag
-// special server behaviors
-#define SVF_NOCLIENT 0x00000001  // don't send entity to clients, even if it has effects
+// the server does not know how to interpret most of the values in entityStates
+// (level eType), so the game must explicitly flag special server behaviors
 
-#define SVF_CLIENTMASK 0x00000002  // send to clients specified by these bitmasks:
-// entityShared_t->singleClient: low-order bits (0..31)
-// entityShared_t->hack.generic1: high-order bits (32..63)
+#define SVF_NOCLIENT        0x00000001  // don't send entity to clients, even if it has effects
 
-#define SVF_BROADCAST 0x00000020  // send to all connected clients
-#define SVF_PORTAL 0x00000040  // merge a second pvs at origin2 into snapshots
+#define SVF_CLIENTMASK      0x00000002  // send to clients specified by these bitmasks:
+                                        // entityShared_t->singleClient: low-order bits (0..31)
+                                        // entityShared_t->hack.generic1: high-order bits (32..63)
 
-#define SVF_SINGLECLIENT 0x00000100  // only send to a single client (entityShared_t->singleClient)
-#define SVF_NOSERVERINFO 0x00000200  // don't send CS_SERVERINFO updates to this client
-// so that it can be updated for ping tools without
-// lagging clients
-#define SVF_CAPSULE 0x00000400  // use capsule for collision detection instead of bbox
+#define SVF_BROADCAST       0x00000020  // send to all connected clients
+#define SVF_PORTAL          0x00000040  // merge a second pvs at origin2 into snapshots
+
+#define SVF_SINGLECLIENT    0x00000100  // only send to a single client (entityShared_t->singleClient)
+#define SVF_NOSERVERINFO    0x00000200  // don't send CS_SERVERINFO updates to this client
+                                        // so that it can be updated for ping tools without
+                                        // lagging clients
+#define SVF_CAPSULE         0x00000400  // use capsule for collision detection instead of bbox
 #define SVF_NOTSINGLECLIENT 0x00000800  // send entity to everyone but one client
-// (entityShared_t->singleClient)
+                                        // (entityShared_t->singleClient)
 
 //===============================================================
 
-typedef struct {
+struct entityShared_t {
     entityState_t hack;  // exists (as padding) to retain ABI compatibility
                          //  with GPP, but can be used for extension hacks
 
-    qboolean linked;  // qfalse if not in any good cluster
+    bool linked;  // false if not in any good cluster
     int linkcount;
 
     int svFlags;  // SVF_NOCLIENT, SVF_BROADCAST, etc.
     int singleClient;  // only send to this client when SVF_SINGLECLIENT is set
 
-    qboolean bmodel;  // if false, assume an explicit mins / maxs bounding box
-                      // only set by trap_SetBrushModel
+    bool bmodel;  // if false, assume an explicit mins / maxs bounding box
+                      // only set by G_SetBrushModel
     vec3_t mins, maxs;
     int contents;  // CONTENTS_TRIGGER, CONTENTS_SOLID, CONTENTS_BODY, etc
                    // a non-solid entity should set to 0
@@ -84,20 +84,20 @@ typedef struct {
     // ent->r.ownerNum == passEntityNum (don't interact with your own missiles)
     // entity[ent->r.ownerNum].r.ownerNum == passEntityNum (don't interact with other missiles from owner)
     int ownerNum;
-} entityShared_t;
+};
 
 // the server looks at a sharedEntity, which is the start of the game's gentity_t structure
-typedef struct {
+struct sharedEntity_t {
     entityState_t s;  // communicated by server to clients
     entityShared_t r;  // shared by both the server system and game
-} sharedEntity_t;
+};
 
 //===============================================================
 
 //
 // system traps provided by the main engine
 //
-typedef enum {
+enum gameImport_t {
     //============== general Quake services ==================
 
     G_PRINT,  // ( const char *string );
@@ -182,7 +182,7 @@ typedef enum {
 
     G_IN_PVS_IGNORE_PORTALS,  // ( const vec3_t p1, const vec3_t p2 );
 
-    G_ADJUST_AREA_PORTAL_STATE,  // ( gentity_t *ent, qboolean open );
+    G_ADJUST_AREA_PORTAL_STATE,  // ( gentity_t *ent, bool open );
 
     G_AREAS_CONNECTED,  // ( int area1, int area2 );
 
@@ -203,7 +203,7 @@ typedef enum {
 
     G_GET_USERCMD,  // ( int clientNum, usercmd_t *cmd )
 
-    G_GET_ENTITY_TOKEN,  // qboolean ( char *buffer, int bufferSize )
+    G_GET_ENTITY_TOKEN,  // bool ( char *buffer, int bufferSize )
     // Retrieves the next string token from the entity spawn text, returning
     // false when all tokens have been parsed.
     // This should only be done at GAME_INIT time.
@@ -229,13 +229,15 @@ typedef enum {
 
     G_ADDCOMMAND,
     G_REMOVECOMMAND,
-    G_FS_GETFILTEREDFILES
-} gameImport_t;
+    G_FS_GETFILTEREDFILES,
+
+    GAME_COPY_LUA_STATE
+};
 
 //
 // functions exported by the game subsystem
 //
-typedef enum {
+enum gameExport_t {
     GAME_INIT,  // ( int levelTime, int randomSeed, int restart );
     // init and shutdown will be called every single level
     // The game should call G_GET_ENTITY_TOKEN to parse through all the
@@ -243,7 +245,7 @@ typedef enum {
 
     GAME_SHUTDOWN,  // (void);
 
-    GAME_CLIENT_CONNECT,  // ( int clientNum, qboolean firstTime );
+    GAME_CLIENT_CONNECT,  // ( int clientNum, bool firstTime );
     // return NULL if the client is allowed to connect, otherwise return
     // a text string with the reason for denial
 
@@ -263,7 +265,7 @@ typedef enum {
     // ConsoleCommand will be called when a command has been issued
     // that is not recognized as a builtin function.
     // The game can issue trap_argc() / trap_argv() commands to get the command
-    // and parameters.  Return qfalse if the game doesn't recognize it as a command.
-} gameExport_t;
+    // and parameters.  Return false if the game doesn't recognize it as a command.
+};
 
 #endif

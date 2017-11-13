@@ -20,6 +20,8 @@
 #ifndef CMD_H
 #define CMD_H
 
+#include "qcommon/q_platform.h"
+
 /*
 ==============================================================
 
@@ -41,10 +43,17 @@ files can be execed.
 void Cbuf_Init(void);
 // allocates an initial text buffer that will grow as needed
 
-void Cbuf_AddText(const char *text);
+SO_PUBLIC void Cbuf_AddText(const char *text);
 // Adds command text at the end of the buffer, does NOT add a final \n
 
-void Cbuf_ExecuteText(int exec_when, const char *text);
+enum cbufExec_t : int {
+	EXEC_NOW,			// don't return until completed, a VM should NEVER use this,
+						// because some commands might cause the VM to be unloaded...
+	EXEC_INSERT,		// insert at current position, but don't run yet
+	EXEC_APPEND			// add to end of the command buffer (normal case)
+};
+
+SO_PUBLIC void Cbuf_ExecuteText(int exec_when, const char *text);
 // this can be used in place of either Cbuf_AddText or Cbuf_InsertText
 
 void Cbuf_Execute(void);
@@ -68,14 +77,14 @@ void Cmd_Init(void);
 
 bool Cmd_CommadExists( const char *cmd_name );
 
-void Cmd_AddCommand(const char *cmd_name, xcommand_t function);
+SO_PUBLIC void Cmd_AddCommand(const char *cmd_name, xcommand_t function);
 // called by the init functions of other parts of the program to
 // register commands and functions to call for them.
 // The cmd_name is referenced later, so it should not be in temp memory
 // if function is NULL, the command will be forwarded to the server
 // as a clc_clientCommand instead of executed locally
 
-void Cmd_RemoveCommand(const char *cmd_name);
+SO_PUBLIC void Cmd_RemoveCommand(const char *cmd_name);
 
 typedef void (*completionFunc_t)(char *args, int argNum);
 
@@ -88,13 +97,13 @@ void Cmd_SetCommandCompletionFunc(const char *command, completionFunc_t complete
 void Cmd_CompleteArgument(const char *command, char *args, int argNum);
 void Cmd_CompleteCfgName(char *args, int argNum);
 
-int Cmd_Argc(void);
-const char *Cmd_Argv(int arg);
-void Cmd_ArgvBuffer(int arg, char *buffer, int bufferLength);
+SO_PUBLIC int Cmd_Argc(void);
+SO_PUBLIC const char *Cmd_Argv(int arg);
+SO_PUBLIC void Cmd_ArgvBuffer(int arg, char *buffer, int bufferLength);
 char *Cmd_Args(void);
 char *Cmd_ArgsFrom(int arg);
 void Cmd_ArgsBuffer(char *buffer, int bufferLength);
-void Cmd_LiteralArgsBuffer(char *buffer, int bufferLength);
+SO_PUBLIC void Cmd_LiteralArgsBuffer(char *buffer, int bufferLength);
 char *Cmd_Cmd(void);
 // The functions that execute commands get their parameters with these
 // functions. Cmd_Argv () will return an empty string, not a NULL

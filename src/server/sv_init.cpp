@@ -161,14 +161,12 @@ void SV_SetConfigstring(int idx, const char *val)
                 Info_SetValueForKey_Big(info, "sv_paks", Cvar_VariableString("sv_alternatePaks"));
                 Info_SetValueForKey_Big(info, "sv_pakNames", Cvar_VariableString("sv_alternatePakNames"));
                 Info_SetValueForKey_Big(info, "sv_referencedPaks", Cvar_VariableString("sv_referencedAlternatePaks"));
-                Info_SetValueForKey_Big(
-                    info, "sv_referencedPakNames", Cvar_VariableString("sv_referencedAlternatePakNames"));
+                Info_SetValueForKey_Big(info, "sv_referencedPakNames", Cvar_VariableString("sv_referencedAlternatePakNames"));
                 Info_SetValueForKey_Big(info, "cl_allowDownload", "1, you should set it yourself");
                 if (!(sv_allowDownload->integer & DLF_NO_REDIRECT))
                 {
                     Info_SetValueForKey_Big(info, "sv_wwwBaseURL", Cvar_VariableString("sv_dlUrl"));
-                    Info_SetValueForKey_Big(
-                        info, "sv_wwwDownload", Cvar_VariableString("1, you should set it yourself"));
+                    Info_SetValueForKey_Big(info, "sv_wwwDownload", Cvar_VariableString("1, you should set it yourself"));
                 }
             }
 
@@ -796,7 +794,7 @@ void SV_Init(void)
     // systeminfo
     Cvar_Get("sv_cheats", "1", CVAR_SYSTEMINFO | CVAR_ROM);
     sv_serverid = Cvar_Get("sv_serverid", "0", CVAR_SYSTEMINFO | CVAR_ROM);
-    sv_pure = Cvar_Get("sv_pure", "1", CVAR_SYSTEMINFO);
+    sv_pure = Cvar_Get("sv_pure", "0", CVAR_SYSTEMINFO);
 #ifdef USE_VOIP
     sv_voip = Cvar_Get("sv_voip", "1", CVAR_LATCH);
     Cvar_CheckRange(sv_voip, 0, 1, true);

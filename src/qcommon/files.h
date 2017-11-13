@@ -20,10 +20,6 @@
 #ifndef QC_FILES_H
 #define QC_FILES_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "q_platform.h"
 #include "q_shared.h"
 
@@ -181,22 +177,22 @@ extern "C" {
  =============================================================================
 */
 
-//enum FS_Mode {
-//	FS_READ,
-//	FS_WRITE,
-//	FS_APPEND,
-//	FS_APPEND_SYNC
-//};
-//
-//enum FS_Origin {
-//	FS_SEEK_CUR,
-//	FS_SEEK_END,
-//	FS_SEEK_SET
-//};
+enum FS_Mode {
+	FS_READ,
+	FS_WRITE,
+	FS_APPEND,
+	FS_APPEND_SYNC
+};
+
+enum FS_Origin {
+	FS_SEEK_CUR,
+	FS_SEEK_END,
+	FS_SEEK_SET
+};
 
 const char*  FS_GetCurrentGameDir (void);
 void         FS_FilenameCompletion (const char* dir, const char* ext, bool stripExt, void (* callback)(const char* s), bool allowNonPureFilesOnDisk);
-int          FS_FOpenFileByMode (const char* qpath, fileHandle_t* f, enum FS_Mode mode);
+SO_PUBLIC int FS_FOpenFileByMode (const char* qpath, fileHandle_t* f, enum FS_Mode mode);
 bool     FS_ConditionalRestart (int checksumFeed, bool disconnect);
 void         FS_InitFilesystem (void);
 void         FS_PureServerSetReferencedPaks (const char* pakSums, const char* pakNames);
@@ -218,9 +214,9 @@ void         FS_SortFileList (char** filelist, int numfiles);
 int          FS_PathCmp (const char* s1, const char* s2);
 void         FS_ConvertPath (char* s);
 int          FS_GetModList (char* listbuf, int bufsize);
-int          FS_GetFileList (const char* path, const char* extension, char* listbuf, int bufsize);
+SO_PUBLIC int FS_GetFileList (const char* path, const char* extension, char* listbuf, int bufsize);
 void         FS_FreeFileList (char** list);
-int          FS_GetFilteredFiles (const char *path, const char *extension, const char *filter, char *listbuf, int bufsize);
+SO_PUBLIC int FS_GetFilteredFiles (const char *path, const char *extension, const char *filter, char *listbuf, int bufsize);
 char**       FS_ListFiles (const char* path, const char* extension, int* numfiles);
 char**       FS_ListFilteredFiles (const char* path, const char* extension, const char* filter, int* numfiles, bool allowNonPureFilesOnDisk);
 bool     FS_CompareZipChecksum (const char* zipfile);
@@ -232,11 +228,10 @@ long         FS_ReadFileDir (const char* qpath, void* searchPath, bool unpure, v
 int          FS_FileIsInPAK_A(bool alternate, const char *filename, int *pChecksum);
 int          FS_FileIsInPAK (const char* filename, int* pChecksum);
 int          FS_FTell (fileHandle_t f);
-int          FS_Seek (fileHandle_t f, long offset, enum FS_Origin origin);
+SO_PUBLIC int FS_Seek (fileHandle_t f, long offset, enum FS_Origin origin);
 void QDECL   FS_Printf (fileHandle_t h, const char* fmt, ...);
-int          FS_Write (const void* buffer, int len, fileHandle_t h);
-int          FS_Read (void* buffer, int len, fileHandle_t f);
-int          FS_Read (void* buffer, int len, fileHandle_t f);
+SO_PUBLIC int FS_Write (const void* buffer, int len, fileHandle_t h);
+SO_PUBLIC int FS_Read (void* buffer, int len, fileHandle_t f);
 int          FS_FindVM (void** startSearch, char* found, int foundlen, const char* name, int enableDll);
 long         FS_FOpenFileRead (const char* filename, fileHandle_t* file, bool uniqueFILE);
 long         FS_FOpenFileReadDir (const char* filename, void* search, fileHandle_t* file, bool uniqueFILE, bool unpure);
@@ -244,7 +239,7 @@ bool     FS_FilenameCompare (const char* s1, const char* s2);
 fileHandle_t FS_FCreateOpenPipeFile (const char* filename);
 fileHandle_t FS_FOpenFileAppend (const char* filename);
 fileHandle_t FS_FOpenFileWrite (const char* filename);
-void         FS_FCloseFile (fileHandle_t f);
+SO_PUBLIC void FS_FCloseFile (fileHandle_t f);
 void         FS_Rename (const char* from, const char* to);
 void         FS_SV_Rename (const char* from, const char* to, bool safe);
 long         FS_SV_FOpenFileRead (const char* filename, fileHandle_t* fp);
@@ -276,9 +271,5 @@ extern FILE *missingFiles;
 
 extern char lastValidGame[MAX_OSPATH];
 extern char lastValidBase[MAX_OSPATH];
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

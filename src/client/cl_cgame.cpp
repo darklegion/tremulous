@@ -24,6 +24,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // cl_cgame.c  -- client system interaction with client game
 
+#include "qcommon/autocomplete.h"
+#include "qcommon/parse.h"
 #include "client.h"
 
 #ifdef USE_MUMBLE
@@ -36,7 +38,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 CL_GetGameState
 ====================
 */
-static void CL_GetGameState( gameState_t *gs )
+void CL_GetGameState( gameState_t *gs )
 {
 	*gs = cl.gameState;
 }
@@ -46,7 +48,7 @@ static void CL_GetGameState( gameState_t *gs )
 CL_GetGlconfig
 ====================
 */
-static void CL_GetGlconfig( glconfig_t *glconfig )
+void CL_GetGlconfig( glconfig_t *glconfig )
 {
 	*glconfig = cls.glconfig;
 }
@@ -57,7 +59,7 @@ static void CL_GetGlconfig( glconfig_t *glconfig )
 CL_GetUserCmd
 ====================
 */
-static bool CL_GetUserCmd( int cmdNumber, usercmd_t *ucmd )
+bool CL_GetUserCmd( int cmdNumber, usercmd_t *ucmd )
 {
 	// cmds[cmdNumber] is the last properly generated command
 
@@ -75,7 +77,7 @@ static bool CL_GetUserCmd( int cmdNumber, usercmd_t *ucmd )
 	return true;
 }
 
-static int CL_GetCurrentCmdNumber( void )
+int CL_GetCurrentCmdNumber( void )
 {
 	return cl.cmdNumber;
 }
@@ -85,7 +87,7 @@ static int CL_GetCurrentCmdNumber( void )
 CL_GetCurrentSnapshotNumber
 ====================
 */
-static void CL_GetCurrentSnapshotNumber( int *snapshotNumber, int *serverTime )
+void CL_GetCurrentSnapshotNumber( int *snapshotNumber, int *serverTime )
 {
 	*snapshotNumber = cl.snap.messageNum;
 	*serverTime = cl.snap.serverTime;
@@ -174,15 +176,6 @@ void CL_SetUserCmdValue( int userCmdValue, float sensitivityScale ) {
 
 /*
 =====================
-CL_AddCgameCommand
-=====================
-*/
-void CL_AddCgameCommand( const char *cmdName ) {
-	Cmd_AddCommand( cmdName, NULL );
-}
-
-/*
-=====================
 CL_ConfigstringModified
 =====================
 */
@@ -242,7 +235,7 @@ CL_GetServerCommand
 Set up argc/argv for the given command
 ===================
 */
-static bool CL_GetServerCommand( int serverCommandNumber )
+bool CL_GetServerCommand( int serverCommandNumber )
 {
 	const char *s;
 	const char *cmd;
@@ -458,6 +451,7 @@ intptr_t CL_CgameSystemCalls( intptr_t *args )
         case CG_LITERAL_ARGS:
             Cmd_LiteralArgsBuffer( (char*)VMA(1), args[2] );
             return 0;
+
         case CG_FS_FOPENFILE:
             return FS_FOpenFileByMode( (const char*)VMA(1), (fileHandle_t*)VMA(2), (FS_Mode)args[3] );
         case CG_FS_READ:
@@ -473,11 +467,12 @@ intptr_t CL_CgameSystemCalls( intptr_t *args )
             return FS_Seek( (fileHandle_t)args[1], args[2], (FS_Origin)args[3] );
         case CG_FS_GETFILELIST:
             return FS_GetFileList( (const char*)VMA(1), (const char*)VMA(2), (char*)VMA(3), args[4] );
+
         case CG_SENDCONSOLECOMMAND:
             Cbuf_AddText( (const char*)VMA(1) );
             return 0;
         case CG_ADDCOMMAND:
-            CL_AddCgameCommand( (const char*)VMA(1) );
+	        Cmd_AddCommand( (const char*)VMA(1), NULL );
             return 0;
         case CG_REMOVECOMMAND:
             Cmd_RemoveCommandSafe( (const char*)VMA(1) );
@@ -754,6 +749,7 @@ intptr_t CL_CgameSystemCalls( intptr_t *args )
 
         case CG_GET_ENTITY_TOKEN:
             return re.GetEntityToken( (char*)VMA(1), args[2] );
+
         case CG_R_INPVS:
             return re.inPVS( (const float*)VMA(1), (const float*)VMA(2) );
 

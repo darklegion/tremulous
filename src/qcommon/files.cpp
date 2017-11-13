@@ -3282,13 +3282,13 @@ static void FS_Startup(const char *gameName)
 #ifdef DEDICATED
     // add search path elements in reverse priority order
     if (fs_basepath->string[0])
-        FS_AddGameDirectory(fs_basepath->string, gameName);
+        FS_AddGameDirectory(fs_basepath->string, fs_basegame->string);
 
     // NOTE: same filtering below for mods and basegame
     if (fs_homepath->string[0] && Q_stricmp(fs_homepath->string,fs_basepath->string))
     {
         FS_CreatePath(fs_homepath->string);
-        FS_AddGameDirectory(fs_homepath->string, gameName);
+        FS_AddGameDirectory(fs_homepath->string, fs_basegame->string);
     }
 
     // check for additional base game so mods can be based upon other mods

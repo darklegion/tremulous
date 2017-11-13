@@ -113,30 +113,6 @@ typedef struct cvar_s cvar_t;
 /*
 ==============================================================
 
-Edit fields and command line history/completion
-
-==============================================================
-*/
-
-#define	MAX_EDIT_LINE	256
-typedef struct {
-	int		cursor;
-	int		scroll;
-	int		widthInChars;
-	char	buffer[MAX_EDIT_LINE];
-} field_t;
-
-void Field_Clear( field_t *edit );
-void Field_AutoComplete( field_t *edit );
-void Field_CompleteKeyname( void );
-void Field_CompleteFilename( const char *dir, const char *ext, bool stripExt, bool allowNonPureFilesOnDisk );
-void Field_CompleteCommand( char *cmd, bool doCommands, bool doCvars );
-void Field_CompletePlayerName( const char **names, int count );
-void Field_CompleteList( char *listJson );
-
-/*
-==============================================================
-
 MISC
 
 ==============================================================
@@ -174,11 +150,10 @@ void		Info_Print( const char *s );
 void		Com_BeginRedirect (char *buffer, int buffersize, void (*flush)(char *));
 void		Com_EndRedirect( void );
 
-//#ifndef __Q_SHARED_H
-void 		QDECL Com_Printf( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
-void 		QDECL Com_Error( int code, const char *fmt, ... ) __attribute__ ((noreturn, format(printf, 2, 3)));
-//#endif
-void 		QDECL Com_DPrintf( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
+SO_PUBLIC void Com_Printf( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
+SO_PUBLIC void Com_Error( int code, const char *fmt, ... ) __attribute__ ((noreturn, format(printf, 2, 3)));
+SO_PUBLIC void Com_DPrintf( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
+
 void        Engine_Exit(const char* p ) __attribute__ ((noreturn));
 void 		Com_Quit_f( void ) __attribute__ ((noreturn));
 void		Com_GameRestart(int checksumFeed, bool disconnect);
@@ -187,7 +162,7 @@ int			Com_Milliseconds( void );	// will be journaled properly
 char		*Com_MD5File(const char *filename, int length, const char *prefix, int prefix_len);
 int			Com_Filter(const char* filter, char *name, int casesensitive);
 int			Com_FilterPath(const char *filter, char *name, int casesensitive);
-int			Com_RealTime(qtime_t *qtime);
+SO_PUBLIC int Com_RealTime(qtime_t *qtime);
 bool	Com_SafeMode( void );
 void		Com_RunAndTimeServerPacket(struct netadr_t *evFrom, struct msg_t *buf);
 
@@ -299,7 +274,7 @@ bool Hunk_CheckMark( void );
 void Hunk_ClearTempMemory( void );
 void *Hunk_AllocateTempMemory( int size );
 void Hunk_FreeTempMemory( void *buf );
-int	Hunk_MemoryRemaining( void );
+SO_PUBLIC int Hunk_MemoryRemaining( void );
 void Hunk_Log( void);
 
 void Com_TouchMemory( void );
@@ -389,20 +364,6 @@ int SV_SendQueuedPackets(void);
 // UI interface
 //
 bool UI_GameCommand( void );
-
-/*
-==============================================================
-
-NON-PORTABLE SYSTEM SERVICES
-
-==============================================================
-*/
-
-bool Parse_AddGlobalDefine(char *string);
-int Parse_LoadSourceHandle(const char *filename);
-bool Parse_FreeSourceHandle(int handle);
-bool Parse_ReadTokenHandle(int handle, pc_token_t *pc_token);
-bool Parse_SourceFileAndLine(int handle, char *filename, int *line);
 
 // flags for sv_allowDownload and cl_allowDownload
 #define DLF_ENABLE 1

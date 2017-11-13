@@ -142,7 +142,6 @@ GAME_NAME="${GAME}.dylib"
 UI_NAME="${UI}.dylib"
 
 GIT_REV=$(git describe --tags)
-VMS_PK3="vms-${GIT_REV}.pk3"
 DATA_PK3="data-${GIT_REV}.pk3"
 
 RENDERER_OPENGL1_NAME="${RENDERER_OPENGL}1.dylib"

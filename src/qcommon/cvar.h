@@ -118,25 +118,25 @@ cvar_t *Cvar_Get(const char *var_name, const char *value, int flags);
 // that allows variables to be unarchived without needing bitflags
 // if value is "", the value will not override a previously set value.
 
-void Cvar_Register(vmCvar_t *vmCvar, const char *varName, const char *defaultValue, int flags);
+SO_PUBLIC void Cvar_Register(vmCvar_t *vmCvar, const char *varName, const char *defaultValue, int flags);
 // basically a slightly modified Cvar_Get for the interpreted modules
 
-void Cvar_Update(vmCvar_t *vmCvar);
+SO_PUBLIC void Cvar_Update(vmCvar_t *vmCvar);
 // updates an interpreted modules' version of a cvar
 
-void Cvar_Set(const char *var_name, const char *value);
+SO_PUBLIC void Cvar_Set(const char *var_name, const char *value);
 // will create the variable with no flags if it doesn't exist
 
 cvar_t *Cvar_Set2(const char *var_name, const char *value, bool force);
 // same as Cvar_Set, but allows more control over setting of cvar
 
-void Cvar_SetSafe(const char *var_name, const char *value);
+SO_PUBLIC void Cvar_SetSafe(const char *var_name, const char *value);
 // sometimes we set variables from an untrusted source: fail if flags & CVAR_PROTECTED
 
 void Cvar_SetLatched(const char *var_name, const char *value);
 // don't set the cvar immediately
 
-void Cvar_SetValue(const char *var_name, float value);
+SO_PUBLIC void Cvar_SetValue(const char *var_name, float value);
 void Cvar_SetValueSafe(const char *var_name, float value);
 // expands value to a string and calls Cvar_Set/Cvar_SetSafe
 
@@ -146,12 +146,12 @@ cvar_t *Cvar_FindVar(const char *var_name);
 const char *Cvar_Validate(cvar_t *var, const char *value, bool warn);
 void Cvar_Print(cvar_t *v);
 
-float Cvar_VariableValue(const char *var_name);
-int Cvar_VariableIntegerValue(const char *var_name);
+SO_PUBLIC float Cvar_VariableValue(const char *var_name);
+SO_PUBLIC int Cvar_VariableIntegerValue(const char *var_name);
 // returns 0 if not defined or non numeric
 
 const char *Cvar_VariableString(const char *var_name);
-void Cvar_VariableStringBuffer(const char *var_name, char *buffer, int bufsize);
+SO_PUBLIC void Cvar_VariableStringBuffer(const char *var_name, char *buffer, int bufsize);
 // returns an empty string if not defined
 
 unsigned int Cvar_Flags(const char *var_name);
@@ -160,7 +160,7 @@ unsigned int Cvar_Flags(const char *var_name);
 void Cvar_CommandCompletion(void (*callback)(const char *s));
 // callback with each valid string
 
-void Cvar_Reset(const char *var_name);
+SO_PUBLIC void Cvar_Reset(const char *var_name);
 void Cvar_ForceReset(const char *var_name);
 
 void Cvar_SetCheatState(void);
@@ -181,7 +181,7 @@ char *Cvar_InfoString(int bit);
 char *Cvar_InfoString_Big(int bit);
 // returns an info string containing all the cvars that have the given bit set
 // in their flags ( CVAR_USERINFO, CVAR_SERVERINFO, CVAR_SYSTEMINFO, etc )
-void Cvar_InfoStringBuffer(int bit, char *buff, int buffsize);
+SO_PUBLIC void Cvar_InfoStringBuffer(int bit, char *buff, int buffsize);
 void Cvar_CheckRange(cvar_t *cv, float minVal, float maxVal, bool shouldBeIntegral);
 void Cvar_SetDescription(cvar_t *var, const char *var_description);
 

@@ -230,7 +230,7 @@ void CM_TestBoxInBrush( traceWork_t *tw, cbrush_t *brush ) {
 	}
 
 	// inside this brush
-	tw->trace.startsolid = tw->trace.allsolid = qtrue;
+	tw->trace.startsolid = tw->trace.allsolid = true;
 	tw->trace.fraction = 0;
 	tw->trace.contents = brush->contents;
 }
@@ -288,7 +288,7 @@ void CM_TestInLeaf( traceWork_t *tw, cLeaf_t *leaf ) {
 			}
 			
 			if ( CM_PositionTestInPatchCollide( tw, patch->pc ) ) {
-				tw->trace.startsolid = tw->trace.allsolid = qtrue;
+				tw->trace.startsolid = tw->trace.allsolid = true;
 				tw->trace.fraction = 0;
 				tw->trace.contents = patch->contents;
 				return;
@@ -332,24 +332,24 @@ void CM_TestCapsuleInCapsule( traceWork_t *tw, clipHandle_t model ) {
 	p1[2] += offs;
 	VectorSubtract(p1, top, tmp);
 	if ( VectorLengthSquared(tmp) < r ) {
-		tw->trace.startsolid = tw->trace.allsolid = qtrue;
+		tw->trace.startsolid = tw->trace.allsolid = true;
 		tw->trace.fraction = 0;
 	}
 	VectorSubtract(p1, bottom, tmp);
 	if ( VectorLengthSquared(tmp) < r ) {
-		tw->trace.startsolid = tw->trace.allsolid = qtrue;
+		tw->trace.startsolid = tw->trace.allsolid = true;
 		tw->trace.fraction = 0;
 	}
 	VectorCopy(offset, p2);
 	p2[2] -= offs;
 	VectorSubtract(p2, top, tmp);
 	if ( VectorLengthSquared(tmp) < r ) {
-		tw->trace.startsolid = tw->trace.allsolid = qtrue;
+		tw->trace.startsolid = tw->trace.allsolid = true;
 		tw->trace.fraction = 0;
 	}
 	VectorSubtract(p2, bottom, tmp);
 	if ( VectorLengthSquared(tmp) < r ) {
-		tw->trace.startsolid = tw->trace.allsolid = qtrue;
+		tw->trace.startsolid = tw->trace.allsolid = true;
 		tw->trace.fraction = 0;
 	}
 	// if between cylinder up and lower bounds
@@ -360,7 +360,7 @@ void CM_TestCapsuleInCapsule( traceWork_t *tw, clipHandle_t model ) {
 		// if the cylinders overlap
 		VectorSubtract(top, p1, tmp);
 		if ( VectorLengthSquared(tmp) < r ) {
-			tw->trace.startsolid = tw->trace.allsolid = qtrue;
+			tw->trace.startsolid = tw->trace.allsolid = true;
 			tw->trace.fraction = 0;
 		}
 	}
@@ -704,9 +704,9 @@ void CM_TraceThroughBrush( traceWork_t *tw, cbrush_t *brush ) {
 	// completely outside the brush
 	//
 	if (!startout) {	// original point was inside brush
-		tw->trace.startsolid = qtrue;
+		tw->trace.startsolid = true;
 		if (!getout) {
-			tw->trace.allsolid = qtrue;
+			tw->trace.allsolid = true;
 			tw->trace.fraction = 0;
 			tw->trace.contents = brush->contents;
 		}
@@ -949,12 +949,12 @@ void CM_TraceThroughSphere( traceWork_t *tw, vec3_t origin, float radius, vec3_t
 	l1 = VectorLengthSquared(dir);
 	if (l1 < Square(radius)) {
 		tw->trace.fraction = 0;
-		tw->trace.startsolid = qtrue;
+		tw->trace.startsolid = true;
 		// test for allsolid
 		VectorSubtract(end, origin, dir);
 		l1 = VectorLengthSquared(dir);
 		if (l1 < Square(radius)) {
-			tw->trace.allsolid = qtrue;
+			tw->trace.allsolid = true;
 		}
 		return;
 	}
@@ -1045,11 +1045,11 @@ void CM_TraceThroughVerticalCylinder( traceWork_t *tw, vec3_t origin, float radi
 		l1 = VectorLengthSquared(dir);
 		if (l1 < Square(radius)) {
 			tw->trace.fraction = 0;
-			tw->trace.startsolid = qtrue;
+			tw->trace.startsolid = true;
 			VectorSubtract(end2d, org2d, dir);
 			l1 = VectorLengthSquared(dir);
 			if (l1 < Square(radius)) {
-				tw->trace.allsolid = qtrue;
+				tw->trace.allsolid = true;
 			}
 			return;
 		}

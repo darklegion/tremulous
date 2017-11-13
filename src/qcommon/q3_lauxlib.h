@@ -21,24 +21,17 @@
 #include <stdarg.h>
 #include <sys/types.h>
 
+#include "q_platform.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-size_t qlua_writestring(const char* string, size_t n);
-int qlua_writeline(void);
-int qlua_writestringerror(const char *fmt, ...);
-
-#define lua_writestring      qlua_writestring
-#define lua_writeline        qlua_writeline
-#define lua_writestringerror qlua_writestringerror
+SO_PUBLIC size_t lua_writestring(const char* string, size_t n);
+SO_PUBLIC int lua_writeline(void);
+SO_PUBLIC int lua_writestringerror(const char *fmt, ...);
 
 #define LUA_TMPNAMTEMPLATE	"/tmp/tremulous_XXXXXX"
-
-// Because: src/lua-5.3.3/include/luaconf.h:69:9: warning: 'LUA_USE_POSIX' macro redefined [-Wmacro-redefined]
-//#ifndef _WIN32
-//#define LUA_USE_POSIX 1
-//#endif
 
 #ifdef __cplusplus
 }

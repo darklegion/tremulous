@@ -31,6 +31,9 @@ cvar_t *sv_voip;
 cvar_t *sv_voipProtocol;
 #endif
 
+#define PERS_SCORE 0  // !!! MUST NOT CHANGE, SERVER AND GAME BOTH REFERENCE !!!
+
+
 serverStatic_t	svs;				// persistant server info
 server_t sv {};					    // local server
 

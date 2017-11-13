@@ -39,10 +39,12 @@ namespace script
     {
         static inline void init(sol::state&& lua)
         {
-            lua.new_usertype<Cmd>(
-                    "cmd", 
-                    "execute", &Cmd_ExecuteString
-                );
+            lua.set_function("Cbuf_ExecuteText", &Cbuf_ExecuteText);
+            //lua.new_usertype<Cmd>(
+            //        "cmd", 
+            //        "execute", &Cmd_ExecuteString,
+            //        "command", &Cbuf_ExecuteText
+            //    );
         }
     };
 };

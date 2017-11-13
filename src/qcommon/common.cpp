@@ -36,12 +36,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "sys/sys_shared.h"
 
+#include "autocomplete.h"
 #include "cmd.h"
 #include "crypto.h"
 #include "cvar.h"
 #include "files.h"
-#define JSON_IMPLEMENTATION
-#include "json.h"
+//#define JSON_IMPLEMENTATION
+//#include "json.h"
 #include "msg.h"
 #include "q_shared.h"
 #include "vm.h"
@@ -108,10 +109,6 @@ cvar_t *com_basegame;
 cvar_t *com_homepath;
 cvar_t *com_busyWait;
 
-#if id386
-void (QDECL *Q_SnapVector)(vec3_t vec);
-#endif
-
 // com_speeds times
 int time_game;
 int time_frontend; // renderer frontend time
@@ -166,7 +163,7 @@ to the apropriate place.
 A raw string should NEVER be passed as fmt, because of "%f" type crashers.
 =============
 */
-void QDECL Com_Printf( const char *fmt, ... )
+void Com_Printf( const char *fmt, ... )
 {
     va_list argptr;
     char msg[MAXPRINTMSG];
@@ -2496,6 +2493,7 @@ Find out whether we have SSE support
 #if id386 || idx64
 static void Com_DetectSSE(void)
 {
+#if 0
 #if !idx64
     cpuFeatures_t feat = Sys_GetProcessorFeatures();
     if(feat & CF_SSE)
@@ -2514,6 +2512,7 @@ static void Com_DetectSSE(void)
 
         Com_Printf("No SSE support on this machine\n");
     }
+#endif
 #endif
 }
 
@@ -3151,7 +3150,7 @@ command line completion
 Field_Clear
 ==================
 */
-void Field_Clear( field_t *edit )
+void Field_Clear( field_t* edit )
 {
     memset(edit->buffer, 0, MAX_EDIT_LINE);
     edit->cursor = 0;
@@ -3309,6 +3308,7 @@ Field_ListCompletion
 */
 void Field_ListCompletion( char *listJson, void(*callback)(const char *s) )
 {
+#if 0
     char item[ 256 ];
     const char *arrayPtr;
     const char *listEnd = listJson + strlen( listJson );
@@ -3321,6 +3321,7 @@ void Field_ListCompletion( char *listJson, void(*callback)(const char *s) )
         JSON_ValueGetString( arrayPtr, listEnd, item, 256 );
         callback( item );
     }
+#endif
 }
 
 /*

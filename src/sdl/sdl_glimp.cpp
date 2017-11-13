@@ -28,14 +28,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #	include <SDL.h>
 #endif
 
+#include <math.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 
-#include "renderercommon/tr_common.h"
+#include "qcommon/cmd.h"
 #include "qcommon/cvar.h"
+#include "renderercommon/tr_common.h"
 #include "sys/sys_local.h"
+
 #include "sdl_icon.h"
 
 typedef enum
@@ -346,14 +348,14 @@ static int GLimp_SetMode( bool failSafe, bool fullscreen, bool noborder, bool co
 	if( fullscreen )
 	{
 		flags |= SDL_WINDOW_FULLSCREEN;
-		glConfig.isFullscreen = qtrue;
+		glConfig.isFullscreen = true;
 	}
 	else
 	{
 		if( noborder )
 			flags |= SDL_WINDOW_BORDERLESS;
 
-		glConfig.isFullscreen = qfalse;
+		glConfig.isFullscreen = false;
 	}
 
 	colorBits = r_colorbits->value;
@@ -454,12 +456,12 @@ static int GLimp_SetMode( bool failSafe, bool fullscreen, bool noborder, bool co
 
 		if(r_stereoEnabled->integer)
 		{
-			glConfig.stereoEnabled = qtrue;
+			glConfig.stereoEnabled = true;
 			SDL_GL_SetAttribute(SDL_GL_STEREO, 1);
 		}
 		else
 		{
-			glConfig.stereoEnabled = qfalse;
+			glConfig.stereoEnabled = false;
 			SDL_GL_SetAttribute(SDL_GL_STEREO, 0);
 		}
 		
@@ -611,7 +613,7 @@ static bool GLimp_StartDriverAndSetMode( bool failSafe, bool fullscreen, bool no
 	{
 		ri.Printf( PRINT_ALL, "Fullscreen not allowed with in_nograb 1\n");
 		ri.Cvar_Set( "r_fullscreen", "0" );
-		r_fullscreen->modified = qfalse;
+		r_fullscreen->modified = false;
 		fullscreen = false;
 	}
 
@@ -636,7 +638,7 @@ static bool GLimp_HaveExtension(const char *ext)
 {
 	const char *ptr = Q_stristr( glConfig.extensions_string, ext );
 	if (ptr == NULL)
-		return qfalse;
+		return false;
 	ptr += strlen(ext);
 	return ((*ptr == ' ') || (*ptr == '\0'));  // verify it's complete string.
 }
@@ -701,17 +703,17 @@ static void GLimp_InitExtensions( void )
 
 
 	// GL_EXT_texture_env_add
-	glConfig.textureEnvAddAvailable = qfalse;
+	glConfig.textureEnvAddAvailable = false;
 	if ( GLimp_HaveExtension( "GL_EXT_texture_env_add" ) )
 	{
 		if ( r_ext_texture_env_add->integer )
 		{
-			glConfig.textureEnvAddAvailable = qtrue;
+			glConfig.textureEnvAddAvailable = true;
 			ri.Printf( PRINT_ALL, "...using GL_EXT_texture_env_add\n" );
 		}
 		else
 		{
-			glConfig.textureEnvAddAvailable = qfalse;
+			glConfig.textureEnvAddAvailable = false;
 			ri.Printf( PRINT_ALL, "...ignoring GL_EXT_texture_env_add\n" );
 		}
 	}
@@ -783,7 +785,7 @@ static void GLimp_InitExtensions( void )
 		ri.Printf( PRINT_ALL, "...GL_EXT_compiled_vertex_array not found\n" );
 	}
 
-	glConfig.textureFilterAnisotropic = qfalse;
+	glConfig.textureFilterAnisotropic = false;
 	if ( GLimp_HaveExtension( "GL_EXT_texture_filter_anisotropic" ) )
 	{
 		if ( r_ext_texture_filter_anisotropic->integer ) {
@@ -795,7 +797,7 @@ static void GLimp_InitExtensions( void )
 			else
 			{
 				ri.Printf( PRINT_ALL, "...using GL_EXT_texture_filter_anisotropic (max: %i)\n", glConfig.maxAnisotropy );
-				glConfig.textureFilterAnisotropic = qtrue;
+				glConfig.textureFilterAnisotropic = true;
 			}
 		}
 		else
@@ -862,7 +864,7 @@ success:
 	glConfig.hardwareType = GLHW_GENERIC;
 
 	// Only using SDL_SetWindowBrightness to determine if hardware gamma is supported
-	glConfig.deviceSupportsGamma = (qboolean)(!r_ignorehwgamma->integer && SDL_SetWindowBrightness( SDL_window, 1.0f ) >= 0);
+	glConfig.deviceSupportsGamma = (bool)(!r_ignorehwgamma->integer && SDL_SetWindowBrightness( SDL_window, 1.0f ) >= 0);
 
 	// get our config strings
 	Q_strncpyz( glConfig.vendor_string, (char *) qglGetString (GL_VENDOR), sizeof( glConfig.vendor_string ) );
