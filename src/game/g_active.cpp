@@ -343,18 +343,9 @@ void G_TouchTriggers(gentity_t *ent)
             continue;
 
         // ignore most entities if a spectator
-        if (ent->client->sess.spectatorState != SPECTATOR_NOT)
-        {
-            if (hit->s.eType != ET_TELEPORT_TRIGGER &&
-                // this is ugly but adding a new ET_? type will
-                // most likely cause network incompatibilities
-                hit->touch != Touch_DoorTrigger)
-            {
-                // check for manually triggered doors
-                manualTriggerSpectator(hit, ent);
-                continue;
-            }
-        }
+        if ( ent->clipmask & CONTENTS_ASTRAL_NOCLIP && 
+                hit->s.eType != ET_TELEPORT_TRIGGER )
+            continue;
 
         if (!G_EntityContact(mins, maxs, hit, TT_AABB))
             continue;

@@ -1198,141 +1198,6 @@ void Blocked_Door(gentity_t *ent, gentity_t *other)
 
 /*
 ================
-Touch_DoorTriggerSpectator
-================
-*/
-static void Touch_DoorTriggerSpectator(gentity_t *ent, gentity_t *other, trace_t *trace)
-{
-    int i, axis;
-    vec3_t origin, dir, angles;
-
-    axis = ent->count;
-    VectorClear(dir);
-
-    if (fabs(other->r.currentOrigin[axis] - ent->r.absmax[axis]) <
-        fabs(other->r.currentOrigin[axis] - ent->r.absmin[axis]))
-    {
-        origin[axis] = ent->r.absmin[axis] - 20;
-        dir[axis] = -1;
-    }
-    else
-    {
-        origin[axis] = ent->r.absmax[axis] + 20;
-        dir[axis] = 1;
-    }
-
-    for (i = 0; i < 3; i++)
-    {
-        if (i == axis)
-            continue;
-
-        origin[i] = (ent->r.absmin[i] + ent->r.absmax[i]) * 0.5;
-    }
-
-    vectoangles(dir, angles);
-    TeleportPlayer(other, origin, angles, 400.0f);
-}
-
-/*
-================
-manualDoorTriggerSpectator
-
-This effectively creates a temporary door auto trigger so manually
-triggers doors can be skipped by spectators
-================
-*/
-static void manualDoorTriggerSpectator(gentity_t *door, gentity_t *player)
-{
-    gentity_t *other;
-    gentity_t triggerHull;
-    int best, i;
-    vec3_t mins, maxs;
-
-    // don't skip a door that is already open
-    if (door->moverState == MOVER_1TO2 || door->moverState == MOVER_POS2 || door->moverState == ROTATOR_1TO2 ||
-        door->moverState == ROTATOR_POS2 || door->moverState == MODEL_1TO2 || door->moverState == MODEL_POS2)
-        return;
-
-    // find the bounds of everything on the team
-    VectorCopy(door->r.absmin, mins);
-    VectorCopy(door->r.absmax, maxs);
-
-    for (other = door->teamchain; other; other = other->teamchain)
-    {
-        AddPointToBounds(other->r.absmin, mins, maxs);
-        AddPointToBounds(other->r.absmax, mins, maxs);
-    }
-
-    // find the thinnest axis, which will be the one we expand
-    best = 0;
-    for (i = 1; i < 3; i++)
-    {
-        if (maxs[i] - mins[i] < maxs[best] - mins[best])
-            best = i;
-    }
-
-    maxs[best] += 60;
-    mins[best] -= 60;
-
-    VectorCopy(mins, triggerHull.r.absmin);
-    VectorCopy(maxs, triggerHull.r.absmax);
-    triggerHull.count = best;
-
-    Touch_DoorTriggerSpectator(&triggerHull, player, NULL);
-}
-
-/*
-================
-manualTriggerSpectator
-
-Trip to skip the closest door targeted by trigger
-================
-*/
-void manualTriggerSpectator(gentity_t *trigger, gentity_t *player)
-{
-    gentity_t *t = NULL;
-    gentity_t *targets[MAX_GENTITIES];
-    int i = 0, j;
-    float minDistance = (float)INFINITE;
-
-    // restrict this hack to trigger_multiple only for now
-    if (strcmp(trigger->classname, "trigger_multiple"))
-        return;
-
-    if (!trigger->target)
-        return;
-
-    // create a list of door entities this trigger targets
-    while ((t = G_Find(t, FOFS(targetname), trigger->target)) != NULL)
-    {
-        if (!strcmp(t->classname, "func_door"))
-            targets[i++] = t;
-    }
-
-    // if more than 0 targets
-    if (i > 0)
-    {
-        gentity_t *closest = NULL;
-
-        // pick the closest door
-        for (j = 0; j < i; j++)
-        {
-            float d = Distance(player->r.currentOrigin, targets[j]->r.currentOrigin);
-
-            if (d < minDistance)
-            {
-                minDistance = d;
-                closest = targets[j];
-            }
-        }
-
-        // try and skip the door
-        manualDoorTriggerSpectator(closest, player);
-    }
-}
-
-/*
-================
 Touch_DoorTrigger
 ================
 */
@@ -1344,16 +1209,7 @@ void Touch_DoorTrigger(gentity_t *ent, gentity_t *other, trace_t *trace)
     if (other->s.eType == ET_BUILDABLE)
         return;
 
-    teamState = GetMoverTeamState(ent->parent);
-
-    if (other->client && other->client->sess.spectatorState != SPECTATOR_NOT)
-    {
-        // if the door is not open and not opening
-        if (teamState != MOVER_POS2 && teamState != MOVER_1TO2)
-            Touch_DoorTriggerSpectator(ent, other, trace);
-    }
-    else if (teamState != MOVER_1TO2)
-        Use_BinaryMover(ent->parent, ent, other);
+    Use_BinaryMover(ent->parent, ent, other);
 }
 
 void Think_MatchTeam(gentity_t *ent)
@@ -1493,6 +1349,8 @@ void SP_func_door(gentity_t *ent)
         VectorCopy(temp, ent->pos1);
     }
 
+    ent->s.eFlags |= EF_ASTRAL_NOCLIP;
+
     InitMover(ent);
 
     ent->nextthink = level.time + FRAMETIME;
@@ -1604,6 +1462,8 @@ void SP_func_door_rotating(gentity_t *ent)
     }
 
     InitRotator(ent);
+
+    ent->s.eFlags |= EF_ASTRAL_NOCLIP;
 
     ent->nextthink = level.time + FRAMETIME;
 
