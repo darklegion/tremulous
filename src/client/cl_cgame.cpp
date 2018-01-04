@@ -25,8 +25,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "client.h"
 
-#include <setjmp.h>
-
 #ifdef USE_MUMBLE
 #include "libmumblelink.h"
 #endif
@@ -395,7 +393,6 @@ static int	FloatAsInt( float f ) {
 	return fi.i;
 }
 
-static jmp_buf cgProbingJB;
 static bool probingCG = false;
 
 /*
@@ -430,7 +427,8 @@ intptr_t CL_CgameSystemCalls( intptr_t *args )
         case CG_ERROR:
             if( probingCG )
             {
-                longjmp(cgProbingJB, 1);
+                cls.cgInterface = 2; // this is a 1.1.0 cgame
+                return 0;
             }
             Com_Error( ERR_DROP, "%s", (const char*)VMA(1) );
             return 0;
@@ -804,15 +802,13 @@ void CL_InitCGame( void ) {
 
 	Cvar_VariableStringBuffer( "cl_voipSendTarget", backup, sizeof( backup ) );
 	Cvar_Set( "cl_voipSendTarget", "" );
+
+    // Probe 1.1 or gpp cgame
 	cls.cgInterface = 0;
 	probingCG = true;
-	if ( setjmp( cgProbingJB ) == 0 ) {
-		VM_Call( cls.cgame, CG_VOIP_STRING );
-	} else {
-		VM_ClearCallLevel( cls.cgame );
-		cls.cgInterface = 2;
-	}
+    VM_Call( cls.cgame, CG_VOIP_STRING );
 	probingCG = false;
+
 	Cvar_Set( "cl_voipSendTarget", backup );
 
 	if ( ( clc.netchan.alternateProtocol == 2 ) != ( cls.cgInterface == 2 ) ) {

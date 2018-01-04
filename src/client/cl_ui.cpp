@@ -23,8 +23,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "client.h"
 
-#include <setjmp.h>
-
 #include "cl_updates.h"
 
 /*
@@ -747,7 +745,6 @@ static int FloatAsInt(float f)
     return fi.i;
 }
 
-static jmp_buf uiProbingJB;
 static bool probingUI = false;
 
 /*
@@ -812,7 +809,8 @@ intptr_t CL_UISystemCalls(intptr_t *args)
         case UI_ERROR:
             if (probingUI)
             {
-                longjmp(uiProbingJB, 1);
+                cls.uiInterface = 2;
+                return 0;
             }
             Com_Error(ERR_DROP, "%s", (const char *)VMA(1));
             return 0;
@@ -1227,21 +1225,14 @@ void CL_InitUI(void)
         Com_Error(ERR_DROP, "User Interface is version %d, expected %d", v, UI_API_VERSION);
     }
 
+    // Probe UI interface
+    // Calls the GPP UI_CONSOLE_COMMAND (10), if GPP will return false 0. If a 1.1.0 qvm, will hit the error handler.
     Cmd_TokenizeString("");
     cls.uiInterface = 0;
     probingUI = true;
-    if (setjmp(uiProbingJB) == 0)
-    {
-        if (VM_Call(cls.ui, UI_CONSOLE_COMMAND, 0) < 0)
-        {
-            cls.uiInterface = 2;
-        }
-    }
-    else
-    {
+    if ( VM_Call(cls.ui, UI_CONSOLE_COMMAND, 0) < 0 )
         cls.uiInterface = 2;
-        VM_ClearCallLevel(cls.ui);
-    }
+
     probingUI = false;
 
     if (clc.state >= CA_CONNECTED && clc.state <= CA_ACTIVE &&

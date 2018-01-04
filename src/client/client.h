@@ -424,7 +424,7 @@ struct clientStatic_t {
     qhandle_t consoleShader;
 
     vm_t *cgame;
-    int cgInterface;
+    int cgInterface; // 0 == gpp, 2 == 1.1.0
 
     vm_t *ui;
     int uiInterface;
