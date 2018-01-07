@@ -109,8 +109,12 @@ char *Cmd_Cmd(void);
 // functions. Cmd_Argv () will return an empty string, not a NULL
 // if arg > argc, so string operations are allways safe.
 
-void Cmd_TokenizeString(const char *text);
+// XXX: This is the legacy Tokenizer
+void Cmd_TokenizeString2( const char *text_in, bool ignoreQuotes );
 void Cmd_TokenizeStringIgnoreQuotes(const char *text_in);
+
+// XXX This use a new command parser
+void Cmd_TokenizeString(const char *text);
 // Takes a null terminated string.  Does not need to be /n terminated.
 // breaks the string up into arg tokens.
 

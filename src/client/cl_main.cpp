@@ -3776,7 +3776,7 @@ static void CL_ConnectionlessPacket(netadr_t from, msg_t *msg)
 
     const char *s = MSG_ReadStringLine(msg);
 
-    Cmd_TokenizeString(s);
+    Cmd_TokenizeString2(s, false);
 
     const char *c = Cmd_Argv(0);
 

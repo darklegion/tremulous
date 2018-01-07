@@ -266,7 +266,7 @@ bool CL_GetServerCommand( int serverCommandNumber )
 	Com_DPrintf( "serverCommand: %i : %s\n", serverCommandNumber, s );
 
 rescan:
-	Cmd_TokenizeString( s );
+	Cmd_TokenizeString2(s, false);
 	cmd = Cmd_Argv(0);
 	argc = Cmd_Argc();
 
@@ -312,7 +312,7 @@ rescan:
 		CL_ConfigstringModified();
         // reparse the string, because CL_ConfigstringModified may have done
         // another Cmd_TokenizeString()
-		Cmd_TokenizeString( s );
+		Cmd_TokenizeString2(s, false);
 		return true;
 	}
 
@@ -323,7 +323,7 @@ rescan:
 		Con_ClearNotify();
         // reparse the string, because Con_ClearNotify() may have done another
         // Cmd_TokenizeString()
-		Cmd_TokenizeString( s );
+		Cmd_TokenizeString2(s, false);
 		::memset( cl.cmds, 0, sizeof( cl.cmds ) );
 		return true;
 	}
