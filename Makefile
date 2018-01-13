@@ -2339,16 +2339,17 @@ $(B)/$(BASEGAME)/game/%.o: $(GDIR)/%.c
 $(B)/$(BASEGAME)/game/%.o: $(GDIR)/%.cpp
 	$(DO_GAME_CXX)
 
-ifeq ($(PLATFORM),darwin)
+
+ifdef MINGW
 $(B)/$(BASEGAME)/game$(SHLIBNAME): $(B)/$(CLIENTBIN)$(FULLBINEXT) $(GOBJ)
-	$(echo_cmd) "LD $@"
-	$(Q)$(CXX) -bundle -bundle_loader $(B)/$(SERVERBIN) $(LDFLAGS) -o $@ $(GOBJ)
-else
-ifeq ($(PLATFORM),mingw32)
-$(B)/$(BASEGAME)/game$(SHLIBNAME): $(B)/$(CLIENTBIN) $(GOBJ)
 	$(echo_cmd) "LD $@"
 	#$(Q)$(CXX) $(SHLIBLDFLAGS) $(LDFLAGS) -o $@ $(GOBJ) -L$(B) -ltremded_exe 
 	$(Q)$(CXX) $(SHLIBLDFLAGS) $(LDFLAGS) -o $@ $(GOBJ) -L$(B) -ltremulous_exe 
+else
+ifdef DARWIN
+$(B)/$(BASEGAME)/game$(SHLIBNAME): $(B)/$(CLIENTBIN) $(GOBJ)
+	$(echo_cmd) "LD $@"
+	$(Q)$(CXX) -bundle -bundle_loader $(B)/$(SERVERBIN) $(LDFLAGS) -o $@ $(GOBJ)
 else
 $(B)/$(BASEGAME)/game$(SHLIBNAME): $(B)/$(CLIENTBIN) $(GOBJ)
 	$(echo_cmd) "LD $@"
