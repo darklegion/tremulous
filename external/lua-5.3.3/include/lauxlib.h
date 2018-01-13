@@ -210,6 +210,12 @@ LUALIB_API void (luaL_openlib) (lua_State *L, const char *libname,
 ** ===================================================================
 */
 
+//
+// Tremulous, Tremded and Granger provide their own implementations of 
+//  lua_writestring(), lua_writeline() and lua_writestringerror()
+//
+
+#if 0
 /* print a string */
 #if !defined(lua_writestring)
 #define lua_writestring(s,l)   fwrite((s), sizeof(char), (l), stdout)
@@ -224,6 +230,7 @@ LUALIB_API void (luaL_openlib) (lua_State *L, const char *libname,
 #if !defined(lua_writestringerror)
 #define lua_writestringerror(s,p) \
         (fprintf(stderr, (s), (p)), fflush(stderr))
+#endif
 #endif
 
 /* }================================================================== */

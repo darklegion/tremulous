@@ -13,7 +13,7 @@
 #include "q_shared.h"
 #include "qcommon.h"
 
-size_t qlua_writestring(const char* string, size_t n)
+size_t lua_writestring(const char* string, size_t n)
 {
 #ifndef DEDICATED
     CL_ConsolePrint( string );
@@ -24,7 +24,7 @@ size_t qlua_writestring(const char* string, size_t n)
     return n;
 }
 
-int qlua_writeline(void)
+int lua_writeline(void)
 {
 #ifndef DEDICATED
     CL_ConsolePrint( "\n" );
@@ -33,7 +33,7 @@ int qlua_writeline(void)
     return 0;
 }
 
-int qlua_writestringerror(const char *fmt, ...)
+int lua_writestringerror(const char *fmt, ...)
 {
 	va_list	ap;
 	va_start(ap, fmt);
