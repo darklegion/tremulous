@@ -492,7 +492,7 @@ int Q_isnan(float x);
   #define Q_SnapVector(vec)\
 	do\
 	{\
-		vec3_t *temp = (vec);\
+		vec3_t *temp = (vec3_t*)(vec);\
 		\
 		(*temp)[0] = round((*temp)[0]);\
 		(*temp)[1] = round((*temp)[1]);\

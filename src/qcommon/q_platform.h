@@ -215,6 +215,23 @@ extern "C" {
      # define Q3_LITTLE_ENDIAN
      #undef idx64
      #define idx64 1
+    #elif defined __arm__
+     # if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+      # error "Big endian ARM is not supported"
+     # endif
+     # if defined __armhf__
+      # define ARCH_STRING "armhf"
+      # define Q3_LITTLE_ENDIAN
+     # else
+      # define ARCH_STRING "armel"
+      # define Q3_LITTLE_ENDIAN
+     # endif
+    #elif defined __aarch64__
+     # if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+      # error "Big endian ARM is not supported"
+     # endif
+     # define ARCH_STRING "aarch64"
+     # define Q3_LITTLE_ENDIAN
     #endif
     
     #define DLL_EXT ".so"

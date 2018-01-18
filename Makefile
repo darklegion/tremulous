@@ -11,6 +11,13 @@ ifeq ($(COMPILE_PLATFORM),sunos)
   COMPILE_ARCH=$(shell uname -p | sed -e 's/i.86/x86/')
 endif
 
+ifeq ($(COMPILE_PLATFORM),linux)
+  ifeq ($(COMPILE_ARCH),arm)
+    # Get full arch name
+  COMPILE_ARCH=$(shell file /bin/true | sed -e 's/^.*ld-linux-\(arm.*\)\.so.*/\1/')
+  endif
+endif
+
 ifndef BUILD_STANDALONE
   BUILD_STANDALONE =
 endif
@@ -367,6 +374,9 @@ ifneq (,$(findstring "$(PLATFORM)", "linux" "gnu_kfreebsd" "kfreebsd-gnu" "gnu")
     # According to http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=410555
     # -ffast-math will cause the client to die with SIGFPE on Alpha
     OPTIMIZE = $(OPTIMIZEVM)
+  endif
+  ifeq ($(ARCH),armhf)
+    BASE_CFLAGS += -D__armhf__
   endif
   endif
   endif
