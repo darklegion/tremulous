@@ -18,8 +18,6 @@ add_definitions( -DGAME )
 set( GAME_SOURCES
     g_main.c # Must be listed first!
     bg_alloc.cpp
-    bg_lib.cpp
-    bg_lib.h
     bg_local.h
     bg_misc.cpp
     bg_pmove.cpp
