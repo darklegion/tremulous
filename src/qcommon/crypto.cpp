@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 2007-2008 Amanieu d'Antras (amanieu@gmail.com)
 Copyright (C) 2015-2016 Jeff Kent (jeff@jkent.net)
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 

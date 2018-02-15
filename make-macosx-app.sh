@@ -290,7 +290,7 @@ echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
     <key>LSMinimumSystemVersion</key>
     <string>${MACOSX_DEPLOYMENT_TARGET}</string>
     <key>NSHumanReadableCopyright</key>
-    <string>Copyright © 1999-2015 Id Software LLC, a ZeniMax Media company, ioquake3, Darklegion Development, and Tremulous community contributors.</string>
+    <string>Copyright © 1999-2015 Id Software LLC, a ZeniMax Media company, ioquake3, Darklegion Development, GrangerHub, and Tremulous community contributors.</string>
     <key>NSPrincipalClass</key>
     <string>NSApplication</string>
 </dict>

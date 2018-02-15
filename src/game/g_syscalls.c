@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 
@@ -296,4 +297,3 @@ int trap_FS_GetFilteredFiles( const char *path, const char *extension, const cha
 {
   return syscall( G_FS_GETFILTEREDFILES, path, extension, filter, listbuf, bufsize );
 }
-

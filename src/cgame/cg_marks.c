@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 
@@ -285,4 +286,3 @@ void CG_AddMarks( void )
     trap_R_AddPolyToScene( mp->markShader, mp->poly.numVerts, mp->verts );
   }
 }
-

@@ -3,6 +3,7 @@
 Copyright (C) 2011 Thilo Schulz <thilo@tjps.eu>
 Copyright (C) 2011 Matthias Bentrup <matthias.bentrup@googlemail.com>
 Copyright (C) 2000-2013 Darklegion Development
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 

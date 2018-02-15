@@ -1,6 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 2010 Darklegion Development
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 
@@ -125,4 +126,3 @@ void G_namelog_restore( gclient_t *client )
   client->ps.persistant[ PERS_CREDIT ] = 0;
   G_AddCreditToClient( client, n->credits, qfalse );
 }
-

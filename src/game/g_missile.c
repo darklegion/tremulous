@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 
@@ -850,4 +851,3 @@ gentity_t *fire_bounceBall( gentity_t *self, vec3_t start, vec3_t dir )
 
   return bolt;
 }
-
