@@ -113,7 +113,18 @@ static	void R_ColorShiftLightingBytes( byte in[4], byte out[4] ) {
 	r = in[0] << shift;
 	g = in[1] << shift;
 	b = in[2] << shift;
-	
+
+	// Minimum values
+	if(r < r_mapLightmapMin->integer){
+		r = r_mapLightmapMin->integer;
+	}
+	if(g < r_mapLightmapMin->integer){
+		g = r_mapLightmapMin->integer;
+	}
+	if(b < r_mapLightmapMin->integer){
+		b = r_mapLightmapMin->integer;
+	}
+
 	// normalize by color instead of saturating to white
 	if ( ( r | g | b ) > 255 ) {
 		int		max;
@@ -146,6 +157,17 @@ static void R_ColorShiftLightingFloats(float in[4], float out[4])
 	r = in[0] * scale;
 	g = in[1] * scale;
 	b = in[2] * scale;
+
+	// Minimum values
+	if(r < r_mapLightmapMin->value / 255.0f){
+		r = r_mapLightmapMin->value / 255.0f;
+	}
+	if(g < r_mapLightmapMin->value / 255.0f){
+		g = r_mapLightmapMin->value / 255.0f;
+	}
+	if(b < r_mapLightmapMin->value / 255.0f){
+		b = r_mapLightmapMin->value / 255.0f;
+	}
 
 	// normalize by color instead of saturating to white
 	if ( r > 1 || g > 1 || b > 1 ) {
