@@ -1,6 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 2009-2011 Andrei Drexler, Richard Allen, James Canete
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Reaction source code.
 

@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
               2015 James Canete
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Quake III Arena source code.
 
