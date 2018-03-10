@@ -47,7 +47,7 @@ Handles uint8_t ordering and avoids alignment errors
 
 int oldsize = 0;
 
-void MSG_initHuffman(void);
+static void MSG_initHuffman(void);
 
 void MSG_Init(msg_t *buf, uint8_t *data, int length)
 {
@@ -378,7 +378,7 @@ void MSG_WriteFloat(msg_t *sb, float f)
     MSG_WriteBits(sb, dat.i, 32);
 }
 
-static void MSG_WriteString2(msg_t *sb, const char *s, int maxsize)
+void MSG_WriteString2(msg_t *sb, const char *s, int maxsize)
 {
     int size = strlen(s) + 1;
 
@@ -392,10 +392,26 @@ static void MSG_WriteString2(msg_t *sb, const char *s, int maxsize)
     MSG_WriteData(sb, s, size);
 }
 
-void MSG_WriteString(msg_t *sb, const char *s) { MSG_WriteString2(sb, s, MAX_STRING_CHARS); }
-void MSG_WriteBigString(msg_t *sb, const char *s) { MSG_WriteString2(sb, s, BIG_INFO_STRING); }
-void MSG_WriteAngle(msg_t *sb, float f) { MSG_WriteByte(sb, (int)(f * 256 / 360) & 255); }
-void MSG_WriteAngle16(msg_t *sb, float f) { MSG_WriteShort(sb, ANGLE2SHORT(f)); }
+void MSG_WriteString(msg_t *sb, const char *s)
+{
+    MSG_WriteString2(sb, s, MAX_STRING_CHARS);
+}
+
+void MSG_WriteBigString(msg_t *sb, const char *s)
+{
+    MSG_WriteString2(sb, s, BIG_INFO_STRING);
+}
+
+void MSG_WriteAngle(msg_t *sb, float f)
+{
+    MSG_WriteByte(sb, (int)(f * 256 / 360) & 255);
+}
+
+void MSG_WriteAngle16(msg_t *sb, float f)
+{
+    MSG_WriteShort(sb, ANGLE2SHORT(f));
+}
+
 //============================================================
 
 //
@@ -479,66 +495,66 @@ float MSG_ReadFloat(msg_t *msg)
     return dat.f;
 }
 
-char *MSG_ReadString(msg_t *msg)
+const char *MSG_ReadString(msg_t *msg)
 {
     static char string[MAX_STRING_CHARS];
 
     size_t l = 0;
-    do
+    for (;;) 
     {
         int c = MSG_ReadByte(msg);  // use ReadByte so -1 is out of bounds
         if (c == -1 || c == 0)
-        {
             break;
-        }
 
-        string[l] = c;
-        l++;
-    } while (l < sizeof(string) - 1);
+        string[l++] = c;
 
-    string[l] = 0;
+        if (l >= sizeof(string)-1)
+            break;
+    }
+
+    string[l] = '\0';
 
     return string;
 }
 
-char *MSG_ReadBigString(msg_t *msg)
+const char *MSG_ReadBigString(msg_t *msg)
 {
     static char string[BIG_INFO_STRING];
 
     size_t l = 0;
-    do
+    for (;;)
     {
         int c = MSG_ReadByte(msg);  // use ReadByte so -1 is out of bounds
         if (c == -1 || c == 0)
-        {
             break;
-        }
 
-        string[l] = c;
-        l++;
-    } while (l < sizeof(string) - 1);
+        string[l++] = c;
+
+        if (l >= sizeof(string)-1)
+            break;
+    }
 
     string[l] = 0;
 
     return string;
 }
 
-char *MSG_ReadStringLine(msg_t *msg)
+const char *MSG_ReadStringLine(msg_t *msg)
 {
     static char string[MAX_STRING_CHARS];
 
     size_t l = 0;
-    do
+    for (;;)
     {
         int c = MSG_ReadByte(msg);  // use ReadByte so -1 is out of bounds
         if (c == -1 || c == 0 || c == '\n')
-        {
             break;
-        }
 
-        string[l] = c;
-        l++;
-    } while (l < sizeof(string) - 1);
+        string[l++] = c;
+
+        if (l >= sizeof(string)-1)
+            break;
+    }
 
     string[l] = 0;
 
@@ -2194,7 +2210,7 @@ int msg_hData[256] = {
     13504,  // 255
 };
 
-void MSG_initHuffman(void)
+static void MSG_initHuffman(void)
 {
     int i, j;
 

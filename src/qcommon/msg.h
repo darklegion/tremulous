@@ -44,6 +44,7 @@ void MSG_WriteFloat(msg_t *sb, float f);
 void MSG_WriteString(msg_t *sb, const char *s);
 void MSG_WriteBigString(msg_t *sb, const char *s);
 void MSG_WriteAngle16(msg_t *sb, float f);
+
 int MSG_HashKey(int alternateProtocol, const char *string, int maxlen);
 
 void MSG_BeginReading(msg_t *sb);
