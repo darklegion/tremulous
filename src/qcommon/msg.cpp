@@ -419,19 +419,6 @@ void MSG_WriteAngle16(msg_t *sb, float f)
 //
 
 // returns -1 if no more characters are available
-int MSG_ReadChar(msg_t *msg)
-{
-    int c;
-
-    c = (signed char)MSG_ReadBits(msg, 8);
-    if (msg->readcount > msg->cursize)
-    {
-        c = -1;
-    }
-
-    return c;
-}
-
 int MSG_ReadByte(msg_t *msg)
 {
     int c;
@@ -442,6 +429,11 @@ int MSG_ReadByte(msg_t *msg)
         c = -1;
     }
     return c;
+}
+
+int MSG_ReadChar(msg_t *msg)
+{
+    return MSG_ReadByte(msg);
 }
 
 int MSG_LookaheadByte(msg_t *msg)
@@ -506,10 +498,10 @@ const char *MSG_ReadString(msg_t *msg)
         if (c == -1 || c == 0)
             break;
 
-        string[l++] = c;
-
         if (l >= sizeof(string)-1)
             break;
+
+        string[l++] = c;
     }
 
     string[l] = '\0';
@@ -528,10 +520,10 @@ const char *MSG_ReadBigString(msg_t *msg)
         if (c == -1 || c == 0)
             break;
 
-        string[l++] = c;
-
         if (l >= sizeof(string)-1)
             break;
+
+        string[l++] = c;
     }
 
     string[l] = 0;
@@ -550,10 +542,10 @@ const char *MSG_ReadStringLine(msg_t *msg)
         if (c == -1 || c == 0 || c == '\n')
             break;
 
-        string[l++] = c;
-
         if (l >= sizeof(string)-1)
             break;
+
+        string[l++] = c;
     }
 
     string[l] = 0;

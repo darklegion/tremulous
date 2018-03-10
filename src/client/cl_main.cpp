@@ -3552,7 +3552,7 @@ static void CL_ServerInfoPacket(netadr_t from, msg_t *msg)
 {
     int i, type;
     char info[MAX_INFO_STRING];
-    char *infoString;
+    const char *infoString;
     int prot;
     const char *gamename;
     bool gameMismatch;

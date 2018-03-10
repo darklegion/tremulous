@@ -790,7 +790,7 @@ static void SV_ConnectionlessPacket( netadr_t from, msg_t *msg )
         Huff_Decompress(msg, 12);
     }
 
-    char *s = MSG_ReadBigString( msg );
+    const char *s = MSG_ReadBigString( msg );
     Cmd_TokenizeString2( s, false );
 
     const std::string c { Cmd_Argv(0) };
