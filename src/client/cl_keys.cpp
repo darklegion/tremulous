@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 
@@ -22,6 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "client.h"
+#include "qcommon/autocomplete.h"
 
 /*
 
@@ -35,6 +37,10 @@ int nextHistoryLine; // the last line in the history buffer, not masked
 int historyLine;	// the line being displayed from history buffer will be <= nextHistoryLine
 
 field_t g_consoleField;
+
+field_t chatField;
+bool chat_team;
+int chat_playerNum;
 
 bool key_overstrikeMode;
 
@@ -66,7 +72,7 @@ keyname_t keynames[] =
 	{"COMMAND", K_COMMAND},
 
 	{"CAPSLOCK", K_CAPSLOCK},
-	
+
 	{"F1", K_F1},
 	{"F2", K_F2},
 	{"F3", K_F3},
@@ -169,7 +175,7 @@ keyname_t keynames[] =
 	{"KP_EQUALS",		K_KP_EQUALS },
 
 	{"PAUSE", K_PAUSE},
-	
+
 	{"SEMICOLON", ';'},	// because a raw semicolon seperates commands
 
 	{"WORLD_0", K_WORLD_0},
@@ -329,7 +335,7 @@ Handles horizontal scrolling and cursor blinking
 x, y, and width are in pixels
 ===================
 */
-static void Field_VariableSizeDraw( field_t *edit, int x, int y, int width, int size, 
+static void Field_VariableSizeDraw( field_t *edit, int x, int y, int width, int size,
         bool showCursor, bool noColorEscape )
 {
 	int		len;
@@ -403,12 +409,12 @@ static void Field_VariableSizeDraw( field_t *edit, int x, int y, int width, int 
 	}
 }
 
-void Field_Draw( field_t *edit, int x, int y, int width, bool showCursor, bool noColorEscape ) 
+void Field_Draw( field_t *edit, int x, int y, int width, bool showCursor, bool noColorEscape )
 {
 	Field_VariableSizeDraw( edit, x, y, width, SMALLCHAR_WIDTH, showCursor, noColorEscape );
 }
 
-void Field_BigDraw( field_t *edit, int x, int y, int width, bool showCursor, bool noColorEscape ) 
+void Field_BigDraw( field_t *edit, int x, int y, int width, bool showCursor, bool noColorEscape )
 {
 	Field_VariableSizeDraw( edit, x, y, width, BIGCHAR_WIDTH, showCursor, noColorEscape );
 }
@@ -535,7 +541,7 @@ void Field_CharEvent( field_t *edit, int ch )
 
 	if ( ch == 'h' - 'a' + 1 )	{	// ctrl-h is backspace
 		if ( edit->cursor > 0 ) {
-			memmove( edit->buffer + edit->cursor - 1, 
+			memmove( edit->buffer + edit->cursor - 1,
 				edit->buffer + edit->cursor, len + 1 - edit->cursor );
 			edit->cursor--;
 			if ( edit->cursor < edit->scroll )
@@ -565,7 +571,7 @@ void Field_CharEvent( field_t *edit, int ch )
 		return;
 	}
 
-	if ( key_overstrikeMode ) {	
+	if ( key_overstrikeMode ) {
 		// - 2 to leave room for the leading slash and trailing \0
 		if ( edit->cursor == MAX_EDIT_LINE - 2 )
 			return;
@@ -576,7 +582,7 @@ void Field_CharEvent( field_t *edit, int ch )
 		if ( len == MAX_EDIT_LINE - 2 ) {
 			return; // all full
 		}
-		memmove( edit->buffer + edit->cursor + 1, 
+		memmove( edit->buffer + edit->cursor + 1,
 			edit->buffer + edit->cursor, len + 1 - edit->cursor );
 		edit->buffer[edit->cursor] = ch;
 		edit->cursor++;
@@ -683,7 +689,7 @@ static void Console_Key(int key)
 
     if ( (key == K_MWHEELUP && keys[K_SHIFT].down) || ( key == K_UPARROW ) || ( key == K_KP_UPARROW ) ||
             ( ( tolower(key) == 'p' ) && keys[K_CTRL].down ) ) {
-        if ( nextHistoryLine - historyLine < COMMAND_HISTORY 
+        if ( nextHistoryLine - historyLine < COMMAND_HISTORY
                 && historyLine > 0 ) {
             historyLine--;
         }
@@ -748,7 +754,61 @@ static void Console_Key(int key)
     // pass to the normal editline routine
     Field_KeyDownEvent( &g_consoleField, key );
 }
+//============================================================================
 
+
+
+/*
+=================
+Message_Key
+
+In game talk message
+=================
+*/
+static void Message_Key( int key ) {
+
+	char		buffer[MAX_STRING_CHARS];
+
+	if (key == K_ESCAPE) {
+					Key_SetCatcher( Key_GetCatcher( ) & ~KEYCATCH_MESSAGE );
+					Field_Clear( &chatField);
+					return;
+	}
+
+	if ( key == K_ENTER || key == K_KP_ENTER ) {
+		if ( chatField.buffer[0] && clc.state == CA_ACTIVE ){
+
+			if( chatField.buffer[0] == '/' ||
+					chatField.buffer[0] == '\\' )
+				{
+					Com_sprintf( buffer, sizeof( buffer ), "%s\n", &chatField.buffer[1] );
+				}
+
+			 else if (chat_playerNum != -1 ) {
+				Com_sprintf( buffer, sizeof( buffer ),
+				             "tell %i \"%s\"\n",
+										 chat_playerNum,
+										 chatField.buffer );
+			}
+			else if (chat_team) {
+				Com_sprintf( buffer, sizeof( buffer ),
+				             "say_team \"%s\"\n",
+										 chatField.buffer );
+			}
+			else {
+				Com_sprintf( buffer, sizeof( buffer ),
+				             "say \"%s\"\n", chatField.buffer );
+			}
+
+			CL_AddReliableCommand( buffer, false );
+		}
+		Key_SetCatcher( Key_GetCatcher( ) & ~KEYCATCH_MESSAGE );
+		Field_Clear( &chatField );
+		return;
+	}
+
+	Field_KeyDownEvent( &chatField, key);
+}
 
 //============================================================================
 
@@ -793,7 +853,7 @@ to be configured even if they don't have defined names.
 */
 int Key_StringToKeynum( const char *str ) {
 	keyname_t	*kn;
-	
+
 	if ( !str || !str[0] ) {
 		return -1;
 	}
@@ -828,7 +888,7 @@ given keynum.
 ===================
 */
 const char *Key_KeynumToString( int keynum ) {
-	keyname_t	*kn;	
+	keyname_t	*kn;
 	static	char	tinystr[5];
 	int			i, j;
 
@@ -882,7 +942,7 @@ void Key_SetBinding( int keynum, const char *binding ) {
 	if ( keys[ keynum ].binding ) {
 		Z_Free( keys[ keynum ].binding );
 	}
-		
+
 	// allocate memory for new binding
 	keys[keynum].binding = CopyString( binding );
 
@@ -905,7 +965,7 @@ const char *Key_GetBinding( int keynum ) {
 	return keys[ keynum ].binding;
 }
 
-/* 
+/*
 ===================
 Key_GetKey
 ===================
@@ -936,7 +996,7 @@ void Key_Unbind_f (void)
 		Com_Printf ("unbind <key> : remove commands from a key\n");
 		return;
 	}
-	
+
 	int b = Key_StringToKeynum(Cmd_Argv(1));
 	if ( b == -1 )
 	{
@@ -955,7 +1015,7 @@ Key_Unbindall_f
 void Key_Unbindall_f (void)
 {
 	int		i;
-	
+
 	for (i=0 ; i < MAX_KEYS; i++)
 		if (keys[i].binding)
 			Key_SetBinding (i, "");
@@ -971,7 +1031,7 @@ void Key_Bind_f (void)
 {
 	int			i, c, b;
 	char		cmd[1024];
-	
+
 	c = Cmd_Argc();
 
 	if (c < 2)
@@ -994,7 +1054,7 @@ void Key_Bind_f (void)
 			Com_Printf ("\"%s\" is not bound\n", Key_KeynumToString(b) );
 		return;
 	}
-	
+
 // copy the rest of the command line
 	cmd[0] = 0;		// start out with a null string
 	for (i=2 ; i< c ; i++)
@@ -1236,26 +1296,33 @@ static void CL_KeyDownEvent( int key, unsigned time )
 
 	// escape is always handled special
 	if ( key == K_ESCAPE ) {
+		if ( clc.netchan.alternateProtocol == 2 &&
+			   ( Key_GetCatcher( ) & KEYCATCH_MESSAGE ) ) {
+			// clear message mode
+			Message_Key( key );
+			return;
+		}
+
 		// escape always gets out of CGAME stuff
 		if (Key_GetCatcher( ) & KEYCATCH_CGAME) {
 			Key_SetCatcher( Key_GetCatcher( ) & ~KEYCATCH_CGAME );
-			VM_Call (cgvm, CG_EVENT_HANDLING, CGAME_EVENT_NONE);
+			VM_Call (cls.cgame, CG_EVENT_HANDLING, CGAME_EVENT_NONE);
 			return;
 		}
 
 		if ( !( Key_GetCatcher( ) & KEYCATCH_UI ) ) {
 			if ( clc.state == CA_ACTIVE && !clc.demoplaying ) {
-				VM_Call( uivm, UI_SET_ACTIVE_MENU - ( uiInterface == 2 ? 2 : 0 ), UIMENU_INGAME );
+				VM_Call( cls.ui, UI_SET_ACTIVE_MENU - ( cls.uiInterface == 2 ? 2 : 0 ), UIMENU_INGAME );
 			}
 			else if ( clc.state != CA_DISCONNECTED ) {
 				CL_Disconnect_f();
 				S_StopAllSounds();
-				VM_Call( uivm, UI_SET_ACTIVE_MENU - ( uiInterface == 2 ? 2 : 0 ), UIMENU_MAIN );
+				VM_Call( cls.ui, UI_SET_ACTIVE_MENU - ( cls.uiInterface == 2 ? 2 : 0 ), UIMENU_MAIN );
 			}
 			return;
 		}
 
-		VM_Call( uivm, UI_KEY_EVENT, key, true );
+		VM_Call( cls.ui, UI_KEY_EVENT, key, true );
 		return;
 	}
 
@@ -1266,13 +1333,16 @@ static void CL_KeyDownEvent( int key, unsigned time )
 	if ( Key_GetCatcher( ) & KEYCATCH_CONSOLE ) {
 		Console_Key( key );
 	} else if ( Key_GetCatcher( ) & KEYCATCH_UI ) {
-		if ( uivm ) {
-			VM_Call( uivm, UI_KEY_EVENT, key, true );
-		} 
+		if ( cls.ui ) {
+			VM_Call( cls.ui, UI_KEY_EVENT, key, true );
+		}
 	} else if ( Key_GetCatcher( ) & KEYCATCH_CGAME ) {
-		if ( cgvm ) {
-			VM_Call( cgvm, CG_KEY_EVENT, key, true );
-		} 
+		if ( cls.cgame ) {
+			VM_Call( cls.cgame, CG_KEY_EVENT, key, true );
+		}
+	} else if ( clc.netchan.alternateProtocol == 2 &&
+			        ( Key_GetCatcher( ) & KEYCATCH_MESSAGE ) ) {
+			Message_Key( key );
 	} else if ( clc.state == CA_DISCONNECTED ) {
 		Console_Key( key );
 	}
@@ -1307,10 +1377,10 @@ static void CL_KeyUpEvent( int key, unsigned time )
 	//
 	CL_ParseBinding( key, false, time );
 
-	if ( Key_GetCatcher( ) & KEYCATCH_UI && uivm ) {
-		VM_Call( uivm, UI_KEY_EVENT, key, false );
-	} else if ( Key_GetCatcher( ) & KEYCATCH_CGAME && cgvm ) {
-		VM_Call( cgvm, CG_KEY_EVENT, key, false );
+	if ( Key_GetCatcher( ) & KEYCATCH_UI && cls.ui ) {
+		VM_Call( cls.ui, UI_KEY_EVENT, key, false );
+	} else if ( Key_GetCatcher( ) & KEYCATCH_CGAME && cls.cgame ) {
+		VM_Call( cls.cgame, CG_KEY_EVENT, key, false );
 	}
 }
 
@@ -1348,7 +1418,11 @@ void CL_CharEvent( int key )
 		Field_CharEvent( &g_consoleField, key );
 
 	else if ( Key_GetCatcher( ) & KEYCATCH_UI )
-		VM_Call( uivm, UI_KEY_EVENT, key | K_CHAR_FLAG, true );
+		VM_Call( cls.ui, UI_KEY_EVENT, key | K_CHAR_FLAG, true );
+
+	else if ( clc.netchan.alternateProtocol == 2 &&
+		        ( Key_GetCatcher( ) & KEYCATCH_MESSAGE ) )
+		Field_CharEvent( &chatField, key );
 
 	else if ( clc.state == CA_DISCONNECTED )
 		Field_CharEvent( &g_consoleField, key );

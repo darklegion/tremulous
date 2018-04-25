@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 
@@ -879,7 +880,7 @@ nextInstruction2:
 			((float *) opStack)[opStackOfs] = (float) opStack[opStackOfs];
 			goto nextInstruction;
 		case OP_CVFI:
-			opStack[opStackOfs] = Q_ftol(((float *) opStack)[opStackOfs]);
+			opStack[opStackOfs] = static_cast<int>(((float *) opStack)[opStackOfs]);
 			goto nextInstruction;
 		case OP_SEX8:
 			opStack[opStackOfs] = (signed char) opStack[opStackOfs];

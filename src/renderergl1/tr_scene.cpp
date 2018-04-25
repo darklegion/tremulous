@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 
@@ -345,7 +346,7 @@ void RE_RenderScene( const refdef_t *fd ) {
 
 	// derived info
 
-	tr.refdef.floatTime = tr.refdef.time * 0.001f;
+	tr.refdef.floatTime = tr.refdef.time * 0.001;
 
 	tr.refdef.numDrawSurfs = r_firstSceneDrawSurf;
 	tr.refdef.drawSurfs = backEndData->drawSurfs;

@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 
@@ -24,13 +25,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cmd.h"
 
+#include "autocomplete.h"
 #include "cvar.h"
 #include "files.h"
 #include "q_shared.h"
 #include "qcommon.h"
 
 #ifndef DEDICATED
-#include "../client/client.h"
+#include "client/client.h"
 #endif
 
 #define	MAX_CMD_BUFFER  128*1024
@@ -682,6 +684,16 @@ cmd_function_t *Cmd_FindCommand( const char *cmd_name )
 
 /*
 ============
+Cmd_FindCommand
+============
+*/
+bool Cmd_CommadExists( const char *cmd_name )
+{
+	return Cmd_FindCommand( cmd_name ) ? true : false;
+}
+
+/*
+============
 Cmd_AddCommand
 ============
 */
@@ -797,9 +809,14 @@ void Cmd_CompleteArgument( const char *command, char *args, int argNum )
 {
     cmd_function_t	*cmd;
 
+    // FIXIT-H: There needs to be a way to toggle this functionality at runtime
+    // rather than just crashing when a cgame doesn't provide support. #45
+    //  https://github.com/GrangerHub/tremulous/issues/45
+#if 0
 #ifndef DEDICATED
     // Forward command argument completion to CGAME VM
-    if( cgvm && !VM_Call( cgvm, CG_CONSOLE_COMPLETARGUMENT, argNum ) )
+    if( cls.cgame && !VM_Call( cls.cgame, CG_CONSOLE_COMPLETARGUMENT, argNum ) )
+#endif
 #endif
     // Call local completion if VM doesn't pick up
     for( cmd = cmd_functions; cmd; cmd = cmd->next )
@@ -923,4 +940,3 @@ void Cmd_Init (void) {
 	Cmd_AddCommand ("echo",Cmd_Echo_f);
 	Cmd_AddCommand ("wait", Cmd_Wait_f);
 }
-

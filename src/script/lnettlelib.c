@@ -1,9 +1,7 @@
 #include <string.h>
 
-#include "../lua-5.3.3/include/lua.h"
-#include "../lua-5.3.3/include/lauxlib.h"
-//#include "../qcommon/q3_lauxlib.h" FIXME? This doesn't seem to be hooked correctly into
-//                                          tremded.exe
+#include "lauxlib.h"
+#include "lua.h"
 #include "nettle/sha2.h"
 
 #define SHA256_CTX "sha256_ctx*"

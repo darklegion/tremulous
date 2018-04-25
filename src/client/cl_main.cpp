@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 
@@ -22,20 +23,22 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 // cl_main.c  -- client main loop
 
-#include "cl_updates.h"
 #include "client.h"
-
-#include <limits.h>
-
-#include "../sys/sys_loadlib.h"
-#include "../sys/sys_local.h"
-
-#ifdef USE_MUMBLE
-#include "libmumblelink.h"
-#endif
 
 #ifndef _WIN32
 #include <sys/stat.h>
+#endif
+
+#include <climits>
+
+#include "qcommon/autocomplete.h"
+#include "sys/sys_loadlib.h"
+#include "sys/sys_local.h"
+#include "sys/sys_shared.h"
+
+#include "cl_updates.h"
+#ifdef USE_MUMBLE
+#include "libmumblelink.h"
 #endif
 
 #ifdef USE_MUMBLE
@@ -133,7 +136,6 @@ cvar_t *cl_rsaAuth;
 clientActive_t cl;
 clientConnection_t clc;
 clientStatic_t cls;
-vm_t *cgvm;
 
 char cl_reconnectArgs[MAX_OSPATH];
 char cl_oldGame[MAX_QPATH];
@@ -387,12 +389,12 @@ static void CL_VoipParseTargets(void)
             {
                 if (!Q_stricmpn(target, "attacker", 8))
                 {
-                    val = VM_Call(cgvm, CG_LAST_ATTACKER);
+                    val = VM_Call(cls.cgame, CG_LAST_ATTACKER);
                     target += 8;
                 }
                 else if (!Q_stricmpn(target, "crosshair", 9))
                 {
-                    val = VM_Call(cgvm, CG_CROSSHAIR_PLAYER);
+                    val = VM_Call(cls.cgame, CG_CROSSHAIR_PLAYER);
                     target += 9;
                 }
                 else
@@ -1383,9 +1385,9 @@ void CL_Disconnect(bool showMainMenu)
         clc.demofile = 0;
     }
 
-    if (uivm && showMainMenu)
+    if (cls.ui && showMainMenu)
     {
-        VM_Call(uivm, UI_SET_ACTIVE_MENU - (uiInterface == 2 ? 2 : 0), UIMENU_NONE);
+        VM_Call(cls.ui, UI_SET_ACTIVE_MENU - (cls.uiInterface == 2 ? 2 : 0), UIMENU_NONE);
     }
 
     SCR_StopCinematic();
@@ -1411,6 +1413,8 @@ void CL_Disconnect(bool showMainMenu)
     ::memset(&clc, 0, sizeof(clc));
 
     clc.state = CA_DISCONNECTED;
+
+    CL_ProtocolSpecificCommandsInit();
 
     // allow cheats locally
     Cvar_Set("sv_cheats", "1");
@@ -1652,6 +1656,7 @@ void CL_Connect_f(void)
     {
         Com_Printf("Bad server address\n");
         clc.state = CA_DISCONNECTED;
+        CL_ProtocolSpecificCommandsInit();
         return;
     }
     if (clc.serverAddress.port == 0)
@@ -2503,6 +2508,7 @@ void CL_MapLoading(void)
     {
         clc.state = CA_DISCONNECTED;
         Key_SetCatcher(KEYCATCH_CONSOLE);
+        CL_ProtocolSpecificCommandsInit();
         return;
     }
 
@@ -2688,7 +2694,9 @@ static void CL_ServersResponsePacket(const netadr_t *from, msg_t *msg, bool exte
     byte *buffend;
     char label[MAX_FEATLABEL_CHARS] = "";
 
-    Com_DPrintf("CL_ServersResponsePacket%s\n", (extended) ? " (extended)" : "");
+    Com_DPrintf("CL_ServersResponsePacket from %s %s\n",
+            NET_AdrToStringwPort(*from),
+            extended ? " (extended)" : "");
 
     if (cls.numglobalservers == -1)
     {
@@ -2943,11 +2951,11 @@ void CL_Frame(int msec)
         }
     }
 
-    if (clc.state == CA_DISCONNECTED && !(Key_GetCatcher() & KEYCATCH_UI) && !com_sv_running->integer && uivm)
+    if (clc.state == CA_DISCONNECTED && !(Key_GetCatcher() & KEYCATCH_UI) && !com_sv_running->integer && cls.ui)
     {
         // if disconnected, bring up the menu
         S_StopAllSounds();
-        VM_Call(uivm, UI_SET_ACTIVE_MENU - (uiInterface == 2 ? 2 : 0), UIMENU_MAIN);
+        VM_Call(cls.ui, UI_SET_ACTIVE_MENU - (cls.uiInterface == 2 ? 2 : 0), UIMENU_MAIN);
     }
 
     // if recording an avi, lock to a fixed fps
@@ -3284,6 +3292,11 @@ static void CL_InitRenderer(void)
     g_consoleField.widthInChars = g_console_field_width;
 }
 
+refexport_t *CL_GetRenderer(void)
+{
+    return &re;
+}
+
 /*
 ============================
 CL_StartHunkUsers
@@ -3541,7 +3554,7 @@ static void CL_ServerInfoPacket(netadr_t from, msg_t *msg)
     char info[MAX_INFO_STRING];
     char *infoString;
     int prot;
-    char *gamename;
+    const char *gamename;
     bool gameMismatch;
 
     infoString = MSG_ReadString(msg);
@@ -4042,7 +4055,7 @@ static serverStatus_t *CL_GetServerStatus(netadr_t from)
 CL_ServerStatus
 ===================
 */
-bool CL_ServerStatus(char *serverAddress, char *serverStatusString, int maxLen)
+bool CL_ServerStatus(const char *serverAddress, char *serverStatusString, int maxLen)
 {
     int i;
     netadr_t to;
@@ -4165,14 +4178,15 @@ CL_GlobalServers_f
 static void CL_GlobalServers_f(void)
 {
     int netAlternateProtocols, a;
-    netadr_t to;
-    int count, i, masterNum;
+    int i;
     char command[1024];
     const char *masteraddress;
 
-    if ((count = Cmd_Argc()) < 2 || (masterNum = atoi(Cmd_Argv(1))) < 0 || masterNum > MAX_MASTER_SERVERS - 1)
+    int masterNum;
+    int count = Cmd_Argc();
+    if ( count < 2 || (masterNum = atoi(Cmd_Argv(1))) < 0 || masterNum > MAX_MASTER_SERVERS )
     {
-        Com_Printf("usage: globalservers <master# 0-%d> [keywords]\n", MAX_MASTER_SERVERS - 1);
+        Com_Printf("usage: globalservers <master# 0-%d> [keywords]\n", MAX_MASTER_SERVERS);
         return;
     }
 
@@ -4183,9 +4197,34 @@ static void CL_GlobalServers_f(void)
         // indent
         if (a == 0 && (netAlternateProtocols & NET_DISABLEPRIMPROTO)) continue;
         if (a == 1 && !(netAlternateProtocols & NET_ENABLEALT1PROTO)) continue;
-        if (a == 2 && !(netAlternateProtocols & NET_ENABLEALT1PROTO)) continue;
+        if (a == 2 && !(netAlternateProtocols & NET_ENABLEALT2PROTO)) continue;
 
-        sprintf(command, "sv_%smaster%d", (a == 0 ? "" : a == 1 ? "alt1" : "alt2"), masterNum + 1);
+        // request from all master servers
+        if ( masterNum == 0 )
+        {
+            int numAddress = 0;
+
+            for ( int i = 1; i <= MAX_MASTER_SERVERS; i++ )
+            {
+                sprintf(command, "sv_master%d", i);
+                masteraddress = Cvar_VariableString(command);
+
+                if(!*masteraddress)
+                    continue;
+
+                numAddress++;
+
+                Com_sprintf(command, sizeof(command), "globalservers %d %s %s\n", i, Cmd_Argv(2), Cmd_ArgsFrom(3));
+                Cbuf_AddText(command);
+            }
+
+            if ( !numAddress )
+                Com_Printf("CL_GlobalServers_f: Error: No master server addresses.\n");
+
+            return;
+        }
+
+        sprintf(command, "sv_%smaster%d", (a == 0 ? "" : a == 1 ? "alt1" : "alt2"), masterNum);
         masteraddress = Cvar_VariableString(command);
 
         if (!*masteraddress)
@@ -4197,51 +4236,32 @@ static void CL_GlobalServers_f(void)
 
         // reset the list, waiting for response
         // -1 is used to distinguish a "no response"
+        netadr_t to;
+        int i = NET_StringToAdr(masteraddress, &to, NA_UNSPEC);
 
-        i = NET_StringToAdr(masteraddress, &to, NA_UNSPEC);
-
-        if (!i)
+        if ( i == 0 )
         {
             Com_Printf("CL_GlobalServers_f: Error: could not resolve address of%s master %s\n",
                 (a == 0 ? "" : a == 1 ? " alternate-1" : " alternate-2"), masteraddress);
             continue;
         }
-        else if (i == 2)
+        else if ( i == 2 )
+        {
             to.port = BigShort(a == 0 ? PORT_MASTER : a == 1 ? ALT1PORT_MASTER : ALT2PORT_MASTER);
+        }
         to.alternateProtocol = a;
 
-        Com_Printf("Requesting servers from%s master %s...\n", (a == 0 ? "" : a == 1 ? " alternate-1" : " alternate-2"),
-            masteraddress);
+        Com_Printf("Requesting servers from%s master %s...\n",
+                a == 0 ? "" : a == 1 ? " alternate-1" : " alternate-2",
+                masteraddress);
 
         cls.numglobalservers = -1;
         cls.pingUpdateSource = AS_GLOBAL;
 
-#if 0
-	// Use the extended query for IPv6 masters
-	if (to.type == NA_IP6 || to.type == NA_MULTICAST6)
-	{
-		int v4enabled = Cvar_VariableIntegerValue("net_enabled") & NET_ENABLEV4;
-		
-		if(v4enabled)
-		{
-			Com_sprintf(command, sizeof(command), "getserversExt %d %s",
-				PROTOCOL_VERSION, Cmd_Argv(2));
-		}
-		else
-		{
-			Com_sprintf(command, sizeof(command), "getserversExt %d %s ipv6",
-				PROTOCOL_VERSION, Cmd_Argv(2));
-		}
-	}
-    else
-    {
-        Com_sprintf(command, sizeof(command), "getservers %d %s",
-               PROTOCOL_VERSION, Cmd_Argv(2));
-    }
-#endif
-        Com_sprintf(command, sizeof(command), "getserversExt %s %i%s", com_gamename->string,
-            (a == 0 ? PROTOCOL_VERSION : a == 1 ? 70 : 69),
-            (Cvar_VariableIntegerValue("net_enabled") & NET_ENABLEV4 ? "" : " ipv6"));
+        Com_sprintf(command, sizeof(command), "getserversExt %s %i%s",
+                com_gamename->string,
+                a == 0 ? PROTOCOL_VERSION : a == 1 ? 70 : 69,
+                Cvar_VariableIntegerValue("net_enabled") & NET_ENABLEV4 ? "" : " ipv6");
 
         for (i = 3; i < count; i++)
         {
@@ -4662,7 +4682,7 @@ static void CL_InitRef(void)
     Com_Printf("----- Initializing Renderer ----\n");
 
 #ifdef USE_RENDERER_DLOPEN
-    cl_renderer = Cvar_Get("cl_renderer", "opengl2", CVAR_ARCHIVE | CVAR_LATCH | CVAR_PROTECTED);
+    cl_renderer = Cvar_Get("cl_renderer", "opengl2", CVAR_ARCHIVE | CVAR_LATCH);
 
     Com_sprintf(dllName, sizeof(dllName), "renderer_%s" DLL_EXT, cl_renderer->string);
 
@@ -4735,8 +4755,6 @@ static void CL_InitRef(void)
     ri.IN_Shutdown = IN_Shutdown;
     ri.IN_Restart = IN_Restart;
 
-    ri.ftol = Q_ftol;
-
     ri.Sys_GLimpSafeInit = Sys_GLimpSafeInit;
     ri.Sys_GLimpInit = Sys_GLimpInit;
     ri.Sys_LowPhysicalMemory = Sys_LowPhysicalMemory;
@@ -4758,6 +4776,19 @@ static void CL_InitRef(void)
 
     // unpause so the cgame definately gets a snapshot and renders a frame
     Cvar_Set("cl_paused", "0");
+}
+
+/*
+====================
+CL_ProtocolSpecificCommandsInit
+
+For adding/remove commands that depend on a/some
+specific protocols, whenever the protcol may change
+====================
+*/
+void CL_ProtocolSpecificCommandsInit(void)
+{
+  Con_MessageModesInit();
 }
 
 /*
@@ -5040,4 +5071,3 @@ void CL_Shutdown(const char *finalmsg, bool disconnect, bool quit)
 
     Com_Printf("-----------------------\n");
 }
-

@@ -1,6 +1,7 @@
 //
 // This file is part of Tremulous.
 // Copyright © 2016 Victor Roemer (blowfish) <victor@badsec.org>
+// Copyright (C) 2015-2018 GrangerHub
 // 
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -25,6 +26,8 @@
 
 #include <iostream>
 
+#define LUA_BUILD_AS_DLL
+#define LUA_CORE
 #include "lua.hpp"
 #include "sol.hpp"
 

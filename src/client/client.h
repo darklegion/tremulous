@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 
@@ -25,30 +26,34 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef _CLIENT_H_
 #define _CLIENT_H_
 
-#include "../cgame/cg_public.h"
-#include "../qcommon/cmd.h"
-#include "../qcommon/cvar.h"
-#include "../qcommon/files.h"
-#include "../qcommon/crypto.h"
-#include "../qcommon/q_shared.h"
-#include "../qcommon/qcommon.h"
-#include "../sys/sys_shared.h"
-#include "../qcommon/vm.h"
-#include "../qcommon/msg.h"
-#include "../qcommon/net.h"
-#include "../qcommon/huffman.h"
-#include "../renderercommon/tr_public.h"
-#include "../ui/ui_public.h"
-#include "keys.h"
-#include "snd_public.h"
-
-#include "cl_curl.h"
-
 #ifdef USE_VOIP
 #include <opus.h>
 #endif
 
-#include "../qcommon/alternatePlayerstate.h"
+#include "cgame/cg_public.h"
+#include "qcommon/alternatePlayerstate.h"
+#include "qcommon/cmd.h"
+#include "qcommon/crypto.h"
+#include "qcommon/cvar.h"
+#include "qcommon/files.h"
+#include "qcommon/huffman.h"
+#include "qcommon/msg.h"
+#include "qcommon/net.h"
+#include "qcommon/q_shared.h"
+#include "qcommon/qcommon.h"
+#include "qcommon/vm.h"
+#include "renderercommon/tr_public.h"
+#include "sys/sys_shared.h"
+#include "ui/ui_public.h"
+
+#include "cl_cgame.h"
+#include "cl_curl.h"
+#include "cl_keys.h"
+#include "cl_main.h"
+#include "cl_screen.h"
+#include "cl_ui.h"
+#include "keys.h"
+#include "snd_public.h"
 
 struct alternateEntityState_t {
     int number;  // entity index
@@ -424,6 +429,12 @@ struct clientStatic_t {
     qhandle_t whiteShader;
     qhandle_t consoleShader;
 
+    vm_t *cgame;
+    int cgInterface; // 0 == gpp, 2 == 1.1.0
+
+    vm_t *ui;
+    int uiInterface;
+
     struct {
         struct rsa_public_key public_key;
         struct rsa_private_key private_key;
@@ -437,9 +448,6 @@ extern bool cl_oldGameSet;
 
 //=============================================================================
 
-extern vm_t *cgvm;  // interface to cgame dll or vm
-extern vm_t *uivm;  // interface to ui dll or vm
-extern int uiInterface;
 extern refexport_t re;  // interface to refresh .dll
 
 //
@@ -534,44 +542,15 @@ extern cvar_t *cl_rsaAuth;
 //=================================================
 
 //
-// cl_main
-//
-
-void CL_Init(void);
-void CL_AddReliableCommand(const char *cmd, bool isDisconnectCmd);
-
-void CL_StartHunkUsers(bool rendererOnly);
-
-void CL_Disconnect_f(void);
-void CL_NextDemo(void);
-void CL_ReadDemoMessage(void);
-demoState_t CL_DemoState(void);
-int CL_DemoPos(void);
-void CL_DemoName(char *buffer, int size);
-void CL_StopRecord_f(void);
-
-void CL_InitDownloads(void);
-void CL_NextDownload(void);
-
-void CL_GetPing(int n, char *buf, int buflen, int *pingtime);
-void CL_GetPingInfo(int n, char *buf, int buflen);
-void CL_ClearPing(int n);
-int CL_GetPingQueueCount(void);
-
-bool CL_ServerStatus(char *serverAddress, char *serverStatusString, int maxLen);
-
-bool CL_CheckPaused(void);
-
-//
 // cl_input
 //
-typedef struct {
+struct kbutton_t {
     int down[2];  // key nums holding it down
     unsigned downtime;  // msec timestamp
     unsigned msec;  // msec down this frame if both a down and up happened
     bool active;  // current state
     bool wasPressed;  // set when down, not cleared when up
-} kbutton_t;
+};
 
 void CL_InitInput(void);
 void CL_ShutdownInput(void);
@@ -600,14 +579,14 @@ void CL_ParseServerMessage(msg_t *msg);
 
 //====================================================================
 
-bool CL_UpdateVisiblePings_f(int source);
-
 //
 // console
 //
 void Con_DrawCharacter(int cx, int line, int num);
 
 void Con_CheckResize(void);
+void Con_MessageModesInit(void);
+void CL_ProtocolSpecificCommandsInit(void);
 void Con_Init(void);
 void Con_Shutdown(void);
 void Con_Clear_f(void);
@@ -625,28 +604,6 @@ void CL_LoadConsoleHistory(void);
 void CL_SaveConsoleHistory(void);
 
 //
-// cl_scrn.c
-//
-void SCR_Init(void);
-void SCR_UpdateScreen(void);
-
-void SCR_DebugGraph(float value);
-
-int SCR_GetBigStringWidth(const char *str);  // returns in virtual 640x480 coordinates
-
-void SCR_AdjustFrom640(float *x, float *y, float *w, float *h);
-void SCR_FillRect(float x, float y, float width, float height, const float *color);
-void SCR_DrawPic(float x, float y, float width, float height, qhandle_t hShader);
-void SCR_DrawNamedPic(float x, float y, float width, float height, const char *picname);
-
-void SCR_DrawBigString(int x, int y, const char *s, float alpha,
-    bool noColorEscape);  // draws a string with embedded color control characters with fade
-void SCR_DrawBigStringColor(
-    int x, int y, const char *s, vec4_t color, bool noColorEscape);  // ignores embedded color control characters
-void SCR_DrawSmallStringExt(int x, int y, const char *string, float *setColor, bool forceColor, bool noColorEscape);
-void SCR_DrawSmallChar(int x, int y, int ch);
-
-//
 // cl_cin.c
 //
 
@@ -654,35 +611,13 @@ void CL_PlayCinematic_f(void);
 void SCR_DrawCinematic(void);
 void SCR_RunCinematic(void);
 void SCR_StopCinematic(void);
-int CIN_PlayCinematic(const char *arg0, int xpos, int ypos, int width, int height, int bits);
-e_status CIN_StopCinematic(int handle);
-e_status CIN_RunCinematic(int handle);
-void CIN_DrawCinematic(int handle);
-void CIN_SetExtents(int handle, int x, int y, int w, int h);
+SO_PUBLIC int CIN_PlayCinematic(const char *arg0, int xpos, int ypos, int width, int height, int bits);
+SO_PUBLIC e_status CIN_StopCinematic(int handle);
+SO_PUBLIC e_status CIN_RunCinematic(int handle);
+SO_PUBLIC void CIN_DrawCinematic(int handle);
+SO_PUBLIC void CIN_SetExtents(int handle, int x, int y, int w, int h);
 void CIN_UploadCinematic(int handle);
 void CIN_CloseAllVideos(void);
-
-//
-// cl_cgame.c
-//
-void CL_InitCGame(void);
-void CL_ShutdownCGame(void);
-bool CL_GameCommand(void);
-void CL_GameConsoleText(void);
-void CL_CGameRendering(stereoFrame_t stereo);
-void CL_SetCGameTime(void);
-void CL_FirstSnapshot(void);
-void CL_ShaderStateChanged(void);
-
-//
-// cl_ui.c
-//
-void CL_InitUI(void);
-void CL_ShutdownUI(void);
-int Key_GetCatcher(void);
-void Key_SetCatcher(int catcher);
-void LAN_LoadCachedServers(void);
-void LAN_SaveServersToCache(void);
 
 //
 // cl_net_chan.c

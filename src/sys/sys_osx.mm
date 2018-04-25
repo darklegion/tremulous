@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2009 Darklegion Development
+Copyright (C) 2015-2018 GrangerHub
 
 
 This file is part of Tremulous.
@@ -29,8 +30,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // Please note that this file is just some Mac-specific bits. Most of the
 // Mac OS X code is shared with other Unix platforms in sys_unix.c ...
 
-#include "../qcommon/q_shared.h"
-#include "../qcommon/qcommon.h"
+#include "qcommon/q_shared.h"
+#include "qcommon/qcommon.h"
 #include "dialog.h"
 #include "sys_local.h"
 
@@ -100,4 +101,3 @@ dialogResult_t Sys_Dialog( dialogType_t type, const char *message, const char *t
 
 	return result;
 }
-

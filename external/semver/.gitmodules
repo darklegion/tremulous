@@ -1,0 +1,6 @@
+[submodule "contrib/testinator"]
+	path = contrib/testinator
+	url = https://github.com/elbeno/testinator.git
+[submodule "contrib/gsl"]
+	path = contrib/gsl
+	url = https://github.com/Microsoft/GSL.git

@@ -1,32 +1,28 @@
 #include "cl_updates.h"
-#include "cl_rest.h"
+
+#include <libgen.h>
+#include <unistd.h>
+
+#include "nettle/rsa.h"
+#include "nettle/sha2.h"
+#include "rapidjson.h"
+#include "restclient/connection.h"
+#include "restclient/restclient.h"
+#include "semantic_version.h"
 
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include <array>
 
-#include <libgen.h>
-#include <unistd.h>
+#include "qcommon/cvar.h"
+#include "qcommon/q_platform.h"
+#include "qcommon/q_shared.h"
+#include "qcommon/qcommon.h"
+#include "qcommon/unzip.h"
+#include "sys/sys_shared.h"
 
-#include "restclient/restclient.h"
-#include "restclient/connection.h"
-
-#include "rapidjson.h"
-
-//#include "lua.hpp"
-//#include "../sol/sol.h"
-
-#include "../qcommon/cvar.h"
-#include "../qcommon/q_shared.h"
-#include "../qcommon/qcommon.h"
-#include "../sys/sys_shared.h"
-#include "../qcommon/unzip.h"
-
-#include "../qcommon/q_platform.h"
-
-#include "nettle/rsa.h"
-#include "nettle/sha2.h"
+#include "cl_rest.h"
 
 using namespace std;
 
@@ -136,6 +132,22 @@ void UpdateManager::refresh()
 
     rapidjson::Value &release = d[0];
     std::string txt;
+    
+    semver::v2::Version current { PRODUCT_VERSION + 1 };
+    semver::v2::Version latest { release["tag_name"].GetString() + 1 };
+
+    if ( current == latest )
+    {
+        txt += "You are up to date\n\n";
+    }
+    else if ( current < latest )
+    {
+        txt += "A new release is available!\n\n";
+    }
+    else if ( current > latest )
+    { 
+        txt += "Wow! You are ahead of the release.\n\n";
+    }
     
     txt += release["tag_name"].GetString();
     if (release["prerelease"].IsTrue())

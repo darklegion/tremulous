@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 
@@ -21,18 +22,18 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#include <stdlib.h>
-#include <stdio.h>
+#include <cstdlib>
+#include <cstdio>
 
 #ifdef USE_LOCAL_HEADERS
-#	include "SDL.h"
+# include "SDL.h"
 #else
-#	include <SDL.h>
+# include <SDL.h>
 #endif
 
-#include "../qcommon/cvar.h"
-#include "../qcommon/q_shared.h"
-#include "../client/snd_local.h"
+#include "client/snd_local.h"
+#include "qcommon/cvar.h"
+#include "qcommon/q_shared.h"
 
 bool snd_inited = false;
 

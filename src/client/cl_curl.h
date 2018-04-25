@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 2006 Tony J. White (tjw@tjw.org)
 Copyright (C) 2000-2013 Darklegion Development
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 
@@ -24,17 +25,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __QCURL_H__
 #define __QCURL_H__
 
-#include "../qcommon/q_shared.h"
-#include "../qcommon/qcommon.h"
-
 #ifdef USE_LOCAL_HEADERS
-  #include "../libcurl-7.35.0/curl/curl.h"
+#include "curl/curl.h"
 #else
-  #include <curl/curl.h>
+#include <curl/curl.h>
 #endif
 
+#include "qcommon/q_shared.h"
+#include "qcommon/qcommon.h"
+
 #ifdef USE_CURL_DLOPEN
-#ifdef WIN32
+#ifdef _WIN32
   #define DEFAULT_CURL_LIB "libcurl-4.dll"
   #define ALTERNATE_CURL_LIB "libcurl-3.dll"
 #elif defined(__APPLE__)

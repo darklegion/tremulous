@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 
@@ -21,41 +22,31 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#include <iostream>
+#include "sys_local.h"
 
-#include "../lua-5.3.3/include/lua.hpp"
-#include "../sol/sol.hpp"
-
-#include <errno.h>
-#include <string.h>
+#include <setjmp.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
-
-#ifdef _WIN32
+#ifdef WIN32
 #include <windows.h>
 #endif
 
-#include "../script/cvar.h"
-#include "../script/cmd.h"
-#ifndef DEDICATED
-#include "../script/http_client.h"
-#include "../script/client.h"
-#include "../script/bind.h"
-#endif
-#include "../script/rapidjson.h"
-#include "../script/nettle.h"
+#include <cctype>
+#include <cerrno>
+#include <climits>
+#include <csignal>
+#include <cstdarg>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <cstring>
+#include <iostream>
 
-#include <signal.h>
-#include <stdlib.h>
-#include <limits.h>
-#include <sys/types.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <sys/stat.h>
-#include <string.h>
-#include <ctype.h>
-#include <errno.h>
-#include <setjmp.h>
-
+#define LUA_BUILD_AS_DLL
+#define LUA_CORE
+#include "lua.hpp"
+#include "sol.hpp"
 #ifndef DEDICATED
 #ifdef USE_LOCAL_HEADERS
 # include "SDL.h"
@@ -66,19 +57,82 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 #endif
 
+#include "qcommon/files.h"
+#include "qcommon/q_shared.h"
+#include "qcommon/qcommon.h"
+#include "qcommon/vm.h"
+#ifndef DEDICATED
+#include "script/bind.h"
+#include "script/client.h"
+#include "script/http_client.h"
+#endif
+#include "script/cmd.h"
+#include "script/cvar.h"
+#include "script/mathlib.h"
+#include "script/nettle.h"
+#include "script/rapidjson.h"
+
 #include "dialog.h"
-#include "sys_local.h"
 #include "sys_loadlib.h"
 
-#include "../qcommon/files.h"
-#include "../qcommon/q_shared.h"
-#include "../qcommon/qcommon.h"
-#include "../qcommon/vm.h"
-
-sol::state lua;
+sol::state *lua = nullptr;
 
 static char binaryPath[ MAX_OSPATH ] = { 0 };
 static char installPath[ MAX_OSPATH ] = { 0 };
+
+void Lua_Delete(void)
+{
+    if ( lua )
+    {
+        delete lua;
+        lua = nullptr;
+    }
+}
+
+void Lua_Init(void)
+{
+    Lua_Delete();
+
+    lua = new(sol::state);
+
+    lua->open_libraries
+    (
+     sol::lib::base,
+     sol::lib::package,
+#if !defined(SOL_LUAJIT) // Not with LuaJIT.
+     sol::lib::coroutine,
+#endif
+     sol::lib::string,
+     sol::lib::table,
+     sol::lib::math,
+     sol::lib::bit32,
+     sol::lib::io,
+     sol::lib::os,
+     sol::lib::debug,
+     sol::lib::utf8 // Only with Lua 5.3; ommiting ifdef on purpose. -bbq
+#if defined(SOL_LUAJIT) // Only with LuaJIT.
+     ,sol::lib::ffi,
+     sol::lib::jit
+#endif
+    );
+
+    script::cmd::init(std::move(*lua));
+    script::cvar::init(std::move(*lua));
+    script::mathlib::init(std::move(*lua));
+    script::nettle::init(std::move(*lua));
+    script::rapidjson::init(std::move(*lua));
+
+#ifndef DEDICATED
+    script::client::init(std::move(*lua));
+    script::keybind::init(std::move(*lua));
+    script::http_client::init(std::move(*lua));
+#endif
+}
+
+void* Sys_GetLua()
+{
+    return (void*)lua;
+}
 
 /*
 =================
@@ -316,14 +370,16 @@ cpuFeatures_t Sys_GetProcessorFeatures( void )
 
 void Sys_Script_f( void )
 {
+    if ( !lua ) return;
     std::string args = Cmd_Args();
-    lua.script(args);
+    lua->script(args);
 }
 
 void Sys_ScriptFile_f( void )
 {
+    if ( !lua ) return;
     std::string args = Cmd_Args();
-    lua.script_file(args);
+    lua->script_file(args);
 }
 /*
 =================
@@ -752,44 +808,12 @@ int main( int argc, char **argv )
     CON_Init( );
     Com_Init( args );
     NET_Init( );
-
-    lua.open_libraries
-    (
-     sol::lib::base,
-     sol::lib::package,
-#if !defined(SOL_LUAJIT) // Not with LuaJIT.
-     sol::lib::coroutine,
-#endif
-     sol::lib::string,
-     sol::lib::table,
-     sol::lib::math,
-     sol::lib::bit32,
-     sol::lib::io,
-     sol::lib::os,
-     sol::lib::debug,
-     sol::lib::utf8 // Only with Lua 5.3; ommiting ifdef on purpose. -bbq
-#if defined(SOL_LUAJIT) // Only with LuaJIT.
-     ,sol::lib::ffi,
-     sol::lib::jit
-#endif
-    );
-
-    script::cvar::init(std::move(lua));
-    script::cmd::init(std::move(lua));
-    script::rapidjson::init(std::move(lua));
-    script::nettle::init(std::move(lua));
-
-#ifndef DEDICATED
-    script::client::init(std::move(lua));
-    script::keybind::init(std::move(lua));
-    script::http_client::init(std::move(lua));
-#endif
+    Lua_Init( );
 
     for ( ;; )
     {
         try
         { 
-            IN_Frame( );
             Com_Frame( );
         } 
         catch (sol::error& e)
@@ -800,4 +824,3 @@ int main( int argc, char **argv )
 
     return 0;
 }
-

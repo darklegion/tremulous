@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 
@@ -20,6 +21,7 @@ along with Tremulous; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+
 // world.c -- world query functions
 
 #include "server.h"
@@ -47,7 +49,7 @@ clipHandle_t SV_ClipHandleForEntity(const sharedEntity_t *ent)
     }
 
     // create a temp tree from bounding box sizes
-    return CM_TempBoxModel(ent->r.mins, ent->r.maxs, qfalse);
+    return CM_TempBoxModel(ent->r.mins, ent->r.maxs, false);
 }
 
 /*
@@ -181,7 +183,7 @@ void SV_UnlinkEntity(sharedEntity_t *gEnt)
 
     ent = SV_SvEntityForGentity(gEnt);
 
-    gEnt->r.linked = qfalse;
+    gEnt->r.linked = false;
 
     ws = ent->worldSector;
     if (!ws)
@@ -379,7 +381,7 @@ void SV_LinkEntity(sharedEntity_t *gEnt)
     ent->nextEntityInWorldSector = node->entities;
     node->entities = ent;
 
-    gEnt->r.linked = qtrue;
+    gEnt->r.linked = true;
 }
 
 /*
@@ -545,12 +547,14 @@ static void SV_ClipMoveToEntities(moveclip_t *clip)
     trace_t trace;
     clipHandle_t clipHandle;
     float *origin, *angles;
+    int astralMask;
 
     num = SV_AreaEntities(clip->boxmins, clip->boxmaxs, touchlist, MAX_GENTITIES);
 
     if (clip->passEntityNum != ENTITYNUM_NONE)
     {
         passOwnerNum = (SV_GentityNum(clip->passEntityNum))->r.ownerNum;
+        astralMask = clip->contentmask & CONTENTS_ASTRAL_NOCLIP; 
         if (passOwnerNum == ENTITYNUM_NONE)
         {
             passOwnerNum = -1;
@@ -584,6 +588,10 @@ static void SV_ClipMoveToEntities(moveclip_t *clip)
             {
                 continue;  // don't clip against other missiles from our owner
             }
+            if ( astralMask & touch->s.eFlags )
+            {
+                continue;  // EF_ASTRAL_NOCLIP flagged entities don't clip with ASTRALSOLID entities
+            }
         }
 
         // if it doesn't have any brushes of a type we
@@ -609,12 +617,12 @@ static void SV_ClipMoveToEntities(moveclip_t *clip)
 
         if (trace.allsolid)
         {
-            clip->trace.allsolid = qtrue;
+            clip->trace.allsolid = true;
             trace.entityNum = touch->s.number;
         }
         else if (trace.startsolid)
         {
-            clip->trace.startsolid = qtrue;
+            clip->trace.startsolid = true;
             trace.entityNum = touch->s.number;
         }
 

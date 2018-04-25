@@ -18,8 +18,8 @@
 
 #include <string.h>
 
-#include "../../../external/lua-5.3.3/src/lua.h"
-#include "../../../external/lua-5.3.3/src/lauxlib.h"
+#include "lua.h"
+#include "lauxlib.h"
 #include "nettle/md5.h"
 #include "nettle/sha2.h"
 

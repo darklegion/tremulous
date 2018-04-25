@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 
@@ -21,15 +22,19 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#ifdef USE_LOCAL_HEADERS
-#	include "SDL.h"
-#else
-#	include <SDL.h>
+#ifdef _WIN32
+#include <windows.h>
 #endif
 
-#include "../renderercommon/tr_common.h"
-#include "../qcommon/cvar.h"
-#include "../qcommon/qcommon.h"
+#ifdef USE_LOCAL_HEADERS
+# include "SDL.h"
+#else
+# include <SDL.h>
+#endif
+
+#include "qcommon/cvar.h"
+#include "qcommon/qcommon.h"
+#include "renderercommon/tr_common.h"
 
 extern SDL_Window *SDL_window;
 
@@ -54,8 +59,6 @@ void GLimp_SetGamma( unsigned char red[256], unsigned char green[256], unsigned 
 	}
 
 #ifdef _WIN32
-#include <windows.h>
-
 	// Win2K and newer put this odd restriction on gamma ramps...
 	{
 		OSVERSIONINFO	vinfo;
@@ -95,4 +98,3 @@ void GLimp_SetGamma( unsigned char red[256], unsigned char green[256], unsigned 
 		ri.Printf( PRINT_DEVELOPER, "SDL_SetWindowGammaRamp() failed: %s\n", SDL_GetError() );
 	}
 }
-

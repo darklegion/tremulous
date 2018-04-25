@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 
@@ -1062,6 +1063,34 @@ static bool ConstOptimize(vm_t *vm, int callProcOfsSyscall)
 	}
 
 	return false;
+}
+
+#if idx64
+  #define EAX "%%rax"
+  #define EBX "%%rbx"
+  #define ESP "%%rsp"
+  #define EDI "%%rdi"
+#else
+  #define EAX "%%eax"
+  #define EBX "%%ebx"
+  #define ESP "%%esp"
+  #define EDI "%%edi"
+#endif
+
+static int Q_VMftol(void)
+{
+    int retval;
+
+    __asm__ volatile
+        (
+         "movss (" EDI ", " EBX ", 4), %%xmm0\n"
+         "cvttss2si %%xmm0, %0\n"
+         : "=r" (retval)
+         :
+         : "%xmm0"
+        );
+
+    return retval;
 }
 
 /*

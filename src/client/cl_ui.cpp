@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 
@@ -21,20 +22,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#include <setjmp.h>
+#include "qcommon/parse.h"
 #include "client.h"
 
 #include "cl_updates.h"
-
-vm_t *uivm;
-int uiInterface;
 
 /*
 ====================
 GetClientState
 ====================
 */
-static void GetClientState(uiClientState_t *state)
+void CL_GetClientState(uiClientState_t *state)
 {
     state->connectPacketCount = clc.connectPacketCount;
     state->connState = clc.state;
@@ -97,7 +95,7 @@ void LAN_SaveServersToCache(void)
 GetNews
 ====================
 */
-static bool GetNews(bool begin)
+bool CL_GetNews(bool begin)
 {
     bool finished = false;
     fileHandle_t fileIn;
@@ -143,7 +141,7 @@ static bool GetNews(bool begin)
 LAN_ResetPings
 ====================
 */
-static void LAN_ResetPings(int source)
+void LAN_ResetPings(int source)
 {
     int count, i;
     serverInfo_t *servers = NULL;
@@ -179,7 +177,7 @@ static void LAN_ResetPings(int source)
 LAN_AddServer
 ====================
 */
-static int LAN_AddServer(int source, const char *name, const char *address)
+int LAN_AddServer(int source, const char *name, const char *address)
 {
     int max, *count, i;
     netadr_t adr;
@@ -232,7 +230,7 @@ static int LAN_AddServer(int source, const char *name, const char *address)
 LAN_RemoveServer
 ====================
 */
-static void LAN_RemoveServer(int source, const char *addr)
+void LAN_RemoveServer(int source, const char *addr)
 {
     int *count, i;
     serverInfo_t *servers = NULL;
@@ -279,7 +277,7 @@ static void LAN_RemoveServer(int source, const char *addr)
 LAN_GetServerCount
 ====================
 */
-static int LAN_GetServerCount(int source)
+int LAN_GetServerCount(int source)
 {
     switch (source)
     {
@@ -302,7 +300,7 @@ static int LAN_GetServerCount(int source)
 LAN_GetLocalServerAddressString
 ====================
 */
-static void LAN_GetServerAddressString(int source, int n, char *buf, int buflen)
+void LAN_GetServerAddressString(int source, int n, char *buf, int buflen)
 {
     switch (source)
     {
@@ -346,7 +344,7 @@ static void LAN_GetServerAddressString(int source, int n, char *buf, int buflen)
 LAN_GetServerInfo
 ====================
 */
-static void LAN_GetServerInfo(int source, int n, char *buf, int buflen)
+void LAN_GetServerInfo(int source, int n, char *buf, int buflen)
 {
     char info[MAX_STRING_CHARS];
     serverInfo_t *server = NULL;
@@ -415,7 +413,7 @@ static void LAN_GetServerInfo(int source, int n, char *buf, int buflen)
 LAN_GetServerPing
 ====================
 */
-static int LAN_GetServerPing(int source, int n)
+int LAN_GetServerPing(int source, int n)
 {
     serverInfo_t *server = NULL;
     switch (source)
@@ -485,7 +483,7 @@ static serverInfo_t *LAN_GetServerPtr(int source, int n)
 LAN_CompareServers
 ====================
 */
-static int LAN_CompareServers(int source, int sortKey, int sortDir, int s1, int s2)
+int LAN_CompareServers(int source, int sortKey, int sortDir, int s1, int s2)
 {
     int res;
     serverInfo_t *server1, *server2;
@@ -578,34 +576,10 @@ static int LAN_CompareServers(int source, int sortKey, int sortDir, int s1, int 
 
 /*
 ====================
-LAN_GetPingQueueCount
-====================
-*/
-static int LAN_GetPingQueueCount(void) { return (CL_GetPingQueueCount()); }
-/*
-====================
-LAN_ClearPing
-====================
-*/
-static void LAN_ClearPing(int n) { CL_ClearPing(n); }
-/*
-====================
-LAN_GetPing
-====================
-*/
-static void LAN_GetPing(int n, char *buf, int buflen, int *pingtime) { CL_GetPing(n, buf, buflen, pingtime); }
-/*
-====================
-LAN_GetPingInfo
-====================
-*/
-static void LAN_GetPingInfo(int n, char *buf, int buflen) { CL_GetPingInfo(n, buf, buflen); }
-/*
-====================
 LAN_MarkServerVisible
 ====================
 */
-static void LAN_MarkServerVisible(int source, int n, bool visible)
+void LAN_MarkServerVisible(int source, int n, bool visible)
 {
     if (n == -1)
     {
@@ -665,7 +639,7 @@ static void LAN_MarkServerVisible(int source, int n, bool visible)
 LAN_ServerIsVisible
 =======================
 */
-static bool LAN_ServerIsVisible(int source, int n)
+bool LAN_ServerIsVisible(int source, int n)
 {
     switch (source)
     {
@@ -693,33 +667,11 @@ static bool LAN_ServerIsVisible(int source, int n)
 }
 
 /*
-=======================
-LAN_UpdateVisiblePings
-=======================
-*/
-static bool LAN_UpdateVisiblePings(int source) { return CL_UpdateVisiblePings_f(source); }
-/*
-====================
-LAN_GetServerStatus
-====================
-*/
-static bool LAN_GetServerStatus(char *serverAddress, char *serverStatus, int maxLen)
-{
-    return CL_ServerStatus(serverAddress, serverStatus, maxLen);
-}
-
-/*
-====================
-CL_GetGlConfig
-====================
-*/
-static void CL_GetGlconfig(glconfig_t *config) { *config = cls.glconfig; }
-/*
 ====================
 GetConfigString
 ====================
 */
-static bool GetConfigString(int i, char *buf, int size)
+bool CL_GetConfigString(int i, char *buf, int size)
 {
     int offset;
 
@@ -749,7 +701,6 @@ static int FloatAsInt(float f)
     return fi.i;
 }
 
-static jmp_buf uiProbingJB;
 static bool probingUI = false;
 
 /*
@@ -761,7 +712,7 @@ The ui module is making a system call
 */
 intptr_t CL_UISystemCalls(intptr_t *args)
 {
-    if (uiInterface == 2)
+    if (cls.uiInterface == 2)
     {
         if (args[0] >= UI_R_SETCLIPREGION && args[0] < UI_MEMSET)
         {
@@ -814,7 +765,8 @@ intptr_t CL_UISystemCalls(intptr_t *args)
         case UI_ERROR:
             if (probingUI)
             {
-                longjmp(uiProbingJB, 1);
+                cls.uiInterface = 2;
+                return 0;
             }
             Com_Error(ERR_DROP, "%s", (const char *)VMA(1));
             return 0;
@@ -1010,7 +962,7 @@ intptr_t CL_UISystemCalls(intptr_t *args)
             return 0;
 
         case UI_GETCLIENTSTATE:
-            GetClientState((uiClientState_t *)VMA(1));
+            CL_GetClientState((uiClientState_t *)VMA(1));
             return 0;
 
         case UI_GETGLCONFIG:
@@ -1018,7 +970,7 @@ intptr_t CL_UISystemCalls(intptr_t *args)
             return 0;
 
         case UI_GETCONFIGSTRING:
-            return GetConfigString(args[1], (char *)VMA(2), args[3]);
+            return CL_GetConfigString(args[1], (char *)VMA(2), args[3]);
 
         case UI_LAN_LOADCACHEDSERVERS:
             LAN_LoadCachedServers();
@@ -1036,18 +988,18 @@ intptr_t CL_UISystemCalls(intptr_t *args)
             return 0;
 
         case UI_LAN_GETPINGQUEUECOUNT:
-            return LAN_GetPingQueueCount();
+            return CL_GetPingQueueCount();
 
         case UI_LAN_CLEARPING:
-            LAN_ClearPing(args[1]);
+            CL_ClearPing(args[1]);
             return 0;
 
         case UI_LAN_GETPING:
-            LAN_GetPing(args[1], (char *)VMA(2), args[3], (int *)VMA(4));
+            CL_GetPing(args[1], (char *)VMA(2), args[3], (int *)VMA(4));
             return 0;
 
         case UI_LAN_GETPINGINFO:
-            LAN_GetPingInfo(args[1], (char *)VMA(2), args[3]);
+            CL_GetPingInfo(args[1], (char *)VMA(2), args[3]);
             return 0;
 
         case UI_LAN_GETSERVERCOUNT:
@@ -1072,17 +1024,17 @@ intptr_t CL_UISystemCalls(intptr_t *args)
             return LAN_ServerIsVisible(args[1], args[2]);
 
         case UI_LAN_UPDATEVISIBLEPINGS:
-            return LAN_UpdateVisiblePings(args[1]);
+            return CL_UpdateVisiblePings_f(args[1]);
 
         case UI_LAN_RESETPINGS:
             LAN_ResetPings(args[1]);
             return 0;
 
         case UI_LAN_SERVERSTATUS:
-            return LAN_GetServerStatus((char *)VMA(1), (char *)VMA(2), args[3]);
+            return CL_ServerStatus((char *)VMA(1), (char *)VMA(2), args[3]);
 
         case UI_GETNEWS:
-            return GetNews((bool)args[1]);
+            return CL_GetNews((bool)args[1]);
 
         case UI_LAN_COMPARESERVERS:
             return LAN_CompareServers(args[1], args[2], args[3], args[4], args[5]);
@@ -1185,13 +1137,13 @@ void CL_ShutdownUI(void)
 {
     Key_SetCatcher(Key_GetCatcher() & ~KEYCATCH_UI);
     cls.uiStarted = false;
-    if (!uivm)
+    if (!cls.ui)
     {
         return;
     }
-    VM_Call(uivm, UI_SHUTDOWN);
-    VM_Free(uivm);
-    uivm = NULL;
+    VM_Call(cls.ui, UI_SHUTDOWN);
+    VM_Free(cls.ui);
+    cls.ui = NULL;
 }
 
 /*
@@ -1209,54 +1161,47 @@ void CL_InitUI(void)
         if (interpret != VMI_COMPILED && interpret != VMI_BYTECODE) interpret = VMI_COMPILED;
     }
 
-    uivm = VM_Create("ui", CL_UISystemCalls, interpret);
-    if (!uivm)
+    cls.ui = VM_Create("ui", CL_UISystemCalls, interpret);
+    if (!cls.ui)
     {
         Com_Printf("Failed to find a valid UI vm. The following paths were searched:\n");
         Cmd_ExecuteString("path /\n");
-        Com_Error(ERR_DROP, "VM_Create on UI failed");
+        Com_Error(ERR_RECONNECT, "VM_Create on UI failed");
     }
 
     // sanity check
-    int v = VM_Call(uivm, UI_GETAPIVERSION);
+    int v = VM_Call(cls.ui, UI_GETAPIVERSION);
     if (v != UI_API_VERSION)
     {
-        // Free uivm now, so UI_SHUTDOWN doesn't get called later.
-        VM_Free(uivm);
-        uivm = NULL;
+        // Free cls.ui now, so UI_SHUTDOWN doesn't get called later.
+        VM_Free(cls.ui);
+        cls.ui = NULL;
 
         cls.uiStarted = false;
         Com_Error(ERR_DROP, "User Interface is version %d, expected %d", v, UI_API_VERSION);
     }
 
+    // Probe UI interface
+    // Calls the GPP UI_CONSOLE_COMMAND (10), if GPP will return false 0. If a 1.1.0 qvm, will hit the error handler.
     Cmd_TokenizeString("");
-    uiInterface = 0;
+    cls.uiInterface = 0;
     probingUI = true;
-    if (setjmp(uiProbingJB) == 0)
-    {
-        if (VM_Call(uivm, UI_CONSOLE_COMMAND, 0) < 0)
-        {
-            uiInterface = 2;
-        }
-    }
-    else
-    {
-        uiInterface = 2;
-        VM_ClearCallLevel(uivm);
-    }
+    if ( VM_Call(cls.ui, UI_CONSOLE_COMMAND, 0) < 0 )
+        cls.uiInterface = 2;
+
     probingUI = false;
 
     if (clc.state >= CA_CONNECTED && clc.state <= CA_ACTIVE &&
-        (clc.netchan.alternateProtocol == 2) != (uiInterface == 2))
+        (clc.netchan.alternateProtocol == 2) != (cls.uiInterface == 2))
     {
         Com_Printf(S_COLOR_YELLOW "WARNING: %s protocol %i, but a ui module using the %s interface was found\n",
             (clc.demoplaying ? "Demo was recorded using" : "Server uses"),
             (clc.netchan.alternateProtocol == 0 ? PROTOCOL_VERSION : clc.netchan.alternateProtocol == 1 ? 70 : 69),
-            (uiInterface == 2 ? "1.1" : "non-1.1"));
+            (cls.uiInterface == 2 ? "1.1" : "non-1.1"));
     }
 
     // init for this gamestate
-    VM_Call(uivm, UI_INIT, (clc.state >= CA_AUTHORIZING && clc.state < CA_ACTIVE));
+    VM_Call(cls.ui, UI_INIT, (clc.state >= CA_AUTHORIZING && clc.state < CA_ACTIVE));
 
     // show where the ui folder was loaded from
     Cmd_ExecuteString("which ui/\n");
@@ -1273,7 +1218,7 @@ See if the current console command is claimed by the ui
 */
 bool UI_GameCommand(void)
 {
-    if (!uivm) return false;
+    if (!cls.ui) return false;
 
-    return (bool)VM_Call(uivm, UI_CONSOLE_COMMAND - (uiInterface == 2 ? 2 : 0), cls.realtime);
+    return (bool)VM_Call(cls.ui, UI_CONSOLE_COMMAND - (cls.uiInterface == 2 ? 2 : 0), cls.realtime);
 }

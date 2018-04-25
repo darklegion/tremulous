@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 
@@ -20,29 +21,31 @@ along with Tremulous; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+
 // common.c -- misc functions used in client and server
 
-#include "cmd.h"
-#include "cvar.h"
-#include "files.h"
-#include "q_shared.h"
 #include "qcommon.h"
-#include "crypto.h"
-#include "msg.h"
-#include "../sys/sys_shared.h"
-#include "vm.h"
-
-#define JSON_IMPLEMENTATION
-#include "json.h"
 
 #include <setjmp.h>
-
-#ifndef _WIN32
-#include <netinet/in.h>
-#include <sys/stat.h> // umask
-#else
+#ifdef _WIN32
 #include <winsock.h>
+#else
+#include <netinet/in.h>
+//#include <sys/stat.h> // umask
 #endif
+
+#include "sys/sys_shared.h"
+
+#include "autocomplete.h"
+#include "cmd.h"
+#include "crypto.h"
+#include "cvar.h"
+#include "files.h"
+//#define JSON_IMPLEMENTATION
+//#include "json.h"
+#include "msg.h"
+#include "q_shared.h"
+#include "vm.h"
 
 int demo_protocols[] = { PROTOCOL_VERSION, 70, 69, 0 };
 
@@ -106,14 +109,6 @@ cvar_t *com_basegame;
 cvar_t *com_homepath;
 cvar_t *com_busyWait;
 
-#if idx64
-int (*Q_VMftol)(void);
-#elif id386
-long (QDECL *Q_ftol)(float f);
-int (QDECL *Q_VMftol)(void);
-void (QDECL *Q_SnapVector)(vec3_t vec);
-#endif
-
 // com_speeds times
 int time_game;
 int time_frontend; // renderer frontend time
@@ -168,7 +163,7 @@ to the apropriate place.
 A raw string should NEVER be passed as fmt, because of "%f" type crashers.
 =============
 */
-void QDECL Com_Printf( const char *fmt, ... )
+void Com_Printf( const char *fmt, ... )
 {
     va_list argptr;
     char msg[MAXPRINTMSG];
@@ -324,17 +319,29 @@ void QDECL Com_Error( int code, const char *fmt, ... )
         com_errorEntered = false;
         longjmp (abortframe, -1);
     }
-    else if (code == ERR_DROP)
+    else if (code == ERR_DROP || code == ERR_RECONNECT)
     {
         Com_Printf ("********************\nERROR: %s\n********************\n", com_errorMessage);
         VM_Forced_Unload_Start();
-        SV_Shutdown (va("Server crashed: %s",  com_errorMessage));
+        SV_Shutdown(va("Server crashed: %s",  com_errorMessage));
         CL_Disconnect( true );
         CL_FlushMemory( );
         VM_Forced_Unload_Done();
         FS_PureServerSetLoadedPaks("", "");
         com_errorEntered = false;
-        longjmp (abortframe, -1);
+
+        static int reconnectCount = 0;
+        if ( code == ERR_RECONNECT && reconnectCount <= 0 )
+        {
+            reconnectCount++;
+            Cbuf_AddText("reconnect\n");
+        }
+        else
+        {
+            reconnectCount = 0;
+        }
+
+        longjmp(abortframe, -1);
     }
     else
     {
@@ -344,11 +351,10 @@ void QDECL Com_Error( int code, const char *fmt, ... )
         VM_Forced_Unload_Done();
     }
 
-    Com_Shutdown ();
+    Com_Shutdown();
 
-    Sys_Error ("%s", com_errorMessage);
+    Sys_Error("%s", com_errorMessage);
 }
-
 
 /*
 =============
@@ -1986,46 +1992,40 @@ be freed by the game later.
 */
 void Com_QueueEvent( int time, sysEventType_t type, int value, int value2, int ptrLength, void *ptr )
 {
-    // try to combine all sequential mouse moves in one event
-    if ( type == SE_MOUSE )
+    sysEvent_t  *ev;
+
+    // combine mouse movement with previous mouse event
+    if ( type == SE_MOUSE && eventHead != eventTail )
     {
-        // get previous event from queue
-        sysEvent_t* ev = &eventQueue[ ( eventHead + MAX_QUEUED_EVENTS - 1 ) & MASK_QUEUED_EVENTS ];
+        ev = &eventQueue[ ( eventHead + MAX_QUEUED_EVENTS - 1 ) & MASK_QUEUED_EVENTS ];
+
         if ( ev->evType == SE_MOUSE )
         {
-            if ( eventTail == eventHead && eventTail )
-            {
-                ev->evValue = 0;
-                ev->evValue2 = 0;
-                eventTail--;
-            }
-
-            if ( time == 0 )
-                time = Sys_Milliseconds();
-
             ev->evValue += value;
             ev->evValue2 += value2;
-            ev->evTime = time;
             return;
         }
     }
 
-    sysEvent_t* ev = &eventQueue[ eventHead & MASK_QUEUED_EVENTS ];
+    ev = &eventQueue[ eventHead & MASK_QUEUED_EVENTS ];
+
     if ( eventHead - eventTail >= MAX_QUEUED_EVENTS )
     {
         Com_Printf("Com_QueueEvent: overflow\n");
-
         // we are discarding an event, but don't leak memory
         if ( ev->evPtr )
+        {
             Z_Free( ev->evPtr );
-
+        }
         eventTail++;
     }
 
     eventHead++;
 
     if ( time == 0 )
+    {
         time = Sys_Milliseconds();
+    }
 
     ev->evTime = time;
     ev->evType = type;
@@ -2486,13 +2486,14 @@ static void Com_DetectAltivec(void)
 /*
 =================
 Com_DetectSSE
-Find out whether we have SSE support for Q_ftol function
+Find out whether we have SSE support
 =================
 */
 
 #if id386 || idx64
 static void Com_DetectSSE(void)
 {
+#if 0
 #if !idx64
     cpuFeatures_t feat = Sys_GetProcessorFeatures();
     if(feat & CF_SSE)
@@ -2501,22 +2502,17 @@ static void Com_DetectSSE(void)
             Q_SnapVector = qsnapvectorsse;
         else
             Q_SnapVector = qsnapvectorx87;
-
-        Q_ftol = qftolsse;
 #endif
-        Q_VMftol = qvmftolsse;
-
         Com_Printf("Have SSE support\n");
 #if !idx64
     }
     else
     {
-        Q_ftol = qftolx87;
-        Q_VMftol = qvmftolx87;
         Q_SnapVector = qsnapvectorx87;
 
         Com_Printf("No SSE support on this machine\n");
     }
+#endif
 #endif
 }
 
@@ -3000,6 +2996,8 @@ void Com_Frame( void )
             NET_Sleep(timeVal - 1);
     } while( Com_TimeVal(minMsec) );
 
+    IN_Frame();
+
     lastTime = com_frameTime;
     com_frameTime = Com_EventLoop();
 
@@ -3152,7 +3150,7 @@ command line completion
 Field_Clear
 ==================
 */
-void Field_Clear( field_t *edit )
+void Field_Clear( field_t* edit )
 {
     memset(edit->buffer, 0, MAX_EDIT_LINE);
     edit->cursor = 0;
@@ -3310,6 +3308,7 @@ Field_ListCompletion
 */
 void Field_ListCompletion( char *listJson, void(*callback)(const char *s) )
 {
+#if 0
     char item[ 256 ];
     const char *arrayPtr;
     const char *listEnd = listJson + strlen( listJson );
@@ -3322,6 +3321,7 @@ void Field_ListCompletion( char *listJson, void(*callback)(const char *s) )
         JSON_ValueGetString( arrayPtr, listEnd, item, 256 );
         callback( item );
     }
+#endif
 }
 
 /*

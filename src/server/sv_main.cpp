@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 
@@ -30,9 +31,11 @@ cvar_t *sv_voip;
 cvar_t *sv_voipProtocol;
 #endif
 
+#define PERS_SCORE 0  // !!! MUST NOT CHANGE, SERVER AND GAME BOTH REFERENCE !!!
+
+
 serverStatic_t	svs;				// persistant server info
-server_t		sv;					// local server
-vm_t			*gvm = NULL;				// game virtual machine
+server_t sv {};					    // local server
 
 cvar_t	*sv_fps = NULL;			// time rate for running non-clients
 cvar_t	*sv_timeout;			// seconds without any message
@@ -267,7 +270,7 @@ void SV_MasterHeartbeat(const char *message)
 		continue;
 	if(a == 1 && !(netAlternateProtocols & NET_ENABLEALT1PROTO))
 		continue;
-	if(a == 2 && !(netAlternateProtocols & NET_ENABLEALT1PROTO))
+	if(a == 2 && !(netAlternateProtocols & NET_ENABLEALT2PROTO))
 		continue;
 
 	// send to group masters
@@ -1129,7 +1132,7 @@ void SV_Frame( int msec ) {
 		sv.time += frameMsec;
 
 		// let everything in the world think and move
-		VM_Call (gvm, GAME_RUN_FRAME, sv.time);
+		VM_Call (sv.gvm, GAME_RUN_FRAME, sv.time);
 	}
 
 	if ( com_speeds->integer ) {

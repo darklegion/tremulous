@@ -71,13 +71,3 @@ target_include_directories(
     ${RC_SOURCE_DIR}
     ${UI_SOURCE_DIR}
     )
-
-include( ${CMAKE_SOURCE_DIR}/cmake/AddQVM.cmake )
-add_qvm( cgame ${CGAME_SOURCES} cg_syscalls.asm )
-
-
-add_custom_command(
-    TARGET cgame POST_BUILD
-    COMMAND ${CMAKE_COMMAND}
-    ARGS -E copy ${CMAKE_CURRENT_BINARY_DIR}/libcgame${CMAKE_SHARED_LIBRARY_SUFFIX} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/gpp/cgame${CMAKE_SHARED_LIBRARY_SUFFIX}
-    )

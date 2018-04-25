@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 
@@ -22,6 +23,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 // bg_local.h -- local definitions for the bg (both games) files
+
+#include "qcommon/cvar.h"
+#include "qcommon/files.h"
+#include "qcommon/q_shared.h"
+#include "bg_public.h"
 
 #define MIN_WALK_NORMAL 0.7f   // can't walk on very steep slopes
 
@@ -44,9 +50,9 @@ typedef struct
 
   int       msec;
 
-  qboolean  walking;
-  qboolean  groundPlane;
-  qboolean  ladder;
+  bool  walking;
+  bool  groundPlane;
+  bool  ladder;
   trace_t   groundTrace;
 
   float     impactSpeed;
@@ -79,7 +85,7 @@ void PM_ClipVelocity( vec3_t in, vec3_t normal, vec3_t out );
 void PM_AddTouchEnt( int entityNum );
 void PM_AddEvent( int newEvent );
 
-qboolean  PM_SlideMove( qboolean gravity );
-void      PM_StepEvent( vec3_t from, vec3_t to, vec3_t normal );
-qboolean  PM_StepSlideMove( qboolean gravity, qboolean predictive );
-qboolean  PM_PredictStepMove( void );
+bool PM_SlideMove( bool gravity );
+void PM_StepEvent( vec3_t from, vec3_t to, vec3_t normal );
+bool PM_StepSlideMove( bool gravity, bool predictive );
+bool PM_PredictStepMove( void );

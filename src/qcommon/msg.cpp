@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 
@@ -22,13 +23,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "msg.h"
-#include "huffman.h"
-
-#include "cvar.h"
-#include "q_shared.h"
-#include "qcommon.h"
 
 #include "alternatePlayerstate.h"
+#include "cvar.h"
+#include "huffman.h"
+#include "q_shared.h"
+#include "qcommon.h"
 
 static huffman_t msgHuff;
 
@@ -123,10 +123,8 @@ void MSG_WriteBits(msg_t *msg, int value, int bits)
 
     oldsize += bits;
 
-    // this isn't an exact overflow check, but close enough
-    if (msg->maxsize - msg->cursize < 4)
+    if ( msg->overflowed )
     {
-        msg->overflowed = true;
         return;
     }
 
@@ -163,6 +161,11 @@ void MSG_WriteBits(msg_t *msg, int value, int bits)
     }
     if (msg->oob)
     {
+        if (msg->cursize + (bits >> 3) > msg->maxsize)
+        {
+            msg->overflowed = true;
+            return;
+        }
         if (bits == 8)
         {
             msg->data[msg->cursize] = value;
@@ -188,12 +191,18 @@ void MSG_WriteBits(msg_t *msg, int value, int bits)
     }
     else
     {
-        //fp = fopen("c:\\netchan.bin", "a");
         value &= (0xffffffff >> (32 - bits));
         if (bits & 7)
         {
             int nbits;
             nbits = bits & 7;
+
+            if ( msg->bit + nbits > msg->maxsize << 3 )
+            {
+                msg->overflowed = true;
+                return;
+            }
+
             for (i = 0; i < nbits; i++)
             {
                 Huff_putBit((value & 1), msg->data, &msg->bit);
@@ -205,13 +214,17 @@ void MSG_WriteBits(msg_t *msg, int value, int bits)
         {
             for (i = 0; i < bits; i += 8)
             {
-                //fwrite(bp, 1, 1, fp);
-                Huff_offsetTransmit(&msgHuff.compressor, (value & 0xff), msg->data, &msg->bit);
+                Huff_offsetTransmit(&msgHuff.compressor, (value & 0xff), msg->data, &msg->bit, msg->maxsize << 3);
                 value = (value >> 8);
+
+                if (msg->bit > msg->maxsize << 3)
+                {
+                    msg->overflowed = true;
+                    return;
+                }
             }
         }
         msg->cursize = (msg->bit >> 3) + 1;
-        //fclose(fp);
     }
 }
 
@@ -220,8 +233,12 @@ int MSG_ReadBits(msg_t *msg, int bits)
     int value;
     int get;
     bool sgn;
-    int i, nbits;
-    //	FILE*	fp;
+
+
+    if (msg->readcount > msg->cursize)
+    {
+        return 0;
+    }
 
     value = 0;
 
@@ -237,6 +254,12 @@ int MSG_ReadBits(msg_t *msg, int bits)
 
     if (msg->oob)
     {
+        if (msg->readcount + (bits >> 3) > msg->cursize)
+        {
+            msg->readcount = msg->cursize + 1;
+            return 0;
+        }
+
         if (bits == 8)
         {
             value = msg->data[msg->readcount];
@@ -263,11 +286,16 @@ int MSG_ReadBits(msg_t *msg, int bits)
     }
     else
     {
-        nbits = 0;
+        int nbits = 0;
         if (bits & 7)
         {
             nbits = bits & 7;
-            for (i = 0; i < nbits; i++)
+            if (msg->bit + nbits > msg->cursize << 3)
+            {
+                msg->readcount = msg->cursize + 1;
+                return 0;
+            }
+            for (int i = 0; i < nbits; i++)
             {
                 value |= (Huff_getBit(msg->data, &msg->bit) << i);
             }
@@ -275,14 +303,17 @@ int MSG_ReadBits(msg_t *msg, int bits)
         }
         if (bits)
         {
-            //			fp = fopen("c:\\netchan.bin", "a");
-            for (i = 0; i < bits; i += 8)
+            for (int i = 0; i < bits; i += 8)
             {
-                Huff_offsetReceive(msgHuff.decompressor.tree, &get, msg->data, &msg->bit);
-                //				fwrite(&get, 1, 1, fp);
+                Huff_offsetReceive(msgHuff.decompressor.tree, &get, msg->data, &msg->bit, msg->cursize << 3);
                 value |= (get << (i + nbits));
+
+                if (msg->bit > msg->cursize << 3)
+                {
+                    msg->readcount = msg->cursize + 1;
+                    return 0;
+                }
             }
-            //			fclose(fp);
         }
         msg->readcount = (msg->bit >> 3) + 1;
     }
@@ -784,11 +815,11 @@ void MSG_ReportChangeVectors_f(void)
     }
 }
 
-typedef struct {
+struct netField_t {
     const char *name;
     size_t offset;
     int bits;  // 0 = float
-} netField_t;
+};
 
 // using the stringizing operator to save typing...
 #define NETF(x) #x, (size_t) & ((entityState_t *) 0)->x
@@ -864,7 +895,7 @@ If force is not set, then nothing at all will be generated if the entity is
 identical, under the assumption that the in-order delta code will catch it.
 ==================
 */
-void MSG_WriteDeltaEntity(int alternateProtocol, msg_t *msg, struct entityState_s *from, struct entityState_s *to, bool force)
+void MSG_WriteDeltaEntity(int alternateProtocol, msg_t *msg, entityState_t *from, entityState_t *to, bool force)
 {
     int i, lc;
     int numFields;
@@ -1316,7 +1347,7 @@ MSG_WriteDeltaPlayerstate
 
 =============
 */
-void MSG_WriteDeltaPlayerstate(int alternateProtocol, msg_t *msg, struct playerState_s *from, struct playerState_s *to)
+void MSG_WriteDeltaPlayerstate(int alternateProtocol, msg_t *msg, playerState_t *from, playerState_t *to)
 {
     int i;
     playerState_t dummy;

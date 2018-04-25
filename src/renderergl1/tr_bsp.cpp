@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 
@@ -1710,7 +1711,7 @@ void R_LoadEntities( lump_t *l ) {
 	strcpy( w->entityString, p );
 	w->entityParsePoint = w->entityString;
 
-	token = COM_ParseExt( &p, qtrue );
+	token = COM_ParseExt( &p, true );
 	if (!*token || *token != '{') {
 		return;
 	}
@@ -1718,7 +1719,7 @@ void R_LoadEntities( lump_t *l ) {
 	// only parse the world spawn
 	while ( 1 ) {	
 		// parse key
-		token = COM_ParseExt( &p, qtrue );
+		token = COM_ParseExt( &p, true );
 
 		if ( !*token || *token == '}' ) {
 			break;
@@ -1726,7 +1727,7 @@ void R_LoadEntities( lump_t *l ) {
 		Q_strncpyz(keyname, token, sizeof(keyname));
 
 		// parse value
-		token = COM_ParseExt( &p, qtrue );
+		token = COM_ParseExt( &p, true );
 
 		if ( !*token || *token == '}' ) {
 			break;
@@ -1866,4 +1867,3 @@ void RE_LoadWorldMap( const char *name ) {
 
     ri.FS_FreeFile( buffer.v );
 }
-

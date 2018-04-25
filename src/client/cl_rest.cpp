@@ -6,15 +6,15 @@
 
 #include "cl_rest.h"
 
-#include <iostream>
+#include <unistd.h>
+
+#include <cerrno>
+#include <cstring>
 #include <fstream>
+#include <iostream>
 #include <vector>
 
-#include <unistd.h>
-#include <errno.h>
-#include <string.h>
-
-#include "../qcommon/files.h"
+#include "qcommon/files.h"
 #include "restclient/restclient.h"
 
 bool is_good(std::string filename, int permissions = (R_OK|W_OK))
@@ -44,7 +44,7 @@ bool MakeDir(std::string destdir, std::string basegame)
     return true;
 }
 
-#include "../sys/dialog.h"
+#include "sys/dialog.h"
 static bool PromptDownloadPk3s(std::string basegame, const std::vector<std::string>& missing)
 {
     std::string msg;

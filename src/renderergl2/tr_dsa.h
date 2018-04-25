@@ -1,6 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 2016 James Canete
+Copyright (C) 2015-2018 GrangerHub
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -21,7 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef __TR_DSA_H__
 #define __TR_DSA_H__
 
-#include "../renderercommon/qgl.h"
+#include "renderercommon/qgl.h"
 
 void GL_BindNullTextures(void);
 int GL_BindMultiTexture(GLenum texunit, GLenum target, GLuint texture);

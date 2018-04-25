@@ -1,6 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 2005-2009 Darklegion Development
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 

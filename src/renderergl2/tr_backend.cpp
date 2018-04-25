@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 
@@ -434,7 +435,6 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	int				i;
 	drawSurf_t		*drawSurf;
 	int				oldSort;
-	float			originalTime;
 	FBO_t*			fbo = NULL;
 	bool		inQuery = false;
 
@@ -442,7 +442,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 
 
 	// save original time for entity shader offsets
-	originalTime = backEnd.refdef.floatTime;
+	double originalTime = backEnd.refdef.floatTime;
 
 	fbo = glState.currentFBO;
 
@@ -506,7 +506,10 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 
 			if ( entityNum != REFENTITYNUM_WORLD ) {
 				backEnd.currentEntity = &backEnd.refdef.entities[entityNum];
-				backEnd.refdef.floatTime = originalTime - backEnd.currentEntity->e.shaderTime;
+
+                // FIXME: e.shaderTime must be passed as int to avoid fp-precision loss issues
+                backEnd.refdef.floatTime = originalTime - (double)backEnd.currentEntity->e.shaderTime;
+
 				// we have to reset the shaderTime as well otherwise image animations start
 				// from the wrong frame
 				tess.shaderTime = backEnd.refdef.floatTime - tess.shader->timeOffset;
@@ -674,7 +677,7 @@ void	RB_SetGL2D (void) {
 
 	// set time for 2D shaders
 	backEnd.refdef.time = ri.Milliseconds();
-	backEnd.refdef.floatTime = backEnd.refdef.time * 0.001f;
+	backEnd.refdef.floatTime = backEnd.refdef.time * 0.001;
 }
 
 

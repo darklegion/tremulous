@@ -2,6 +2,7 @@
    Copyright (C) 2016 Victor Roemer (wtfbbqhax), <victor@badsec.org>.
    Copyright (C) 2000-2013 Darklegion Development
    Copyright (C) 1999-2005 Id Software, Inc.
+   Copyright (C) 2015-2018 GrangerHub
 
    This file is part of Tremulous.
 
@@ -22,13 +23,17 @@
 
 #include "files.h"
 
+#ifdef _WIN32
+#include <io.h>
+#include <windows.h>
+#endif
+
 #include <cctype>
 #include <cstdarg>
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-
 #include <string>
 
 #include "cmd.h"
@@ -37,18 +42,13 @@
 #include "q_platform.h"
 #include "q_shared.h"
 #include "qcommon.h"
-#include "../sys/sys_shared.h"
 #include "unzip.h"
 #include "vm.h"
 
 #ifndef DEDICATED
-#include "../client/cl_rest.h"
+#include "client/cl_rest.h"
 #endif
-
-#ifdef WIN32
-#include <windows.h>
-#include <io.h>	// for _read
-#endif
+#include "sys/sys_shared.h"
 
 using namespace std;
 
@@ -3282,13 +3282,13 @@ static void FS_Startup(const char *gameName)
 #ifdef DEDICATED
     // add search path elements in reverse priority order
     if (fs_basepath->string[0])
-        FS_AddGameDirectory(fs_basepath->string, gameName);
+        FS_AddGameDirectory(fs_basepath->string, fs_basegame->string);
 
     // NOTE: same filtering below for mods and basegame
     if (fs_homepath->string[0] && Q_stricmp(fs_homepath->string,fs_basepath->string))
     {
         FS_CreatePath(fs_homepath->string);
-        FS_AddGameDirectory(fs_homepath->string, gameName);
+        FS_AddGameDirectory(fs_homepath->string, fs_basegame->string);
     }
 
     // check for additional base game so mods can be based upon other mods

@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 
@@ -463,7 +464,7 @@ void SCR_DrawScreenField(stereoFrame_t stereoFrame)
 
     re.BeginFrame(stereoFrame);
 
-    uiFullscreen = (uivm && VM_Call(uivm, UI_IS_FULLSCREEN - (uiInterface == 2 ? 2 : 0)));
+    uiFullscreen = (cls.ui && VM_Call(cls.ui, UI_IS_FULLSCREEN - (cls.uiInterface == 2 ? 2 : 0)));
 
     // wide aspect ratio screens need to have the sides cleared
     // unless they are displaying game renderings
@@ -479,7 +480,7 @@ void SCR_DrawScreenField(stereoFrame_t stereoFrame)
 
     // if the menu is going to cover the entire screen, we
     // don't need to render anything under it
-    if (uivm && !uiFullscreen)
+    if (cls.ui && !uiFullscreen)
     {
         switch (clc.state)
         {
@@ -492,15 +493,15 @@ void SCR_DrawScreenField(stereoFrame_t stereoFrame)
             case CA_DISCONNECTED:
                 // force menu up
                 S_StopAllSounds();
-                VM_Call(uivm, UI_SET_ACTIVE_MENU - (uiInterface == 2 ? 2 : 0), UIMENU_MAIN);
+                VM_Call(cls.ui, UI_SET_ACTIVE_MENU - (cls.uiInterface == 2 ? 2 : 0), UIMENU_MAIN);
                 break;
             case CA_CONNECTING:
             case CA_CHALLENGING:
             case CA_CONNECTED:
                 // connecting clients will only show the connection dialog
                 // refresh to update the time
-                VM_Call(uivm, UI_REFRESH - (uiInterface == 2 ? 2 : 0), cls.realtime);
-                VM_Call(uivm, UI_DRAW_CONNECT_SCREEN - (uiInterface == 2 ? 2 : 0), false);
+                VM_Call(cls.ui, UI_REFRESH - (cls.uiInterface == 2 ? 2 : 0), cls.realtime);
+                VM_Call(cls.ui, UI_DRAW_CONNECT_SCREEN - (cls.uiInterface == 2 ? 2 : 0), false);
                 break;
             case CA_LOADING:
             case CA_PRIMED:
@@ -518,9 +519,9 @@ void SCR_DrawScreenField(stereoFrame_t stereoFrame)
     }
 
     // the menu draws next
-    if (Key_GetCatcher() & KEYCATCH_UI && uivm)
+    if (Key_GetCatcher() & KEYCATCH_UI && cls.ui)
     {
-        VM_Call(uivm, UI_REFRESH - (uiInterface == 2 ? 2 : 0), cls.realtime);
+        VM_Call(cls.ui, UI_REFRESH - (cls.uiInterface == 2 ? 2 : 0), cls.realtime);
     }
 
     // console draws next
@@ -558,7 +559,7 @@ void SCR_UpdateScreen(void)
 
     // If there is no VM, there are also no rendering commands issued. Stop the renderer in
     // that case.
-    if (uivm || com_dedicated->integer)
+    if (cls.ui || com_dedicated->integer)
     {
         // XXX
         int in_anaglyphMode = Cvar_VariableIntegerValue("r_anaglyphMode");

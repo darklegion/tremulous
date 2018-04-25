@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 
@@ -717,6 +718,8 @@ void SV_SendClientMessages(void)
 
         if (!c->state) continue;  // not connected
 
+        if (svs.time - c->lastSnapshotTime < c->snapshotMsec * com_timescale->value) continue; // It's not time yet
+
         if (*c->downloadName) continue;  // Client is downloading, don't send snapshots
 
         if (c->netchan.unsentFragments || c->netchan_start_queue)
@@ -729,8 +732,6 @@ void SV_SendClientMessages(void)
                 (sv_lanForceRate->integer && Sys_IsLANAddress(c->netchan.remoteAddress))))
         {
             // rate control for clients not on LAN
-
-            if (svs.time - c->lastSnapshotTime < c->snapshotMsec * com_timescale->value) continue;  // It's not time yet
 
             if (SV_RateMsec(c) > 0)
             {

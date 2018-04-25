@@ -1,5 +1,5 @@
 add_library (
-    qcommon STATIC
+    common STATIC
     cm_load.c
     cm_local.h
     cm_patch.c

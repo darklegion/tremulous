@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 
@@ -27,18 +28,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <stdbool.h> 
 
-#include "../qcommon/cvar.h"
-#include "../qcommon/q_shared.h"
-#include "../qcommon/qfiles.h"
-#include "../qcommon/qcommon.h"
-#include "../renderercommon/tr_public.h"
-#include "../renderercommon/tr_common.h"
+#include "qcommon/cvar.h"
+#include "qcommon/q_shared.h"
+#include "qcommon/qfiles.h"
+#include "qcommon/qcommon.h"
+#include "renderercommon/tr_public.h"
+#include "renderercommon/tr_common.h"
 #include "tr_extratypes.h"
 #include "tr_extramath.h"
 #include "tr_fbo.h"
 #include "tr_postprocess.h"
-#include "../renderercommon/iqm.h"
-#include "../renderercommon/qgl.h"
+#include "renderercommon/iqm.h"
 
 #define GL_INDEX_TYPE		GL_UNSIGNED_INT
 typedef unsigned int glIndex_t;
@@ -475,36 +475,15 @@ typedef struct shader_s {
 
 	void		(*optimalStageIteratorFunc)( void );
 
-  float clampTime;                                  // time this shader is clamped to
-  float timeOffset;                                 // current time offset for this shader
+    double clampTime;                                  // time this shader is clamped to
+    double timeOffset;                                 // current time offset for this shader
 
-  struct shader_s *remappedShader;                  // current shader this one is remapped too
+    struct shader_s *remappedShader;                  // current shader this one is remapped too
 
 	struct	shader_s	*next;
 } shader_t;
 
-static ID_INLINE bool ShaderRequiresCPUDeforms(const shader_t * shader)
-{
-	if(shader->numDeforms)
-	{
-		const deformStage_t *ds = &shader->deforms[0];
-
-		if (shader->numDeforms > 1)
-			return true;
-
-		switch (ds->deformation)
-		{
-			case DEFORM_WAVE:
-			case DEFORM_BULGE:
-				return false;
-
-			default:
-				return true;
-		}
-	}
-
-	return false;
-}
+bool ShaderRequiresCPUDeforms(const shader_t*);
 
 enum
 {
@@ -737,7 +716,7 @@ typedef struct {
 	byte		areamask[MAX_MAP_AREA_BYTES];
 	bool	areamaskModified;	// true if areamask changed since last scene
 
-	float		floatTime;			// tr.refdef.time / 1000.0
+	double		floatTime;			// tr.refdef.time / 1000.0
 
 	float		blurFactor;
 
@@ -1786,6 +1765,8 @@ extern	cvar_t	*r_ignoreGLErrors;
 extern	cvar_t	*r_overBrightBits;
 extern	cvar_t	*r_mapOverBrightBits;
 
+extern  cvar_t  *r_mapLightmapMin;
+
 extern	cvar_t	*r_debugSurface;
 extern	cvar_t	*r_simpleMipMaps;
 
@@ -1985,7 +1966,7 @@ typedef struct shaderCommands_s
 	//color4ub_t	constantColor255[SHADER_MAX_VERTEXES] QALIGN(16);
 
 	shader_t	*shader;
-	float		shaderTime;
+	double		shaderTime;
 	int			fogNum;
 	int         cubemapIndex;
 

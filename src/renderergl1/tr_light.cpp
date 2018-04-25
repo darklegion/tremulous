@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 
@@ -366,9 +367,9 @@ void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent ) {
 	}
 
 	// save out the byte packet version
-	((byte *)&ent->ambientLightInt)[0] = ri.ftol(ent->ambientLight[0]);
-	((byte *)&ent->ambientLightInt)[1] = ri.ftol(ent->ambientLight[1]);
-	((byte *)&ent->ambientLightInt)[2] = ri.ftol(ent->ambientLight[2]);
+	((byte *)&ent->ambientLightInt)[0] = static_cast<int>(ent->ambientLight[0]);
+	((byte *)&ent->ambientLightInt)[1] = static_cast<int>(ent->ambientLight[1]);
+	((byte *)&ent->ambientLightInt)[2] = static_cast<int>(ent->ambientLight[2]);
 	((byte *)&ent->ambientLightInt)[3] = 0xff;
 	
 	// transform the direction to local space

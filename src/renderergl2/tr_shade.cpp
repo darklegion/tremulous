@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 
@@ -66,7 +67,6 @@ R_BindAnimatedImageToTMU
 =================
 */
 static void R_BindAnimatedImageToTMU( textureBundle_t *bundle, int tmu ) {
-	int		index;
 
 	if ( bundle->isVideoMap ) {
 		ri.CIN_RunCinematic(bundle->videoMapHandle);
@@ -82,15 +82,15 @@ static void R_BindAnimatedImageToTMU( textureBundle_t *bundle, int tmu ) {
 
 	// it is necessary to do this messy calc to make sure animations line up
 	// exactly with waveforms of the same frequency
-	index = ri.ftol(tess.shaderTime * bundle->imageAnimationSpeed * FUNCTABLE_SIZE);
-	index >>= FUNCTABLE_SIZE2;
+    int i = static_cast<int>(tess.shaderTime * bundle->imageAnimationSpeed * FUNCTABLE_SIZE) >> FUNCTABLE_SIZE2;
 
-	if ( index < 0 ) {
-		index = 0;	// may happen with shader time offsets
+	if ( i < 0 )
+    {
+		i = 0;	// may happen with shader time offsets
 	}
-	index %= bundle->numImageAnimations;
+	i %= bundle->numImageAnimations;
 
-	GL_BindToTMU( bundle->image[ index ], tmu );
+	GL_BindToTMU( bundle->image[ i ], tmu );
 }
 
 

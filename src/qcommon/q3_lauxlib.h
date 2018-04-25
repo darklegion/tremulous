@@ -1,5 +1,6 @@
 // This file is part of Tremulous.
 // Copyright © 2016 Victor Roemer (blowfish) <victor@badsec.org>
+// Copyright (C) 2015-2018 GrangerHub
 // 
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -20,20 +21,17 @@
 #include <stdarg.h>
 #include <sys/types.h>
 
+#include "q_platform.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-size_t lua_writestring(char* string, size_t n);
-int lua_writeline(void);
-int lua_writestringerror(const char *fmt, ...);
+SO_PUBLIC size_t lua_writestring(const char* string, size_t n);
+SO_PUBLIC int lua_writeline(void);
+SO_PUBLIC int lua_writestringerror(const char *fmt, ...);
 
 #define LUA_TMPNAMTEMPLATE	"/tmp/tremulous_XXXXXX"
-
-// Because: src/lua-5.3.3/include/luaconf.h:69:9: warning: 'LUA_USE_POSIX' macro redefined [-Wmacro-redefined]
-//#ifndef _WIN32
-//#define LUA_USE_POSIX 1
-//#endif
 
 #ifdef __cplusplus
 }

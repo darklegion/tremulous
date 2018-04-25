@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 
@@ -25,14 +26,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  * Compression book.  The ranks are not actually stored, but implicitly defined
  * by the location of a node within a doubly-linked list */
 
-#include <stdbool.h>
+#include "huffman.h"
 
-#include "msg.h"
+#include "alternatePlayerstate.h"
 #include "cvar.h"
+#include "msg.h"
 #include "q_shared.h"
 #include "qcommon.h"
-#include "alternatePlayerstate.h"
-#include "huffman.h"
 
 static int bloc = 0;
 
@@ -80,9 +80,9 @@ static int get_bit(uint8_t *fin)
     return t;
 }
 
-static node_t **get_ppnode(huff_t *huff)
+static huffNode_t **get_ppnode(huff_t *huff)
 {
-    node_t **tppnode;
+    huffNode_t **tppnode;
     if (!huff->freelist)
     {
         return &(huff->nodePtrs[huff->blocPtrs++]);
@@ -90,21 +90,21 @@ static node_t **get_ppnode(huff_t *huff)
     else
     {
         tppnode = huff->freelist;
-        huff->freelist = (node_t **)*tppnode;
+        huff->freelist = (huffNode_t **)*tppnode;
         return tppnode;
     }
 }
 
-static void free_ppnode(huff_t *huff, node_t **ppnode)
+static void free_ppnode(huff_t *huff, huffNode_t **ppnode)
 {
-    *ppnode = (node_t *)huff->freelist;
+    *ppnode = (huffNode_t *)huff->freelist;
     huff->freelist = ppnode;
 }
 
 /* Swap the location of these two nodes in the tree */
-static void swap(huff_t *huff, node_t *node1, node_t *node2)
+static void swap(huff_t *huff, huffNode_t *node1, huffNode_t *node2)
 {
-    node_t *par1, *par2;
+    huffNode_t *par1, *par2;
 
     par1 = node1->parent;
     par2 = node2->parent;
@@ -146,9 +146,9 @@ static void swap(huff_t *huff, node_t *node1, node_t *node2)
 }
 
 /* Swap these two nodes in the linked list (update ranks) */
-static void swaplist(node_t *node1, node_t *node2)
+static void swaplist(huffNode_t *node1, huffNode_t *node2)
 {
-    node_t *par1;
+    huffNode_t *par1;
 
     par1 = node1->next;
     node1->next = node2->next;
@@ -185,9 +185,9 @@ static void swaplist(node_t *node1, node_t *node2)
 }
 
 /* Do the increments */
-static void increment(huff_t *huff, node_t *node)
+static void increment(huff_t *huff, huffNode_t *node)
 {
-    node_t *lnode;
+    huffNode_t *lnode;
 
     if (!node)
     {
@@ -238,7 +238,7 @@ static void increment(huff_t *huff, node_t *node)
 
 void Huff_addRef(huff_t *huff, uint8_t ch)
 {
-    node_t *tnode, *tnode2;
+    huffNode_t *tnode, *tnode2;
     if (huff->loc[ch] == NULL)
     { /* if this is the first transmission of this node */
         tnode = &(huff->nodeList[huff->blocNode++]);
@@ -328,7 +328,7 @@ void Huff_addRef(huff_t *huff, uint8_t ch)
 }
 
 /* Get a symbol */
-int Huff_Receive(node_t *node, int *ch, uint8_t *fin)
+int Huff_Receive(huffNode_t *node, int *ch, uint8_t *fin)
 {
     while (node && node->symbol == INTERNAL_NODE)
     {
@@ -350,11 +350,18 @@ int Huff_Receive(node_t *node, int *ch, uint8_t *fin)
 }
 
 /* Get a symbol */
-void Huff_offsetReceive(node_t *node, int *ch, uint8_t *fin, int *offset)
+void Huff_offsetReceive(huffNode_t *node, int *ch, uint8_t *fin, int *offset, int maxoffset)
 {
     bloc = *offset;
     while (node && node->symbol == INTERNAL_NODE)
     {
+        if ( bloc >= maxoffset )
+        {
+            *ch = 0;
+            *offset = maxoffset + 1;
+            return;
+        }
+
         if (get_bit(fin))
         {
             node = node->right;
@@ -375,14 +382,20 @@ void Huff_offsetReceive(node_t *node, int *ch, uint8_t *fin, int *offset)
 }
 
 /* Send the prefix code for this node */
-static void send(node_t *node, node_t *child, uint8_t *fout)
+static void send(huffNode_t *node, huffNode_t *child, uint8_t *fout, int maxoffset)
 {
     if (node->parent)
     {
-        send(node->parent, node, fout);
+        send(node->parent, node, fout, maxoffset);
     }
     if (child)
     {
+        if (bloc >= maxoffset)
+        {
+            bloc = maxoffset + 1;
+            return;
+        }
+
         if (node->right == child)
         {
             add_bit(1, fout);
@@ -395,13 +408,13 @@ static void send(node_t *node, node_t *child, uint8_t *fout)
 }
 
 /* Send a symbol */
-void Huff_transmit(huff_t *huff, int ch, uint8_t *fout)
+void Huff_transmit(huff_t *huff, int ch, uint8_t *fout, int maxoffset)
 {
     int i;
     if (huff->loc[ch] == NULL)
     {
-        /* node_t hasn't been transmitted, send a NYT, then the symbol */
-        Huff_transmit(huff, NYT, fout);
+        /* huffNode_t hasn't been transmitted, send a NYT, then the symbol */
+        Huff_transmit(huff, NYT, fout, maxoffset);
         for (i = 7; i >= 0; i--)
         {
             add_bit((char)((ch >> i) & 0x1), fout);
@@ -409,14 +422,14 @@ void Huff_transmit(huff_t *huff, int ch, uint8_t *fout)
     }
     else
     {
-        send(huff->loc[ch], NULL, fout);
+        send(huff->loc[ch], NULL, fout, maxoffset);
     }
 }
 
-void Huff_offsetTransmit(huff_t *huff, int ch, uint8_t *fout, int *offset)
+void Huff_offsetTransmit(huff_t *huff, int ch, uint8_t *fout, int *offset, int maxoffset)
 {
     bloc = *offset;
-    send(huff->loc[ch], NULL, fout);
+    send(huff->loc[ch], NULL, fout, maxoffset);
     *offset = bloc;
 }
 
@@ -512,7 +525,7 @@ void Huff_Compress(struct msg_t *mbuf, int offset)
     for (i = 0; i < size; i++)
     {
         ch = buffer[i];
-        Huff_transmit(&huff, ch, seq); /* Transmit symbol */
+        Huff_transmit(&huff, ch, seq, size << 3); /* Transmit symbol */
         Huff_addRef(&huff, (uint8_t)ch); /* Do update */
     }
 

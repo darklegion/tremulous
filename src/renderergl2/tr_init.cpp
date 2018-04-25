@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 
@@ -210,6 +211,8 @@ cvar_t	*r_pixelAspect;
 cvar_t	*r_overBrightBits;
 cvar_t	*r_mapOverBrightBits;
 
+cvar_t  *r_mapLightmapMin;
+
 cvar_t	*r_debugSurface;
 cvar_t	*r_simpleMipMaps;
 
@@ -259,7 +262,7 @@ static void InitOpenGL( void )
 	{
 		GLint		temp;
 		
-		GLimp_Init( qtrue );
+		GLimp_Init( true );
 		GLimp_InitExtraExtensions();
 
 		strcpy( renderer_buffer, glConfig.renderer_string );
@@ -1180,7 +1183,8 @@ void R_Register( void )
 	//
 	r_fullbright = ri.Cvar_Get ("r_fullbright", "0", CVAR_LATCH|CVAR_CHEAT );
 	r_mapOverBrightBits = ri.Cvar_Get ("r_mapOverBrightBits", "2", CVAR_LATCH );
-	r_intensity = ri.Cvar_Get ("r_intensity", "1", CVAR_LATCH );
+	r_mapLightmapMin = ri.Cvar_Get ("r_mapLightmapMin", "0", CVAR_ARCHIVE | CVAR_LATCH );
+	r_intensity = ri.Cvar_Get ("r_intensity", "1", CVAR_ARCHIVE | CVAR_LATCH );
 	r_singleShader = ri.Cvar_Get ("r_singleShader", "0", CVAR_CHEAT | CVAR_LATCH );
 
 	//
@@ -1411,18 +1415,16 @@ void RE_Shutdown( bool destroyWindow ) {
 
 	ri.Printf( PRINT_ALL, "RE_Shutdown( %i )\n", destroyWindow );
 
-	ri.Cmd_RemoveCommand ("modellist");
-	ri.Cmd_RemoveCommand ("screenshotJPEG");
-	ri.Cmd_RemoveCommand ("screenshot");
-	ri.Cmd_RemoveCommand ("imagelist");
-	ri.Cmd_RemoveCommand ("shaderlist");
-	ri.Cmd_RemoveCommand ("skinlist");
-	ri.Cmd_RemoveCommand ("gfxinfo");
+	ri.Cmd_RemoveCommand("exportCubemaps");
+	ri.Cmd_RemoveCommand("gfxinfo");
+	ri.Cmd_RemoveCommand("gfxmeminfo");
+	ri.Cmd_RemoveCommand("imagelist");
 	ri.Cmd_RemoveCommand("minimize");
-	ri.Cmd_RemoveCommand( "shaderstate" );
-	ri.Cmd_RemoveCommand( "gfxmeminfo" );
-	ri.Cmd_RemoveCommand( "exportCubemaps" );
-
+	ri.Cmd_RemoveCommand("modellist");
+	ri.Cmd_RemoveCommand("screenshot");
+	ri.Cmd_RemoveCommand("screenshotJPEG");
+	ri.Cmd_RemoveCommand("shaderlist");
+	ri.Cmd_RemoveCommand("skinlist");
 
 	if ( tr.registered ) {
 		R_IssuePendingRenderCommands();
@@ -1470,7 +1472,7 @@ GetRefAPI
 @@@@@@@@@@@@@@@@@@@@@
 */
 #ifdef USE_RENDERER_DLOPEN
-extern "C" Q_EXPORT refexport_t* QDECL GetRefAPI ( int apiVersion, refimport_t *rimp ) {
+SO_PUBLIC refexport_t* QDECL GetRefAPI ( int apiVersion, refimport_t *rimp ) {
 #else
 refexport_t *GetRefAPI ( int apiVersion, refimport_t *rimp ) {
 #endif

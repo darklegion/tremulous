@@ -4,6 +4,7 @@ Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
 Copyright (C) 2005 Stuart Dalton (badcdev@gmail.com)
 Copyright (C) 2005-2006 Joerg Dietrich <dietrich_joerg@gmx.de>
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 
@@ -28,12 +29,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // includes for the Q3 sound system
 #include "client.h"
-#include "snd_codec.h"
 
 // includes for the OGG codec
-#include <errno.h>
 #define OV_EXCLUDE_STATIC_CALLBACKS
 #include <vorbis/vorbisfile.h>
+
+#include <cerrno>
+
+#include "snd_codec.h"
 
 // The OGG codec can return the samples in a number of different formats,
 // we use the standard signed short format.

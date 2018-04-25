@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 2006 Tony J. White (tjw@tjw.org)
 Copyright (C) 2000-2013 Darklegion Development
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 
@@ -24,7 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "client.h"
 
 #ifdef USE_CURL_DLOPEN
-#include "../sys/sys_loadlib.h"
+#include "sys/sys_loadlib.h"
 
 cvar_t *cl_cURLLib;
 
@@ -297,6 +298,7 @@ void CL_cURL_BeginDownload( const char *localName, const char *remoteURL )
 	qcurl_easy_setopt_warn(clc.downloadCURL, CURLOPT_FAILONERROR, 1);
 	qcurl_easy_setopt_warn(clc.downloadCURL, CURLOPT_FOLLOWLOCATION, 1);
 	qcurl_easy_setopt_warn(clc.downloadCURL, CURLOPT_MAXREDIRS, 5);
+	qcurl_easy_setopt_warn(clc.downloadCURL, CURLOPT_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS | CURLPROTO_FTP | CURLPROTO_FTPS );
 	clc.downloadCURLM = qcurl_multi_init();	
 	if(!clc.downloadCURLM)
     {

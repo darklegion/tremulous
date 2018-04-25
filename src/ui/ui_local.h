@@ -2,19 +2,20 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
- 
+Copyright (C) 2015-2018 GrangerHub
+
 This file is part of Tremulous.
- 
+
 Tremulous is free software; you can redistribute it
 and/or modify it under the terms of the GNU General Public License as
 published by the Free Software Foundation; either version 2 of the License,
 or (at your option) any later version.
- 
+
 Tremulous is distributed in the hope that it will be
 useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
- 
+
 You should have received a copy of the GNU General Public License
 along with Tremulous; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -24,29 +25,35 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef UI_LOCAL_H
 #define UI_LOCAL_H
 
-#include "../qcommon/q_shared.h"
-#include "../renderercommon/tr_types.h"
+#include "client/keycodes.h"
+#include "game/bg_public.h"
+#include "qcommon/cmd.h"
+#include "qcommon/cvar.h"
+#include "qcommon/files.h"
+#include "qcommon/q_shared.h"
+#include "renderercommon/tr_public.h"
+#include "renderercommon/tr_types.h"
+#include "sys/sys_shared.h"
+
 #include "ui_public.h"
-#include "../client/keycodes.h"
-#include "../game/bg_public.h"
 #include "ui_shared.h"
 
 //
 // ui_main.c
 //
-void UI_Report( void );
-void UI_Load( void );
-void UI_LoadMenus( const char *menuFile, qboolean reset );
-int UI_AdjustTimeByGame( int time );
-void UI_ClearScores( void );
-void UI_LoadArenas( void );
-void UI_ServerInfo( void );
-void UI_UpdateNews( qboolean );
-void UI_UpdateGithubRelease( );
+void UI_Report(void);
+void UI_Load(void);
+void UI_LoadMenus(const char *menuFile, bool reset);
+int UI_AdjustTimeByGame(int time);
+void UI_ClearScores(void);
+void UI_LoadArenas(void);
+void UI_ServerInfo(void);
+void UI_UpdateNews(bool);
+void UI_UpdateGithubRelease(void);
 
-void UI_RegisterCvars( void );
-void UI_UpdateCvars( void );
-void UI_DrawConnectScreen( qboolean overlay );
+void UI_RegisterCvars(void);
+void UI_UpdateCvars(void);
+void UI_DrawConnectScreen(void);
 
 // new ui stuff
 #define MAX_MAPS 128
@@ -64,359 +71,242 @@ void UI_DrawConnectScreen( qboolean overlay );
 #define MAX_HELP_INFOPANES 32
 #define MAX_RESOLUTIONS 32
 
-typedef struct
-{
-  const char *mapName;
-  const char *mapLoadName;
-  const char *imageName;
-  int cinematic;
-  qhandle_t levelShot;
-}
-mapInfo;
+struct mapInfo {
+    const char *mapName;
+    const char *mapLoadName;
+    const char *imageName;
+    int cinematic;
+    qhandle_t levelShot;
+};
 
-typedef struct serverFilter_s
-{
-  const char *description;
-  const char *basedir;
-}
-serverFilter_t;
+struct serverFilter_t {
+    const char *description;
+    const char *basedir;
+};
 
-typedef struct
-{
-  char  adrstr[MAX_ADDRESSLENGTH];
-  int    start;
-}
-pinglist_t;
+struct pinglist_t {
+    char adrstr[MAX_ADDRESSLENGTH];
+    int start;
+};
 
+struct serverStatus_t {
+    pinglist_t pingList[MAX_PINGREQUESTS];
+    int numqueriedservers;
+    int currentping;
+    int nextpingtime;
+    int maxservers;
+    int refreshtime;
+    int numServers;
+    int sortKey;
+    int sortDir;
+    bool sorted;
+    int lastCount;
+    bool refreshActive;
+    int currentServer;
+    int displayServers[MAX_DISPLAY_SERVERS];
+    int numDisplayServers;
+    int numPlayersOnServers;
+    int nextDisplayRefresh;
+    int nextSortTime;
+    qhandle_t currentServerPreview;
+    int currentServerCinematic;
+    int motdLen;
+    int motdWidth;
+    int motdPaintX;
+    int motdPaintX2;
+    int motdOffset;
+    int motdTime;
+    char motd[MAX_STRING_CHARS];
+};
 
-typedef struct serverStatus_s
-{
-  pinglist_t pingList[MAX_PINGREQUESTS];
-  int    numqueriedservers;
-  int    currentping;
-  int    nextpingtime;
-  int    maxservers;
-  int    refreshtime;
-  int    numServers;
-  int    sortKey;
-  int    sortDir;
-  qboolean sorted;
-  int    lastCount;
-  qboolean refreshActive;
-  int    currentServer;
-  int    displayServers[MAX_DISPLAY_SERVERS];
-  int    numDisplayServers;
-  int    numPlayersOnServers;
-  int    nextDisplayRefresh;
-  int    nextSortTime;
-  qhandle_t currentServerPreview;
-  int    currentServerCinematic;
-  int    motdLen;
-  int    motdWidth;
-  int    motdPaintX;
-  int    motdPaintX2;
-  int    motdOffset;
-  int    motdTime;
-  char  motd[MAX_STRING_CHARS];
-}
-serverStatus_t;
+struct pendingServer_t {
+    char adrstr[MAX_ADDRESSLENGTH];
+    char name[MAX_ADDRESSLENGTH];
+    int startTime;
+    int serverNum;
+    bool valid;
+};
 
+struct pendingServerStatus_t {
+    int num;
+    pendingServer_t server[MAX_SERVERSTATUSREQUESTS];
+};
 
-typedef struct
-{
-  char    adrstr[MAX_ADDRESSLENGTH];
-  char    name[MAX_ADDRESSLENGTH];
-  int      startTime;
-  int      serverNum;
-  qboolean  valid;
-}
-pendingServer_t;
+struct serverStatusInfo_t {
+    char address[MAX_ADDRESSLENGTH];
+    const char *lines[MAX_SERVERSTATUS_LINES][4];
+    char text[MAX_SERVERSTATUS_TEXT];
+    char pings[MAX_CLIENTS * 3];
+    int numLines;
+};
 
-typedef struct
-{
-  int num;
-  pendingServer_t server[MAX_SERVERSTATUSREQUESTS];
-}
-pendingServerStatus_t;
+struct newsInfo_t {
+    char text[MAX_NEWS_LINES][MAX_NEWS_LINEWIDTH];
+    int numLines;
+    bool refreshActive;
+    int refreshtime;
+};
 
-typedef struct
-{
-  char address[MAX_ADDRESSLENGTH];
-  char *lines[MAX_SERVERSTATUS_LINES][4];
-  char text[MAX_SERVERSTATUS_TEXT];
-  char pings[MAX_CLIENTS * 3];
-  int numLines;
-}
-serverStatusInfo_t;
+struct githubRelease_t {
+    char text[MAX_NEWS_LINES][MAX_NEWS_LINEWIDTH];
+    int numLines;
+    bool refreshActive;
+    int nextTime;
+};
 
-typedef struct
-{
-  char text[MAX_NEWS_LINES][MAX_NEWS_LINEWIDTH];
-  int numLines;
-  qboolean refreshActive;
-  int refreshtime;
-}
-newsInfo_t;
+struct modInfo_t {
+    const char *modName;
+    const char *modDescr;
+};
 
-typedef struct
-{
-  char text[MAX_NEWS_LINES][MAX_NEWS_LINEWIDTH];
-  int numLines;
-  qboolean refreshActive;
-  int nextTime;
-} githubRelease_t;
+enum infoType_t {
+    INFOTYPE_TEXT,
+    INFOTYPE_BUILDABLE,
+    INFOTYPE_CLASS,
+    INFOTYPE_WEAPON,
+    INFOTYPE_UPGRADE,
+    INFOTYPE_VOICECMD
+};
 
-typedef struct
-{
-  const char *modName;
-  const char *modDescr;
-}
-modInfo_t;
+struct menuItem_t {
+    const char *text;
+    const char *cmd;
+    infoType_t type;
+    union {
+        const char *text;
+        buildable_t buildable;
+        class_t pclass;
+        weapon_t weapon;
+        upgrade_t upgrade;
+    } v;
+};
 
-typedef enum
-{
-  INFOTYPE_TEXT,
-  INFOTYPE_BUILDABLE,
-  INFOTYPE_CLASS,
-  INFOTYPE_WEAPON,
-  INFOTYPE_UPGRADE,
-  INFOTYPE_VOICECMD
-} infoType_t;
+struct resolution_t {
+    int w;
+    int h;
+};
 
-typedef struct
-{
-  const char    *text;
-  const char    *cmd;
-  infoType_t    type;
-  union
-  {
-    const char  *text;
-    buildable_t buildable;
-    class_t     pclass;
-    weapon_t    weapon;
-    upgrade_t   upgrade;
-  } v;
-}
-menuItem_t;
+struct uiInfo_t {
+    displayContextDef_t uiDC;
 
-typedef struct
-{
-  int w;
-  int h;
-}
-resolution_t;
+    int playerCount;
+    int myTeamCount;
+    int teamPlayerIndex;
+    int playerRefresh;
+    int playerIndex;
+    int playerNumber;
+    int myPlayerIndex;
+    int ignoreIndex;
+    char playerNames[MAX_CLIENTS][MAX_NAME_LENGTH];
+    char rawPlayerNames[MAX_CLIENTS][MAX_NAME_LENGTH];
+    char teamNames[MAX_CLIENTS][MAX_NAME_LENGTH];
+    char rawTeamNames[MAX_CLIENTS][MAX_NAME_LENGTH];
+    int clientNums[MAX_CLIENTS];
+    int teamClientNums[MAX_CLIENTS];
+    clientList_t ignoreList[MAX_CLIENTS];
 
-typedef struct
-{
-  displayContextDef_t uiDC;
+    int mapCount;
+    mapInfo mapList[MAX_MAPS];
 
-  int playerCount;
-  int myTeamCount;
-  int teamPlayerIndex;
-  int playerRefresh;
-  int playerIndex;
-  int playerNumber;
-  int myPlayerIndex;
-  int ignoreIndex;
-  char playerNames[MAX_CLIENTS][MAX_NAME_LENGTH];
-  char rawPlayerNames[MAX_CLIENTS][MAX_NAME_LENGTH];
-  char teamNames[MAX_CLIENTS][MAX_NAME_LENGTH];
-  char rawTeamNames[MAX_CLIENTS][MAX_NAME_LENGTH];
-  int clientNums[MAX_CLIENTS];
-  int teamClientNums[MAX_CLIENTS];
-  clientList_t ignoreList[MAX_CLIENTS];
+    modInfo_t modList[MAX_MODS];
+    int modCount;
+    int modIndex;
 
-  int mapCount;
-  mapInfo mapList[MAX_MAPS];
+    const char *demoList[MAX_DEMOS];
+    int demoCount;
+    int demoIndex;
 
-  modInfo_t modList[MAX_MODS];
-  int modCount;
-  int modIndex;
+    const char *movieList[MAX_MOVIES];
+    int movieCount;
+    int movieIndex;
+    int previewMovie;
 
-  const char *demoList[MAX_DEMOS];
-  int demoCount;
-  int demoIndex;
+    menuItem_t teamList[4];
+    int teamCount;
+    int teamIndex;
 
-  const char *movieList[MAX_MOVIES];
-  int movieCount;
-  int movieIndex;
-  int previewMovie;
+    menuItem_t alienClassList[3];
+    int alienClassCount;
+    int alienClassIndex;
 
-  menuItem_t  teamList[ 4 ];
-  int         teamCount;
-  int         teamIndex;
+    menuItem_t humanItemList[3];
+    int humanItemCount;
+    int humanItemIndex;
 
-  menuItem_t  alienClassList[ 3 ];
-  int         alienClassCount;
-  int         alienClassIndex;
+    menuItem_t humanArmouryBuyList[32];
+    int humanArmouryBuyCount;
+    int humanArmouryBuyIndex;
 
-  menuItem_t  humanItemList[ 3 ];
-  int         humanItemCount;
-  int         humanItemIndex;
+    menuItem_t humanArmourySellList[32];
+    int humanArmourySellCount;
+    int humanArmourySellIndex;
 
-  menuItem_t  humanArmouryBuyList[ 32 ];
-  int         humanArmouryBuyCount;
-  int         humanArmouryBuyIndex;
+    menuItem_t alienUpgradeList[16];
+    int alienUpgradeCount;
+    int alienUpgradeIndex;
 
-  menuItem_t  humanArmourySellList[ 32 ];
-  int         humanArmourySellCount;
-  int         humanArmourySellIndex;
+    menuItem_t alienBuildList[32];
+    int alienBuildCount;
+    int alienBuildIndex;
 
-  menuItem_t  alienUpgradeList[ 16 ];
-  int         alienUpgradeCount;
-  int         alienUpgradeIndex;
+    menuItem_t humanBuildList[32];
+    int humanBuildCount;
+    int humanBuildIndex;
 
-  menuItem_t  alienBuildList[ 32 ];
-  int         alienBuildCount;
-  int         alienBuildIndex;
+    menuItem_t voiceCmdList[32];
+    int voiceCmdCount;
+    int voiceCmdIndex;
 
-  menuItem_t  humanBuildList[ 32 ];
-  int         humanBuildCount;
-  int         humanBuildIndex;
+    menuItem_t helpList[MAX_HELP_INFOPANES];
+    int helpCount;
+    int helpIndex;
 
-  menuItem_t  voiceCmdList[ 32 ];
-  int         voiceCmdCount;
-  int         voiceCmdIndex;
+    int weapons;
+    int upgrades;
 
-  menuItem_t  helpList[ MAX_HELP_INFOPANES ];
-  int         helpCount;
-  int         helpIndex;
+    serverStatus_t serverStatus;
 
-  int         weapons;
-  int         upgrades;
+    // for showing the game news window
+    newsInfo_t newsInfo;
 
-  serverStatus_t serverStatus;
+    githubRelease_t githubRelease;
 
-  // for showing the game news window
-  newsInfo_t newsInfo;
+    // for the showing the status of a server
+    char serverStatusAddress[MAX_ADDRESSLENGTH];
+    serverStatusInfo_t serverStatusInfo;
+    int nextServerStatusRefresh;
 
-  githubRelease_t githubRelease;
+    // to retrieve the status of server to find a player
+    pendingServerStatus_t pendingServerStatus;
+    char findPlayerName[MAX_STRING_CHARS];
+    char foundPlayerServerAddresses[MAX_FOUNDPLAYER_SERVERS][MAX_ADDRESSLENGTH];
+    char foundPlayerServerNames[MAX_FOUNDPLAYER_SERVERS][MAX_ADDRESSLENGTH];
+    int currentFoundPlayerServer;
+    int numFoundPlayerServers;
+    int nextFindPlayerRefresh;
 
-  // for the showing the status of a server
-  char serverStatusAddress[MAX_ADDRESSLENGTH];
-  serverStatusInfo_t serverStatusInfo;
-  int nextServerStatusRefresh;
+    resolution_t resolutions[MAX_RESOLUTIONS];
+    int numResolutions;
+    int resolutionIndex;
 
-  // to retrieve the status of server to find a player
-  pendingServerStatus_t pendingServerStatus;
-  char findPlayerName[MAX_STRING_CHARS];
-  char foundPlayerServerAddresses[MAX_FOUNDPLAYER_SERVERS][MAX_ADDRESSLENGTH];
-  char foundPlayerServerNames[MAX_FOUNDPLAYER_SERVERS][MAX_ADDRESSLENGTH];
-  int currentFoundPlayerServer;
-  int numFoundPlayerServers;
-  int nextFindPlayerRefresh;
+    voice_t *voices;
 
-  resolution_t  resolutions[ MAX_RESOLUTIONS ];
-  int           numResolutions;
-  int           resolutionIndex;
+    bool inGameLoad;
 
-  voice_t       *voices;
-
-  qboolean inGameLoad;
-
-  qboolean  chatTeam;
-  qboolean  voiceCmd;
-}
-uiInfo_t;
+    bool chatTeam;
+    bool voiceCmd;
+};
 
 extern uiInfo_t uiInfo;
+extern refexport_t* re;
 
 
-qboolean UI_ConsoleCommand( int realTime );
-char      *UI_Cvar_VariableString( const char *var_name );
-void      UI_SetColor( const float *rgba );
-void      UI_AdjustFrom640( float *x, float *y, float *w, float *h );
-void      UI_Refresh( int time );
-void      UI_DrawHandlePic( float x, float y, float w, float h, qhandle_t hShader );
-void      UI_FillRect( float x, float y, float width, float height, const float *color );
-
-//
-// ui_syscalls.c
-//
-void      trap_Print( const char *string );
-void      trap_Error( const char *string ) __attribute__((noreturn));
-int       trap_Milliseconds( void );
-void      trap_Cvar_Register( vmCvar_t *vmCvar, const char *varName, const char *defaultValue, int flags );
-void      trap_Cvar_Update( vmCvar_t *vmCvar );
-void      trap_Cvar_Set( const char *var_name, const char *value );
-float     trap_Cvar_VariableValue( const char *var_name );
-void      trap_Cvar_VariableStringBuffer( const char *var_name, char *buffer, int bufsize );
-void      trap_Cvar_SetValue( const char *var_name, float value );
-void      trap_Cvar_Reset( const char *name );
-void      trap_Cvar_Create( const char *var_name, const char *var_value, int flags );
-void      trap_Cvar_InfoStringBuffer( int bit, char *buffer, int bufsize );
-int       trap_Argc( void );
-void      trap_Argv( int n, char *buffer, int bufferLength );
-void      trap_Cmd_ExecuteText( int exec_when, const char *text );  // don't use EXEC_NOW!
-int       trap_FS_FOpenFile( const char *qpath, fileHandle_t *f, enum FS_Mode mode );
-void      trap_FS_Read( void *buffer, int len, fileHandle_t f );
-void      trap_FS_Write( const void *buffer, int len, fileHandle_t f );
-void      trap_FS_FCloseFile( fileHandle_t f );
-int       trap_FS_GetFileList(  const char *path, const char *extension, char *listbuf, int bufsize );
-int       trap_FS_Seek( fileHandle_t f, long offset, enum FS_Mode origin ); // fsOrigin_t
-qhandle_t trap_R_RegisterModel( const char *name );
-qhandle_t trap_R_RegisterSkin( const char *name );
-qhandle_t trap_R_RegisterShaderNoMip( const char *name );
-void      trap_R_ClearScene( void );
-void      trap_R_AddRefEntityToScene( const refEntity_t *re );
-void      trap_R_AddPolyToScene( qhandle_t hShader , int numVerts, const polyVert_t *verts );
-void      trap_R_AddLightToScene( const vec3_t org, float intensity, float r, float g, float b );
-void      trap_R_RenderScene( const refdef_t *fd );
-void      trap_R_SetColor( const float *rgba );
-void      trap_R_SetClipRegion( const float *region );
-void      trap_R_DrawStretchPic( float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader );
-void      trap_R_ModelBounds( clipHandle_t model, vec3_t mins, vec3_t maxs );
-void      trap_UpdateScreen( void );
-int       trap_CM_LerpTag( orientation_t *tag, clipHandle_t mod, int startFrame, int endFrame, float frac, const char *tagName );
-void      trap_S_StartLocalSound( sfxHandle_t sfx, int channelNum );
-sfxHandle_t    trap_S_RegisterSound( const char *sample, qboolean compressed );
-void      trap_Key_KeynumToStringBuf( int keynum, char *buf, int buflen );
-void      trap_Key_GetBindingBuf( int keynum, char *buf, int buflen );
-void      trap_Key_SetBinding( int keynum, const char *binding );
-qboolean  trap_Key_IsDown( int keynum );
-qboolean  trap_Key_GetOverstrikeMode( void );
-void      trap_Key_SetOverstrikeMode( qboolean state );
-void      trap_Key_ClearStates( void );
-int       trap_Key_GetCatcher( void );
-void      trap_Key_SetCatcher( int catcher );
-void      trap_GetClipboardData( char *buf, int bufsize );
-void      trap_GetClientState( uiClientState_t *state );
-void      trap_GetGlconfig( glconfig_t *glconfig );
-int       trap_GetConfigString( int index, char* buff, int buffsize );
-int       trap_LAN_GetServerCount( int source );
-void      trap_LAN_GetServerAddressString( int source, int n, char *buf, int buflen );
-void      trap_LAN_GetServerInfo( int source, int n, char *buf, int buflen );
-int       trap_LAN_GetServerPing( int source, int n );
-int       trap_LAN_GetPingQueueCount( void );
-void      trap_LAN_ClearPing( int n );
-void      trap_LAN_GetPing( int n, char *buf, int buflen, int *pingtime );
-void      trap_LAN_GetPingInfo( int n, char *buf, int buflen );
-void      trap_LAN_LoadCachedServers( void );
-void      trap_LAN_SaveCachedServers( void );
-void      trap_LAN_MarkServerVisible( int source, int n, qboolean visible );
-int       trap_LAN_ServerIsVisible( int source, int n );
-qboolean  trap_LAN_UpdateVisiblePings( int source );
-int       trap_LAN_AddServer( int source, const char *name, const char *addr );
-void      trap_LAN_RemoveServer( int source, const char *addr );
-void      trap_LAN_ResetPings( int n );
-int       trap_LAN_ServerStatus( const char *serverAddress, char *serverStatus, int maxLen );
-qboolean  trap_GetNews( qboolean force );
-int       trap_LAN_CompareServers( int source, int sortKey, int sortDir, int s1, int s2 );
-int       trap_MemoryRemaining( void );
-void      trap_R_RegisterFont( const char *pFontname, int pointSize, fontInfo_t *font );
-void      trap_S_StopBackgroundTrack( void );
-void      trap_S_StartBackgroundTrack( const char *intro, const char *loop );
-int       trap_CIN_PlayCinematic( const char *arg0, int xpos, int ypos, int width, int height, int bits );
-e_status  trap_CIN_StopCinematic( int handle );
-e_status  trap_CIN_RunCinematic ( int handle );
-void      trap_CIN_DrawCinematic ( int handle );
-void      trap_CIN_SetExtents ( int handle, int x, int y, int w, int h );
-int       trap_RealTime( qtime_t *qtime );
-void      trap_R_RemapShader( const char *oldShader, const char *newShader, const char *timeOffset );
-
-void      trap_SetPbClStatus( int status );
-
-int       trap_CheckForUpdate( int script );
-int       trap_InstallUpdate( int script );
+char *UI_Cvar_VariableString(const char *var_name);
+bool UI_ConsoleCommand(int realTime);
+void UI_SetColor(const float *rgba);
+void UI_AdjustFrom640(float *x, float *y, float *w, float *h);
+void UI_Refresh(int time);
+void UI_DrawHandlePic(float x, float y, float w, float h, qhandle_t hShader);
+void UI_FillRect(float x, float y, float width, float height, const float *color);
 
 #endif

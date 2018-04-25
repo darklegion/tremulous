@@ -142,7 +142,6 @@ GAME_NAME="${GAME}.dylib"
 UI_NAME="${UI}.dylib"
 
 GIT_REV=$(git describe --tags)
-VMS_PK3="vms-${GIT_REV}.pk3"
 DATA_PK3="data-${GIT_REV}.pk3"
 
 RENDERER_OPENGL1_NAME="${RENDERER_OPENGL}1.dylib"
@@ -290,7 +289,7 @@ echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
     <key>LSMinimumSystemVersion</key>
     <string>${MACOSX_DEPLOYMENT_TARGET}</string>
     <key>NSHumanReadableCopyright</key>
-    <string>Copyright © 1999-2015 Id Software LLC, a ZeniMax Media company, ioquake3, Darklegion Development, and Tremulous community contributors.</string>
+    <string>Copyright © 1999-2015 Id Software LLC, a ZeniMax Media company, ioquake3, Darklegion Development, GrangerHub, and Tremulous community contributors.</string>
     <key>NSPrincipalClass</key>
     <string>NSApplication</string>
 </dict>

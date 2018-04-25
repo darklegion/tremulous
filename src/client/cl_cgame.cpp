@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 
@@ -23,22 +24,21 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // cl_cgame.c  -- client system interaction with client game
 
-#include <setjmp.h>
+#include "qcommon/autocomplete.h"
+#include "qcommon/parse.h"
 #include "client.h"
-#include "snd_public.h"
 
 #ifdef USE_MUMBLE
 #include "libmumblelink.h"
 #endif
-
-int cgInterface;
+#include "snd_public.h"
 
 /*
 ====================
 CL_GetGameState
 ====================
 */
-static void CL_GetGameState( gameState_t *gs )
+void CL_GetGameState( gameState_t *gs )
 {
 	*gs = cl.gameState;
 }
@@ -48,7 +48,7 @@ static void CL_GetGameState( gameState_t *gs )
 CL_GetGlconfig
 ====================
 */
-static void CL_GetGlconfig( glconfig_t *glconfig )
+void CL_GetGlconfig( glconfig_t *glconfig )
 {
 	*glconfig = cls.glconfig;
 }
@@ -59,7 +59,7 @@ static void CL_GetGlconfig( glconfig_t *glconfig )
 CL_GetUserCmd
 ====================
 */
-static bool CL_GetUserCmd( int cmdNumber, usercmd_t *ucmd )
+bool CL_GetUserCmd( int cmdNumber, usercmd_t *ucmd )
 {
 	// cmds[cmdNumber] is the last properly generated command
 
@@ -77,7 +77,7 @@ static bool CL_GetUserCmd( int cmdNumber, usercmd_t *ucmd )
 	return true;
 }
 
-static int CL_GetCurrentCmdNumber( void )
+int CL_GetCurrentCmdNumber( void )
 {
 	return cl.cmdNumber;
 }
@@ -87,7 +87,7 @@ static int CL_GetCurrentCmdNumber( void )
 CL_GetCurrentSnapshotNumber
 ====================
 */
-static void CL_GetCurrentSnapshotNumber( int *snapshotNumber, int *serverTime )
+void CL_GetCurrentSnapshotNumber( int *snapshotNumber, int *serverTime )
 {
 	*snapshotNumber = cl.snap.messageNum;
 	*serverTime = cl.snap.serverTime;
@@ -133,7 +133,7 @@ bool CL_GetSnapshot( int snapshotNumber, snapshot_t *snapshot )
 		count = MAX_ENTITIES_IN_SNAPSHOT;
 	}
 
-	if ( cgInterface == 2 )
+	if ( cls.cgInterface == 2 )
     {
 		alternateSnapshot_t *altSnapshot = (alternateSnapshot_t *)snapshot;
 		altSnapshot->ps = clSnap->alternatePs;
@@ -172,15 +172,6 @@ CL_SetUserCmdValue
 void CL_SetUserCmdValue( int userCmdValue, float sensitivityScale ) {
 	cl.cgameUserCmdValue = userCmdValue;
 	cl.cgameSensitivity = sensitivityScale;
-}
-
-/*
-=====================
-CL_AddCgameCommand
-=====================
-*/
-void CL_AddCgameCommand( const char *cmdName ) {
-	Cmd_AddCommand( cmdName, NULL );
 }
 
 /*
@@ -244,7 +235,7 @@ CL_GetServerCommand
 Set up argc/argv for the given command
 ===================
 */
-static bool CL_GetServerCommand( int serverCommandNumber )
+bool CL_GetServerCommand( int serverCommandNumber )
 {
 	const char *s;
 	const char *cmd;
@@ -382,12 +373,12 @@ CL_ShutdonwCGame
 void CL_ShutdownCGame( void ) {
 	Key_SetCatcher( Key_GetCatcher( ) & ~KEYCATCH_CGAME );
 	cls.cgameStarted = false;
-	if ( !cgvm ) {
+	if ( !cls.cgame ) {
 		return;
 	}
-	VM_Call( cgvm, CG_SHUTDOWN );
-	VM_Free( cgvm );
-	cgvm = NULL;
+	VM_Call( cls.cgame, CG_SHUTDOWN );
+	VM_Free( cls.cgame );
+	cls.cgame = NULL;
 }
 
 static int	FloatAsInt( float f ) {
@@ -396,7 +387,6 @@ static int	FloatAsInt( float f ) {
 	return fi.i;
 }
 
-static jmp_buf cgProbingJB;
 static bool probingCG = false;
 
 /*
@@ -408,7 +398,7 @@ The cgame module is making a system call
 */
 intptr_t CL_CgameSystemCalls( intptr_t *args )
 {
-	if( cgInterface == 2 && args[0] >= CG_R_SETCLIPREGION && args[0] < CG_MEMSET )
+	if( cls.cgInterface == 2 && args[0] >= CG_R_SETCLIPREGION && args[0] < CG_MEMSET )
     {
 		if( args[0] < CG_S_STOPBACKGROUNDTRACK - 1 )
 			args[0] += 1;
@@ -431,7 +421,8 @@ intptr_t CL_CgameSystemCalls( intptr_t *args )
         case CG_ERROR:
             if( probingCG )
             {
-                longjmp(cgProbingJB, 1);
+                cls.cgInterface = 2; // this is a 1.1.0 cgame
+                return 0;
             }
             Com_Error( ERR_DROP, "%s", (const char*)VMA(1) );
             return 0;
@@ -460,6 +451,7 @@ intptr_t CL_CgameSystemCalls( intptr_t *args )
         case CG_LITERAL_ARGS:
             Cmd_LiteralArgsBuffer( (char*)VMA(1), args[2] );
             return 0;
+
         case CG_FS_FOPENFILE:
             return FS_FOpenFileByMode( (const char*)VMA(1), (fileHandle_t*)VMA(2), (FS_Mode)args[3] );
         case CG_FS_READ:
@@ -475,11 +467,12 @@ intptr_t CL_CgameSystemCalls( intptr_t *args )
             return FS_Seek( (fileHandle_t)args[1], args[2], (FS_Origin)args[3] );
         case CG_FS_GETFILELIST:
             return FS_GetFileList( (const char*)VMA(1), (const char*)VMA(2), (char*)VMA(3), args[4] );
+
         case CG_SENDCONSOLECOMMAND:
             Cbuf_AddText( (const char*)VMA(1) );
             return 0;
         case CG_ADDCOMMAND:
-            CL_AddCgameCommand( (const char*)VMA(1) );
+	        Cmd_AddCommand( (const char*)VMA(1), NULL );
             return 0;
         case CG_REMOVECOMMAND:
             Cmd_RemoveCommandSafe( (const char*)VMA(1) );
@@ -756,6 +749,7 @@ intptr_t CL_CgameSystemCalls( intptr_t *args )
 
         case CG_GET_ENTITY_TOKEN:
             return re.GetEntityToken( (char*)VMA(1), args[2] );
+
         case CG_R_INPVS:
             return re.inPVS( (const float*)VMA(1), (const float*)VMA(2) );
 
@@ -797,36 +791,34 @@ void CL_InitCGame( void ) {
 			interpret = VMI_COMPILED;
 	}
 
-	cgvm = VM_Create( "cgame", CL_CgameSystemCalls, interpret );
-	if ( !cgvm ) {
+	cls.cgame = VM_Create( "cgame", CL_CgameSystemCalls, interpret );
+	if ( !cls.cgame ) {
 		Com_Error( ERR_DROP, "VM_Create on cgame failed" );
 	}
 	clc.state = CA_LOADING;
 
 	Cvar_VariableStringBuffer( "cl_voipSendTarget", backup, sizeof( backup ) );
 	Cvar_Set( "cl_voipSendTarget", "" );
-	cgInterface = 0;
+
+    // Probe 1.1 or gpp cgame
+	cls.cgInterface = 0;
 	probingCG = true;
-	if ( setjmp( cgProbingJB ) == 0 ) {
-		VM_Call( cgvm, CG_VOIP_STRING );
-	} else {
-		VM_ClearCallLevel( cgvm );
-		cgInterface = 2;
-	}
+    VM_Call( cls.cgame, CG_VOIP_STRING );
 	probingCG = false;
+
 	Cvar_Set( "cl_voipSendTarget", backup );
 
-	if ( ( clc.netchan.alternateProtocol == 2 ) != ( cgInterface == 2 ) ) {
+	if ( ( clc.netchan.alternateProtocol == 2 ) != ( cls.cgInterface == 2 ) ) {
 		Com_Error( ERR_DROP, "%s protocol %i, but a cgame module using the %s interface was found",
 		           ( clc.demoplaying ? "Demo was recorded using" : "Server uses" ),
 		           ( clc.netchan.alternateProtocol == 0 ? PROTOCOL_VERSION : clc.netchan.alternateProtocol == 1 ? 70 : 69 ),
-		           ( cgInterface == 2 ? "1.1" : "non-1.1" ) );
+		           ( cls.cgInterface == 2 ? "1.1" : "non-1.1" ) );
 	}
 
 	// init for this gamestate
 	// use the lastExecutedServerCommand instead of the serverCommandSequence
 	// otherwise server commands sent just before a gamestate are dropped
-	VM_Call( cgvm, CG_INIT, clc.serverMessageSequence, clc.lastExecutedServerCommand, clc.clientNum );
+	VM_Call( cls.cgame, CG_INIT, clc.serverMessageSequence, clc.lastExecutedServerCommand, clc.clientNum );
 
 	// reset any CVAR_CHEAT cvars registered by cgame
 	if ( !clc.demoplaying && !cl_connectedToCheatServer )
@@ -847,6 +839,8 @@ void CL_InitCGame( void ) {
 	// make sure everything is paged in
 	if (!Sys_LowPhysicalMemory()) {
 		Com_TouchMemory();
+
+	CL_ProtocolSpecificCommandsInit();
 	}
 
 	// clear anything that got printed
@@ -863,10 +857,10 @@ See if the current console command is claimed by the cgame
 */
 bool CL_GameCommand( void )
 {
-	if ( !cgvm )
+	if ( !cls.cgame )
 		return false;
 
-	return (bool)VM_Call( cgvm, CG_CONSOLE_COMMAND );
+	return (bool)VM_Call( cls.cgame, CG_CONSOLE_COMMAND );
 }
 
 /*
@@ -876,10 +870,10 @@ CL_GameConsoleText
 */
 void CL_GameConsoleText( void )
 {
-	if ( !cgvm )
+	if ( !cls.cgame )
 		return;
 
-	VM_Call( cgvm, CG_CONSOLE_TEXT );
+	VM_Call( cls.cgame, CG_CONSOLE_TEXT );
 }
 
 /*
@@ -889,7 +883,7 @@ CL_CGameRendering
 */
 void CL_CGameRendering( stereoFrame_t stereo )
 {
-	VM_Call( cgvm, CG_DRAW_ACTIVE_FRAME, cl.serverTime, stereo, clc.demoplaying );
+	VM_Call( cls.cgame, CG_DRAW_ACTIVE_FRAME, cl.serverTime, stereo, clc.demoplaying );
 	VM_Debug( 0 );
 }
 

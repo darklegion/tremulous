@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 
@@ -21,7 +22,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+#include "qcommon/autocomplete.h"
 #include "server.h"
+
+#define CS_WARMUP 5 // !!! MUST NOT CHANGE, SERVER AND GAME BOTH REFERENCE !!!
 
 /*
 ===============================================================================
@@ -72,6 +76,9 @@ static void SV_Map_f( void ) {
 	// and thus nuke the arguments of the map command
 	Q_strncpyz(mapname, map, sizeof(mapname));
 
+   	// The map isn't restarting 
+	Cvar_SetSafe( "g_restartingFlags", "0" );
+ 
 	// start up the map
 	SV_SpawnServer( mapname );
 
@@ -175,7 +182,7 @@ static void SV_MapRestart_f( void ) {
 	// run a few frames to allow everything to settle
 	for (i = 0; i < 3; i++)
 	{
-		VM_Call (gvm, GAME_RUN_FRAME, sv.time);
+		VM_Call (sv.gvm, GAME_RUN_FRAME, sv.time);
 		sv.time += 100;
 		svs.time += 100;
 	}
@@ -196,7 +203,7 @@ static void SV_MapRestart_f( void ) {
 		SV_AddServerCommand( client, "map_restart\n" );
 
 		// connect the client again, without the firstTime flag
-		denied = (char*)VM_ExplicitArgPtr( gvm, VM_Call( gvm, GAME_CLIENT_CONNECT, i, false ) );
+		denied = (char*)VM_ExplicitArgPtr( sv.gvm, VM_Call( sv.gvm, GAME_CLIENT_CONNECT, i, false ) );
 		if ( denied ) {
 			// this generally shouldn't happen, because the client
 			// was connected before the level change
@@ -217,7 +224,7 @@ static void SV_MapRestart_f( void ) {
 	}	
 
 	// run another frame to allow things to look at all the players
-	VM_Call (gvm, GAME_RUN_FRAME, sv.time);
+	VM_Call (sv.gvm, GAME_RUN_FRAME, sv.time);
 	sv.time += 100;
 	svs.time += 100;
 }
@@ -335,4 +342,3 @@ void SV_RemoveOperatorCommands( void ) {
 	Cmd_RemoveCommand ("sectorlist");
 #endif
 }
-

@@ -2,7 +2,7 @@
 #define __LUA_RAPIDJSON_USERDATA_HPP__
 
 
-#include "q3_lauxlib.h"
+#include "qcommon/q3_lauxlib.h"
 
 #include "luax.hpp"
 

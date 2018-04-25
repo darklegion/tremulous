@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 
@@ -195,7 +196,7 @@ static void InitOpenGL( void )
 	{
 		GLint		temp;
 		
-		GLimp_Init( qfalse );
+		GLimp_Init( false );
 
 		strcpy( renderer_buffer, glConfig.renderer_string );
 		Q_strlwr( renderer_buffer );
@@ -1186,16 +1187,14 @@ void RE_Shutdown( bool destroyWindow ) {
 
 	ri.Printf( PRINT_ALL, "RE_Shutdown( %i )\n", destroyWindow );
 
-	ri.Cmd_RemoveCommand ("modellist");
-	ri.Cmd_RemoveCommand ("screenshotJPEG");
-	ri.Cmd_RemoveCommand ("screenshot");
-	ri.Cmd_RemoveCommand ("imagelist");
-	ri.Cmd_RemoveCommand ("shaderlist");
-	ri.Cmd_RemoveCommand ("skinlist");
-	ri.Cmd_RemoveCommand ("gfxinfo");
+	ri.Cmd_RemoveCommand("gfxinfo");
+	ri.Cmd_RemoveCommand("imagelist");
+	ri.Cmd_RemoveCommand("modellist");
+	ri.Cmd_RemoveCommand("screenshot");
+	ri.Cmd_RemoveCommand("screenshotJPEG");
+	ri.Cmd_RemoveCommand("shaderlist");
+	ri.Cmd_RemoveCommand("skinlist");
 	ri.Cmd_RemoveCommand("minimize");
-	ri.Cmd_RemoveCommand( "shaderstate" );
-
 
 	if ( tr.registered ) {
 		R_IssuePendingRenderCommands();
@@ -1238,7 +1237,7 @@ GetRefAPI
 @@@@@@@@@@@@@@@@@@@@@
 */
 #ifdef USE_RENDERER_DLOPEN
-extern "C" Q_EXPORT refexport_t* QDECL GetRefAPI ( int apiVersion, refimport_t *rimp ) {
+SO_PUBLIC refexport_t* QDECL GetRefAPI ( int apiVersion, refimport_t *rimp ) {
 #else
 refexport_t *GetRefAPI ( int apiVersion, refimport_t *rimp ) {
 #endif

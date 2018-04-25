@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 
@@ -644,10 +645,10 @@ static void FillCloudBox( const shader_t *shader, int stage )
 			continue;
 		}
 
-		sky_mins_subd[0] = ri.ftol(sky_mins[0][i] * HALF_SKY_SUBDIVISIONS);
-		sky_mins_subd[1] = ri.ftol(sky_mins[1][i] * HALF_SKY_SUBDIVISIONS);
-		sky_maxs_subd[0] = ri.ftol(sky_maxs[0][i] * HALF_SKY_SUBDIVISIONS);
-		sky_maxs_subd[1] = ri.ftol(sky_maxs[1][i] * HALF_SKY_SUBDIVISIONS);
+		sky_mins_subd[0] = static_cast<int>(sky_mins[0][i] * HALF_SKY_SUBDIVISIONS);
+		sky_mins_subd[1] = static_cast<int>(sky_mins[1][i] * HALF_SKY_SUBDIVISIONS);
+		sky_maxs_subd[0] = static_cast<int>(sky_maxs[0][i] * HALF_SKY_SUBDIVISIONS);
+		sky_maxs_subd[1] = static_cast<int>(sky_maxs[1][i] * HALF_SKY_SUBDIVISIONS);
 
 		if ( sky_mins_subd[0] < -HALF_SKY_SUBDIVISIONS ) 
 			sky_mins_subd[0] = -HALF_SKY_SUBDIVISIONS;
@@ -901,8 +902,3 @@ void RB_StageIteratorSky( void ) {
 	// note that sky was drawn so we will draw a sun later
 	backEnd.skyRenderedThisView = true;
 }
-
-
-
-
-

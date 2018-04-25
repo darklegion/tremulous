@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 
@@ -21,6 +22,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 // sv_game.c -- interface to the game dll
+
+#include "qcommon/parse.h"
+
+#include "lua.hpp"
+#include "sol.hpp"
 
 #include "server.h"
 
@@ -62,6 +68,20 @@ sharedEntity_t *SV_GEntityForSvEntity( svEntity_t *svEnt ) {
 
 	num = svEnt - sv.svEntities;
 	return SV_GentityNum( num );
+}
+
+/*
+===============
+SV_GetEntityToken
+===============
+*/
+bool SV_GetEntityToken( char *buffer, int bufferSize )
+{
+	const char	*s = COM_Parse( &sv.entityParsePoint );
+	Q_strncpyz( buffer, s, bufferSize );
+	if ( !sv.entityParsePoint && !s[0] )
+		return false;
+	return true;
 }
 
 /*
@@ -124,7 +144,7 @@ void SV_SetBrushModel( sharedEntity_t *ent, const char *name ) {
 	CM_ModelBounds( h, mins, maxs );
 	VectorCopy (mins, ent->r.mins);
 	VectorCopy (maxs, ent->r.maxs);
-	ent->r.bmodel = qtrue;
+	ent->r.bmodel = true;
 
 	ent->r.contents = -1;		// we don't know exactly what is in the brushes
 
@@ -214,7 +234,8 @@ void SV_AdjustAreaPortalState( sharedEntity_t *ent, bool open ) {
 SV_EntityContact
 ==================
 */
-bool SV_EntityContact( vec3_t mins, vec3_t maxs, const sharedEntity_t *gEnt, traceType_t type ) {
+bool SV_EntityContact( vec3_t mins, vec3_t maxs, const sharedEntity_t *gEnt, traceType_t type )
+{
 	const float	*origin, *angles;
 	clipHandle_t	ch;
 	trace_t			trace;
@@ -405,17 +426,7 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
             SV_GetUsercmd( args[1], (usercmd_t*)VMA(2) );
             return 0;
         case G_GET_ENTITY_TOKEN:
-            {
-                const char	*s;
-
-                s = COM_Parse( &sv.entityParsePoint );
-                Q_strncpyz( (char*)VMA(1), s, args[2] );
-                if ( !sv.entityParsePoint && !s[0] ) {
-                    return false;
-                } else {
-                    return true;
-                }
-            }
+            return SV_GetEntityToken((char*)VMA(1), args[2]);
 
         case G_REAL_TIME:
             return Com_RealTime( (qtime_t*)VMA(1) );
@@ -508,12 +519,15 @@ Called every time a map changes
 ===============
 */
 void SV_ShutdownGameProgs( void ) {
-	if ( !gvm ) {
+	if ( !sv.gvm ) {
 		return;
 	}
-	VM_Call( gvm, GAME_SHUTDOWN, false );
-	VM_Free( gvm );
-	gvm = NULL;
+
+    Lua_Delete();
+
+	VM_Call( sv.gvm, GAME_SHUTDOWN, false );
+	VM_Free( sv.gvm );
+	sv.gvm = NULL;
 }
 
 /*
@@ -523,8 +537,9 @@ SV_InitGameVM
 Called for both a full init and a restart
 ==================
 */
-static void SV_InitGameVM( bool restart ) {
-	int		i;
+static void SV_InitGameVM( bool restart )
+{
+    Lua_Init();
 
 	// start the entity parsing at the beginning
 	sv.entityParsePoint = CM_EntityString();
@@ -533,16 +548,13 @@ static void SV_InitGameVM( bool restart ) {
 	// a previous level
 	// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=522
 	//   now done before GAME_INIT call
-	for ( i = 0 ; i < sv_maxclients->integer ; i++ ) {
+	for ( int i = 0 ; i < sv_maxclients->integer ; i++ )
 		svs.clients[i].gentity = NULL;
-	}
-	
+
 	// use the current msec count for a random seed
 	// init for this gamestate
-	VM_Call (gvm, GAME_INIT, sv.time, Com_Milliseconds(), restart);
+	VM_Call( sv.gvm, GAME_INIT, sv.time, Com_Milliseconds(), restart );
 }
-
-
 
 /*
 ===================
@@ -552,14 +564,14 @@ Called on a map_restart, but not on a normal map change
 ===================
 */
 void SV_RestartGameProgs( void ) {
-	if ( !gvm ) {
+	if ( !sv.gvm ) {
 		return;
 	}
-	VM_Call( gvm, GAME_SHUTDOWN, true );
+	VM_Call( sv.gvm, GAME_SHUTDOWN, true );
 
 	// do a restart instead of a free
-	gvm = VM_Restart(gvm, true);
-	if ( !gvm ) {
+	sv.gvm = VM_Restart(sv.gvm, true);
+	if ( !sv.gvm ) {
 		Com_Error( ERR_FATAL, "VM_Restart on game failed" );
 	}
 
@@ -574,10 +586,11 @@ SV_InitGameProgs
 Called on a normal map change, not on a map_restart
 ===============
 */
-void SV_InitGameProgs( void ) {
+void SV_InitGameProgs( void )
+{
 	// load the dll or bytecode
-	gvm = VM_Create( "game", SV_GameSystemCalls, (vmInterpret_t)Cvar_VariableValue( "vm_game" ) );
-	if ( !gvm ) {
+	sv.gvm = VM_Create( "game", SV_GameSystemCalls, (vmInterpret_t)Cvar_VariableValue( "vm_game" ) );
+	if ( !sv.gvm ) {
 		Com_Error( ERR_FATAL, "VM_Create on game failed" );
 	}
 
@@ -597,6 +610,5 @@ bool SV_GameCommand( void ) {
 		return false;
 	}
 
-	return (bool)VM_Call( gvm, GAME_CONSOLE_COMMAND );
+	return (bool)VM_Call( sv.gvm, GAME_CONSOLE_COMMAND );
 }
-

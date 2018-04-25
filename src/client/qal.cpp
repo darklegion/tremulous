@@ -3,6 +3,7 @@
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
 Copyright (C) 2005 Stuart Dalton (badcdev@gmail.com)
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 
@@ -29,8 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "qal.h"
 
 #ifdef USE_OPENAL_DLOPEN
-
-#include "../sys/sys_loadlib.h"
+#include "sys/sys_loadlib.h"
 
 LPALENABLE qalEnable;
 LPALDISABLE qalDisable;

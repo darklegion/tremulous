@@ -2,7 +2,7 @@
 
    This File is part of Tremulous.
    Copyright (C) 2016, wtfbbqhax <victor@badsec.org>.
-   Copyright (C) 2016, GrangerHub <grangerhub.com>.
+   Copyright (C) 2015-2018, GrangerHub <grangerhub.com>.
 
 */
 
@@ -11,12 +11,10 @@
 
 #include <stdio.h>
 
-#include "../qcommon/qcommon.h"
-#include "../qcommon/net.h"
+namespace sol { class state; }
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "qcommon/qcommon.h"
+#include "qcommon/net.h"
 
 #define MAX_JOYSTICK_AXIS 16
 
@@ -55,7 +53,7 @@ void Sys_Print(const char *msg);
 
 // Sys_Milliseconds should only be used for profiling purposes,
 // any game related timing information should come from event timestamps
-int Sys_Milliseconds(void);
+SO_PUBLIC int Sys_Milliseconds(void);
 
 bool Sys_RandomBytes(byte *string, int len);
 
@@ -97,8 +95,15 @@ void Sys_SetEnv(const char *name, const char *value);
 
 bool Sys_WritePIDFile(void);
 
-#ifdef __cplusplus
-}
-#endif
+// Input subsystem
+void IN_Init( void *windowData );
+void IN_Frame( void );
+void IN_Shutdown( void );
+void IN_Restart( void );
+
+SO_PUBLIC void Lua_Delete(void);
+SO_PUBLIC void Lua_Init(void);
+
+SO_PUBLIC void* Sys_GetLua();
 
 #endif

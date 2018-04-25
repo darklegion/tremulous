@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 
@@ -20,10 +21,10 @@ along with Tremulous; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-#include "../renderercommon/tr_common.h"
 
+#include "renderercommon/tr_common.h"
 
-qboolean ( * qwglSwapIntervalEXT)( int interval );
+bool ( * qwglSwapIntervalEXT)( int interval );
 void ( * qglMultiTexCoord2fARB )( GLenum texture, float s, float t );
 void ( * qglActiveTextureARB )( GLenum texture );
 void ( * qglClientActiveTextureARB )( GLenum texture );
@@ -42,14 +43,14 @@ void 		GLimp_Init( void ) {
 void		GLimp_Shutdown( void ) {
 }
 
-void		GLimp_EnableLogging( qboolean enable ) {
+void		GLimp_EnableLogging( bool enable ) {
 }
 
 void		GLimp_LogComment( const char *comment ) {
 }
 
-qboolean	QGL_Init( const char *dllname ) {
-	return qtrue;
+bool	QGL_Init( const char *dllname ) {
+	return true;
 }
 
 void		QGL_Shutdown( void ) {

@@ -1,6 +1,7 @@
 //
 // This file is part of Tremulous.
 // Copyright © 2016 Victor Roemer (blowfish) <victor@badsec.org>
+// Copyright (C) 2015-2018 GrangerHub
 // 
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -23,7 +24,7 @@
 #ifndef SCRIPT_CMD_H
 #define SCRIPT_CMD_H
 
-#include "../qcommon/cmd.h"
+#include "qcommon/cmd.h"
 
 namespace sol
 { 
@@ -38,10 +39,12 @@ namespace script
     {
         static inline void init(sol::state&& lua)
         {
-            lua.new_usertype<Cmd>(
-                    "cmd", 
-                    "execute", &Cmd_ExecuteString
-                );
+            lua.set_function("Cbuf_ExecuteText", &Cbuf_ExecuteText);
+            //lua.new_usertype<Cmd>(
+            //        "cmd", 
+            //        "execute", &Cmd_ExecuteString,
+            //        "command", &Cbuf_ExecuteText
+            //    );
         }
     };
 };

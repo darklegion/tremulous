@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 
@@ -25,7 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tr_local.h"
 
 #define JSON_IMPLEMENTATION
-#include "../qcommon/json.h"
+#include "qcommon/json.h"
 #undef JSON_IMPLEMENTATION
 
 /*
@@ -112,7 +113,18 @@ static	void R_ColorShiftLightingBytes( byte in[4], byte out[4] ) {
 	r = in[0] << shift;
 	g = in[1] << shift;
 	b = in[2] << shift;
-	
+
+	// Minimum values
+	if(r < r_mapLightmapMin->integer){
+		r = r_mapLightmapMin->integer;
+	}
+	if(g < r_mapLightmapMin->integer){
+		g = r_mapLightmapMin->integer;
+	}
+	if(b < r_mapLightmapMin->integer){
+		b = r_mapLightmapMin->integer;
+	}
+
 	// normalize by color instead of saturating to white
 	if ( ( r | g | b ) > 255 ) {
 		int		max;
@@ -145,6 +157,17 @@ static void R_ColorShiftLightingFloats(float in[4], float out[4])
 	r = in[0] * scale;
 	g = in[1] * scale;
 	b = in[2] * scale;
+
+	// Minimum values
+	if(r < r_mapLightmapMin->value / 255.0f){
+		r = r_mapLightmapMin->value / 255.0f;
+	}
+	if(g < r_mapLightmapMin->value / 255.0f){
+		g = r_mapLightmapMin->value / 255.0f;
+	}
+	if(b < r_mapLightmapMin->value / 255.0f){
+		b = r_mapLightmapMin->value / 255.0f;
+	}
 
 	// normalize by color instead of saturating to white
 	if ( r > 1 || g > 1 || b > 1 ) {
@@ -2290,7 +2313,7 @@ void R_LoadEntities( lump_t *l ) {
 	strcpy( w->entityString, p );
 	w->entityParsePoint = w->entityString;
 
-	token = COM_ParseExt( &p, qtrue );
+	token = COM_ParseExt( &p, true );
 	if (!*token || *token != '{') {
 		return;
 	}
@@ -2298,7 +2321,7 @@ void R_LoadEntities( lump_t *l ) {
 	// only parse the world spawn
 	while ( 1 ) {	
 		// parse key
-		token = COM_ParseExt( &p, qtrue );
+		token = COM_ParseExt( &p, true );
 
 		if ( !*token || *token == '}' ) {
 			break;
@@ -2306,7 +2329,7 @@ void R_LoadEntities( lump_t *l ) {
 		Q_strncpyz(keyname, token, sizeof(keyname));
 
 		// parse value
-		token = COM_ParseExt( &p, qtrue );
+		token = COM_ParseExt( &p, true );
 
 		if ( !*token || *token == '}' ) {
 			break;

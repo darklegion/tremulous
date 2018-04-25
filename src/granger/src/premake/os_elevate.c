@@ -80,11 +80,11 @@ static int do_elevate(lua_State *L)
 	StringVector_Delete(sv);
 
 	if (ShellExecuteEx(&sei)) {
-		free(sei.lpParameters);
+		free((void*)sei.lpParameters);
 		exit(0);
 	}
 
-	free(sei.lpParameters);
+	free((void*)sei.lpParameters);
 	return 0;
 }
 #endif

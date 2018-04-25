@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 
@@ -31,6 +32,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  * cl_glconfig.hwtype trtypes 3dfx/ragepro need 256x256
  *
  *****************************************************************************/
+
+#include "cl_cin.h"
 
 #include "client.h"
 #include "snd_local.h"
@@ -1452,6 +1455,8 @@ static void RoQShutdown(void)
             Cvar_Set("nextmap", "");
         }
         CL_handle = -1;
+
+        CL_ProtocolSpecificCommandsInit();
     }
     cinTable[currentHandle].fileName[0] = 0;
     currentHandle = -1;
@@ -1653,9 +1658,9 @@ int CIN_PlayCinematic(const char *arg, int x, int y, int w, int h, int systemBit
     if (cinTable[currentHandle].alterGameState)
     {
         // close the menu
-        if (uivm)
+        if (cls.ui)
         {
-            VM_Call(uivm, UI_SET_ACTIVE_MENU - (uiInterface == 2 ? 2 : 0), UIMENU_NONE);
+            VM_Call(cls.ui, UI_SET_ACTIVE_MENU - cls.uiInterface == 2 ? 2 : 0, UIMENU_NONE);
         }
     }
     else

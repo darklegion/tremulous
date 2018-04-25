@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 
@@ -23,10 +24,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #ifndef __Q_PLATFORM_H
 #define __Q_PLATFORM_H
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 // this is for determining if we have an asm version of a C function
 #define idx64 0
@@ -214,6 +211,23 @@ extern "C" {
      # define Q3_LITTLE_ENDIAN
      #undef idx64
      #define idx64 1
+    #elif defined __arm__
+     # if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+      # error "Big endian ARM is not supported"
+     # endif
+     # if defined __armhf__
+      # define ARCH_STRING "armhf"
+      # define Q3_LITTLE_ENDIAN
+     # else
+      # define ARCH_STRING "armel"
+      # define Q3_LITTLE_ENDIAN
+     # endif
+    #elif defined __aarch64__
+     # if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+      # error "Big endian ARM is not supported"
+     # endif
+     # define ARCH_STRING "aarch64"
+     # define Q3_LITTLE_ENDIAN
     #endif
     
     #define DLL_EXT ".so"
@@ -411,10 +425,28 @@ float FloatSwap (const float *f);
  #define PLATFORM_STRING OS_STRING "-" ARCH_STRING "-debug"
 #endif
 
+#ifdef __cplusplus
+#define EXTERN_C extern "C"
+#else
+#define EXTERN_C
 #endif
 
-#ifdef __cplusplus
-}
+#ifndef SO_PUBLIC
+#if defined _WIN32
+  #if defined Tremulous_EXPORTS 
+  #  define SO_PUBLIC EXTERN_C __declspec(dllexport)
+  #else
+  #  define SO_PUBLIC EXTERN_C __declspec(dllimport)
+  #endif
+#else
+  #  define SO_PUBLIC  EXTERN_C __attribute__ ((visibility("default")))
+  #endif
 #endif
+
+#define UNUSED __attribute__((unused))
+
+#define NORETURN __attribute__((noreturn))
+
+#endif // don't include the C bits if included from qasm.h
 
 #endif

@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 
@@ -23,13 +24,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef TR_COMMON_H
 #define TR_COMMON_H
 
-#include <stdbool.h>
+#include "qcommon/cvar.h"
+#include "qcommon/q_shared.h"
+#include "sys/sys_shared.h"
 
-#include "../qcommon/cvar.h"
-#include "../qcommon/q_shared.h"
-#include "../sys/sys_shared.h"
-#include "../renderercommon/tr_public.h"
+#include "iqm.h"
 #include "qgl.h"
+#include "tr_public.h"
 
 typedef enum
 {
@@ -48,7 +49,6 @@ typedef enum
 	IMGFLAG_NO_COMPRESSION = 0x0010,
 	IMGFLAG_NOLIGHTSCALE   = 0x0020,
 	IMGFLAG_CLAMPTOEDGE    = 0x0040,
-	IMGFLAG_SRGB           = 0x0080,
 	IMGFLAG_GENNORMALMAP   = 0x0100,
 } imgFlags_t;
 
@@ -115,9 +115,9 @@ extern cvar_t *r_stereoEnabled;
 
 extern	cvar_t	*r_saveFontData;
 
-qboolean	R_GetModeInfo( int *width, int *height, float *windowAspect, int mode );
+bool	R_GetModeInfo( int *width, int *height, float *windowAspect, int mode );
 
-float R_NoiseGet4f( float x, float y, float z, float t );
+float R_NoiseGet4f( float x, float y, float z, double t );
 void  R_NoiseInit( void );
 
 image_t     *R_FindImageFile( const char *name, imgType_t type, int/*imgFlags_t*/ flags );
@@ -127,7 +127,7 @@ void R_IssuePendingRenderCommands( void );
 qhandle_t		 RE_RegisterShaderLightMap( const char *name, int lightmapIndex );
 qhandle_t		 RE_RegisterShader( const char *name );
 qhandle_t		 RE_RegisterShaderNoMip( const char *name );
-qhandle_t RE_RegisterShaderFromImage(const char *name, int lightmapIndex, image_t *image, qboolean mipRawImage);
+qhandle_t RE_RegisterShaderFromImage(const char *name, int lightmapIndex, image_t *image, bool mipRawImage);
 
 // font stuff
 void R_InitFreeType( void );

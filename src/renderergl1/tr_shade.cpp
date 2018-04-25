@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 
@@ -219,7 +220,6 @@ R_BindAnimatedImage
 =================
 */
 static void R_BindAnimatedImage( textureBundle_t *bundle ) {
-	int		index;
 
 	if ( bundle->isVideoMap ) {
 		ri.CIN_RunCinematic(bundle->videoMapHandle);
@@ -234,15 +234,14 @@ static void R_BindAnimatedImage( textureBundle_t *bundle ) {
 
 	// it is necessary to do this messy calc to make sure animations line up
 	// exactly with waveforms of the same frequency
-	index = ri.ftol(tess.shaderTime * bundle->imageAnimationSpeed * FUNCTABLE_SIZE);
-	index >>= FUNCTABLE_SIZE2;
-
-	if ( index < 0 ) {
-		index = 0;	// may happen with shader time offsets
+	int i = static_cast<int>(tess.shaderTime * bundle->imageAnimationSpeed * FUNCTABLE_SIZE) >> FUNCTABLE_SIZE2;
+	if ( i < 0 )
+    {
+		i = 0;	// may happen with shader time offsets
 	}
-	index %= bundle->numImageAnimations;
+	i %= bundle->numImageAnimations;
 
-	GL_Bind( bundle->image[ index ] );
+	GL_Bind( bundle->image[ i ] );
 }
 
 /*
@@ -690,9 +689,9 @@ static void ProjectDlightTexture_scalar( void ) {
 				}
 			}
 			clipBits[i] = clip;
-			colors[0] = ri.ftol(floatColor[0] * modulate);
-			colors[1] = ri.ftol(floatColor[1] * modulate);
-			colors[2] = ri.ftol(floatColor[2] * modulate);
+			colors[0] = static_cast<int>(floatColor[0] * modulate);
+			colors[1] = static_cast<int>(floatColor[1] * modulate);
+			colors[2] = static_cast<int>(floatColor[2] * modulate);
 			colors[3] = 255;
 		}
 
@@ -1521,4 +1520,3 @@ void RB_EndSurface( void ) {
 
 	GLimp_LogComment( "----------\n" );
 }
-
