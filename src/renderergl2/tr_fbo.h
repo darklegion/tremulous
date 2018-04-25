@@ -1,6 +1,7 @@
 /*
 ===========================================================================
 Copyright (C) 2010 James Canete (use.less01@gmail.com)
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 

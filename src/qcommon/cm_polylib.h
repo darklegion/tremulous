@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 
@@ -22,6 +23,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 // this is only used for visualization tools in cm_ debug functions
+
+#ifndef CM_POLYLIB_H
+#define CM_POLYLIB_H 1
 
 typedef struct
 {
@@ -48,8 +52,7 @@ typedef struct
 winding_t	*AllocWinding (int points);
 vec_t	WindingArea (winding_t *w);
 void	WindingCenter (winding_t *w, vec3_t center);
-void	ClipWindingEpsilon (winding_t *in, vec3_t normal, vec_t dist, 
-				vec_t epsilon, winding_t **front, winding_t **back);
+void	ClipWindingEpsilon (winding_t *in, vec3_t normal, vec_t dist, vec_t epsilon, winding_t **front, winding_t **back);
 winding_t	*ChopWinding (winding_t *in, vec3_t normal, vec_t dist);
 winding_t	*CopyWinding (winding_t *w);
 winding_t	*ReverseWinding (winding_t *w);
@@ -67,3 +70,5 @@ void	ChopWindingInPlace (winding_t **w, vec3_t normal, vec_t dist, vec_t epsilon
 // frees the original if clipped
 
 void pw(winding_t *w);
+
+#endif

@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 
@@ -23,9 +24,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef TR_COMMON_H
 #define TR_COMMON_H
 
-#include "../qcommon/q_shared.h"
-#include "../renderercommon/tr_public.h"
+#include "qcommon/cvar.h"
+#include "qcommon/q_shared.h"
+#include "sys/sys_shared.h"
+
+#include "iqm.h"
 #include "qgl.h"
+#include "tr_public.h"
 
 typedef enum
 {
@@ -44,7 +49,6 @@ typedef enum
 	IMGFLAG_NO_COMPRESSION = 0x0010,
 	IMGFLAG_NOLIGHTSCALE   = 0x0020,
 	IMGFLAG_CLAMPTOEDGE    = 0x0040,
-	IMGFLAG_SRGB           = 0x0080,
 	IMGFLAG_GENNORMALMAP   = 0x0100,
 } imgFlags_t;
 
@@ -60,7 +64,7 @@ typedef struct image_s {
 	int			TMU;				// only needed for voodoo2
 
 	imgType_t   type;
-	imgFlags_t  flags;
+	int /*imgFlags_t*/  flags;
 
 	struct image_s*	next;
 } image_t;
@@ -81,6 +85,7 @@ extern glconfig_t	glConfig;		// outside of TR since it shouldn't be cleared duri
 extern cvar_t *r_stencilbits;			// number of desired stencil bits
 extern cvar_t *r_depthbits;			// number of desired depth bits
 extern cvar_t *r_colorbits;			// number of desired color bits, only relevant for fullscreen
+extern cvar_t *r_alphabits;			// number of desired alpha bits
 extern cvar_t *r_texturebits;			// number of desired texture bits
 extern cvar_t *r_ext_multisample;
 										// 0 = use framebuffer depth
@@ -110,19 +115,19 @@ extern cvar_t *r_stereoEnabled;
 
 extern	cvar_t	*r_saveFontData;
 
-qboolean	R_GetModeInfo( int *width, int *height, float *windowAspect, int mode );
+bool	R_GetModeInfo( int *width, int *height, float *windowAspect, int mode );
 
-float R_NoiseGet4f( float x, float y, float z, float t );
+float R_NoiseGet4f( float x, float y, float z, double t );
 void  R_NoiseInit( void );
 
-image_t     *R_FindImageFile( const char *name, imgType_t type, imgFlags_t flags );
-image_t *R_CreateImage( const char *name, byte *pic, int width, int height, imgType_t type, imgFlags_t flags, int internalFormat );
+image_t     *R_FindImageFile( const char *name, imgType_t type, int/*imgFlags_t*/ flags );
+image_t *R_CreateImage( const char *name, byte *pic, int width, int height, imgType_t type, int flags, int internalFormat );
 
 void R_IssuePendingRenderCommands( void );
 qhandle_t		 RE_RegisterShaderLightMap( const char *name, int lightmapIndex );
 qhandle_t		 RE_RegisterShader( const char *name );
 qhandle_t		 RE_RegisterShaderNoMip( const char *name );
-qhandle_t RE_RegisterShaderFromImage(const char *name, int lightmapIndex, image_t *image, qboolean mipRawImage);
+qhandle_t RE_RegisterShaderFromImage(const char *name, int lightmapIndex, image_t *image, bool mipRawImage);
 
 // font stuff
 void R_InitFreeType( void );
@@ -151,16 +156,11 @@ IMPLEMENTATION SPECIFIC FUNCTIONS
 ====================================================================
 */
 
-void		GLimp_Init( void );
+void		GLimp_Init( bool );
 void		GLimp_Shutdown( void );
 void		GLimp_EndFrame( void );
-
-void		GLimp_LogComment( char *comment );
+void		GLimp_LogComment(const char *comment);
 void		GLimp_Minimize(void);
-
-void		GLimp_SetGamma( unsigned char red[256],
-		unsigned char green[256],
-		unsigned char blue[256] );
-
+void		GLimp_SetGamma( unsigned char red[256], unsigned char green[256], unsigned char blue[256] );
 
 #endif

@@ -3,6 +3,7 @@
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
 Copyright (C) 2005 Stuart Dalton (badcdev@gmail.com)
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 
@@ -22,30 +23,30 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-
 #ifndef __QAL_H__
 #define __QAL_H__
 
-#include "../qcommon/q_shared.h"
-#include "../qcommon/qcommon.h"
+#ifdef USE_LOCAL_HEADERS
+# include "AL/al.h"
+# include "AL/alc.h"
+#else
+# if defined(_MSC_VER) || defined(__APPLE__)
+// MSVC users must install the OpenAL SDK which doesn't use the AL/*.h scheme.
+// OSX framework also needs this
+#  include <al.h>
+#  include <alc.h>
+# else
+#  include <AL/al.h>
+#  include <AL/alc.h>
+# endif
+#endif
+
+#include "qcommon/q_shared.h"
+#include "qcommon/qcommon.h"
 
 #ifdef USE_OPENAL_DLOPEN
 #define AL_NO_PROTOTYPES
 #define ALC_NO_PROTOTYPES
-#endif
-
-#ifdef USE_LOCAL_HEADERS
-#include "../AL/al.h"
-#include "../AL/alc.h"
-#else
-#ifdef _MSC_VER
-  // MSVC users must install the OpenAL SDK which doesn't use the AL/*.h scheme.
-  #include <al.h>
-  #include <alc.h>
-#else
-  #include <AL/al.h>
-  #include <AL/alc.h>
-#endif
 #endif
 
 /* Hack to enable compiling both on OpenAL SDK and OpenAL-soft. */
@@ -245,7 +246,7 @@ extern LPALCCAPTURESAMPLES qalcCaptureSamples;
 #define qalcCaptureSamples alcCaptureSamples
 #endif
 
-qboolean QAL_Init(const char *libname);
+bool QAL_Init(const char *libname);
 void QAL_Shutdown( void );
 
 #endif	// __QAL_H__

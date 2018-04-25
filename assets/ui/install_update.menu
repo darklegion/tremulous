@@ -1,0 +1,145 @@
+#include "ui/menudef.h"
+
+{
+
+#define W         450
+#define H         300
+#define BORDER    10
+
+#define LIST_W    140
+#define LIST_H    (H-(2*BORDER))
+#define LIST_X    BORDER
+#define LIST_Y    BORDER
+
+#define BUTT_H    25
+#define BUTT_W    45
+
+#define INFO_W    (W-((2*BORDER)+LIST_W))
+#define INFO_H    (H-((3*BORDER)+BUTT_H))
+#define INFO_X    BORDER
+#define INFO_Y    BORDER
+#define INFO_TOFF 6
+
+#define AU_ACT_NIL 0
+#define AU_ACT_GET 1
+#define AU_ACT_RUN 2
+
+  menuDef
+  {
+    name "install_update"
+    visible MENU_TRUE
+    fullscreen MENU_FALSE
+    outOfBoundsClick
+    rect (320-(W/2)) (240-(H/2)) W H
+    focusColor 1 .75 0 1
+    style WINDOW_STYLE_FILLED
+    popup
+    onOpen
+    {
+        uiScript checkForUpdate;
+    }
+    onESC
+    {
+      play "sound/misc/menu1.wav";
+      close install_update
+    }
+
+    itemDef
+    {
+      name window
+      rect 0 0 W H
+      style WINDOW_STYLE_FILLED
+      backcolor 0 0 0 .75
+      visible MENU_TRUE
+      decoration
+      border WINDOW_BORDER_KCGRADIENT
+      borderSize 1.0
+      borderColor 0.5 0.5 0.5 1
+    }
+
+
+    itemDef
+    {
+      name github_release
+      rect 10 10 (W-10) (INFO_H-10)
+      type ITEM_TYPE_LISTBOX
+      style WINDOW_STYLE_EMPTY
+      elementwidth 120
+      elementheight 16
+      textscale .33
+      border WINDOW_BORDER_NONE
+      bordersize 1
+      bordercolor .5 .5 .5 1
+      elementtype LISTBOX_TEXT
+      feeder FEEDER_GITHUB_RELEASE
+      notselectable
+      visible MENU_TRUE
+    }
+
+//    itemDef
+//    {
+//      name OKCancel
+//      text "Download"
+//      type ITEM_TYPE_BUTTON
+//      style WINDOW_STYLE_EMPTY
+//      rect (W-((2*BORDER)+(2*BUTT_W))) (H-(BORDER+BUTT_H)) BUTT_W BUTT_H
+//      textalign ALIGN_CENTER
+//      textvalign VALIGN_CENTER
+//      textscale .4
+//      forecolor 1 1 1 1
+//      backcolor .5 0 0 .25
+//      visible MENU_TRUE
+//      cvarTest "ui_autoupdate_action"
+//      showCvar { AU_ACT_GET }
+//      action
+//      {
+//        play "sound/misc/menu1.wav";
+//        uiScript DownloadUpdate;
+//        close install_update 
+//      }
+//    }
+//
+//    itemDef
+//    {
+//      name OKCancel
+//      text "Install"
+//      type ITEM_TYPE_BUTTON
+//      style WINDOW_STYLE_EMPTY
+//      rect (W-((2*BORDER)+(2*BUTT_W))) (H-(BORDER+BUTT_H)) BUTT_W BUTT_H
+//      textalign ALIGN_CENTER
+//      textvalign VALIGN_CENTER
+//      textscale .4
+//      forecolor 1 1 1 1
+//      backcolor .5 0 0 .25
+//      visible MENU_TRUE
+//      cvarTest "ui_autoupdate_action"
+//      showCvar { AU_ACT_RUN }
+//      action
+//      {
+//        play "sound/misc/menu1.wav";
+//        uiScript InstallUpdate;
+//        close install_update 
+//      }
+//    }
+
+    itemDef
+    {
+      name "OKCancel"
+      text "Ok"
+      type ITEM_TYPE_BUTTON
+      style WINDOW_STYLE_EMPTY
+      rect (W-(BORDER+BUTT_W)) (H-(BORDER+BUTT_H)) BUTT_W BUTT_H
+      textalign ALIGN_CENTER
+      textvalign VALIGN_CENTER
+      textscale .4
+      forecolor 1 1 1 1
+      backcolor .5 0 0 .25
+      visible MENU_TRUE
+      action
+      {
+        play "sound/misc/menu3.wav";
+        close install_update
+      }
+    }
+  }
+}

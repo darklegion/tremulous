@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 
@@ -21,6 +22,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+#ifndef _TREMULOUS_H_
+#define _TREMULOUS_H_
 
 /*
  * ALIEN weapons
@@ -503,12 +506,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define BSUIT_POISON_PROTECTION     3
 #define BSUIT_PCLOUD_PROTECTION     3000
 
-#define MGCLIP_PRICE                0
-
-#define CGAMMO_PRICE                0
-
-#define GAS_PRICE                   0
-
 #define MEDKIT_POISON_IMMUNITY_TIME 0
 #define MEDKIT_STARTUP_TIME         4000
 #define MEDKIT_STARTUP_SPEED        5
@@ -521,7 +518,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  * _SPLASHDAMGE   - the amount of damage caused by this buildable when it blows up
  * _SPLASHRADIUS  - the radius around which it does this damage
  *
- * REACTOR_BASESIZE - the maximum distance a buildable can be from an reactor
+ * REACTOR_BASESIZE - the maximum distance a buildable can be from a reactor
  * REPEATER_BASESIZE - the maximum distance a buildable can be from a repeater
  * HUMAN_BHLTH_MODIFIER - overall health modifier for coarse tuning
  *
@@ -560,7 +557,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MGTURRET_VERTICALCAP        30  // +/- maximum pitch
 #define MGTURRET_REPEAT             150
 #define MGTURRET_K_SCALE            1.0f
-#define MGTURRET_RANGE              400.0f
+#define MGTURRET_RANGE              400
 #define MGTURRET_SPREAD             200
 #define MGTURRET_DMG                HDM(8)
 #define MGTURRET_SPINUP_TIME        750 // time between target sighted and fire
@@ -599,11 +596,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define REACTOR_HEALTH              HBHM(930)
 #define REACTOR_SPLASHDAMAGE        200
 #define REACTOR_SPLASHRADIUS        300
-#define REACTOR_ATTACK_RANGE        100.0f
+#define REACTOR_ATTACK_RANGE        100
 #define REACTOR_ATTACK_REPEAT       1000
 #define REACTOR_ATTACK_DAMAGE       40
 #define REACTOR_ATTACK_DCC_REPEAT   1000
-#define REACTOR_ATTACK_DCC_RANGE    150.0f
+#define REACTOR_ATTACK_DCC_RANGE    150
 #define REACTOR_ATTACK_DCC_DAMAGE   40
 #define REACTOR_VALUE               HBVM(30)
 
@@ -681,3 +678,4 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
                                          
 #define MAXIMUM_BUILD_TIME          20000 // used for pie timer
 
+#endif

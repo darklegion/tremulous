@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 
@@ -20,6 +21,8 @@ along with Tremulous; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
+#ifndef _SYS_LOADLIB_H_
+#define _SYS_LOADLIB_H_
 
 #ifdef DEDICATED
 #	ifdef _WIN32
@@ -49,4 +52,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #	define Sys_LibraryError() SDL_GetError()
 #endif
 
-void * QDECL Sys_LoadDll(const char *name, qboolean useSystemLib);
+void * QDECL Sys_LoadDll(const char *name, bool useSystemLib);
+
+#endif

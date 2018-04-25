@@ -1,0 +1,93 @@
+# adapted from https://github.com/ericniebler/range-v3
+
+language: cpp
+script: cmake
+
+matrix:
+  include:
+    - env: CLANG_VERSION=3.4 BUILD_TYPE=Debug CPP=1y SAN=On LIBCXX=On
+      os: linux
+      addons: &clang34
+        apt:
+          packages:
+            - util-linux
+            - clang-3.4
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-precise-3.4
+
+    - env: CLANG_VERSION=3.4 BUILD_TYPE=Release CPP=1y SAN=On LIBCXX=On
+      os: linux
+      addons: *clang34
+
+    - env: CLANG_VERSION=3.7 BUILD_TYPE=Debug CPP=14 SAN=Off LIBCXX=On
+      os: linux
+      addons: &clang37
+        apt:
+          packages:
+            - util-linux
+            - clang-3.7
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-precise-3.7
+
+    - env: CLANG_VERSION=3.7 BUILD_TYPE=Release CPP=14 SAN=Off LIBCXX=On
+      os: linux
+      addons: *clang37
+
+    # - env: GCC_VERSION=4.9 BUILD_TYPE=Debug CPP=14 SAN=Off LIBCXX=Off
+    #   os: linux
+    #   addons: &gcc49
+    #     apt:
+    #       packages:
+    #         - g++-4.9
+    #       sources:
+    #         - ubuntu-toolchain-r-test
+
+    # - env: GCC_VERSION=4.9 BUILD_TYPE=Release CPP=14 SAN=Off LIBCXX=Off
+    #   os: linux
+    #   addons: *gcc49
+
+    - env: GCC_VERSION=5 BUILD_TYPE=Debug CPP=14 SAN=Off LIBCXX=Off
+      os: linux
+      addons: &gcc5
+        apt:
+          packages:
+            - g++-5
+          sources:
+            - ubuntu-toolchain-r-test
+
+    - env: GCC_VERSION=5 BUILD_TYPE=Release CPP=14 SAN=Off LIBCXX=Off
+      os: linux
+      addons: *gcc5
+
+before_install:
+  - export CHECKOUT_PATH=`pwd`;
+  - if [ -n "$GCC_VERSION" ]; then export CXX="g++-${GCC_VERSION}" CC="gcc-${GCC_VERSION}"; fi
+  - if [ -n "$CLANG_VERSION" ]; then export CXX="clang++-${CLANG_VERSION}" CC="clang-${CLANG_VERSION}"; fi
+  - if [ "$CLANG_VERSION" == "3.4" ]; then export CXX="/usr/local/clang-3.4/bin/clang++" CC="/usr/local/clang-3.4/bin/clang"; fi
+  - if [ "$LIBCXX" == "On" ]; then sudo CXX=$CXX CC=$CC ./install_libcxx.sh; fi
+
+install:
+  - cd $CHECKOUT_PATH
+
+  - if [ ! -d build ]; then mkdir build; fi
+  - cd build
+
+  - export CXX_FLAGS=""
+  - export CXX_LINKER_FLAGS=""
+
+  - if [ -z "$BUILD_TYPE" ]; then export BUILD_TYPE=Debug; fi
+
+  - if [ -n "$CLANG_VERSION" ]; then CXX_FLAGS="${CXX_FLAGS} -D__extern_always_inline=inline"; fi
+  - if [ "$LIBCXX" == "On" ]; then CXX_FLAGS="${CXX_FLAGS} -stdlib=libc++ -I/usr/include/c++/v1/"; fi
+  - if [ "$LIBCXX" == "On" ]; then CXX_LINKER_FLAGS="${CXX_FLAGS} -L/usr/lib/ -lc++"; fi
+
+  - cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_CXX_FLAGS="${CXX_FLAGS}" -DCMAKE_EXE_LINKER_FLAGS="${CXX_LINKER_FLAGS}" -DCXX_STD=$CPP -DCI_BUILD=1
+  - make VERBOSE=1
+
+script:
+  - if [ "$BUILD_TYPE" == "Debug" ]; then ctest -VV --schedule-random; fi
+
+notifications:
+  email: false

@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 
@@ -21,10 +22,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+#ifndef _BG_PUBLIC_H_
+#define _BG_PUBLIC_H_
+
 // bg_public.h -- definitions shared by both the server game and client game modules
 
 //tremulous balance header
-#include "tremulous.h"
+#include "qcommon/q_shared.h"
+#include "game/tremulous.h"
 
 // because games can change separately from the main system version, we need a
 // second version that must match between game and cgame
@@ -40,14 +45,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define DEAD_VIEWHEIGHT         4 // height from ground
 
 // player teams
-typedef enum
+enum
 {
   TEAM_NONE,
   TEAM_ALIENS,
   TEAM_HUMANS,
 
   NUM_TEAMS
-} team_t;
+};
+
+
+typedef int team_t;
 
 //
 // config strings are a general means of communicating variable length strings
@@ -60,7 +68,7 @@ enum
   CS_MUSIC            = 2,
   CS_MESSAGE,               // from the map worldspawn's message field
   CS_MOTD,                  // g_motd string for server message of the day
-  CS_WARMUP,                // server time when the match will be restarted
+  CS_WARMUP           = 5,  // server time when the match will be restarted !!! MUST NOT CHANGE, SERVER AND GAME BOTH REFERENCE !!!
 
   CS_VOTE_TIME,             // Vote stuff each needs NUM_TEAMS slots
   CS_VOTE_STRING      = CS_VOTE_TIME + NUM_TEAMS,
@@ -117,7 +125,7 @@ typedef enum
   PM_NOCLIP,        // noclip movement
   PM_SPECTATOR,     // still run into walls
   PM_JETPACK,       // jetpack physics
-  PM_GRABBED,       // like dead, but for when the player is still live
+  PM_GRABBED,       // like dead, but for when the player is still alive
   PM_DEAD,          // no acceleration or turning, but free falling
   PM_FREEZE,        // stuck in place with no control
   PM_INTERMISSION   // no movement or status bar
@@ -126,7 +134,7 @@ typedef enum
 // pmtype_t categories
 #define PM_Paralyzed( x ) ( (x) == PM_DEAD || (x) == PM_FREEZE ||\
                             (x) == PM_INTERMISSION )
-#define PM_Live( x )      ( (x) == PM_NORMAL || (x) == PM_JETPACK ||\
+#define PM_Alive( x )     ( (x) == PM_NORMAL || (x) == PM_JETPACK ||\
                             (x) == PM_GRABBED )
 
 typedef enum
@@ -136,7 +144,6 @@ typedef enum
   WEAPON_DROPPING,
   WEAPON_FIRING,
   WEAPON_RELOADING,
-  WEAPON_NEEDS_RESET,
 } weaponstate_t;
 
 // pmove->pm_flags
@@ -167,8 +174,10 @@ typedef struct
   float fallVelocity;
 } pmoveExt_t;
 
+using traceFunc_t = void (*)(trace_t *, const vec3_t, vec3_t, vec3_t, const vec3_t, int, int);
+
 #define MAXTOUCH  32
-typedef struct pmove_s
+struct pmove_t
 {
   // state (in / out)
   playerState_t *ps;
@@ -177,8 +186,8 @@ typedef struct pmove_s
   usercmd_t     cmd;
   int           tracemask;      // collide against these types of surfaces
   int           debugLevel;     // if set, diagnostic output will be printed
-  qboolean      noFootsteps;    // if the game is setup for no footsteps by the server
-  qboolean      autoWeaponHit[ 32 ];
+  bool      noFootsteps;    // if the game is setup for no footsteps by the server
+  bool      autoWeaponHit[ 32 ];
 
   int           framecount;
 
@@ -199,13 +208,10 @@ typedef struct pmove_s
 
   // callbacks to test the world
   // these will be different functions during game and cgame
-  /*void    (*trace)( trace_t *results, const vec3_t start, vec3_t mins, vec3_t maxs, const vec3_t end, int passEntityNum, int contentMask );*/
-  void          (*trace)( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs,
-                          const vec3_t end, int passEntityNum, int contentMask );
-
+  traceFunc_t   trace;
 
   int           (*pointcontents)( const vec3_t point, int passEntityNum );
-} pmove_t;
+};
 
 // if a full pmove isn't done on the client, you can just update the angles
 void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd );
@@ -300,17 +306,18 @@ typedef enum
 #define EF_B_POWERED        0x0010
 #define EF_B_MARKED         0x0020
 
-#define EF_WARN_CHARGE      0x0020    // Lucifer Cannon is about to overcharge
-#define EF_WALLCLIMB        0x0040    // wall walking
-#define EF_WALLCLIMBCEILING 0x0080    // wall walking ceiling hack
-#define EF_NODRAW           0x0100    // may have an event, but no model (unspawned items)
-#define EF_FIRING           0x0200    // for lightning gun
-#define EF_FIRING2          0x0400    // alt fire
-#define EF_FIRING3          0x0800    // third fire
-#define EF_MOVER_STOP       0x1000    // will push otherwise
-#define EF_POISONCLOUDED    0x2000    // player hit with basilisk gas
-#define EF_CONNECTION       0x4000    // draw a connection trouble sprite
-#define EF_BLOBLOCKED       0x8000    // caught by a trapper
+#define EF_WARN_CHARGE      0x00020    // Lucifer Cannon is about to overcharge
+#define EF_WALLCLIMB        0x00040    // wall walking
+#define EF_WALLCLIMBCEILING 0x00080    // wall walking ceiling hack
+#define EF_NODRAW           0x00100    // may have an event, but no model (unspawned items)
+#define EF_MOVER_STOP       0x00200    // will push otherwise
+#define EF_ASTRAL_NOCLIP    0x00400    // EF_ASTRAL flagged entities don't clip with Astral entities,
+#define EF_FIRING           0x00800    // for lightning gun
+#define EF_FIRING2          0x01000    // alt fire
+#define EF_FIRING3          0x02000    // third fire
+#define EF_POISONCLOUDED    0x04000    // player hit with basilisk gas
+#define EF_CONNECTION       0x08000    // draw a connection trouble sprite
+#define EF_BLOBLOCKED       0x10000    // caught by a trapper
 
 typedef enum
 {
@@ -322,7 +329,7 @@ typedef enum
   HI_NUM_HOLDABLE
 } holdable_t;
 
-typedef enum
+enum
 {
   WPM_NONE,
 
@@ -333,10 +340,11 @@ typedef enum
   WPM_NOTFIRING,
 
   WPM_NUM_WEAPONMODES
-} weaponMode_t;
+};
 
-typedef enum
-{
+typedef int weaponMode_t;
+
+enum {
   WP_NONE,
 
   WP_ALEVEL0,
@@ -372,9 +380,11 @@ typedef enum
   //ok?
 
   WP_NUM_WEAPONS
-} weapon_t;
+};
 
-typedef enum
+typedef int weapon_t;
+
+enum
 {
   UP_NONE,
 
@@ -389,7 +399,9 @@ typedef enum
   UP_AMMO,
 
   UP_NUM_UPGRADES
-} upgrade_t;
+};
+
+typedef int upgrade_t;
 
 // bitmasks for upgrade slots
 #define SLOT_NONE       0x00000000
@@ -401,8 +413,7 @@ typedef enum
 #define SLOT_WEAPON     0x00000020
 #define SLOT_SIDEARM    0x00000040
 
-typedef enum
-{
+enum {
   BA_NONE,
 
   BA_A_SPAWN,
@@ -427,15 +438,19 @@ typedef enum
   BA_H_REPEATER,
 
   BA_NUM_BUILDABLES
-} buildable_t;
+};
 
-// reward sounds (stored in ps->persistant[PERS_PLAYEREVENTS])
-#define PLAYEREVENT_DENIEDREWARD      0x0001
-#define PLAYEREVENT_GAUNTLETREWARD    0x0002
-#define PLAYEREVENT_HOLYSHIT          0x0004
+typedef int buildable_t;
+
+typedef enum
+{
+  RMT_SPHERE,
+  RMT_SPHERICAL_CONE_64,
+  RMT_SPHERICAL_CONE_240
+} rangeMarkerType_t;
 
 // entityState_t->event values
-// entity events are for effects that take place reletive
+// entity events are for effects that take place relative
 // to an existing entities origin.  Very network efficient.
 
 // two bits at the top of the entityState->event field
@@ -520,7 +535,7 @@ typedef enum
   EV_DEATH3,
   EV_OBITUARY,
 
-  EV_GIB_PLAYER,      // gib a previously living player
+  EV_GIB_PLAYER,
 
   EV_BUILD_CONSTRUCT,
   EV_BUILD_DESTROY,
@@ -570,7 +585,7 @@ typedef enum
   MN_CMD_SPEC,
   MN_CMD_ALIEN,
   MN_CMD_HUMAN,
-  MN_CMD_LIVING,
+  MN_CMD_ALIVE,
 
   //alien stuff
   MN_A_CLASS,
@@ -731,7 +746,7 @@ typedef enum
 } nonSegPlayerAnimNumber_t;
 
 // for buildable animations
-typedef enum
+enum
 {
   BANIM_NONE,
 
@@ -756,7 +771,9 @@ typedef enum
   BANIM_DESTROYED,
 
   MAX_BUILDABLE_ANIMATIONS
-} buildableAnimNumber_t;
+};
+
+typedef int buildableAnimNumber_t;
 
 typedef enum
 {
@@ -801,7 +818,7 @@ typedef struct animation_s
 #define TEAM_LOCATION_UPDATE_TIME   500
 
 // player classes
-typedef enum
+enum
 {
   PCL_NONE,
 
@@ -824,7 +841,9 @@ typedef enum
   PCL_HUMAN_BSUIT,
 
   PCL_NUM_CLASSES
-} class_t;
+};
+
+typedef int class_t;
 
 // spectator state
 typedef enum
@@ -914,8 +933,8 @@ typedef struct
 {
   class_t   number;
 
-  char      *name;
-  char      *info;
+  const char *name;
+  const char *info;
 
   int       stages;
 
@@ -932,6 +951,7 @@ typedef struct
   int       fov;
   float     bob;
   float     bobCycle;
+  float     landBob;
   int       steptime;
 
   float     speed;
@@ -968,12 +988,14 @@ typedef struct
 } classConfig_t;
 
 //stages
-typedef enum
+enum
 {
   S1,
   S2,
   S3
-} stage_t;
+};
+
+typedef int stage_t;
 
 #define MAX_BUILDABLE_MODELS 4
 
@@ -982,10 +1004,10 @@ typedef struct
 {
   buildable_t   number;
 
-  char          *name;
-  char          *humanName;
-  char          *info;
-  char          *entityName;
+  const char *name;
+  const char *humanName;
+  const char *info;
+  const char *entityName;
 
   trType_t      traj;
   float         bounce;
@@ -1008,21 +1030,21 @@ typedef struct
 
   int           nextthink;
   int           buildTime;
-  qboolean      usable;
+  bool      usable;
 
   int           turretRange;
   int           turretFireSpeed;
   weapon_t      turretProjType;
 
   float         minNormal;
-  qboolean      invertNormal;
+  bool      invertNormal;
 
-  qboolean      creepTest;
+  bool      creepTest;
   int           creepSize;
 
-  qboolean      dccTest;
-  qboolean      transparentTest;
-  qboolean      uniqueTest;
+  bool      dccTest;
+  bool      transparentTest;
+  bool      uniqueTest;
   
   int       value;
 } buildableAttributes_t;
@@ -1047,14 +1069,14 @@ typedef struct
 
   int       slots;
 
-  char      *name;
-  char      *humanName;
-  char      *info;
+  const char *name;
+  const char *humanName;
+  const char *info;
 
   int       maxAmmo;
   int       maxClips;
-  qboolean  infiniteAmmo;
-  qboolean  usesEnergy;
+  bool  infiniteAmmo;
+  bool  usesEnergy;
 
   int       repeatRate1;
   int       repeatRate2;
@@ -1062,14 +1084,14 @@ typedef struct
   int       reloadTime;
   float     knockbackScale;
 
-  qboolean  hasAltMode;
-  qboolean  hasThirdMode;
+  bool  hasAltMode;
+  bool  hasThirdMode;
 
-  qboolean  canZoom;
+  bool  canZoom;
   float     zoomFov;
 
-  qboolean  purchasable;
-  qboolean  longRanged;
+  bool  purchasable;
+  bool  longRanged;
 
   team_t    team;
 } weaponAttributes_t;
@@ -1084,41 +1106,40 @@ typedef struct
 
   int       slots;
 
-  char      *name;
-  char      *humanName;
-  char      *info;
+  const char *name;
+  const char *humanName;
+  const char *info;
 
-  char      *icon;
+  const char *icon;
 
-  qboolean  purchasable;
-  qboolean  usable;
+  bool  purchasable;
+  bool  usable;
 
   team_t    team;
 } upgradeAttributes_t;
 
-qboolean  BG_WeaponIsFull( weapon_t weapon, int stats[ ], int ammo, int clips );
-qboolean  BG_InventoryContainsWeapon( int weapon, int stats[ ] );
+bool  BG_WeaponIsFull( weapon_t weapon, int stats[ ], int ammo, int clips );
+bool  BG_InventoryContainsWeapon( int weapon, int stats[ ] );
 int       BG_SlotsForInventory( int stats[ ] );
 void      BG_AddUpgradeToInventory( int item, int stats[ ] );
 void      BG_RemoveUpgradeFromInventory( int item, int stats[ ] );
-qboolean  BG_InventoryContainsUpgrade( int item, int stats[ ] );
+bool  BG_InventoryContainsUpgrade( int item, int stats[ ] );
 void      BG_ActivateUpgrade( int item, int stats[ ] );
 void      BG_DeactivateUpgrade( int item, int stats[ ] );
-qboolean  BG_UpgradeIsActive( int item, int stats[ ] );
-qboolean  BG_RotateAxis( vec3_t surfNormal, vec3_t inAxis[ 3 ],
-                         vec3_t outAxis[ 3 ], qboolean inverse, qboolean ceiling );
+bool  BG_UpgradeIsActive( int item, int stats[ ] );
+bool  BG_RotateAxis( vec3_t surfNormal, vec3_t inAxis[ 3 ],
+                         vec3_t outAxis[ 3 ], bool inverse, bool ceiling );
 void      BG_GetClientNormal( const playerState_t *ps, vec3_t normal );
 void      BG_GetClientViewOrigin( const playerState_t *ps, vec3_t viewOrigin );
 void      BG_PositionBuildableRelativeToPlayer( const playerState_t *ps,
-                                                const vec3_t mins, const vec3_t maxs,
-                                                void (*trace)( trace_t *, const vec3_t, const vec3_t,
-                                                               const vec3_t, const vec3_t, int, int ),
+                                                vec3_t mins, vec3_t maxs,
+                                                traceFunc_t trace,
                                                 vec3_t outOrigin, vec3_t outAngles, trace_t *tr );
 int       BG_GetValueOfPlayer( playerState_t *ps );
-qboolean  BG_PlayerCanChangeWeapon( playerState_t *ps );
+bool  BG_PlayerCanChangeWeapon( playerState_t *ps );
 int       BG_PlayerPoisonCloudTime( playerState_t *ps );
 weapon_t  BG_GetPlayerWeapon( playerState_t *ps );
-qboolean  BG_HasEnergyWeapon( playerState_t *ps );
+bool  BG_HasEnergyWeapon( playerState_t *ps );
 
 void      BG_PackEntityNumbers( entityState_t *es, const int *entityNums, int count );
 int       BG_UnpackEntityNumbers( entityState_t *es, int *entityNums, int count );
@@ -1126,7 +1147,7 @@ int       BG_UnpackEntityNumbers( entityState_t *es, int *entityNums, int count 
 const buildableAttributes_t *BG_BuildableByName( const char *name );
 const buildableAttributes_t *BG_BuildableByEntityName( const char *name );
 const buildableAttributes_t *BG_Buildable( buildable_t buildable );
-qboolean                    BG_BuildableAllowedInStage( buildable_t buildable,
+bool                    BG_BuildableAllowedInStage( buildable_t buildable,
                                                         stage_t stage );
 
 buildableConfig_t           *BG_BuildableConfig( buildable_t buildable );
@@ -1135,31 +1156,31 @@ void                        BG_BuildableBoundingBox( buildable_t buildable,
 void                        BG_InitBuildableConfigs( void );
 
 const classAttributes_t     *BG_ClassByName( const char *name );
-const classAttributes_t     *BG_Class( class_t class );
-qboolean                    BG_ClassAllowedInStage( class_t class,
+const classAttributes_t     *BG_Class( class_t klass );
+bool                    BG_ClassAllowedInStage( class_t klass,
                                                     stage_t stage );
 
-classConfig_t               *BG_ClassConfig( class_t class );
+classConfig_t               *BG_ClassConfig( class_t klass );
 
-void                        BG_ClassBoundingBox( class_t class, vec3_t mins,
+void                        BG_ClassBoundingBox( class_t klass, vec3_t mins,
                                                  vec3_t maxs, vec3_t cmaxs,
                                                  vec3_t dmins, vec3_t dmaxs );
-qboolean                    BG_ClassHasAbility( class_t class, int ability );
+bool                    BG_ClassHasAbility( class_t klass, int ability );
 int                         BG_ClassCanEvolveFromTo( class_t fclass,
                                                      class_t tclass,
                                                      int credits, int alienStage, int num );
-qboolean                    BG_AlienCanEvolve( class_t class, int credits, int alienStage );
+bool                    BG_AlienCanEvolve( class_t klass, int credits, int alienStage );
 
 void                        BG_InitClassConfigs( void );
 
 const weaponAttributes_t    *BG_WeaponByName( const char *name );
 const weaponAttributes_t    *BG_Weapon( weapon_t weapon );
-qboolean                    BG_WeaponAllowedInStage( weapon_t weapon,
+bool                    BG_WeaponAllowedInStage( weapon_t weapon,
                                                      stage_t stage );
 
 const upgradeAttributes_t   *BG_UpgradeByName( const char *name );
 const upgradeAttributes_t   *BG_Upgrade( upgrade_t upgrade );
-qboolean                    BG_UpgradeAllowedInStage( upgrade_t upgrade,
+bool                    BG_UpgradeAllowedInStage( upgrade_t upgrade,
                                                       stage_t stage );
 
 // content masks
@@ -1167,6 +1188,7 @@ qboolean                    BG_UpgradeAllowedInStage( upgrade_t upgrade,
 #define MASK_SOLID        (CONTENTS_SOLID)
 #define MASK_PLAYERSOLID  (CONTENTS_SOLID|CONTENTS_PLAYERCLIP|CONTENTS_BODY)
 #define MASK_DEADSOLID    (CONTENTS_SOLID|CONTENTS_PLAYERCLIP)
+#define MASK_ASTRALSOLID  (CONTENTS_SOLID|CONTENTS_PLAYERCLIP|CONTENTS_ASTRAL_NOCLIP)
 #define MASK_WATER        (CONTENTS_WATER|CONTENTS_LAVA|CONTENTS_SLIME)
 #define MASK_OPAQUE       (CONTENTS_SOLID|CONTENTS_SLIME|CONTENTS_LAVA)
 #define MASK_SHOT         (CONTENTS_SOLID|CONTENTS_BODY)
@@ -1181,7 +1203,8 @@ typedef enum
   ET_PLAYER,
   ET_ITEM,
 
-  ET_BUILDABLE,       // buildable type
+  ET_BUILDABLE,
+  ET_RANGE_MARKER,
 
   ET_LOCATION,
 
@@ -1201,6 +1224,7 @@ typedef enum
   ET_MODELDOOR,
   ET_LIGHTFLARE,
   ET_LEV2_ZAP_CHAIN,
+  ET_WEAPON_DROP,
 
   ET_EVENTS       // any of the EV_* events can be added freestanding
               // by setting eType to ET_EVENTS + eventNum
@@ -1218,10 +1242,10 @@ void  BG_EvaluateTrajectoryDelta( const trajectory_t *tr, int atTime, vec3_t res
 
 void  BG_AddPredictableEventToPlayerstate( int newEvent, int eventParm, playerState_t *ps );
 
-void  BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, qboolean snap );
-void  BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s, int time, qboolean snap );
+void  BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, bool snap );
+void  BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s, int time, bool snap );
 
-qboolean  BG_PlayerTouchesItem( playerState_t *ps, entityState_t *item, int atTime );
+bool  BG_PlayerTouchesItem( playerState_t *ps, entityState_t *item, int atTime );
 
 #define ARENAS_PER_TIER   4
 #define MAX_ARENAS      1024
@@ -1230,18 +1254,18 @@ qboolean  BG_PlayerTouchesItem( playerState_t *ps, entityState_t *item, int atTi
 #define MAX_BOTS      1024
 #define MAX_BOTS_TEXT   8192
 
-float   atof_neg( char *token, qboolean allowNegative );
-int     atoi_neg( char *token, qboolean allowNegative );
+float   atof_neg( char *token, bool allowNegative );
+int     atoi_neg( char *token, bool allowNegative );
 
 void BG_ParseCSVEquipmentList( const char *string, weapon_t *weapons, int weaponsSize,
     upgrade_t *upgrades, int upgradesSize );
 void BG_ParseCSVClassList( const char *string, class_t *classes, int classesSize );
 void BG_ParseCSVBuildableList( const char *string, buildable_t *buildables, int buildablesSize );
 void BG_InitAllowedGameElements( void );
-qboolean BG_WeaponIsAllowed( weapon_t weapon );
-qboolean BG_UpgradeIsAllowed( upgrade_t upgrade );
-qboolean BG_ClassIsAllowed( class_t class );
-qboolean BG_BuildableIsAllowed( buildable_t buildable );
+bool BG_WeaponIsAllowed( weapon_t weapon );
+bool BG_UpgradeIsAllowed( upgrade_t upgrade );
+bool BG_ClassIsAllowed( class_t klass );
+bool BG_BuildableIsAllowed( buildable_t buildable );
 
 // Friendly Fire Flags
 #define FFF_HUMANS         1
@@ -1265,18 +1289,17 @@ typedef enum
 
 typedef struct voiceTrack_s
 {
-#ifdef CGAME
+//#ifdef CGAME
   sfxHandle_t            track;
   int                    duration;
-#endif
+//#endif
   char                   *text;
   int                    enthusiasm;
   int                    team;
-  int                    class;
+  int                    klass;
   int                    weapon;
   struct voiceTrack_s    *next;
 } voiceTrack_t;
-
 
 typedef struct voiceCmd_s
 {
@@ -1300,15 +1323,19 @@ voiceCmd_t *BG_VoiceCmdFind( voiceCmd_t *head, char *name, int *cmdNum );
 voiceCmd_t *BG_VoiceCmdByNum( voiceCmd_t *head, int num);
 voiceTrack_t *BG_VoiceTrackByNum( voiceTrack_t *head, int num );
 voiceTrack_t *BG_VoiceTrackFind( voiceTrack_t *head, team_t team,
-                                 class_t class, weapon_t weapon,
+                                 class_t klass, weapon_t weapon,
                                  int enthusiasm, int *trackNum );
 
 int BG_LoadEmoticons( emoticon_t *emoticons, int num );
 
-char *BG_TeamName( team_t team );
+const char *BG_TeamName( team_t team );
 
 typedef struct
 {
   const char *name;
 } dummyCmd_t;
 int cmdcmp( const void *a, const void *b );
+
+char *G_CopyString( const char *str );
+
+#endif

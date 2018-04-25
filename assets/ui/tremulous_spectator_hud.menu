@@ -1,0 +1,52 @@
+#include "ui/menudef.h"
+
+{
+
+#define W         640
+#define H         480
+
+  menuDef
+  {
+    name "spectator_hud"
+    fullScreen MENU_FALSE
+    visible MENU_TRUE
+    rect 0 0 W H
+    aspectBias ASPECT_NONE
+
+#define COMMON_HUD_R 1.0
+#define COMMON_HUD_G 1.0
+#define COMMON_HUD_B 1.0
+#include "ui/tremulous_common_hud.h"
+
+    //////////////////
+    //STATIC OBJECTS//
+    //////////////////
+
+    //LEFT CIRCLE
+    itemDef
+    {
+      name "left-circle"
+      rect 35 417.5 25 25
+      aspectBias ALIGN_LEFT
+      visible MENU_TRUE
+      decoration
+      forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B 0.25
+      style WINDOW_STYLE_SHADER
+      background "ui/assets/neutral/circle.tga"
+    }
+
+    //THZ SCANNER
+    itemDef
+    {
+      name "thzscanner"
+      //rect 10 125 200 200 // Original placement in thz
+      rect 440 220 200 200
+      aspectBias ALIGN_CENTER
+      visible MENU_TRUE
+      decoration
+      //forecolor COMMON_HUD_R COMMON_HUD_G COMMON_HUD_B .5
+      background "ui/assets/human/scanner.tga"
+      ownerdraw CG_PLAYER_THZ_SCANNER
+    }
+  }
+}

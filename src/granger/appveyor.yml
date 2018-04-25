@@ -1,0 +1,32 @@
+platform:
+  - x86
+  - x64
+
+configuration:
+  - Debug
+  - Release
+
+os: Visual Studio 2015
+
+clone_folder: c:\projects\granger
+
+build_script:
+  # show settings
+  - cmake -version
+  - echo %platform%
+  - echo %configuration%
+
+  # generate a solution file
+  - cd c:\projects\granger
+  - mkdir build
+  - cd build
+  - if "%platform%" == "x64" set cmake_platform=%platform%
+  - cmake -g "Visual Studio 14 2015" .. -DCMAKE_GENERATOR_PLATFORM=%cmake_platform%
+
+  # build it
+  - if "%platform%" == "x86" set msbuild_platform=Win32
+  - if "%platform%" == "x64" set msbuild_platform=%platform%
+  - msbuild granger.sln /p:Configuration=%configuration% /toolsversion:14.0 /p:PlatformToolset=v140 /p:Platform=%msbuild_platform%
+
+test_script:
+  - if "%configuration%" == "Debug" ctest -VV --schedule-random -C Debug

@@ -2,6 +2,7 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
+Copyright (C) 2015-2018 GrangerHub
 
 This file is part of Tremulous.
 
@@ -23,18 +24,25 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __TR_PUBLIC_H
 #define __TR_PUBLIC_H
 
-#include "tr_types.h"
+#include "client/cl_cin.h"
+#include "qcommon/q_platform.h"
+#include "renderercommon/tr_types.h"
 
 #define	REF_API_VERSION		8
+
+typedef struct cvar_s cvar_t;
+
+// AVI files have the start of pixel lines 4 byte-aligned
+#define AVI_LINE_PADDING 4
 
 //
 // these are the functions exported by the refresh module
 //
-typedef struct {
+struct refexport_t {
 	// called before the library is unloaded
-	// if the system is just reconfiguring, pass destroyWindow = qfalse,
+	// if the system is just reconfiguring, pass destroyWindow = false,
 	// which will keep the screen from flashing to the desktop.
-	void	(*Shutdown)( qboolean destroyWindow );
+	void	(*Shutdown)( bool destroyWindow );
 
 	// All data that will be used in a level should be
 	// registered before rendering any frames to prevent disk hits,
@@ -65,7 +73,7 @@ typedef struct {
 	void	(*ClearScene)( void );
 	void	(*AddRefEntityToScene)( const refEntity_t *re );
 	void	(*AddPolyToScene)( qhandle_t hShader , int numVerts, const polyVert_t *verts, int num );
-	int		(*LightForPoint)( vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir );
+	bool	(*LightForPoint)( vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir );
 	void	(*AddLightToScene)( const vec3_t org, float intensity, float r, float g, float b );
 	void	(*AddAdditiveLightToScene)( const vec3_t org, float intensity, float r, float g, float b );
 	void	(*RenderScene)( const refdef_t *fd );
@@ -76,8 +84,8 @@ typedef struct {
 		float s1, float t1, float s2, float t2, qhandle_t hShader );	// 0 = white
 
 	// Draw images for cinematic rendering, pass as 32 bit rgba
-	void	(*DrawStretchRaw) (int x, int y, int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty);
-	void	(*UploadCinematic) (int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty);
+	void	(*DrawStretchRaw) (int x, int y, int w, int h, int cols, int rows, const byte *data, int client, bool dirty);
+	void	(*UploadCinematic) (int w, int h, int cols, int rows, const byte *data, int client, bool dirty);
 
 	void	(*BeginFrame)( stereoFrame_t stereoFrame );
 
@@ -97,11 +105,11 @@ typedef struct {
 #endif
 	void	(*RegisterFont)(const char *fontName, int pointSize, fontInfo_t *font);
 	void	(*RemapShader)(const char *oldShader, const char *newShader, const char *offsetTime);
-	qboolean (*GetEntityToken)( char *buffer, int size );
-	qboolean (*inPVS)( const vec3_t p1, const vec3_t p2 );
+	bool (*GetEntityToken)( char *buffer, int size );
+	bool (*inPVS)( const vec3_t p1, const vec3_t p2 );
 
-	void (*TakeVideoFrame)( int h, int w, byte* captureBuffer, byte *encodeBuffer, qboolean motionJpeg );
-} refexport_t;
+	void (*TakeVideoFrame)( int h, int w, byte* captureBuffer, byte *encodeBuffer, bool motionJpeg );
+};
 
 //
 // these are the functions imported by the refresh module
@@ -120,7 +128,7 @@ typedef struct {
 	// stack based memory allocation for per-level things that
 	// won't be freed
 #ifdef HUNK_DEBUG
-	void	*(*Hunk_AllocDebug)( int size, ha_pref pref, char *label, char *file, int line );
+	void	*(*Hunk_AllocDebug)( int size, ha_pref pref, const char *label, const char *file, int line );
 #else
 	void	*(*Hunk_Alloc)( int size, ha_pref pref );
 #endif
@@ -134,7 +142,7 @@ typedef struct {
 	cvar_t	*(*Cvar_Get)( const char *name, const char *value, int flags );
 	void	(*Cvar_Set)( const char *name, const char *value );
 	void	(*Cvar_SetValue) (const char *name, float value);
-	void	(*Cvar_CheckRange)( cvar_t *cv, float minVal, float maxVal, qboolean shouldBeIntegral );
+	void	(*Cvar_CheckRange)( cvar_t *cv, float minVal, float maxVal, bool shouldBeIntegral );
 	void	(*Cvar_SetDescription)( cvar_t *cv, const char *description );
 
 	int		(*Cvar_VariableIntegerValue) (const char *var_name);
@@ -143,7 +151,7 @@ typedef struct {
 	void	(*Cmd_RemoveCommand)( const char *name );
 
 	int		(*Cmd_Argc) (void);
-	char	*(*Cmd_Argv) (int i);
+	const char* (*Cmd_Argv) (int i);
 
 	void	(*Cmd_ExecuteText) (int exec_when, const char *text);
 
@@ -160,7 +168,7 @@ typedef struct {
 	char **	(*FS_ListFiles)( const char *name, const char *extension, int *numfilesfound );
 	void	(*FS_FreeFileList)( char **filelist );
 	void	(*FS_WriteFile)( const char *qpath, const void *buffer, int size );
-	qboolean (*FS_FileExists)( const char *file );
+	bool (*FS_FileExists)( const char *file );
 
 	// cinematic stuff
 	void	(*CIN_UploadCinematic)(int handle);
@@ -174,14 +182,10 @@ typedef struct {
 	void	(*IN_Shutdown)( void );
 	void	(*IN_Restart)( void );
 
-	// math
-	long    (*ftol)(float f);
-
 	// system stuff
-	void	(*Sys_SetEnv)( const char *name, const char *value );
 	void	(*Sys_GLimpSafeInit)( void );
 	void	(*Sys_GLimpInit)( void );
-	qboolean (*Sys_LowPhysicalMemory)( void );
+	bool (*Sys_LowPhysicalMemory)( void );
 } refimport_t;
 
 
@@ -189,9 +193,11 @@ typedef struct {
 // If the module can't init to a valid rendering state, NULL will be
 // returned.
 #ifdef USE_RENDERER_DLOPEN
+extern "C" {
 typedef	refexport_t* (QDECL *GetRefAPI_t) (int apiVersion, refimport_t * rimp);
+}
 #else
-refexport_t*GetRefAPI( int apiVersion, refimport_t *rimp );
+refexport_t* GetRefAPI( int apiVersion, refimport_t *rimp );
 #endif
 
 #endif	// __TR_PUBLIC_H
