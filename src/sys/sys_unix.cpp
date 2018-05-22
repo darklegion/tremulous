@@ -261,6 +261,80 @@ FILE *Sys_Mkfifo( const char *ospath )
 }
 
 /*
+==============
+Sys_OpenWithDefault
+
+Opens a path with the default application
+==============
+*/
+bool Sys_OpenWithDefault( const char *path )
+{
+    int status;
+    int exitNum;
+    pid_t pid;
+
+    Com_Printf( S_COLOR_WHITE "Sys_OpenWithDefault: opening %s .....\n",
+                path );
+
+    // attempt to start child process
+    pid = fork();
+
+    if( pid < 0 )
+    {
+        // failed to start the child process
+        Com_Printf( S_COLOR_RED "Sys_OpenWithDefault: %s\n" S_COLOR_WHITE,
+                    strerror( exitNum ) );
+        return false;
+    }
+    else if ( pid == 0 )
+    {
+        //child proccess
+        char *argv[3];
+        char tempPath[MAX_OSPATH];
+        char openCmd[MAX_OSPATH];
+
+        ::memset( tempPath, 0, sizeof( tempPath ) );
+        ::memset( openCmd, 0, sizeof( openCmd ) );
+
+        Q_strcat( tempPath, sizeof(tempPath), path );
+
+        argv[1] = tempPath;
+        argv[2] = NULL;
+
+#ifdef __APPLE__
+        Q_strcat( openCmd, sizeof(openCmd), "open");
+#else
+        Q_strcat( openCmd, sizeof(openCmd), "xdg-open");
+#endif
+
+        argv[0] = openCmd;
+
+        // attempt to open the path
+        if( execvp( argv[0], argv ) < 0 )
+        {
+            //failure
+            exit( errno );
+        }
+
+        //success
+        exit(0);
+    }
+
+    wait( &status );
+    exitNum = WEXITSTATUS( status );
+
+    if( !exitNum )
+    {
+        return true;
+    }
+    else
+    {
+        Com_Printf( S_COLOR_RED "Sys_OpenWithDefault: %s\n" S_COLOR_WHITE, strerror( exitNum ) );
+        return false;
+    }
+}
+
+/*
 ==================
 Sys_Cwd
 ==================

@@ -1,0 +1,121 @@
+#include "ui/menudef.h"
+
+{
+    \\ FOR OPENING FOLDERS IN A DEFAULT FILE MANAGER  \\
+
+#define X             0
+#define Y             20
+#define W             250
+#define H             ((10*(ELEM_H+ELEM_GAP))+120)
+#define TOFF_X        (0-(W/2))
+#define ELEM_H        16
+#define ELEM_GAP      4
+#define BUTT_W        35
+#define BUTT_H        35
+#define BORDER        10
+#define RESCOMBO_OFF  8
+
+    menuDef
+    {
+        name "browse_folders"
+        visible MENU_FALSE
+        fullscreen MENU_FALSE
+        rect (320-(W/2)) (240-(H/2)) W H
+        focusColor 1 .75 0 1
+        style WINDOW_STYLE_FILLED
+        border WINDOW_BORDER_FULL
+        popup
+        onEsc
+        {
+            play "sound/misc/menu1.wav";
+            close browse_folders
+        }
+
+        itemDef
+        {
+            name window
+            rect 0 0 W H
+            style WINDOW_STYLE_FILLED
+            backcolor 0 0 0 1
+            visible MENU_TRUE
+            decoration
+
+            border WINDOW_BORDER_FULL
+            borderSize 1.0
+            borderColor 0.5 0.5 0.5 1
+        }
+
+
+        itemDef
+        {
+            text "Browse Homepath"
+            type ITEM_TYPE_BUTTON
+            textscale .25
+            style WINDOW_STYLE_EMPTY
+            rect X Y W BUTT_H
+            textalign ALIGN_CENTER
+            textvalign VALIGN_CENTER
+            forecolor 1 1 1 1
+            visible MENU_TRUE
+            action
+            {
+                play "sound/misc/menu1.wav";
+                exec browseHomepath
+            }
+        }
+
+        itemDef
+        {
+            text "Browse Demos Folder"
+            type ITEM_TYPE_BUTTON
+            textscale .25
+            style WINDOW_STYLE_EMPTY
+            rect X (Y+(BUTT_H+ELEM_GAP)) W BUTT_H
+            textalign ALIGN_CENTER
+            textvalign VALIGN_CENTER
+            forecolor 1 1 1 1
+            visible MENU_TRUE
+            action
+            {
+                play "sound/misc/menu1.wav";
+                exec browseDemos
+            }
+        }
+
+        itemDef
+        {
+            text "Browse Screen Shots Folder"
+            type ITEM_TYPE_BUTTON
+            textscale .25
+            style WINDOW_STYLE_EMPTY
+            rect X (Y+(2*(BUTT_H+ELEM_GAP))) W BUTT_H
+            textalign ALIGN_CENTER
+            textvalign VALIGN_CENTER
+            forecolor 1 1 1 1
+            visible MENU_TRUE
+            action
+            {
+                play "sound/misc/menu1.wav";
+                exec browseScreenShots
+            }
+        }
+
+        itemDef
+        {
+            text "OK"
+            type ITEM_TYPE_BUTTON
+            textscale .25
+            style WINDOW_STYLE_EMPTY
+            rect (W-BUTT_W) (H-BUTT_H) BUTT_W BUTT_H
+            textalign ALIGN_CENTER
+            textvalign VALIGN_CENTER
+            forecolor 1 1 1 1
+            visible MENU_TRUE
+            action
+            {
+                play "sound/misc/menu1.wav";
+                close browse_folders
+            }
+        }
+    }
+}

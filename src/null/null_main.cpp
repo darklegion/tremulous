@@ -65,6 +65,11 @@ FILE	*Sys_FOpen(const char *ospath, const char *mode) {
 void	Sys_Mkdir (char *path) {
 }
 
+bool Sys_OpenWithDefault( const char *path )
+{
+    return false;
+}
+
 void	Sys_Init (void) {
 }
 

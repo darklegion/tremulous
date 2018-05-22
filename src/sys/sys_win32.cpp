@@ -14,12 +14,12 @@ or (at your option) any later version.
 
 Tremulous is distributed in the hope that it will be
 useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with Tremulous; if not, write to the Free Software
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA	02110-1301	USA
 ===========================================================================
 */
 
@@ -42,6 +42,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <shlobj.h>
 #include <psapi.h>
 #include <float.h>
+#include <shellapi.h>
 
 #ifndef DEDICATED
 static UINT timerResolution = 0;
@@ -57,13 +58,13 @@ Set FPU control word to default value
 #ifndef _RC_CHOP
 // mingw doesn't seem to have these defined :(
 
-  #define _MCW_EM	0x0008001fU
-  #define _MCW_RC	0x00000300U
-  #define _MCW_PC	0x00030000U
-  #define _RC_NEAR      0x00000000U
-  #define _PC_53	0x00010000U
-  
-  extern "C" unsigned int _controlfp(unsigned int _new, unsigned int mask);
+	#define _MCW_EM	0x0008001fU
+	#define _MCW_RC	0x00000300U
+	#define _MCW_PC	0x00030000U
+	#define _RC_NEAR			0x00000000U
+	#define _PC_53	0x00010000U
+	
+	extern "C" unsigned int _controlfp(unsigned int _new, unsigned int mask);
 #endif
 
 #define FPUCWMASK1 (_MCW_RC | _MCW_EM)
@@ -88,7 +89,7 @@ Sys_Milliseconds
 int sys_timeBase;
 int Sys_Milliseconds (void)
 {
-	int             sys_curtime;
+	int					sys_curtime;
 	static bool initialized = false;
 
 	if (!initialized) {
@@ -107,15 +108,15 @@ Sys_RandomBytes
 */
 bool Sys_RandomBytes( byte *string, int len )
 {
-	HCRYPTPROV  prov;
+	HCRYPTPROV	prov;
 
 	if( !CryptAcquireContext( &prov, NULL, NULL,
-		PROV_RSA_FULL, CRYPT_VERIFYCONTEXT ) )  {
+		PROV_RSA_FULL, CRYPT_VERIFYCONTEXT ) )	{
 
 		return false;
 	}
 
-	if( !CryptGenRandom( prov, len, (BYTE *)string ) )  {
+	if( !CryptGenRandom( prov, len, (BYTE *)string ) )	{
 		CryptReleaseContext( prov, 0 );
 		return false;
 	}
@@ -194,7 +195,7 @@ const char *Sys_Basename( char *path )
 
 	// Strip trailing slashes
 	while( length > 0 && base[ length ] == '\\' )
-    base[ length-- ] = '\0';
+		base[ length-- ] = '\0';
 
 	return base;
 }
@@ -258,6 +259,120 @@ FILE *Sys_Mkfifo( const char *ospath )
 
 /*
 ==============
+Sys_OpenWithDefault
+
+Opens a path with the default application
+==============
+*/
+bool Sys_OpenWithDefault( const char *path )
+{
+    HINSTANCE hInst;
+    uint64_t err;
+
+    Com_Printf( S_COLOR_WHITE "Sys_OpenWithDefault: opening %s .....\n", path );
+
+    hInst = ShellExecute(0, "open", path, 0, 0 , SW_SHOWNORMAL );
+    err = (uint64_t)hInst;
+
+    if( err > 32 )
+    {
+        //success
+        return true;
+    }
+
+    // failure
+    switch ( err )
+    {
+        case 0:
+            Sys_Dialog( DT_WARNING,
+                        "Sys_OpenWithDefault: The operating system is out of memory or resources.\n",
+                        "warning" );
+            break;
+
+        case ERROR_FILE_NOT_FOUND:
+            Sys_Dialog( DT_WARNING,
+                        "Sys_OpenWithDefault: The specified file was not found.\n",
+                        "warning" );
+            break;
+
+        case ERROR_PATH_NOT_FOUND:
+            Sys_Dialog( DT_WARNING,
+                        "Sys_OpenWithDefault: The specified path was not found.\n",
+                        "warning" );
+            break;
+
+        case ERROR_BAD_FORMAT:
+            Sys_Dialog( DT_WARNING,
+                        "Sys_OpenWithDefault: The .exe file is invalid (non-Win32 .exe or error in .exe image).\n",
+                        "warning" );
+            break;
+
+        case SE_ERR_ACCESSDENIED:
+            Sys_Dialog( DT_WARNING,
+                        "Sys_OpenWithDefault: The operating system denied access to the specified file.\n",
+                        "warning" );
+            break;
+
+        case SE_ERR_ASSOCINCOMPLETE:
+            Sys_Dialog( DT_WARNING,
+                        "Sys_OpenWithDefault: The file name association is incomplete or invalid.\n",
+                        "warning" );
+            break;
+
+        case SE_ERR_DDEBUSY:
+            Sys_Dialog( DT_WARNING,
+                        "Sys_OpenWithDefault: The DDE transaction could not be completed because other DDE transactions were being processed.\n",
+                        "warning" );
+            break;
+
+        case SE_ERR_DDEFAIL:
+            Sys_Dialog( DT_WARNING,
+                        "Sys_OpenWithDefault: The DDE transaction failed.\n",
+                        "warning" );
+            break;
+
+        case SE_ERR_DDETIMEOUT:
+            Sys_Dialog( DT_WARNING,
+                        "Sys_OpenWithDefault: The DDE transaction could not be completed because the request timed out.\n",
+                        "warning" );
+            break;
+
+        case SE_ERR_DLLNOTFOUND:
+            Sys_Dialog( DT_WARNING,
+                        "Sys_OpenWithDefault: The specified DLL was not found.\n",
+                        "warning" );
+            break;
+
+        case SE_ERR_NOASSOC:
+            Sys_Dialog( DT_WARNING,
+                        "Sys_OpenWithDefault: There is no application associated with the given file name extension. This error will also be returned if you attempt to print a file that is not printable.\n",
+                        "warning" );
+            break;
+
+        case SE_ERR_OOM:
+            Sys_Dialog( DT_WARNING, 
+                        "Sys_OpenWithDefault: There was not enough memory to complete the operation.\n",
+                        "warning" );
+            break;
+
+        case SE_ERR_SHARE:
+            Sys_Dialog( DT_WARNING, 
+                        "Sys_OpenWithDefault: A sharing violation occurred.\n",
+                        "warning" );
+            break;
+
+        default:
+            Sys_Dialog( DT_WARNING, 
+                        "Sys_OpenWithDefault: Failed to open path.\n",
+                        "warning" );
+            break;
+    }
+
+    return false;
+}
+
+/*
+==============
 Sys_Cwd
 ==============
 */
@@ -286,7 +401,7 @@ Sys_ListFilteredFiles
 ==============
 */
 void Sys_ListFilteredFiles( const char *basedir, const char *subdirs,
-        const char *filter, char **list, int *numfiles )
+				const char *filter, char **list, int *numfiles )
 {
 	char		search[MAX_OSPATH], newsubdirs[MAX_OSPATH];
 	char		filename[MAX_OSPATH];
@@ -367,7 +482,7 @@ Sys_ListFiles
 ==============
 */
 char **Sys_ListFiles( const char *directory, const char *extension,
-        const char *filter, int *numfiles, bool wantsubs )
+				const char *filter, int *numfiles, bool wantsubs )
 {
 	char		search[MAX_OSPATH];
 	int			nfiles;
@@ -576,20 +691,20 @@ dialogResult_t Sys_Dialog( dialogType_t type, const char *message, const char *t
 	switch( type )
 	{
 		default:
-		case DT_INFO:      uType = MB_ICONINFORMATION|MB_OK; break;
-		case DT_WARNING:   uType = MB_ICONWARNING|MB_OK; break;
-		case DT_ERROR:     uType = MB_ICONERROR|MB_OK; break;
-		case DT_YES_NO:    uType = MB_ICONQUESTION|MB_YESNO; break;
+		case DT_INFO:			uType = MB_ICONINFORMATION|MB_OK; break;
+		case DT_WARNING:	 uType = MB_ICONWARNING|MB_OK; break;
+		case DT_ERROR:		 uType = MB_ICONERROR|MB_OK; break;
+		case DT_YES_NO:		uType = MB_ICONQUESTION|MB_YESNO; break;
 		case DT_OK_CANCEL: uType = MB_ICONWARNING|MB_OKCANCEL; break;
 	}
 
 	switch( MessageBox( NULL, message, title, uType ) )
 	{
 		default:
-		case IDOK:      return DR_OK;
-		case IDCANCEL:  return DR_CANCEL;
-		case IDYES:     return DR_YES;
-		case IDNO:      return DR_NO;
+		case IDOK:			return DR_OK;
+		case IDCANCEL:	return DR_CANCEL;
+		case IDYES:		 return DR_YES;
+		case IDNO:			return DR_NO;
 	}
 }
 
@@ -723,5 +838,5 @@ Check if filename should be allowed to be loaded as a DLL.
 */
 bool Sys_DllExtension( const char *name )
 {
-    return COM_CompareExtension( name, DLL_EXT );
+		return COM_CompareExtension( name, DLL_EXT );
 }
