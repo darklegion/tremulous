@@ -2,13 +2,13 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
-Copyright (C) 2015-2018 GrangerHub
+Copyright (C) 2015-2019 GrangerHub
 
 This file is part of Tremulous.
 
 Tremulous is free software; you can redistribute it
 and/or modify it under the terms of the GNU General Public License as
-published by the Free Software Foundation; either version 2 of the License,
+published by the Free Software Foundation; either version 3 of the License,
 or (at your option) any later version.
 
 Tremulous is distributed in the hope that it will be
@@ -17,8 +17,8 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Tremulous; if not, write to the Free Software
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+along with Tremulous; if not, see <https://www.gnu.org/licenses/>
+
 ===========================================================================
 */
 // cl_parse.c  -- parse a message received from the server
@@ -373,15 +373,13 @@ void CL_SystemInfoChanged( void ) {
 	clc.voipEnabled = !Q_stricmp(s, "opus");
 #endif
 
-	// don't set any vars when playing a demo
-	if ( clc.demoplaying ) {
-		return;
-	}
-
-	s = Info_ValueForKey( systemInfo, "sv_cheats" );
-	cl_connectedToCheatServer = (bool)atoi( s );
-	if ( !cl_connectedToCheatServer ) {
-		Cvar_SetCheatState();
+	// only set the paks, fs_game, and sv_pure when playing a demo
+	if ( !clc.demoplaying ) {
+		s = Info_ValueForKey( systemInfo, "sv_cheats" );
+		cl_connectedToCheatServer = (bool)atoi( s );
+		if ( !cl_connectedToCheatServer ) {
+			Cvar_SetCheatState();
+		}
 	}
 
 	// check pure server string
@@ -414,6 +412,8 @@ void CL_SystemInfoChanged( void ) {
 			}
 				
 			gameSet = true;
+		} else if ( clc.demoplaying && Q_stricmp(key, "sv_pure" ) ) {
+			continue;
 		}
 
 		if((cvar_flags = Cvar_Flags(key)) == CVAR_NONEXISTENT)

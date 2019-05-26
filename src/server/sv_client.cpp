@@ -2,13 +2,14 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
-Copyright (C) 2015-2018 GrangerHub
+Copyright (C) 2012-2018 ET:Legacy team <mail@etlegacy.com>
+Copyright (C) 2015-2019 GrangerHub
 
 This file is part of Tremulous.
 
 Tremulous is free software; you can redistribute it
 and/or modify it under the terms of the GNU General Public License as
-published by the Free Software Foundation; either version 2 of the License,
+published by the Free Software Foundation; either version 3 of the License,
 or (at your option) any later version.
 
 Tremulous is distributed in the hope that it will be
@@ -17,8 +18,8 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Tremulous; if not, write to the Free Software
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+along with Tremulous; if not, see <https://www.gnu.org/licenses/>
+
 ===========================================================================
 */
 // sv_client.c -- server code for dealing with clients
@@ -134,18 +135,35 @@ void SV_GetChallenge(netadr_t from)
 	byte    buf[16];
 	mpz_t   n;
 
-	// Prevent using getchallenge as an amplifier
+	if (sv_protect->integer & SVP_IOQ3)
 	if ( SVC_RateLimitAddress( from, 10, 1000 ) ) {
+	{
 		Com_DPrintf( "SV_GetChallenge: rate limit from %s exceeded, dropping request\n",
+		// Prevent using getchallenge as an amplifier
 			NET_AdrToString( from ) );
+		if (SVC_RateLimitAddress(from, 10, 1000))
 		return;
+		{
 	}
+			SV_WriteAttackLog(va("SV_GetChallenge: rate limit from %s exceeded, dropping request\n",
+			                     NET_AdrToString(from)));
+			return;
+		}
+
 
 	// Allow getchallenge to be DoSed relatively easily, but prevent
+		// Allow getchallenge to be DoSed relatively easily, but prevent
 	// excess outbound bandwidth usage when being flooded inbound
+		// excess outbound bandwidth usage when being flooded inbound
 	if ( SVC_RateLimit( &outboundLeakyBucket, 10, 100 ) ) {
+		if (SVC_RateLimit(&outboundLeakyBucket, 10, 100))
 		Com_DPrintf( "SV_GetChallenge: rate limit exceeded, dropping request\n" );
+		{
 		return;
+			SV_WriteAttackLog("SV_GetChallenge: rate limit exceeded, dropping request\n");
+			return;
+		}
+	}
 	}
 
 	oldest = 0;
@@ -237,7 +255,18 @@ void SV_DirectConnect( netadr_t from ) {
 	bool	    challenge2Verified = false;
 
 	Com_DPrintf ("SVC_DirectConnect ()\n");
-	
+
+	// Prevent using connect as an amplifier
+	if (sv_protect->integer & SVP_IOQ3)
+	{
+		if(SVC_RateLimitAddress(from, 10, 1000))
+		{
+			SV_WriteAttackLog(va("Bad direct connect - rate limit from %s exceeded, dropping request\n",
+												 NET_AdrToString(from)));
+			return;
+		}
+	}
+
 	Q_strncpyz( userinfo, Cmd_Argv(1), sizeof(userinfo) );
 
 	version = atoi( Info_ValueForKey( userinfo, "protocol" ) );

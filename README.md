@@ -35,9 +35,9 @@ If you want to build against system libraries, the following packages are necess
 * LibCURL4
 * LibOpenAL
 * Libfreetype6
-* Lua 5.2 
+* Lua 5.2
 
-On Ubuntu yakkety (specifically) you can install all the packages necessary with the following:
+On Ubuntu Yakkety (specifically) you can install all the packages necessary with the following:
 
 ```
 apt install -y cmake libgl1-mesa-dev libsdl2-dev libcurl4-openssl-dev libopenal-dev libfreetype6-dev mingw-w64 g++-mingw-w64 g++-multilib git zip vim-nox curl rsync
@@ -72,13 +72,44 @@ make
 
 # How to build for Win64
 
-Windows binaries are built using a Docker container.
+Windows binaries can be built on non-Unix environments using a Docker container.
 Click [here](https://www.docker.com/) to learn more about Docker.
 
+Note that on Windows, you have to clone this Git repository with Unix line endings 
+because the build system is still in Unix environment:
+
 ```bash
-docker build -t wtfbbqhax/tremulous:v2 .
-docker run -t -i -v $(pwd):/usr/src wtfbbqhax/tremulous:v2 make USE_RESTCLIENT=1 USE_INTERNAL_LUA=1 PLATFORM=mingw32
+git clone -c core.eol=lf ...
 ```
+(WARNING: Be careful to not commit back library files from this clone since their line-endings may change)
+
+To build the Tremulous binaries do:
+
+```bash
+docker run -t -i -e PLATFORM=mingw32 -v $(pwd):/usr/src grangerhub/tremulous13:latest ./misc/docker-build.sh
+```
+
+On Windows, make sure in the Docker Desktop settings that the drive you have the source 
+code is selected under "Shared Drives". Then replace `$(pwd)` with the actual folder where the 
+source resides (e.g. `"C:\Users\...\tremulous"`).
+
+To run:
+
+```bash
+cd build/release-mingw32-x86_64/
+./tremulous.exe
+```
+
+(use backslashes `\` if you are using Command Prompt).
+
+## Troubleshooting issues with running on Windows 
+
+- If you cannot select the high-resolution display modes inside the game, check Windows 
+Compatibility Settings under the Properties menu when you right-click the 
+Tremulous executable. Select "Change high DPI  settings" and check the
+"Override high DPI scaling behavior. Scaling performed by: Application".
+- If your FPS is low, make sure you are running the game when plugged into 
+power (as opposed to laptop battery).
 
 # Where do I get the assets?
 
@@ -94,6 +125,8 @@ Or you can checkout the entire repository:
 ```bash
 git clone https://github.com/wtfbbqhax/tremulous-data.git
 ```
+
+Copy the contents of the assets folder as a new `base/` folder in the release location.
 
 # About Lua
 

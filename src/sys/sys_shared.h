@@ -2,7 +2,7 @@
 
    This File is part of Tremulous.
    Copyright (C) 2016, wtfbbqhax <victor@badsec.org>.
-   Copyright (C) 2015-2018, GrangerHub <grangerhub.com>.
+   Copyright (C) 2015-2019, GrangerHub <grangerhub.com>.
 
 */
 

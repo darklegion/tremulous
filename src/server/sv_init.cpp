@@ -2,13 +2,14 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
-Copyright (C) 2015-2018 GrangerHub
+Copyright (C) 2012-2018 ET:Legacy team <mail@etlegacy.com>
+Copyright (C) 2015-2019 GrangerHub
 
 This file is part of Tremulous.
 
 Tremulous is free software; you can redistribute it
 and/or modify it under the terms of the GNU General Public License as
-published by the Free Software Foundation; either version 2 of the License,
+published by the Free Software Foundation; either version 3 of the License,
 or (at your option) any later version.
 
 Tremulous is distributed in the hope that it will be
@@ -17,14 +18,18 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Tremulous; if not, write to the Free Software
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+along with Tremulous; if not, see <https://www.gnu.org/licenses/>
+
 ===========================================================================
 */
 
 #include "server.h"
 
 #include "qcommon/cvar.h"
+
+// Attack log file is started when server is init (!= sv_running 1!)
+// we even log attacks when the server is waiting for rcon and doesn't run a map
+int attHandle = 0; // server attack log file handle
 
 char alternateInfos[2][2][BIG_INFO_STRING];
 
@@ -768,6 +773,74 @@ void SV_SpawnServer(char *server)
     Com_Printf("-----------------------------------\n");
 }
 
+/**
+ * @brief SV_WriteAttackLog
+ * @param[in] log
+ */
+void SV_WriteAttackLog(const char *log)
+{
+    if (attHandle > 0)
+    {
+        char    string[512]; // 512 chars seem enough here
+        qtime_t time;
+
+        Com_RealTime(&time);
+        Com_sprintf(string, sizeof(string), "%i/%i/%i %i:%i:%i %s", 1900 + time.tm_year, time.tm_mday, time.tm_mon + 1, time.tm_hour, time.tm_min, time.tm_sec, log);
+        (void) FS_Write(string, strlen(string), attHandle);
+    }
+
+    if (sv_protect->integer & SVP_CONSOLE)
+    {
+        Com_Printf("%s", log);
+    }
+}
+
+/**
+ * @brief SV_InitAttackLog
+ */
+void SV_InitAttackLog()
+{
+    if (sv_protectLog->string[0] == '\0')
+    {
+        Com_Printf("Not logging server attacks to disk.\n");
+    }
+    else
+    {
+        // in sync so admins can check this at runtime
+        FS_FOpenFileByMode(sv_protectLog->string, &attHandle, FS_APPEND_SYNC);
+
+        if (attHandle <= 0)
+        {
+            Com_Printf("WARNING: Couldn't open server attack logfile %s\n", sv_protectLog->string);
+        }
+        else
+        {
+            Com_Printf("Logging server attacks to %s\n", sv_protectLog->string);
+            SV_WriteAttackLog("-------------------------------------------------------------------------------\n");
+            SV_WriteAttackLog("Start server attack log\n");
+            SV_WriteAttackLog("-------------------------------------------------------------------------------\n");
+        }
+    }
+}
+
+/**
+ * @brief SV_CloseAttackLog
+ */
+void SV_CloseAttackLog()
+{
+    if (attHandle > 0)
+    {
+        SV_WriteAttackLog("-------------------------------------------------------------------------------\n");
+        SV_WriteAttackLog("End server attack log\n");
+        SV_WriteAttackLog("-------------------------------------------------------------------------------\n");
+        Com_Printf("Server attack log closed    \n");
+    }
+
+    FS_FCloseFile(attHandle);
+
+    attHandle = 0;  // local handle
+}
+
 /*
 ===============
 SV_Init
@@ -814,12 +887,16 @@ void SV_Init(void)
     // server vars
     sv_rconPassword = Cvar_Get("rconPassword", "", CVAR_TEMP);
     sv_privatePassword = Cvar_Get("sv_privatePassword", "", CVAR_TEMP);
-    sv_fps = Cvar_Get("sv_fps", "20", CVAR_TEMP);
+    sv_fps = Cvar_Get("sv_fps", "40", CVAR_TEMP);
     sv_timeout = Cvar_Get("sv_timeout", "200", CVAR_TEMP);
     sv_zombietime = Cvar_Get("sv_zombietime", "2", CVAR_TEMP);
 
     sv_allowDownload = Cvar_Get("sv_allowDownload", "0", CVAR_SERVERINFO);
     Cvar_Get("sv_dlURL", "http://downloads.tremulous.net", CVAR_SERVERINFO | CVAR_ARCHIVE);
+
+    sv_protect    = Cvar_Get("sv_protect", "3", CVAR_ARCHIVE);
+	sv_protectLog = Cvar_Get("sv_protectLog", "sv_protect.log", CVAR_ARCHIVE);
+	SV_InitAttackLog();
 
     for (int a = 0; a < 3; ++a)
     {
@@ -883,6 +960,9 @@ before Sys_Quit or Sys_Error
 */
 void SV_Shutdown(const char *finalmsg)
 {
+    // close attack log
+    SV_CloseAttackLog();
+
     if (!com_sv_running || !com_sv_running->integer)
     {
         return;

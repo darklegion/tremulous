@@ -60,4 +60,4 @@ for file in ipairs(install_files) do
     os.rename(src, dst)
 end
 
---- Copyright (C) 2015-2018 GrangerHub
+--- Copyright (C) 2015-2019 GrangerHub

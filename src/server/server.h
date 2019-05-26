@@ -2,13 +2,14 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
-Copyright (C) 2015-2018 GrangerHub
+Copyright (C) 2012-2018 ET:Legacy team <mail@etlegacy.com>
+Copyright (C) 2015-2019 GrangerHub
 
 This file is part of Tremulous.
 
 Tremulous is free software; you can redistribute it
 and/or modify it under the terms of the GNU General Public License as
-published by the Free Software Foundation; either version 2 of the License,
+published by the Free Software Foundation; either version 3 of the License,
 or (at your option) any later version.
 
 Tremulous is distributed in the hope that it will be
@@ -17,8 +18,8 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Tremulous; if not, write to the Free Software
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+along with Tremulous; if not, see <https://www.gnu.org/licenses/>
+
 ===========================================================================
 */
 // server.h
@@ -43,6 +44,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define PERS_SCORE 0  // !!! MUST NOT CHANGE, SERVER AND GAME BOTH REFERENCE !!!
 #define CS_WARMUP 5 // !!! MUST NOT CHANGE, SERVER AND GAME BOTH REFERENCE !!!
+
+// server attack protection
+#define SVP_IOQ3        0x0001      ///< 1  - ioQuake3 way
+#define SVP_OWOLF       0x0002      ///< 2  - OpenWolf way
+#define SVP_CONSOLE     0x0004      ///< 4  - console print
 
 #define MAX_ENT_CLUSTERS 16
 
@@ -145,6 +151,7 @@ struct netchan_buffer_t {
 struct client_t {
     clientState_t state;
     char userinfo[MAX_INFO_STRING];  // name, etc
+    char userinfobuffer[MAX_INFO_STRING];  ///< used for buffering of user info
 
     char reliableCommands[MAX_RELIABLE_COMMANDS][MAX_STRING_CHARS];
     int reliableSequence;  // last added reliable message, not necesarily sent or acknowledged yet
@@ -177,6 +184,7 @@ struct client_t {
 
     int deltaMessage;  // frame last client usercmd message
     int nextReliableTime;  // svs.time when another reliable command will be allowed
+    int nextReliableUserTime;  // svs.time when another userinfo change will be allowed
     int lastPacketTime;  // svs.time when packet was last received
     int lastConnectTime;  // svs.time when connection started
     int lastSnapshotTime;  // svs.time of last sent snapshot
@@ -212,6 +220,23 @@ struct client_t {
 };
 
 //=============================================================================
+#define STATFRAMES 200 ///< 5 seconds - assumed we run 40 fps
+
+/**
+ * @struct svstats_t
+ * @brief
+ */
+struct svstats_t {
+    double active;
+    double idle;
+    int count;
+
+    double latched_active;
+    double latched_idle;
+
+    float cpu;
+    float avg;
+};
 
 // MAX_CHALLENGES is made large to prevent a denial
 // of service attack that could cycle all of them
@@ -236,6 +261,37 @@ struct challenge_t {
     bool connected;
 };
 
+/**
+ * @struct receipt_t
+ * @brief
+ */
+struct receipt_t {
+    netadr_t adr;
+    int time;
+};
+
+/**
+ * @def MAX_INFO_RECEIPTS
+ * @brief the maximum number of getstatus+getinfo responses that we send in
+ * a two second time period.
+ */
+#define MAX_INFO_RECEIPTS  48
+
+/**
+ * @struct tempBan_s
+ * @typedef tempBan_t
+ * @brief
+ */
+struct tempBan_t {
+    netadr_t adr;
+    int endtime;
+};
+
+#define MAX_TEMPBAN_ADDRESSES               MAX_CLIENTS
+
+#define SERVER_PERFORMANCECOUNTER_FRAMES    600
+#define SERVER_PERFORMANCECOUNTER_SAMPLES   6
+
 // this structure will be cleared only when the game dll changes
 struct serverStatic_t {
     bool initialized;  // sv_init has completed
@@ -250,9 +306,17 @@ struct serverStatic_t {
     entityState_t *snapshotEntities;  // [numSnapshotEntities]
     int nextHeartbeatTime;
     challenge_t challenges[MAX_CHALLENGES];  // to prevent invalid IPs from connecting
+    receipt_t   infoReceipts[MAX_INFO_RECEIPTS];
     netadr_t redirectAddress;  // for rcon return messages
 
     netadr_t authorizeAddress;  // for rcon return messages
+
+    int sampleTimes[SERVER_PERFORMANCECOUNTER_SAMPLES];
+    int currentSampleIndex;
+    int totalFrameTime;
+    int currentFrameIndex;
+    int serverLoad;
+    svstats_t stats;
 };
 
 //=============================================================================
@@ -286,6 +350,9 @@ extern cvar_t *sv_maxPing;
 extern cvar_t *sv_pure;
 extern cvar_t *sv_lanForceRate;
 extern cvar_t *sv_banFile;
+
+extern	cvar_t *sv_protect;
+extern	cvar_t *sv_protectLog;
 
 #ifdef USE_VOIP
 extern cvar_t *sv_voip;
@@ -342,6 +409,13 @@ void SV_GetUserinfo(int index, char *buffer, int bufferSize);
 
 void SV_ChangeMaxClients(void);
 void SV_SpawnServer(char *server);
+void SV_WriteAttackLog(const char *log);
+
+#ifdef NDEBUG
+#define SV_WriteAttackLogD(x)
+#else
+#define SV_WriteAttackLogD(x) SV_WriteAttackLog(x)
+#endif
 
 //
 // sv_client.c

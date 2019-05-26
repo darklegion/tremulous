@@ -2,13 +2,14 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
-Copyright (C) 2015-2018 GrangerHub
+Copyright (C) 2012-2018 ET:Legacy team <mail@etlegacy.com>
+Copyright (C) 2015-2019 GrangerHub
 
 This file is part of Tremulous.
 
 Tremulous is free software; you can redistribute it
 and/or modify it under the terms of the GNU General Public License as
-published by the Free Software Foundation; either version 2 of the License,
+published by the Free Software Foundation; either version 3 of the License,
 or (at your option) any later version.
 
 Tremulous is distributed in the hope that it will be
@@ -17,8 +18,8 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Tremulous; if not, write to the Free Software
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+along with Tremulous; if not, see <https://www.gnu.org/licenses/>
+
 ===========================================================================
 */
 
@@ -62,6 +63,13 @@ cvar_t	*sv_lanForceRate; // dedicated 1 (LAN) server forces local client rates t
 cvar_t	*sv_banFile;
 
 cvar_t  *sv_rsaAuth;
+
+// server attack protection
+cvar_t *sv_protect;     // 0 - unprotected
+                        // 1 - ioquake3 method (default)
+                        // 2 - OpenWolf method
+                        // 4 - prints attack info to console (when ioquake3 or OPenWolf method is set)
+cvar_t *sv_protectLog;  // name of log file
 
 /*
 =============================================================================
@@ -195,9 +203,10 @@ void QDECL SV_SendServerCommand(client_t *cl, const char *fmt, ...) {
 	// this from happening is stopping the packet here. Ideally,
 	// we should increase the size of the downstream message.
 	if ( strlen ((char *)message) > 1022 ) {
-	  Com_Printf( "SV_SendServerCommand( %ld, %.20s... ) length %ld > 1022, dropping to avoid server buffer overflow.\n",
-		      cl - svs.clients, message, strlen( (char *)message ) );
-	  Com_Printf( "Full message: [%s]\n", message ); 
+	  SV_WriteAttackLog( va( "SV_SendServerCommand( %ld, %.20s... ) length %ld > 1022, "
+		      "dropping to avoid server buffer overflow.\n",
+		      cl - svs.clients, message, strlen( (char *)message ) ) );
+	  SV_WriteAttackLog( va( "Full message: [%s]\n", message ) );
 	  return;
 	}
 
@@ -486,30 +495,40 @@ static leakyBucket_t *SVC_BucketForAddress( netadr_t address, int burst, int per
 	}
 
 	// Couldn't allocate a bucket for this address
+	// Write the info to the attack log since this is relevant information as the system is malfunctioning
+	SV_WriteAttackLogD(va("SVC_BucketForAddress: Could not allocate a bucket for client from %s\n", NET_AdrToString(address)));
+
 	return NULL;
 }
 
 /*
 ================
 SVC_RateLimit
+ *
+ * @param[in,out] bucket
+ * @param[in] burst
+ * @param[in] period
+ * @return
+ *
+ * @note Don't call if sv_protect 1 (SVP_IOQ3) flag is not set!
 ================
 */
 bool SVC_RateLimit( leakyBucket_t *bucket, int burst, int period )
 {
 	if ( bucket != NULL )
-    {
+	{
 		int now = Sys_Milliseconds();
 		int interval = now - bucket->lastTime;
 		int expired = interval / period;
 		int expiredRemainder = interval % period;
 
 		if ( expired > bucket->burst || interval < 0 )
-        {
+		{
 			bucket->burst = 0;
 			bucket->lastTime = now;
 		}
-        else
-        {
+    else
+		{
 			bucket->burst -= expired;
 			bucket->lastTime = now - expiredRemainder;
 		}
@@ -519,7 +538,11 @@ bool SVC_RateLimit( leakyBucket_t *bucket, int burst, int period )
 			bucket->burst++;
 			return false;
 		}
-	}
+		else
+		{
+			SV_WriteAttackLogD(va("SVC_RateLimit: burst limit exceeded for bucket: %i limit: %i\n", bucket->burst, burst));
+		}
+	} 
 
 	return true;
 }
@@ -556,23 +579,27 @@ static void SVC_Status( netadr_t from ) {
 	int		playerLength;
 	char	infostring[MAX_INFO_STRING];
 
-	// Prevent using getstatus as an amplifier
-	if ( SVC_RateLimitAddress( from, 10, 1000 ) ) {
-		Com_DPrintf( "SVC_Status: rate limit from %s exceeded, dropping request\n",
-			NET_AdrToString( from ) );
-		return;
-	}
+	if (sv_protect->integer & SVP_IOQ3) {
+		// Prevent using getstatus as an amplifier
+		if (SVC_RateLimitAddress(from, 10, 1000)) {
+			SV_WriteAttackLog(va("SVC_Status: rate limit from %s exceeded, dropping request\n",
+			                     NET_AdrToString(from)));
+			return;
+		}
 
-	// Allow getstatus to be DoSed relatively easily, but prevent
-	// excess outbound bandwidth usage when being flooded inbound
-	if ( SVC_RateLimit( &outboundLeakyBucket, 10, 100 ) ) {
-		Com_DPrintf( "SVC_Status: rate limit exceeded, dropping request\n" );
-		return;
+		// Allow getstatus to be DoSed relatively easily, but prevent
+		// excess outbound bandwidth usage when being flooded inbound
+		if (SVC_RateLimit(&outboundLeakyBucket, 10, 100)) {
+			SV_WriteAttackLog("SVC_Status: rate limit exceeded, dropping request\n");
+			return;
+		}
 	}
 
 	// A maximum challenge length of 128 should be more than plenty.
-	if(strlen(Cmd_Argv(1)) > 128)
+	if (strlen(Cmd_Argv(1)) > 128) {
+		SV_WriteAttackLog(va("SVC_Status: challenge length exceeded from %s, dropping request\n", NET_AdrToString(from)));
 		return;
+	}
 
 	strcpy( infostring, Cvar_InfoString( CVAR_SERVERINFO ) );
 
@@ -617,28 +644,29 @@ void SVC_Info( netadr_t from ) {
 	const char *gamedir;
 	char	infostring[MAX_INFO_STRING];
 
-	// Prevent using getinfo as an amplifier
-	if ( SVC_RateLimitAddress( from, 10, 1000 ) ) {
-		Com_DPrintf( "SVC_Info: rate limit from %s exceeded, dropping request\n",
-			NET_AdrToString( from ) );
-		return;
+	if (sv_protect->integer & SVP_IOQ3) {
+		// Prevent using getinfo as an amplifier
+		if (SVC_RateLimitAddress(from, 10, 1000)) {
+			SV_WriteAttackLog(va("SVC_Info: rate limit from %s exceeded, dropping request\n",
+			                     NET_AdrToString(from)));
+			return;
+		}
+
+		// Allow getinfo to be DoSed relatively easily, but prevent
+		// excess outbound bandwidth usage when being flooded inbound
+		if (SVC_RateLimit(&outboundLeakyBucket, 10, 100)) {
+			SV_WriteAttackLog("SVC_Info: rate limit exceeded, dropping request\n");
+			return;
+		}
 	}
 
-	// Allow getinfo to be DoSed relatively easily, but prevent
-	// excess outbound bandwidth usage when being flooded inbound
-	if ( SVC_RateLimit( &outboundLeakyBucket, 10, 100 ) ) {
-		Com_DPrintf( "SVC_Info: rate limit exceeded, dropping request\n" );
-		return;
-	}
-
-	/*
-	 * Check whether Cmd_Argv(1) has a sane length. This was not done in the original Quake3 version which led
-	 * to the Infostring bug discovered by Luigi Auriemma. See http://aluigi.altervista.org/ for the advisory.
-	 */
-
+	// Check whether Cmd_Argv(1) has a sane length. This was not done in the original Quake3 version which led
+	// to the Infostring bug discovered by Luigi Auriemma. See http://aluigi.altervista.org/ for the advisory.
 	// A maximum challenge length of 128 should be more than plenty.
-	if(strlen(Cmd_Argv(1)) > 128)
+	if (strlen(Cmd_Argv(1)) > 128) {
+		SV_WriteAttackLog(va("SVC_Info: challenge length from %s exceeded, dropping request\n", NET_AdrToString(from)));
 		return;
+	}
 
 	// don't count privateclients
 	count = 0;
@@ -693,6 +721,110 @@ static void SV_FlushRedirect( char *outputbuf ) {
 	NET_OutOfBandPrint( NS_SERVER, svs.redirectAddress, "print\n%s", outputbuf );
 }
 
+/**
+ * @brief DRDoS stands for "Distributed Reflected Denial of Service".
+ * See here: http://www.lemuria.org/security/application-drdos.html
+ *
+ * If the address isn't NA_IP, it's automatically denied.
+ *
+ * @return false if we're good.
+ * otherwise true means we need to block.
+ *
+ * @note Don't call this if sv_protect 2 flag is not set!
+ */
+bool SV_CheckDRDoS(netadr_t from) {
+	int        i;
+	int        globalCount;
+	int        specificCount;
+	int        timeNow;
+	receipt_t  *receipt;
+	netadr_t   exactFrom;
+	int        oldest;
+	int        oldestTime;
+	static int lastGlobalLogTime   = 0;
+	static int lastSpecificLogTime = 0;
+
+	// Usually the network is smart enough to not allow incoming UDP packets
+	// with a source address being a spoofed LAN address.  Even if that's not
+	// the case, sending packets to other hosts in the LAN is not a big deal.
+	// NA_LOOPBACK qualifies as a LAN address.
+	if (Sys_IsLANAddress(from)) {
+		return false;
+	}
+
+	timeNow   = svs.time;
+	exactFrom = from;
+
+	// Time has wrapped
+	if (lastGlobalLogTime > timeNow || lastSpecificLogTime > timeNow) {
+		lastGlobalLogTime   = 0;
+		lastSpecificLogTime = 0;
+
+		// just setting time to 1 (cannot be 0 as then globalCount would not be counted)
+		for (i = 0; i < MAX_INFO_RECEIPTS; i++) {
+			if (svs.infoReceipts[i].time) {
+				svs.infoReceipts[i].time = 1; // hack it so we count globalCount correctly
+			}
+		}
+	}
+
+	if (from.type == NA_IP) {
+		from.ip[3] = 0; // xx.xx.xx.0
+	} else {
+		from.ip6[15] = 0;
+	}
+
+	// Count receipts in last 2 seconds.
+	globalCount   = 0;
+	specificCount = 0;
+	receipt       = &svs.infoReceipts[0];
+	oldest        = 0;
+	oldestTime    = 0x7fffffff;
+	for (i = 0; i < MAX_INFO_RECEIPTS; i++, receipt++) {
+		if (receipt->time + 2000 > timeNow) {
+			if (receipt->time) {
+				// When the server starts, all receipt times are at zero.  Furthermore,
+				// svs.time is close to zero.  We check that the receipt time is already
+				// set so that during the first two seconds after server starts, queries
+				// from the master servers don't get ignored.  As a consequence a potentially
+				// unlimited number of getinfo+getstatus responses may be sent during the
+				// first frame of a server's life.
+				globalCount++;
+			}
+			if (NET_CompareBaseAdr(from, receipt->adr)) {
+				specificCount++;
+			}
+		}
+		if (receipt->time < oldestTime) {
+			oldestTime = receipt->time;
+			oldest     = i;
+		}
+	}
+
+	if (globalCount == MAX_INFO_RECEIPTS) { // All receipts happened in last 2 seconds.
+		if (lastGlobalLogTime + 1000 <= timeNow) { // Limit one log every second.
+			SV_WriteAttackLog("Detected flood of getinfo/getstatus connectionless packets\n");
+			lastGlobalLogTime = timeNow;
+		}
+
+		return true;
+	}
+	if (specificCount >= 3) { // Already sent 3 to this IP in last 2 seconds.
+		if (lastSpecificLogTime + 1000 <= timeNow) { // Limit one log every second.
+			SV_WriteAttackLog(va("Possible DRDoS attack to address %s, ignoring getinfo/getstatus connectionless packet\n",
+			                     NET_AdrToString(exactFrom)));
+			lastSpecificLogTime = timeNow;
+		}
+
+		return true;
+	}
+
+	receipt       = &svs.infoReceipts[oldest];
+	receipt->adr  = from;
+	receipt->time = timeNow;
+	return false;
+}
+
 /*
 ===============
 SVC_RemoteCommand
@@ -712,9 +844,9 @@ static void SVC_RemoteCommand( netadr_t from, msg_t *msg ) {
 	char *cmd_aux;
 
 	// Prevent using rcon as an amplifier and make dictionary attacks impractical
-	if ( SVC_RateLimitAddress( from, 10, 1000 ) ) {
-		Com_DPrintf( "SVC_RemoteCommand: rate limit from %s exceeded, dropping request\n",
-			NET_AdrToString( from ) );
+	if ((sv_protect->integer & SVP_IOQ3) && SVC_RateLimitAddress(from, 10, 1000)) {
+		SV_WriteAttackLog(va("Bad rcon - rate limit from %s exceeded, dropping request\n",
+		                     NET_AdrToString(from)));
 		return;
 	}
 
@@ -723,8 +855,8 @@ static void SVC_RemoteCommand( netadr_t from, msg_t *msg ) {
 		static leakyBucket_t bucket;
 
 		// Make DoS via rcon impractical
-		if ( SVC_RateLimit( &bucket, 10, 1000 ) ) {
-			Com_DPrintf( "SVC_RemoteCommand: rate limit exceeded, dropping request\n" );
+		if ((sv_protect->integer & SVP_IOQ3) && SVC_RateLimit(&bucket, 10, 1000)) {
+			SV_WriteAttackLog("Bad rcon - rate limit exceeded, dropping request\n");
 			return;
 		}
 
@@ -733,6 +865,7 @@ static void SVC_RemoteCommand( netadr_t from, msg_t *msg ) {
 	} else {
 		valid = true;
 		Com_Printf ("Rcon from %s: %s\n", NET_AdrToString (from), Cmd_ArgsFrom(2) );
+		SV_WriteAttackLog(va("Rcon from %s: %s\n", NET_AdrToString(from), Cmd_Argv(2)));
 	}
 
 	// start redirecting all print outputs to the packet
@@ -743,6 +876,7 @@ static void SVC_RemoteCommand( netadr_t from, msg_t *msg ) {
 		Com_Printf ("No rconpassword set on the server.\n");
 	} else if ( !valid ) {
 		Com_Printf ("Bad rconpassword.\n");
+		SV_WriteAttackLog(va("Bad rconpassword from %s\n", NET_AdrToString(from)));
 	} else {
 		remaining[0] = 0;
 		
@@ -778,40 +912,53 @@ Clients that are in the game can still send
 connectionless packets.
 =================
 */
-static void SV_ConnectionlessPacket( netadr_t from, msg_t *msg )
-{
-    MSG_BeginReadingOOB( msg );
-    MSG_ReadLong( msg );		// skip the -1 marker
+static void SV_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
+	char	*s;
+	const char	*c;
 
-    if (!Q_strncmp("connect", (char*) &msg->data[4], 7)) {
-        Huff_Decompress(msg, 12);
-    }
+	MSG_BeginReadingOOB( msg );
+	MSG_ReadLong( msg );		// skip the -1 marker
 
-    char *s = MSG_ReadBigString( msg );
-    Cmd_TokenizeString( s );
+	if (!Q_strncmp("connect", (char *) &msg->data[4], 7)) {
+		Huff_Decompress(msg, 12);
+	}
 
-    const std::string c { Cmd_Argv(0) };
+	s = MSG_ReadStringLine( msg );
+	Cmd_TokenizeString( s );
 
-    Com_DPrintf("SV packet %s : %s\n", NET_AdrToString(from), c.c_str());
+	c = Cmd_Argv(0);
+	Com_DPrintf ("SV packet %s : %s\n", NET_AdrToString(from), c);
 
-    if ( c ==  "getstatus" )
-        SVC_Status( from );
-    else if ( c == "getinfo" )
-        SVC_Info( from );
-    else if ( c == "getchallenge" )
-        SV_GetChallenge(from);
-    else if ( c == "connect" )
-        SV_DirectConnect( from );
-    else if ( c == "rcon" )
-        SVC_RemoteCommand( from, msg );
-    else if ( c == "disconnect" )
-    {
-        // if a client starts up a local server, we may see some spurious
-        // server disconnect messages when their new server sees our final
-        // sequenced messages to the old client
-    }
-    else
-        Com_DPrintf("bad connectionless packet from %s:\n%s\n", NET_AdrToString(from), s);
+	if (!Q_stricmp(c, "getstatus")) {
+		if ((sv_protect->integer & SVP_OWOLF) && SV_CheckDRDoS(from)) {
+			return;
+		}
+
+		SVC_Status( from );
+  } else if (!Q_stricmp(c, "getinfo")) {
+		if ((sv_protect->integer & SVP_OWOLF) && SV_CheckDRDoS(from)) {
+			return;
+		}
+
+		SVC_Info( from );
+	} else if (!Q_stricmp(c, "getchallenge")) {
+		if ((sv_protect->integer & SVP_OWOLF) && SV_CheckDRDoS(from)) {
+			return;
+		}
+
+		SV_GetChallenge(from);
+	} else if (!Q_stricmp(c, "connect")) {
+		SV_DirectConnect( from );
+	} else if (!Q_stricmp(c, "rcon")) {
+		SVC_RemoteCommand( from, msg );
+	} else if (!Q_stricmp(c, "disconnect")) {
+		// if a client starts up a local server, we may see some spurious
+		// server disconnect messages when their new server sees our final
+		// sequenced messages to the old client
+	} else {
+		SV_WriteAttackLog(va("bad connectionless packet from %s:\n%s\n" // changed from Com_DPrintf to print in attack log
+		                     , NET_AdrToString(from), s));              // this was never reported to admins before so they might be confused
+	}                                                                   // note: if protect log isn't set we do Com_Printf
 }
 
 //============================================================================
@@ -1031,6 +1178,9 @@ int SV_FrameMsec()
 		return 1;
 }
 
+#define CPU_USAGE_WARNING  70
+#define FRAME_TIME_WARNING 30
+
 /*
 ==================
 SV_Frame
@@ -1042,6 +1192,11 @@ happen before SV_Frame is called
 void SV_Frame( int msec ) {
 	int		frameMsec;
 	int		startTime;
+	int   frameStartTime = 0;
+	static int start, end;
+
+	start           = Sys_Milliseconds();
+	svs.stats.idle += ( double )(start - end) / 1000;
 
 	// the menu kills the server with this cvar
 	if ( sv_killserver->integer ) {
@@ -1064,6 +1219,11 @@ void SV_Frame( int msec ) {
 	// allow pause if only the local client is connected
 	if ( SV_CheckPaused() ) {
 		return;
+	}
+
+	if (com_dedicated->integer)
+	{
+		frameStartTime = Sys_Milliseconds();
 	}
 
 	// if it isn't time for the next frame, do nothing
@@ -1144,6 +1304,93 @@ void SV_Frame( int msec ) {
 
 	// send a heartbeat to the master if needed
 	SV_MasterHeartbeat(HEARTBEAT_FOR_MASTER);
+
+	if (com_dedicated->integer)
+	{
+		int frameEndTime = Sys_Milliseconds();
+
+		svs.totalFrameTime += (frameEndTime - frameStartTime);
+
+		// we may send warnings (similar to watchdog) to the game in case the frametime is unacceptable
+		//Com_Printf("FRAMETIME frame: %i total %i\n", frameEndTime - frameStartTime, svs.totalFrameTime);
+
+		svs.currentFrameIndex++;
+
+		//if( svs.currentFrameIndex % 50 == 0 )
+		//	Com_Printf( "currentFrameIndex: %i\n", svs.currentFrameIndex );
+
+		if (svs.currentFrameIndex == SERVER_PERFORMANCECOUNTER_FRAMES)
+		{
+			int averageFrameTime = svs.totalFrameTime / SERVER_PERFORMANCECOUNTER_FRAMES;
+
+			svs.sampleTimes[svs.currentSampleIndex % SERVER_PERFORMANCECOUNTER_SAMPLES] = averageFrameTime;
+			svs.currentSampleIndex++;
+
+			if (svs.currentSampleIndex > SERVER_PERFORMANCECOUNTER_SAMPLES)
+			{
+				int totalTime = 0, i;
+
+				for (i = 0; i < SERVER_PERFORMANCECOUNTER_SAMPLES; i++)
+				{
+					totalTime += svs.sampleTimes[i];
+				}
+
+				if (!totalTime)
+				{
+					totalTime = 1;
+				}
+
+				averageFrameTime = totalTime / SERVER_PERFORMANCECOUNTER_SAMPLES;
+
+				svs.serverLoad = (int)((averageFrameTime / (float)frameMsec) * 100);
+			}
+
+			//Com_Printf( "serverload: %i (%i/%i)\n", svs.serverLoad, averageFrameTime, frameMsec );
+
+			svs.totalFrameTime    = 0;
+			svs.currentFrameIndex = 0;
+		}
+	}
+	else
+	{
+		svs.serverLoad = -1;
+	}
+
+	// collect timing statistics
+	// - the above 2.60 performance thingy is just inaccurate (30 seconds 'stats')
+	//   to give good warning messages and is only done for dedicated
+	end               = Sys_Milliseconds();
+	svs.stats.active += (( double )(end - start)) / 1000;
+
+	if (++svs.stats.count == STATFRAMES) // 5 seconds
+	{
+		svs.stats.latched_active = svs.stats.active;
+		svs.stats.latched_idle   = svs.stats.idle;
+		svs.stats.active         = 0;
+		svs.stats.idle           = 0;
+		svs.stats.count          = 0;
+
+		svs.stats.cpu = svs.stats.latched_active + svs.stats.latched_idle;
+
+		if (svs.stats.cpu != 0.f)
+		{
+			svs.stats.cpu = 100 * svs.stats.latched_active / svs.stats.cpu;
+		}
+
+		svs.stats.avg = 1000 * svs.stats.latched_active / STATFRAMES;
+
+		// FIXME: add mail, IRC, player info etc for both warnings
+		// TODO: inspect/adjust these values and/or add cvars
+		if (svs.stats.cpu > CPU_USAGE_WARNING)
+		{
+			Com_Printf("^3WARNING: Server CPU has reached a critical usage of %i%%\n", (int) svs.stats.cpu);
+		}
+
+		if (svs.stats.avg > FRAME_TIME_WARNING)
+		{
+			Com_Printf("^3WARNING: Average frame time has reached a critical value of %ims\n", (int) svs.stats.avg);
+		}
+	}
 }
 
 /*

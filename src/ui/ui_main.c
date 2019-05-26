@@ -2,13 +2,13 @@
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 Copyright (C) 2000-2013 Darklegion Development
-Copyright (C) 2015-2018 GrangerHub
+Copyright (C) 2015-2019 GrangerHub
 
 This file is part of Tremulous.
 
 Tremulous is free software; you can redistribute it
 and/or modify it under the terms of the GNU General Public License as
-published by the Free Software Foundation; either version 2 of the License,
+published by the Free Software Foundation; either version 3 of the License,
 or (at your option) any later version.
 
 Tremulous is distributed in the hope that it will be
@@ -17,8 +17,8 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Tremulous; if not, write to the Free Software
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+along with Tremulous; if not, see <https://www.gnu.org/licenses/>
+
 ===========================================================================
 */
 
@@ -286,28 +286,100 @@ static qboolean UI_ServerInfoIsValid(char *info)
 
 /*
 ==================
-UI_InsertServerIntoDisplayList
+UI_SanitiseString
+
+Remove color codes and non-alphanumeric characters from a string
 ==================
 */
-static void UI_InsertServerIntoDisplayList(int num, int position)
+void UI_SanitiseString( char *in, char *out, int len )
 {
+    len--;
+
+    while( *in && len > 0 )
+    {
+        if( Q_IsColorString( in ) )
+        {
+            in += 2;    // skip color code
+            continue;
+        }
+
+        if( isalnum( *in ) )
+        {
+            *out++ = tolower( *in );
+            len--;
+        }
+        in++;
+    }
+    *out = 0;
+}
+
+/*
+==================
+UI_PortFromAddress
+==================
+*/
+static int UI_PortFromAddress(const char *adrStr) {
     int i;
-    static char info[MAX_STRING_CHARS];
+    int portLength = 0;
+    char portStr[MAX_ADDRESSLENGTH] = "";
+    qboolean foundPort = qfalse;
 
-    if (position < 0 || position > uiInfo.serverStatus.numDisplayServers)
-        return;
+    if (!adrStr || !adrStr[0]) {
+      return -1;
+    }
 
-    trap_LAN_GetServerInfo(ui_netSource.integer, num, info, MAX_STRING_CHARS);
+    for (i = 0; adrStr[i] && (adrStr[i] != ' '); i++) {
+        if (!foundPort) {
+            if (adrStr[i] == ':') {
+                foundPort = qtrue;
+            }
 
-    if (!UI_ServerInfoIsValid(info))  // don't list servers with invalid info
-        return;
+            continue;
+        }
 
-    uiInfo.serverStatus.numDisplayServers++;
+        portStr[portLength] = adrStr[i];
+        portLength++;
+    }
 
-    for (i = uiInfo.serverStatus.numDisplayServers; i > position; i--)
-        uiInfo.serverStatus.displayServers[i] = uiInfo.serverStatus.displayServers[i - 1];
+    if (portLength) {
+        return atoi(portStr);
+    } else {
+        return -1;
+    }
+}
 
-    uiInfo.serverStatus.displayServers[position] = num;
+/*
+==================
+UI_ProtocolFromAddress
+
+returns 2 if 1.1 is detected, returns 1 if gpp is detected, otherwise returns 0
+==================
+*/
+static int UI_ProtocolFromAddress(const char *adrStr) {
+    int i;
+
+    if (!adrStr || !adrStr[0]) {
+        return 0;
+    }
+
+    for (i = 0; adrStr[i]; i++) {
+        if (adrStr[i] == '-') {
+            if (adrStr[i+1]) {
+                switch (adrStr[i+1]) {
+                    case '1':
+                        return 2;
+
+                    case 'g':
+                        return 1;
+
+                    default:
+                        return 0;
+                }
+            }
+        }
+    }
+
+    return 0;
 }
 
 /*
@@ -329,7 +401,7 @@ static void UI_RemoveServerFromDisplayList(int num)
             trap_LAN_GetServerInfo(ui_netSource.integer, num, info, MAX_STRING_CHARS);
 
             for (j = i; j < uiInfo.serverStatus.numDisplayServers; j++)
-                uiInfo.serverStatus.displayServers[j] = uiInfo.serverStatus.displayServers[j + 1];
+                uiInfo.serverStatus.displayServers[j] = uiInfo.serverStatus.displayServers[j+1];
 
             return;
         }
@@ -338,10 +410,147 @@ static void UI_RemoveServerFromDisplayList(int num)
 
 /*
 ==================
+UI_InsertServerIntoDisplayList
+==================
+*/
+static qboolean UI_InsertServerIntoDisplayList(int num, int position)
+{
+    int i;
+    int hostnameLen;
+    int protocol;
+    int port;
+    char adrstr[MAX_ADDRESSLENGTH];
+    char hostname[MAX_HOSTNAME_LENGTH];
+    char basehostname[MAX_HOSTNAME_LENGTH];
+    static char info[MAX_STRING_CHARS];
+
+    if (position < 0 || position > uiInfo.serverStatus.numDisplayServers)
+        return qfalse;
+
+    trap_LAN_GetServerInfo(ui_netSource.integer, num, info, MAX_STRING_CHARS);
+
+    if (!UI_ServerInfoIsValid(info))  // don't list servers with invalid info
+        return qfalse;
+
+    Q_strncpyz(hostname, Info_ValueForKey(info, "hostname"), MAX_HOSTNAME_LENGTH);
+
+    hostnameLen = strlen(hostname);
+
+    trap_LAN_GetServerAddressString(
+        ui_netSource.integer, num, adrstr, MAX_ADDRESSLENGTH);
+
+    protocol = UI_ProtocolFromAddress(adrstr);
+
+    port = UI_PortFromAddress(adrstr);
+
+    if (protocol && hostnameLen > 6) {
+        // strip the protocol tags from the hostname
+        hostname[hostnameLen - 6] = '\0';
+    }
+
+    UI_SanitiseString(hostname, basehostname, sizeof(basehostname));
+
+    // check if this is a duplicate listing of a multiprotocol server
+    for (i = 0; i < uiInfo.serverStatus.numDisplayServers; i++) {
+        int j;
+        int clients;
+        int protocol2;
+        int port2;
+        char info2[MAX_STRING_CHARS];
+        char adrstr2[MAX_ADDRESSLENGTH];
+
+        trap_LAN_GetServerAddressString(
+            ui_netSource.integer,
+            uiInfo.serverStatus.displayServers[i], adrstr2, MAX_ADDRESSLENGTH);
+
+        protocol2 = UI_ProtocolFromAddress(adrstr2);
+
+        port2 = UI_PortFromAddress(adrstr2);
+
+        //compare the addresses
+        if (adrstr[0] != adrstr2[0]) {
+            continue;
+        } else {
+            qboolean skip = qfalse;
+
+            for (j = 1; adrstr[j] && adrstr2[j]; j++) {
+                if(adrstr[j] != adrstr2[j]) {
+                    skip = qtrue;
+                    break;
+                }
+
+                //don't compare ports
+                if (adrstr[j] == ':') {
+                    break;
+                }
+            }
+
+            if (skip) {
+                continue;
+            }
+        }
+
+        trap_LAN_GetServerInfo(
+            ui_netSource.integer,
+             uiInfo.serverStatus.displayServers[i], info2, MAX_STRING_CHARS);
+
+        // if the ports are not the same, check to see if the host names are the
+        // same for older multiprotocol servers
+        if(port != port2) {
+            int hostnameLen2;
+            char hostname2[MAX_HOSTNAME_LENGTH];
+            char basehostname2[MAX_HOSTNAME_LENGTH];
+
+            Q_strncpyz(hostname2, Info_ValueForKey(info2, "hostname"), MAX_HOSTNAME_LENGTH);
+
+            hostnameLen2 = strlen(hostname2);
+
+            if (protocol2 && hostnameLen2 > 6) {
+                 // strip the protocol tags from the hostname
+                 hostname2[hostnameLen2 - 7] = '\0';
+            }
+
+            UI_SanitiseString(hostname2, basehostname2, sizeof(basehostname2));
+
+            //compare the hostnames
+            if (Q_stricmp(basehostname, basehostname2)) {
+                continue;
+            }
+        }
+
+        uiInfo.serverStatus.numDuplicateMultiprotocolServers++;
+
+        //show only the most recent protocol for a given server
+        if (protocol >= protocol2) {
+            clients = atoi(Info_ValueForKey(info, "clients"));
+            uiInfo.serverStatus.numDuplicateMultiprotocolServerClients += clients;
+            return qfalse;
+        } else {
+            clients = atoi(Info_ValueForKey(info2, "clients"));
+            uiInfo.serverStatus.numDuplicateMultiprotocolServerClients += clients;
+            UI_RemoveServerFromDisplayList(uiInfo.serverStatus.displayServers[i]);
+            i--;
+            continue;
+        }
+    }
+
+    //insert the server
+    uiInfo.serverStatus.numDisplayServers++;
+
+    for (i = uiInfo.serverStatus.numDisplayServers; i > position; i--)
+        uiInfo.serverStatus.displayServers[i] = uiInfo.serverStatus.displayServers[i - 1];
+
+    uiInfo.serverStatus.displayServers[position] = num;
+
+    return qtrue;
+}
+
+/*
+==================
 UI_BinaryServerInsertion
 ==================
 */
-static void UI_BinaryServerInsertion(int num)
+static qboolean UI_BinaryServerInsertion(int num)
 {
     int mid, offset, res, len;
 
@@ -361,8 +570,7 @@ static void UI_BinaryServerInsertion(int num)
 
         if (res == 0)
         {
-            UI_InsertServerIntoDisplayList(num, offset + mid);
-            return;
+            return UI_InsertServerIntoDisplayList(num, offset + mid);
         }
 
         // if larger
@@ -380,7 +588,7 @@ static void UI_BinaryServerInsertion(int num)
     if (res == 1)
         offset++;
 
-    UI_InsertServerIntoDisplayList(num, offset);
+    return UI_InsertServerIntoDisplayList(num, offset);
 }
 
 typedef struct {
@@ -868,6 +1076,8 @@ static void UI_BuildServerDisplayList(int force)
         // clear number of displayed servers
         uiInfo.serverStatus.numDisplayServers = 0;
         uiInfo.serverStatus.numPlayersOnServers = 0;
+        uiInfo.serverStatus.numDuplicateMultiprotocolServers = 0;
+        uiInfo.serverStatus.numDuplicateMultiprotocolServerClients = 0;
         // set list box index to zero
         Menu_SetFeederSelection(NULL, FEEDER_SERVERS, 0, NULL);
         // mark all servers as visible so we store ping updates for them
@@ -882,6 +1092,8 @@ static void UI_BuildServerDisplayList(int force)
         // still waiting on a response from the master
         uiInfo.serverStatus.numDisplayServers = 0;
         uiInfo.serverStatus.numPlayersOnServers = 0;
+        uiInfo.serverStatus.numDuplicateMultiprotocolServers = 0;
+        uiInfo.serverStatus.numDuplicateMultiprotocolServerClients = 0;
         uiInfo.serverStatus.nextDisplayRefresh = uiInfo.uiDC.realTime + 500;
         return;
     }
@@ -970,15 +1182,17 @@ static void UI_StopServerRefresh(void)
 
     uiInfo.serverStatus.refreshActive = qfalse;
     Com_Printf("%d servers listed in browser with %d players.\n", uiInfo.serverStatus.numDisplayServers,
-        uiInfo.serverStatus.numPlayersOnServers);
+        uiInfo.serverStatus.numPlayersOnServers -
+            uiInfo.serverStatus.numDuplicateMultiprotocolServerClients);
     count = trap_LAN_GetServerCount(ui_netSource.integer);
 
-    if (count - uiInfo.serverStatus.numDisplayServers > 0)
+    if (count - uiInfo.serverStatus.numDisplayServers - uiInfo.serverStatus.numDuplicateMultiprotocolServers > 0)
     {
         Com_Printf(
             "%d servers not listed due to packet loss, invalid info,"
             " or pings higher than %d\n",
-            count - uiInfo.serverStatus.numDisplayServers, (int)trap_Cvar_VariableValue("cl_maxPing"));
+            count - uiInfo.serverStatus.numDisplayServers - uiInfo.serverStatus.numDuplicateMultiprotocolServers,
+            (int)trap_Cvar_VariableValue("cl_maxPing"));
     }
 }
 
@@ -1067,6 +1281,8 @@ static void UI_StartServerRefresh(qboolean full)
     // clear number of displayed servers
     uiInfo.serverStatus.numDisplayServers = 0;
     uiInfo.serverStatus.numPlayersOnServers = 0;
+    uiInfo.serverStatus.numDuplicateMultiprotocolServers = 0;
+    uiInfo.serverStatus.numDuplicateMultiprotocolServerClients = 0;
     // mark all servers as visible so we store ping updates for them
     trap_LAN_MarkServerVisible(ui_netSource.integer, -1, qtrue);
     // reset all the pings
@@ -2637,31 +2853,40 @@ static void UI_LoadDemos(void)
     char demolist[4096];
     char demoExt[32];
     char *demoname;
-    int i, len;
+    int  i = 0;
+    int  len, protocol;
 
-    Com_sprintf(demoExt, sizeof(demoExt), "%s%d", DEMOEXT, (int)trap_Cvar_VariableValue("protocol"));
+    uiInfo.demoCount = 0;
 
-    uiInfo.demoCount = trap_FS_GetFileList("demos", demoExt, demolist, 4096);
+    for(protocol = 0; protocol < 3; protocol++) {
+      Com_sprintf(
+        demoExt, sizeof(demoExt), "%s%d", DEMOEXT,
+        protocol == 2 ? 69 : protocol == 1 ? 70 : 71);
 
-    Com_sprintf(demoExt, sizeof(demoExt), ".%s%d", DEMOEXT, (int)trap_Cvar_VariableValue("protocol"));
+      uiInfo.demoCount += trap_FS_GetFileList("demos", demoExt, demolist, 4096);
 
-    if (uiInfo.demoCount)
-    {
-        if (uiInfo.demoCount > MAX_DEMOS)
-            uiInfo.demoCount = MAX_DEMOS;
+      Com_sprintf(
+          demoExt, sizeof(demoExt), ".%s%d", DEMOEXT,
+          protocol == 2 ? 69 : protocol == 1 ? 70 : 71);
 
-        demoname = demolist;
+      if (uiInfo.demoCount)
+      {
+          if (uiInfo.demoCount > MAX_DEMOS)
+              uiInfo.demoCount = MAX_DEMOS;
 
-        for (i = 0; i < uiInfo.demoCount; i++)
-        {
-            len = strlen(demoname);
+          demoname = demolist;
 
-            if (!Q_stricmp(demoname + len - strlen(demoExt), demoExt))
-                demoname[len - strlen(demoExt)] = '\0';
+          for (; i < uiInfo.demoCount; i++)
+          {
+              len = strlen(demoname);
 
-            uiInfo.demoList[i] = String_Alloc(demoname);
-            demoname += len + 1;
-        }
+              if (!Q_stricmp(demoname + len - strlen(demoExt), demoExt))
+                  demoname[len - strlen(demoExt)] = '\0';
+
+              uiInfo.demoList[i] = String_Alloc(demoname);
+              demoname += len + 1;
+          }
+      }
     }
 }
 
@@ -2849,6 +3074,10 @@ static void UI_RunMenuScript(char **args)
         {
             trap_Cvar_Set("com_errorMessage", "");
         }
+        else if (Q_stricmp(name, "clearDemoError") == 0)
+        {
+            trap_Cvar_Set("com_demoErrorMessage", "");
+        }
         else if (Q_stricmp(name, "downloadIgnore") == 0)
         {
             trap_Cvar_Set("com_downloadPrompt", va("%d", DLP_IGNORE));
@@ -3015,7 +3244,15 @@ static void UI_RunMenuScript(char **args)
             trap_Cmd_ExecuteText(EXEC_APPEND, "vid_restart\n");
         }
         else if (Q_stricmp(name, "RunDemo") == 0)
-            trap_Cmd_ExecuteText(EXEC_APPEND, va("demo \"%s\"\n", uiInfo.demoList[uiInfo.demoIndex]));
+        {
+            if(uiInfo.demoList[uiInfo.demoIndex])
+            {
+                trap_Cmd_ExecuteText(EXEC_APPEND, va("demo \"%s\"\n", uiInfo.demoList[uiInfo.demoIndex]));
+            } else {
+                trap_Cvar_Set("com_demoErrorMessage", "No demo selected.");
+                Menus_ActivateByName("demo_error_popmenu");
+            }
+        }
         else if (Q_stricmp(name, "Tremulous") == 0)
         {
             trap_Cvar_Set("fs_game", "");
