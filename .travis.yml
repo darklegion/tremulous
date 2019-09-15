@@ -1,22 +1,18 @@
 language: cpp
 sudo: required
 dist: trusty
-
 services:
 - docker
-
 git:
   depth: 5
-
 notifications:
   slack:
-    secure: bEWPwOoefNXdXqQM1dUUmkBx4MWNJfYMNZPXWDlqxqJCTWoy00SkeH4mTlJSqVPMuQJzqQZ66Q6GK04YEZTLQhobN4tR3Qk9XpzmmE+65TVi4HrGNFJqxGCsPFr5CP4frCiH8rpsyNgwjf76z2a+9XnPYiVWvt0ECZHTeNkdqfHTaJr+TU1URi6iJXQD8C7mCxaYgNcEFfmUb8td17JIvh0dVlYjhh19nRwOxTbJ9QivyHl2MEFMD13CPMUKL1NxOK54Xi1d4cxPVtpJJvYfkRgf+TxJHF2I8BeSmIbE4K8MubbDnotBuipaVEkuZRTFt2wwh7l95u8zIvUbpLUyWHPoS6wKT0wqWe48z68YNf23Lb5TIuVXRtBKmDCNeGLQ4q2Blx8FLX921ugUf7DoquIBJgjeOpiuIPc0l07o3lXp5x6au/mUePfi+iOcXeQRcYN60GDs/Q+zNOOZbfATtg0DTTcPv3rPr1l8MeWlYf4FBCBfVBxzbzjCQEY8CfqajC/5Lc7agEwb3AKh8v3GmSShaZ4WB1vdFtvB9fk5biiAv9dY1U1UEzdK9HLC8+J5OaXdTtwjm4nT7D/Sj8nFqE7opens8WHNVfdzbjP/y7ux7N4O69MEPGumNRSWL4T4JGuShULPt86pzGqh22oUxDtMDbhffnOdlv9Ko6NgtKE=
+    secure: iS767Cc5C6lnDADvTqt5aypq4XaVWvgqJsdWTV1ia6E8tGxzbf/jRtRkKQkzEFrnN7xjc/q93/Gd1kcJFwyq0vA0eeX8GhnlJx1mPxktgeguNiKzCaiBmyLiixpwy/yClHdvrmv/mnR4PbkaG4tYBod6n4BpnaQQNqL3V0ie25rF4PJtpos+QQmQzCxzEU8nXm9f54pYVfVX5v9rkz0vmltX7GceYayvcMHipBCaoYDJNQqVAGr0jt+wfw93BFHsOb+EQBCB4Gw5MRNfiDeYRjrI6SXkPeb6S0R7c7fOGnk68hDI1j9Yp1i+VRpxbKRGwEeWHXhI6A7XeUenSdDvIZp/42nubdmQcXjeCLk6NRGflWPpwk5Evy74csN12hjE+cGfQpI9/oKnufly15+8BQL+PUGtaFa8rU2UfevdK32IpMeOeY5XbH6KQ4OXLAzW5211tZZaL0BTZp2TEdTskgtSDuyq3oNDAkWxH9BQYtWbAVqRgPu1nl5oXj9IG+q2UI1QG0JuKQ9hduFlyQ8NSCXVcQOQwpzW3CDAMSUl2Pe00/djgi6sdHu3i3ur9HEnrniwskl+VElUXPJYmA82U1UVF6NFhySS64y3QRdHNXNs7iQBTywbjSRSVW6YQB4bW8JY2ykyaJEjpXtXSumEYFjLvRFhU0cZDU4lqiO7ZlA=
   irc:
-    - "ircs://chat.freenode.net:7070#grangerhub"
+  - ircs://chat.freenode.net:7070#grangerhub
   email:
     on_success: change
     on_failure: change
-
 matrix:
   include:
   - os: linux
@@ -37,7 +33,8 @@ matrix:
     env: PLATFORM=mingw32 ARCH=x86
     before_install:
     - docker pull grangerhub/tremulous13:latest
-    - docker run -e ARCH -e PLATFORM -v $(pwd):/usr/src grangerhub/tremulous13:latest ./misc/docker-build.sh
+    - docker run -e ARCH -e PLATFORM -v $(pwd):/usr/src grangerhub/tremulous13:latest
+      ./misc/docker-build.sh
     script:
     - true
   - os: osx
@@ -47,13 +44,12 @@ matrix:
     before_install:
     - rm -rf build
     script:
-    - ./misc/travis-ci-build.sh
-
+    - "./misc/travis-ci-build.sh"
 deploy:
   provider: releases
   skip_cleanup: true
   api_key:
-    secure: euPVnsrXbfQN095snEmxb+52vWsEg5bcmJY6fP9k7/J4uz8r/QMYxIknPueFGnPLd2iP2IHwu933iT2k5oc/acCuib7kiy6kUdeC29epik+Nql3BnSEi820GjlQoYBcsWm5a26pGOSRR/yqCJXrY5w2CBFOqV7t4n6iFcl2Ks/rPrNmkfGdq1WBq6JHXGwBUU+UwUDwiaBwmMUBYdKMHmxvjWcGiyeQNxwaC3+IwEOzNx/B8u4o8qwksdwHRkMyUAnxcxY1TwpjV1b/4YmxL6F10zOyJQxJ8alXvgNzzEmJfxKSG27Zma48++4kfSq4ReB2ZwuCj7rqEKnQ/htE0jbwEcjKEt3Ii4bVReSNVGD5BWPL7Qkm1dx5lvL1zRaqyOnJQs3CJAOnX0L5LHrP12Dw1cCXHSSDdBMy+dRA1owVKvO3osoAVJUqZCxl6PYxVfSxNu9FlP4fxypSpgPl5458NwK8r1wjZfTprFNV4dlXsQrdc8B/EttwX9n9O9JLzrrjV7K9IvyA7ArYz5IDiSagOb4wOktDfepfHJioaFZIWgYQ4hGXXQJm/qDa4J/KSYME74knHbHkqx3eAo3T9/ofMDLyrK5CCIAmoGI0pcPgbuvLvNCVrVzGyaH7j8WxIBG0AN16I1MAs5+cJ4gCFgEsCvf30O++zqYIaOujpZ70=
+    secure: "jtNUkZL1TK3nD1LfWi5kypaL2WzUHxM/N72AcwKTmvieQ/3iwL8gRDFOhfWKFkNcyuCsEBw+c2KlpgfNGVNZYJgZrQ3Ozvnno5yN+V8Pb4ODEFU0Ps4EHSY7gsdF6bBdp3ooqsCsg8BkGfIggFsV+R9oKOyWWH1/N1jPWhf8ioWD+mMaAh5ZOsyQIECtSKAKMu9/hikVkdDuNsIAiaiJhYvP8rli5fYrZ4sVJih3YgeJj42i2iLeeWXmOmYNF7T5ywuBpaUjQJBEo83MilglTF0UOb471ADU2Gz3SMrnNCOdqDZLQaBL+QVrrgJUvXy5A92nxkY16mJaIvdDEOeIzWwgWVLoKyil6AFW5bR7lp2YW+/4I6zYEkGrpUaiZ+S1lgvm3CwVgwhg3rVuCi0qrI/7j/ImS9ORmz9DGbVgtg+y7mZnUIcEWX4jRDbbYWYIc/1fN+fGt73+41h0HS5of7d31yH6AyxB8/DlkuoKZIVHiErD0J3ZUkdVJOwhPFiPKViYR/07KEvafhkZkcffZh7arIesFB++4Kmglapb/awHJRh4lhfKd16IiCGjjfof8MDKSkmqAdXUsdCRcPu1Q0/cJaO3TRiTS6M0skrBUeIOOYsV0AdWM1Fy7dTySEEYlqZXnkiD98MG7CwobkWXmeVZHEzOJh2fDtv2w2ojoDI="
   file_glob: true
   file: build/*.zip
   on:
