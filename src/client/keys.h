@@ -48,6 +48,8 @@ extern field_t g_consoleField;
 extern field_t chatField;
 extern int anykeydown;
 extern bool chat_team;
+extern bool chat_admins;
+extern bool chat_clans;
 extern int chat_playerNum;
 
 void Key_WriteBindings(fileHandle_t f);

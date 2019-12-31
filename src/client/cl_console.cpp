@@ -103,6 +103,8 @@ Con_MessageMode_f
 void Con_MessageMode_f (void) {
 	chat_playerNum = -1;
 	chat_team = false;
+	chat_admins = false;
+	chat_clans = false;
 	Field_Clear( &chatField );
 	chatField.widthInChars = 30;
 
@@ -117,6 +119,8 @@ Con_MessageMode2_f
 void Con_MessageMode2_f (void) {
 	chat_playerNum = -1;
 	chat_team = true;
+	chat_admins = false;
+	chat_clans = false;
 	Field_Clear( &chatField );
 	chatField.widthInChars = 25;
 	Key_SetCatcher( Key_GetCatcher( ) ^ KEYCATCH_MESSAGE );
@@ -134,6 +138,8 @@ void Con_MessageMode3_f (void) {
 		return;
 	}
 	chat_team = false;
+	chat_admins = false;
+	chat_clans = false;
 	Field_Clear( &chatField );
 	chatField.widthInChars = 30;
 	Key_SetCatcher( Key_GetCatcher( ) ^ KEYCATCH_MESSAGE );
@@ -151,8 +157,42 @@ void Con_MessageMode4_f (void) {
 		return;
 	}
 	chat_team = false;
+	chat_admins = false;
+	chat_clans = false;
 	Field_Clear( &chatField );
 	chatField.widthInChars = 30;
+	Key_SetCatcher( Key_GetCatcher( ) ^ KEYCATCH_MESSAGE );
+}
+
+/*
+================
+Con_MessageMode5_f
+================
+*/
+void Con_MessageMode5_f (void) {
+	int i;
+	chat_playerNum = -1;
+	chat_team = false;
+	chat_admins = true;
+	chat_clans = false;
+	Field_Clear( &chatField );
+	chatField.widthInChars = 25;
+	Key_SetCatcher( Key_GetCatcher( ) ^ KEYCATCH_MESSAGE );
+}
+
+/*
+================
+Con_MessageMode6_f
+================
+*/
+void Con_MessageMode6_f (void) {
+	int i;
+	chat_playerNum = -1;
+	chat_team = false;
+	chat_admins = false;
+	chat_clans = true;
+	Field_Clear( &chatField );
+	chatField.widthInChars = 25;
 	Key_SetCatcher( Key_GetCatcher( ) ^ KEYCATCH_MESSAGE );
 }
 
@@ -361,6 +401,10 @@ void Con_MessageModesInit(void) {
 			Cmd_AddCommand ("messagemode3", Con_MessageMode3_f);
 		if( !Cmd_CommadExists( "messagemode4" ) )
 			Cmd_AddCommand ("messagemode4", Con_MessageMode4_f);
+		if( !Cmd_CommadExists( "messagemode5" ) )
+			Cmd_AddCommand ("messagemode5", Con_MessageMode5_f);
+		if( !Cmd_CommadExists( "messagemode6" ) )
+			Cmd_AddCommand ("messagemode6", Con_MessageMode6_f);
 	} else
 	{
 		// remove the client side message modes for non-1.1 servers
@@ -368,6 +412,8 @@ void Con_MessageModesInit(void) {
 		Cmd_RemoveCommand("messagemode2");
 		Cmd_RemoveCommand("messagemode3");
 		Cmd_RemoveCommand("messagemode4");
+		Cmd_RemoveCommand("messagemode5");
+		Cmd_RemoveCommand("messagemode6");
 	}
 }
 
@@ -401,6 +447,8 @@ void Con_Init (void) {
 		Cmd_AddCommand ("messagemode2", Con_MessageMode2_f);
 		Cmd_AddCommand ("messagemode3", Con_MessageMode3_f);
 		Cmd_AddCommand ("messagemode4", Con_MessageMode4_f);
+		Cmd_AddCommand ("messagemode5", Con_MessageMode5_f);
+		Cmd_AddCommand ("messagemode6", Con_MessageMode6_f);
 	}
 
 	Cmd_AddCommand ("toggleconsole", Con_ToggleConsole_f);
@@ -722,14 +770,23 @@ void Con_DrawConsole( void ) {
 
 		if( chatField.buffer[0] == '/' ||
 				chatField.buffer[0] == '\\' )
-			{
-				SCR_DrawBigString( 8, 232, "Command:", 1.0f, qfalse );
-				skip = 10;
-			}
-
+		{
+			SCR_DrawBigString( 8, 232, "Command:", 1.0f, qfalse );
+			skip = 10;
+		}
     else if( chat_team )
     {
       SCR_DrawBigString( 8, 232, "Team Say:", 1.0f, qfalse );
+      skip = 11;
+    }
+    else if( chat_admins )
+    {
+      SCR_DrawBigString( 8, 232, "Admin Say:", 1.0f, qfalse );
+      skip = 11;
+    }
+    else if( chat_clans )
+    {
+      SCR_DrawBigString( 8, 232, "Clan Say:", 1.0f, qfalse );
       skip = 11;
     }
     else

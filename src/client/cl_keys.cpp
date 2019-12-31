@@ -39,6 +39,8 @@ field_t g_consoleField;
 
 field_t chatField;
 bool chat_team;
+bool chat_admins;
+bool chat_clans;
 int chat_playerNum;
 
 bool key_overstrikeMode;
@@ -793,6 +795,30 @@ static void Message_Key( int key ) {
 				Com_sprintf( buffer, sizeof( buffer ),
 				             "say_team \"%s\"\n",
 										 chatField.buffer );
+			}
+			else if (chat_admins) {
+				Com_sprintf( buffer, sizeof( buffer ), 
+										 "a \"%s\"\n",
+										 chatField.buffer );
+			}
+			else if (chat_clans) {
+				char clantagDecolored[ 32 ];
+
+				Q_strncpyz( clantagDecolored, cl_clantag->string,
+										sizeof(clantagDecolored) );
+				Q_CleanStr( clantagDecolored );
+
+				if( strlen(clantagDecolored) > 2 && strlen(clantagDecolored) < 11 ) {
+					Com_sprintf( buffer, sizeof( buffer ),
+											 "m \"%s\" \"%s\"\n", clantagDecolored,
+											 chatField.buffer );
+				} else {
+					//string isnt long enough
+					Com_Printf ( 
+						"^3Error:your cl_clantag has to be Between 3 and 10 chars long. current value is:^7 %s^7\n",
+						clantagDecolored );
+					return;
+				}
 			}
 			else {
 				Com_sprintf( buffer, sizeof( buffer ),
