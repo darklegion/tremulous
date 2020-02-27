@@ -400,8 +400,8 @@ static void Give_Class( gentity_t *ent, char *s )
     return;
   }
 
-  ent->client->pers.evolveHealthFraction 
-      = (float)ent->client->ps.stats[ STAT_HEALTH ] 
+  ent->client->pers.evolveHealthFraction
+      = (float)ent->client->ps.stats[ STAT_HEALTH ]
       / (float)BG_Class( currentClass )->health;
 
   if( ent->client->pers.evolveHealthFraction < 0.0f )
@@ -466,7 +466,7 @@ void Cmd_Give_f( gentity_t *ent )
   if( trap_Argc( ) < 2 )
   {
     ADMP( "^3give: ^7usage: give [what]\n"
-          "health, funds <amount>, stamina, poison, gas, ammo, " 
+          "health, funds <amount>, stamina, poison, gas, ammo, "
           "^3level0, level1, level1upg, level2, level2upg, level3, level3upg, level4, builder, builderupg, "
           "human_base, human_bsuit, "
           "^5blaster, rifle, psaw, shotgun, lgun, mdriver, chaingun, flamer, prifle, grenade, lockblob, "
@@ -494,7 +494,7 @@ void Cmd_Give_f( gentity_t *ent )
     else
     {
       credits = atof( name + 6 ) *
-        ( ent->client->pers.teamSelection == 
+        ( ent->client->pers.teamSelection ==
           TEAM_ALIENS ? ALIEN_CREDITS_PER_KILL : 1.0f );
 
       // clamp credits manually, as G_AddCreditToClient() expects a short int
@@ -761,7 +761,7 @@ void Cmd_Team_f( gentity_t *ent )
     humans--;
 
   // stop team join spam
-  if( ent->client->pers.teamChangeTime && 
+  if( ent->client->pers.teamChangeTime &&
       level.time - ent->client->pers.teamChangeTime < 1000 )
     return;
 
@@ -1410,8 +1410,8 @@ void Cmd_CallVote_f( gentity_t *ent )
         G_AdminMessage( NULL, va( S_COLOR_WHITE "%s" S_COLOR_YELLOW " attempted %s %s"
                                 " on immune admin " S_COLOR_WHITE "%s" S_COLOR_YELLOW
                                 " for: %s",
-                                ent->client->pers.netname, cmd, vote, 
-                                g_entities[ clientNum ].client->pers.netname, 
+                                ent->client->pers.netname, cmd, vote,
+                                g_entities[ clientNum ].client->pers.netname,
                                 reason[ 0 ] ? reason : "no reason" ) );
         return;
       }
@@ -1692,9 +1692,9 @@ void Cmd_CallVote_f( gentity_t *ent )
         }
         else if( G_admin_permission( &g_entities[ i ], ADMF_ADMINCHAT ) )
         {
-          trap_SendServerCommand( i, va( "chat -1 %d \"" S_COLOR_YELLOW "%s" 
+          trap_SendServerCommand( i, va( "chat -1 %d \"" S_COLOR_YELLOW "%s"
             S_COLOR_YELLOW " called a team vote (%ss): %s\"", SAY_ADMINS,
-            ent->client->pers.netname, BG_TeamName( team ), 
+            ent->client->pers.netname, BG_TeamName( team ),
             level.voteDisplayString[ team ] ) );
         }
       }
@@ -2275,15 +2275,198 @@ void Cmd_ToggleItem_f( gentity_t *ent )
 
 /*
 =================
+G_CanClientSellWeapon
+=================
+*/
+qboolean G_CanClientSellWeapon( gentity_t *ent, weapon_t weapon )
+{
+  //no armoury nearby
+  if( !G_BuildableRange( ent->client->ps.origin, 100, BA_H_ARMOURY ) )
+  {
+    G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOARMOURYHERE );
+    return (qfalse);
+  }
+
+  if( !BG_PlayerCanChangeWeapon( &ent->client->ps ) )
+    return (qfalse);
+
+  //are we /allowed/ to sell this?
+  if( !BG_Weapon( weapon )->purchasable )
+  {
+    trap_SendServerCommand( ent-g_entities, "print \"You can't sell this weapon\n\"" );
+    return (qfalse);
+  }
+
+  if( BG_InventoryContainsWeapon( weapon, ent->client->ps.stats ) )
+  {
+    //guard against selling the HBUILD weapons exploit
+    if( weapon == WP_HBUILD && ent->client->ps.stats[ STAT_MISC ] > 0 )
+    {
+      G_TriggerMenu( ent->client->ps.clientNum, MN_H_ARMOURYBUILDTIMER );
+      return (qfalse);
+    }
+    return (qtrue);
+  }
+
+  return (qfalse);
+}
+
+/*
+=================
+G_SellClientWeapon
+Must test G_CanClientSellWeapon
+=================
+*/
+void G_SellClientWeapon( gentity_t *ent, weapon_t weapon )
+{
+  weapon_t selected = BG_GetPlayerWeapon( &ent->client->ps );
+
+  ent->client->ps.stats[ STAT_WEAPON ] = WP_NONE;
+  // Cancel ghost buildables
+  ent->client->ps.stats[ STAT_BUILDABLE ] = BA_NONE;
+
+  //add to funds
+  G_AddCreditToClient( ent->client, (short)BG_Weapon( weapon )->price, qfalse );
+
+  //if we have this weapon selected, force a new selection
+  if( weapon == selected )
+    G_ForceWeaponChange( ent, WP_BLASTER );
+}
+
+/*
+=================
+G_CanClientSellUpgrade
+=================
+*/
+qboolean G_CanClientSellUpgrade( gentity_t *ent, upgrade_t upgrade )
+{
+  //no armoury nearby
+  if( !G_BuildableRange( ent->client->ps.origin, 100, BA_H_ARMOURY ) )
+  {
+    G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOARMOURYHERE );
+    return (qfalse);
+  }
+
+  //are we /allowed/ to sell this?
+  if( !BG_Upgrade( upgrade )->purchasable )
+  {
+    trap_SendServerCommand( ent-g_entities, "print \"You can't sell this item\n\"" );
+    return (qfalse);
+  }
+
+  if( BG_InventoryContainsUpgrade( upgrade, ent->client->ps.stats ) )
+  {
+    // shouldn't really need to test for this, but just to be safe
+    if( upgrade == UP_BATTLESUIT )
+    {
+      vec3_t newOrigin;
+
+      if( !G_RoomForClassChange( ent, PCL_HUMAN, newOrigin ) )
+      {
+        G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOROOMBSUITOFF );
+        return (qfalse);
+      }
+    }
+
+    return (qtrue);
+  }
+
+  return (qfalse);
+}
+
+/*
+=================
+G_SellClientUpgrade
+Must test G_CanClientSellUpgrade
+=================
+*/
+void G_SellClientUpgrade( gentity_t *ent, upgrade_t upgrade )
+{
+  // shouldn't really need to test for this, but just to be safe
+  if( upgrade == UP_BATTLESUIT )
+  {
+    vec3_t newOrigin;
+
+    if( !G_RoomForClassChange( ent, PCL_HUMAN, newOrigin ) )
+    {
+      G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOROOMBSUITOFF );
+      return ;
+    }
+    VectorCopy( newOrigin, ent->client->ps.origin );
+    ent->client->ps.stats[ STAT_CLASS ] = PCL_HUMAN;
+    ent->client->pers.classSelection = PCL_HUMAN;
+    ent->client->ps.eFlags ^= EF_TELEPORT_BIT;
+  }
+
+  //add to inventory
+  BG_RemoveUpgradeFromInventory( upgrade, ent->client->ps.stats );
+
+  if( upgrade == UP_BATTPACK )
+    G_GiveClientMaxAmmo( ent, qtrue );
+
+  //add to funds
+  G_AddCreditToClient( ent->client, (short)BG_Upgrade( upgrade )->price, qfalse );
+}
+
+/*
+=================
+G_PriceOfClientItems
+=================
+*/
+static int G_PriceOfClientItems( int conflictingWP[WP_NUM_WEAPONS - 1], int conflictingUP[UP_NUM_UPGRADES - 1] )
+{
+  int i;
+  int price = 0;
+
+  i = 0;
+  while (conflictingWP[i])
+    price += BG_Weapon(conflictingWP[i++])->price;
+  i = 0;
+  while (conflictingUP[i])
+    price += BG_Upgrade(conflictingUP[i++])->price;
+  return (price);
+}
+/*
+=================
+G_SellClientItems
+=================
+*/
+static qboolean G_SellClientItems( gentity_t *ent, int conflictingWP[WP_NUM_WEAPONS - 1], int conflictingUP[UP_NUM_UPGRADES - 1] )
+{
+  int i;
+
+  i = 0;
+  while (conflictingWP[i])
+    if (!G_CanClientSellWeapon(ent, conflictingWP[i++]))
+      return (qfalse);
+  i = 0;
+  while (conflictingUP[i])
+    if (!G_CanClientSellUpgrade(ent, conflictingUP[i++]))
+      return (qfalse);
+
+  i = 0;
+  while (conflictingWP[i])
+    G_SellClientWeapon(ent, conflictingWP[i++]);
+  i = 0;
+  while (conflictingUP[i])
+    G_SellClientUpgrade(ent, conflictingUP[i++]);
+
+  return (qtrue);
+}
+
+/*
+=================
 Cmd_Buy_f
 =================
 */
 void Cmd_Buy_f( gentity_t *ent )
 {
-  char s[ MAX_TOKEN_CHARS ];
+  char      s[ MAX_TOKEN_CHARS ];
   weapon_t  weapon;
   upgrade_t upgrade;
   qboolean  energyOnly;
+  int       conflictingWP[WP_NUM_WEAPONS - 1];
+  int       conflictingUP[UP_NUM_UPGRADES - 1];
 
   trap_Argv( 1, s, sizeof( s ) );
 
@@ -2338,18 +2521,23 @@ void Cmd_Buy_f( gentity_t *ent )
       return;
     }
 
+    BG_GetConflictingWithInventory(BG_Weapon( weapon )->slots, ent->client->ps.stats, conflictingWP, conflictingUP);
+
     //can afford this?
-    if( BG_Weapon( weapon )->price > (short)ent->client->pers.credit )
+    if( BG_Weapon( weapon )->price > (short)ent->client->pers.credit + G_PriceOfClientItems(conflictingWP, conflictingUP) )
     {
       G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOFUNDS );
       return;
     }
 
-    //have space to carry this?
+    //have space to carry this? try to remove conflicting items, or cancel
     if( BG_Weapon( weapon )->slots & BG_SlotsForInventory( ent->client->ps.stats ) )
     {
-      G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOSLOTS );
-      return;
+      if (!G_SellClientItems(ent, conflictingWP, conflictingUP))
+      {
+        G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOSLOTS );
+        return ;
+      }
     }
 
     // In some instances, weapons can't be changed
@@ -2374,24 +2562,19 @@ void Cmd_Buy_f( gentity_t *ent )
   }
   else if( upgrade != UP_NONE )
   {
-    //already got this?
+    //already got this? try to remove conflicting items, or cancel
     if( BG_InventoryContainsUpgrade( upgrade, ent->client->ps.stats ) )
     {
       G_TriggerMenu( ent->client->ps.clientNum, MN_H_ITEMHELD );
       return;
     }
 
+    BG_GetConflictingWithInventory(BG_Upgrade( upgrade )->slots, ent->client->ps.stats, conflictingWP, conflictingUP);
+
     //can afford this?
-    if( BG_Upgrade( upgrade )->price > (short)ent->client->pers.credit )
+    if( BG_Upgrade( upgrade )->price > (short)ent->client->pers.credit + G_PriceOfClientItems(conflictingWP, conflictingUP) )
     {
       G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOFUNDS );
-      return;
-    }
-
-    //have space to carry this?
-    if( BG_Upgrade( upgrade )->slots & BG_SlotsForInventory( ent->client->ps.stats ) )
-    {
-      G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOSLOTS );
       return;
     }
 
@@ -2414,6 +2597,16 @@ void Cmd_Buy_f( gentity_t *ent )
     {
       trap_SendServerCommand( ent-g_entities, "print \"You can't buy this item\n\"" );
       return;
+    }
+
+    //have space to carry this?
+    if( BG_Upgrade( upgrade )->slots & BG_SlotsForInventory( ent->client->ps.stats ) )
+    {
+      if (!G_SellClientItems(ent, conflictingWP, conflictingUP))
+      {
+        G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOSLOTS );
+        return ;
+      }
     }
 
     if( upgrade == UP_AMMO )
@@ -2471,13 +2664,6 @@ void Cmd_Sell_f( gentity_t *ent )
 
   trap_Argv( 1, s, sizeof( s ) );
 
-  //no armoury nearby
-  if( !G_BuildableRange( ent->client->ps.origin, 100, BA_H_ARMOURY ) )
-  {
-    G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOARMOURYHERE );
-    return;
-  }
-
   if( !Q_stricmpn( s, "weapon", 6 ) )
     weapon = ent->client->ps.stats[ STAT_WEAPON ];
   else
@@ -2487,110 +2673,20 @@ void Cmd_Sell_f( gentity_t *ent )
 
   if( weapon != WP_NONE )
   {
-    weapon_t selected = BG_GetPlayerWeapon( &ent->client->ps );
-
-    if( !BG_PlayerCanChangeWeapon( &ent->client->ps ) )
-      return;
-
-    //are we /allowed/ to sell this?
-    if( !BG_Weapon( weapon )->purchasable )
-    {
-      trap_SendServerCommand( ent-g_entities, "print \"You can't sell this weapon\n\"" );
-      return;
-    }
-
-    //remove weapon if carried
-    if( BG_InventoryContainsWeapon( weapon, ent->client->ps.stats ) )
-    {
-      //guard against selling the HBUILD weapons exploit
-      if( weapon == WP_HBUILD && ent->client->ps.stats[ STAT_MISC ] > 0 )
-      {
-        G_TriggerMenu( ent->client->ps.clientNum, MN_H_ARMOURYBUILDTIMER );
-        return;
-      }
-
-      ent->client->ps.stats[ STAT_WEAPON ] = WP_NONE;
-      // Cancel ghost buildables
-      ent->client->ps.stats[ STAT_BUILDABLE ] = BA_NONE;
-
-      //add to funds
-      G_AddCreditToClient( ent->client, (short)BG_Weapon( weapon )->price, qfalse );
-    }
-
-    //if we have this weapon selected, force a new selection
-    if( weapon == selected )
-      G_ForceWeaponChange( ent, WP_BLASTER );
+    if (G_CanClientSellWeapon(ent, weapon))
+      G_SellClientWeapon(ent, weapon);
   }
   else if( upgrade != UP_NONE )
   {
-    //are we /allowed/ to sell this?
-    if( !BG_Upgrade( upgrade )->purchasable )
-    {
-      trap_SendServerCommand( ent-g_entities, "print \"You can't sell this item\n\"" );
-      return;
-    }
-    //remove upgrade if carried
-    if( BG_InventoryContainsUpgrade( upgrade, ent->client->ps.stats ) )
-    {
-      // shouldn't really need to test for this, but just to be safe
-      if( upgrade == UP_BATTLESUIT )
-      {
-        vec3_t newOrigin;
-
-        if( !G_RoomForClassChange( ent, PCL_HUMAN, newOrigin ) )
-        {
-          G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOROOMBSUITOFF );
-          return;
-        }
-        VectorCopy( newOrigin, ent->client->ps.origin );
-        ent->client->ps.stats[ STAT_CLASS ] = PCL_HUMAN;
-        ent->client->pers.classSelection = PCL_HUMAN;
-        ent->client->ps.eFlags ^= EF_TELEPORT_BIT;
-      }
-
-      //add to inventory
-      BG_RemoveUpgradeFromInventory( upgrade, ent->client->ps.stats );
-
-      if( upgrade == UP_BATTPACK )
-        G_GiveClientMaxAmmo( ent, qtrue );
-
-      //add to funds
-      G_AddCreditToClient( ent->client, (short)BG_Upgrade( upgrade )->price, qfalse );
-    }
+    if (G_CanClientSellUpgrade(ent, upgrade))
+      G_SellClientUpgrade(ent, upgrade);
   }
   else if( !Q_stricmp( s, "upgrades" ) )
   {
     for( i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++ )
     {
-      //remove upgrade if carried
-      if( BG_InventoryContainsUpgrade( i, ent->client->ps.stats ) &&
-          BG_Upgrade( i )->purchasable )
-      {
-
-        // shouldn't really need to test for this, but just to be safe
-        if( i == UP_BATTLESUIT )
-        {
-          vec3_t newOrigin;
-
-          if( !G_RoomForClassChange( ent, PCL_HUMAN, newOrigin ) )
-          {
-            G_TriggerMenu( ent->client->ps.clientNum, MN_H_NOROOMBSUITOFF );
-            continue;
-          }
-          VectorCopy( newOrigin, ent->client->ps.origin );
-          ent->client->ps.stats[ STAT_CLASS ] = PCL_HUMAN;
-          ent->client->pers.classSelection = PCL_HUMAN;
-          ent->client->ps.eFlags ^= EF_TELEPORT_BIT;
-        }
-
-        BG_RemoveUpgradeFromInventory( i, ent->client->ps.stats );
-
-        if( i == UP_BATTPACK )
-          G_GiveClientMaxAmmo( ent, qtrue );
-
-        //add to funds
-        G_AddCreditToClient( ent->client, (short)BG_Upgrade( i )->price, qfalse );
-      }
+      if (G_CanClientSellUpgrade(ent, i))
+        G_SellClientUpgrade(ent, i);
     }
   }
   else
@@ -2615,7 +2711,7 @@ void Cmd_Build_f( gentity_t *ent )
   char          s[ MAX_TOKEN_CHARS ];
   buildable_t   buildable;
   float         dist;
-  vec3_t        origin, normal;
+  vec3_t        origin, normal, angles;
   int           groundEntNum;
   team_t        team;
 
@@ -2659,7 +2755,7 @@ void Cmd_Build_f( gentity_t *ent )
     dist = BG_Class( ent->client->ps.stats[ STAT_CLASS ] )->buildDist;
 
     //these are the errors displayed when the builder first selects something to use
-    switch( G_CanBuild( ent, buildable, dist, origin, normal, &groundEntNum ) )
+    switch( G_CanBuild( ent, buildable, dist, origin, normal, angles, &groundEntNum ) )
     {
       // can place right away, set the blueprint and the valid togglebit
       case IBE_NONE:
@@ -2734,6 +2830,83 @@ void Cmd_Build_f( gentity_t *ent )
   else
     G_TriggerMenu( ent->client->ps.clientNum, MN_B_CANNOT );
 }
+
+
+/*
+=================
+Cmd_RotateBuild
+=================
+*/
+static void Cmd_RotateBuild( gentity_t *ent, int unit, qboolean add )
+{
+  int currentAngle;
+  int finalAngle;
+
+  if ( !ent->client || ent->client->ps.stats[ STAT_BUILDABLE ] & SB_BUILDABLE_MASK == 0 )
+    return;
+
+  if (add == qtrue)
+  {
+    currentAngle =
+    (ent->client->ps.stats[ STAT_BUILDABLE ] & SB_ROTATION_MASK)
+    / SB_ROTATION_UNIT;
+    finalAngle = currentAngle + unit;
+  }
+  else
+  {
+    finalAngle = unit;
+  }
+  finalAngle %= 16;
+  if (finalAngle < 0)
+    finalAngle -= 16;
+
+  ent->client->ps.stats[ STAT_BUILDABLE ] &= ~SB_ROTATION_MASK;  // Earse rotation data
+  ent->client->ps.stats[ STAT_BUILDABLE ] |= SB_ROTATION_UNIT * finalAngle;  // Write rotation data
+}
+
+
+/*
+=================
+Cmd_RotateBuild_f
+=================
+*/
+void Cmd_RotateBuild_f( gentity_t *ent )
+{
+  int   unit;
+  char  arg[16];
+  char  *argcpy;
+
+  trap_Argv( 1, arg, sizeof( arg ) );
+  argcpy = arg;
+  while (*argcpy && isspace(*argcpy))
+    argcpy++;
+  unit = atoi(arg);
+
+  Cmd_RotateBuild( ent, unit, *argcpy == '-' || *argcpy == '+' );
+}
+
+
+/*
+=================
+Cmd_RotateBuildLeft_f
+=================
+*/
+void Cmd_RotateBuildLeft_f( gentity_t *ent )
+{
+  Cmd_RotateBuild( ent, -1, qtrue );
+}
+
+
+/*
+=================
+Cmd_RotateBuildRight_f
+=================
+*/
+void Cmd_RotateBuildRight_f( gentity_t *ent )
+{
+  Cmd_RotateBuild( ent, 1, qtrue );
+}
+
 
 /*
 =================
@@ -3451,6 +3624,9 @@ commands_t cmds[ ] = {
   { "noclip", CMD_CHEAT_TEAM, Cmd_Noclip_f },
   { "notarget", CMD_CHEAT|CMD_TEAM|CMD_ALIVE, Cmd_Notarget_f },
   { "reload", CMD_HUMAN|CMD_ALIVE, Cmd_Reload_f },
+  { "rotatebuild", CMD_TEAM|CMD_ALIVE, Cmd_RotateBuild_f },
+  { "rotatebuildleft", CMD_TEAM|CMD_ALIVE, Cmd_RotateBuildLeft_f },
+  { "rotatebuildright", CMD_TEAM|CMD_ALIVE, Cmd_RotateBuildRight_f },
   { "say", CMD_MESSAGE|CMD_INTERMISSION, Cmd_Say_f },
   { "say_area", CMD_MESSAGE|CMD_TEAM|CMD_ALIVE, Cmd_SayArea_f },
   { "say_team", CMD_MESSAGE|CMD_INTERMISSION, Cmd_Say_f },

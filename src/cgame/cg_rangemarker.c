@@ -145,7 +145,24 @@ void CG_UpdateBuildableRangeMarkerMask( void )
   }
 }
 
-// cg_drawtools.c 
+float CG_RangeMarkerAnimation(centity_t *cent)
+{
+  int msec = cg.time - cent->validTime;
+  float ratio = (float)msec / RM_ANIM_TIME;
+
+  // It would be fine if we could avoid animation when teleported
+  if (msec > RM_ANIM_TIME)
+    return (1.0f);
+  else
+  {
+    if (cent->valid)
+      return 1.0f - (fabs(sin(pow(ratio, 2) * M_PI * 3)/pow(ratio, 2))) / 9.425f;
+    else
+      return (1.0f - ratio);
+  }
+}
+
+// cg_drawtools.c
 //
 /*
 ================
@@ -221,7 +238,8 @@ CG_DrawRangeMarker
 */
 void CG_DrawRangeMarker( rangeMarkerType_t rmType, const vec3_t origin, const float *angles, float range,
                          qboolean drawSurface, qboolean drawIntersection, qboolean drawFrontline,
-                         const vec3_t rgb, float surfaceOpacity, float lineOpacity, float lineThickness )
+                         const vec3_t rgb, float surfaceOpacity, float lineOpacity, float lineThickness,
+                         float animation)
 {
   if( drawSurface )
   {
@@ -230,7 +248,7 @@ void CG_DrawRangeMarker( rangeMarkerType_t rmType, const vec3_t origin, const fl
 
     pcsh = cgs.media.plainColorShader;
     VectorCopy( rgb, rgba );
-    rgba[ 3 ] = surfaceOpacity;
+    rgba[ 3 ] = surfaceOpacity * animation;
 
     switch( rmType )
     {
@@ -297,7 +315,7 @@ void CG_DrawRangeMarker( rangeMarkerType_t rmType, const vec3_t origin, const fl
     bshs = &cg.binaryShaderSettings[ cg.numBinaryShadersUsed ];
 
     for( i = 0; i < 3; ++i )
-      bshs->color[ i ] = 255 * lineOpacity * rgb[ i ];
+      bshs->color[ i ] = 255 * lineOpacity * animation * rgb[ i ];
     bshs->drawIntersection = drawIntersection;
     bshs->drawFrontline = drawFrontline;
 
@@ -348,7 +366,7 @@ qboolean CG_GetBuildableRangeMarkerProperties( buildable_t bType, rangeMarkerTyp
 CG_GhostBuildableRangeMarker
 ================
 */
-void CG_GhostBuildableRangeMarker( buildable_t buildable, const vec3_t origin, const vec3_t normal )
+void CG_GhostBuildableRangeMarker( buildable_t buildable, const vec3_t origin, const vec3_t normal, float animation )
 {
   qboolean drawS, drawI, drawF;
   float so, lo, th;
@@ -370,7 +388,7 @@ void CG_GhostBuildableRangeMarker( buildable_t buildable, const vec3_t origin, c
       vectoangles( normal, angles );
 
     CG_DrawRangeMarker( rmType, localOrigin, ( rmType != RMT_SPHERE ? angles : NULL ),
-                        range, drawS, drawI, drawF, rgb, so, lo, th );
+                        range, drawS, drawI, drawF, rgb, so, lo, th, animation );
   }
 }
 
@@ -392,8 +410,8 @@ void CG_RangeMarker( centity_t *cent )
   if( CG_GetRangeMarkerPreferences( &drawS, &drawI, &drawF, &so, &lo, &th ) &&
       CG_GetBuildableRangeMarkerProperties( cent->currentState.modelindex, &rmType, &range, rgb ) )
   {
+    // Allways draw range marker send by the server directly
     CG_DrawRangeMarker( rmType, cent->lerpOrigin, ( rmType > 0 ? cent->lerpAngles : NULL ),
-                        range, drawS, drawI, drawF, rgb, so, lo, th );
+                        range, drawS, drawI, drawF, rgb, so, lo, th, 1.0f );
   }
 }
-

@@ -1,4 +1,5 @@
 #include "ui/menudef.h"
+#include "ui/menustyle.h"
 {
 
 #define BUTT_BAR_X  25
@@ -14,7 +15,7 @@
     font "fonts/font" 26        // font
     smallFont "fonts/smallfont" 20        // font
     bigFont "fonts/bigfont" 34        // font
-    cursor "ui/assets/3_cursor3"      // cursor
+    cursor "ui/assets/cursor"      // cursor
     gradientBar "ui/assets/gradientbar2.tga"  // gradient bar
     itemFocusSound "sound/misc/menu2.wav"   // sound for item getting focus (via keyboard or mouse )
 
@@ -36,7 +37,7 @@
     fullScreen 0
     outOfBoundsClick      // this closes the window if it gets a click out of the rectangle
     rect 0 0 1280 56
-    focusColor 1 .75 0 1
+    focusColor WINDOW_FOCUSCOLOR
     disableColor .5 .5 .5 1
     backColor 0 0 0 1
     aspectBias ALIGN_LEFT
@@ -49,11 +50,11 @@
     itemDef
     {
       name splashmodel
-      rect 0 -10 640 66
+      rect -340 -10 1280 66      // Readjust model pos
       type ITEM_TYPE_MODEL
       style WINDOW_STYLE_FILLED
       asset_model "models/splash/splash_screen.md3"
-      model_fovx 32.0
+      model_fovx 64.0      // Enlarge view
       model_fovy 3.8
       model_angle 180
       visible MENU_TRUE

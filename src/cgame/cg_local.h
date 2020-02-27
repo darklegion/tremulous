@@ -84,6 +84,8 @@ along with Tremulous; if not, see <https://www.gnu.org/licenses/>
 #define TEAM_OVERLAY_MAXNAME_WIDTH  12
 #define TEAM_OVERLAY_MAXLOCATION_WIDTH  16
 
+#define RM_ANIM_TIME 1000
+
 typedef enum
 {
   FOOTSTEP_NORMAL,
@@ -321,7 +323,7 @@ typedef struct baseParticle_s
   qboolean        overdrawProtection;
   qboolean        realLight;
   qboolean        cullOnStartSolid;
-  
+
   float           scaleWithCharge;
 } baseParticle_t;
 
@@ -367,7 +369,7 @@ typedef struct particleSystem_s
   //for PMT_LAST_NORMAL and PMT_OPPORTUNISTIC_NORMAL
   qboolean              lastNormalIsCurrent;
   vec3_t                lastNormal;
-  
+
   int                   charge;
 } particleSystem_t;
 
@@ -476,7 +478,7 @@ typedef struct baseTrailBeam_s
 
   // the time it takes for a beam to fade out (double attached only)
   int                     fadeOutTime;
-  
+
   char                    shaderName[ MAX_QPATH ];
   qhandle_t               shader;
 
@@ -694,7 +696,8 @@ typedef struct centity_s
   int                   muzzleTSDeathTime;
 
   qboolean              valid;
-  qboolean              oldValid;  
+  qboolean              oldValid;
+  int                   validTime;
   struct centity_s      *nextLocation;
 } centity_t;
 
@@ -742,7 +745,7 @@ typedef struct
   int         score;                      // updated by score servercmds
   int         location;                   // location index for team mode
   int         health;                     // you only get this info about your teammates
-  int         upgrade; 
+  int         upgrade;
   int         curWeaponClass;             // sends current weapon for H, current class for A
 
   // when clientinfo is changed, the loading of models/skins/sounds
@@ -1156,13 +1159,13 @@ typedef struct
   playerState_t savedPmoveStates[ NUM_SAVED_STATES ];
   int           stateHead, stateTail;
   int           ping;
-  
+
   float         chargeMeterAlpha;
   float         chargeMeterValue;
   qhandle_t     lastHealthCross;
   float         healthCrossFade;
   int           nearUsableBuildable;
-  
+
   int           nextWeaponClickTime;
   // binary shaders - by /dev/humancontroller
   int           numBinaryShadersUsed;
@@ -1178,6 +1181,8 @@ typedef struct
   qhandle_t   level2ZapTS;
 
   qhandle_t   balloonShader;
+  qhandle_t   aliensBalloonShader;
+  qhandle_t   humansBalloonShader;
   qhandle_t   connectionShader;
 
   qhandle_t   viewBloodShader;
@@ -1186,6 +1191,8 @@ typedef struct
   qhandle_t   backTileShader;
 
   qhandle_t   creepShader;
+
+  qhandle_t   creepAnimationShader[550];
 
   qhandle_t   scannerShader;
   qhandle_t   scannerBlipShader;
@@ -1384,6 +1391,9 @@ typedef struct
   int           alienNextStageThreshold;
   int           humanNextStageThreshold;
 
+  alienStates_t alienStates;
+  humanStates_t humanStates;
+
   //
   // locally derived information from gamestate
   //
@@ -1550,6 +1560,8 @@ extern  vmCvar_t    cg_rangeMarkerForBlueprint;
 extern  vmCvar_t    cg_rangeMarkerBuildableTypes;
 extern  vmCvar_t    cg_binaryShaderScreenScale;
 
+extern  vmCvar_t    cg_animatedCreep;
+
 extern  vmCvar_t    cg_painBlendUpRate;
 extern  vmCvar_t    cg_painBlendDownRate;
 extern  vmCvar_t    cg_painBlendMax;
@@ -1564,7 +1576,11 @@ extern  vmCvar_t    cg_debugVoices;
 
 extern  vmCvar_t    ui_currentClass;
 extern  vmCvar_t    ui_carriage;
+extern  vmCvar_t    ui_credit;
+extern  vmCvar_t    ui_ammoFull;
 extern  vmCvar_t    ui_stages;
+extern  vmCvar_t    ui_alienStates;
+extern  vmCvar_t    ui_humanStates;
 extern  vmCvar_t    ui_dialog;
 extern  vmCvar_t    ui_voteActive;
 extern  vmCvar_t    ui_alienTeamVoteActive;
@@ -1647,6 +1663,7 @@ void        CG_OffsetShoulderView( void );
 void        CG_DrawPlane( vec3_t origin, vec3_t down, vec3_t right, qhandle_t shader );
 void        CG_AdjustFrom640( float *x, float *y, float *w, float *h );
 void        CG_FillRect( float x, float y, float width, float height, const float *color );
+void        CG_FillRoundedRect( float x, float y, float width, float height, float size, const float *style, const float *color );
 void        CG_DrawPic( float x, float y, float width, float height, qhandle_t hShader );
 void        CG_DrawFadePic( float x, float y, float width, float height, vec4_t fcolor,
                             vec4_t tcolor, float amount, qhandle_t hShader );
@@ -1659,6 +1676,7 @@ float       *CG_FadeColor( int startMsec, int totalMsec );
 void        CG_TileClear( void );
 void        CG_ColorForHealth( vec4_t hcolor );
 void        CG_DrawRect( float x, float y, float width, float height, float size, const float *color );
+void        CG_DrawRoundedRect( float x, float y, float width, float height, float size, const float *style, const float *color );
 void        CG_DrawSides(float x, float y, float w, float h, float size);
 void        CG_DrawTopBottom(float x, float y, float w, float h, float size);
 qboolean    CG_WorldToScreen( vec3_t point, float *x, float *y );
@@ -1669,7 +1687,8 @@ void        CG_DrawSphericalCone( const vec3_t tip, const vec3_t rotation, float
                                   qboolean a240, int customShader, const float *shaderRGBA );
 void        CG_DrawRangeMarker( rangeMarkerType_t rmType, const vec3_t origin, const float *angles, float range,
                                 qboolean drawSurface, qboolean drawIntersection, qboolean drawFrontline,
-                                const vec3_t rgb, float surfaceOpacity, float lineOpacity, float lineThickness );
+                                const vec3_t rgb, float surfaceOpacity, float lineOpacity, float lineThickness,
+                                float animation );
 
 //
 // cg_draw.c
@@ -1778,6 +1797,7 @@ void        CG_RangeMarker( centity_t *cent );
 //
 // cg_weapons.c
 //
+void        CG_AutoSelectWeapon_f( void );
 void        CG_NextWeapon_f( void );
 void        CG_PrevWeapon_f( void );
 void        CG_Weapon_f( void );
@@ -1930,10 +1950,12 @@ qboolean    CG_GetRangeMarkerPreferences( qboolean *drawSurface, qboolean *drawI
 // cg_drawtools.c
 void        CG_DrawRangeMarker( rangeMarkerType_t rmType, const vec3_t origin, const float *angles, float range,
                                 qboolean drawSurface, qboolean drawIntersection, qboolean drawFrontline,
-                                const vec3_t rgb, float surfaceOpacity, float lineOpacity, float lineThickness );
+                                const vec3_t rgb, float surfaceOpacity, float lineOpacity, float lineThickness,
+                                float animation);
 // cg_buildable.c
+float       CG_RangeMarkerAnimation(centity_t *cent);
 qboolean    CG_GetBuildableRangeMarkerProperties( buildable_t bType, rangeMarkerType_t *rmType, float *range, vec3_t rgb );
-void        CG_GhostBuildableRangeMarker( buildable_t buildable, const vec3_t origin, const vec3_t normal );
+void        CG_GhostBuildableRangeMarker( buildable_t buildable, const vec3_t origin, const vec3_t normal, float animation );
 // cg_ents.c
 void        CG_RangeMarker( centity_t *cent );
 

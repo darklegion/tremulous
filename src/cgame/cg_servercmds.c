@@ -147,6 +147,44 @@ static void CG_ParseWarmup( void )
 }
 
 /*
+==================
+CG_ParseAlienStates
+==================
+*/
+static void CG_ParseAlienStates( void )
+{
+  const char *alienStates = CG_ConfigString( CS_ALIEN_STATUS );
+  alienStates_t *state = &cgs.alienStates;
+
+  if( alienStates[0] )
+  {
+    sscanf( alienStates, "%d %d %d %d %d", &state->omBuilding, &state->omHealth,
+        &state->spawns, &state->builders, &state->boosters );
+  }
+  else
+    state->omBuilding = state->omHealth = state->spawns = state->builders = state->boosters = 0;
+}
+
+/*
+==================
+CG_ParseAliensStates
+==================
+*/
+static void CG_ParseHumanStates( void )
+{
+  const char *humanStates = CG_ConfigString( CS_HUMAN_STATUS );
+  humanStates_t *state = &cgs.humanStates;
+
+  if( humanStates[0] )
+  {
+    sscanf( humanStates, "%d %d %d %d %d %d %d", &state->rcBuilding, &state->rcHealth,
+        &state->spawns, &state->builders, &state->armourys, &state->medicals, &state->computers );
+  }
+  else
+    state->rcBuilding = state->rcHealth = state->spawns = state->builders = state->armourys = state->medicals = 0;
+}
+
+/*
 ================
 CG_SetConfigValues
 
@@ -174,6 +212,9 @@ void CG_SetConfigValues( void )
   }
   else
     cgs.humanStage = cgs.humanCredits = cgs.humanNextStageThreshold = 0;
+
+  CG_ParseAlienStates();
+  CG_ParseHumanStates();
 
   cgs.levelStartTime = atoi( CG_ConfigString( CS_LEVEL_START_TIME ) );
   cg.warmupTime = atoi( CG_ConfigString( CS_WARMUP ) );
@@ -319,6 +360,10 @@ static void CG_ConfigStringModified( void )
       cgs.humanStage = cgs.humanCredits = cgs.humanNextStageThreshold = 0;
     }
   }
+  else if( num == CS_ALIEN_STATUS )
+    CG_ParseAlienStates( );
+  else if( num == CS_HUMAN_STATUS )
+    CG_ParseHumanStates( );
   else if( num == CS_LEVEL_START_TIME )
     cgs.levelStartTime = atoi( str );
   else if( num >= CS_VOTE_TIME && num < CS_VOTE_TIME + NUM_TEAMS )
@@ -432,7 +477,7 @@ void CG_Menu( int menu, int arg )
   const char *shortMsg = NULL; // non-modal version of message
   const char *dialog;
   dialogType_t type = 0; // controls which cg_disable var will switch it off
-  
+
   switch( cg.snap->ps.stats[ STAT_TEAM ] )
   {
     case TEAM_ALIENS:
@@ -521,7 +566,7 @@ void CG_Menu( int menu, int arg )
     //===============================
 
     // Since cheating commands have no default binds, they will often be done
-    // via console. In light of this, perhaps opening a menu is 
+    // via console. In light of this, perhaps opening a menu is
     // counterintuitive
     case MN_CMD_CHEAT:
       //longMsg   = "This action is considered cheating. It can only be used "
@@ -570,7 +615,7 @@ void CG_Menu( int menu, int arg )
 
 
     //===============================
-    
+
     case MN_B_NOROOM:
       longMsg   = "There is no room to build here. Move until the structure turns "
                   "translucent green, indicating a valid build location.";
@@ -804,7 +849,7 @@ void CG_Menu( int menu, int arg )
       break;
 
     case MN_A_CANTEVOLVE:
-      shortMsg  = va( "You cannot evolve into a %s", 
+      shortMsg  = va( "You cannot evolve into a %s",
                       BG_ClassConfig( arg )->humanName );
       type      = DT_ARMOURYEVOLVE;
       break;
@@ -818,13 +863,13 @@ void CG_Menu( int menu, int arg )
       shortMsg  = "Unknown class";
       type      = DT_ARMOURYEVOLVE;
       break;
-      
+
     case MN_A_CLASSNOTSPAWN:
-      shortMsg  = va( "You cannot spawn as a %s", 
+      shortMsg  = va( "You cannot spawn as a %s",
                       BG_ClassConfig( arg )->humanName );
       type      = DT_ARMOURYEVOLVE;
       break;
-    
+
     case MN_A_CLASSNOTALLOWED:
       shortMsg  = va( "The %s is not allowed",
                       BG_ClassConfig( arg )->humanName );
@@ -841,7 +886,7 @@ void CG_Menu( int menu, int arg )
     default:
       Com_Printf( "cgame: debug: no such menu %d\n", menu );
   }
-  
+
   if( type == DT_ARMOURYEVOLVE && cg_disableUpgradeDialogs.integer )
     return;
 
@@ -997,7 +1042,7 @@ static void CG_Say( int clientNum, saymode_t mode, const char *text )
 #endif
       if( !ignore[0] )
       {
-        CG_CenterPrint( va( "%sPrivate message from: " S_COLOR_WHITE "%s", 
+        CG_CenterPrint( va( "%sPrivate message from: " S_COLOR_WHITE "%s",
                             color, name ), 200, GIANTCHAR_WIDTH * 4 );
         if( clientNum < 0 || clientNum >= MAX_CLIENTS )
           clientNum = cg.clientNum;
@@ -1024,7 +1069,7 @@ static void CG_Say( int clientNum, saymode_t mode, const char *text )
         trap_S_StartLocalSound( cgs.media.humanTalkSound, CHAN_LOCAL_SOUND );
         break;
       }
-    default: 
+    default:
       trap_S_StartLocalSound( cgs.media.talkSound, CHAN_LOCAL_SOUND );
   }
 }
@@ -1108,7 +1153,7 @@ static void CG_ParseVoice( void )
   track = CG_VoiceTrack( ci->voice, atoi( CG_Argv( 3 ) ), atoi( CG_Argv( 4 ) ) );
 
   // keep track of how long the player will be speaking
-  // assume it takes 3s to say "*unintelligible gibberish*" 
+  // assume it takes 3s to say "*unintelligible gibberish*"
   if( track )
     ci->voiceTime = cg.time + track->duration;
   else
@@ -1121,8 +1166,8 @@ static void CG_ParseVoice( void )
     else
       Q_strncpyz( sayText, "*unintelligible gibberish*", sizeof( sayText ) );
   }
- 
-  if( !cg_noVoiceText.integer ) 
+
+  if( !cg_noVoiceText.integer )
   {
     switch( vChan )
     {
@@ -1158,7 +1203,7 @@ static void CG_ParseVoice( void )
       break;
     default:
         break;
-  } 
+  }
 }
 
 /*

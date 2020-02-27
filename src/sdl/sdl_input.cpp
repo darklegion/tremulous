@@ -211,8 +211,11 @@ static keyNum_t IN_TranslateSDLToQ3Key( SDL_Keysym *keysym, bool down )
 		// These happen to match the ASCII chars
 		key = (keyNum_t)keysym->sym;
 	}
-	else
+	else if (!(keysym->sym >= SDLK_KP_1 && keysym->sym <= SDLK_KP_9
+						&& ((SDL_GetModState() & KMOD_NUM) == (KMOD_NUM))))
 	{
+		// Don't send K_KP_DOWNARROW and others if numpad is activated
+
 		switch( keysym->sym )
 		{
 			case SDLK_PAGEUP:       key = K_PGUP;          break;
@@ -979,7 +982,7 @@ static void IN_JoyMove( void )
 			{
 				Sint16 axis = SDL_JoystickGetAxis(stick, i);
 				float f = ( (float) abs(axis) ) / 32767.0f;
-				
+
 				if( f < in_joystickThreshold->value ) axis = 0;
 
 				if ( axis != stick_state.oldaaxes[i] )

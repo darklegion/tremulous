@@ -1,4 +1,5 @@
 #include "ui/menudef.h"
+#include "ui/menustyle.h"
 
 {
 
@@ -20,6 +21,9 @@
 #define INFO_Y    BORDER
 #define INFO_TOFF 6
 
+#define MODEL_W (32*4+2*BORDER)
+#define MODEL_H (24*4)
+
   menuDef
   {
     name "tremulous_teamselect"
@@ -27,7 +31,7 @@
     fullscreen MENU_FALSE
     outOfBoundsClick
     rect (320-(W/2)) (240-(H/2)) W H
-    focusColor 1 .75 0 1
+    focusColor WINDOW_FOCUSCOLOR
     style WINDOW_STYLE_FILLED
     popup
     onOpen { uiScript LoadTeams; setFocus list }
@@ -37,13 +41,14 @@
       name window
       rect 0 0 W H
       style WINDOW_STYLE_FILLED
-      backcolor 0 0 0 1
+      backcolor WINDOW_BACKCOLOR
       visible MENU_TRUE
       decoration
 
-      border WINDOW_BORDER_FULL
+      border WINDOW_BORDER_ROUNDED
       borderSize 1.0
-      borderColor 0.5 0.5 0.5 1
+      borderColor WINDOW_BORDER
+      borderStyle WINDOW_BORDER_STYLE
     }
 
     itemDef
@@ -57,8 +62,9 @@
       textscale .33
       elementtype LISTBOX_TEXT
       feeder FEEDER_TREMTEAMS
-      border WINDOW_BORDER_FULL
+      border WINDOW_BORDER_ROUNDED
       bordercolor   0.5 0.5 0.5 0.5
+      borderStyle   BORDER_STYLE BORDER_SQUARE BORDER_SQUARE BORDER_STYLE
       forecolor     1   1   1   1
       backcolor     0.2 0.2 0.2 1
       outlinecolor  0.1 0.1 0.1 0.5
@@ -73,6 +79,17 @@
 
     itemDef
     {
+      name infopane_model
+      ownerdraw UI_TEAMINFOPANEMODEL
+      rect (INFO_X+INFO_W-MODEL_W+1) (INFO_Y+INFO_H-MODEL_H+1) MODEL_W MODEL_H
+      style WINDOW_STYLE_EMPTY
+      aspectBias ALIGN_CENTER
+      visible MENU_TRUE
+      decoration
+    }
+
+    itemDef
+    {
       name infopane
       ownerdraw UI_TEAMINFOPANE
       textstyle ITEM_TEXTSTYLE_NORMAL
@@ -83,8 +100,9 @@
       textvalign VALIGN_TOP
       textalignx INFO_TOFF
       textaligny INFO_TOFF
-      border WINDOW_BORDER_FULL
+      border WINDOW_BORDER_ROUNDED
       bordercolor   0.5 0.5 0.5 0.5
+      borderStyle   BORDER_SQUARE BORDER_STYLE BORDER_SQUARE BORDER_SQUARE
       forecolor     1   1   1   1
       backcolor     0.2 0.2 0.2 1
       outlinecolor  0.1 0.1 0.1 0.5

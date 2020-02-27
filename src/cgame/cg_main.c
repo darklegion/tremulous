@@ -204,6 +204,8 @@ vmCvar_t  cg_rangeMarkerForBlueprint;
 vmCvar_t  cg_rangeMarkerBuildableTypes;
 vmCvar_t  cg_binaryShaderScreenScale;
 
+vmCvar_t  cg_animatedCreep;
+
 vmCvar_t  cg_painBlendUpRate;
 vmCvar_t  cg_painBlendDownRate;
 vmCvar_t  cg_painBlendMax;
@@ -218,7 +220,11 @@ vmCvar_t  cg_debugVoices;
 
 vmCvar_t  ui_currentClass;
 vmCvar_t  ui_carriage;
+vmCvar_t  ui_credit;
+vmCvar_t  ui_ammoFull;
 vmCvar_t  ui_stages;
+vmCvar_t  ui_alienStates;
+vmCvar_t  ui_humanStates;
 vmCvar_t  ui_dialog;
 vmCvar_t  ui_voteActive;
 vmCvar_t  ui_alienTeamVoteActive;
@@ -308,7 +314,7 @@ static cvarTable_t cvarTable[ ] =
   { &cg_noVoiceText, "cg_noVoiceText", "0", CVAR_ARCHIVE },
   { &cg_drawSurfNormal, "cg_drawSurfNormal", "0", CVAR_CHEAT },
   { &cg_drawBBOX, "cg_drawBBOX", "0", CVAR_CHEAT },
-  { &cg_wwSmoothTime, "cg_wwSmoothTime", "300", CVAR_ARCHIVE },
+  { &cg_wwSmoothTime, "cg_wwSmoothTime", "225", CVAR_ARCHIVE },
   { NULL, "cg_wwFollow", "1", CVAR_ARCHIVE|CVAR_USERINFO },
   { NULL, "cg_wwToggle", "1", CVAR_ARCHIVE|CVAR_USERINFO },
   { NULL, "cg_disableBlueprintErrors", "0", CVAR_ARCHIVE|CVAR_USERINFO },
@@ -317,7 +323,7 @@ static cvarTable_t cvarTable[ ] =
   { &cg_unlagged, "cg_unlagged", "1", CVAR_ARCHIVE|CVAR_USERINFO },
   { NULL, "cg_flySpeed", "600", CVAR_ARCHIVE|CVAR_USERINFO },
   { &cg_depthSortParticles, "cg_depthSortParticles", "1", CVAR_ARCHIVE },
-  { &cg_bounceParticles, "cg_bounceParticles", "0", CVAR_ARCHIVE },
+  { &cg_bounceParticles, "cg_bounceParticles", "1", CVAR_ARCHIVE },
   { &cg_consoleLatency, "cg_consoleLatency", "3000", CVAR_ARCHIVE },
   { &cg_lightFlare, "cg_lightFlare", "3", CVAR_ARCHIVE },
   { &cg_debugParticles, "cg_debugParticles", "0", CVAR_CHEAT },
@@ -331,8 +337,8 @@ static cvarTable_t cvarTable[ ] =
   { &cg_tutorial, "cg_tutorial", "1", CVAR_ARCHIVE },
 
   { &cg_rangeMarkerDrawSurface, "cg_rangeMarkerDrawSurface", "1", CVAR_ARCHIVE },
-  { &cg_rangeMarkerDrawIntersection, "cg_rangeMarkerDrawIntersection", "1", CVAR_ARCHIVE },
-  { &cg_rangeMarkerDrawFrontline, "cg_rangeMarkerDrawFrontline", "1", CVAR_ARCHIVE },
+  { &cg_rangeMarkerDrawIntersection, "cg_rangeMarkerDrawIntersection", "0", CVAR_ARCHIVE },
+  { &cg_rangeMarkerDrawFrontline, "cg_rangeMarkerDrawFrontline", "0", CVAR_ARCHIVE },
   { &cg_rangeMarkerSurfaceOpacity, "cg_rangeMarkerSurfaceOpacity", "0.08", CVAR_ARCHIVE },
   { &cg_rangeMarkerLineOpacity, "cg_rangeMarkerLineOpacity", "0.4", CVAR_ARCHIVE },
   { &cg_rangeMarkerLineThickness, "cg_rangeMarkerLineThickness", "4.0", CVAR_ARCHIVE },
@@ -340,6 +346,8 @@ static cvarTable_t cvarTable[ ] =
   { &cg_rangeMarkerBuildableTypes, "cg_rangeMarkerBuildableTypes", "support", CVAR_ARCHIVE },
   { NULL, "cg_buildableRangeMarkerMask", "", CVAR_USERINFO },
   { &cg_binaryShaderScreenScale, "cg_binaryShaderScreenScale", "1.0", CVAR_ARCHIVE },
+
+  { &cg_animatedCreep, "cg_animatedCreep", "2", CVAR_ARCHIVE },
 
   { &cg_hudFiles, "cg_hudFiles", "ui/hud.txt", CVAR_ARCHIVE},
   { NULL, "cg_alienConfig", "", CVAR_ARCHIVE },
@@ -351,20 +359,24 @@ static cvarTable_t cvarTable[ ] =
   { &cg_painBlendMax, "cg_painBlendMax", "0.7", 0 },
   { &cg_painBlendScale, "cg_painBlendScale", "7.0", 0 },
   { &cg_painBlendZoom, "cg_painBlendZoom", "0.65", 0 },
-  
+
   { &cg_debugVoices, "cg_debugVoices", "0", 0 },
 
   // communication cvars set by the cgame to be read by ui
   { &ui_currentClass, "ui_currentClass", "0", CVAR_ROM },
   { &ui_carriage, "ui_carriage", "", CVAR_ROM },
+  { &ui_credit, "ui_credit", "0", CVAR_ROM },
+  { &ui_ammoFull, "ui_ammoFull", "1", CVAR_ROM },
   { &ui_stages, "ui_stages", "0 0", CVAR_ROM },
+  { &ui_alienStates, "ui_alienStates", "0 0 0 0 0", CVAR_ROM },
+  { &ui_humanStates, "ui_humanStates", "0 0 0 0 0 0", CVAR_ROM },
   { &ui_dialog, "ui_dialog", "Text not set", CVAR_ROM },
   { &ui_voteActive, "ui_voteActive", "0", CVAR_ROM },
   { &ui_humanTeamVoteActive, "ui_humanTeamVoteActive", "0", CVAR_ROM },
   { &ui_alienTeamVoteActive, "ui_alienTeamVoteActive", "0", CVAR_ROM },
 
   { &cg_debugRandom, "cg_debugRandom", "0", 0 },
-  
+
   { &cg_optimizePrediction, "cg_optimizePrediction", "1", CVAR_ARCHIVE },
   { &cg_projectileNudge, "cg_projectileNudge", "1", CVAR_ARCHIVE },
 
@@ -383,7 +395,7 @@ static cvarTable_t cvarTable[ ] =
   { &pmove_fixed, "pmove_fixed", "0", 0},
   { &pmove_msec, "pmove_msec", "8", 0},
   { &cg_noTaunt, "cg_noTaunt", "0", CVAR_ARCHIVE},
-  
+
   { &cg_voice, "voice", "default", CVAR_USERINFO|CVAR_ARCHIVE},
 
   { &cg_emoticons, "cg_emoticons", "1", CVAR_LATCH|CVAR_ARCHIVE},
@@ -424,6 +436,23 @@ void CG_RegisterCvars( void )
   cgs.localServer = atoi( var );
 }
 
+/*
+===============
+CG_DoNeedAmmo
+===============
+*/
+static qboolean CG_DoNeedAmmo( playerState_t *ps )
+{
+  weapon_t weapon = ps->stats[ STAT_WEAPON ];
+
+  if (weapon == WP_NONE)
+    return (qfalse);
+  if (BG_Weapon( weapon )->infiniteAmmo)
+    return (qfalse);
+  if (BG_WeaponIsFull( weapon, ps->stats, ps->ammo, ps->clips ))
+    return (qfalse);
+  return (qtrue);
+}
 
 /*
 ===============
@@ -436,10 +465,15 @@ static void CG_SetUIVars( void )
 {
   int   i;
   char  carriageCvar[ MAX_TOKEN_CHARS ];
+  int   credit;
+  playerState_t *ps;
+  alienStates_t *alienStates = &cgs.alienStates;
+  humanStates_t *humanStates = &cgs.humanStates;
 
   if( !cg.snap )
     return;
 
+  ps = &cg.snap->ps;
   *carriageCvar = 0;
 
   //determine what the player is carrying
@@ -456,7 +490,18 @@ static void CG_SetUIVars( void )
 
   trap_Cvar_Set( "ui_carriage", carriageCvar );
 
+  credit = ps->persistant[ PERS_CREDIT ];
+  trap_Cvar_Set( "ui_credit", va( "%d", credit > -1 ? credit : 0 ) );
+
+  trap_Cvar_Set( "ui_ammoFull", va( "%d", !CG_DoNeedAmmo(ps)));
+
   trap_Cvar_Set( "ui_stages", va( "%d %d", cgs.alienStage, cgs.humanStage ) );
+
+  trap_Cvar_Set( "ui_alienStates", va( "%d %d %d %d %d", alienStates->omBuilding, alienStates->omHealth,
+      alienStates->spawns, alienStates->builders, alienStates->boosters ) );
+
+  trap_Cvar_Set( "ui_humanStates", va( "%d %d %d %d %d %d %d", humanStates->rcBuilding, humanStates->rcHealth,
+      humanStates->spawns, humanStates->builders, humanStates->armourys, humanStates->medicals, humanStates->computers ) );
 }
 
 /*
@@ -497,7 +542,7 @@ static void CG_SetPVars( void )
     trap_Cvar_Set( "team_stage", va( "%d", cgs.humanStage+1 ) );
     break;
     }
-    
+
     trap_Cvar_Set( "player_credits", va( "%d", cg.snap->ps.persistant[ PERS_CREDIT ] ) );
     trap_Cvar_Set( "player_score", va( "%d", cg.snap->ps.persistant[ PERS_SCORE ] ) );
 
@@ -800,6 +845,7 @@ static void CG_RegisterSounds( void )
 //===================================================================================
 
 
+#define CREEP_FRAMES          550
 /*
 =================
 CG_RegisterGraphics
@@ -810,6 +856,8 @@ This function may execute for a couple of minutes with a slow disk.
 static void CG_RegisterGraphics( void )
 {
   int         i;
+  int         animatedCreep = cg_animatedCreep.integer;
+
   static char *sb_nums[ 11 ] =
   {
     "gfx/2d/numbers/zero_32b",
@@ -852,6 +900,19 @@ static void CG_RegisterGraphics( void )
 
   cgs.media.creepShader               = trap_R_RegisterShader( "creep" );
 
+  if (animatedCreep > 0)
+  {
+    CG_UpdateMediaFraction( 0.67f );
+    for ( i = 0; i < CREEP_FRAMES; i++ )
+    {
+      if (i % animatedCreep == 0 || i == CREEP_FRAMES - 1)
+        cgs.media.creepAnimationShader[ i ] = trap_R_RegisterShader( va( "creep%d", i ) );
+      else
+        cgs.media.creepAnimationShader[ i ] = cgs.media.creepAnimationShader[ (i / animatedCreep) * animatedCreep ];
+    }
+    CG_UpdateMediaFraction( 0.685f );
+  }
+
   cgs.media.scannerBlipShader         = trap_R_RegisterShader( "gfx/2d/blip" );
   cgs.media.scannerLineShader         = trap_R_RegisterShader( "gfx/2d/stalk" );
 
@@ -876,10 +937,12 @@ static void CG_RegisterGraphics( void )
   cgs.media.healthCross3X             = trap_R_RegisterShader( "ui/assets/neutral/cross3.tga" );
   cgs.media.healthCrossMedkit         = trap_R_RegisterShader( "ui/assets/neutral/cross_medkit.tga" );
   cgs.media.healthCrossPoisoned       = trap_R_RegisterShader( "ui/assets/neutral/cross_poison.tga" );
-  
+
   cgs.media.upgradeClassIconShader    = trap_R_RegisterShader( "icons/icona_upgrade.tga" );
-  
+
   cgs.media.balloonShader             = trap_R_RegisterShader( "gfx/sprites/chatballoon" );
+  cgs.media.aliensBalloonShader       = trap_R_RegisterShader( "gfx/sprites/aliens_chatballoon" );
+  cgs.media.humansBalloonShader       = trap_R_RegisterShader( "gfx/sprites/humans_chatballoon" );
 
   cgs.media.disconnectPS              = CG_RegisterParticleSystem( "disconnectPS" );
 
@@ -905,7 +968,7 @@ static void CG_RegisterGraphics( void )
   cgs.media.humanBuildableDestroyedPS = CG_RegisterParticleSystem( "humanBuildableDestroyedPS" );
   cgs.media.alienBuildableDestroyedPS = CG_RegisterParticleSystem( "alienBuildableDestroyedPS" );
 
-  cgs.media.humanBuildableBleedPS     = CG_RegisterParticleSystem( "humanBuildableBleedPS");  
+  cgs.media.humanBuildableBleedPS     = CG_RegisterParticleSystem( "humanBuildableBleedPS");
   cgs.media.alienBuildableBleedPS     = CG_RegisterParticleSystem( "alienBuildableBleedPS" );
 
   cgs.media.alienBleedPS              = CG_RegisterParticleSystem( "alienBleedPS" );
@@ -930,7 +993,7 @@ static void CG_RegisterGraphics( void )
 
   CG_BuildableStatusParse( "ui/assets/human/buildstat.cfg", &cgs.humanBuildStat );
   CG_BuildableStatusParse( "ui/assets/alien/buildstat.cfg", &cgs.alienBuildStat );
- 
+
   // register the inline models
   cgs.numInlineModels = trap_CM_NumInlineModels( );
 
@@ -1757,7 +1820,9 @@ void CG_LoadHudMenu( void )
   cgDC.registerModel        = &trap_R_RegisterModel;
   cgDC.modelBounds          = &trap_R_ModelBounds;
   cgDC.fillRect             = &CG_FillRect;
+  cgDC.fillRoundedRect      = &CG_FillRoundedRect;
   cgDC.drawRect             = &CG_DrawRect;
+  cgDC.drawRoundedRect      = &CG_DrawRoundedRect;
   cgDC.drawSides            = &CG_DrawSides;
   cgDC.drawTopBottom        = &CG_DrawTopBottom;
   cgDC.clearScene           = &trap_R_ClearScene;
@@ -1820,8 +1885,16 @@ void CG_AssetCache( void )
   cgDC.Assets.scrollBarArrowLeft  = trap_R_RegisterShaderNoMip( ASSET_SCROLLBAR_ARROWLEFT );
   cgDC.Assets.scrollBarArrowRight = trap_R_RegisterShaderNoMip( ASSET_SCROLLBAR_ARROWRIGHT );
   cgDC.Assets.scrollBarThumb      = trap_R_RegisterShaderNoMip( ASSET_SCROLL_THUMB );
+  cgDC.Assets.showMoreArrow       = trap_R_RegisterShaderNoMip( ASSET_SHOWMORE_ARROW );
   cgDC.Assets.sliderBar           = trap_R_RegisterShaderNoMip( ASSET_SLIDER_BAR );
   cgDC.Assets.sliderThumb         = trap_R_RegisterShaderNoMip( ASSET_SLIDER_THUMB );
+
+  cgDC.Assets.cornerIn[BORDER_SQUARE]         = trap_R_RegisterShaderNoMip( ASSET_CORNERIN_SQUARE );
+  cgDC.Assets.cornerOut[BORDER_SQUARE]        = trap_R_RegisterShaderNoMip( ASSET_CORNEROUT_SQUARE );
+  cgDC.Assets.cornerIn[BORDER_ROUNDED]        = trap_R_RegisterShaderNoMip( ASSET_CORNERIN_ROUNDED );
+  cgDC.Assets.cornerOut[BORDER_ROUNDED]       = trap_R_RegisterShaderNoMip( ASSET_CORNEROUT_ROUNDED );
+  cgDC.Assets.cornerIn[BORDER_FOLD]           = trap_R_RegisterShaderNoMip( ASSET_CORNERIN_FOLD );
+  cgDC.Assets.cornerOut[BORDER_FOLD]          = trap_R_RegisterShaderNoMip( ASSET_CORNEROUT_FOLD );
 
   if( cg_emoticons.integer )
   {
@@ -1942,7 +2015,7 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
   CG_UpdateMediaFraction( 1.0f );
 
   CG_InitBuildables( );
- 
+
   cgs.voices = BG_VoiceInit( );
   BG_PrintVoices( cgs.voices, cg_debugVoices.integer );
 

@@ -364,7 +364,7 @@ static void CG_WeaponDrop( centity_t *cent )
             			 + wi->weaponMidpoint[1] * ent.axis[1][2]
             			 + wi->weaponMidpoint[2] * ent.axis[2][2];
 	cent->lerpOrigin[2] += 8;	// an extra height boost
-	
+
 #if 0
 	if( item->giType == IT_WEAPON && item->giTag == WP_RAILGUN ) {
 		clientInfo_t *ci = &cgs.clientinfo[cg.snap->ps.clientNum];
@@ -1086,12 +1086,12 @@ static void CG_CalcEntityLerpPositions( centity_t *cent )
   {
     trace_t tr;
     vec3_t lastOrigin;
-	
+
     BG_EvaluateTrajectory( &cent->currentState.pos, cg.time, lastOrigin );
-	
+
     CG_Trace( &tr, lastOrigin, vec3_origin, vec3_origin, cent->lerpOrigin,
       cent->currentState.number, MASK_SHOT );
-	
+
     // don't let the projectile go through the floor
     if( tr.fraction < 1.0f )
       VectorLerp2( tr.fraction, lastOrigin, cent->lerpOrigin, cent->lerpOrigin );
@@ -1279,6 +1279,7 @@ void CG_AddPacketEntities( void )
   int             num;
   centity_t       *cent;
   playerState_t   *ps;
+  entityState_t   *es;
 
   // set cg.frameInterpolation
   if( cg.nextSnap )
@@ -1341,6 +1342,9 @@ void CG_AddPacketEntities( void )
     else if( !cent->valid && cent->oldValid )
       CG_CEntityPVSLeave( cent );
 
+    if( cent->valid != cent->oldValid )
+      cent->validTime = cg.time;
+
     cent->oldValid = cent->valid;
   }
 
@@ -1349,6 +1353,25 @@ void CG_AddPacketEntities( void )
   {
     cent = &cg_entities[ cg.snap->entities[ num ].number ];
     CG_AddCEntity( cent );
+  }
+
+  if ( cg_rangeMarkerForBlueprint.integer )
+  {
+    // Keep range marker for hidding animation
+    for( num = 0; num < MAX_GENTITIES; num++ )
+    {
+      cent = &cg_entities[ num ];
+
+      if( !cent->valid && cent->currentState.eType == ET_BUILDABLE
+          && cg.time - cent->validTime < RM_ANIM_TIME)
+      {
+        es = &cent->currentState;
+        // only light up the powered buildables.
+        if ( es->eFlags & EF_B_POWERED )
+          CG_GhostBuildableRangeMarker( es->modelindex, cent->buildableCache.cachedOrigin, cent->buildableCache.cachedNormal,
+              CG_RangeMarkerAnimation( cent ) );
+      }
+    }
   }
 
   //make an attempt at drawing bounding boxes of selected entity types

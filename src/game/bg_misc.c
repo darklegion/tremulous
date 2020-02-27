@@ -1345,7 +1345,7 @@ int BG_ClassCanEvolveFromTo( class_t fclass,
     for( j = 0; j < 3; j++ )
     {
       int thruClass, evolveCost;
-      
+
       thruClass = bg_classList[ i ].children[ j ];
       if( thruClass == PCL_NONE || !BG_ClassAllowedInStage( thruClass, stage ) ||
           !BG_ClassIsAllowed( thruClass ) )
@@ -2959,7 +2959,7 @@ void BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, qboolean 
   if( s->generic1 <= WPM_NONE || s->generic1 >= WPM_NUM_WEAPONMODES )
     s->generic1 = WPM_PRIMARY;
 
-  s->otherEntityNum = ps->otherEntityNum;  
+  s->otherEntityNum = ps->otherEntityNum;
 }
 
 
@@ -3085,7 +3085,7 @@ qboolean BG_WeaponIsFull( weapon_t weapon, int stats[ ], int ammo, int clips )
   maxAmmo = BG_Weapon( weapon )->maxAmmo;
   maxClips = BG_Weapon( weapon )->maxClips;
 
-  if( BG_InventoryContainsUpgrade( UP_BATTPACK, stats ) )
+  if( BG_InventoryContainsUpgrade( UP_BATTPACK, stats ) && BG_Weapon( weapon )->usesEnergy)
     maxAmmo = (int)( (float)maxAmmo * BATTPACK_MODIFIER );
 
   return ( maxAmmo == ammo ) && ( maxClips == clips );
@@ -3106,6 +3106,33 @@ qboolean BG_InventoryContainsWeapon( int weapon, int stats[ ] )
 
   return ( stats[ STAT_WEAPON ] == weapon );
 }
+
+/*
+========================
+BG_GetConflictingWithInventory
+
+Calculate conflicting's item name slots with sended slots
+========================
+*/
+void  BG_GetConflictingWithInventory( int refSlots, int stats[ ], int conflictingWP[WP_NUM_WEAPONS - 1],
+                                      int conflictingUP[UP_NUM_UPGRADES - 1] )
+{
+  int i, j = 0;
+
+  if ( BG_Weapon( stats[ STAT_WEAPON ] )->slots & refSlots )
+    conflictingWP[j++] = stats[ STAT_WEAPON ];
+  if( stats[ STAT_TEAM ] == TEAM_HUMANS && (BG_Weapon( WP_BLASTER )->slots & refSlots) )
+    conflictingWP[j++] = WP_BLASTER;
+  conflictingWP[j] = 0;
+  j = 0;
+  for( i = UP_NONE; i < UP_NUM_UPGRADES; i++ )
+  {
+    if( BG_InventoryContainsUpgrade( i, stats ) && ( BG_Upgrade( i )->slots & refSlots ) )
+      conflictingUP[j++] = i;
+  }
+  conflictingUP[j] = 0;
+}
+
 
 /*
 ========================
@@ -3300,6 +3327,25 @@ void BG_GetClientViewOrigin( const playerState_t *ps, vec3_t viewOrigin )
 
 /*
 ===============
+BG_GetBuildableRotation
+
+Read the custom rotation added by the player
+===============
+*/
+static int BG_GetBuildableRotation( const playerState_t *ps )
+{
+    int angle = 0;
+
+    // Get the angle in hexadecimal with value from 0 to 15
+    angle = (ps->stats[ STAT_BUILDABLE ] & SB_ROTATION_MASK) / SB_ROTATION_UNIT;
+    // Convert to degree
+    angle = (int)((float)angle * 360.0f/16.0f);
+
+    return (angle);
+}
+
+/*
+===============
 BG_PositionBuildableRelativeToPlayer
 
 Find a place to build a buildable
@@ -3311,7 +3357,7 @@ void BG_PositionBuildableRelativeToPlayer( const playerState_t *ps,
                                                           const vec3_t, const vec3_t, int, int ),
                                            vec3_t outOrigin, vec3_t outAngles, trace_t *tr )
 {
-  vec3_t  forward, entityOrigin, targetOrigin;
+  vec3_t  forward, rotated, entityOrigin, targetOrigin;
   vec3_t  angles, playerOrigin, playerNormal;
   float   buildDist;
 
@@ -3325,6 +3371,7 @@ void BG_PositionBuildableRelativeToPlayer( const playerState_t *ps,
   ProjectPointOnPlane( forward, forward, playerNormal );
   VectorNormalize( forward );
 
+  // Move the build to `buildDist` distance forwaring the player
   VectorMA( playerOrigin, buildDist, forward, entityOrigin );
 
   VectorCopy( entityOrigin, targetOrigin );
@@ -3338,7 +3385,10 @@ void BG_PositionBuildableRelativeToPlayer( const playerState_t *ps,
   // The mask is MASK_DEADSOLID on purpose to avoid collisions with other entities
   (*trace)( tr, entityOrigin, mins, maxs, targetOrigin, ps->clientNum, MASK_DEADSOLID );
   VectorCopy( tr->endpos, outOrigin );
-  vectoangles( forward, outAngles );
+
+  // Create a rotated vector from the forwarding. The norrnal was calculated from `trace`
+  RotatePointAroundVector(rotated, tr->plane.normal, forward, BG_GetBuildableRotation(ps));
+  vectoangles( rotated, outAngles );
 }
 
 /*
@@ -3401,7 +3451,7 @@ int BG_PlayerPoisonCloudTime( playerState_t *ps )
     time -= HELMET_PCLOUD_PROTECTION;
   if( BG_InventoryContainsUpgrade( UP_LIGHTARMOUR, ps->stats ) )
     time -= LIGHTARMOUR_PCLOUD_PROTECTION;
-    
+
   return time;
 }
 

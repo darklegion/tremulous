@@ -37,7 +37,7 @@ along with Tremulous; if not, see <https://www.gnu.org/licenses/>
 #define MAX_MENUDEFFILE 4096
 #define MAX_MENUFILE 32768
 #define MAX_MENUS 256
-#define MAX_MENUITEMS 128
+#define MAX_MENUITEMS 256
 #define MAX_COLOR_RANGES 10
 #define MAX_OPEN_MENUS 16
 
@@ -97,8 +97,15 @@ along with Tremulous; if not, see <https://www.gnu.org/licenses/>
 #define ASSET_SCROLLBAR_ARROWLEFT "ui/assets/scrollbar_arrow_left.tga"
 #define ASSET_SCROLLBAR_ARROWRIGHT "ui/assets/scrollbar_arrow_right.tga"
 #define ASSET_SCROLL_THUMB "ui/assets/scrollbar_thumb.tga"
-#define ASSET_SLIDER_BAR "ui/assets/slider2.tga"
-#define ASSET_SLIDER_THUMB "ui/assets/sliderbutt_1.tga"
+#define ASSET_SHOWMORE_ARROW "ui/assets/showmore_arrow.tga"
+#define ASSET_SLIDER_BAR "ui/assets/slider.png"
+#define ASSET_SLIDER_THUMB "ui/assets/sliderbutt.png"
+#define ASSET_CORNERIN_SQUARE "ui/assets/cornerIn_square"
+#define ASSET_CORNEROUT_SQUARE "ui/assets/cornerOut_square"
+#define ASSET_CORNERIN_ROUNDED "ui/assets/cornerIn_rounded"
+#define ASSET_CORNEROUT_ROUNDED "ui/assets/cornerOut_rounded"
+#define ASSET_CORNERIN_FOLD "ui/assets/cornerIn_fold"
+#define ASSET_CORNEROUT_FOLD "ui/assets/cornerOut_fold"
 
 #define SCROLLBAR_ARROW_SIZE 16.0f
 #define SCROLLBAR_ARROW_WIDTH (SCROLLBAR_ARROW_SIZE * DC->aspectScale)
@@ -114,7 +121,7 @@ along with Tremulous; if not, see <https://www.gnu.org/licenses/>
 
 #define SLIDER_WIDTH (96.0f * DC->aspectScale)
 #define SLIDER_HEIGHT 16.0f
-#define SLIDER_THUMB_WIDTH (12.0f * DC->aspectScale)
+#define SLIDER_THUMB_WIDTH (10.0f * DC->aspectScale)
 #define SLIDER_THUMB_HEIGHT 20.0f
 #define NUM_CROSSHAIRS 10
 
@@ -155,6 +162,7 @@ typedef struct {
     vec4_t foreColor;  // text color
     vec4_t backColor;  // border color
     vec4_t borderColor;  // border color
+    vec4_t borderStyle;  // border style, for rounded border style (Top left, top right, bottom right, bottom left)
     vec4_t outlineColor;  // border color
     qhandle_t background;  // background asset
 } Window;
@@ -322,11 +330,14 @@ typedef struct {
     qhandle_t scrollBarArrowRight;
     qhandle_t scrollBar;
     qhandle_t scrollBarThumb;
+    qhandle_t showMoreArrow;
     qhandle_t buttonMiddle;
     qhandle_t buttonInside;
     qhandle_t solidBox;
     qhandle_t sliderBar;
     qhandle_t sliderThumb;
+    qhandle_t cornerOut[16];
+    qhandle_t cornerIn[16];
     sfxHandle_t menuEnterSound;
     sfxHandle_t menuExitSound;
     sfxHandle_t menuBuzzSound;
@@ -355,9 +366,13 @@ typedef struct {
     void (*drawStretchPic)(
         float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader);
     qhandle_t (*registerModel)(const char *p);
+    qhandle_t (*registerSkin)(const char *p);
     void (*modelBounds)(qhandle_t model, vec3_t min, vec3_t max);
+    int (*lerpTag)(orientation_t *tag, clipHandle_t mod, int startFrame, int endFrame, float frac, const char *tagName);
     void (*fillRect)(float x, float y, float w, float h, const vec4_t color);
     void (*drawRect)(float x, float y, float w, float h, float size, const vec4_t color);
+    void (*drawRoundedRect) (float x, float y, float w, float h, float size, const vec4_t style, const vec4_t color);
+    void (*fillRoundedRect) (float x, float y, float w, float h, float size, const vec4_t style, const vec4_t color);
     void (*drawSides)(float x, float y, float w, float h, float size);
     void (*drawTopBottom)(float x, float y, float w, float h, float size);
     void (*clearScene)(void);
@@ -373,6 +388,7 @@ typedef struct {
     void (*getCVarString)(const char *cvar, char *buffer, int bufsize);
     float (*getCVarValue)(const char *cvar);
     void (*setCVar)(const char *cvar, const char *value);
+    void (*resetCVar)(const char *cvar);
     void (*drawTextWithCursor)(float x, float y, float scale, vec4_t color, const char *text, int cursorPos,
         char cursor, int limit, int style);
     void (*setOverstrikeMode)(qboolean b);

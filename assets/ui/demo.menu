@@ -1,4 +1,5 @@
 #include "ui/menudef.h"
+#include "ui/menustyle.h"
 
 {
   \\ DEMO \\
@@ -15,7 +16,7 @@
     visible MENU_FALSE
     fullscreen MENU_FALSE
     rect (320-(W/2)) (240-(H/2)) W H
-    focusColor 1 .75 0 1
+    focusColor WINDOW_FOCUSCOLOR
     style WINDOW_STYLE_FILLED
     border WINDOW_BORDER_FULL
     popup
@@ -33,13 +34,14 @@
       name window
       rect 0 0 W H
       style WINDOW_STYLE_FILLED
-      backcolor 0 0 0 1
+      backcolor WINDOW_BACKCOLOR
       visible MENU_TRUE
       decoration
 
-      border WINDOW_BORDER_FULL
+      border WINDOW_BORDER_ROUNDED
       borderSize 1.0
-      borderColor 0.5 0.5 0.5 1
+      borderColor WINDOW_BORDER
+      borderStyle WINDOW_BORDER_STYLE
     }
 
     itemDef
@@ -55,8 +57,9 @@
       feeder FEEDER_DEMOS
       textalign 3
       textaligny 14
-      border WINDOW_BORDER_FULL
+      border WINDOW_BORDER_ROUNDED
       bordercolor   0.5 0.5 0.5 0.5
+      borderStyle BORDER_STYLE BORDER_STYLE BORDER_SQUARE BORDER_SQUARE
       forecolor     1   1   1   1
       backcolor     0.2 0.2 0.2 1
       outlinecolor  0.1 0.1 0.1 0.5

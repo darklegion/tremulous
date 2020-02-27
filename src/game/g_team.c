@@ -135,6 +135,8 @@ void G_UpdateTeamConfigStrings( void )
 
   trap_SetConfigstringRestrictions( CS_ALIEN_STAGES, &humanTeam );
   trap_SetConfigstringRestrictions( CS_HUMAN_STAGES, &alienTeam );
+  trap_SetConfigstringRestrictions( CS_ALIEN_STATUS, &humanTeam );
+  trap_SetConfigstringRestrictions( CS_HUMAN_STATUS, &alienTeam );
 }
 
 /*
@@ -293,7 +295,7 @@ void TeamplayInfoMessage( gentity_t *ent )
 {
   char      entry[ 17 ],
             string[ ( MAX_CLIENTS - 1 ) * ( sizeof( entry ) - 1 ) + 1 ];
-  int       i, j; 
+  int       i, j;
   int       team, stringlength;
   gentity_t *player;
   gclient_t *cl;
@@ -445,14 +447,14 @@ void CheckTeamStatus( void )
       level.numTeamImbalanceWarnings < 3 && !level.restarted )
   {
     level.lastTeamImbalancedTime = level.time;
-    if( level.numAlienSpawns > 0 && 
+    if( level.numAlienSpawns > 0 &&
         level.numHumanClients - level.numAlienClients > 2 )
     {
       trap_SendServerCommand( -1, "print \"Teams are imbalanced. "
                                   "Humans have more players.\n\"");
       level.numTeamImbalanceWarnings++;
     }
-    else if( level.numHumanSpawns > 0 && 
+    else if( level.numHumanSpawns > 0 &&
              level.numAlienClients - level.numHumanClients > 2 )
     {
       trap_SendServerCommand ( -1, "print \"Teams are imbalanced. "

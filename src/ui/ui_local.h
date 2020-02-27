@@ -178,6 +178,26 @@ typedef struct {
 } menuItem_t;
 
 typedef struct {
+    char *parentTagName;
+    int parentIndex;
+} menuItemModelParent_t;
+
+typedef struct {
+    qhandle_t asset[4];
+    int assetCount;
+    qhandle_t skin[4];
+    int frame[4];
+    int animation[4][2];
+    float animationFPS[4];
+    menuItemModelParent_t parent[3];
+    float scale;
+    float zOffset;
+    float cameraDist;
+    qboolean autoAdjust;
+    qboolean forceCentering;
+} menuItemModel_t;
+
+typedef struct {
     int w;
     int h;
 } resolution_t;
@@ -218,18 +238,22 @@ typedef struct {
     int previewMovie;
 
     menuItem_t teamList[4];
+    menuItemModel_t teamListModel[4];
     int teamCount;
     int teamIndex;
 
     menuItem_t alienClassList[3];
+    menuItemModel_t alienClassListModel[3];
     int alienClassCount;
     int alienClassIndex;
 
     menuItem_t humanItemList[3];
+    menuItemModel_t humanItemListModel[3];
     int humanItemCount;
     int humanItemIndex;
 
     menuItem_t humanArmouryBuyList[32];
+    menuItemModel_t humanArmouryBuyListModel[WP_NUM_WEAPONS + UP_NUM_UPGRADES];
     int humanArmouryBuyCount;
     int humanArmouryBuyIndex;
 
@@ -238,14 +262,17 @@ typedef struct {
     int humanArmourySellIndex;
 
     menuItem_t alienUpgradeList[16];
+    menuItemModel_t alienUpgradeListModel[PCL_NUM_CLASSES];
     int alienUpgradeCount;
     int alienUpgradeIndex;
 
     menuItem_t alienBuildList[32];
+    menuItemModel_t alienBuildListModel[32];
     int alienBuildCount;
     int alienBuildIndex;
 
     menuItem_t humanBuildList[32];
+    menuItemModel_t humanBuildListModel[32];
     int humanBuildCount;
     int humanBuildIndex;
 
@@ -300,8 +327,11 @@ char *UI_Cvar_VariableString(const char *var_name);
 void UI_SetColor(const float *rgba);
 void UI_AdjustFrom640(float *x, float *y, float *w, float *h);
 void UI_Refresh(int time);
+void UI_DrawCorners( float x, float y, float w, float h, float size, const float *style, qhandle_t *pic );
 void UI_DrawHandlePic(float x, float y, float w, float h, qhandle_t hShader);
+void UI_DrawTopBottom(float x, float y, float w, float h, float size);
 void UI_FillRect(float x, float y, float width, float height, const float *color);
+void UI_FillRoundedRect( float x, float y, float width, float height, float size, const float *style, const float *color );
 
 //
 // ui_syscalls.c

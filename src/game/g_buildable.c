@@ -247,7 +247,7 @@ qboolean G_FindPower( gentity_t *self, qboolean searchUnspawned )
 
             // TODO: handle combined power zones here
           }
-        }      
+        }
         else
         {
           // Dummy buildables don't need to look for zones
@@ -483,7 +483,7 @@ int G_FindDCC( gentity_t *self )
       distance = VectorLength( temp_v );
       if( distance < DC_RANGE && ent->powered )
       {
-        foundDCC++; 
+        foundDCC++;
       }
     }
   }
@@ -535,7 +535,7 @@ The code here will break if more than one reactor or overmind is allowed, even
 if one of them is dead/unspawned
 ================
 */
-static gentity_t *G_FindBuildable( buildable_t buildable ); 
+static gentity_t *G_FindBuildable( buildable_t buildable );
 
 gentity_t *G_Reactor( void )
 {
@@ -596,7 +596,7 @@ qboolean G_FindCreep( gentity_t *self )
       if( ent->s.eType != ET_BUILDABLE )
         continue;
 
-      if( ( ent->s.modelindex == BA_A_SPAWN || 
+      if( ( ent->s.modelindex == BA_A_SPAWN ||
             ent->s.modelindex == BA_A_OVERMIND ) &&
           ent->spawned && ent->health > 0 )
       {
@@ -843,7 +843,7 @@ void AGeneric_Pain( gentity_t *self, gentity_t *attacker, int damage )
 {
   if( self->health <= 0 )
     return;
-    
+
   // Alien buildables only have the first pain animation defined
   G_SetBuildableAnim( self, BANIM_PAIN1, qfalse );
 }
@@ -872,8 +872,8 @@ void ASpawn_Think( gentity_t *self )
       if( ( ent = G_CheckSpawnPoint( self->s.number, self->r.currentOrigin,
               self->s.origin2, BA_A_SPAWN, NULL ) ) != NULL )
       {
-        // If the thing blocking the spawn is a buildable, kill it. 
-        // If it's part of the map, kill self. 
+        // If the thing blocking the spawn is a buildable, kill it.
+        // If it's part of the map, kill self.
         if( ent->s.eType == ET_BUILDABLE )
         {
           // don't queue the bp from this
@@ -1200,9 +1200,9 @@ void AAcidTube_Think( gentity_t *self )
           G_SetBuildableAnim( self, BANIM_ATTACK1, qfalse );
           G_AddEvent( self, EV_ALIEN_ACIDTUBE, DirToByte( self->s.origin2 ) );
         }
-        
+
         G_SelectiveRadiusDamage( self->s.pos.trBase, self, ACIDTUBE_DAMAGE,
-                                 ACIDTUBE_RANGE, self, MOD_ATUBE, TEAM_ALIENS );                           
+                                 ACIDTUBE_RANGE, self, MOD_ATUBE, TEAM_ALIENS );
         self->nextthink = level.time + ACIDTUBE_REPEAT;
         return;
       }
@@ -1692,8 +1692,8 @@ void HSpawn_Think( gentity_t *self )
       if( ( ent = G_CheckSpawnPoint( self->s.number, self->r.currentOrigin,
               self->s.origin2, BA_H_SPAWN, NULL ) ) != NULL )
       {
-        // If the thing blocking the spawn is a buildable, kill it. 
-        // If it's part of the map, kill self. 
+        // If the thing blocking the spawn is a buildable, kill it.
+        // If it's part of the map, kill self.
         if( ent->s.eType == ET_BUILDABLE )
         {
           G_Damage( ent, NULL, NULL, NULL, NULL, self->health, 0, MOD_SUICIDE );
@@ -2056,7 +2056,7 @@ void HMedistat_Think( gentity_t *self )
     //if active use the healing idle
     if( self->active )
       G_SetIdleBuildableAnim( self, BANIM_IDLE2 );
-      
+
     //check if a previous occupier is still here
     num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
     for( i = 0; i < num; i++ )
@@ -2065,7 +2065,7 @@ void HMedistat_Think( gentity_t *self )
 
       if( player->flags & FL_NOTARGET )
         continue; // notarget cancels even beneficial effects?
-      
+
       //remove poison from everyone, not just the healed player
       if( player->client && player->client->ps.stats[ STAT_STATE ] & SS_POISONED )
         player->client->ps.stats[ STAT_STATE ] &= ~SS_POISONED;
@@ -2173,7 +2173,7 @@ qboolean HMGTurret_CheckTarget( gentity_t *self, gentity_t *target,
 
   if( target->flags & FL_NOTARGET )
     return qfalse;
-    
+
   if( !los_check )
     return qtrue;
 
@@ -2266,7 +2266,7 @@ void HMGTurret_FindEnemy( gentity_t *self )
   int       start;
 
   self->enemy = NULL;
-    
+
   // Look for targets in a box around the turret
   VectorSet( range, MGTURRET_RANGE, MGTURRET_RANGE, MGTURRET_RANGE );
   VectorAdd( self->r.currentOrigin, range, maxs );
@@ -2323,7 +2323,7 @@ static qboolean HMGTurret_State( gentity_t *self, int state )
       else
         self->speed *= 1.25f;
 
-      self->s.angles2[ PITCH ] = 
+      self->s.angles2[ PITCH ] =
         MIN( MGTURRET_VERTICALCAP, angle + self->speed );
       return qtrue;
     }
@@ -2354,7 +2354,7 @@ Think function for MG turret
 */
 void HMGTurret_Think( gentity_t *self )
 {
-  self->nextthink = level.time + 
+  self->nextthink = level.time +
                     BG_Buildable( self->s.modelindex )->nextthink;
 
   // Turn off client side muzzle flashes
@@ -2378,7 +2378,7 @@ void HMGTurret_Think( gentity_t *self )
   }
   if( !self->spawned )
     return;
-    
+
   // If the current target is not valid find a new enemy
   if( !HMGTurret_CheckTarget( self, self->enemy, qtrue ) )
   {
@@ -2411,7 +2411,7 @@ void HMGTurret_Think( gentity_t *self )
   // Not firing or haven't spun up yet
   if( !self->active || self->turretSpinupTime > level.time )
     return;
-    
+
   // Fire repeat delay
   if( self->timestamp > level.time )
     return;
@@ -2552,7 +2552,7 @@ void G_QueueBuildPoints( gentity_t *self )
 
   if( !queuePoints )
     return;
-      
+
   switch( self->buildableTeam )
   {
     default:
@@ -3266,7 +3266,7 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
   //  than we have now due to mismatches between priority and BP amounts
   //  by repeatedly testing if we can chop off the first thing that isn't
   //  required by rules of collision/uniqueness, which are always at the head
-  while( changed && level.numBuildablesForRemoval > 1 && 
+  while( changed && level.numBuildablesForRemoval > 1 &&
          level.numBuildablesForRemoval > numRequired )
   {
     int pointsUnYielded = 0;
@@ -3280,7 +3280,7 @@ static itemBuildError_t G_SufficientBPAvailable( buildable_t     buildable,
       pointsYielded -= pointsUnYielded;
       memmove( &level.markedBuildables[ numRequired ],
                &level.markedBuildables[ numRequired + 1 ],
-               ( level.numBuildablesForRemoval - numRequired ) 
+               ( level.numBuildablesForRemoval - numRequired )
                  * sizeof( gentity_t * ) );
       level.numBuildablesForRemoval--;
       changed = qtrue;
@@ -3351,9 +3351,8 @@ Checks to see if a buildable can be built
 ================
 */
 itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance,
-                             vec3_t origin, vec3_t normal, int *groundEntNum )
+                             vec3_t origin, vec3_t normal, vec3_t angles, int *groundEntNum )
 {
-  vec3_t            angles;
   vec3_t            entity_origin;
   vec3_t            mins, maxs;
   trace_t           tr1, tr2, tr3;
@@ -3435,7 +3434,7 @@ itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance
       tempent = G_Reactor( );
 
       if( tempent == NULL ) // No reactor
-        reason = IBE_RPTNOREAC;   
+        reason = IBE_RPTNOREAC;
       else if( g_markDeconstruct.integer && G_IsPowered( entity_origin ) == BA_H_REACTOR )
         reason = IBE_RPTPOWERHERE;
       else if( !g_markDeconstruct.integer && G_IsPowered( entity_origin ) )
@@ -3797,15 +3796,15 @@ G_BuildIfValid
 qboolean G_BuildIfValid( gentity_t *ent, buildable_t buildable )
 {
   float         dist;
-  vec3_t        origin, normal;
+  vec3_t        origin, normal, angles;
   int           groundEntNum;
 
   dist = BG_Class( ent->client->ps.stats[ STAT_CLASS ] )->buildDist;
 
-  switch( G_CanBuild( ent, buildable, dist, origin, normal, &groundEntNum ) )
+  switch( G_CanBuild( ent, buildable, dist, origin, normal, angles, &groundEntNum ) )
   {
     case IBE_NONE:
-      G_Build( ent, buildable, origin, normal, ent->s.apos.trBase, groundEntNum );
+      G_Build( ent, buildable, origin, normal, angles, groundEntNum );
       return qtrue;
 
     case IBE_NOALIENBP:
@@ -4567,7 +4566,7 @@ void G_BuildLogRevert( int id )
       builder->nextthink = level.time + FRAMETIME;
 
       // Number of thinks before giving up and killing players in the way
-      builder->suicideTime = 30; 
+      builder->suicideTime = 30;
 
       if( log->fate == BF_DESTROY || log->fate == BF_TEAMKILL )
       {

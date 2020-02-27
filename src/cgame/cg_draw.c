@@ -240,6 +240,58 @@ void CG_DrawField( float x, float y, int width, float cw, float ch, int value )
   }
 }
 
+static void CG_DrawNewProgressBar( rectDef_t *rect, vec4_t color,
+                                vec4_t backColor, float scale, int align,
+                                int textalign, int textStyle, float borderSize,
+                                float progress )
+{
+  float   rimWidth;
+  float   doneWidth, leftWidth;
+  float   tx, ty;
+  char    textBuffer[ 8 ];
+  float   borderStyle[ 4 ];
+
+  borderStyle[0] = BORDER_FOLD;
+  borderStyle[1] = BORDER_FOLD;
+  borderStyle[2] = BORDER_FOLD;
+  borderStyle[3] = BORDER_FOLD;
+
+  if( borderSize >= 0.0f )
+    rimWidth = borderSize;
+  else
+  {
+    rimWidth = rect->h / 20.0f;
+    if( rimWidth < 0.6f )
+      rimWidth = 0.6f;
+  }
+
+  if( progress < 0.0f )
+    progress = 0.0f;
+  else if( progress > 1.0f )
+    progress = 1.0f;
+
+  doneWidth = ( rect->w - (8 + 6) * rimWidth ) * progress + 6 * rimWidth;
+
+  //draw rim and bar
+  CG_DrawRoundedRect(rect->x, rect->y, rect->w, rect->h, rimWidth, borderStyle, color);
+  CG_FillRoundedRect(
+    rect->x + rimWidth * 4,
+    rect->y + rimWidth * 4,
+    doneWidth,
+    rect->h - rimWidth * 8,
+    rimWidth, borderStyle, backColor);
+
+
+  //draw text
+  if( scale > 0.0 )
+  {
+    Com_sprintf( textBuffer, sizeof( textBuffer ), "%d%%", (int)( progress * 100 ) );
+    CG_AlignText( rect, textBuffer, scale, 0.0f, 0.0f, textalign, VALIGN_CENTER, &tx, &ty );
+
+    UI_Text_Paint( tx, ty, scale, color, textBuffer, 0, 0, textStyle );
+  }
+}
+
 static void CG_DrawProgressBar( rectDef_t *rect, vec4_t color, float scale,
                                 int align, int textalign, int textStyle,
                                 float borderSize, float progress )
@@ -686,8 +738,8 @@ static void CG_DrawPlayerAmmoValue( rectDef_t *rect, vec4_t color )
       scale = 0.50;
     else if( len <= 6 )
       scale = 0.43;
-    else if( len == 7 ) 
-      scale = 0.36; 
+    else if( len == 7 )
+      scale = 0.36;
     else if( len == 8 )
       scale = 0.33;
     else
@@ -1087,11 +1139,11 @@ static void CG_DrawProgressLabel( rectDef_t *rect, float text_x, float text_y, v
       s, 0, 0, ITEM_TEXTSTYLE_NEON );
 }
 
-static void CG_DrawMediaProgress( rectDef_t *rect, vec4_t color, float scale,
+static void CG_DrawMediaProgress( rectDef_t *rect, vec4_t color, vec4_t backColor, float scale,
                                   int align, int textalign, int textStyle,
                                   float borderSize )
 {
-  CG_DrawProgressBar( rect, color, scale, align, textalign, textStyle,
+  CG_DrawNewProgressBar( rect, color, backColor, scale, align, textalign, textStyle,
                       borderSize, cg.mediaFraction );
 }
 
@@ -1102,11 +1154,11 @@ static void CG_DrawMediaProgressLabel( rectDef_t *rect, float text_x, float text
                         "Map and Textures", cg.mediaFraction );
 }
 
-static void CG_DrawBuildablesProgress( rectDef_t *rect, vec4_t color,
+static void CG_DrawBuildablesProgress( rectDef_t *rect, vec4_t color, vec4_t backColor,
                                        float scale, int align, int textalign,
                                        int textStyle, float borderSize )
 {
-  CG_DrawProgressBar( rect, color, scale, align, textalign, textStyle,
+  CG_DrawNewProgressBar( rect, color, backColor, scale, align, textalign, textStyle,
                       borderSize, cg.buildablesFraction );
 }
 
@@ -1117,11 +1169,11 @@ static void CG_DrawBuildablesProgressLabel( rectDef_t *rect, float text_x, float
                         "Buildable Models", cg.buildablesFraction );
 }
 
-static void CG_DrawCharModelProgress( rectDef_t *rect, vec4_t color,
+static void CG_DrawCharModelProgress( rectDef_t *rect, vec4_t color, vec4_t backColor,
                                       float scale, int align, int textalign,
                                       int textStyle, float borderSize )
 {
-  CG_DrawProgressBar( rect, color, scale, align, textalign, textStyle,
+  CG_DrawNewProgressBar( rect, color, backColor, scale, align, textalign, textStyle,
                       borderSize, cg.charModelFraction );
 }
 
@@ -1132,7 +1184,7 @@ static void CG_DrawCharModelProgressLabel( rectDef_t *rect, float text_x, float 
                         "Character Models", cg.charModelFraction );
 }
 
-static void CG_DrawOverallProgress( rectDef_t *rect, vec4_t color, float scale,
+static void CG_DrawOverallProgress( rectDef_t *rect, vec4_t color, vec4_t backColor, float scale,
                                     int align, int textalign, int textStyle,
                                     float borderSize )
 {
@@ -1141,7 +1193,7 @@ static void CG_DrawOverallProgress( rectDef_t *rect, vec4_t color, float scale,
   total = cg.charModelFraction + cg.buildablesFraction + cg.mediaFraction;
   total /= 3.0f;
 
-  CG_DrawProgressBar( rect, color, scale, align, textalign, textStyle,
+  CG_DrawNewProgressBar( rect, color, backColor, scale, align, textalign, textStyle,
                       borderSize, total );
 }
 
@@ -1445,6 +1497,68 @@ static void CG_DrawTeamLabel( rectDef_t *rect, team_t team, float text_x, float 
 
 /*
 ==================
+CG_DrawTeamStatus
+==================
+*/
+static void CG_DrawTeamStatus( rectDef_t *rect, float text_x, float text_y,
+    vec4_t color, float scale, int textalign, int textvalign, int textStyle )
+{
+  char  s[ MAX_TOKEN_CHARS ];
+  float tx, ty;
+
+  if( cg.intermissionStarted )
+    return;
+
+  if( cg.snap->ps.stats[ STAT_TEAM ] == TEAM_NONE )
+    return;
+
+  if( cg.snap->ps.stats[ STAT_TEAM ] == TEAM_ALIENS )
+  {
+    alienStates_t *alienStates = &cgs.alienStates;
+    int fullHealth = BG_Buildable(BA_A_OVERMIND)->health;
+    Com_sprintf( s, MAX_TOKEN_CHARS, "^7%s[overmind](%s%i/%i^7) [egg](%s%i^7) [granger](%s%i^7) [booster](%s%i^7)",
+        alienStates->omBuilding ? "[upgrade]" : (alienStates->omHealth ? "" : "[!]"),
+        ((alienStates->omHealth > fullHealth / 2) ? "^2" : ((alienStates->omHealth > fullHealth / 4) ? "^3" : "^1" )),
+        alienStates->omHealth,
+        fullHealth,
+        !alienStates->spawns ? "^1" : "^2",
+        alienStates->spawns,
+        !alienStates->builders ? ((!alienStates->spawns || !alienStates->omHealth) ? "^1" : "^0") : "^2",
+        alienStates->builders,
+        !alienStates->boosters ? (BG_BuildableAllowedInStage(BA_A_BOOSTER, cgs.alienStage) ? "^1" : "^0") : "^2",
+        alienStates->boosters
+      );
+  }
+  else if( cg.snap->ps.stats[ STAT_TEAM ] == TEAM_HUMANS )
+  {
+    humanStates_t *humanStates = &cgs.humanStates;
+    int fullHealth = BG_Buildable(BA_H_REACTOR)->health;
+    Com_sprintf( s, MAX_TOKEN_CHARS, "^7%s[reactor](%s%i/%i^7) [telenode](%s%i^7) [ckit](%s%i^7) [armoury](%s%i^7) [medstat](%s%i^7) [defcomp](%s%i^7)",
+        (humanStates->rcBuilding ? "[upgrade]" : (humanStates->rcHealth ? "" : "[!]")),
+        ((humanStates->rcHealth > fullHealth / 2) ? "^2" : ((humanStates->rcHealth > fullHealth / 4) ? "^3" : "^1" )),
+        humanStates->rcHealth,
+        fullHealth,
+        !humanStates->spawns ? "^1" : "^2",
+        humanStates->spawns,
+        !humanStates->builders ? ((!humanStates->spawns || !humanStates->rcHealth) ? "^1" : "^0") : "^2",
+        humanStates->builders,
+        !humanStates->armourys ? "^1" : "^2",
+        humanStates->armourys,
+        !humanStates->medicals ? "^1" : "^2",
+        humanStates->medicals,
+        !humanStates->computers ? (BG_BuildableAllowedInStage(BA_H_DCC, cgs.humanStage) ? "^1" : "^0") : "^2",
+        humanStates->computers
+      );
+  }
+
+  CG_AlignText( rect, s, scale, 0.0f, 0.0f, textalign, textvalign, &tx, &ty );
+
+  UI_Text_Paint( text_x + tx, text_y + ty, scale, color, s, 0, 0, textStyle );
+}
+
+
+/*
+==================
 CG_DrawStageReport
 ==================
 */
@@ -1713,9 +1827,9 @@ static int QDECL SortWeaponClass( const void *a, const void *b )
   // We want grangers on top. ckits are already on top without the special case.
   if( ca->team == TEAM_ALIENS )
   {
-    if( ca->curWeaponClass == PCL_ALIEN_BUILDER0_UPG || 
+    if( ca->curWeaponClass == PCL_ALIEN_BUILDER0_UPG ||
         cb->curWeaponClass == PCL_ALIEN_BUILDER0_UPG ||
-        ca->curWeaponClass == PCL_ALIEN_BUILDER0 || 
+        ca->curWeaponClass == PCL_ALIEN_BUILDER0 ||
         cb->curWeaponClass == PCL_ALIEN_BUILDER0 )
     {
       out = -out;
@@ -1778,9 +1892,9 @@ static void CG_DrawTeamOverlay( rectDef_t *rect, float scale, vec4_t color )
           displayClients[ maxDisplayCount++ ] = i;
         else
         {
-          if( ci->curWeaponClass == PCL_ALIEN_BUILDER0 || 
+          if( ci->curWeaponClass == PCL_ALIEN_BUILDER0 ||
               ci->curWeaponClass == PCL_ALIEN_BUILDER0_UPG ||
-              ci->curWeaponClass == PCL_ALIEN_LEVEL1 || 
+              ci->curWeaponClass == PCL_ALIEN_LEVEL1 ||
               ci->curWeaponClass == PCL_ALIEN_LEVEL1_UPG ||
               ci->curWeaponClass == WP_HBUILD )
           {
@@ -1798,7 +1912,7 @@ static void CG_DrawTeamOverlay( rectDef_t *rect, float scale, vec4_t color )
       vec3_t relOrigin = { 0.0f, 0.0f, 0.0f };
       int team = cent->currentState.misc & 0x00FF;
 
-      if( cent->currentState.eType != ET_PLAYER || 
+      if( cent->currentState.eType != ET_PLAYER ||
           team != pci->team ||
           cent->currentState.eFlags & EF_DEAD )
       {
@@ -1871,7 +1985,7 @@ static void CG_DrawTeamOverlay( rectDef_t *rect, float scale, vec4_t color )
       {
         if( ci->upgrade != UP_NONE )
         {
-          CG_DrawPic( x + iconSize + leftMargin, y, iconSize, 
+          CG_DrawPic( x + iconSize + leftMargin, y, iconSize,
                       iconSize, cg_upgrades[ ci->upgrade ].upgradeIcon );
         }
       }
@@ -1880,7 +1994,7 @@ static void CG_DrawTeamOverlay( rectDef_t *rect, float scale, vec4_t color )
         if( curWeapon == WP_ABUILD2 || curWeapon == WP_ALEVEL1_UPG ||
             curWeapon == WP_ALEVEL2_UPG || curWeapon == WP_ALEVEL3_UPG )
         {
-          CG_DrawPic( x + iconSize + leftMargin, y, iconSize, 
+          CG_DrawPic( x + iconSize + leftMargin, y, iconSize,
                       iconSize, cgs.media.upgradeClassIconShader );
         }
       }
@@ -1894,13 +2008,13 @@ static void CG_DrawTeamOverlay( rectDef_t *rect, float scale, vec4_t color )
     trap_R_SetColor( NULL );
     nameMaxX = nameMaxXCp = x + 2.0f * iconSize +
                             leftMargin + midSep + nameWidth;
-    UI_Text_Paint_Limit( &nameMaxXCp, x + 2.0f * iconSize + leftMargin + midSep, 
+    UI_Text_Paint_Limit( &nameMaxXCp, x + 2.0f * iconSize + leftMargin + midSep,
                          y + iconSize - iconTopMargin, fontScale, tcolor, name,
                          0, 0 );
 
     maxXCp = maxX;
 
-    UI_Text_Paint_Limit( &maxXCp, nameMaxX, y + iconSize - iconTopMargin, 
+    UI_Text_Paint_Limit( &maxXCp, nameMaxX, y + iconSize - iconTopMargin,
                          fontScale, tcolor, s, 0, 0 );
     y += iconSize;
     displayCount++;
@@ -2919,6 +3033,9 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
     case CG_PLAYER_CROSSHAIR:
       CG_DrawCrosshair( &rect, foreColor );
       break;
+    case CG_TEAM_STATUS:
+      CG_DrawTeamStatus( &rect, text_x, text_y, foreColor, scale, textalign, textvalign, textStyle );
+      break;
     case CG_STAGE_REPORT_TEXT:
       CG_DrawStageReport( &rect, text_x, text_y, foreColor, scale, textalign, textvalign, textStyle );
       break;
@@ -2934,28 +3051,28 @@ void CG_OwnerDraw( float x, float y, float w, float h, float text_x,
       CG_DrawLevelShot( &rect );
       break;
     case CG_LOAD_MEDIA:
-      CG_DrawMediaProgress( &rect, foreColor, scale, align, textalign, textStyle,
+      CG_DrawMediaProgress( &rect, foreColor, backColor, scale, align, textalign, textStyle,
                             borderSize );
       break;
     case CG_LOAD_MEDIA_LABEL:
       CG_DrawMediaProgressLabel( &rect, text_x, text_y, foreColor, scale, textalign, textvalign );
       break;
     case CG_LOAD_BUILDABLES:
-      CG_DrawBuildablesProgress( &rect, foreColor, scale, align, textalign,
+      CG_DrawBuildablesProgress( &rect, foreColor, backColor, scale, align, textalign,
                                  textStyle, borderSize );
       break;
     case CG_LOAD_BUILDABLES_LABEL:
       CG_DrawBuildablesProgressLabel( &rect, text_x, text_y, foreColor, scale, textalign, textvalign );
       break;
     case CG_LOAD_CHARMODEL:
-      CG_DrawCharModelProgress( &rect, foreColor, scale, align, textalign,
+      CG_DrawCharModelProgress( &rect, foreColor, backColor, scale, align, textalign,
                                 textStyle, borderSize );
       break;
     case CG_LOAD_CHARMODEL_LABEL:
       CG_DrawCharModelProgressLabel( &rect, text_x, text_y, foreColor, scale, textalign, textvalign );
       break;
     case CG_LOAD_OVERALL:
-      CG_DrawOverallProgress( &rect, foreColor, scale, align, textalign, textStyle,
+      CG_DrawOverallProgress( &rect, foreColor, backColor, scale, align, textalign, textStyle,
                               borderSize );
       break;
     case CG_LOAD_LEVELNAME:
@@ -3314,16 +3431,16 @@ static void CG_DrawVote( team_t team )
 
   if( cg_tutorial.integer )
   {
-    Com_sprintf( yeskey, sizeof( yeskey ), "[%s]", 
+    Com_sprintf( yeskey, sizeof( yeskey ), "[%s]",
       CG_KeyBinding( va( "%svote yes", team == TEAM_NONE ? "" : "team" ) ) );
-    Com_sprintf( nokey, sizeof( nokey ), "[%s]", 
+    Com_sprintf( nokey, sizeof( nokey ), "[%s]",
       CG_KeyBinding( va( "%svote no", team == TEAM_NONE ? "" : "team" ) ) );
   }
 
   if( team != TEAM_NONE )
     offset = 80;
 
-  s = va( "%sVOTE(%i): %s", 
+  s = va( "%sVOTE(%i): %s",
     team == TEAM_NONE ? "" : "TEAM", sec, cgs.voteString[ team ] );
 
   UI_Text_Paint( 8, 300 + offset, 0.3f, white, s, 0, 0,

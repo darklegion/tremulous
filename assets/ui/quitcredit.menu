@@ -1,4 +1,5 @@
 #include "ui/menudef.h"
+#include "ui/menustyle.h"
 
 {
   \\ QUIT CREDIT \\
@@ -9,7 +10,7 @@
     visible MENU_FALSE
     fullscreen MENU_TRUE
     rect 0 0 640 480
-    focusColor 1 .75 0 1
+    focusColor WINDOW_FOCUSCOLOR
     style WINDOW_STYLE_FILLED
     border WINDOW_BORDER_NONE
     aspectBias ASPECT_NONE

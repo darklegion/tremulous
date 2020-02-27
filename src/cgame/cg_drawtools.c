@@ -99,23 +99,6 @@ void CG_AdjustFrom640( float *x, float *y, float *w, float *h )
   *h *= cgs.screenYScale;
 }
 
-/*
-================
-CG_FillRect
-
-Coordinates are 640*480 virtual values
-=================
-*/
-void CG_FillRect( float x, float y, float width, float height, const float *color )
-{
-  trap_R_SetColor( color );
-
-  CG_AdjustFrom640( &x, &y, &width, &height );
-  trap_R_DrawStretchPic( x, y, width, height, 0, 0, 0, 0, cgs.media.whiteShader );
-
-  trap_R_SetColor( NULL );
-}
-
 
 /*
 ================
@@ -144,6 +127,56 @@ void CG_DrawTopBottom( float x, float y, float w, float h, float size )
   trap_R_DrawStretchPic( x, y + h - size, w, size, 0, 0, 0, 0, cgs.media.whiteShader );
 }
 
+static void CG_DrawCorners( float x, float y, float w, float h, float size, const float *style, qhandle_t *pic )
+{
+  float hs, vs;
+  CG_AdjustFrom640( &x, &y, &w, &h );
+  hs = size * cgs.screenXScale;
+  vs = size * cgs.screenYScale;
+
+  trap_R_DrawStretchPic( x, y, hs , vs, 0, 0, 0.5, 0.5, pic[(int)(style[0])] );
+  trap_R_DrawStretchPic( x + w - hs, y, hs, vs, 0.5, 0, 1, 0.5, pic[(int)(style[1])] );
+  trap_R_DrawStretchPic( x + w - hs, y + h - vs, hs, vs, 0.5, 0.5, 1, 1, pic[(int)(style[2])] );
+  trap_R_DrawStretchPic( x, y + h - vs, hs, vs, 0, 0.5, 0.5, 1, pic[(int)(style[3])] );
+}
+
+
+/*
+================
+CG_FillRect
+
+Coordinates are 640*480 virtual values
+=================
+*/
+void CG_FillRect( float x, float y, float width, float height, const float *color )
+{
+  trap_R_SetColor( color );
+
+  CG_AdjustFrom640( &x, &y, &width, &height );
+  trap_R_DrawStretchPic( x, y, width, height, 0, 0, 0, 0, cgs.media.whiteShader );
+
+  trap_R_SetColor( NULL );
+}
+
+
+/*
+================
+CG_FillRoundedRect
+Coordinates are 640*480 virtual values
+=================
+*/
+void CG_FillRoundedRect( float x, float y, float width, float height, float size, const float *style, const float *color )
+{
+  CG_FillRect( x, y + size * 3, width, height - size * 6, color );
+
+  trap_R_SetColor( color );
+
+  CG_DrawTopBottom( x + size * 3, y, width - size * 6, height, size * 3 );
+  CG_DrawCorners( x - size, y - size, width + size * 2, height + size * 2, size * 4, style, cgDC.Assets.cornerIn );
+
+  trap_R_SetColor( NULL );
+}
+
 
 /*
 ================
@@ -158,6 +191,24 @@ void CG_DrawRect( float x, float y, float width, float height, float size, const
 
   CG_DrawTopBottom( x, y, width, height, size );
   CG_DrawSides( x, y, width, height, size );
+
+  trap_R_SetColor( NULL );
+}
+
+
+/*
+================
+CG_DrawRoundedRect
+Coordinates are 640*480 virtual values
+=================
+*/
+void CG_DrawRoundedRect( float x, float y, float width, float height, float size, const float *style, const float *color )
+{
+  trap_R_SetColor( color );
+
+  CG_DrawTopBottom( x + size * 4, y, width - size * 8, height, size );
+  CG_DrawSides( x, y + size * 3, width, height - size * 6, size );
+  CG_DrawCorners( x, y, width, height, size * 4, style, cgDC.Assets.cornerOut);
 
   trap_R_SetColor( NULL );
 }

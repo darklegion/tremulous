@@ -1,5 +1,6 @@
-// vim:ft=menu
+focusColor WINDOW_FOCUSCOLOR// vim:ft=menu
 #include "ui/menudef.h"
+#include "ui/menustyle.h"
 #include "ui/menu_bool.h"
 
 {
@@ -8,7 +9,7 @@
         font "fonts/font" 26// font
         smallFont "fonts/smallfont" 20// font
         bigFont "fonts/bigfont" 34// font
-        cursor "ui/assets/3_cursor3"  // cursor
+        cursor "ui/assets/cursor"  // cursor
         gradientBar "ui/assets/gradientbar2.tga"  // gradient bar
         itemFocusSound "sound/misc/menu2.wav"   // sound for item getting focus (via keyboard or mouse )
 
@@ -26,7 +27,7 @@
         fullscreen true
         rect 0 0 640 480// Size and position of the menu
         visible true   // Visible on open
-        focuscolor 1 .75 0 1// Menu focus color for text and items
+        focusColor WINDOW_FOCUSCOLOR// Menu focus color for text and items
         background "ui/assets/mainmenu.jpg"
         aspectbias ASPECT_NONE
 
@@ -44,11 +45,12 @@
         itemDef
         {
             name splashmodel
-            rect 0 0 640 480
+            rect -320 0 1280 480
             type ITEM_TYPE_MODEL
             style WINDOW_STYLE_EMPTY
+            aspectBias ALIGN_CENTER        // Allow our HD model to be "responsive"
             asset_model "models/splash/splash_screen.md3"
-            model_fovx 32.0
+            model_fovx 60.0
             model_fovy 24.0
             model_angle 180
             visible MENU_TRUE

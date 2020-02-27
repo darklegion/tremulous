@@ -1,4 +1,5 @@
 #include "ui/menudef.h"
+#include "ui/menustyle.h"
 
 {
   \\ INGAME OPTIONS BOX \\
@@ -35,7 +36,7 @@
     fullscreen MENU_FALSE
     outOfBoundsClick      // this closes the window if it gets a click out of the rectangle
     rect X Y W H
-    focusColor 1 .75 0 1
+    focusColor WINDOW_FOCUSCOLOR
     aspectBias ALIGN_LEFT
     onopen
     {
@@ -53,13 +54,13 @@
       name window
       rect 0 0 W H
       style WINDOW_STYLE_FILLED
-      backcolor 0 0 0 1
+      backcolor 0 0 0 .925
       visible MENU_TRUE
       decoration
 
-      border WINDOW_BORDER_FULL
+      border WINDOW_BORDER_KCGRADIENT
       borderSize 1.0
-      borderColor 0.5 0.5 0.5 1
+      borderColor WINDOW_BORDER
     }
 
     //Section menus
@@ -832,7 +833,7 @@
       type ITEM_TYPE_MULTI
       text "Wallwalking Speed:"
       cvar "cg_wwSmoothTime"
-      cvarFloatList { "Medium" 300 "Fast" 150 "Instant" 0 "Slow" 600 }
+      cvarFloatList { "Slower" 450 "Slow" 300 "Medium" 225 "Fast" 150 "Faster" 75 "Instant" 0}
       rect SCONTENT_X (SCONTENT_Y+(2*ELEM_H)) SCONTENT_W ELEM_H
       textalign ALIGN_RIGHT
       textvalign VALIGN_CENTER
@@ -1272,6 +1273,66 @@
       }
     }
 
+    itemDef
+    {
+      name upgrades
+      group optionsGrp
+      type ITEM_TYPE_BIND
+      text "Rotate build left:"
+      cvar "rotatebuildleft"
+      rect SCONTENT_X (SCONTENT_Y+(8*ELEM_H)) SCONTENT_W ELEM_H
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
+      forecolor 1 1 1 1
+      visible MENU_FALSE
+      action
+      {
+        play "sound/misc/menu1.wav";
+      }
+    }
+
+    itemDef
+    {
+      name upgrades
+      group optionsGrp
+      type ITEM_TYPE_BIND
+      text "Rotate build right:"
+      cvar "rotatebuildright"
+      rect SCONTENT_X (SCONTENT_Y+(9*ELEM_H)) SCONTENT_W ELEM_H
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
+      forecolor 1 1 1 1
+      visible MENU_FALSE
+      action
+      {
+        play "sound/misc/menu1.wav";
+      }
+    }
+
+    itemDef
+    {
+      name upgrades
+      group optionsGrp
+      type ITEM_TYPE_BIND
+      text "Reset build rotation:"
+      cvar "rotatebuild"
+      rect SCONTENT_X (SCONTENT_Y+(10*ELEM_H)) SCONTENT_W ELEM_H
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
+      forecolor 1 1 1 1
+      visible MENU_FALSE
+      action
+      {
+        play "sound/misc/menu1.wav";
+      }
+    }
+
 //////// MISC
 
     itemDef
@@ -1641,7 +1702,7 @@
       action
       {
         play "sound/misc/menu1.wav";
-        uiScript glCuston
+        uiScript glCustom
       }
     }
 
@@ -1900,6 +1961,386 @@
       }
     }
 
+    //////// OpenGL2 Options
+
+    itemDef
+    {
+      name system
+      text "OpenGL2"
+      group optionsGrp
+      style WINDOW_STYLE_EMPTY
+      rect 0 ((2*BORDER)+TOPBUTT_H+(1*SIDEBUTT_H)) SIDEBUTT_W SIDEBUTT_H
+      type ITEM_TYPE_BUTTON
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textscale .25
+      forecolor 1 1 1 1
+      visible MENU_FALSE
+      action
+      {
+        play "sound/misc/menu1.wav";
+        hide optionsGrp;
+        show system;
+        show gl2options
+      }
+    }
+
+    itemDef
+    {
+      name gl2options
+      group optionsGrp
+      type ITEM_TYPE_MULTI
+      text "Enabled Renderer:"
+      cvar "cl_renderer"
+      cvarStrList { "OpenGL2 (new)", "opengl2",
+                    "OpenGL1 (old)", "opengl1" }
+      rect SCONTENT_X (SCONTENT_Y+(0*ELEM_H)) SCONTENT_W ELEM_H
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
+      forecolor 1 1 1 1
+      visible MENU_FALSE
+      action
+      {
+        play "sound/misc/menu1.wav";
+      }
+    }
+
+
+    itemDef
+    {
+      name gl2options
+      group optionsGrp
+      type ITEM_TYPE_YESNO
+      text "Post Processing:"
+      cvar "r_postProcess"
+      rect SCONTENT_X (SCONTENT_Y+(1*ELEM_H)) SCONTENT_W ELEM_H
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
+      forecolor 1 1 1 1
+      visible MENU_TRUE
+      action
+      {
+        play "sound/misc/menu1.wav";
+      }
+    }
+
+    itemDef
+    {
+      name gl2options
+      group optionsGrp
+      type ITEM_TYPE_YESNO
+      text "Screen Tone Mapping:"
+      cvar "r_toneMap"
+      rect SCONTENT_X (SCONTENT_Y+(2*ELEM_H)) SCONTENT_W ELEM_H
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
+      forecolor 1 1 1 1
+      visible MENU_TRUE
+      action
+      {
+        play "sound/misc/menu1.wav";
+      }
+    }
+
+    itemDef
+    {
+      name gl2options
+      group optionsGrp
+      type ITEM_TYPE_MULTI
+      text "Multisample Anti-aliasing:"
+      cvar "r_ext_framebuffer_multisample"
+      cvarStrList { "No", "",
+                    "x2", "2",
+                    "x4", "4",
+                    "x8", "8",
+                    "x16", "16" }
+      rect SCONTENT_X (SCONTENT_Y+(3*ELEM_H)) SCONTENT_W ELEM_H
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
+      forecolor 1 1 1 1
+      visible MENU_TRUE
+      action
+      {
+        play "sound/misc/menu1.wav";
+      }
+    }
+
+    itemDef
+    {
+      name gl2options
+      group optionsGrp
+      type ITEM_TYPE_YESNO
+      text "Physically Based Rendering:"
+      cvar "r_pbr"
+      rect SCONTENT_X (SCONTENT_Y+(4*ELEM_H)) SCONTENT_W ELEM_H
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
+      forecolor 1 1 1 1
+      visible MENU_TRUE
+      action
+      {
+        play "sound/misc/menu1.wav";
+      }
+    }
+
+    itemDef
+    {
+      name gl2options
+      group optionsGrp
+      type ITEM_TYPE_YESNO
+      text "Normal (Bump) Maps:"
+      cvar "r_normalMapping"
+      rect SCONTENT_X (SCONTENT_Y+(5*ELEM_H)) SCONTENT_W ELEM_H
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
+      forecolor 1 1 1 1
+      visible MENU_TRUE
+      action
+      {
+        play "sound/misc/menu1.wav";
+      }
+    }
+
+    // itemDef  // No utility
+    // {
+    //   name gl2options
+    //   group optionsGrp
+    //   type ITEM_TYPE_YESNO
+    //   text "Naively Generate Normal Maps:"
+    //   cvar "r_genNormalMaps"
+    //   rect SCONTENT_X (SCONTENT_Y+(3*ELEM_H)) SCONTENT_W ELEM_H
+    //   textalign ALIGN_RIGHT
+    //   textvalign VALIGN_CENTER
+    //   textalignx SCONTENT_OFF
+    //   textscale .25
+    //   forecolor 1 1 1 1
+    //   visible MENU_TRUE
+    //   action
+    //   {
+    //     play "sound/misc/menu1.wav";
+    //   }
+    // }
+    //
+    // itemDef  // Not ready
+    // {
+    //   name gl2options
+    //   group optionsGrp
+    //   type ITEM_TYPE_YESNO
+    //   text "Ambient Occlusion (SSAO):"
+    //   cvar "r_ssao"
+    //   rect SCONTENT_X (SCONTENT_Y+(4*ELEM_H)) SCONTENT_W ELEM_H
+    //   textalign ALIGN_RIGHT
+    //   textvalign VALIGN_CENTER
+    //   textalignx SCONTENT_OFF
+    //   textscale .25
+    //   forecolor 1 1 1 1
+    //   visible MENU_TRUE
+    //   action
+    //   {
+    //     play "sound/misc/menu1.wav";
+    //   }
+    // }
+
+
+    itemDef
+    {
+      name gl2options
+      group optionsGrp
+      type ITEM_TYPE_YESNO
+      text "Specular Surface Lighting:"
+      cvar "r_specularMapping"
+      rect SCONTENT_X (SCONTENT_Y+(6*ELEM_H)) SCONTENT_W ELEM_H
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
+      forecolor 1 1 1 1
+      visible MENU_TRUE
+      action
+      {
+        play "sound/misc/menu1.wav";
+      }
+    }
+
+    itemDef
+    {
+      name gl2options
+      group optionsGrp
+      type ITEM_TYPE_MULTI
+      text "Parallax Height Maps:"
+      cvar "r_parallaxMapping"
+
+      cvarFloatList { "No" 0 "Use Parallax Occlusion" 1 "Use Relief (Slower)" 2 }
+      rect SCONTENT_X (SCONTENT_Y+(7*ELEM_H)) SCONTENT_W ELEM_H
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
+      forecolor 1 1 1 1
+      visible MENU_FALSE
+      action
+      {
+        play "sound/misc/menu1.wav";
+      }
+    }
+
+    // itemDef  // Drain FPS
+    // {
+    //   name gl2options
+    //   group optionsGrp
+    //   type ITEM_TYPE_YESNO
+    //   text "Cube mapped environments:"
+    //   cvar "r_cubeMapping"
+    //   rect SCONTENT_X (SCONTENT_Y+(9*ELEM_H)) SCONTENT_W ELEM_H
+    //   textalign ALIGN_RIGHT
+    //   textvalign VALIGN_CENTER
+    //   textalignx SCONTENT_OFF
+    //   textscale .25
+    //   forecolor 1 1 1 1
+    //   visible MENU_TRUE
+    //   action
+    //   {
+    //     play "sound/misc/menu1.wav";
+    //   }
+    // }
+
+    itemDef
+    {
+      name gl2options
+      group optionsGrp
+      type ITEM_TYPE_YESNO
+      text "Draw Sun Rays:"
+      cvar "r_drawSunRays"
+      rect SCONTENT_X (SCONTENT_Y+(8*ELEM_H)) SCONTENT_W ELEM_H
+      textalign ALIGN_RIGHT
+
+      textvalign VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
+      forecolor 1 1 1 1
+      visible MENU_TRUE
+      action
+      {
+        play "sound/misc/menu1.wav";
+      }
+    }
+
+    itemDef
+    {
+      name gl2options
+      group optionsGrp
+      type ITEM_TYPE_YESNO
+      text "Draw Sun:"
+      cvar "r_drawSun"
+      rect SCONTENT_X (SCONTENT_Y+(9*ELEM_H)) SCONTENT_W ELEM_H
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
+      forecolor 1 1 1 1
+      visible MENU_TRUE
+      action
+      {
+        play "sound/misc/menu1.wav";
+      }
+    }
+
+    itemDef
+    {
+      name gl2options
+      group optionsGrp
+      type ITEM_TYPE_YESNO
+      text "Sun Shadows:"
+      cvar "r_sunShadows"
+      rect SCONTENT_X (SCONTENT_Y+(10*ELEM_H)) SCONTENT_W ELEM_H
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
+      forecolor 1 1 1 1
+      visible MENU_TRUE
+      action
+      {
+        play "sound/misc/menu1.wav";
+      }
+    }
+
+    itemDef
+    {
+      name gl2options
+      group optionsGrp
+      type ITEM_TYPE_MULTI
+      text "Sunlight Mode:"
+      cvar "r_sunlightMode"
+
+      cvarFloatList { "None" 0 "Multiply (Good Quality)" 1 "Add (Best Quality)" 2 }
+      rect SCONTENT_X (SCONTENT_Y+(11*ELEM_H)) SCONTENT_W ELEM_H
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
+      forecolor 1 1 1 1
+      visible MENU_FALSE
+      action
+      {
+        play "sound/misc/menu1.wav";
+      }
+    }
+
+    itemDef
+    {
+      name gl2options
+      group optionsGrp
+      type ITEM_TYPE_MULTI
+      text "Dynamic Lights Mode:"
+      cvar "r_dlightMode"
+
+      cvarFloatList { "Off" 0 "Lighting, No Shadows" 1 "Light & Shadows" 2 }
+      rect SCONTENT_X (SCONTENT_Y+(12*ELEM_H)) SCONTENT_W ELEM_H
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
+      forecolor 1 1 1 1
+      visible MENU_FALSE
+      action
+      {
+        play "sound/misc/menu1.wav";
+      }
+    }
+
+    itemDef
+    {
+      name gl2options
+      group optionsGrp
+      type ITEM_TYPE_BUTTON
+      text "APPLY"
+      textscale .25
+      style WINDOW_STYLE_EMPTY
+      rect SCONTENT_X (SCONTENT_Y+(13*ELEM_H)) SCONTENT_W ELEM_H
+      textalign ALIGN_CENTER
+      textvalign VALIGN_CENTER
+      forecolor 1 1 1 1
+      visible MENU_FALSE
+      action
+      {
+        play "sound/misc/menu1.wav";
+        exec "vid_restart"
+      }
+  }
+
 //////// GFX SOFTWARE
 
     itemDef
@@ -1908,7 +2349,7 @@
       text "GFX Software"
       group optionsGrp
       style WINDOW_STYLE_EMPTY
-      rect 0 ((2*BORDER)+TOPBUTT_H+(1*SIDEBUTT_H)) SIDEBUTT_W SIDEBUTT_H
+      rect 0 ((2*BORDER)+TOPBUTT_H+(2*SIDEBUTT_H)) SIDEBUTT_W SIDEBUTT_H
       type ITEM_TYPE_BUTTON
       textalign ALIGN_RIGHT
       textvalign VALIGN_CENTER
@@ -1960,10 +2401,49 @@
     {
       name gsoftware
       group optionsGrp
+      type ITEM_TYPE_EDITFIELD
+      style WINDOW_STYLE_EMPTY
+      text "FOV offset:"
+      cvar "cg_fovOffset"
+      maxchars 3
+      rect CONTENT_X (CONTENT_Y+(2*ELEM_H)) CONTENT_W ELEM_H
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
+      forecolor 1 1 1 1
+      visible MENU_FALSE
+    }
+
+    itemDef
+    {
+      name gsoftware
+      group optionsGrp
       type ITEM_TYPE_YESNO
       text "Marks On Walls:"
       cvar "cg_marks"
-      rect SCONTENT_X (SCONTENT_Y+(2*ELEM_H)) SCONTENT_W ELEM_H
+      rect SCONTENT_X (SCONTENT_Y+(3*ELEM_H)) SCONTENT_W ELEM_H
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textalignx SCONTENT_OFF
+      textscale .25
+      forecolor 1 1 1 1
+      visible MENU_TRUE
+      action
+      {
+        play "sound/misc/menu1.wav";
+      }
+    }
+
+    itemDef
+    {
+      name gsoftware
+      group optionsGrp
+      type ITEM_TYPE_MULTI
+      text "Animated creep tag:"
+      cvar "cg_animatedCreep"
+      cvarFloatList { "No" 0 "Full frame ^0(Need reload)" 1 "Half frame ^0(Need reload)" 2 "1/4 frame ^0(Need reload)" 4}
+      rect SCONTENT_X (SCONTENT_Y+(4*ELEM_H)) SCONTENT_W ELEM_H
       textalign ALIGN_RIGHT
       textvalign VALIGN_CENTER
       textalignx SCONTENT_OFF
@@ -1983,7 +2463,7 @@
       type ITEM_TYPE_YESNO
       text "Dynamic Lights:"
       cvar "r_dynamiclight"
-      rect SCONTENT_X (SCONTENT_Y+(3*ELEM_H)) SCONTENT_W ELEM_H
+      rect SCONTENT_X (SCONTENT_Y+(5*ELEM_H)) SCONTENT_W ELEM_H
       textalign ALIGN_RIGHT
       textvalign VALIGN_CENTER
       textalignx SCONTENT_OFF
@@ -2003,7 +2483,7 @@
       type ITEM_TYPE_YESNO
       text "Draw Gun:"
       cvar "cg_drawGun"
-      rect SCONTENT_X (SCONTENT_Y+(4*ELEM_H)) SCONTENT_W ELEM_H
+      rect SCONTENT_X (SCONTENT_Y+(6*ELEM_H)) SCONTENT_W ELEM_H
       textalign ALIGN_RIGHT
       textvalign VALIGN_CENTER
       textalignx SCONTENT_OFF
@@ -2023,7 +2503,7 @@
       type ITEM_TYPE_YESNO
       text "Low Quality Sky:"
       cvar "r_fastsky"
-      rect SCONTENT_X (SCONTENT_Y+(5*ELEM_H)) SCONTENT_W ELEM_H
+      rect SCONTENT_X (SCONTENT_Y+(7*ELEM_H)) SCONTENT_W ELEM_H
       textalign ALIGN_RIGHT
       textvalign VALIGN_CENTER
       textalignx SCONTENT_OFF
@@ -2043,7 +2523,7 @@
       type ITEM_TYPE_YESNO
       text "Sync Every Frame:"
       cvar "r_finish"
-      rect SCONTENT_X (SCONTENT_Y+(6*ELEM_H)) SCONTENT_W ELEM_H
+      rect SCONTENT_X (SCONTENT_Y+(8*ELEM_H)) SCONTENT_W ELEM_H
       textalign ALIGN_RIGHT
       textvalign VALIGN_CENTER
       textalignx SCONTENT_OFF
@@ -2063,7 +2543,7 @@
       type ITEM_TYPE_YESNO
       text "In Game Videos:"
       cvar "r_inGameVideo"
-      rect SCONTENT_X (SCONTENT_Y+(7*ELEM_H)) SCONTENT_W ELEM_H
+      rect SCONTENT_X (SCONTENT_Y+(9*ELEM_H)) SCONTENT_W ELEM_H
       textalign ALIGN_RIGHT
       textvalign VALIGN_CENTER
       textalignx SCONTENT_OFF
@@ -2083,7 +2563,7 @@
       type ITEM_TYPE_YESNO
       text "Depth Sort Particles:"
       cvar "cg_depthSortParticles"
-      rect SCONTENT_X (SCONTENT_Y+(8*ELEM_H)) SCONTENT_W ELEM_H
+      rect SCONTENT_X (SCONTENT_Y+(10*ELEM_H)) SCONTENT_W ELEM_H
       textalign ALIGN_RIGHT
       textvalign VALIGN_CENTER
       textalignx SCONTENT_OFF
@@ -2104,7 +2584,7 @@
       text "Particle Physics:"
       cvar "cg_bounceParticles"
       cvarFloatList { "Low Quality" 0 "High Quality" 1 }
-      rect SCONTENT_X (SCONTENT_Y+(9*ELEM_H)) SCONTENT_W ELEM_H
+      rect SCONTENT_X (SCONTENT_Y+(11*ELEM_H)) SCONTENT_W ELEM_H
       textalign ALIGN_RIGHT
       textvalign VALIGN_CENTER
       textalignx SCONTENT_OFF
@@ -2125,7 +2605,7 @@
       text "Light Flares:"
       cvar "cg_lightFlare"
       cvarFloatList { "Off" 0 "No Fade" 1 "Timed Fade" 2 "Real Fade" 3 }
-      rect SCONTENT_X (SCONTENT_Y+(10*ELEM_H)) SCONTENT_W ELEM_H
+      rect SCONTENT_X (SCONTENT_Y+(12*ELEM_H)) SCONTENT_W ELEM_H
       textalign ALIGN_RIGHT
       textvalign VALIGN_CENTER
       textalignx SCONTENT_OFF
@@ -2137,7 +2617,6 @@
         play "sound/misc/menu1.wav";
       }
     }
-
 //////// GL INFO
 
     itemDef
@@ -2146,7 +2625,7 @@
       text "OpenGL Info"
       group optionsGrp
       style WINDOW_STYLE_EMPTY
-      rect 0 ((2*BORDER)+TOPBUTT_H+(2*SIDEBUTT_H)) SIDEBUTT_W SIDEBUTT_H
+      rect 0 ((2*BORDER)+TOPBUTT_H+(3*SIDEBUTT_H)) SIDEBUTT_W SIDEBUTT_H
       type ITEM_TYPE_BUTTON
       textalign ALIGN_RIGHT
       textvalign VALIGN_CENTER
@@ -2186,7 +2665,7 @@
       text "Net & Sound"
       group optionsGrp
       style WINDOW_STYLE_EMPTY
-      rect 0 ((2*BORDER)+TOPBUTT_H+(3*SIDEBUTT_H)) SIDEBUTT_W SIDEBUTT_H
+      rect 0 ((2*BORDER)+TOPBUTT_H+(4*SIDEBUTT_H)) SIDEBUTT_W SIDEBUTT_H
       type ITEM_TYPE_BUTTON
       textalign ALIGN_RIGHT
       textvalign VALIGN_CENTER
@@ -2384,7 +2863,7 @@
       text "Range Markers"
       group optionsGrp
       style WINDOW_STYLE_EMPTY
-      rect 0 ((2*BORDER)+TOPBUTT_H+(4*SIDEBUTT_H)) SIDEBUTT_W SIDEBUTT_H
+      rect 0 ((2*BORDER)+TOPBUTT_H+(5*SIDEBUTT_H)) SIDEBUTT_W SIDEBUTT_H
       type ITEM_TYPE_BUTTON
       textalign ALIGN_RIGHT
       textvalign VALIGN_CENTER
@@ -2573,5 +3052,5 @@
       forecolor 1 1 1 1
       visible MENU_FALSE
     }
-  }
+
 }

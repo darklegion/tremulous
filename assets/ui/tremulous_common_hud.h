@@ -168,7 +168,7 @@ itemDef
   forecolor 1 1 1 1
   textscale 0.3
   ownerdraw CG_DEMO_PLAYBACK
-  background "ui/assets/forwardarrow.tga"
+  background "ui/assets/forwardarrow.png"
 }
 
 //SNAPSHOT

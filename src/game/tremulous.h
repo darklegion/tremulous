@@ -97,7 +97,7 @@ along with Tremulous; if not, see <https://www.gnu.org/licenses/>
 
 #define LEVEL3_CLAW_DMG             ADM(80)
 #define LEVEL3_CLAW_RANGE           80.0f
-#define LEVEL3_CLAW_UPG_RANGE       LEVEL3_CLAW_RANGE + 3.0f          
+#define LEVEL3_CLAW_UPG_RANGE       LEVEL3_CLAW_RANGE + 3.0f
 #define LEVEL3_CLAW_WIDTH           12.0f
 #define LEVEL3_CLAW_REPEAT          900
 #define LEVEL3_CLAW_K_SCALE         1.0f
@@ -109,7 +109,7 @@ along with Tremulous; if not, see <https://www.gnu.org/licenses/>
 #define LEVEL3_POUNCE_WIDTH         14.0f
 #define LEVEL3_POUNCE_TIME          800      // msec for full Dragoon pounce
 #define LEVEL3_POUNCE_TIME_UPG      800      // msec for full Adv. Dragoon pounce
-#define LEVEL3_POUNCE_TIME_MIN      200      // msec before which pounce cancels  
+#define LEVEL3_POUNCE_TIME_MIN      200      // msec before which pounce cancels
 #define LEVEL3_POUNCE_REPEAT        400      // msec before a new pounce starts
 #define LEVEL3_POUNCE_SPEED_MOD     0.75f    // walking speed modifier for pounce charging
 #define LEVEL3_POUNCE_JUMP_MAG      700      // Dragoon pounce jump power
@@ -675,7 +675,7 @@ along with Tremulous; if not, see <https://www.gnu.org/licenses/>
 
 #define DAMAGE_FRACTION_FOR_KILL    0.5f //how much damage players (versus structures) need to
                                          //do to increment the stage kill counters
-                                         
+
 #define MAXIMUM_BUILD_TIME          20000 // used for pie timer
 
 #endif

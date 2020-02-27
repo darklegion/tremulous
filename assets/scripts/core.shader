@@ -29,7 +29,7 @@ outline
 console
 {
 	nopicmip
-	nomipmaps  
+	nomipmaps
     {
 		map ui/assets/console1.tga
 		blendFunc GL_ONE GL_ZERO
@@ -42,7 +42,7 @@ console
 		tcMod turb 0 .1 0 .1
 		tcMod scale 4 1
 		tcmod scroll 0.2  .1
-	} 
+	}
 }
 
 gfx/misc/detail
@@ -67,15 +67,6 @@ gfx/2d/bigchars
 	}
 }
 
-gfx/2d/cursor
-{
-	nopicmip
-	nomipmaps
-	{
-		map gfx/2d/cursor.tga
-	}
-}
-
 // projectionShadow is used for cheap squashed model shadows
 projectionShadow
 {
@@ -85,7 +76,7 @@ projectionShadow
 		map			$whiteimage
 		blendFunc GL_ONE GL_ZERO
 		rgbGen wave square 0 0 0 0
-	}	
+	}
 }
 
 // blinked on top of lagometer when connection is interrupted

@@ -418,6 +418,15 @@ static void SV_AddEntitiesVisibleFromPoint(vec3_t origin, clientSnapshot_t *fram
             continue;
         }
 
+        // Doing this have two utility:
+        // - Keep sound, alien sense, and range marker behave well
+        // - Load builds progressivly on the client, avoiding short freeze on low end computer
+        if (Distance(origin, ent->r.currentOrigin) < 1500)
+        {
+            SV_AddEntToSnapshot(svEnt, ent, eNums);
+            continue;
+        }
+
         // ignore if not touching a PV leaf
         // check area
         if (!CM_AreasConnected(clientarea, svEnt->areanum))

@@ -257,11 +257,11 @@ static void InitOpenGL( void )
 	//		- r_ignorehwgamma
 	//		- r_gamma
 	//
-	
+
 	if ( glConfig.vidWidth == 0 )
 	{
 		GLint		temp;
-		
+
 		GLimp_Init( qtrue );
 		GLimp_InitExtraExtensions();
 
@@ -273,7 +273,7 @@ static void InitOpenGL( void )
 		glConfig.maxTextureSize = temp;
 
 		// stubbed or broken drivers may have reported 0...
-		if ( glConfig.maxTextureSize <= 0 ) 
+		if ( glConfig.maxTextureSize <= 0 )
 		{
 			glConfig.maxTextureSize = 0;
 		}
@@ -327,10 +327,10 @@ void GL_CheckErrs( const char *file, int line ) {
 }
 
 
-/* 
-============================================================================== 
- 
-						SCREEN SHOTS 
+/*
+==============================================================================
+
+						SCREEN SHOTS
 
 NOTE TTimo
 some thoughts about the screenshots system:
@@ -343,11 +343,11 @@ we use statics to store a count and start writing the first screenshot/screensho
 (with FS_FileExists / FS_FOpenFileWrite calls)
 FIXME: the statics don't get a reinit between fs_game changes
 
-============================================================================== 
-*/ 
+==============================================================================
+*/
 
-/* 
-================== 
+/*
+==================
 RB_ReadPixels
 
 Reads an image but takes care of alignment issues for reading RGB images.
@@ -360,51 +360,51 @@ alignment of packAlign to ensure efficient copying.
 Stores the length of padding after a line of pixels to address padlen
 
 Return value must be freed with ri.Hunk_FreeTempMemory()
-================== 
-*/  
+==================
+*/
 
 byte *RB_ReadPixels(int x, int y, int width, int height, size_t *offset, int *padlen)
 {
 	byte *buffer, *bufstart;
 	int padwidth, linelen;
 	GLint packAlign;
-	
+
 	qglGetIntegerv(GL_PACK_ALIGNMENT, &packAlign);
-	
+
 	linelen = width * 3;
 	padwidth = PAD(linelen, packAlign);
-	
+
 	// Allocate a few more bytes so that we can choose an alignment we like
 	buffer = (byte*)ri.Hunk_AllocateTempMemory(padwidth * height + *offset + packAlign - 1);
-	
+
 	bufstart = (byte*)PADP((intptr_t) buffer + *offset, packAlign);
 
 	qglReadPixels(x, y, width, height, GL_RGB, GL_UNSIGNED_BYTE, bufstart);
-	
+
 	*offset = bufstart - buffer;
 	*padlen = padwidth - linelen;
-	
+
 	return buffer;
 }
 
-/* 
-================== 
+/*
+==================
 RB_TakeScreenshot
-================== 
-*/  
+==================
+*/
 void RB_TakeScreenshot(int x, int y, int width, int height, char *fileName)
 {
 	byte *allbuf, *buffer;
 	byte *srcptr, *destptr;
 	byte *endline, *endmem;
 	byte temp;
-	
+
 	int linelen, padlen;
 	size_t offset = 18, memcount;
-		
+
 	allbuf = RB_ReadPixels(x, y, width, height, &offset, &padlen);
 	buffer = allbuf + offset - 18;
-	
+
 	Com_Memset (buffer, 0, 18);
 	buffer[2] = 2;		// uncompressed type
 	buffer[12] = width & 255;
@@ -415,10 +415,10 @@ void RB_TakeScreenshot(int x, int y, int width, int height, char *fileName)
 
 	// swap rgb to bgr and remove padding from line endings
 	linelen = width * 3;
-	
+
 	srcptr = destptr = allbuf + offset;
 	endmem = srcptr + (linelen + padlen) * height;
-	
+
 	while(srcptr < endmem)
 	{
 		endline = srcptr + linelen;
@@ -429,10 +429,10 @@ void RB_TakeScreenshot(int x, int y, int width, int height, char *fileName)
 			*destptr++ = srcptr[2];
 			*destptr++ = srcptr[1];
 			*destptr++ = temp;
-			
+
 			srcptr += 3;
 		}
-		
+
 		// Skip the pad
 		srcptr += padlen;
 	}
@@ -448,10 +448,10 @@ void RB_TakeScreenshot(int x, int y, int width, int height, char *fileName)
 	ri.Hunk_FreeTempMemory(allbuf);
 }
 
-/* 
-================== 
+/*
+==================
 RB_TakeScreenshotJPEG
-================== 
+==================
 */
 
 void RB_TakeScreenshotJPEG(int x, int y, int width, int height, char *fileName)
@@ -478,7 +478,7 @@ RB_TakeScreenshotCmd
 */
 const void *RB_TakeScreenshotCmd( const void *data ) {
 	const screenshotCommand_t	*cmd;
-	
+
 	cmd = (const screenshotCommand_t *)data;
 
 	// finish any 2D drawing if needed
@@ -489,8 +489,8 @@ const void *RB_TakeScreenshotCmd( const void *data ) {
 		RB_TakeScreenshotJPEG( cmd->x, cmd->y, cmd->width, cmd->height, cmd->fileName);
 	else
 		RB_TakeScreenshot( cmd->x, cmd->y, cmd->width, cmd->height, cmd->fileName);
-	
-	return (const void *)(cmd + 1);	
+
+	return (const void *)(cmd + 1);
 }
 
 /*
@@ -517,11 +517,11 @@ void R_TakeScreenshot( int x, int y, int width, int height, char *name, bool jpe
 	cmd->jpeg = jpeg;
 }
 
-/* 
-================== 
+/*
+==================
 R_ScreenshotFilename
-================== 
-*/  
+==================
+*/
 void R_ScreenshotFilename( int lastNumber, char *fileName ) {
 	int		a,b,c,d;
 
@@ -542,11 +542,11 @@ void R_ScreenshotFilename( int lastNumber, char *fileName ) {
 		, a, b, c, d );
 }
 
-/* 
-================== 
+/*
+==================
 R_ScreenshotFilename
-================== 
-*/  
+==================
+*/
 void R_ScreenshotFilenameJPEG( int lastNumber, char *fileName ) {
 	int		a,b,c,d;
 
@@ -634,8 +634,8 @@ void R_LevelShot( void ) {
 	ri.Printf( PRINT_ALL, "Wrote %s\n", checkname );
 }
 
-/* 
-================== 
+/*
+==================
 R_ScreenShot_f
 
 screenshot
@@ -644,8 +644,8 @@ screenshot [levelshot]
 screenshot [filename]
 
 Doesn't print the pacifier message if there is a second arg
-================== 
-*/  
+==================
+*/
 void R_ScreenShot_f (void) {
 	char	checkname[MAX_OSPATH];
 	static	int	lastNumber = -1;
@@ -685,7 +685,7 @@ void R_ScreenShot_f (void) {
 		}
 
 		if ( lastNumber >= 9999 ) {
-			ri.Printf (PRINT_ALL, "ScreenShot: Couldn't create a file\n"); 
+			ri.Printf (PRINT_ALL, "ScreenShot: Couldn't create a file\n");
 			return;
  		}
 
@@ -697,7 +697,7 @@ void R_ScreenShot_f (void) {
 	if ( !silent ) {
 		ri.Printf (PRINT_ALL, "Wrote %s\n", checkname);
 	}
-} 
+}
 
 void R_ScreenShotJPEG_f (void) {
 	char		checkname[MAX_OSPATH];
@@ -738,7 +738,7 @@ void R_ScreenShotJPEG_f (void) {
 		}
 
 		if ( lastNumber == 10000 ) {
-			ri.Printf (PRINT_ALL, "ScreenShot: Couldn't create a file\n"); 
+			ri.Printf (PRINT_ALL, "ScreenShot: Couldn't create a file\n");
 			return;
  		}
 
@@ -750,7 +750,7 @@ void R_ScreenShotJPEG_f (void) {
 	if ( !silent ) {
 		ri.Printf (PRINT_ALL, "Wrote %s\n", checkname);
 	}
-} 
+}
 
 //============================================================================
 
@@ -801,7 +801,7 @@ const void *RB_TakeVideoFrameCmd( const void *data )
 		RB_EndSurface();
 
 	cmd = (const videoFrameCommand_t *)data;
-	
+
 	qglGetIntegerv(GL_PACK_ALIGNMENT, &packAlign);
 
 	linelen = cmd->width * 3;
@@ -814,7 +814,7 @@ const void *RB_TakeVideoFrameCmd( const void *data )
 	avipadlen = avipadwidth - linelen;
 
 	cBuf = (byte*)PADP(cmd->captureBuffer, packAlign);
-		
+
 	qglReadPixels(0, 0, cmd->width, cmd->height, GL_RGB,
 		GL_UNSIGNED_BYTE, cBuf);
 
@@ -835,11 +835,11 @@ const void *RB_TakeVideoFrameCmd( const void *data )
 	{
 		byte *lineend, *memend;
 		byte *srcptr, *destptr;
-	
+
 		srcptr = cBuf;
 		destptr = cmd->encodeBuffer;
 		memend = srcptr + memcount;
-		
+
 		// swap R and B and remove line paddings
 		while(srcptr < memend)
 		{
@@ -851,17 +851,17 @@ const void *RB_TakeVideoFrameCmd( const void *data )
 				*destptr++ = srcptr[0];
 				srcptr += 3;
 			}
-			
+
 			Com_Memset(destptr, '\0', avipadlen);
 			destptr += avipadlen;
-			
+
 			srcptr += padlen;
 		}
-		
+
 		ri.CL_WriteAVIVideoFrame(cmd->encodeBuffer, avipadwidth * cmd->height);
 	}
 
-	return (const void *)(cmd + 1);	
+	return (const void *)(cmd + 1);
 }
 
 //============================================================================
@@ -946,7 +946,7 @@ void R_PrintLongString(const char *string) {
 GfxInfo_f
 ================
 */
-void GfxInfo_f( void ) 
+void GfxInfo_f( void )
 {
 	const char *enablestrings[] =
 	{
@@ -1014,7 +1014,7 @@ void GfxInfo_f( void )
 GfxMemInfo_f
 ================
 */
-void GfxMemInfo_f( void ) 
+void GfxMemInfo_f( void )
 {
 	switch (glRefConfig.memInfo)
 	{
@@ -1066,11 +1066,11 @@ void GfxMemInfo_f( void )
 R_Register
 ===============
 */
-void R_Register( void ) 
+void R_Register( void )
 {
 	#ifdef USE_RENDERER_DLOPEN
 	com_altivec = ri.Cvar_Get("com_altivec", "1", CVAR_ARCHIVE);
-	#endif	
+	#endif
 
 	//
 	// latched and archived variables
@@ -1083,13 +1083,13 @@ void R_Register( void )
 
 	r_ext_framebuffer_object = ri.Cvar_Get( "r_ext_framebuffer_object", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_texture_float = ri.Cvar_Get( "r_ext_texture_float", "1", CVAR_ARCHIVE | CVAR_LATCH);
-	r_ext_framebuffer_multisample = ri.Cvar_Get( "r_ext_framebuffer_multisample", "0", CVAR_ARCHIVE | CVAR_LATCH);
+	r_ext_framebuffer_multisample = ri.Cvar_Get( "r_ext_framebuffer_multisample", "16", CVAR_ARCHIVE | CVAR_LATCH);
 	r_arb_seamless_cube_map = ri.Cvar_Get( "r_arb_seamless_cube_map", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_arb_vertex_array_object = ri.Cvar_Get( "r_arb_vertex_array_object", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_ext_direct_state_access = ri.Cvar_Get("r_ext_direct_state_access", "1", CVAR_ARCHIVE | CVAR_LATCH);
 
 	r_ext_texture_filter_anisotropic = ri.Cvar_Get( "r_ext_texture_filter_anisotropic",
-			"0", CVAR_ARCHIVE | CVAR_LATCH );
+			"1", CVAR_ARCHIVE | CVAR_LATCH );
 	r_ext_max_anisotropy = ri.Cvar_Get( "r_ext_max_anisotropy", "2", CVAR_ARCHIVE | CVAR_LATCH );
 
 	r_picmip = ri.Cvar_Get ("r_picmip", "1", CVAR_ARCHIVE | CVAR_LATCH );
@@ -1309,7 +1309,7 @@ void R_ShutDownQueries(void)
 R_Init
 ===============
 */
-void R_Init( void ) {	
+void R_Init( void ) {
 	int	err;
 	int i;
 	byte *ptr;
@@ -1411,7 +1411,7 @@ void R_Init( void ) {
 RE_Shutdown
 ===============
 */
-void RE_Shutdown( bool destroyWindow ) {	
+void RE_Shutdown( bool destroyWindow ) {
 
 	ri.Printf( PRINT_ALL, "RE_Shutdown( %i )\n", destroyWindow );
 
@@ -1484,7 +1484,7 @@ refexport_t *GetRefAPI ( int apiVersion, refimport_t *rimp ) {
 	Com_Memset( &re, 0, sizeof( re ) );
 
 	if ( apiVersion != REF_API_VERSION ) {
-		ri.Printf(PRINT_ALL, "Mismatched REF_API_VERSION: expected %i, got %i\n", 
+		ri.Printf(PRINT_ALL, "Mismatched REF_API_VERSION: expected %i, got %i\n",
 			REF_API_VERSION, apiVersion );
 		return NULL;
 	}

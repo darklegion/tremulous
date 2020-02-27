@@ -218,7 +218,7 @@ static void ClientShove( gentity_t *ent, gentity_t *victim )
   vec3_t dir, push;
   float force;
   int entMass, vicMass;
-  
+
   // Don't push if the entity is not trying to move
   if( !ent->client->pers.cmd.rightmove && !ent->client->pers.cmd.forwardmove &&
       !ent->client->pers.cmd.upmove )
@@ -227,7 +227,7 @@ static void ClientShove( gentity_t *ent, gentity_t *victim )
   // Cannot push enemy players unless they are walking on the player
   if( !OnSameTeam( ent, victim ) &&
       victim->client->ps.groundEntityNum != ent - g_entities )
-    return;      
+    return;
 
   // Shove force is scaled by relative mass
   entMass = GetClientMass( ent );
@@ -245,7 +245,7 @@ static void ClientShove( gentity_t *ent, gentity_t *victim )
   VectorNormalizeFast( dir );
   VectorScale( dir, force, push );
   VectorAdd( victim->client->ps.velocity, push, victim->client->ps.velocity );
-  
+
   // Set the pmove timer so that the other client can't cancel
   // out the movement immediately
   if( !victim->client->ps.pm_time )
@@ -401,8 +401,8 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd )
 
   attack1 = ( client->buttons & BUTTON_ATTACK ) &&
             !( client->oldbuttons & BUTTON_ATTACK );
-   
-  // We are in following mode only if we are following a non-spectating client           
+
+  // We are in following mode only if we are following a non-spectating client
   following = client->sess.spectatorState == SPECTATOR_FOLLOW;
   if( following )
   {
@@ -412,7 +412,7 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd )
         g_entities[ clientNum ].client->sess.spectatorState != SPECTATOR_NOT )
       following = qfalse;
   }
-  
+
   // Check to see if we are in the spawn queue
   if( client->pers.teamSelection == TEAM_ALIENS )
     queued = G_SearchSpawnQueue( &level.alienSpawnQueue, ent - g_entities );
@@ -596,7 +596,7 @@ void ClientTimerActions( gentity_t *ent, int msec )
   while ( client->time100 >= 100 )
   {
     weapon_t weapon = BG_GetPlayerWeapon( &client->ps );
-  
+
     client->time100 -= 100;
 
     // Restore or subtract stamina
@@ -607,7 +607,7 @@ void ClientTimerActions( gentity_t *ent, int msec )
       client->ps.stats[ STAT_STAMINA ] -= STAMINA_SPRINT_TAKE;
     else if( walking || crouched )
       client->ps.stats[ STAT_STAMINA ] += STAMINA_WALK_RESTORE;
-      
+
     // Check stamina limits
     if( client->ps.stats[ STAT_STAMINA ] > STAMINA_MAX )
       client->ps.stats[ STAT_STAMINA ] = STAMINA_MAX;
@@ -630,16 +630,16 @@ void ClientTimerActions( gentity_t *ent, int msec )
       case WP_ABUILD:
       case WP_ABUILD2:
       case WP_HBUILD:
-      
+
         // Set validity bit on buildable
-        if( ( client->ps.stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT ) > BA_NONE )
+        if( ( client->ps.stats[ STAT_BUILDABLE ] & SB_BUILDABLE_MASK ) > BA_NONE )
         {
           int     dist = BG_Class( ent->client->ps.stats[ STAT_CLASS ] )->buildDist;
-          vec3_t  dummy, dummy2;
-          int     dummy3;
+          vec3_t  dummy, dummy2, dummy3;
+          int     dummy4;
 
-          if( G_CanBuild( ent, client->ps.stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT,
-                          dist, dummy, dummy2, &dummy3 ) == IBE_NONE )
+          if( G_CanBuild( ent, client->ps.stats[ STAT_BUILDABLE ] & SB_BUILDABLE_MASK,
+                          dist, dummy, dummy2, dummy3, &dummy4 ) == IBE_NONE )
             client->ps.stats[ STAT_BUILDABLE ] |= SB_VALID_TOGGLEBIT;
           else
             client->ps.stats[ STAT_BUILDABLE ] &= ~SB_VALID_TOGGLEBIT;
@@ -664,7 +664,7 @@ void ClientTimerActions( gentity_t *ent, int msec )
         break;
     }
 
-    if( ent->client->pers.teamSelection == TEAM_HUMANS && 
+    if( ent->client->pers.teamSelection == TEAM_HUMANS &&
         ( client->ps.stats[ STAT_STATE ] & SS_HEALING_2X ) )
     {
       int remainingStartupTime = MEDKIT_STARTUP_TIME - ( level.time - client->lastMedKitTime );
@@ -1539,7 +1539,7 @@ void ClientThink_real( gentity_t *ent )
     ent->flags &= ~FL_FORCE_GESTURE;
     ent->client->pers.cmd.buttons |= BUTTON_GESTURE;
   }
-  
+
   // clear fall velocity before every pmove
   client->pmext.fallVelocity = 0.0f;
 

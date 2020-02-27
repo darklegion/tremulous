@@ -1,4 +1,5 @@
 #include "ui/menudef.h"
+#include "ui/menustyle.h"
 
 {
 
@@ -31,7 +32,7 @@
     fullscreen MENU_FALSE
     outOfBoundsClick
     rect (320-(W/2)) (240-(H/2)) W H
-    focusColor 1 .75 0 1
+    focusColor WINDOW_FOCUSCOLOR
     style WINDOW_STYLE_FILLED
     popup
     onOpen
@@ -49,12 +50,14 @@
       name window
       rect 0 0 W H
       style WINDOW_STYLE_FILLED
-      backcolor 0 0 0 .75
+      backcolor WINDOW_BACKCOLOR
       visible MENU_TRUE
       decoration
-      border WINDOW_BORDER_KCGRADIENT
+
+      border WINDOW_BORDER_ROUNDED
       borderSize 1.0
-      borderColor 0.5 0.5 0.5 1
+      borderColor WINDOW_BORDER
+      borderStyle WINDOW_BORDER_STYLE
     }
 
 
@@ -95,7 +98,7 @@
 //      {
 //        play "sound/misc/menu1.wav";
 //        uiScript DownloadUpdate;
-//        close install_update 
+//        close install_update
 //      }
 //    }
 //
@@ -118,7 +121,7 @@
 //      {
 //        play "sound/misc/menu1.wav";
 //        uiScript InstallUpdate;
-//        close install_update 
+//        close install_update
 //      }
 //    }
 

@@ -2007,6 +2007,7 @@ void CL_NextDownload(void)
     char *remoteName, *localName;
     bool useCURL = false;
     int prompt;
+    int remaining;
 
     // A download has finished, check whether this matches a referenced checksum
     if (*clc.downloadName && !clc.activeCURLNotGameRelated)
@@ -2023,6 +2024,16 @@ void CL_NextDownload(void)
     // We are looking to start a download here
     if (*clc.downloadList)
     {
+        // Calculated
+        remaining = 1;  // 1 to be rounded up, '@' may not be in pair
+        s = clc.downloadList;
+        while (*s)
+          if (*(s++) == '@')
+            remaining++;
+        remaining /= 2;
+        clc.downloadDone = clc.downloadTotal - remaining;
+        Cvar_SetValue("cl_downloadDone", clc.downloadDone);
+
         // Prompt if we do not allow automatic downloads
         prompt = com_downloadPrompt->integer;
         if (!(prompt & DLP_TYPE_MASK) && !(cl_allowDownload->integer & DLF_ENABLE))
@@ -2221,6 +2232,8 @@ and determine if we need to download them
 */
 void CL_InitDownloads(void)
 {
+    char *s;
+
     if (FS_ComparePaks(clc.downloadList, sizeof(clc.downloadList), true))
     {
         Com_Printf("Need paks: %s\n", clc.downloadList);
@@ -2228,10 +2241,20 @@ void CL_InitDownloads(void)
         Cvar_Set("com_downloadPrompt", "0");
         if (*clc.downloadList)
         {
+            clc.downloadDone = 0;
+            clc.downloadTotal = 0;
+            s = clc.downloadList;
+            while (*s)
+              if (*(s++) == '@')
+                clc.downloadTotal++;
+            clc.downloadTotal /= 2;
+
             // if autodownloading is not enabled on the server
             clc.state = CA_CONNECTED;
             *clc.downloadTempName = *clc.downloadName = 0;
             Cvar_Set("cl_downloadName", "");
+            Cvar_Set("cl_downloadDone", "0");
+            Cvar_SetValue("cl_downloadTotal", clc.downloadTotal);
             CL_NextDownload();
             return;
         }
@@ -4687,7 +4710,7 @@ static void CL_InitRef(void)
     Com_Printf("----- Initializing Renderer ----\n");
 
 #ifdef USE_RENDERER_DLOPEN
-    cl_renderer = Cvar_Get("cl_renderer", "opengl2", CVAR_ARCHIVE | CVAR_LATCH);
+    cl_renderer = Cvar_Get("cl_renderer", "opengl1", CVAR_ARCHIVE | CVAR_LATCH);
 
     Com_sprintf(dllName, sizeof(dllName), "renderer_%s" DLL_EXT, cl_renderer->string);
 

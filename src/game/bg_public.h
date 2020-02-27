@@ -72,7 +72,7 @@ enum
   CS_VOTE_YES         = CS_VOTE_STRING + NUM_TEAMS,
   CS_VOTE_NO          = CS_VOTE_YES + NUM_TEAMS,
   CS_VOTE_CALLER      = CS_VOTE_NO + NUM_TEAMS,
-  
+
   CS_GAME_VERSION     = CS_VOTE_CALLER + NUM_TEAMS,
   CS_LEVEL_START_TIME,      // so the timer only shows the current level
   CS_INTERMISSION,          // when 1, fraglimit/timelimit has been hit and intermission will start in a second or two
@@ -83,6 +83,8 @@ enum
 
   CS_ALIEN_STAGES,
   CS_HUMAN_STAGES,
+  CS_ALIEN_STATUS,
+  CS_HUMAN_STATUS,
 
   CS_MODELS,
   CS_SOUNDS           = CS_MODELS + MAX_MODELS,
@@ -259,7 +261,10 @@ typedef enum
 #define SS_HEALING_2X           0x00000800 // medkit or double healing rate
 #define SS_HEALING_3X           0x00001000 // triple healing rate
 
-#define SB_VALID_TOGGLEBIT      0x00002000
+#define SB_BUILDABLE_MASK       0x000000ff
+#define SB_ROTATION_MASK        0x0000f000
+#define SB_ROTATION_UNIT        0x00001000
+#define SB_VALID_TOGGLEBIT      0x00000200
 
 // player_state->persistant[] indexes
 // these fields are the only part of player_state that isn't
@@ -1030,7 +1035,7 @@ typedef struct
   qboolean      dccTest;
   qboolean      transparentTest;
   qboolean      uniqueTest;
-  
+
   int       value;
 } buildableAttributes_t;
 
@@ -1103,8 +1108,31 @@ typedef struct
   team_t    team;
 } upgradeAttributes_t;
 
+// Teams status provided by the server, also a remplacement for /teamstatus
+typedef struct
+{
+  int omBuilding;
+  int omHealth;
+  int spawns;
+  int builders;
+  int boosters;
+} alienStates_t;
+
+typedef struct
+{
+  int rcBuilding;
+  int rcHealth;
+  int spawns;
+  int builders;
+  int armourys;
+  int medicals;
+  int computers;
+} humanStates_t;
+
 qboolean  BG_WeaponIsFull( weapon_t weapon, int stats[ ], int ammo, int clips );
 qboolean  BG_InventoryContainsWeapon( int weapon, int stats[ ] );
+void      BG_GetConflictingWithInventory( int refSlots, int stats[ ], int conflictingWP[WP_NUM_WEAPONS - 1],
+                                          int conflictingUP[UP_NUM_UPGRADES - 1] );
 int       BG_SlotsForInventory( int stats[ ] );
 void      BG_AddUpgradeToInventory( int item, int stats[ ] );
 void      BG_RemoveUpgradeFromInventory( int item, int stats[ ] );

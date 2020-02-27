@@ -51,11 +51,19 @@ enum
 
 enum
 {
-  WINDOW_BORDER_NONE,      // no border
-  WINDOW_BORDER_FULL,      // full border based on border color (single pixel)
-  WINDOW_BORDER_HORZ,      // horizontal borders only
-  WINDOW_BORDER_VERT,      // vertical borders only
-  WINDOW_BORDER_KCGRADIENT // horizontal border using the gradient bars
+  WINDOW_BORDER_NONE,       // no border
+  WINDOW_BORDER_FULL,       // full border based on border color (single pixel)
+  WINDOW_BORDER_HORZ,       // horizontal borders only
+  WINDOW_BORDER_VERT,       // vertical borders only
+  WINDOW_BORDER_KCGRADIENT, // horizontal border using the gradient bars
+  WINDOW_BORDER_ROUNDED     // full rounded
+};
+
+enum
+{
+  BORDER_SQUARE,          // as WINDOW_BORDER_FULL
+  BORDER_ROUNDED,         // rounded
+  BORDER_FOLD             // fold paper
 };
 
 enum
@@ -112,7 +120,7 @@ enum
   FEEDER_HELP_LIST,            // help topics
   FEEDER_RESOLUTIONS,           // display resolutions
   FEEDER_TREMVOICECMD,      // voice commands
-  FEEDER_GITHUB_RELEASE           // latest update info 
+  FEEDER_GITHUB_RELEASE           // latest update info
 };
 
 // display flags
@@ -187,6 +195,7 @@ enum
   CG_LAGOMETER,
   CG_SPEEDOMETER,
   CG_PLAYER_CROSSHAIRNAMES,
+  CG_TEAM_STATUS,
   CG_STAGE_REPORT_TEXT,
   CG_ALIENS_SCORE_LABEL,
   CG_HUMANS_SCORE_LABEL,
@@ -199,6 +208,8 @@ enum
   CG_KILLFEED,
   CG_PLAYER_THZ_SCANNER,
 
+  UI_DOWNLOAD_OVERALL,
+
   UI_NETSOURCE,
   UI_NETMAPPREVIEW,
   UI_NETMAPCINEMATIC,
@@ -210,13 +221,20 @@ enum
   UI_SELECTEDMAPNAME,
 
   UI_TEAMINFOPANE,
+  UI_TEAMINFOPANEMODEL,
   UI_ACLASSINFOPANE,
+  UI_ACLASSINFOPANEMODEL,
   UI_AUPGRADEINFOPANE,
+  UI_AUPGRADEINFOPANEMODEL,
   UI_HITEMINFOPANE,
+  UI_HITEMINFOPANEMODEL,
   UI_HBUYINFOPANE,
+  UI_HBUYINFOPANEMODEL,
   UI_HSELLINFOPANE,
   UI_ABUILDINFOPANE,
+  UI_ABUILDINFOPANEMODEL,
   UI_HBUILDINFOPANE,
+  UI_HBUILDINFOPANEMODEL,
   UI_HELPINFOPANE,
 
   UI_VOICECMDINFOPANE

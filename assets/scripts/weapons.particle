@@ -392,7 +392,7 @@ models/weapons/prifle/impactPS
     particle
     {
       shader sync gfx/prifle/red_blob
-      
+
       radius 0 3.0 6.0
       alpha  70 1.0 0.0
       rotation 0 ~360 -
@@ -526,11 +526,11 @@ models/weapons/lcannon/impactPS
     particle
     {
       shader sync gfx/blaster/orange_particle
-      
+
       radius 0 8.0 16.0
       alpha  0 1.0 0.0
       rotation 0 ~360 -
-      
+
       scaleWithCharge 0.10
 
       lifeTime 250
@@ -598,7 +598,7 @@ models/weapons/lcannon/impactPS
       alpha  0 1.0 0.0
       rotation 0 ~360 -
       bounce 1.0
-      
+
       scaleWithCharge 0.10
 
       lifeTime 1000~1000
@@ -617,7 +617,7 @@ models/weapons/lcannon/secondaryImpactPS
     particle
     {
       shader sync gfx/blaster/orange_particle
-      
+
       radius 0 8.0 16.0
       alpha  0 1.0 0.0
       rotation 0 ~360 -
@@ -855,6 +855,40 @@ models/weapons/grenade/impactPS
   }
 }
 
+models/weapons/builderupg/impactPS
+{
+  ejector
+  {
+    particle
+    {
+      shader sync gfx/sprites/green_acid
+
+      displacement 0 0 0 ~6
+
+      velocityType      normal
+      velocityDir       linear
+      velocityMagnitude 300
+      velocity          0 0 1 ~80
+
+      accelerationType      static
+      accelerationDir       linear
+      accelerationMagnitude 800
+      acceleration          0 0 -1 0
+
+      radius 0 5.0~2.0 0.0
+      alpha  0 1.0 0.0
+      rotation 0 ~360 -
+      bounce 0.4~100%
+
+      lifeTime 275
+    }
+
+    count 4
+    delay 0
+    period 0 - ~0%
+  }
+}
+
 models/weapons/level3upg/impactPS
 {
   ejector
@@ -884,6 +918,37 @@ models/weapons/level3upg/impactPS
     }
 
     count 12
+    delay 0
+    period 0 - ~0%
+  }
+
+  ejector
+  {
+    particle
+    {
+      shader sync gfx/sprites/green_acid
+
+      displacement 0 0 0 ~6
+
+      velocityType      normal
+      velocityDir       linear
+      velocityMagnitude 300
+      velocity          0 0 1 ~80
+
+      accelerationType      static
+      accelerationDir       linear
+      accelerationMagnitude 800
+      acceleration          0 0 -1 0
+
+      radius 0 5.0~2.0 0.0
+      alpha  0 1.0 0.0
+      rotation 0 ~360 -
+      bounce 0.4~100%
+
+      lifeTime 275
+    }
+
+    count 8
     delay 0
     period 0 - ~0%
   }

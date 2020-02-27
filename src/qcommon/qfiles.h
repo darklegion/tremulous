@@ -39,7 +39,7 @@ along with Tremulous; if not, see <https://www.gnu.org/licenses/>
 #endif
 
 // surface geometry should not exceed these limits
-#define SHADER_MAX_VERTEXES 1000
+#define SHADER_MAX_VERTEXES 3000
 #define SHADER_MAX_INDEXES (6 * SHADER_MAX_VERTEXES)
 
 // the maximum size of game relative pathnames

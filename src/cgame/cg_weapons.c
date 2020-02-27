@@ -1254,8 +1254,8 @@ void CG_AddViewWeapon( playerState_t *ps )
     return;
 
   // draw a prospective buildable infront of the player
-  if( ( ps->stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT ) > BA_NONE )
-    CG_GhostBuildable( ps->stats[ STAT_BUILDABLE ] & ~SB_VALID_TOGGLEBIT );
+  if( ( ps->stats[ STAT_BUILDABLE ] & SB_BUILDABLE_MASK ) > BA_NONE )
+    CG_GhostBuildable( ps->stats[ STAT_BUILDABLE ] & SB_BUILDABLE_MASK );
 
   // no gun if in third person view
   if( cg.renderingThirdPerson )
@@ -1407,20 +1407,7 @@ void CG_DrawItemSelect( rectDef_t *rect, vec4_t color )
   if( cg.predictedPlayerState.stats[ STAT_HEALTH ] <= 0 )
     return;
 
-  if( !( cg.snap->ps.pm_flags & PMF_FOLLOW ) )
-  {
-    // first make sure that whatever it selected is actually selectable
-    if( cg.weaponSelect < 32 )
-    {
-      if( !CG_WeaponSelectable( cg.weaponSelect ) )
-        CG_NextWeapon_f( );
-    }
-    else
-    {
-      if( !CG_UpgradeSelectable( cg.weaponSelect - 32 ) )
-        CG_NextWeapon_f( );
-    }
-  }
+  CG_AutoSelectWeapon_f( );
 
   // showing weapon select clears pickup item display, but not the blend blob
   cg.itemPickupTime = 0;
@@ -1574,6 +1561,46 @@ void CG_DrawItemSelectText( rectDef_t *rect, float scale, int textStyle )
   }
 
   trap_R_SetColor( NULL );
+}
+
+
+/*
+===============
+CG_AutoSelectWeapon_f
+===============
+*/
+void CG_AutoSelectWeapon_f( void )
+{
+  static weapon_t oldWeapon;
+  weapon_t        weapon;
+  playerState_t   *ps;
+
+  if( ( cg.snap->ps.pm_flags & PMF_FOLLOW ) )
+    return;
+
+  ps = &cg.snap->ps;
+
+  weapon = BG_GetPlayerWeapon( ps );
+
+  // Allways reset cursor on current weapon
+  if ( weapon != oldWeapon )
+  {
+    oldWeapon = weapon;
+    if( cg.weaponSelect != weapon && CG_WeaponSelectable ( weapon ) )
+      cg.weaponSelect = weapon;
+  }
+
+  // make sure that whatever it selected is actually selectable
+  if( cg.weaponSelect < 32 )
+  {
+    if( !CG_WeaponSelectable( cg.weaponSelect ) )
+      CG_NextWeapon_f( );
+  }
+  else
+  {
+    if( !CG_UpgradeSelectable( cg.weaponSelect - 32 ) )
+      CG_NextWeapon_f( );
+  }
 }
 
 
@@ -1875,7 +1902,7 @@ void CG_MissileHitEntity( weapon_t weaponNum, weaponMode_t weaponMode,
     }
     else
       sound = IMPACTSOUND_DEFAULT;
-          
+
     CG_MissileHitWall( weaponNum, weaponMode, 0, origin, dir, sound, charge );
   }
 }

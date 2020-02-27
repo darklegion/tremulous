@@ -1396,6 +1396,90 @@ void G_CalculateStages( void )
 
 /*
 ============
+G_CalculateStates
+============
+*/
+void G_CalculateStates( void )
+{
+  int i;
+  int abuilders = 0;
+  int hbuilders = 0;
+  int arm = 0, medi = 0, dcc = 0, boost = 0;
+  int om = 0, rc = 0;
+  qboolean ombuild = qfalse, rcbuild = qfalse;
+  gentity_t *ent;
+
+  // Objects counter
+  for ( i = 1, ent = g_entities + i; i < level.num_entities; i++, ent++ )
+  {
+    if( !ent->inuse || ent->s.eType != ET_BUILDABLE || ent->health <= 0 )
+      continue;
+
+    switch (ent->s.modelindex) {
+
+      case BA_A_OVERMIND:
+        om = ent->health;
+        ombuild = !ent->spawned;
+        break;
+
+      case BA_H_REACTOR:
+        rc = ent->health;
+        rcbuild = !ent->spawned;
+        break;
+
+      case BA_A_BOOSTER:
+        boost++;
+        break;
+
+      case BA_H_MEDISTAT:
+        medi++;
+        break;
+
+      case BA_H_ARMOURY:
+        arm++;
+        break;
+
+      case BA_H_DCC:
+        dcc++;
+        break;
+
+    }
+  }
+
+  // Builder counter
+  for( i = 0; i < level.maxclients; i++ )
+  {
+    ent = &g_entities[ i ];
+    if( !ent->client || ent->client->pers.connected != CON_CONNECTED
+        || ent->client->pers.teamSelection == TEAM_NONE || ent->client->sess.spectatorState == SPECTATOR_FOLLOW )
+      continue;
+
+    if( ent->client->ps.stats[ STAT_CLASS ] == PCL_ALIEN_BUILDER0 ||
+        ent->client->ps.stats[ STAT_CLASS ] == PCL_ALIEN_BUILDER0_UPG )
+      abuilders++;
+    else if( BG_InventoryContainsWeapon( WP_HBUILD, ent->client->ps.stats ) )
+      hbuilders++;
+  }
+
+
+  trap_SetConfigstring( CS_ALIEN_STATUS, va( "%d %d %d %d %d",
+        ombuild,
+        ( om > 0 ) ? om : 0,
+        level.numAlienSpawns,
+        abuilders,
+        boost ) );
+  trap_SetConfigstring( CS_HUMAN_STATUS, va( "%d %d %d %d %d %d %d",
+        rcbuild,
+        ( rc > 0 ) ? rc : 0,
+        level.numHumanSpawns,
+        hbuilders,
+        arm,
+        medi,
+        dcc ) );
+}
+
+/*
+============
 CalculateAvgPlayers
 
 Calculates the average number of players playing this game
@@ -2003,8 +2087,8 @@ void CheckExitRules( void )
   {
     //humans win
     level.lastWin = TEAM_HUMANS;
-    trap_SendServerCommand( -1, "print \"Humans win\n\"");
-    trap_SetConfigstring( CS_WINNER, "Humans Win" );
+    trap_SendServerCommand( -1, "print \"Humans win [human]\n\"");
+    trap_SetConfigstring( CS_WINNER, "^5  Humans Win [human]" );
     LogExit( "Humans win." );
   }
   else if( level.uncondAlienWin ||
@@ -2014,8 +2098,8 @@ void CheckExitRules( void )
   {
     //aliens win
     level.lastWin = TEAM_ALIENS;
-    trap_SendServerCommand( -1, "print \"Aliens win\n\"");
-    trap_SetConfigstring( CS_WINNER, "Aliens Win" );
+    trap_SendServerCommand( -1, "print \"Aliens win [dragoon]\n\"");
+    trap_SetConfigstring( CS_WINNER, "^1  Aliens Win [dragoon]" );
     LogExit( "Aliens win." );
   }
 }
@@ -2306,7 +2390,7 @@ void G_RunFrame( int levelTime )
       trap_SendServerCommand( -1, "cp \"The game has been paused. Please wait.\"" );
 
       if( level.pausedTime >= 110000  && level.pausedTime <= 119000 )
-        trap_SendServerCommand( -1, va( "print \"Server: Game will auto-unpause in %d seconds\n\"", 
+        trap_SendServerCommand( -1, va( "print \"Server: Game will auto-unpause in %d seconds\n\"",
           (int) ( (float) ( 120000 - level.pausedTime ) / 1000.0f ) ) );
     }
 
@@ -2443,6 +2527,7 @@ void G_RunFrame( int levelTime )
   {
     G_CalculateBuildPoints( );
     G_CalculateStages( );
+    G_CalculateStates( );
     G_SpawnClients( TEAM_ALIENS );
     G_SpawnClients( TEAM_HUMANS );
     G_CalculateAvgPlayers( );

@@ -195,6 +195,11 @@ static void GLimp_DetectAvailableModes(void)
 		numModes++;
 	}
 
+	// Adding automatic mode
+	modes[numModes].w = 0;
+	modes[numModes].h = 0;
+	numModes++;
+
 	if( numModes > 1 )
 		qsort( modes, numModes, sizeof( SDL_Rect ), GLimp_CompareModes );
 
@@ -462,7 +467,7 @@ static int GLimp_SetMode( bool failSafe, bool fullscreen, bool noborder, bool co
 			glConfig.stereoEnabled = qfalse;
 			SDL_GL_SetAttribute(SDL_GL_STEREO, 0);
 		}
-		
+
 		SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
 
 #if 0 // if multisampling is enabled on X11, this causes create window to fail.

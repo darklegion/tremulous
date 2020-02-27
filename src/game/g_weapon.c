@@ -445,8 +445,8 @@ void massDriverFire( gentity_t *ent )
   SnapVectorTowards( tr.endpos, muzzle );
 
   // send impact
-  if( traceEnt->takedamage && 
-      (traceEnt->s.eType == ET_BUILDABLE || 
+  if( traceEnt->takedamage &&
+      (traceEnt->s.eType == ET_BUILDABLE ||
        traceEnt->s.eType == ET_PLAYER ) )
   {
     BloodSpurt( ent, traceEnt, &tr );
@@ -493,7 +493,7 @@ void hiveFire( gentity_t *ent )
 
   // Fire from the hive tip, not the center
   VectorMA( muzzle, ent->r.maxs[ 2 ], ent->s.origin2, origin );
-  
+
   fire_hive( ent, origin, forward );
 }
 
@@ -535,7 +535,7 @@ void flamerFire( gentity_t *ent )
 {
   vec3_t origin;
 
-  // Correct muzzle so that the missile does not start in the ceiling 
+  // Correct muzzle so that the missile does not start in the ceiling
   VectorMA( muzzle, -7.0f, up, origin );
 
   // Correct muzzle so that the missile fires from the player's hand
@@ -592,8 +592,8 @@ void lasGunFire( gentity_t *ent )
   SnapVectorTowards( tr.endpos, muzzle );
 
   // send impact
-  if( traceEnt->takedamage && 
-      (traceEnt->s.eType == ET_BUILDABLE || 
+  if( traceEnt->takedamage &&
+      (traceEnt->s.eType == ET_BUILDABLE ||
        traceEnt->s.eType == ET_PLAYER ) )
   {
     BloodSpurt( ent, traceEnt, &tr );
@@ -799,7 +799,7 @@ buildFire
 void buildFire( gentity_t *ent, dynMenu_t menu )
 {
   buildable_t buildable = ( ent->client->ps.stats[ STAT_BUILDABLE ]
-                            & ~SB_VALID_TOGGLEBIT );
+                            & SB_BUILDABLE_MASK );
 
   if( buildable > BA_NONE )
   {
@@ -1286,7 +1286,7 @@ qboolean CheckPounceAttack( gentity_t *ent )
 
   if( !traceEnt->takedamage )
     return qfalse;
-    
+
   // Deal damage
   timeMax = ent->client->ps.weapon == WP_ALEVEL3 ? LEVEL3_POUNCE_TIME :
                                                    LEVEL3_POUNCE_TIME_UPG;
@@ -1388,7 +1388,7 @@ void G_CrushAttack( gentity_t *ent, gentity_t *victim )
 
   if( damage < 0 )
     damage = 0;
-    
+
   // Players also get damaged periodically
   if( victim->client &&
       ent->client->lastCrushTime + LEVEL4_CRUSH_REPEAT < level.time )
@@ -1396,7 +1396,7 @@ void G_CrushAttack( gentity_t *ent, gentity_t *victim )
     ent->client->lastCrushTime = level.time;
     damage += LEVEL4_CRUSH_DAMAGE;
   }
-  
+
   if( damage < 1 )
     return;
 
@@ -1517,7 +1517,7 @@ void FireWeapon( gentity_t *ent )
   {
     // set aiming directions
     AngleVectors( ent->client->ps.viewangles, forward, right, up );
-    CalcMuzzlePoint( ent, forward, right, up, muzzle );    
+    CalcMuzzlePoint( ent, forward, right, up, muzzle );
   }
   else
   {

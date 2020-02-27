@@ -284,7 +284,9 @@ struct clientConnection_t {
 
     int sv_allowDownload;
     char sv_dlURL[MAX_CVAR_VALUE_STRING];
-    int downloadNumber;
+    int downloadNumber;  // Unused ??
+    int downloadTotal;
+    int downloadDone;
     int downloadBlock;  // block we are waiting for
     int downloadCount;  // how many bytes we got
     int downloadSize;  // how many bytes we got

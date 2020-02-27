@@ -199,8 +199,16 @@ void AssetCache(void)
     uiInfo.uiDC.Assets.scrollBarArrowLeft = trap_R_RegisterShaderNoMip(ASSET_SCROLLBAR_ARROWLEFT);
     uiInfo.uiDC.Assets.scrollBarArrowRight = trap_R_RegisterShaderNoMip(ASSET_SCROLLBAR_ARROWRIGHT);
     uiInfo.uiDC.Assets.scrollBarThumb = trap_R_RegisterShaderNoMip(ASSET_SCROLL_THUMB);
+    uiInfo.uiDC.Assets.showMoreArrow = trap_R_RegisterShaderNoMip(ASSET_SHOWMORE_ARROW);
     uiInfo.uiDC.Assets.sliderBar = trap_R_RegisterShaderNoMip(ASSET_SLIDER_BAR);
     uiInfo.uiDC.Assets.sliderThumb = trap_R_RegisterShaderNoMip(ASSET_SLIDER_THUMB);
+
+    uiInfo.uiDC.Assets.cornerIn[BORDER_SQUARE]         = trap_R_RegisterShaderNoMip( ASSET_CORNERIN_SQUARE );
+    uiInfo.uiDC.Assets.cornerOut[BORDER_SQUARE]        = trap_R_RegisterShaderNoMip( ASSET_CORNEROUT_SQUARE );
+    uiInfo.uiDC.Assets.cornerIn[BORDER_ROUNDED]        = trap_R_RegisterShaderNoMip( ASSET_CORNERIN_ROUNDED );
+    uiInfo.uiDC.Assets.cornerOut[BORDER_ROUNDED]       = trap_R_RegisterShaderNoMip( ASSET_CORNEROUT_ROUNDED );
+    uiInfo.uiDC.Assets.cornerIn[BORDER_FOLD]           = trap_R_RegisterShaderNoMip( ASSET_CORNERIN_FOLD );
+    uiInfo.uiDC.Assets.cornerOut[BORDER_FOLD]          = trap_R_RegisterShaderNoMip( ASSET_CORNEROUT_FOLD );
 
     if (ui_emoticons.integer)
     {
@@ -218,14 +226,11 @@ void AssetCache(void)
 
 void UI_DrawSides(float x, float y, float w, float h, float size)
 {
-    float sizeY;
-
     UI_AdjustFrom640(&x, &y, &w, &h);
-    sizeY = size * uiInfo.uiDC.yscale;
     size *= uiInfo.uiDC.xscale;
 
-    trap_R_DrawStretchPic(x, y + sizeY, size, h - (sizeY * 2.0f), 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
-    trap_R_DrawStretchPic(x + w - size, y + sizeY, size, h - (sizeY * 2.0f), 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
+    trap_R_DrawStretchPic(x, y, size, h, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
+    trap_R_DrawStretchPic(x + w - size, y, size, h, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
 }
 
 void UI_DrawTopBottom(float x, float y, float w, float h, float size)
@@ -236,6 +241,19 @@ void UI_DrawTopBottom(float x, float y, float w, float h, float size)
     trap_R_DrawStretchPic(x, y + h - size, w, size, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
 }
 
+void UI_DrawCorners( float x, float y, float w, float h, float size, const float *style, qhandle_t *pic )
+{
+  float hs, vs;
+  UI_AdjustFrom640( &x, &y, &w, &h );
+  hs = size * uiInfo.uiDC.xscale;
+  vs = size * uiInfo.uiDC.yscale;
+
+  trap_R_DrawStretchPic( x, y, hs, vs, 0, 0, 0.5, 0.5, pic[(int)(style[0])] );
+  trap_R_DrawStretchPic( x + w - hs, y, hs, vs, 0.5, 0, 1, 0.5, pic[(int)(style[1])] );
+  trap_R_DrawStretchPic( x + w - hs, y + h - vs, hs, vs, 0.5, 0.5, 1, 1, pic[(int)(style[2])] );
+  trap_R_DrawStretchPic( x, y + h - vs, hs, vs, 0, 0.5, 0.5, 1, pic[(int)(style[3])] );
+}
+
 /*
 ================
 UI_DrawRect
@@ -243,14 +261,41 @@ UI_DrawRect
 Coordinates are 640*480 virtual values
 =================
 */
-void UI_DrawRect(float x, float y, float width, float height, float size, const float *color)
+void UI_DrawRect(float x, float y, float w, float h, float size, const float *color)
 {
+    float sizeY, sizeX;
+
+    UI_AdjustFrom640(&x, &y, &w, &h);
+    sizeY = size * uiInfo.uiDC.yscale;
+    sizeX = size * uiInfo.uiDC.xscale;
+
     trap_R_SetColor(color);
 
-    UI_DrawTopBottom(x, y, width, height, size);
-    UI_DrawSides(x, y, width, height, size);
+    trap_R_DrawStretchPic(x, y, w, sizeY, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
+    trap_R_DrawStretchPic(x, y + h - sizeY, w, sizeY, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
+
+    trap_R_DrawStretchPic(x, y + sizeY, sizeX, h - (sizeY * 2.0f), 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
+    trap_R_DrawStretchPic(x + w - sizeX, y + sizeY, sizeX, h - (sizeY * 2.0f), 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
 
     trap_R_SetColor(NULL);
+}
+
+/*
+================
+UI_DrawRoundedRect
+
+Coordinates are 640*480 virtual values
+=================
+*/
+void UI_DrawRoundedRect( float x, float y, float width, float height, float size, const float *style, const float *color )
+{
+  trap_R_SetColor( color );
+
+  UI_DrawTopBottom( x + size * 4, y, width - size * 8, height, size );
+  UI_DrawSides( x, y + size * 4, width, height - size * 8, size );
+  UI_DrawCorners( x, y, width, height, size * 4, style, uiInfo.uiDC.Assets.cornerOut );
+
+  trap_R_SetColor( NULL );
 }
 
 /*
@@ -1774,6 +1819,144 @@ static stage_t UI_GetCurrentHumanStage(void)
 
 /*
 ===============
+UI_alienStates
+===============
+*/
+static void UI_alienStates(alienStates_t *state)
+{
+  char alienStates[MAX_TOKEN_CHARS];
+
+  trap_Cvar_VariableStringBuffer("ui_alienStates", alienStates, sizeof(alienStates));
+
+  sscanf( alienStates, "%d %d %d %d %d", &state->omBuilding, &state->omHealth,
+      &state->spawns, &state->builders, &state->boosters );
+}
+
+/*
+===============
+UI_humanStates
+===============
+*/
+static void UI_humanStates(humanStates_t *state)
+{
+  char humanStates[MAX_TOKEN_CHARS];
+
+  trap_Cvar_VariableStringBuffer("ui_humanStates", humanStates, sizeof(humanStates));
+
+  sscanf( humanStates, "%d %d %d %d %d %d %d", &state->rcBuilding, &state->rcHealth,
+      &state->spawns, &state->builders, &state->armourys, &state->medicals, &state->computers );
+}
+
+/*
+===============
+UI_GetStageText
+===============
+*/
+static char *UI_GetStageText(int stages)
+{
+    if (stages == (( 1 << S1 )|( 1 << S2 )|( 1 << S3 )))
+      return "from stage 1";
+    else if (stages == (( 1 << S2 )|( 1 << S3 )))
+      return "from stage 2";
+    else if (stages == (( 1 << S1 )|( 1 << S3 )))
+      return "at stages 1 and 3";
+    else if (stages == (( 1 << S1 )|( 1 << S2 )))
+      return "at stages 1 and 2";
+    else if (stages == (( 1 << S3 )))
+      return "at stage 3";
+    else if (stages == ( 1 << S1 ))
+      return "at stage 1";
+    else if (stages == ( 1 << S2 ))
+      return "at stage 2";
+    else
+      return "nevertime";
+}
+
+/*
+===============
+UI_DrawNewProgressBar
+===============
+*/
+static void UI_DrawNewProgressBar( rectDef_t *rect, vec4_t color,
+                                vec4_t backColor, float scale, int align,
+                                int textalign, int textStyle, float borderSize,
+                                float progress )
+{
+  float   rimWidth;
+  float   doneWidth, leftWidth;
+  float   tx, ty;
+  char    textBuffer[ 8 ];
+  float   borderStyle[ 4 ];
+  int     w, h;
+
+  borderStyle[0] = BORDER_FOLD;
+  borderStyle[1] = BORDER_FOLD;
+  borderStyle[2] = BORDER_FOLD;
+  borderStyle[3] = BORDER_FOLD;
+
+  if( borderSize >= 0.0f )
+    rimWidth = borderSize;
+  else
+  {
+    rimWidth = rect->h / 20.0f;
+    if( rimWidth < 0.6f )
+      rimWidth = 0.6f;
+  }
+
+  if( progress < 0.0f )
+    progress = 0.0f;
+  else if( progress > 1.0f )
+    progress = 1.0f;
+
+  doneWidth = ( rect->w - (8 + 6) * rimWidth ) * progress + 6 * rimWidth;
+
+  //draw rim and bar
+  UI_DrawRoundedRect(rect->x, rect->y, rect->w, rect->h, rimWidth, borderStyle, color);
+  UI_FillRoundedRect(
+    rect->x + rimWidth * 4,
+    rect->y + rimWidth * 4,
+    doneWidth,
+    rect->h - rimWidth * 8,
+    rimWidth, borderStyle, backColor);
+
+
+  //draw text
+  if( scale > 0.0 )
+  {
+    Com_sprintf( textBuffer, sizeof( textBuffer ), "%d%%", (int)( progress * 100 ) );
+    w = UI_Text_Width(textBuffer, scale);
+    h = UI_Text_Height(textBuffer, scale);
+    UI_Text_Paint( rect->x + (rect->w - w ) / 2.0, rect->y + h + ( rect->h - h ) / 2.0f, scale, color, textBuffer, 0, 0, textStyle );
+  }
+}
+
+/*
+===============
+UI_DrawDownloadOverall
+===============
+*/
+static void UI_DrawDownloadOverall( rectDef_t *rect, vec4_t color, vec4_t backColor, float scale,
+                                    int align, int textalign, int textStyle,
+                                    float borderSize )
+{
+  char downloadName[MAX_INFO_VALUE];
+  int downloadSize, downloadCount, downloadTotal, downloadDone;
+
+  trap_Cvar_VariableStringBuffer("cl_downloadName", downloadName, sizeof(downloadName));
+  if (!*downloadName)
+    return;
+
+  downloadSize = trap_Cvar_VariableValue("cl_downloadSize");
+  downloadCount = trap_Cvar_VariableValue("cl_downloadCount");
+  downloadTotal = trap_Cvar_VariableValue("cl_downloadTotal");
+  downloadDone = trap_Cvar_VariableValue("cl_downloadDone");
+
+  UI_DrawNewProgressBar( rect, color, backColor, scale, align, textalign, textStyle, borderSize,
+    (downloadSize ? ((float)downloadCount / downloadSize / downloadTotal) : 0) + (float)downloadDone / downloadTotal );
+}
+
+/*
+===============
 UI_DrawInfoPane
 ===============
 */
@@ -1803,47 +1986,48 @@ static void UI_DrawInfoPane(menuItem_t *item, rectDef_t *rect, float text_x, flo
                         ALIEN_CREDITS_PER_KILL - 1) /
                     ALIEN_CREDITS_PER_KILL;
 
-            if (value < 1)
-            {
-                s = va("%s\n\n%s", BG_ClassConfig(item->v.pclass)->humanName, BG_Class(item->v.pclass)->info);
-            }
-            else
-            {
-                s = va("%s\n\n%s\n\nFrags: %d", BG_ClassConfig(item->v.pclass)->humanName,
-                    BG_Class(item->v.pclass)->info, value);
-            }
+            s = va("%s\n\n%s\nAvailable %s.%s",
+                  BG_ClassConfig(item->v.pclass)->humanName,
+                  BG_Class(item->v.pclass)->info,
+                  UI_GetStageText(BG_Class(item->v.pclass)->stages),
+                  (
+                    (value > 0) ?
+                      va("\n\nFrags: %d", value) :
+                      ""
+                  )
+                );
 
             break;
 
         case INFOTYPE_WEAPON:
             value = BG_Weapon(item->v.weapon)->price;
 
-            if (value == 0)
-            {
-                s = va(
-                    "%s\n\n%s\n\nCredits: Free", BG_Weapon(item->v.weapon)->humanName, BG_Weapon(item->v.weapon)->info);
-            }
-            else
-            {
-                s = va("%s\n\n%s\n\nCredits: %d", BG_Weapon(item->v.weapon)->humanName, BG_Weapon(item->v.weapon)->info,
-                    value);
-            }
+            s = va("%s\n\n%s\nAvailable %s.\n\nCredits: %s",
+                  BG_Weapon(item->v.weapon)->humanName,
+                  BG_Weapon(item->v.weapon)->info,
+                  UI_GetStageText(BG_Weapon(item->v.weapon)->stages),
+                  (
+                    (value > 0) ?
+                      va("%d", value) :
+                      "Free"
+                  )
+                );
 
             break;
 
         case INFOTYPE_UPGRADE:
             value = BG_Upgrade(item->v.upgrade)->price;
 
-            if (value == 0)
-            {
-                s = va("%s\n\n%s\n\nCredits: Free", BG_Upgrade(item->v.upgrade)->humanName,
-                    BG_Upgrade(item->v.upgrade)->info);
-            }
-            else
-            {
-                s = va("%s\n\n%s\n\nCredits: %d", BG_Upgrade(item->v.upgrade)->humanName,
-                    BG_Upgrade(item->v.upgrade)->info, value);
-            }
+            s = va("%s\n\n%s\nAvailable %s.\n\nCredits: %s",
+                  BG_Upgrade(item->v.upgrade)->humanName,
+                  BG_Upgrade(item->v.upgrade)->info,
+                  UI_GetStageText(BG_Upgrade(item->v.upgrade)->stages),
+                  (
+                    (value > 0) ?
+                      va("%d", value) :
+                      "Free"
+                  )
+                );
 
             break;
 
@@ -1864,20 +2048,195 @@ static void UI_DrawInfoPane(menuItem_t *item, rectDef_t *rect, float text_x, flo
                     break;
             }
 
-            if (value == 0)
-            {
-                s = va("%s\n\n%s", BG_Buildable(item->v.buildable)->humanName, BG_Buildable(item->v.buildable)->info);
-            }
-            else
-            {
-                s = va("%s\n\n%s\n\n%s: %d", BG_Buildable(item->v.buildable)->humanName,
-                    BG_Buildable(item->v.buildable)->info, string, value);
-            }
+            s = va("%s\n\n%s\nAvailable %s.%s",
+                BG_Buildable(item->v.buildable)->humanName,
+                BG_Buildable(item->v.buildable)->info,
+                UI_GetStageText(BG_Buildable(item->v.buildable)->stages),
+                (
+                  (value > 0) ?
+                    va("\n\n%s: %d", string, value) :
+                    ""
+                )
+              );
 
             break;
     }
 
     UI_DrawTextBlock(rect, text_x, text_y, color, scale, textalign, textvalign, textStyle, s);
+}
+
+static void UI_PositionRotatedEntityOnTag( refEntity_t *entity, const refEntity_t *parent,
+                                    qhandle_t parentModel, char *tagName )  // Imported from cg_ents.c
+{
+  int           i;
+  orientation_t lerped;
+  vec3_t        tempAxis[ 3 ];
+
+//AxisClear( entity->axis );
+  // lerp the tag
+  uiInfo.uiDC.lerpTag( &lerped, parentModel, parent->oldframe, parent->frame,
+                  1.0 - parent->backlerp, tagName );
+
+  // FIXME: allow origin offsets along tag?
+  VectorCopy( parent->origin, entity->origin );
+  for( i = 0; i < 3; i++ )
+    VectorMA( entity->origin, lerped.origin[ i ], parent->axis[ i ], entity->origin );
+
+  // had to cast away the const to avoid compiler problems...
+  MatrixMultiply( entity->axis, lerped.axis, tempAxis );
+  MatrixMultiply( tempAxis, ( (refEntity_t *)parent )->axis, entity->axis );
+}
+
+static void UI_DrawInfoPaneModel(menuItemModel_t *model, rectDef_t *rect)
+{
+  float x, y, w, h;
+  refdef_t refdef;
+  refEntity_t ent[4];
+  vec3_t tmpMins, tmpMaxs;
+  vec3_t mins, maxs;
+  vec3_t origin;
+  vec3_t angles;
+  float suggestedDist;
+  int i;
+  int millisPerDeg = 100;  // 36s = 1 turn
+  float tmpFrame;
+
+  if (model->assetCount == 0)
+    return;
+
+  // setup the refdef
+  memset(&refdef, 0, sizeof(refdef));
+
+  refdef.rdflags = RDF_NOWORLDMODEL;
+
+  AxisClear(refdef.viewaxis);
+
+  x = rect->x;
+  y = rect->y;
+  w = rect->w;
+  h = rect->h;
+
+  UI_AdjustFrom640(&x, &y, &w, &h);
+
+  refdef.x = x;
+  refdef.y = y;
+  refdef.width = w;
+  refdef.height = h;
+
+  if (model->autoAdjust)
+  {
+    uiInfo.uiDC.modelBounds(model->asset[0], mins, maxs);
+    for (i = 1; i < model->assetCount; i++)  // Maybe there are already a function for this ?
+    {
+      uiInfo.uiDC.modelBounds(model->asset[i], tmpMins, tmpMaxs);
+      if (tmpMins[0] < mins[0])
+        mins[0] = tmpMins[0];
+      if (tmpMins[1] < mins[1])
+        mins[1] = tmpMins[1];
+      if (tmpMins[2] < mins[2])
+        mins[2] = tmpMins[2];
+      if (tmpMaxs[0] > maxs[0])
+        maxs[0] = tmpMaxs[0];
+      if (tmpMaxs[1] > maxs[1])
+        maxs[1] = tmpMaxs[1];
+      if (tmpMaxs[2] > maxs[2])
+        maxs[2] = tmpMaxs[2];
+    }
+
+    origin[1] = 0.5 * (mins[1] + maxs[1]);
+    suggestedDist = ((0.5 * (maxs[2]*model->scale - mins[2]*model->scale)) / 0.268); // len / tan( fov/2 )
+
+    if (model->forceCentering)
+    {
+      origin[0] = suggestedDist * 2.0;
+      origin[2] = -0.5 * (mins[2] + maxs[2]);
+    }
+    else
+    {
+      origin[0] = suggestedDist * 0.5 + model->cameraDist * 0.5;
+      origin[2] = model->zOffset * 0.2 + (-0.5 * (mins[2] + maxs[2])) * 0.8;
+    }
+  }
+  else
+  {
+    origin[0] = model->cameraDist;
+    origin[1] = 0;
+    origin[2] = model->zOffset;
+  }
+
+
+  refdef.fov_x = (int)((float)refdef.width / 640.0f * 90.0f);
+  refdef.fov_y = atan2(
+    refdef.height,
+    refdef.width / tan( refdef.fov_x / 360 * M_PI )
+  );
+  refdef.fov_y *= ( 360 / M_PI );
+
+  refdef.fov_x *= 2;
+  refdef.fov_y *= 2;
+
+  uiInfo.uiDC.clearScene();
+
+  refdef.time = uiInfo.uiDC.realTime;
+
+  // add the model
+
+  VectorSet(angles, 0,
+    (
+      (float)(uiInfo.uiDC.realTime % (360 * millisPerDeg)) / (float)(millisPerDeg)
+    ), 0);
+
+  for (i = 0; i < model->assetCount; i++)
+  {
+    memset(&(ent[i]), 0, sizeof(ent[i]));
+
+    if( model->scale != 1.0f )
+    {
+      VectorScale( ent[i].axis[ 0 ], model->scale, ent[i].axis[ 0 ] );
+      VectorScale( ent[i].axis[ 1 ], model->scale, ent[i].axis[ 1 ] );
+      VectorScale( ent[i].axis[ 2 ], model->scale, ent[i].axis[ 2 ] );
+
+      ent[i].nonNormalizedAxes = qtrue;
+    }
+    else
+      ent[i].nonNormalizedAxes = qfalse;
+
+    ent[i].hModel = model->asset[i];
+    if (model->skin[i])
+      ent[i].customSkin = model->skin[i];
+    if (model->frame[i] == -1)
+    {
+      // Animate
+      tmpFrame = (uiInfo.uiDC.realTime * model->animationFPS[i]) / 1000;
+      ent[i].backlerp = 1.0f - (tmpFrame - floor(tmpFrame));
+      tmpFrame = (int)tmpFrame % (model->animation[i][1] - model->animation[i][0])
+                  + model->animation[i][0];
+      ent[i].frame = tmpFrame + 1;
+      ent[i].oldframe = tmpFrame;
+    }
+    else
+    {
+      // Static
+      ent[i].frame = model->frame[i];
+      ent[i].oldframe = model->frame[i];
+    }
+    if (i && strlen(model->parent[i - 1].parentTagName))
+    {
+      AxisClear(ent[i].axis);
+      UI_PositionRotatedEntityOnTag(&(ent[i]), &(ent[model->parent[i - 1].parentIndex]), model->asset[model->parent[i - 1].parentIndex], model->parent[i - 1].parentTagName);
+    }
+    else
+    {
+      VectorCopy(origin, ent[i].origin);
+      VectorCopy(origin, ent[i].lightingOrigin);
+      VectorCopy(ent[i].origin, ent[i].oldorigin);
+      AnglesToAxis(angles, ent[i].axis);
+    }
+
+    ent[i].renderfx = RF_LIGHTING_ORIGIN | RF_NOSHADOW;
+    uiInfo.uiDC.addRefEntityToScene(&(ent[i]));
+  }
+  uiInfo.uiDC.renderScene(&refdef);
 }
 
 static void UI_DrawServerMapPreview(rectDef_t *rect, float scale, vec4_t color)
@@ -2073,7 +2432,7 @@ static void UI_BuildPlayerList(void)
 static void UI_DrawGLInfo(rectDef_t *rect, float scale, int textalign, int textvalign, vec4_t color, int textStyle,
     float text_x, float text_y)
 {
-    char buffer[4096];
+    char buffer[8192];
 
     Com_sprintf(buffer, sizeof(buffer),
         "VENDOR: %s\nVERSION: %s\n"
@@ -2099,9 +2458,18 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
 
     switch (ownerDraw)
     {
+        case UI_DOWNLOAD_OVERALL:
+            UI_DrawDownloadOverall(&rect, foreColor, backColor, scale, align, textalign,
+                textStyle, borderSize );
+            break;
+
         case UI_TEAMINFOPANE:
             UI_DrawInfoPane(&uiInfo.teamList[uiInfo.teamIndex], &rect, text_x, text_y, scale, textalign, textvalign,
                 foreColor, textStyle);
+            break;
+
+        case UI_TEAMINFOPANEMODEL:
+            UI_DrawInfoPaneModel(&uiInfo.teamListModel[uiInfo.teamIndex], &rect);
             break;
 
         case UI_VOICECMDINFOPANE:
@@ -2114,9 +2482,19 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
                 textvalign, foreColor, textStyle);
             break;
 
+        case UI_ACLASSINFOPANEMODEL:
+            UI_DrawInfoPaneModel(&uiInfo.alienClassListModel[uiInfo.alienClassIndex], &rect);
+            break;
+
         case UI_AUPGRADEINFOPANE:
             UI_DrawInfoPane(&uiInfo.alienUpgradeList[uiInfo.alienUpgradeIndex], &rect, text_x, text_y, scale, textalign,
                 textvalign, foreColor, textStyle);
+            break;
+
+        case UI_AUPGRADEINFOPANEMODEL:
+            UI_DrawInfoPaneModel(&uiInfo.alienUpgradeListModel[
+                uiInfo.alienUpgradeList[uiInfo.alienUpgradeIndex].v.pclass
+              ], &rect);
             break;
 
         case UI_HITEMINFOPANE:
@@ -2124,9 +2502,21 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
                 textvalign, foreColor, textStyle);
             break;
 
+        case UI_HITEMINFOPANEMODEL:
+            UI_DrawInfoPaneModel(&uiInfo.humanItemListModel[uiInfo.humanItemIndex], &rect);
+            break;
+
         case UI_HBUYINFOPANE:
             UI_DrawInfoPane(&uiInfo.humanArmouryBuyList[uiInfo.humanArmouryBuyIndex], &rect, text_x, text_y, scale,
                 textalign, textvalign, foreColor, textStyle);
+            break;
+
+        case UI_HBUYINFOPANEMODEL:
+            UI_DrawInfoPaneModel(&uiInfo.humanArmouryBuyListModel[
+                uiInfo.humanArmouryBuyList[uiInfo.humanArmouryBuyIndex].type == INFOTYPE_WEAPON ?
+                  uiInfo.humanArmouryBuyList[uiInfo.humanArmouryBuyIndex].v.weapon :
+                  (uiInfo.humanArmouryBuyList[uiInfo.humanArmouryBuyIndex].v.upgrade + WP_NUM_WEAPONS)
+              ], &rect);
             break;
 
         case UI_HSELLINFOPANE:
@@ -2139,9 +2529,22 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
                 textvalign, foreColor, textStyle);
             break;
 
+        case UI_ABUILDINFOPANEMODEL:
+            UI_DrawInfoPaneModel(&uiInfo.alienBuildListModel[
+                uiInfo.alienBuildList[uiInfo.alienBuildIndex].v.buildable
+              ], &rect);
+            break;
+
         case UI_HBUILDINFOPANE:
             UI_DrawInfoPane(&uiInfo.humanBuildList[uiInfo.humanBuildIndex], &rect, text_x, text_y, scale, textalign,
                 textvalign, foreColor, textStyle);
+            break;
+            break;
+
+        case UI_HBUILDINFOPANEMODEL:
+            UI_DrawInfoPaneModel(&uiInfo.humanBuildListModel[
+                uiInfo.humanBuildList[uiInfo.humanBuildIndex].v.buildable
+              ], &rect);
             break;
 
         case UI_HELPINFOPANE:
@@ -2352,6 +2755,9 @@ UI_LoadTeams
 */
 static void UI_LoadTeams(void)
 {
+    class_t alienPreviewClass = PCL_ALIEN_LEVEL0;
+
+    memset(&(uiInfo.teamListModel), 0, sizeof(uiInfo.teamListModel));
     uiInfo.teamCount = 4;
 
     uiInfo.teamList[0].text = "Aliens";
@@ -2364,6 +2770,14 @@ static void UI_LoadTeams(void)
         "of abilities including basic melee attacks, movement-"
         "crippling poisons and more.";
 
+    uiInfo.teamListModel[0].asset[0] = uiInfo.uiDC.registerModel(va("models/players/%s/nonseg.md3", BG_ClassConfig(alienPreviewClass)->modelName));
+    uiInfo.teamListModel[0].assetCount = 1;
+    uiInfo.teamListModel[0].skin[0] = uiInfo.uiDC.registerSkin(va("models/players/%s/nonseg_%s.skin", BG_ClassConfig(alienPreviewClass)->modelName, BG_ClassConfig(alienPreviewClass)->skinName));
+    uiInfo.teamListModel[0].scale = BG_ClassConfig(alienPreviewClass)->modelScale;
+    uiInfo.teamListModel[0].zOffset = BG_ClassConfig(alienPreviewClass)->zOffset;
+    uiInfo.teamListModel[0].cameraDist = 100;
+    uiInfo.teamListModel[0].autoAdjust = qtrue;
+
     uiInfo.teamList[1].text = "Humans";
     uiInfo.teamList[1].cmd = "cmd team humans\n";
     uiInfo.teamList[1].type = INFOTYPE_TEXT;
@@ -2374,6 +2788,25 @@ static void UI_LoadTeams(void)
         "ensures they stay built. A wide range of upgrades and "
         "weapons are available to the humans, each contributing "
         "to eradicate the alien threat.";
+    uiInfo.teamListModel[1].assetCount = 4;
+    uiInfo.teamListModel[1].asset[0] = uiInfo.uiDC.registerModel("models/players/human_base/lower.md3");
+    uiInfo.teamListModel[1].asset[1] = uiInfo.uiDC.registerModel("models/players/human_base/upper.md3");
+    uiInfo.teamListModel[1].asset[2] = uiInfo.uiDC.registerModel("models/players/human_base/head.md3");
+    uiInfo.teamListModel[1].asset[3] = uiInfo.uiDC.registerModel("models/weapons/rifle/rifle.md3");
+    uiInfo.teamListModel[1].skin[0] = uiInfo.uiDC.registerSkin("models/players/human_base/lower_default.skin");
+    uiInfo.teamListModel[1].skin[1] = uiInfo.uiDC.registerSkin("models/players/human_base/upper_default.skin");
+    uiInfo.teamListModel[1].skin[2] = uiInfo.uiDC.registerSkin("models/players/human_base/head_default.skin");
+    uiInfo.teamListModel[1].frame[0] = 157;
+    uiInfo.teamListModel[1].frame[1] = 151;
+    uiInfo.teamListModel[1].parent[0].parentTagName = "tag_torso";
+    // uiInfo.teamListModel[1].parent[0].parentIndex = 0;
+    uiInfo.teamListModel[1].parent[1].parentTagName = "tag_head";
+    uiInfo.teamListModel[1].parent[1].parentIndex = 1;
+    uiInfo.teamListModel[1].parent[2].parentTagName = "tag_weapon";
+    uiInfo.teamListModel[1].parent[2].parentIndex = 1;
+    uiInfo.teamListModel[1].cameraDist = 75;
+    uiInfo.teamListModel[1].zOffset = -16;
+    uiInfo.teamListModel[1].scale = 1.0;
 
     uiInfo.teamList[2].text = "Spectate";
     uiInfo.teamList[2].cmd = "cmd team spectate\n";
@@ -2392,13 +2825,21 @@ UI_AddClass
 ===============
 */
 
-static void UI_AddClass(class_t class)
+static void UI_AddClass(class_t class, char *prefix)
 {
-    uiInfo.alienClassList[uiInfo.alienClassCount].text = BG_ClassConfig(class)->humanName;
+    uiInfo.alienClassList[uiInfo.alienClassCount].text = String_Alloc(va("%s%s", prefix, BG_ClassConfig(class)->humanName));
     uiInfo.alienClassList[uiInfo.alienClassCount].cmd = String_Alloc(va("cmd class %s\n", BG_Class(class)->name));
     uiInfo.alienClassList[uiInfo.alienClassCount].type = INFOTYPE_CLASS;
 
     uiInfo.alienClassList[uiInfo.alienClassCount].v.pclass = class;
+
+    uiInfo.alienClassListModel[uiInfo.alienClassCount].asset[0] = uiInfo.uiDC.registerModel(va("models/players/%s/nonseg.md3", BG_ClassConfig(class)->modelName));
+    uiInfo.alienClassListModel[uiInfo.alienClassCount].assetCount = 1;
+    uiInfo.alienClassListModel[uiInfo.alienClassCount].skin[0] = uiInfo.uiDC.registerSkin(va("models/players/%s/nonseg_%s.skin", BG_ClassConfig(class)->modelName, BG_ClassConfig(class)->skinName));
+    uiInfo.alienClassListModel[uiInfo.alienClassCount].scale = BG_ClassConfig(class)->modelScale;
+    uiInfo.alienClassListModel[uiInfo.alienClassCount].zOffset = BG_ClassConfig(class)->zOffset;
+    uiInfo.alienClassListModel[uiInfo.alienClassCount].cameraDist = 100;
+    uiInfo.alienClassListModel[uiInfo.alienClassCount].autoAdjust = qtrue;
 
     uiInfo.alienClassCount++;
 }
@@ -2410,16 +2851,29 @@ UI_LoadAlienClasses
 */
 static void UI_LoadAlienClasses(void)
 {
+    alienStates_t state;
+    stage_t       stage;
+    char          *prefix;
+
+    memset(&(uiInfo.alienClassListModel), 0, sizeof(uiInfo.alienClassListModel));
     uiInfo.alienClassCount = 0;
+    UI_alienStates(&state);
+    stage = UI_GetCurrentAlienStage();
+
+    if ( ( !state.omHealth || !state.spawns || BG_BuildableAllowedInStage(BA_A_BOOSTER, stage) && !state.boosters )
+          && !state.builders )
+        prefix = "[!] ";
+    else
+        prefix = "";
 
     if (BG_ClassIsAllowed(PCL_ALIEN_LEVEL0))
-        UI_AddClass(PCL_ALIEN_LEVEL0);
+        UI_AddClass(PCL_ALIEN_LEVEL0, "");
 
     if (BG_ClassIsAllowed(PCL_ALIEN_BUILDER0_UPG) &&
         BG_ClassAllowedInStage(PCL_ALIEN_BUILDER0_UPG, UI_GetCurrentAlienStage()))
-        UI_AddClass(PCL_ALIEN_BUILDER0_UPG);
+        UI_AddClass(PCL_ALIEN_BUILDER0_UPG, prefix);
     else if (BG_ClassIsAllowed(PCL_ALIEN_BUILDER0))
-        UI_AddClass(PCL_ALIEN_BUILDER0);
+        UI_AddClass(PCL_ALIEN_BUILDER0, prefix);
 }
 
 /*
@@ -2427,12 +2881,19 @@ static void UI_LoadAlienClasses(void)
 UI_AddItem
 ===============
 */
-static void UI_AddItem(weapon_t weapon)
+static void UI_AddItem(weapon_t weapon, char *prefix)
 {
-    uiInfo.humanItemList[uiInfo.humanItemCount].text = BG_Weapon(weapon)->humanName;
+    uiInfo.humanItemList[uiInfo.humanItemCount].text = String_Alloc(va("%s%s", prefix, BG_Weapon(weapon)->humanName));
     uiInfo.humanItemList[uiInfo.humanItemCount].cmd = String_Alloc(va("cmd class %s\n", BG_Weapon(weapon)->name));
     uiInfo.humanItemList[uiInfo.humanItemCount].type = INFOTYPE_WEAPON;
     uiInfo.humanItemList[uiInfo.humanItemCount].v.weapon = weapon;
+
+    uiInfo.humanItemListModel[uiInfo.humanItemCount].asset[0] = uiInfo.uiDC.registerModel(va("models/weapons/%s/%s.md3", BG_Weapon(weapon)->name, BG_Weapon(weapon)->name));
+    uiInfo.humanItemListModel[uiInfo.humanItemCount].assetCount = 1;
+    uiInfo.humanItemListModel[uiInfo.humanItemCount].scale = 1.0;
+    uiInfo.humanItemListModel[uiInfo.humanItemCount].cameraDist = 0.0;
+    uiInfo.humanItemListModel[uiInfo.humanItemCount].autoAdjust = qtrue;
+    uiInfo.humanItemListModel[uiInfo.humanItemCount].forceCentering = qtrue;
 
     uiInfo.humanItemCount++;
 }
@@ -2444,13 +2905,28 @@ UI_LoadHumanItems
 */
 static void UI_LoadHumanItems(void)
 {
+    humanStates_t state;
+    stage_t       stage;
+    char          *prefix;
+
+    memset(&(uiInfo.humanItemListModel), 0, sizeof(uiInfo.humanItemListModel));
     uiInfo.humanItemCount = 0;
+    UI_humanStates(&state);
+    stage = UI_GetCurrentHumanStage();
+
+    if ( ( !state.rcHealth || !state.spawns || BG_BuildableAllowedInStage(BA_H_ARMOURY, stage) && !state.armourys
+            || BG_BuildableAllowedInStage(BA_H_MEDISTAT, stage) && !state.medicals
+            || BG_BuildableAllowedInStage(BA_H_DCC, stage) && !state.computers )
+          && !state.builders )
+        prefix = "[!] ";
+    else
+        prefix = "";
 
     if (BG_WeaponIsAllowed(WP_MACHINEGUN))
-        UI_AddItem(WP_MACHINEGUN);
+        UI_AddItem(WP_MACHINEGUN, "");
 
     if (BG_WeaponIsAllowed(WP_HBUILD))
-        UI_AddItem(WP_HBUILD);
+        UI_AddItem(WP_HBUILD, prefix);
 }
 
 /*
@@ -2511,62 +2987,402 @@ static void UI_ParseCarriageList(void)
 
 /*
 ===============
+UI_GetCurrentCredits
+===============
+*/
+static int UI_GetCurrentCredits(void)
+{
+  char creditCvar[MAX_TOKEN_CHARS];
+
+  trap_Cvar_VariableStringBuffer("ui_credit", creditCvar, sizeof(creditCvar));
+  return (atoi(creditCvar));
+}
+
+/*
+===============
+UI_GetConflictingUpgradeBudget
+
+Calculate a reduction of what will be sold when buying the upgrade
+===============
+*/
+static int UI_GetConflictingUpgradeBudget( upgrade_t upgrade )
+{
+  int budget = 0;
+  int i;
+  int refSlots = BG_Upgrade(upgrade)->slots;
+
+  for (i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++)
+      if (uiInfo.upgrades & (1 << i) && BG_Upgrade(i)->slots & refSlots)
+          budget += BG_Upgrade(i)->price;
+
+  return (budget);
+}
+
+/*
+===============
+UI_IsAmmoFull
+===============
+*/
+static qboolean UI_IsAmmoFull(void)
+{
+  char ammoFullCvar[MAX_TOKEN_CHARS];
+
+  trap_Cvar_VariableStringBuffer("ui_ammoFull", ammoFullCvar, sizeof(ammoFullCvar));
+  return (atoi(ammoFullCvar));
+}
+
+/*
+===============
+UI_CanUpgradeToWeapon
+===============
+*/
+static qboolean UI_CanUpgradeToWeapon(weapon_t weapon, int sellingBudget, int credits)
+{
+  return (BG_Weapon(weapon)->price <= sellingBudget + credits);
+}
+
+/*
+===============
+UI_IsBetterWeapon
+===============
+*/
+static qboolean UI_IsBetterWeapon(weapon_t weapon, int sellingBudget)
+{
+  return (BG_Weapon(weapon)->price > sellingBudget);
+}
+
+/*
+===============
+UI_CanGotUpgrade
+===============
+*/
+static qboolean UI_CanGotUpgrade(upgrade_t upgrade, int credits)
+{
+  credits += UI_GetConflictingUpgradeBudget( upgrade );
+  return (BG_Upgrade(upgrade)->price <= credits);
+}
+
+/*
+===============
+UI_IsUpgradeBetter
+===============
+*/
+static qboolean UI_IsUpgradeBetter(upgrade_t upgrade, int slots)
+{
+  return (!(BG_Upgrade(upgrade)->slots & slots) || upgrade == UP_BATTLESUIT);
+}
+
+/*
+===============
+UI_LoadHumanArmouryModels
+===============
+*/
+static void UI_LoadHumanArmouryModels(void)
+{
+    int i, j = 0;
+
+    memset(&(uiInfo.humanArmouryBuyListModel), 0, sizeof(uiInfo.humanArmouryBuyListModel));
+    for (i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++)
+    {
+        uiInfo.humanArmouryBuyListModel[i].assetCount = 0;
+        if (BG_Weapon(i)->team == TEAM_HUMANS && BG_Weapon(i)->purchasable)
+        {
+            uiInfo.humanArmouryBuyListModel[i].asset[0] = uiInfo.uiDC.registerModel(va("models/weapons/%s/%s.md3", BG_Weapon(i)->name, BG_Weapon(i)->name));
+            uiInfo.humanArmouryBuyListModel[i].assetCount = 1;
+            uiInfo.humanArmouryBuyListModel[i].scale = 1.0;
+            uiInfo.humanArmouryBuyListModel[i].autoAdjust = qtrue;
+            uiInfo.humanArmouryBuyListModel[i].forceCentering = qtrue;
+        }
+    }
+    for (i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++)
+    {
+        j = WP_NUM_WEAPONS + i;
+        uiInfo.humanArmouryBuyListModel[j].assetCount = 0;
+
+        if (BG_Upgrade(i)->team == TEAM_HUMANS && BG_Upgrade(i)->purchasable)
+        {
+            uiInfo.humanArmouryBuyListModel[j].assetCount = 1;
+            uiInfo.humanArmouryBuyListModel[j].scale = 1.0;
+            switch (i) {
+              case UP_LIGHTARMOUR:
+                uiInfo.humanArmouryBuyListModel[j].assetCount = 3;
+                uiInfo.humanArmouryBuyListModel[j].asset[0] = uiInfo.uiDC.registerModel("models/players/human_base/lower.md3");
+                uiInfo.humanArmouryBuyListModel[j].asset[1] = uiInfo.uiDC.registerModel("models/players/human_base/upper.md3");
+                uiInfo.humanArmouryBuyListModel[j].asset[2] = uiInfo.uiDC.registerModel("models/players/human_base/head.md3");
+                uiInfo.humanArmouryBuyListModel[j].skin[0] = uiInfo.uiDC.registerSkin("models/players/human_base/lower_light.skin");
+                uiInfo.humanArmouryBuyListModel[j].skin[1] = uiInfo.uiDC.registerSkin("models/players/human_base/upper_light.skin");
+                uiInfo.humanArmouryBuyListModel[j].skin[2] = uiInfo.uiDC.registerSkin("models/players/human_base/head_default.skin");
+                uiInfo.humanArmouryBuyListModel[j].frame[0] = 157;
+                uiInfo.humanArmouryBuyListModel[j].frame[1] = 151;
+                uiInfo.humanArmouryBuyListModel[j].parent[0].parentTagName = "tag_torso";
+                uiInfo.humanArmouryBuyListModel[j].parent[1].parentTagName = "tag_head";
+                uiInfo.humanArmouryBuyListModel[j].parent[1].parentIndex = 1;
+                uiInfo.humanArmouryBuyListModel[j].cameraDist = 40;
+                uiInfo.humanArmouryBuyListModel[j].zOffset = -15;
+                break;
+              case UP_HELMET:
+                uiInfo.humanArmouryBuyListModel[j].assetCount = 3;
+                uiInfo.humanArmouryBuyListModel[j].asset[0] = uiInfo.uiDC.registerModel("models/players/human_base/lower.md3");
+                uiInfo.humanArmouryBuyListModel[j].asset[1] = uiInfo.uiDC.registerModel("models/players/human_base/upper.md3");
+                uiInfo.humanArmouryBuyListModel[j].asset[2] = uiInfo.uiDC.registerModel("models/players/human_base/head.md3");
+                uiInfo.humanArmouryBuyListModel[j].skin[0] = uiInfo.uiDC.registerSkin("models/players/human_base/lower_default.skin");
+                uiInfo.humanArmouryBuyListModel[j].skin[1] = uiInfo.uiDC.registerSkin("models/players/human_base/upper_default.skin");
+                uiInfo.humanArmouryBuyListModel[j].skin[2] = uiInfo.uiDC.registerSkin("models/players/human_base/head_light.skin");
+                uiInfo.humanArmouryBuyListModel[j].frame[0] = 157;
+                uiInfo.humanArmouryBuyListModel[j].frame[1] = 151;
+                uiInfo.humanArmouryBuyListModel[j].parent[0].parentTagName = "tag_torso";
+                uiInfo.humanArmouryBuyListModel[j].parent[1].parentTagName = "tag_head";
+                uiInfo.humanArmouryBuyListModel[j].parent[1].parentIndex = 1;
+                uiInfo.humanArmouryBuyListModel[j].cameraDist = 32;
+                uiInfo.humanArmouryBuyListModel[j].zOffset = -28;
+                break;
+              case UP_MEDKIT:
+                // Should get the red cross of medical station
+                break;
+              case UP_BATTPACK:
+                uiInfo.humanArmouryBuyListModel[j].assetCount = 4;
+                uiInfo.humanArmouryBuyListModel[j].asset[0] = uiInfo.uiDC.registerModel("models/players/human_base/lower.md3");
+                uiInfo.humanArmouryBuyListModel[j].asset[1] = uiInfo.uiDC.registerModel("models/players/human_base/upper.md3");
+                uiInfo.humanArmouryBuyListModel[j].asset[2] = uiInfo.uiDC.registerModel("models/players/human_base/head.md3");
+                uiInfo.humanArmouryBuyListModel[j].asset[3] = uiInfo.uiDC.registerModel("models/players/human_base/battpack.md3");
+                uiInfo.humanArmouryBuyListModel[j].skin[0] = uiInfo.uiDC.registerSkin("models/players/human_base/lower_default.skin");
+                uiInfo.humanArmouryBuyListModel[j].skin[1] = uiInfo.uiDC.registerSkin("models/players/human_base/upper_default.skin");
+                uiInfo.humanArmouryBuyListModel[j].skin[2] = uiInfo.uiDC.registerSkin("models/players/human_base/head_default.skin");
+                uiInfo.humanArmouryBuyListModel[j].frame[0] = 157;
+                uiInfo.humanArmouryBuyListModel[j].frame[1] = 151;
+                uiInfo.humanArmouryBuyListModel[j].parent[0].parentTagName = "tag_torso";
+                uiInfo.humanArmouryBuyListModel[j].parent[1].parentTagName = "tag_head";
+                uiInfo.humanArmouryBuyListModel[j].parent[1].parentIndex = 1;
+                uiInfo.humanArmouryBuyListModel[j].parent[2].parentTagName = "tag_head";
+                uiInfo.humanArmouryBuyListModel[j].parent[2].parentIndex = 1;
+                uiInfo.humanArmouryBuyListModel[j].cameraDist = 40;
+                uiInfo.humanArmouryBuyListModel[j].zOffset = -22;
+                break;
+              case UP_JETPACK:
+                uiInfo.humanArmouryBuyListModel[j].assetCount = 4;
+                uiInfo.humanArmouryBuyListModel[j].asset[0] = uiInfo.uiDC.registerModel("models/players/human_base/lower.md3");
+                uiInfo.humanArmouryBuyListModel[j].asset[1] = uiInfo.uiDC.registerModel("models/players/human_base/upper.md3");
+                uiInfo.humanArmouryBuyListModel[j].asset[2] = uiInfo.uiDC.registerModel("models/players/human_base/head.md3");
+                uiInfo.humanArmouryBuyListModel[j].asset[3] = uiInfo.uiDC.registerModel("models/players/human_base/jetpack.md3");
+                uiInfo.humanArmouryBuyListModel[j].skin[0] = uiInfo.uiDC.registerSkin("models/players/human_base/lower_default.skin");
+                uiInfo.humanArmouryBuyListModel[j].skin[1] = uiInfo.uiDC.registerSkin("models/players/human_base/upper_default.skin");
+                uiInfo.humanArmouryBuyListModel[j].skin[2] = uiInfo.uiDC.registerSkin("models/players/human_base/head_default.skin");
+                uiInfo.humanArmouryBuyListModel[j].frame[0] = 157;
+                uiInfo.humanArmouryBuyListModel[j].frame[1] = 151;
+                uiInfo.humanArmouryBuyListModel[j].parent[0].parentTagName = "tag_torso";
+                uiInfo.humanArmouryBuyListModel[j].parent[0].parentIndex = 0;
+                uiInfo.humanArmouryBuyListModel[j].parent[1].parentTagName = "tag_head";
+                uiInfo.humanArmouryBuyListModel[j].parent[1].parentIndex = 1;
+                uiInfo.humanArmouryBuyListModel[j].parent[2].parentTagName = "tag_head";
+                uiInfo.humanArmouryBuyListModel[j].parent[2].parentIndex = 1;
+                uiInfo.humanArmouryBuyListModel[j].cameraDist = 40;
+                uiInfo.humanArmouryBuyListModel[j].zOffset = -22;
+                break;
+              case UP_BATTLESUIT:
+              uiInfo.humanArmouryBuyListModel[j].assetCount = 3;
+                uiInfo.humanArmouryBuyListModel[j].asset[0] = uiInfo.uiDC.registerModel("models/players/human_bsuit/lower.md3");
+                uiInfo.humanArmouryBuyListModel[j].asset[1] = uiInfo.uiDC.registerModel("models/players/human_bsuit/upper.md3");
+                uiInfo.humanArmouryBuyListModel[j].asset[2] = uiInfo.uiDC.registerModel("models/players/human_bsuit/head.md3");
+                uiInfo.humanArmouryBuyListModel[j].skin[0] = uiInfo.uiDC.registerSkin("models/players/human_bsuit/lower_default.skin");
+                uiInfo.humanArmouryBuyListModel[j].skin[1] = uiInfo.uiDC.registerSkin("models/players/human_bsuit/upper_default.skin");
+                uiInfo.humanArmouryBuyListModel[j].skin[2] = uiInfo.uiDC.registerSkin("models/players/human_bsuit/head_default.skin");
+                uiInfo.humanArmouryBuyListModel[j].frame[0] = 166;
+                uiInfo.humanArmouryBuyListModel[j].frame[1] = 151;
+                uiInfo.humanArmouryBuyListModel[j].parent[0].parentTagName = "tag_torso";
+                uiInfo.humanArmouryBuyListModel[j].parent[1].parentTagName = "tag_head";
+                uiInfo.humanArmouryBuyListModel[j].parent[1].parentIndex = 1;
+                uiInfo.humanArmouryBuyListModel[j].cameraDist = 100;
+                uiInfo.humanArmouryBuyListModel[j].zOffset = -25;
+                break;
+              case UP_GRENADE:
+                uiInfo.humanArmouryBuyListModel[j].asset[0] = uiInfo.uiDC.registerModel("models/weapons/grenade/grenade.md3");
+                uiInfo.humanArmouryBuyListModel[j].cameraDist = 15;
+                break;
+              case UP_AMMO:
+                uiInfo.humanArmouryBuyListModel[j].asset[0] = uiInfo.uiDC.registerModel("models/weapons/shells/rifle-shell.md3");
+                uiInfo.humanArmouryBuyListModel[j].cameraDist = 15;
+                break;
+            }
+        }
+    }
+}
+
+/*
+===============
+UI_LoadHumanArmouryBuysWeapon
+===============
+*/
+static void UI_LoadHumanArmouryBuysWeapon(int priority, int *j, int stage, int sellingBudget,
+                                          int credits, qboolean criticalBuilds)
+{
+  int       i = 0;
+  qboolean  addWeapon;
+  char      *prefix;
+
+  for (i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++)
+  {
+      if (BG_Weapon(i)->team == TEAM_HUMANS && BG_Weapon(i)->purchasable &&
+          BG_WeaponIsAllowed(i) && !(uiInfo.weapons & (1 << i)))
+      {
+          addWeapon = qfalse;
+          switch (priority) {
+              case 0:
+                if (criticalBuilds == qtrue && i == WP_HBUILD)  // If there are critical builds to build
+                {
+                    addWeapon = qtrue;
+                    prefix = "[!] ";
+                }
+                break;
+              case 1:
+                  if (BG_WeaponAllowedInStage(i, stage) && UI_CanUpgradeToWeapon(i, sellingBudget, credits)
+                      && !(criticalBuilds == qtrue && i == WP_HBUILD))
+                  {
+                      addWeapon = qtrue;
+                      prefix = UI_IsBetterWeapon(i, sellingBudget) ? "[upgrade] " : "";
+                  }
+                  break;
+              case 2:
+                  if (BG_WeaponAllowedInStage(i, stage) && !UI_CanUpgradeToWeapon(i, sellingBudget, credits))
+                  {
+                      addWeapon = qtrue;
+                      prefix = "^0";
+                  }
+                  break;
+              case 3:
+                  if (!BG_WeaponAllowedInStage(i, stage))
+                  {
+                      addWeapon = qtrue;
+                      prefix = "[locked] ^0";
+                  }
+                  break;
+          }
+
+          if (addWeapon == qtrue)
+          {
+              uiInfo.humanArmouryBuyList[*j].text = String_Alloc(va("%s%s", prefix, BG_Weapon(i)->humanName));
+              uiInfo.humanArmouryBuyList[*j].cmd = String_Alloc(va("cmd buy %s\n", BG_Weapon(i)->name));
+              uiInfo.humanArmouryBuyList[*j].type = INFOTYPE_WEAPON;
+              uiInfo.humanArmouryBuyList[*j].v.weapon = i;
+
+              (*j)++;
+              uiInfo.humanArmouryBuyCount++;
+          }
+      }
+  }
+}
+
+
+/*
+===============
+UI_LoadHumanArmouryBuysUpgrade
+===============
+*/
+static void UI_LoadHumanArmouryBuysUpgrade(int priority, int *j, int stage, int upgrSlots, int credits)
+{
+    int       i = 0;
+    qboolean  addUpgrade;
+    char      *prefix;
+
+    for (i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++)
+    {
+        if (BG_Upgrade(i)->team == TEAM_HUMANS && BG_Upgrade(i)->purchasable &&
+            BG_UpgradeIsAllowed(i) && !(uiInfo.upgrades & (1 << i)))
+        {
+            addUpgrade = qfalse;
+            switch (priority) {
+                case 0:
+                    if (i == UP_AMMO && !UI_IsAmmoFull())
+                    {
+                        addUpgrade = qtrue;
+                        prefix = "[!] ";
+                    }
+                    break;
+                case 1:
+                    if (i != UP_AMMO && BG_UpgradeAllowedInStage(i, stage) && UI_CanGotUpgrade(i, credits))
+                    {
+                        addUpgrade = qtrue;
+                        prefix = UI_IsUpgradeBetter(i, upgrSlots) ? "[upgrade] " : "";
+                    }
+                    break;
+                case 2:
+                    if ((BG_UpgradeAllowedInStage(i, stage) && !UI_CanGotUpgrade(i, credits))
+                        || (i == UP_AMMO && UI_IsAmmoFull()))
+                    {
+                        addUpgrade = qtrue;
+                        prefix = "^0";
+                    }
+                    break;
+                case 3:
+                    if (!BG_UpgradeAllowedInStage(i, stage))
+                    {
+                        addUpgrade = qtrue;
+                        prefix = "[locked] ^0";
+                    }
+                    break;
+            }
+
+            if (addUpgrade == qtrue)
+            {
+                uiInfo.humanArmouryBuyList[*j].text = String_Alloc(va("%s%s", prefix, BG_Upgrade(i)->humanName));
+                uiInfo.humanArmouryBuyList[*j].cmd = String_Alloc(va("cmd buy %s\n", BG_Upgrade(i)->name));
+                uiInfo.humanArmouryBuyList[*j].type = INFOTYPE_UPGRADE;
+                uiInfo.humanArmouryBuyList[*j].v.upgrade = i;
+
+                (*j)++;
+                uiInfo.humanArmouryBuyCount++;
+            }
+        }
+    }
+}
+
+/*
+===============
 UI_LoadHumanArmouryBuys
 ===============
 */
 static void UI_LoadHumanArmouryBuys(void)
 {
     int i, j = 0;
+    humanStates_t state;
+    qboolean criticalBuilds;
     stage_t stage = UI_GetCurrentHumanStage();
-    int slots = 0;
+    int sellingBudget = 0;
+    int upgrSlots = 0;
+    int credits = UI_GetCurrentCredits();
 
+    UI_humanStates(&state);
     UI_ParseCarriageList();
 
     for (i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++)
-    {
         if (uiInfo.weapons & (1 << i))
-            slots |= BG_Weapon(i)->slots;
-    }
+          sellingBudget += BG_Weapon(i)->price;
 
     for (i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++)
-    {
         if (uiInfo.upgrades & (1 << i))
-            slots |= BG_Upgrade(i)->slots;
-    }
+            upgrSlots |= BG_Upgrade(i)->slots;
+
+    criticalBuilds = ( ( !state.rcHealth || !state.spawns || BG_BuildableAllowedInStage(BA_H_ARMOURY, stage) && !state.armourys
+            || BG_BuildableAllowedInStage(BA_H_MEDISTAT, stage) && !state.medicals
+            || BG_BuildableAllowedInStage(BA_H_DCC, stage) && !state.computers )
+          && !state.builders );
 
     uiInfo.humanArmouryBuyCount = 0;
 
-    for (i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++)
-    {
-        if (BG_Weapon(i)->team == TEAM_HUMANS && BG_Weapon(i)->purchasable && BG_WeaponAllowedInStage(i, stage) &&
-            BG_WeaponIsAllowed(i) && !(BG_Weapon(i)->slots & slots) && !(uiInfo.weapons & (1 << i)))
-        {
-            uiInfo.humanArmouryBuyList[j].text = BG_Weapon(i)->humanName;
-            uiInfo.humanArmouryBuyList[j].cmd = String_Alloc(va("cmd buy %s\n", BG_Weapon(i)->name));
-            uiInfo.humanArmouryBuyList[j].type = INFOTYPE_WEAPON;
-            uiInfo.humanArmouryBuyList[j].v.weapon = i;
+    // Critical (ammo mainly)
+    UI_LoadHumanArmouryBuysWeapon(0, &j, stage, sellingBudget, credits, criticalBuilds);
+    UI_LoadHumanArmouryBuysUpgrade(0, &j, stage, upgrSlots, credits);
 
-            j++;
+    // Available to buy
+    UI_LoadHumanArmouryBuysWeapon(1, &j, stage, sellingBudget, credits, criticalBuilds);
+    UI_LoadHumanArmouryBuysUpgrade(1, &j, stage, upgrSlots, credits);
 
-            uiInfo.humanArmouryBuyCount++;
-        }
-    }
+    // Unlocked but no enough funds
+    UI_LoadHumanArmouryBuysWeapon(2, &j, stage, sellingBudget, credits, criticalBuilds);
+    UI_LoadHumanArmouryBuysUpgrade(2, &j, stage, upgrSlots, credits);
 
-    for (i = UP_NONE + 1; i < UP_NUM_UPGRADES; i++)
-    {
-        if (BG_Upgrade(i)->team == TEAM_HUMANS && BG_Upgrade(i)->purchasable && BG_UpgradeAllowedInStage(i, stage) &&
-            BG_UpgradeIsAllowed(i) && !(BG_Upgrade(i)->slots & slots) && !(uiInfo.upgrades & (1 << i)))
-        {
-            uiInfo.humanArmouryBuyList[j].text = BG_Upgrade(i)->humanName;
-            uiInfo.humanArmouryBuyList[j].cmd = String_Alloc(va("cmd buy %s\n", BG_Upgrade(i)->name));
-            uiInfo.humanArmouryBuyList[j].type = INFOTYPE_UPGRADE;
-            uiInfo.humanArmouryBuyList[j].v.upgrade = i;
-
-            j++;
-
-            uiInfo.humanArmouryBuyCount++;
-        }
-    }
+    // Locked
+    UI_LoadHumanArmouryBuysWeapon(3, &j, stage, sellingBudget, credits, criticalBuilds);
+    UI_LoadHumanArmouryBuysUpgrade(3, &j, stage, upgrSlots, credits);
 }
 
 /*
@@ -2619,6 +3435,7 @@ UI_ArmouryRefreshCb
 */
 static void UI_ArmouryRefreshCb(void *data)
 {
+    static int oldFullAmmo = -1;
     int oldWeapons = uiInfo.weapons;
     int oldUpgrades = uiInfo.upgrades;
 
@@ -2630,6 +3447,91 @@ static void UI_ArmouryRefreshCb(void *data)
         UI_LoadHumanArmourySells();
         UI_RemoveCaptureFunc();
     }
+    else if (UI_IsAmmoFull() != oldFullAmmo)
+    {
+        UI_LoadHumanArmouryBuys();
+    }
+    oldFullAmmo = UI_IsAmmoFull();
+}
+
+/*
+===============
+UI_LoadAlienUpgradesModels
+===============
+*/
+static void UI_LoadAlienUpgradesModels(void)
+{
+  int i;
+
+  memset(&(uiInfo.alienUpgradeListModel), 0, sizeof(uiInfo.alienUpgradeListModel));
+  // No clean way found to determin is class is aliens one
+  for (i = PCL_NONE + 1; i < PCL_HUMAN; i++)
+  {
+    uiInfo.alienUpgradeListModel[i].asset[0] = uiInfo.uiDC.registerModel(va("models/players/%s/nonseg.md3", BG_ClassConfig(i)->modelName));
+    uiInfo.alienUpgradeListModel[i].assetCount = 1;
+    uiInfo.alienUpgradeListModel[i].skin[0] = uiInfo.uiDC.registerSkin(va("models/players/%s/nonseg_%s.skin", BG_ClassConfig(i)->modelName, BG_ClassConfig(i)->skinName));
+    uiInfo.alienUpgradeListModel[i].scale = BG_ClassConfig(i)->modelScale;
+    uiInfo.alienUpgradeListModel[i].zOffset = BG_ClassConfig(i)->zOffset;
+    uiInfo.alienUpgradeListModel[i].cameraDist = 100;
+    uiInfo.alienUpgradeListModel[i].autoAdjust = qtrue;
+  }
+}
+
+/*
+===============
+UI_LoadAlienUpgradesClass
+===============
+*/
+static void UI_LoadAlienUpgradesClass(int priority, int *j, int class, int credits, int stage)
+{
+    int       i = 0;
+    qboolean  addClass;
+    char      *prefix;
+
+    // No clean way found to determin is class is aliens one
+    for (i = PCL_NONE + 1; i < PCL_HUMAN; i++)
+    {
+        addClass = qfalse;
+        if (BG_ClassIsAllowed(i))
+        {
+            switch (priority) {
+                case 1:
+                    if (BG_ClassCanEvolveFromTo(class, i, credits, stage, 0) >= 0)
+                    {
+                        addClass = qtrue;
+                        // Is it stage 1 or is it newer in current stage, or is level0 (cause no adv dretch)
+                        prefix = (!stage || !BG_ClassAllowedInStage( i, 0 )
+                            || i == PCL_ALIEN_LEVEL0) ? "[upgrade] " : "";
+                    }
+                    break;
+                case 2:
+                    if (BG_ClassCanEvolveFromTo(class, i, credits, stage, 0) < 0 && BG_ClassAllowedInStage( i, stage ))
+                    {
+                        addClass = qtrue;
+                        prefix = "^0";
+                    }
+                    break;
+                case 3:
+                    if (BG_ClassCanEvolveFromTo(class, i, credits, stage, 0) < 0 && !BG_ClassAllowedInStage( i, stage ))
+                    {
+                        addClass = qtrue;
+                        prefix = "[locked] ^0";
+                    }
+                    break;
+            }
+        }
+
+        if (addClass == qtrue)
+        {
+            uiInfo.alienUpgradeList[*j].text = String_Alloc(va("%s%s", prefix, BG_ClassConfig(i)->humanName));
+            uiInfo.alienUpgradeList[*j].cmd = String_Alloc(va("cmd class %s\n", BG_Class(i)->name));
+            uiInfo.alienUpgradeList[*j].type = INFOTYPE_CLASS;
+            uiInfo.alienUpgradeList[*j].v.pclass = i;
+
+            (*j)++;
+            uiInfo.alienUpgradeCount++;
+        }
+    }
 }
 
 /*
@@ -2640,7 +3542,6 @@ UI_LoadAlienUpgrades
 static void UI_LoadAlienUpgrades(void)
 {
     int i, j = 0;
-
     int class, credits;
     char ui_currentClass[MAX_STRING_CHARS];
     stage_t stage = UI_GetCurrentAlienStage();
@@ -2651,18 +3552,104 @@ static void UI_LoadAlienUpgrades(void)
 
     uiInfo.alienUpgradeCount = 0;
 
-    for (i = PCL_NONE + 1; i < PCL_NUM_CLASSES; i++)
+    // UI_LoadAlienUpgradesClass(0, &j, class, credits, stage);
+    UI_LoadAlienUpgradesClass(1, &j, class, credits, stage);
+    UI_LoadAlienUpgradesClass(2, &j, class, credits, stage);
+    UI_LoadAlienUpgradesClass(3, &j, class, credits, stage);
+}
+
+/*
+===============
+UI_LoadAlienBuildsModels
+===============
+*/
+static void UI_LoadAlienBuildsModels(void)
+{
+  int i;
+  fileHandle_t  h;
+  char *modelFile;
+
+  memset(&(uiInfo.alienBuildListModel), 0, sizeof(uiInfo.alienBuildListModel));
+  for (i = BA_NONE + 1; i < BA_NUM_BUILDABLES; i++)
+  {
+      if (BG_Buildable(i)->team == TEAM_ALIENS && BG_BuildableIsAllowed(i))
+      {
+          uiInfo.alienBuildListModel[i].assetCount = 0;
+          for( h = 0; h < MAX_BUILDABLE_MODELS; h++ )
+          {
+            modelFile = BG_BuildableConfig( i )->models[ h ];
+            if( strlen( modelFile ) > 0 )
+              uiInfo.alienBuildListModel[i].asset[ uiInfo.alienBuildListModel[i].assetCount++ ]
+                = uiInfo.uiDC.registerModel( modelFile );
+          }
+          uiInfo.alienBuildListModel[i].scale = BG_BuildableConfig( i )->modelScale;
+          uiInfo.alienBuildListModel[i].zOffset = BG_BuildableConfig( i )->zOffset;
+          uiInfo.alienBuildListModel[i].cameraDist = 100;
+          uiInfo.alienBuildListModel[i].autoAdjust = qtrue;
+      }
+  }
+}
+
+/*
+===============
+UI_LoadAlienBuildsItems
+===============
+*/
+static void UI_LoadAlienBuildsItems(int priority, int *j, int stage)
+{
+    int           i = 0;
+    qboolean      addItem;
+    char          *prefix;
+    qboolean      critical;
+    alienStates_t state;
+
+    UI_alienStates(&state);
+
+    for (i = BA_NONE + 1; i < BA_NUM_BUILDABLES; i++)
     {
-        if (BG_ClassCanEvolveFromTo(class, i, credits, stage, 0) >= 0)
+        addItem = qfalse;
+        critical = qfalse;
+        if (BG_Buildable(i)->team == TEAM_ALIENS && BG_BuildableIsAllowed(i))
         {
-            uiInfo.alienUpgradeList[j].text = BG_ClassConfig(i)->humanName;
-            uiInfo.alienUpgradeList[j].cmd = String_Alloc(va("cmd class %s\n", BG_Class(i)->name));
-            uiInfo.alienUpgradeList[j].type = INFOTYPE_CLASS;
-            uiInfo.alienUpgradeList[j].v.pclass = i;
+            switch (priority) {
+                case 0:
+                    break;
+                case 1:
+                    if (BG_BuildableAllowedInStage(i, stage))
+                    {
+                        addItem = qtrue;
+                        if (i == BA_A_SPAWN && !state.spawns
+                            || i == BA_A_BOOSTER && !state.boosters
+                            || i == BA_A_OVERMIND && !state.omHealth )
+                            critical = qtrue;
+                        prefix = (char*)(va(
+                          "%s%s%s%s",
+                          ( (!state.omHealth || state.omBuilding) && i != BA_A_OVERMIND ) ? "[overmind] " : "", // Show an overmind if it need it
+                          ( !state.omHealth && i != BA_A_OVERMIND ) ? "^0" : "", // Grey out the item if om is not building too
+                          ( !(BG_Buildable(i)->buildWeapon & uiInfo.weapons) ) ? "[upgrade][advgranger]^0 " : "", // Grey out and ask to upgrade if adv granger is needed
+                          ( critical ) ? "[!] " : "" // Inform if this item is important
+                        ));
+                    }
+                    break;
+                case 2:
+                    if (!BG_BuildableAllowedInStage(i, stage))
+                    {
+                        addItem = qtrue;
+                        prefix = "[locked] ^0";
+                    }
+                    break;
+            }
 
-            j++;
+            if (addItem == qtrue)
+            {
+                uiInfo.alienBuildList[*j].text = String_Alloc(va("%s%s", prefix, BG_Buildable(i)->humanName));
+                uiInfo.alienBuildList[*j].cmd = String_Alloc(va("cmd build %s\n", BG_Buildable(i)->name));
+                uiInfo.alienBuildList[*j].type = INFOTYPE_BUILDABLE;
+                uiInfo.alienBuildList[*j].v.buildable = i;
 
-            uiInfo.alienUpgradeCount++;
+                (*j)++;
+                uiInfo.alienBuildCount++;
+            }
         }
     }
 }
@@ -2682,19 +3669,104 @@ static void UI_LoadAlienBuilds(void)
 
     uiInfo.alienBuildCount = 0;
 
+    // UI_LoadAlienBuildsItems(0, &j, stage);
+    UI_LoadAlienBuildsItems(1, &j, stage);
+    UI_LoadAlienBuildsItems(2, &j, stage);
+}
+
+/*
+===============
+UI_LoadHumansBuildsModels
+===============
+*/
+static void UI_LoadHumansBuildsModels(void)
+{
+  int i;
+  fileHandle_t  h;
+  char *modelFile;
+
+  memset(&(uiInfo.humanBuildListModel), 0, sizeof(uiInfo.humanBuildListModel));
+  for (i = BA_NONE + 1; i < BA_NUM_BUILDABLES; i++)
+  {
+      if (BG_Buildable(i)->team == TEAM_HUMANS && BG_BuildableIsAllowed(i))
+      {
+          for( h = 0; h < MAX_BUILDABLE_MODELS; h++ )
+          {
+            modelFile = BG_BuildableConfig( i )->models[ h ];
+            if( strlen( modelFile ) > 0 )
+              uiInfo.humanBuildListModel[i].asset[ uiInfo.humanBuildListModel[i].assetCount++ ]
+                = uiInfo.uiDC.registerModel( modelFile );
+          }
+          uiInfo.humanBuildListModel[i].scale = BG_BuildableConfig( i )->modelScale;
+          uiInfo.humanBuildListModel[i].zOffset = BG_BuildableConfig( i )->zOffset;
+          uiInfo.humanBuildListModel[i].cameraDist = 160;
+          uiInfo.humanBuildListModel[i].autoAdjust = qtrue;
+      }
+  }
+}
+
+/*
+===============
+UI_LoadHumanBuildsItems
+===============
+*/
+static void UI_LoadHumanBuildsItems(int priority, int *j, int stage)
+{
+    int           i = 0;
+    qboolean      addItem;
+    char          *prefix;
+    qboolean      critical;
+    humanStates_t state;
+
+    UI_humanStates(&state);
+
     for (i = BA_NONE + 1; i < BA_NUM_BUILDABLES; i++)
     {
-        if (BG_Buildable(i)->team == TEAM_ALIENS && BG_Buildable(i)->buildWeapon & uiInfo.weapons &&
-            BG_BuildableAllowedInStage(i, stage) && BG_BuildableIsAllowed(i))
+        addItem = qfalse;
+        critical = qfalse;
+        if (BG_Buildable(i)->team == TEAM_HUMANS && BG_BuildableIsAllowed(i))
         {
-            uiInfo.alienBuildList[j].text = BG_Buildable(i)->humanName;
-            uiInfo.alienBuildList[j].cmd = String_Alloc(va("cmd build %s\n", BG_Buildable(i)->name));
-            uiInfo.alienBuildList[j].type = INFOTYPE_BUILDABLE;
-            uiInfo.alienBuildList[j].v.buildable = i;
+            switch (priority) {
+                case 0:
+                    break;
+                case 1:
+                    if (BG_BuildableAllowedInStage(i, stage))
+                    {
+                        addItem = qtrue;
+                        if (i == BA_H_SPAWN && !state.spawns
+                            || i == BA_H_ARMOURY && !state.armourys
+                            || i == BA_H_MEDISTAT && !state.medicals
+                            || i == BA_H_DCC && !state.computers
+                            || i == BA_H_REACTOR && !state.rcHealth )
+                            critical = qtrue;
+                        prefix = (char*)(va(
+                          "%s%s%s%s",
+                          ( (!state.rcHealth || state.rcBuilding) && i != BA_H_REACTOR ) ? "[reactor] " : "", // Show a reactor if it need it
+                          ( !state.rcHealth && i != BA_H_REACTOR ) ? "^0" : "", // Grey out the item if om is not building too
+                          ( !(BG_Buildable(i)->buildWeapon & uiInfo.weapons) ) ? "[upgrade][ckit]^0 " : "", // Grey out and ask to upgrade if adv ckit is needed. Now Ckit = AdvCkit (keep for compatibility)
+                          ( critical ) ? "[!] " : "" // Inform if this item is important
+                        ));
+                    }
+                    break;
+                case 2:
+                    if (!BG_BuildableAllowedInStage(i, stage))
+                    {
+                        addItem = qtrue;
+                        prefix = "[locked] ^0";
+                    }
+                    break;
+            }
 
-            j++;
+            if (addItem == qtrue)
+            {
+                uiInfo.humanBuildList[*j].text = String_Alloc(va("%s%s", prefix, BG_Buildable(i)->humanName));
+                uiInfo.humanBuildList[*j].cmd = String_Alloc(va("cmd build %s\n", BG_Buildable(i)->name));
+                uiInfo.humanBuildList[*j].type = INFOTYPE_BUILDABLE;
+                uiInfo.humanBuildList[*j].v.buildable = i;
 
-            uiInfo.alienBuildCount++;
+                (*j)++;
+                uiInfo.humanBuildCount++;
+            }
         }
     }
 }
@@ -2707,6 +3779,8 @@ UI_LoadHumanBuilds
 static void UI_LoadHumanBuilds(void)
 {
     int i, j = 0;
+    fileHandle_t h;
+    char *modelFile;
     stage_t stage;
 
     UI_ParseCarriageList();
@@ -2714,21 +3788,10 @@ static void UI_LoadHumanBuilds(void)
 
     uiInfo.humanBuildCount = 0;
 
-    for (i = BA_NONE + 1; i < BA_NUM_BUILDABLES; i++)
-    {
-        if (BG_Buildable(i)->team == TEAM_HUMANS && BG_Buildable(i)->buildWeapon & uiInfo.weapons &&
-            BG_BuildableAllowedInStage(i, stage) && BG_BuildableIsAllowed(i))
-        {
-            uiInfo.humanBuildList[j].text = BG_Buildable(i)->humanName;
-            uiInfo.humanBuildList[j].cmd = String_Alloc(va("cmd build %s\n", BG_Buildable(i)->name));
-            uiInfo.humanBuildList[j].type = INFOTYPE_BUILDABLE;
-            uiInfo.humanBuildList[j].v.buildable = i;
 
-            j++;
-
-            uiInfo.humanBuildCount++;
-        }
-    }
+    // UI_LoadHumanBuildsItems(0, &j, stage);
+    UI_LoadHumanBuildsItems(1, &j, stage);
+    UI_LoadHumanBuildsItems(2, &j, stage);
 }
 
 /*
@@ -3151,7 +4214,10 @@ static void UI_RunMenuScript(char **args)
                 trap_Cmd_ExecuteText(EXEC_APPEND, cmd);
         }
         else if (Q_stricmp(name, "LoadHumanArmouryBuys") == 0)
+        {
+            UI_LoadHumanArmouryModels();
             UI_LoadHumanArmouryBuys();
+        }
         else if (Q_stricmp(name, "BuyFromArmoury") == 0)
         {
             if ((cmd = uiInfo.humanArmouryBuyList[uiInfo.humanArmouryBuyIndex].cmd))
@@ -3170,6 +4236,7 @@ static void UI_RunMenuScript(char **args)
         }
         else if (Q_stricmp(name, "LoadAlienUpgrades") == 0)
         {
+            UI_LoadAlienUpgradesModels();
             UI_LoadAlienUpgrades();
         }
         else if (Q_stricmp(name, "UpgradeToNewClass") == 0)
@@ -3178,14 +4245,20 @@ static void UI_RunMenuScript(char **args)
                 trap_Cmd_ExecuteText(EXEC_APPEND, cmd);
         }
         else if (Q_stricmp(name, "LoadAlienBuilds") == 0)
-            UI_LoadAlienBuilds();
+        {
+          UI_LoadAlienBuildsModels();
+          UI_LoadAlienBuilds();
+        }
         else if (Q_stricmp(name, "BuildAlienBuildable") == 0)
         {
             if ((cmd = uiInfo.alienBuildList[uiInfo.alienBuildIndex].cmd))
                 trap_Cmd_ExecuteText(EXEC_APPEND, cmd);
         }
         else if (Q_stricmp(name, "LoadHumanBuilds") == 0)
-            UI_LoadHumanBuilds();
+        {
+          UI_LoadHumansBuildsModels();
+          UI_LoadHumanBuilds();
+        }
         else if (Q_stricmp(name, "BuildHumanBuildable") == 0)
         {
             if ((cmd = uiInfo.humanBuildList[uiInfo.humanBuildIndex].cmd))
@@ -3734,6 +4807,7 @@ static const char *UI_FeederItemText(int feederID, int index, int column, qhandl
             static int lastColumn = -1;
             static int lastTime = 0;
             int ping;
+            char *cleanedcpy;
 
             if (lastColumn != column || lastTime > uiInfo.uiDC.realTime + 5000)
             {
@@ -3756,15 +4830,19 @@ static const char *UI_FeederItemText(int feederID, int index, int column, qhandl
                     {
                         static char hostname[1024];
 
+                        // Strip leading whitespace
+                        cleanedcpy = cleaned;
+                        while (*cleanedcpy != '\0' && isspace(*cleanedcpy))
+                            cleanedcpy++;
+
                         if (ui_netSource.integer == AS_LOCAL)
                         {
-                            Com_sprintf(hostname, sizeof(hostname), "%s [%s]", cleaned,
+                            Com_sprintf(hostname, sizeof(hostname), "^7%s [%s]", cleaned,
                                 netnames[atoi(Info_ValueForKey(info, "nettype"))]);
                             return hostname;
                         }
                         else
                         {
-                            char *text;
                             char *label;
 
                             label = Info_ValueForKey(info, "label");
@@ -3773,20 +4851,14 @@ static const char *UI_FeederItemText(int feederID, int index, int column, qhandl
                                 // First char of the label response is a sorting tag. Skip it.
                                 label += 1;
 
-                                Com_sprintf(hostname, sizeof(hostname), "%s %s", label, cleaned);
+                                Com_sprintf(hostname, sizeof(hostname), "^7%s %s", label, cleaned);
                             }
                             else
                             {
-                                Com_sprintf(hostname, sizeof(hostname), "%s", cleaned);
+                                Com_sprintf(hostname, sizeof(hostname), "^7%s", cleaned);
                             }
 
-                            // Strip leading whitespace
-                            text = hostname;
-
-                            while (*text != '\0' && *text == ' ')
-                                text++;
-
-                            return text;
+                            return hostname;
                         }
                     }
 
@@ -3911,7 +4983,23 @@ static const char *UI_FeederItemText(int feederID, int index, int column, qhandl
     else if (feederID == FEEDER_TREMHUMANARMOURYSELL)
     {
         if (index >= 0 && index < uiInfo.humanArmourySellCount)
-            return uiInfo.humanArmourySellList[index].text;
+        {
+            // If conflicting with selected
+            if (
+                (
+                    uiInfo.humanArmouryBuyList[uiInfo.humanArmouryBuyIndex].type == INFOTYPE_WEAPON ?
+                    BG_Weapon(uiInfo.humanArmouryBuyList[uiInfo.humanArmouryBuyIndex].v.weapon)->slots :
+                    BG_Upgrade(uiInfo.humanArmouryBuyList[uiInfo.humanArmouryBuyIndex].v.upgrade)->slots
+                ) & (
+                    uiInfo.humanArmourySellList[index].type == INFOTYPE_WEAPON ?
+                    BG_Weapon(uiInfo.humanArmourySellList[index].v.weapon)->slots :
+                    BG_Upgrade(uiInfo.humanArmourySellList[index].v.upgrade)->slots
+                )
+            )
+                return (va("[!] %s", uiInfo.humanArmourySellList[index].text));
+            else
+                return uiInfo.humanArmourySellList[index].text;
+        }
     }
     else if (feederID == FEEDER_TREMALIENUPGRADE)
     {
@@ -3938,7 +5026,10 @@ static const char *UI_FeederItemText(int feederID, int index, int column, qhandl
             w = uiInfo.resolutions[index].w;
             h = uiInfo.resolutions[index].h;
 
-            Com_sprintf(resolution, sizeof(resolution), "%dx%d (%s)", w, h, UI_DisplayAspectString(w, h));
+            if (w == 0 && h == 0)
+              Com_sprintf(resolution, sizeof(resolution), "Automatic");
+            else
+              Com_sprintf(resolution, sizeof(resolution), "%dx%d (%s)", w, h, UI_DisplayAspectString(w, h));
 
             return resolution;
         }
@@ -4203,6 +5294,7 @@ UI_Init
 void UI_Init(qboolean inGameLoad)
 {
     BG_InitClassConfigs();
+    BG_InitBuildableConfigs();
     BG_InitAllowedGameElements();
 
     uiInfo.inGameLoad = inGameLoad;
@@ -4229,9 +5321,13 @@ void UI_Init(qboolean inGameLoad)
     uiInfo.uiDC.drawHandlePic = &UI_DrawHandlePic;
     uiInfo.uiDC.drawStretchPic = &trap_R_DrawStretchPic;
     uiInfo.uiDC.registerModel = &trap_R_RegisterModel;
+    uiInfo.uiDC.registerSkin = &trap_R_RegisterSkin;
     uiInfo.uiDC.modelBounds = &trap_R_ModelBounds;
+    uiInfo.uiDC.lerpTag = &trap_CM_LerpTag;
     uiInfo.uiDC.fillRect = &UI_FillRect;
+    uiInfo.uiDC.fillRoundedRect = &UI_FillRoundedRect;
     uiInfo.uiDC.drawRect = &UI_DrawRect;
+    uiInfo.uiDC.drawRoundedRect = &UI_DrawRoundedRect;
     uiInfo.uiDC.drawSides = &UI_DrawSides;
     uiInfo.uiDC.drawTopBottom = &UI_DrawTopBottom;
     uiInfo.uiDC.clearScene = &trap_R_ClearScene;
@@ -4243,6 +5339,7 @@ void UI_Init(qboolean inGameLoad)
     uiInfo.uiDC.ownerDrawVisible = &UI_OwnerDrawVisible;
     uiInfo.uiDC.runScript = &UI_RunMenuScript;
     uiInfo.uiDC.setCVar = trap_Cvar_Set;
+    uiInfo.uiDC.resetCVar = trap_Cvar_Reset;
     uiInfo.uiDC.getCVarString = trap_Cvar_VariableStringBuffer;
     uiInfo.uiDC.getCVarValue = trap_Cvar_VariableValue;
     uiInfo.uiDC.setOverstrikeMode = &trap_Key_SetOverstrikeMode;
@@ -4553,7 +5650,7 @@ static void UI_DisplayDownloadInfo(const char *downloadName, float centerPoint, 
     static char etaText[] = "Estimated time left:";
     static char xferText[] = "Transfer rate:";
 
-    int downloadSize, downloadCount, downloadTime;
+    int downloadSize, downloadCount, downloadTime, downloadTotal, downloadDone;
     char dlSizeBuf[64], totalSizeBuf[64], xferRateBuf[64], dlTimeBuf[64];
     int xferRate;
     int leftWidth;
@@ -4562,6 +5659,8 @@ static void UI_DisplayDownloadInfo(const char *downloadName, float centerPoint, 
     downloadSize = trap_Cvar_VariableValue("cl_downloadSize");
     downloadCount = trap_Cvar_VariableValue("cl_downloadCount");
     downloadTime = trap_Cvar_VariableValue("cl_downloadTime");
+    downloadTotal = trap_Cvar_VariableValue("cl_downloadTotal");
+    downloadDone = trap_Cvar_VariableValue("cl_downloadDone");
 
     leftWidth = 320;
 
@@ -4571,7 +5670,7 @@ static void UI_DisplayDownloadInfo(const char *downloadName, float centerPoint, 
     Text_PaintCenter(centerPoint, yStart + 248, scale, colorWhite, xferText, 0);
 
     if (downloadSize > 0)
-        s = va("%s (%d%%)", downloadName, (int)((float)downloadCount * 100.0f / downloadSize));
+        s = va("%s (%d%%, %d/%d)", downloadName, (int)((float)downloadCount * 100.0f / downloadSize), downloadDone + 1, downloadTotal);
     else
         s = downloadName;
 

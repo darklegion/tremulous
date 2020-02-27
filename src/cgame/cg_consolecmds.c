@@ -133,13 +133,13 @@ void CG_ClientList_f( void )
   int i;
   int count = 0;
 
-  for( i = 0; i < MAX_CLIENTS; i++ ) 
+  for( i = 0; i < MAX_CLIENTS; i++ )
   {
     ci = &cgs.clientinfo[ i ];
-    if( !ci->infoValid ) 
+    if( !ci->infoValid )
       continue;
 
-    switch( ci->team ) 
+    switch( ci->team )
     {
       case TEAM_ALIENS:
         Com_Printf( "%2d " S_COLOR_RED "A   " S_COLOR_WHITE "%s\n", i,
@@ -193,7 +193,7 @@ static void CG_UIMenu_f( void )
 
 static void CG_KillMessage_f( void )
 {
-  char msg1[ 33 * 3 + 1]; 
+  char msg1[ 33 * 3 + 1];
   char msg2[ 33 * 3 + 1 ];
   trap_Argv( 1, msg1, sizeof(msg1) );
   trap_Argv( 2, msg2, sizeof(msg2) );
@@ -316,7 +316,7 @@ qboolean CG_Console_CompleteArgument( int argNum )
   return qtrue;
 }
 #endif
-  
+
 /*
 =================
 CG_InitConsoleCommands
@@ -361,6 +361,9 @@ void CG_InitConsoleCommands( void )
   trap_AddCommand( "teamvote" );
   trap_AddCommand( "class" );
   trap_AddCommand( "build" );
+  trap_AddCommand( "rotatebuild" );
+  trap_AddCommand( "rotatebuildleft" );
+  trap_AddCommand( "rotatebuildright" );
   trap_AddCommand( "buy" );
   trap_AddCommand( "sell" );
   trap_AddCommand( "reload" );

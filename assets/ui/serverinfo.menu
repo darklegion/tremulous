@@ -1,4 +1,5 @@
 #include "ui/menudef.h"
+#include "ui/menustyle.h"
 
 {
   \\ SERVER INFO POPUP MENU \\
@@ -19,7 +20,7 @@
     visible MENU_FALSE
     fullscreen MENU_FALSE
     rect (320-(W/2)) (240-(H/2)) W H
-    focusColor 1 .75 0 1
+    focusColor WINDOW_FOCUSCOLOR
     style WINDOW_STYLE_FILLED
     border WINDOW_BORDER_FULL
     popup
@@ -35,13 +36,14 @@
       name window
       rect 0 0 W H
       style WINDOW_STYLE_FILLED
-      backcolor 0 0 0 1
+      backcolor WINDOW_BACKCOLOR
       visible MENU_TRUE
       decoration
 
-      border WINDOW_BORDER_FULL
+      border WINDOW_BORDER_ROUNDED
       borderSize 1.0
-      borderColor 0.5 0.5 0.5 1
+      borderColor WINDOW_BORDER
+      borderStyle WINDOW_BORDER_STYLE
     }
 
     itemDef
@@ -53,9 +55,10 @@
       elementwidth 120
       elementheight 16
       textscale .25
-      border WINDOW_BORDER_FULL
+      border WINDOW_BORDER_ROUNDED
       bordersize 1
       bordercolor .5 .5 .5 1
+      borderStyle BORDER_STYLE BORDER_STYLE BORDER_SQUARE BORDER_SQUARE
       elementtype LISTBOX_TEXT
       feeder FEEDER_SERVERSTATUS
       notselectable
@@ -108,5 +111,3 @@
     }
   }
 }
-
-

@@ -1,14 +1,54 @@
 #include "ui/menudef.h"
+#include "ui/menustyle.h"
+
+#define W         640
+#define H         480
+#define BORDER    10
+
+#define BAR_H     ((H-((6*BORDER)+(H/2)))/4)
+#define BAR_W     (W-(2*BORDER))
+#define BAR_X     BORDER
+#define OVER_Y    (H-(BORDER+BAR_H))
 
 {
   menuDef
   {
     name "Connect"
-    background "gfx/2d/load_screen"
     rect 0 0 640 480
     fullScreen MENU_FALSE
     visible MENU_FALSE
     style WINDOW_STYLE_SHADER
-    aspectBias ASPECT_NONE
+    background "ui/assets/mainmenu.jpg"
+    aspectbias ASPECT_NONE
+
+    itemDef
+    {
+      name splashmodel
+      rect -320 0 1280 480
+      type ITEM_TYPE_MODEL
+      style WINDOW_STYLE_EMPTY
+      aspectBias ALIGN_CENTER        // Allow our HD model to be "responsive"
+      asset_model "models/splash/loading_screen.md3"
+      model_fovx 60.0
+      model_fovy 24.0
+      model_angle 180
+      visible MENU_TRUE
+      decoration
+    }
+
+    itemDef
+    {
+      name "overall"
+      rect BAR_X OVER_Y BAR_W BAR_H
+      visible MENU_TRUE
+      decoration
+      forecolor 0.0 0.8 1 1
+      backcolor 0.0 0.8 1 0.5
+      ownerdraw UI_DOWNLOAD_OVERALL
+      textalign ALIGN_CENTER
+      textstyle ITEM_TEXTSTYLE_NEON
+      textscale 0.5
+      borderSize 1.0
+    }
   }
 }

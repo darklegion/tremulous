@@ -189,7 +189,7 @@ static void UI_Me_f(void)
 struct uicmd {
     char *cmd;
     void (*function)(void);
-} commands[] = 
+} commands[] =
 {
     {"closemenus", UI_CloseMenus_f},
     {"me", UI_Me_f},
@@ -239,7 +239,7 @@ void UI_DrawHandlePic(float x, float y, float w, float h, qhandle_t hShader)
     float t1;
 
     if (w < 0)
-    {  
+    {
         // flip about vertical
         w = -w;
         s0 = 1;
@@ -252,7 +252,7 @@ void UI_DrawHandlePic(float x, float y, float w, float h, qhandle_t hShader)
     }
 
     if (h < 0)
-    {  
+    {
         // flip about horizontal
         h = -h;
         t0 = 1;
@@ -283,6 +283,25 @@ void UI_FillRect(float x, float y, float width, float height, const float *color
     trap_R_DrawStretchPic(x, y, width, height, 0, 0, 0, 0, uiInfo.uiDC.whiteShader);
 
     trap_R_SetColor(NULL);
+}
+
+/*
+================
+UI_FillRoundedRect
+
+Coordinates are 640*480 virtual values
+=================
+*/
+void UI_FillRoundedRect( float x, float y, float width, float height, float size, const float *style, const float *color )
+{
+  UI_FillRect( x, y + size * 3, width, height - size * 6, color );
+
+  trap_R_SetColor( color );
+
+  UI_DrawTopBottom( x + size * 3, y, width - size * 6, height, size * 3 );
+  UI_DrawCorners( x - size, y - size, width + size * 2, height + size * 2, size * 4, style, uiInfo.uiDC.Assets.cornerIn );
+
+  trap_R_SetColor( NULL );
 }
 
 void UI_SetColor(const float *rgba) { trap_R_SetColor(rgba); }
