@@ -3155,7 +3155,7 @@ int BG_SlotsForInventory( int stats[ ] )
     {
       slot = BG_Upgrade( i )->slots;
 
-      // this check should never be true
+      // this check should never be qtrue
       if( slots & slot )
       {
         Com_Printf( S_COLOR_YELLOW "WARNING: held item %d conflicts with "
@@ -3970,4 +3970,43 @@ char *G_CopyString( const char *str )
   char *cp = BG_Alloc( size );
   memcpy( cp, str, size );
   return cp;
+}
+
+/*
+==============================================================
+
+Bucket Selection System
+
+==============================================================
+*/
+
+unsigned int BG_Bucket_Create_Bucket(void) {
+  Q_Bucket_Create_Bucket(BG_Alloc, BG_Free);
+}
+
+void BG_Bucket_Delete_Bucket(unsigned int bucket_handle) {
+    Q_Bucket_Delete_Bucket(bucket_handle);
+}
+
+void BG_Bucket_Destroy_All_Buckets(void) {
+    Q_Bucket_Destroy_All_Buckets(BG_Alloc, BG_Free);
+}
+
+void BG_Bucket_Add_Item_To_Bucket(
+    unsigned int bucket_handle, void* item) {
+    Q_Bucket_Add_Item_To_Bucket(bucket_handle, item, BG_Alloc, BG_Free);
+}
+
+void BG_Bucket_Remove_Item_From_Bucket(
+    unsigned int bucket_handle, void* item) {
+    Q_Bucket_Remove_Item_From_Bucket(
+        bucket_handle, item, BG_Alloc, BG_Free);
+}
+
+void* BG_Bucket_Select_A_Random_Item(unsigned int bucket_handle) {
+    Q_Bucket_Select_A_Random_Item(bucket_handle);
+}
+
+void BG_Bucket_Select_A_Specific_Item(unsigned int bucket_handle, void* item) {
+    Q_Bucket_Select_A_Specific_Item(bucket_handle, item);
 }

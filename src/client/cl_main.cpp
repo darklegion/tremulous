@@ -5057,6 +5057,8 @@ void CL_Shutdown(const char *finalmsg, bool disconnect, bool quit)
     }
     recursive = true;
 
+    Com_Bucket_Destroy_All_Buckets( );
+
     noGameRestart = quit;
 
     if (disconnect) CL_Disconnect(true);

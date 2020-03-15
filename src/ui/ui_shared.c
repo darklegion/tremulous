@@ -1820,6 +1820,131 @@ void Script_playLooped(itemDef_t *item, char **args)
     }
 }
 
+#define MAX_BUCKET_MENU_SOUNDS 20
+
+void Script_playLoopedBucket(itemDef_t *item, char **args)
+{
+    char         play_looped_sound_path[MAX_QPATH];
+    char         sound[MAX_BUCKET_MENU_SOUNDS][MAX_QPATH];
+    char         selected_list_cvar_string[1024];
+    char         sound_list[MAX_BUCKET_MENU_SOUNDS*MAX_QPATH];
+    char         *sound_ptr;
+    char         *p;
+    const char   *selected_list_cvar;
+    const char   *val;
+    const char   *sound_bucket_directory;
+    int          selected_sound_index[MAX_BUCKET_MENU_SOUNDS];
+    int          i, j, file_length;
+    unsigned int num_sounds = 0;
+    unsigned int num_wav = 0;
+    unsigned int num_ogg = 0;
+    unsigned int num_selected_sound_indecies = 0;
+    unsigned int *play_looped_bucket_handle =
+        &((menuDef_t*)item->parent)->play_looped_bucket_handle;
+    qboolean     *play_looped_bucket_allocated =
+        &((menuDef_t*)item->parent)->play_looped_bucket_allocated;
+    qboolean     new_bucket = qfalse;
+
+    for(i = 0; i < MAX_BUCKET_MENU_SOUNDS; i++) {
+        sound[i][0] = '\0';
+    }
+
+    (void)item;
+
+    if(!String_Parse(args, &sound_bucket_directory)) {
+        return;
+    }
+
+    if(!String_Parse(args, &selected_list_cvar)) {
+        return;
+    }
+
+    num_wav = DC->FS_GetFileList( sound_bucket_directory, ".wav",
+      sound_list, 10 * MAX_QPATH );
+    sound_ptr = sound_list;
+    num_sounds = num_wav;
+
+    for( i = 0; i < num_wav; i++, sound_ptr += file_length + 1 ) {
+      file_length = strlen(sound_ptr);
+      strcpy(sound[i], va("%s", sound_ptr));
+    }
+
+    num_sounds = num_wav;
+
+    num_ogg = DC->FS_GetFileList( sound_bucket_directory, ".ogg",
+      sound_list, 10 * MAX_QPATH );
+    sound_ptr = sound_list;
+
+    for( i = 0; i < num_ogg; i++, sound_ptr += file_length + 1 ) {
+      file_length = strlen(sound_ptr);
+      strcpy(sound[num_sounds + i], va("%s", sound_ptr));
+    }
+
+    num_sounds += num_ogg;
+
+    if(num_sounds == 0) {
+        return;
+    }
+
+    if(!*play_looped_bucket_allocated) {
+        *play_looped_bucket_handle = DC->Bucket_Create_Bucket( );
+        *play_looped_bucket_allocated = qtrue;
+        new_bucket = qtrue;
+        for(i = 0; i < num_sounds; i++) {
+            DC->Bucket_Add_Item_To_Bucket(
+                *play_looped_bucket_handle, (void*)sound[i]);
+        }
+    }
+
+    if(selected_list_cvar) {
+        DC->getCVarString(
+            selected_list_cvar, selected_list_cvar_string,
+            sizeof(selected_list_cvar_string));
+
+        p = selected_list_cvar_string;
+
+        for(i = 0; i < MAX_BUCKET_MENU_SOUNDS; i++) {
+            if(String_Parse(&p, &val)) {
+                for(j = 0; j < num_sounds; j++) {
+                    //ensure that the specified selected sound exists
+                    if(!Q_stricmp(val, sound[j])) {
+                        selected_sound_index[num_selected_sound_indecies] = j;
+                        num_selected_sound_indecies++;
+                        break;
+                    }
+                }
+            }
+        }
+
+        Com_Memset(selected_list_cvar_string, 0, sizeof(selected_list_cvar_string));
+        if(num_selected_sound_indecies >= num_sounds) {
+            num_selected_sound_indecies = 0;
+        }
+
+        for(i = 0; i < num_selected_sound_indecies; i++) {
+            Q_strcat(selected_list_cvar_string, 1024, va("%s ",sound[selected_sound_index[i]]));
+            if(new_bucket) {
+                DC->Bucket_Select_A_Specific_Item(
+                  *play_looped_bucket_handle, (void*)sound[selected_sound_index[i]]);
+            }
+        }
+    }
+
+    val =
+        (char*)DC->Bucket_Select_A_Random_Item(*play_looped_bucket_handle);
+
+    if(selected_list_cvar) {
+        Q_strcat(selected_list_cvar_string, 1024, val);
+        DC->setCVar(selected_list_cvar, selected_list_cvar_string);
+    }
+
+    if(val) {
+        strcpy(play_looped_sound_path, va("%s/%s", sound_bucket_directory, val));
+        DC->stopBackgroundTrack();
+        DC->startBackgroundTrack(play_looped_sound_path, play_looped_sound_path);
+    }
+}
+
 static ID_INLINE float UI_EmoticonHeight(fontInfo_t *font, float scale)
 {
     return font->glyphs[(int)'['].height * scale * font->glyphScale;
@@ -2331,6 +2456,7 @@ void UI_Text_PaintWithCursor(
 }
 
 commandDef_t commandList[] = {
+    {"bucketPlayLooped", &Script_playLoopedBucket}, // group/name
     {"close", &Script_Close},  // menu
     {"conditionalopen", &Script_ConditionalOpen},  // menu
     {"exec", &Script_Exec},  // group/name

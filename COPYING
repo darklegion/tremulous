@@ -22,3 +22,17 @@ is contained within the files as listed.
     src/game/bg_lib.c                                            BSD license
     src/client/snd_adpcm.c            Stichting Mathematisch Centrum license
     src/jpeg-6/*                                                JPEG license
+
+assets/ui/main_menu_music/Finally_Heartbeat.ogg:
+    "Finally Heartbeat" by Avarthar licensed CC-BY-SA-3.0
+    based on "C'Mon" by Analog by Nature, licensed CC-BY-3.0
+    and samples from "Tremulous" game assets, licensed CC-BY-SA-3.0
+
+assets/ui/main_menu_music/tremfusion_heartbeat.ogg:
+    by Vortexx licensed CC-BY-SA-2.5
+
+assets/ui/main_menu_music/Black_mistUntiteled_3.ogg:
+    by AutumnLegends licensed CC-BY-NC-SA-3.0
+
+assets/ui/main_menu_music/Granger_Foley_v1.ogg:
+    by Akane licensed CC-BY-SA-2.5

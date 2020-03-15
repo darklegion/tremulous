@@ -1860,6 +1860,14 @@ void CG_LoadHudMenu( void )
   cgDC.stopCinematic        = &CG_StopCinematic;
   cgDC.drawCinematic        = &CG_DrawCinematic;
   cgDC.runCinematicFrame    = &CG_RunCinematicFrame;
+  cgDC.Bucket_Create_Bucket = BG_Bucket_Create_Bucket;
+  cgDC.Bucket_Delete_Bucket = BG_Bucket_Delete_Bucket;
+  cgDC.Bucket_Destroy_All_Buckets = BG_Bucket_Destroy_All_Buckets;
+  cgDC.Bucket_Add_Item_To_Bucket = BG_Bucket_Add_Item_To_Bucket;
+  cgDC.Bucket_Remove_Item_From_Bucket = BG_Bucket_Remove_Item_From_Bucket;
+  cgDC.Bucket_Select_A_Random_Item = BG_Bucket_Select_A_Random_Item;
+  cgDC.Bucket_Select_A_Specific_Item = BG_Bucket_Select_A_Specific_Item;
+  cgDC.FS_GetFileList = trap_FS_GetFileList;
 
   Init_Display( &cgDC );
 
@@ -2047,6 +2055,7 @@ Called before every level change or subsystem restart
 */
 void CG_Shutdown( void )
 {
+  BG_Bucket_Destroy_All_Buckets( );
   CG_UnregisterCommands( );
 }
 

@@ -410,4 +410,23 @@ bool Parse_SourceFileAndLine(int handle, char *filename, int *line);
 #define DLF_NO_UDP 4
 #define DLF_NO_DISCONNECT 8
 
+/*
+==============================================================
+
+Bucket Selection System
+
+==============================================================
+*/
+
+unsigned int Com_Bucket_Create_Bucket(void);
+void         Com_Bucket_Delete_Bucket(unsigned int bucket_handle);
+void         Com_Bucket_Destroy_All_Buckets(void);
+void         Com_Bucket_Add_Item_To_Bucket(
+	unsigned int bucket_handle, void* item);
+void         Com_Bucket_Remove_Item_From_Bucket(
+	unsigned int bucket_handle, void* item);
+void*        Com_Bucket_Select_A_Random_Item(unsigned int bucket_handle);
+void         Com_Bucket_Select_A_Specific_Item(
+	unsigned int bucket_handle, void* item);
+
 #endif // _QCOMMON_H_

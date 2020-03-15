@@ -746,6 +746,8 @@ void G_ShutdownGame( int restart )
   G_FreePlayerModel( );
   G_ShutdownMapRotations( );
 
+  BG_Bucket_Destroy_All_Buckets( );
+
   level.restarted = qfalse;
   level.surrenderTeam = TEAM_NONE;
   trap_SetConfigstring( CS_WINNER, "" );

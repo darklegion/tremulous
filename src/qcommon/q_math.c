@@ -1298,6 +1298,348 @@ int Q_isnan( float x )
 
 	return (int)( (unsigned int)fi.ui >> 31 );
 }
+
+/*
+==============================================================
+
+Bucket Selection System
+
+==============================================================
+*/
+
+typedef enum bucket_lists_s
+{
+	BUCKET_LIST_A = 0,
+	BUCKET_LIST_B,
+
+	NUM_BUCKET_LISTS
+} bucket_lists_t;
+
+typedef struct bucket_s
+{
+	void**         list[NUM_BUCKET_LISTS];
+	unsigned int   list_length[NUM_BUCKET_LISTS];
+	bucket_lists_t selection_list;
+	unsigned int   bucket_size;
+  qboolean           bucket_slot_used;
+} bucket_t;
+
+static bucket_t*    buckets = NULL;
+static unsigned int num_buckets = 0;
+
+static void Q_Bucket_Resize_Array_Of_Buckets(
+	unsigned int new_num_buckets, void* (*qalloc)(int size),
+	void (*qfree)(void *ptr)) {
+	bucket_t*          old_buckets = buckets;
+	unsigned int       num_buckets_to_copy;
+	const unsigned int num_deleted_buckets =
+		(num_buckets > new_num_buckets) ? (num_buckets - new_num_buckets) : 0;
+
+	//free bucket lists for any buckets that will be deleted
+	if(num_deleted_buckets > 0) {
+		int i;
+
+		for(i = num_buckets - num_deleted_buckets - 1; i < num_buckets ; i++) {
+			int j;
+
+			for(j = 0; j < NUM_BUCKET_LISTS; j++) {
+				if(buckets[i].list[i]) {
+					qfree(buckets[i].list[i]);
+				}
+			}
+		}
+	}
+
+	if(new_num_buckets > 0) {
+		buckets = (bucket_t *)qalloc(new_num_buckets * sizeof(bucket_t));
+
+		if(new_num_buckets > num_buckets) {
+			num_buckets_to_copy = num_buckets;
+		} else {
+			num_buckets_to_copy = new_num_buckets;
+		}
+
+		if(old_buckets) {
+			memcpy(buckets, old_buckets, num_buckets_to_copy * sizeof(bucket_t));
+		}
+	} else {
+		buckets = NULL;
+	}
+
+	num_buckets = new_num_buckets;
+
+	if(old_buckets) {
+		qfree(old_buckets);
+	}
+}
+
+unsigned int Q_Bucket_Create_Bucket(
+	void* (*qalloc)(int size), void (*qfree)(void *ptr)) {
+
+	//check if there are currently any free slots for a new bucket
+	if(num_buckets > 0) {
+		int i;
+
+		for(i = 0; i < num_buckets; i++) {
+			if(!buckets[i].bucket_slot_used) {
+				return i;
+			}
+		}
+	}
+
+	//create a new bucket slot, and return it
+	Q_Bucket_Resize_Array_Of_Buckets((num_buckets + 1), qalloc, qfree);
+	memset(&buckets[num_buckets - 1], 0, sizeof(bucket_t));
+	buckets[num_buckets - 1].bucket_slot_used = qtrue;
+	return num_buckets - 1;
+}
+
+void Q_Bucket_Delete_Bucket(unsigned int bucket_handle) {
+	assert(
+		(bucket_handle < num_buckets) &&
+		buckets[bucket_handle].bucket_slot_used &&
+		"Q_Bucket_Destroy_Bucket: bucket handle not found");
+
+		buckets[bucket_handle].bucket_slot_used = qfalse;
+}
+
+void Q_Bucket_Destroy_All_Buckets(
+	void* (*qalloc)(int size), void (*qfree)(void *ptr)) {
+	Q_Bucket_Resize_Array_Of_Buckets(0, qalloc, qfree);
+}
+
+static void Q_Bucket_Resize_Bucket(
+	unsigned int bucket_handle, unsigned int new_bucket_size,
+	void* (*qalloc)(int size), void (*qfree)(void *ptr)) {
+	void**       old_list[NUM_BUCKET_LISTS];
+	unsigned int num_items_to_copy;
+	int          i;
+
+	assert(
+		(bucket_handle < num_buckets) &&
+		buckets[bucket_handle].bucket_slot_used &&
+		"Q_Bucket_Resize_Bucket: bucket handle not found");
+
+		for(i = 0; i < NUM_BUCKET_LISTS; i++) {
+			old_list[i] = buckets[bucket_handle].list[i];
+		}
+
+		for(i = 0; i < NUM_BUCKET_LISTS; i++) {
+			buckets[bucket_handle].list[i] =
+			(void **)qalloc(new_bucket_size * sizeof(void*));
+			memset(buckets[bucket_handle].list[i], 0, new_bucket_size * sizeof(void*));
+		}
+
+		if(new_bucket_size > buckets[bucket_handle].bucket_size) {
+			num_items_to_copy = buckets[bucket_handle].bucket_size;
+		} else {
+			num_items_to_copy = new_bucket_size;
+		}
+
+		if(buckets[bucket_handle].bucket_size > 0) {
+			for(i = 0; i < NUM_BUCKET_LISTS; i++) {
+				if(old_list[i]) {
+					memcpy(
+						buckets[bucket_handle].list[i],
+						old_list[i], num_items_to_copy * sizeof(void*));
+					}
+				}
+		}
+
+		buckets[bucket_handle].bucket_size = new_bucket_size;
+
+	for(i = 0; i < NUM_BUCKET_LISTS; i++) {
+		if(old_list[i]) {
+			qfree(old_list[i]);
+		}
+	}
+}
+
+static void Q_Bucket_Add_Item_To_List(
+	bucket_t *bucket, void* item, bucket_lists_t bucket_list) {
+	int   list_length;
+
+	assert(bucket && "Q_Bucket_Add_Item_To_List: bucket is NULL");
+
+	list_length = bucket->list_length[bucket_list];
+
+	assert(
+		list_length < bucket->bucket_size &&
+		"Q_Bucket_Add_Item_To_List: adding this item would exceed the bucket_size");
+
+	//add the item to the end of the list
+	bucket->list[bucket_list][list_length] = item;
+	bucket->list_length[bucket_list]++;
+}
+
+static void Q_Bucket_Remove_Item_By_Index_From_List(
+	bucket_t *bucket, unsigned int item_index, bucket_lists_t bucket_list) {
+	int   list_length;
+
+	assert(bucket && "Q_Bucket_Add_Item_To_List: bucket is NULL");
+
+	list_length = bucket->list_length[bucket_list];
+
+	assert(
+		list_length > 0 &&
+		"Q_Bucket_Add_Item_To_List: bucket list is empty");
+	assert(
+		item_index < list_length &&
+		"Q_Bucket_Add_Item_To_List: item index exceeds bucket list length");
+
+	//move the last item to the removed item slot
+	bucket->list[bucket_list][item_index] =
+	bucket->list[bucket_list][list_length - 1];
+	//reduce the length of the list by 1
+	bucket->list_length[bucket_list]--;
+}
+
+void Q_Bucket_Add_Item_To_Bucket(
+	unsigned int bucket_handle, void* item,
+	void* (*qalloc)(int size), void (*qfree)(void *ptr)) {
+
+	assert(
+		(bucket_handle < num_buckets) &&
+		buckets[bucket_handle].bucket_slot_used &&
+		"Q_Bucket_Add_Item_To_Bucket: bucket handle not found");
+
+	Q_Bucket_Resize_Bucket(
+		bucket_handle, buckets[bucket_handle].bucket_size + 1,
+		qalloc, qfree);
+
+	Q_Bucket_Add_Item_To_List(
+		&buckets[bucket_handle], item,
+		buckets[bucket_handle].selection_list);
+}
+
+void Q_Bucket_Remove_Item_From_Bucket(
+	unsigned int bucket_handle, void* item,
+	void* (*qalloc)(int size), void (*qfree)(void *ptr)) {
+	bucket_t* bucket;
+	qboolean item_found = qfalse;
+	int  i;
+
+	assert(
+		(bucket_handle < num_buckets) &&
+		buckets[bucket_handle].bucket_slot_used &&
+		"Q_Bucket_Remove_Item_From_Bucket: bucket handle not found");
+	assert(
+		buckets[bucket_handle].bucket_size > 0 &&
+		"Q_Bucket_Remove_Item_From_Bucket: bucket is empty");
+
+	bucket = &buckets[bucket_handle];
+
+	for(i = 0; i < NUM_BUCKET_LISTS; i++) {
+		int j;
+
+		for(j = 0; j < bucket->list_length[i]; j++) {
+			if(bucket->list[i][j] == item) {
+				bucket->list[i][j] =
+					bucket->list[i][bucket->list_length[i] - 1];
+				bucket->list_length[i]--;
+				Q_Bucket_Resize_Bucket(
+					bucket_handle, (buckets[bucket_handle].bucket_size - 1),
+					qalloc, qfree);
+				item_found = qtrue;
+			}
+		}
+	}
+
+	assert(
+		item_found &&
+		"Q_Bucket_Remove_Item_From_Bucket: item not found");
+}
+
+void* Q_Bucket_Select_A_Random_Item(unsigned int bucket_handle) {
+	bucket_t     *bucket;
+	unsigned int selected_item_index;
+	void         *selected_item;
+
+	assert(
+		(bucket_handle < num_buckets) &&
+		buckets[bucket_handle].bucket_slot_used &&
+		"Q_Bucket_Select_A_Random_Item: bucket handle not found");
+	assert(
+		buckets[bucket_handle].bucket_size > 0 &&
+		"Q_Bucket_Select_A_Random_Item: bucket is empty");
+
+	bucket = &buckets[bucket_handle];
+
+	//check if the selection list is empty
+	if(bucket->list_length[bucket->selection_list] == 0) {
+		if(bucket->selection_list == BUCKET_LIST_A) {
+			bucket->selection_list = BUCKET_LIST_B;
+		} else {
+			bucket->selection_list = BUCKET_LIST_A;
+		}
+	}
+
+	//select an item from the selection list
+	selected_item_index = rand() % bucket->list_length[bucket->selection_list];
+	selected_item = bucket->list[bucket->selection_list][selected_item_index];
+
+	//move the item to the other list
+	Q_Bucket_Remove_Item_By_Index_From_List(
+		bucket, selected_item_index, bucket->selection_list);
+	if(bucket->selection_list == BUCKET_LIST_A) {
+		Q_Bucket_Add_Item_To_List(
+			bucket, selected_item, BUCKET_LIST_B);
+	} else {
+		Q_Bucket_Add_Item_To_List(
+			bucket, selected_item, BUCKET_LIST_A);
+	}
+
+	return selected_item;
+}
+
+void  Q_Bucket_Select_A_Specific_Item(unsigned int bucket_handle, void* item) {
+	bucket_t     *bucket;
+	unsigned int selected_item_index, i;
+	void         *selected_item = NULL;
+
+	assert(
+		(bucket_handle < num_buckets) &&
+		buckets[bucket_handle].bucket_slot_used &&
+		"Q_Bucket_Select_A_Random_Item: bucket handle not found");
+	assert(
+		buckets[bucket_handle].bucket_size > 0 &&
+		"Q_Bucket_Select_A_Random_Item: bucket is empty");
+
+	bucket = &buckets[bucket_handle];
+
+	//check if the selection list is empty
+	if(bucket->list_length[bucket->selection_list] == 0) {
+		if(bucket->selection_list == BUCKET_LIST_A) {
+			bucket->selection_list = BUCKET_LIST_B;
+		} else {
+			bucket->selection_list = BUCKET_LIST_A;
+		}
+	}
+
+	//search for the specific item
+	for(i = 0; i < bucket->list_length[bucket->selection_list]; i++) {
+		if(item == bucket->list[bucket->selection_list][i]) {
+			selected_item_index = i;
+			selected_item = item;
+			break;
+		}
+	}
+
+	assert(selected_item && "Q_Bucket_Select_A_Specific_Item: item not found");
+
+	//move the item to the other list
+	Q_Bucket_Remove_Item_By_Index_From_List(
+		bucket, selected_item_index, bucket->selection_list);
+	if(bucket->selection_list == BUCKET_LIST_A) {
+		Q_Bucket_Add_Item_To_List(
+			bucket, selected_item, BUCKET_LIST_B);
+	} else {
+		Q_Bucket_Add_Item_To_List(
+			bucket, selected_item, BUCKET_LIST_A);
+	}
+}
+
+
 //------------------------------------------------------------------------
 
 #ifndef Q3_VM

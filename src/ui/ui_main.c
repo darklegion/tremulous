@@ -82,6 +82,7 @@ vmCvar_t ui_lastServerRefresh_0_time;
 vmCvar_t ui_lastServerRefresh_1_time;
 vmCvar_t ui_lastServerRefresh_2_time;
 vmCvar_t ui_lastServerRefresh_3_time;
+vmCvar_t ui_mainMenuSelectedMusic;
 vmCvar_t ui_smallFont;
 vmCvar_t ui_bigFont;
 vmCvar_t ui_findPlayer;
@@ -106,6 +107,7 @@ static cvarTable_t cvarTable[] = {{&ui_browserShowFull, "ui_browserShowFull", "1
     {&ui_lastServerRefresh_1, "ui_lastServerRefresh_1_time", "", CVAR_ARCHIVE},
     {&ui_lastServerRefresh_2, "ui_lastServerRefresh_2_time", "", CVAR_ARCHIVE},
     {&ui_lastServerRefresh_3, "ui_lastServerRefresh_3_time", "", CVAR_ARCHIVE},
+    {&ui_mainMenuSelectedMusic, "ui_mainMenuSelectedMusic", "", CVAR_ARCHIVE},
     {&ui_smallFont, "ui_smallFont", "0.2", CVAR_ARCHIVE | CVAR_LATCH},
     {&ui_bigFont, "ui_bigFont", "0.5", CVAR_ARCHIVE | CVAR_LATCH}, {&ui_findPlayer, "ui_findPlayer", "", CVAR_ARCHIVE},
     {&ui_serverStatusTimeOut, "ui_serverStatusTimeOut", "7000", CVAR_ARCHIVE},
@@ -1419,7 +1421,10 @@ void UI_Refresh(int realtime)
 UI_Shutdown
 =================
 */
-void UI_Shutdown(void) { trap_LAN_SaveCachedServers(); }
+void UI_Shutdown(void) { 
+  BG_Bucket_Destroy_All_Buckets( );
+  trap_LAN_SaveCachedServers();
+}
 
 qboolean Asset_Parse(int handle)
 {
@@ -5367,6 +5372,14 @@ void UI_Init(qboolean inGameLoad)
     uiInfo.uiDC.stopCinematic = &UI_StopCinematic;
     uiInfo.uiDC.drawCinematic = &UI_DrawCinematic;
     uiInfo.uiDC.runCinematicFrame = &UI_RunCinematicFrame;
+    uiInfo.uiDC.Bucket_Create_Bucket = BG_Bucket_Create_Bucket;
+    uiInfo.uiDC.Bucket_Delete_Bucket = BG_Bucket_Delete_Bucket;
+    uiInfo.uiDC.Bucket_Destroy_All_Buckets = BG_Bucket_Destroy_All_Buckets;
+    uiInfo.uiDC.Bucket_Add_Item_To_Bucket = BG_Bucket_Add_Item_To_Bucket;
+    uiInfo.uiDC.Bucket_Remove_Item_From_Bucket = BG_Bucket_Remove_Item_From_Bucket;
+    uiInfo.uiDC.Bucket_Select_A_Random_Item = BG_Bucket_Select_A_Random_Item;
+    uiInfo.uiDC.Bucket_Select_A_Specific_Item = BG_Bucket_Select_A_Specific_Item;
+    uiInfo.uiDC.FS_GetFileList = trap_FS_GetFileList;
 
     Init_Display(&uiInfo.uiDC);
 

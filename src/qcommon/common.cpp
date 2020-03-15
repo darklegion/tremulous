@@ -3660,3 +3660,46 @@ int QDECL Com_strCompare( const void *a, const void *b )
     const char **pb = (const char **)b;
     return strcmp( *pa, *pb );
 }
+
+/*
+==============================================================
+
+Bucket Selection System
+
+==============================================================
+*/
+
+static void *Z_PlaceHolderAlloc(int size) {
+    Z_Malloc(size);
+}
+
+unsigned int Com_Bucket_Create_Bucket(void) {
+    Q_Bucket_Create_Bucket(Z_PlaceHolderAlloc, Z_Free);
+}
+
+void Com_Bucket_Delete_Bucket(unsigned int bucket_handle) {
+    Q_Bucket_Delete_Bucket(bucket_handle);
+}
+
+void Com_Bucket_Destroy_All_Buckets(void) {
+    Q_Bucket_Destroy_All_Buckets(Z_PlaceHolderAlloc, Z_Free);
+}
+
+void Com_Bucket_Add_Item_To_Bucket(
+    unsigned int bucket_handle, void* item) {
+    Q_Bucket_Add_Item_To_Bucket(bucket_handle, item, Z_PlaceHolderAlloc, Z_Free);
+}
+
+void Com_Bucket_Remove_Item_From_Bucket(
+    unsigned int bucket_handle, void* item) {
+    Q_Bucket_Remove_Item_From_Bucket(
+        bucket_handle, item, Z_PlaceHolderAlloc, Z_Free);
+}
+
+void* Com_Bucket_Select_A_Random_Item(unsigned int bucket_handle) {
+    Q_Bucket_Select_A_Random_Item(bucket_handle);
+}
+
+void Com_Bucket_Select_A_Specific_Item(unsigned int bucket_handle, void* item) {
+    Q_Bucket_Select_A_Specific_Item(bucket_handle, item);
+}

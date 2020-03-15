@@ -1005,6 +1005,29 @@ typedef enum {
 	CHAN_ANNOUNCER		// announcer voices, etc
 } soundChannel_t;
 
+/*
+==============================================================
+
+Bucket Selection System
+
+==============================================================
+*/
+
+unsigned int Q_Bucket_Create_Bucket(
+	void* (*qalloc)(int size), void (*qfree)(void *ptr));
+void         Q_Bucket_Delete_Bucket(unsigned int bucket_handle);
+void         Q_Bucket_Destroy_All_Buckets(
+	void* (*qalloc)(int size), void (*qfree)(void *ptr));
+void         Q_Bucket_Add_Item_To_Bucket(
+	unsigned int bucket_handle, void* item,
+	void* (*qalloc)(int size), void (*qfree)(void *ptr));
+void         Q_Bucket_Remove_Item_From_Bucket(
+	unsigned int bucket_handle, void* item,
+	void* (*qalloc)(int size), void (*qfree)(void *ptr));
+void*        Q_Bucket_Select_A_Random_Item(unsigned int bucket_handle);
+void         Q_Bucket_Select_A_Specific_Item(
+	unsigned int bucket_handle, void* item);
+
 
 /*
 ========================================================================

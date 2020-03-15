@@ -34,7 +34,7 @@ focusColor WINDOW_FOCUSCOLOR// vim:ft=menu
         onOpen
         {
             uiScript stopRefresh
-            playlooped "sound/ui/heartbeat.wav"
+            bucketPlayLooped "sound/ui/main_menu_music" ui_mainMenuSelectedMusic
         }
 
         onESC

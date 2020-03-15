@@ -1260,6 +1260,27 @@ void  BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *
 
 qboolean  BG_PlayerTouchesItem( playerState_t *ps, entityState_t *item, int atTime );
 
+/*
+==============================================================
+
+Bucket Selection System
+
+==============================================================
+*/
+
+unsigned int BG_Bucket_Create_Bucket(void);
+void         BG_Bucket_Delete_Bucket(unsigned int bucket_handle);
+void         BG_Bucket_Destroy_All_Buckets(void);
+void         BG_Bucket_Add_Item_To_Bucket(
+	unsigned int bucket_handle, void* item);
+void         BG_Bucket_Remove_Item_From_Bucket(
+	unsigned int bucket_handle, void* item);
+void*        BG_Bucket_Select_A_Random_Item(unsigned int bucket_handle);
+void         BG_Bucket_Select_A_Specific_Item(
+  unsigned int bucket_handle, void* item);
+//==============================================================
+
+
 #define ARENAS_PER_TIER   4
 #define MAX_ARENAS      1024
 #define MAX_ARENAS_TEXT   8192

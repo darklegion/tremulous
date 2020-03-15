@@ -309,6 +309,9 @@ typedef struct {
     const char *onClose;  // run when the menu is closed
     const char *onESC;  // run when the menu is closed
     const char *soundName;  // background loop sound for menu
+    qboolean     play_looped_bucket_allocated;
+    unsigned int play_looped_bucket_handle; // for bucket selection of
+                                            // background loop sounds
 
     vec4_t focusColor;  // focus color for items
     vec4_t disableColor;  // focus color for items
@@ -416,6 +419,14 @@ typedef struct {
     void (*stopCinematic)(int handle);
     void (*drawCinematic)(int handle, float x, float y, float w, float h);
     void (*runCinematicFrame)(int handle);
+    unsigned int (*Bucket_Create_Bucket)(void);
+    void (*Bucket_Delete_Bucket)(unsigned int bucket_handle);
+    void (*Bucket_Destroy_All_Buckets)(void);
+    void (*Bucket_Add_Item_To_Bucket)(unsigned int bucket_handle, void* item);
+    void (*Bucket_Remove_Item_From_Bucket)(unsigned int bucket_handle, void* item);
+    void* (*Bucket_Select_A_Random_Item)(unsigned int bucket_handle);
+    void (*Bucket_Select_A_Specific_Item)(unsigned int bucket_handle, void* item);
+    int (*FS_GetFileList)(const char *path, const char *extension, char *listbuf, int bufsize);
 
     float yscale;
     float xscale;
