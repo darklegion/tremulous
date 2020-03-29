@@ -271,7 +271,7 @@ typedef struct
 typedef struct namelog_s
 {
   struct namelog_s  *next;
-  char              name[ MAX_NAMELOG_NAMES ][ MAX_NAME_LENGTH ];
+  char              name[ MAX_NAMELOG_NAMES ][ MAX_COLORFUL_NAME_LENGTH ];
   addr_t            ip[ MAX_NAMELOG_ADDRS ];
   char              guid[ 33 ];
   qboolean          guidless;
@@ -302,7 +302,7 @@ typedef struct
   qboolean            localClient;        // true if "ip" info key is "localhost"
   qboolean            stickySpec;         // don't stop spectating a player after they get killed
   qboolean            pmoveFixed;         //
-  char                netname[ MAX_NAME_LENGTH ];
+  char                netname[ MAX_COLORFUL_NAME_LENGTH ];
   int                 enterTime;          // level.time the client entered the game
   int                 location;           // player locations
   int                 teamInfo;           // level.time of team overlay update (disabled = 0)
@@ -727,7 +727,8 @@ void      G_FollowLockView( gentity_t *ent );
 qboolean  G_FollowNewClient( gentity_t *ent, int dir );
 void      G_ToggleFollow( gentity_t *ent );
 int       G_ClientNumberFromString( char *s, char *err, int len );
-int       G_ClientNumbersFromString( char *s, int *plist, int max );
+int       G_ClientNumbersFromString(
+  char *s, int *plist, int max, qboolean alphanumeric );
 char      *ConcatArgs( int start );
 char      *ConcatArgsPrintable( int start );
 void      G_Say( gentity_t *ent, saymode_t mode, const char *chatText );

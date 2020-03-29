@@ -379,17 +379,28 @@ void Sys_AnsiColorPrint( const char *msg )
             }
             else
             {
+                vec4_t color;
+
+                if(Q_IsHardcodedColor(msg)) {
+                    Vector4Copy(g_color_table[ColorIndex(*(msg+1))], color);
+                } else {
+                    Q_GetVectFromHexColor(msg, color);
+                }
                 // Print the color code (reset first to clear potential inverse (black))
                 Com_sprintf( buffer, sizeof( buffer ), "\033[0m\033[%dm",
-                        q3ToAnsi[ ColorIndex( *( msg + 1 ) ) ] );
+                    q3ToAnsi[Q_ApproxBasicColorIndexFromVectColor(color)] );
                 fputs( buffer, stderr );
-                msg += 2;
+                msg += Q_ColorStringLength(msg);
             }
         }
         else
         {
             if( length >= MAXPRINTMSG - 1 )
-                break;
+            break;
+
+                if(Q_IsColorEscapeEscape(msg)) {
+                msg++;
+            }
 
             buffer[ length ] = *msg;
             length++;

@@ -167,7 +167,8 @@ struct client_t {
     int lastClientCommand;  // reliable client message sequence
     char lastClientCommandString[MAX_STRING_CHARS];
     sharedEntity_t *gentity;  // SV_GentityNum(clientnum)
-    char name[MAX_NAME_LENGTH];  // extracted from userinfo, high bits masked
+    char name[MAX_COLORFUL_NAME_LENGTH]; // extracted from userinfo, high bits masked
+    char name_ansi[MAX_COLORFUL_NAME_LENGTH]; //hex colors are aproximated to ansi for backwards compatibility
 
     // downloading
     char downloadName[MAX_QPATH];  // if not empty string, we are downloading

@@ -29,6 +29,11 @@ along with Tremulous; if not, see <https://www.gnu.org/licenses/>
 #define SCROLL_TIME_ADJUSTOFFSET 40
 #define SCROLL_TIME_FLOOR 20
 
+int key_pressed_onCharEntry; // used by onCharEntry
+qboolean ctrl_held;
+
+chatInfo_t chatInfo;
+
 typedef struct {
     int nextScrollTime;
     int nextAdjustTime;
@@ -2073,10 +2078,12 @@ float UI_Char_Width(const char **text, float scale)
 
     if (text && *text)
     {
-        if (Q_IsColorString(*text))
+        if( Q_IsColorString( *text ) )
         {
-            *text += 2;
+            *text += Q_ColorStringLength(*text);
             return 0.0f;
+        } else if(Q_IsColorEscapeEscape(*text)) {
+            *text += 1;
         }
 
         if (**text == INDENT_MARKER)
@@ -2143,11 +2150,14 @@ float UI_Text_Height(const char *text, float scale)
         {
             if (Q_IsColorString(s))
             {
-                s += 2;
+                s += Q_ColorStringLength(s);
                 continue;
             }
             else
             {
+                if(Q_IsColorEscapeEscape(s)) {
+                    s++;
+                }
                 glyph = &font->glyphs[(int)*s];
 
                 if (max < glyph->height)
@@ -2230,22 +2240,24 @@ static void UI_Text_PaintChar(float x, float y, float scale, glyphInfo_t *glyph,
     DC->drawStretchPic(x, y, w, h, glyph->s, glyph->t, glyph->s2, glyph->t2, glyph->glyph);
 }
 
-static void UI_Text_Paint_Generic(float x, float y, float scale, float gapAdjust, const char *text, vec4_t color,
-    int style, int limit, float *maxX, int cursorPos, char cursor)
+static void UI_Text_Paint_Generic(
+    float x, float y, float scale, float gapAdjust, const char *text,
+    vec4_t color, int style, int limit, float *maxX, int cursorPos, char cursor)
 {
-    const char *s = text;
-    int len;
-    int count = 0;
-    vec4_t newColor;
-    fontInfo_t *font = UI_FontForScale(scale);
+    const char  *s = text;
+    int         len;
+    int         count = 0;
+    vec4_t      newColor;
+    fontInfo_t  *font = UI_FontForScale(scale);
     glyphInfo_t *glyph;
-    float useScale;
-    qhandle_t emoticonHandle = 0;
-    float emoticonH, emoticonW;
-    qboolean emoticonEscaped;
-    int emoticonLen = 0;
-    int emoticonWidth;
-    int cursorX = -1;
+    float       useScale;
+    qhandle_t   emoticonHandle = 0;
+    float       emoticonH, emoticonW;
+    qboolean    emoticonEscaped;
+    qboolean    skip_color_string_check = qfalse;
+    int         emoticonLen = 0;
+    int         emoticonWidth;
+    int         cursorX = -1;
 
     if (!text)
         return;
@@ -2278,13 +2290,19 @@ static void UI_Text_Paint_Generic(float x, float y, float scale, float gapAdjust
 
         if (cursorPos < 0)
         {
-            if (Q_IsColorString(s))
+            if ( Q_IsColorString(s))
             {
-                memcpy(newColor, g_color_table[ColorIndex(*(s + 1))], sizeof(newColor));
-                newColor[3] = color[3];
-                DC->setColor(newColor);
-                s += 2;
-                continue;
+            if (Q_IsHardcodedColor(s)) {
+                Vector4Copy(g_color_table[ColorIndex(*(s+1))], newColor);
+            } else {
+                Q_GetVectFromHexColor(s, newColor);
+            }
+            newColor[3] = color[3];
+            DC->setColor( newColor );
+            s += Q_ColorStringLength(s);
+            continue;
+            } else if (Q_IsColorEscapeEscape(s)) {
+                s++;
             }
 
             if (*s == INDENT_MARKER)
@@ -2293,7 +2311,8 @@ static void UI_Text_Paint_Generic(float x, float y, float scale, float gapAdjust
                 continue;
             }
 
-            if (UI_Text_IsEmoticon(s, &emoticonEscaped, &emoticonLen, &emoticonHandle, &emoticonWidth))
+            if (UI_Text_IsEmoticon(s, &emoticonEscaped, &emoticonLen,
+                                    &emoticonHandle, &emoticonWidth))
             {
                 if (emoticonEscaped)
                     s++;
@@ -2314,22 +2333,58 @@ static void UI_Text_Paint_Generic(float x, float y, float scale, float gapAdjust
 
                         colorBlack[3] = newColor[3] * 4 / 8 / 6;
                         DC->setColor(colorBlack);
-                        DC->drawHandlePic(x + ofs - 0.2f, y + ofs - 0.2f - yadj, (emoticonW * emoticonWidth), emoticonH, emoticonHandle);
-                        DC->drawHandlePic(x + ofs + 0.2f, y + ofs - 0.2f - yadj, (emoticonW * emoticonWidth), emoticonH, emoticonHandle);
-                        DC->drawHandlePic(x + ofs - 0.2f, y + ofs + 0.2f - yadj, (emoticonW * emoticonWidth), emoticonH, emoticonHandle);
-                        DC->drawHandlePic(x + ofs + 0.2f, y + ofs + 0.2f - yadj, (emoticonW * emoticonWidth), emoticonH, emoticonHandle);
+                        DC->drawHandlePic(
+                          x + ofs - 0.2f, y + ofs - 0.2f - yadj,
+                          (emoticonW * emoticonWidth), emoticonH,
+                          emoticonHandle);
+                        DC->drawHandlePic(
+                          x + ofs + 0.2f, y + ofs - 0.2f - yadj,
+                          (emoticonW * emoticonWidth), emoticonH,
+                          emoticonHandle);
+                        DC->drawHandlePic(
+                          x + ofs - 0.2f, y + ofs + 0.2f - yadj,
+                          (emoticonW * emoticonWidth), emoticonH,
+                          emoticonHandle);
+                        DC->drawHandlePic(
+                          x + ofs + 0.2f, y + ofs + 0.2f - yadj,
+                          (emoticonW * emoticonWidth), emoticonH,
+                          emoticonHandle);
                         colorBlack[3] = newColor[3] * 3 / 8 / 6;
                         DC->setColor(colorBlack);
-                        DC->drawHandlePic(x + ofs - 0.4f, y + ofs - 0.4f - yadj, (emoticonW * emoticonWidth), emoticonH, emoticonHandle);
-                        DC->drawHandlePic(x + ofs + 0.4f, y + ofs - 0.4f - yadj, (emoticonW * emoticonWidth), emoticonH, emoticonHandle);
-                        DC->drawHandlePic(x + ofs - 0.4f, y + ofs + 0.4f - yadj, (emoticonW * emoticonWidth), emoticonH, emoticonHandle);
-                        DC->drawHandlePic(x + ofs + 0.4f, y + ofs + 0.4f - yadj, (emoticonW * emoticonWidth), emoticonH, emoticonHandle);
+                        DC->drawHandlePic(
+                          x + ofs - 0.4f, y + ofs - 0.4f - yadj,
+                          (emoticonW * emoticonWidth), emoticonH,
+                          emoticonHandle);
+                        DC->drawHandlePic(
+                          x + ofs + 0.4f, y + ofs - 0.4f - yadj,
+                          (emoticonW * emoticonWidth), emoticonH,
+                          emoticonHandle);
+                        DC->drawHandlePic(
+                          x + ofs - 0.4f, y + ofs + 0.4f - yadj,
+                          (emoticonW * emoticonWidth), emoticonH,
+                          emoticonHandle);
+                        DC->drawHandlePic(
+                          x + ofs + 0.4f, y + ofs + 0.4f - yadj,
+                          (emoticonW * emoticonWidth), emoticonH,
+                          emoticonHandle);
                         colorBlack[3] = newColor[3] * 1 / 8 / 6;
                         DC->setColor(colorBlack);
-                        DC->drawHandlePic(x + ofs - 0.6f, y + ofs - 0.6f - yadj, (emoticonW * emoticonWidth), emoticonH, emoticonHandle);
-                        DC->drawHandlePic(x + ofs + 0.6f, y + ofs - 0.6f - yadj, (emoticonW * emoticonWidth), emoticonH, emoticonHandle);
-                        DC->drawHandlePic(x + ofs - 0.6f, y + ofs + 0.6f - yadj, (emoticonW * emoticonWidth), emoticonH, emoticonHandle);
-                        DC->drawHandlePic(x + ofs + 0.6f, y + ofs + 0.6f - yadj, (emoticonW * emoticonWidth), emoticonH, emoticonHandle);
+                        DC->drawHandlePic(
+                          x + ofs - 0.6f, y + ofs - 0.6f - yadj,
+                          (emoticonW * emoticonWidth), emoticonH,
+                          emoticonHandle);
+                        DC->drawHandlePic(
+                          x + ofs + 0.6f, y + ofs - 0.6f - yadj,
+                          (emoticonW * emoticonWidth), emoticonH,
+                          emoticonHandle);
+                        DC->drawHandlePic(
+                          x + ofs - 0.6f, y + ofs + 0.6f - yadj,
+                          (emoticonW * emoticonWidth), emoticonH,
+                          emoticonHandle);
+                        DC->drawHandlePic(
+                          x + ofs + 0.6f, y + ofs + 0.6f - yadj,
+                          (emoticonW * emoticonWidth), emoticonH,
+                          emoticonHandle);
 
                         DC->setColor(NULL);
                         colorBlack[3] = 1.0f;
@@ -2343,9 +2398,25 @@ static void UI_Text_Paint_Generic(float x, float y, float scale, float gapAdjust
                     continue;
                 }
             }
+        } else {
+            if (skip_color_string_check) {
+                skip_color_string_check = qfalse;
+            } else if (Q_IsColorString(s))
+            {
+                if (Q_IsHardcodedColor(s)) {
+                    Vector4Copy(g_color_table[ColorIndex( *(s+1))], newColor);
+                } else {
+                    Q_GetVectFromHexColor(s, newColor);
+                }
+                newColor[3] = color[3];
+                DC->setColor(newColor);
+            } else if (Q_IsColorEscapeEscape(s)) {
+                skip_color_string_check = qtrue;
+            }
         }
 
-        if (style == ITEM_TEXTSTYLE_SHADOWED || style == ITEM_TEXTSTYLE_SHADOWEDMORE)
+        if (style == ITEM_TEXTSTYLE_SHADOWED ||
+           style == ITEM_TEXTSTYLE_SHADOWEDMORE)
         {
             int ofs;
 
@@ -2356,22 +2427,34 @@ static void UI_Text_Paint_Generic(float x, float y, float scale, float gapAdjust
 
             colorBlack[3] = newColor[3] * 4 / 8 / 6;
             DC->setColor(colorBlack);
-            UI_Text_PaintChar(x + ofs - 0.2f, y + ofs - 0.2f, useScale, glyph, 0.0f);
-            UI_Text_PaintChar(x + ofs + 0.2f, y + ofs - 0.2f, useScale, glyph, 0.0f);
-            UI_Text_PaintChar(x + ofs - 0.2f, y + ofs + 0.2f, useScale, glyph, 0.0f);
-            UI_Text_PaintChar(x + ofs + 0.2f, y + ofs + 0.2f, useScale, glyph, 0.0f);
+            UI_Text_PaintChar(
+                x + ofs - 0.2f, y + ofs - 0.2f, useScale, glyph, 0.0f);
+            UI_Text_PaintChar(
+                x + ofs + 0.2f, y + ofs - 0.2f, useScale, glyph, 0.0f);
+            UI_Text_PaintChar(
+                x + ofs - 0.2f, y + ofs + 0.2f, useScale, glyph, 0.0f);
+            UI_Text_PaintChar(
+                x + ofs + 0.2f, y + ofs + 0.2f, useScale, glyph, 0.0f);
             colorBlack[3] = newColor[3] * 3 / 8 / 6;
             DC->setColor(colorBlack);
-            UI_Text_PaintChar(x + ofs - 0.4f, y + ofs - 0.4f, useScale, glyph, 0.0f);
-            UI_Text_PaintChar(x + ofs + 0.4f, y + ofs - 0.4f, useScale, glyph, 0.0f);
-            UI_Text_PaintChar(x + ofs - 0.4f, y + ofs + 0.4f, useScale, glyph, 0.0f);
-            UI_Text_PaintChar(x + ofs + 0.4f, y + ofs + 0.4f, useScale, glyph, 0.0f);
+            UI_Text_PaintChar(
+                x + ofs - 0.4f, y + ofs - 0.4f, useScale, glyph, 0.0f);
+            UI_Text_PaintChar(
+                x + ofs + 0.4f, y + ofs - 0.4f, useScale, glyph, 0.0f);
+            UI_Text_PaintChar(
+                x + ofs - 0.4f, y + ofs + 0.4f, useScale, glyph, 0.0f);
+            UI_Text_PaintChar(
+                x + ofs + 0.4f, y + ofs + 0.4f, useScale, glyph, 0.0f);
             colorBlack[3] = newColor[3] * 1 / 8 / 6;
             DC->setColor(colorBlack);
-            UI_Text_PaintChar(x + ofs - 0.6f, y + ofs - 0.6f, useScale, glyph, 0.0f);
-            UI_Text_PaintChar(x + ofs + 0.6f, y + ofs - 0.6f, useScale, glyph, 0.0f);
-            UI_Text_PaintChar(x + ofs - 0.6f, y + ofs + 0.6f, useScale, glyph, 0.0f);
-            UI_Text_PaintChar(x + ofs + 0.6f, y + ofs + 0.6f, useScale, glyph, 0.0f);
+            UI_Text_PaintChar(
+                x + ofs - 0.6f, y + ofs - 0.6f, useScale, glyph, 0.0f);
+            UI_Text_PaintChar(
+                x + ofs + 0.6f, y + ofs - 0.6f, useScale, glyph, 0.0f);
+            UI_Text_PaintChar(
+                x + ofs - 0.6f, y + ofs + 0.6f, useScale, glyph, 0.0f);
+            UI_Text_PaintChar(
+                x + ofs + 0.6f, y + ofs + 0.6f, useScale, glyph, 0.0f);
 
             DC->setColor(newColor);
             colorBlack[3] = 1.0f;
@@ -2431,6 +2514,7 @@ static void UI_Text_Paint_Generic(float x, float y, float scale, float gapAdjust
         if (cursorX >= 0 && !((DC->realTime / BLINK_DIVISOR) & 1))
         {
             glyph = &font->glyphs[(int)cursor];
+            DC->setColor(color);
             UI_Text_PaintChar(cursorX, y, useScale, glyph, 0.0f);
         }
     }
@@ -3473,18 +3557,160 @@ qboolean Item_TextField_HandleKey(itemDef_t *item, int key)
 
                     break;
 
-                case K_TAB:
-                case K_DOWNARROW:
-                case K_KP_DOWNARROW:
-                case K_UPARROW:
-                case K_KP_UPARROW:
-                    // Ignore these keys from the say field
-                    if (item->type == ITEM_TYPE_SAYFIELD)
+                case ('c'):
+                    if( ctrl_held && (item->type == ITEM_TYPE_SAYFIELD) ) {
+                        // ctrl-c clears the field
+                        memset(
+                            chatInfo.say_unsubmitted_line, 0,
+                            sizeof(chatInfo.say_unsubmitted_line));
+                        chatInfo.historyLine = chatInfo.nextHistoryLine;
+                        DC->setCVar(
+                            "ui_sayBuffer",
+                            chatInfo.say_unsubmitted_line);
+                        chatInfo.say_history_current = qtrue;
+                        chatInfo.say_make_current_line_blank = qfalse;
+                    }
+                    break;
+
+                case K_PGUP:
+                case K_KP_PGUP:
+                    if( item->type != ITEM_TYPE_SAYFIELD ) {
                         break;
+                    }
+
+                    if(chatInfo.chat_mode <= 0) {
+                        chatInfo.chat_mode = NUM_CHAT_MODES - 1;
+                    } else {
+                        chatInfo.chat_mode--;
+                    }
+                    chatInfo.chat_mode_blink_time = DC->realTime + 2000;
+                    break;
+
+                    case K_PGDN:
+                    case K_KP_PGDN:
+                        if( item->type != ITEM_TYPE_SAYFIELD ) {
+                            break;
+                        }
+
+                        if(chatInfo.chat_mode >= NUM_CHAT_MODES - 1) {
+                            chatInfo.chat_mode = 0;
+                        } else {
+                            chatInfo.chat_mode++;
+                        }
+                        chatInfo.chat_mode_blink_time = DC->realTime + 2000;
+                        break;
+
+                case K_TAB:
+                    if( item->type == ITEM_TYPE_SAYFIELD ) {
+                        if(chatInfo.say_make_current_line_blank) {
+                            chatInfo.say_make_current_line_blank = qfalse;
+                            memset(
+                                chatInfo.say_unsubmitted_line, 0,
+                                sizeof(chatInfo.say_unsubmitted_line));
+                            DC->setCVar("ui_sayBuffer", "");
+                            item->cursorPos = 0;
+                            len = 0;
+                        }
+                        chatInfo.say_cursor_pos = &item->cursorPos;
+                        chatInfo.say_length = len;
+                        chatInfo.say_max_chars = editPtr->maxChars;
+                        break;
+                    }
 
                     newItem = Menu_SetNextCursorItem(item->parent);
 
-                    if (newItem && Item_IsEditField(newItem))
+                    if (newItem && Item_IsEditField(newItem)) {
+                        g_editItem = newItem;
+                    } else {
+                        releaseFocus = qtrue;
+                        goto exit;
+                    }
+                    break;
+
+                case K_DOWNARROW:
+                case K_KP_DOWNARROW:
+                    if( item->type == ITEM_TYPE_SAYFIELD ) {
+                        if(!chatInfo.say_make_current_line_blank) {
+                            if(chatInfo.say_history_current) {
+                                chatInfo.say_make_current_line_blank = qtrue;
+                                DC->setCVar("ui_sayBuffer", "");
+                                break;
+                            } else {
+                                chatInfo.historyLine++;
+                                while(
+                                    chatInfo.historyLine <=
+                                        chatInfo.nextHistoryLine &&
+                                    !chatInfo.say_history_lines[chatInfo.historyLine % MAX_SAY_HISTORY_LINES][0]) {
+                                    //skip over Null history lines
+                                    chatInfo.historyLine++;
+                                }
+                                if(
+                                    chatInfo.historyLine >
+                                        chatInfo.nextHistoryLine) {
+                                    chatInfo.historyLine = chatInfo.nextHistoryLine;
+                                    DC->setCVar(
+                                        "ui_sayBuffer",
+                                        chatInfo.say_unsubmitted_line);
+                                    chatInfo.say_history_current = qtrue;
+                                    break;
+                                }
+                                DC->setCVar(
+                                    "ui_sayBuffer",
+                                    chatInfo.say_history_lines[chatInfo.historyLine % MAX_SAY_HISTORY_LINES]);
+                                    break;
+                            }
+                        }
+                        break;
+                    }
+
+                    newItem = Menu_SetNextCursorItem(item->parent);
+
+                    if (newItem && Item_IsEditField(newItem)) {
+                        g_editItem = newItem;
+                    } else {
+                        releaseFocus = qtrue;
+                        goto exit;
+                    }
+                    break;
+
+                case K_UPARROW:
+                case K_KP_UPARROW:
+                    if( item->type == ITEM_TYPE_SAYFIELD ) {
+                        if(chatInfo.say_make_current_line_blank) {
+                            chatInfo.say_make_current_line_blank = qfalse;
+                            DC->setCVar(
+                                "ui_sayBuffer",
+                                chatInfo.say_unsubmitted_line);
+                            break;
+                        } else {
+                            if(
+                                chatInfo.nextHistoryLine -
+                                chatInfo.historyLine < MAX_SAY_HISTORY_LINES 
+                                && chatInfo.historyLine > 0 ) {
+                                char buffer[ MAX_CVAR_VALUE_STRING ];
+
+                                DC->getCVarString(
+                                    "ui_sayBuffer", buffer, sizeof(buffer));
+                                if(chatInfo.say_history_current) {
+                                    //save the unsubmitted line
+                                    Q_strncpyz(
+                                        chatInfo.say_unsubmitted_line, buffer, sizeof(chatInfo.say_unsubmitted_line));
+                                        chatInfo.say_history_current = qfalse;
+                                    }
+
+                                    chatInfo.historyLine--;
+
+                                    DC->setCVar(
+                                        "ui_sayBuffer",
+                                        chatInfo.say_history_lines[chatInfo.historyLine % MAX_SAY_HISTORY_LINES]);
+                            }
+                            break;
+                        }
+                    }
+
+                    newItem = Menu_SetNextCursorItem( item->parent );
+
+                    if( newItem && Item_IsEditField( newItem ) )
                     {
                         g_editItem = newItem;
                     }
@@ -3493,7 +3719,6 @@ qboolean Item_TextField_HandleKey(itemDef_t *item, int key)
                         releaseFocus = qtrue;
                         goto exit;
                     }
-
                     break;
 
                 case K_MOUSE1:
@@ -3518,7 +3743,47 @@ qboolean Item_TextField_HandleKey(itemDef_t *item, int key)
         releaseFocus = qfalse;
     }
 
+    if( item->type == ITEM_TYPE_SAYFIELD ) {
+        if(chatInfo.say_make_current_line_blank) {
+            switch(key) {
+                case K_PGUP:
+                case K_KP_PGUP:
+                case K_PGDN:
+                case K_KP_PGDN:
+                case K_UPARROW:
+                case K_KP_UPARROW:
+                case K_DOWNARROW:
+                case K_KP_DOWNARROW:
+                    break;
+
+                default:
+                    chatInfo.say_make_current_line_blank = qfalse;
+                    memset(
+                        chatInfo.say_unsubmitted_line, 0,
+                        sizeof(chatInfo.say_unsubmitted_line));
+                    DC->setCVar("ui_sayBuffer", "");
+                    break;
+            }
+        }
+    }
+
 exit:
+    if( item->type == ITEM_TYPE_SAYFIELD ) {
+        if(releaseFocus && !chatInfo.say_make_current_line_blank) {
+            switch (key) {
+                case K_ENTER:
+                case K_KP_ENTER:
+                    break;
+
+                default:
+                    chatInfo.historyLine = chatInfo.nextHistoryLine;
+                    chatInfo.say_history_current = qtrue;
+                    chatInfo.say_make_current_line_blank = qtrue;
+                    DC->setCVar("ui_sayBuffer", "");
+                    break;
+            }
+        }
+    }
     Item_TextField_CalcPaintOffset(item, buff);
 
     return !releaseFocus;
@@ -3942,6 +4207,13 @@ void Menus_Activate(menuDef_t *menu)
             {
                 menu->items[i]->typeData.cycle->cursorPos = DC->feederInitialise(menu->items[i]->feederID);
             }
+
+            if(menu->items[ i ]->type == ITEM_TYPE_SAYFIELD) {
+                char buffer[MAX_CVAR_VALUE_STRING];
+
+                DC->getCVarString("ui_sayBuffer", buffer, sizeof(buffer));
+                menu->items[i]->cursorPos = strlen(buffer);
+            }
         }
 
         if (openMenuCount < MAX_OPEN_MENUS)
@@ -4100,6 +4372,7 @@ void Menu_HandleKey(menuDef_t *menu, int key, qboolean down)
         }
         else
         {
+            key_pressed_onCharEntry = key;
             Item_RunScript(g_editItem, g_editItem->onCharEntry);
         }
     }
@@ -4338,7 +4611,26 @@ void Item_TextColor(itemDef_t *item, vec4_t *newColor)
     Fade(&item->window.flags, &item->window.foreColor[3], parent->fadeClamp, &item->window.nextTime, parent->fadeCycle,
         qtrue, parent->fadeAmount);
 
-    if (item->window.flags & WINDOW_HASFOCUS)
+    if(
+        (item->type == ITEM_TYPE_SAYFIELD) &&
+        (chatInfo.chat_mode_blink_time > DC->realTime &&
+        !((DC->realTime / BLINK_DIVISOR ) & 1))) {
+        lowLight[0] = 0.8 * item->window.foreColor[0];
+        lowLight[1] = 0.8 * item->window.foreColor[1];
+        lowLight[2] = 0.8 * item->window.foreColor[2];
+        lowLight[3] = 0.8 * item->window.foreColor[3];
+        LerpColor(
+            item->window.foreColor, lowLight, *newColor,
+            0.5 + 0.5 * sin(DC->realTime / PULSE_DIVISOR));
+
+        lowLight[0] = 1.0 * parent->focusColor[0];
+        lowLight[1] = 0.5 * parent->focusColor[1];
+        lowLight[2] = 0.5 * parent->focusColor[2];
+        lowLight[3] = 0.8 * parent->focusColor[3];
+        LerpColor(
+            parent->focusColor, lowLight, *newColor,
+            0.5 + 0.5 * sin(DC->realTime / PULSE_DIVISOR));
+    } else if( item->window.flags & WINDOW_HASFOCUS )
         memcpy(newColor, &parent->focusColor, sizeof(vec4_t));
     else if (item->textStyle == ITEM_TEXTSTYLE_BLINK && !((DC->realTime / BLINK_DIVISOR) & 1))
     {
@@ -4365,9 +4657,15 @@ static void SkipColorCodes(const char **text, char *lastColor)
 {
     while (Q_IsColorString(*text))
     {
-        lastColor[0] = (*text)[0];
-        lastColor[1] = (*text)[1];
-        (*text) += 2;
+        const int color_chars = Q_ColorStringLength(*text);
+        int       i;
+
+        for(i = 0; i < color_chars; i++) {
+            lastColor[ i ] = (*text)[ i ];
+        }
+
+        lastColor[color_chars] = '\0';
+        (*text) += color_chars;
     }
 }
 
@@ -4388,7 +4686,7 @@ const char *Item_Text_Wrap(const char *text, float scale, float width)
 {
     static char out[8192] = "";
     char *paint = out;
-    char c[3] = "";
+    char c[9] = "";
     const char *p;
     const char *eos;
     float indentWidth = 0.0f;
@@ -4492,8 +4790,14 @@ const char *Item_Text_Wrap(const char *text, float scale, float width)
 
         if (c[0])
         {
-            *paint++ = c[0];
-            *paint++ = c[1];
+            const int color_chars = Q_ColorStringLength(c);
+            int       i;
+
+            for(i = 0; i < color_chars; i++)
+            {
+                *paint++ = c[ i ];
+            }
+
             *paint = '\0';
         }
     }
@@ -5014,7 +5318,8 @@ static bind_t g_bindings[] = {{"+scores", K_TAB, -1, -1, -1, -1}, {"+button2", K
     {"+button4", K_MOUSE4, -1, -1, -1, -1}, {"vote yes", K_F1, -1, -1, -1, -1}, {"vote no", K_F2, -1, -1, -1, -1},
     {"teamvote yes", K_F3, -1, -1, -1, -1}, {"teamvote no", K_F4, -1, -1, -1, -1}, {"ready", K_F5, -1, -1, -1, -1},
     {"scoresUp", K_KP_PGUP, -1, -1, -1, -1}, {"scoresDown", K_KP_PGDN, -1, -1, -1, -1},
-    {"screenshotJPEG", -1, -1, -1, -1, -1}, {"messagemode", -1, -1, -1, -1, -1}, {"messagemode2", -1, -1, -1, -1, -1}};
+    {"screenshotJPEG", -1, -1, -1, -1, -1}, {"messagemode", -1, -1, -1, -1, -1}, {"messagemode2", -1, -1, -1, -1, -1},
+    {"messagemode5",  -1, -1, -1, -1}, {"messagemode6", -1, -1, -1, -1}};
 
 static const size_t g_bindCount = ARRAY_LEN(g_bindings);
 

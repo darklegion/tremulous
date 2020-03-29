@@ -1289,6 +1289,7 @@ void Cvar_Restart_f(void)
 {
     Cvar_Restart(false);
 }
+
 /*
 =====================
 Cvar_InfoString
@@ -1296,15 +1297,24 @@ Cvar_InfoString
 */
 char *Cvar_InfoString(int bit)
 {
-    static char info[MAX_INFO_STRING];
-    cvar_t *var;
+    static char	info[MAX_INFO_STRING];
+    cvar_t	*var;
 
     info[0] = 0;
 
-    for (var = cvar_vars; var; var = var->next)
+    for(var = cvar_vars; var; var = var->next)
     {
-        if (var->name && (var->flags & bit))
-            Info_SetValueForKey(info, var->name, var->string);
+        if(var->name && (var->flags & bit)) {
+            if(var->flags & CVAR_REMOVE_UNUSED_COLOR_STRINGS) {
+                char cleaned_string[MAX_CVAR_VALUE_STRING];
+
+                Q_RemoveUnusedColorStrings(var->string, cleaned_string, MAX_CVAR_VALUE_STRING);
+                if(Q_stricmp(cleaned_string, var->string)) {
+                    Cvar_Set(var->name, cleaned_string);
+                }
+            }
+            Info_SetValueForKey (info, var->name, var->string);
+        }
     }
 
     return info;

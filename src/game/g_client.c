@@ -643,11 +643,13 @@ static qboolean G_IsEmoticon( const char *s, qboolean *escaped )
 G_ClientCleanName
 ============
 */
-static void G_ClientCleanName( const char *in, char *out, int outSize )
+static void G_ClientCleanName( const char *in, char *out, int outSize,
+                               gclient_t *client )
 {
   int   len, colorlessLen;
   char  *p;
   int   spaces;
+  int   total_color_length = 0;
   qboolean escaped;
   qboolean invalid = qfalse;
 
@@ -673,17 +675,65 @@ static void G_ClientCleanName( const char *in, char *out, int outSize )
     // check colors
     if( Q_IsColorString( in ) )
     {
+      int color_string_length = Q_ColorStringLength(in);
+      int checked_index = color_string_length;
+      qboolean skip = qfalse;
+      const char *temp_ptr = in;
+
+      //remove unused color strings
+      while(1) {
+        if( Q_IsColorString( temp_ptr + checked_index ) )
+        {
+          skip = qtrue;
+          break;
+        } else if(*(temp_ptr + checked_index) == ' ') {
+          //spaces don't use the color strings
+          checked_index++;
+
+          if(!(*(temp_ptr + checked_index))) {
+            //reached the end of the name without using this string
+            skip = qtrue;
+            break;
+          }
+          continue;
+        }
+
+        if(!(*(temp_ptr + checked_index))) {
+          //reached the end of the name without using this string
+          skip = qtrue;
+          break;
+        }
+
+        //this color string is used
+        break;
+      }
+
+      if(skip) {
+        in += (color_string_length - 1);
+        continue;
+      }
+
       in++;
 
       // make sure room in dest for both chars
-      if( len > outSize - 2 )
+      if( len > outSize - color_string_length )
         break;
 
       *out++ = Q_COLOR_ESCAPE;
 
-      *out++ = *in;
+      if(Q_IsHardcodedColor(in - 1)) {
+        *out++ = *in;
+      } else {
+        int i;
+ 
+        for(i = 0; i < (color_string_length - 1); i++) {
+          *out++ = *(in + i);
+        }
+        in += color_string_length - 2;
+      }
 
-      len += 2;
+      len += color_string_length;
+      total_color_length += color_string_length;
       continue;
     }
     else if( !g_emoticonsAllowedInNames.integer && G_IsEmoticon( in, &escaped ) )
@@ -692,12 +742,16 @@ static void G_ClientCleanName( const char *in, char *out, int outSize )
       if( len > outSize - 2 )
         break;
 
-      *out++ = '['; 
-      *out++ = '['; 
+      *out++ = '[';
+      *out++ = '[';
       len += 2;
       if( escaped )
         in++;
       continue;
+    } else if(Q_IsColorEscapeEscape(in)) {
+      *out++ = *in;
+      in++;
+      len++;
     }
 
     // don't allow too many consecutive spaces
@@ -712,6 +766,10 @@ static void G_ClientCleanName( const char *in, char *out, int outSize )
 
     if( len > outSize - 1 )
       break;
+
+    if((len - total_color_length) >= MAX_NAME_LENGTH) {
+      break;
+    }
 
     *out++ = *in;
     colorlessLen++;
@@ -731,6 +789,13 @@ static void G_ClientCleanName( const char *in, char *out, int outSize )
   // don't allow empty names
   if( *p == 0 || colorlessLen == 0 )
     invalid = qtrue;
+
+  // don't allow @ in names because it messes up player mentions
+  if( strchr(p, '@') ) {
+    trap_SendServerCommand( client - level.clients, va(
+      "print \"'@'' is not a valid character for player names\n\"" ) );
+    invalid = qtrue;
+  }
 
   // if something made the name bad, put them back to UnnamedPlayer
   if( invalid )
@@ -812,8 +877,8 @@ char *ClientUserinfoChanged( int clientNum, qboolean forceName )
   char      model[ MAX_QPATH] = { '\0' };
   char      buffer[ MAX_QPATH ] = { '\0' };
   char      filename[ MAX_QPATH ];
-  char      oldname[ MAX_NAME_LENGTH ];
-  char      newname[ MAX_NAME_LENGTH ];
+  char      oldname[ MAX_COLORFUL_NAME_LENGTH ];
+  char      newname[ MAX_COLORFUL_NAME_LENGTH ];
   char      err[ MAX_STRING_CHARS ];
   qboolean  revertName = qfalse;
   gclient_t *client;
@@ -846,7 +911,7 @@ char *ClientUserinfoChanged( int clientNum, qboolean forceName )
   // set name
   Q_strncpyz( oldname, client->pers.netname, sizeof( oldname ) );
   s = Info_ValueForKey( userinfo, "name" );
-  G_ClientCleanName( s, newname, sizeof( newname ) );
+  G_ClientCleanName( s, newname, sizeof( newname ), client );
 
   if( strcmp( oldname, newname ) )
   {
@@ -890,6 +955,8 @@ char *ClientUserinfoChanged( int clientNum, qboolean forceName )
     {
       G_CensorString( client->pers.netname, newname,
         sizeof( client->pers.netname ), ent );
+      Info_SetValueForKey( userinfo, "name", client->pers.netname );
+      trap_SetUserinfo( clientNum, userinfo );
       if( !forceName && client->pers.connected == CON_CONNECTED )
       {
         client->pers.namelog->nameChangeTime = level.time;

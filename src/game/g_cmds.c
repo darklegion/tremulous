@@ -41,8 +41,11 @@ void G_SanitiseString( char *in, char *out, int len )
   {
     if( Q_IsColorString( in ) )
     {
-      in += 2;    // skip color code
+      in += Q_ColorStringLength(in);    // skip color code
       continue;
+    }
+    else if(Q_IsColorEscapeEscape(in)) {
+      in++;
     }
 
     if( isalnum( *in ) )
@@ -165,22 +168,30 @@ names that are a partial match for s.
 Returns number of matching clientids up to max.
 ==================
 */
-int G_ClientNumbersFromString( char *s, int *plist, int max )
+int G_ClientNumbersFromString(
+  char *s, int *plist, int max, qboolean alphanumeric )
 {
   gclient_t *p;
   int i, found = 0;
+  char *s_start = s;
   char *endptr;
-  char n2[ MAX_NAME_LENGTH ] = {""};
-  char s2[ MAX_NAME_LENGTH ] = {""};
+  char n2[ MAX_COLORFUL_NAME_LENGTH ] = {""};
+  char s2[ MAX_COLORFUL_NAME_LENGTH ] = {""};
+  char n2_temp[ MAX_COLORFUL_NAME_LENGTH ] = {""};
+  char s2_temp[ MAX_COLORFUL_NAME_LENGTH ] = {""};
 
   if( max == 0 )
     return 0;
 
-  if( !s[ 0 ] )
+  if(*s_start == '@') {
+    s_start++;
+  }
+
+  if( !s_start[ 0 ] )
     return 0;
 
   // if a number is provided, it is a clientnum
-  i = strtol( s, &endptr, 10 );
+  i = strtol( s_start, &endptr, 10 );
   if( *endptr == '\0' )
   {
     if( i >= 0 && i < level.maxclients )
@@ -197,7 +208,13 @@ int G_ClientNumbersFromString( char *s, int *plist, int max )
   }
 
   // now look for name matches
-  G_SanitiseString( s, s2, sizeof( s2 ) );
+  if(alphanumeric) {
+    G_SanitiseString( s_start, s2, sizeof( s2 ) );
+  } else {
+    Q_strncpyz( s2_temp, s, sizeof( s2_temp ) );
+    Q_CleanStr( s2_temp );
+    Q_StringToLower(s2_temp, s2, sizeof( s2 ));
+  }
   if( !s2[ 0 ] )
     return 0;
   for( i = 0; i < level.maxclients && found < max; i++ )
@@ -207,7 +224,13 @@ int G_ClientNumbersFromString( char *s, int *plist, int max )
     {
       continue;
     }
-    G_SanitiseString( p->pers.netname, n2, sizeof( n2 ) );
+    if(alphanumeric) {
+      G_SanitiseString( p->pers.netname, n2, sizeof( n2 ) );
+    } else {
+      Q_strncpyz( n2_temp, p->pers.netname, sizeof( n2_temp ) );
+      Q_CleanStr( n2_temp );
+      Q_StringToLower(n2_temp, n2, sizeof( n2 ));
+    }
     if( strstr( n2, s2 ) )
     {
       *plist++ = i;
@@ -936,13 +959,27 @@ void G_CensorString( char *out, const char *in, int len, gentity_t *ent )
   {
     if( Q_IsColorString( in ) )
     {
-      if( len < 2 )
+      int color_string_length = Q_ColorStringLength(in);
+      int i;
+
+      if( len < color_string_length )
         break;
-      *out++ = *in++;
-      *out++ = *in++;
-      len -= 2;
+
+      for(i = 0; i < color_string_length; i++) {
+        *out++ = *in++;
+      }
+
+      len -= color_string_length;
       continue;
     }
+    else if(Q_IsColorEscapeEscape(in)) {
+      if( len < 1 )
+        break;
+
+      *out++ = *in++;
+      len--;
+    }
+
     if( !isalnum( *in ) )
     {
       if( len < 1 )
@@ -959,9 +996,13 @@ void G_CensorString( char *out, const char *in, int len, gentity_t *ent )
       {
         if( Q_IsColorString( s ) )
         {
-          s += 2;
+          s += Q_ColorStringLength(s);
           continue;
         }
+        else if(Q_IsColorEscapeEscape(s)) {
+          s++;
+        }
+
         if( !isalnum( *s ) )
         {
           s++;
@@ -3158,7 +3199,7 @@ Cmd_Follow_f
 void Cmd_Follow_f( gentity_t *ent )
 {
   int   i;
-  char  arg[ MAX_NAME_LENGTH ];
+  char  arg[ MAX_COLORFUL_NAME_LENGTH ];
 
   // won't work unless spectating
   if( ent->client->sess.spectatorState == SPECTATOR_NOT )
@@ -3226,7 +3267,7 @@ void Cmd_FollowCycle_f( gentity_t *ent )
 static void Cmd_Ignore_f( gentity_t *ent )
 {
   int pids[ MAX_CLIENTS ];
-  char name[ MAX_NAME_LENGTH ];
+  char name[ MAX_COLORFUL_NAME_LENGTH ];
   char cmd[ 9 ];
   int matches = 0;
   int i;
@@ -3244,7 +3285,7 @@ static void Cmd_Ignore_f( gentity_t *ent )
   }
 
   Q_strncpyz( name, ConcatArgs( 1 ), sizeof( name ) );
-  matches = G_ClientNumbersFromString( name, pids, MAX_CLIENTS );
+  matches = G_ClientNumbersFromString( name, pids, MAX_CLIENTS, qtrue );
   if( matches < 1 )
   {
     trap_SendServerCommand( ent-g_entities, va( "print \"[skipnotify]"
@@ -3777,8 +3818,11 @@ void G_DecolorString( const char *in, char *out, int len )
       continue;
     }
     if( Q_IsColorString( in ) && decolor ) {
-      in += 2;
+      in += Q_ColorStringLength(in);
       continue;
+    } if(Q_IsColorEscapeEscape(in)) {
+      *out++ = *in++;
+      len--;
     }
     *out++ = *in++;
     len--;
@@ -3805,7 +3849,7 @@ void G_UnEscapeString( char *in, char *out, int len )
 void Cmd_PrivateMessage_f( gentity_t *ent )
 {
   int pids[ MAX_CLIENTS ];
-  char name[ MAX_NAME_LENGTH ];
+  char name[ MAX_COLORFUL_NAME_LENGTH ];
   char cmd[ 12 ];
   char text[ MAX_STRING_CHARS ];
   char *msg;
@@ -3833,7 +3877,7 @@ void Cmd_PrivateMessage_f( gentity_t *ent )
 
   trap_Argv( 1, name, sizeof( name ) );
   msg = ConcatArgs( 2 );
-  pcount = G_ClientNumbersFromString( name, pids, MAX_CLIENTS );
+  pcount = G_ClientNumbersFromString( name, pids, MAX_CLIENTS, qfalse );
 
   G_CensorString( text, msg, sizeof( text ), ent );
 

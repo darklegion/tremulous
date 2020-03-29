@@ -400,9 +400,13 @@ ifneq (,$(findstring "$(PLATFORM)", "linux" "gnu_kfreebsd" "kfreebsd-gnu" "gnu")
   endif
 
   ifeq ($(USE_CURL),1)
-    CLIENT_CFLAGS += $(CURL_CFLAGS)
     ifneq ($(USE_CURL_DLOPEN),1)
       CLIENT_LIBS += $(CURL_LIBS)
+      ifeq ($(USE_LOCAL_HEADERS),1)
+        CLIENT_CFLAGS += -I$(CURLHDIR)
+      else
+	CLIENT_CFLAGS += $(CURL_CFLAGS)
+      endif
     endif
   endif
 
@@ -590,7 +594,7 @@ ifdef MINGW
 
   # In the absence of wspiapi.h, require Windows XP or later
   ifeq ($(shell test -e $(CMDIR)/wspiapi.h; echo $$?),1)
-  	# FIXIT-L Update WINVER=_WIN32_WINNT_WIN7 (see https://msdn.microsoft.com/en-us/library/6sehtctf.aspx)
+    # FIXIT-L Update WINVER=_WIN32_WINNT_WIN7 (see https://msdn.microsoft.com/en-us/library/6sehtctf.aspx)
     BASE_CFLAGS += -DWINVER=0x501
   endif
 

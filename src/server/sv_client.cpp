@@ -1292,6 +1292,11 @@ void SV_UserinfoChanged( client_t *cl ) {
 	// name for C code
 	Q_strncpyz( cl->name, Info_ValueForKey (cl->userinfo, "name"), sizeof(cl->name) );
 
+	//for backwards compatibility approx hex color codes to hardcoded ansi
+	//color codes
+	Q_ApproxStrHexColors(
+		cl->name, cl->name_ansi, sizeof(cl->name), sizeof(cl->name_ansi));
+
 	// rate command
 
 	// if the client is on the same subnet as the server and we aren't running an

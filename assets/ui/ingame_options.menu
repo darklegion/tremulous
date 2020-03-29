@@ -179,7 +179,7 @@
       style WINDOW_STYLE_EMPTY
       text "Name:"
       cvar "name"
-      maxchars 40
+      maxchars 256
       rect CONTENT_X (CONTENT_Y+(0*ELEM_H)) CONTENT_W ELEM_H
       textalign ALIGN_RIGHT
       textvalign VALIGN_CENTER

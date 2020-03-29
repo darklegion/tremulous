@@ -45,6 +45,8 @@ void UI_ServerInfo(void);
 void UI_UpdateNews(qboolean);
 void UI_UpdateGithubRelease(void);
 
+int UI_ClientNumbersFromString(char *s, int *plist, int max);
+
 void UI_RegisterCvars(void);
 void UI_UpdateCvars(void);
 void UI_DrawConnectScreen(void);
@@ -213,10 +215,10 @@ typedef struct {
     int playerNumber;
     int myPlayerIndex;
     int ignoreIndex;
-    char playerNames[MAX_CLIENTS][MAX_NAME_LENGTH];
-    char rawPlayerNames[MAX_CLIENTS][MAX_NAME_LENGTH];
-    char teamNames[MAX_CLIENTS][MAX_NAME_LENGTH];
-    char rawTeamNames[MAX_CLIENTS][MAX_NAME_LENGTH];
+    char playerNames[MAX_CLIENTS][MAX_COLORFUL_NAME_LENGTH];
+    char rawPlayerNames[MAX_CLIENTS][MAX_COLORFUL_NAME_LENGTH];
+    char teamNames[MAX_CLIENTS][MAX_COLORFUL_NAME_LENGTH];
+    char rawTeamNames[MAX_CLIENTS][MAX_COLORFUL_NAME_LENGTH];
     int clientNums[MAX_CLIENTS];
     int teamClientNums[MAX_CLIENTS];
     clientList_t ignoreList[MAX_CLIENTS];
@@ -316,7 +318,6 @@ typedef struct {
 
     qboolean inGameLoad;
 
-    qboolean chatTeam;
     qboolean voiceCmd;
 } uiInfo_t;
 

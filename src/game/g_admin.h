@@ -96,7 +96,7 @@ typedef struct g_admin_admin
   struct g_admin_admin *next;
   int level;
   char guid[ 33 ];
-  char name[ MAX_NAME_LENGTH ];
+  char name[ MAX_COLORFUL_NAME_LENGTH ];
   char flags[ MAX_ADMIN_FLAGS ];
 }
 g_admin_admin_t;
@@ -121,13 +121,13 @@ typedef struct
 typedef struct g_admin_ban
 {
   struct g_admin_ban *next;
-  char name[ MAX_NAME_LENGTH ];
+  char name[ MAX_COLORFUL_NAME_LENGTH ];
   char guid[ 33 ];
   addr_t ip;
   char reason[ MAX_ADMIN_BAN_REASON ];
   char made[ 20 ]; // "YYYY-MM-DD hh:mm:ss"
   int expires;
-  char banner[ MAX_NAME_LENGTH ];
+  char banner[ MAX_COLORFUL_NAME_LENGTH ];
   int warnCount;
 }
 g_admin_ban_t;

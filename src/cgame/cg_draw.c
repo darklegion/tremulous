@@ -1855,7 +1855,7 @@ static void CG_DrawTeamOverlay( rectDef_t *rect, float scale, vec4_t color )
   float             fontScale = 0.30f;
   float             vPad = 0.0f;
   float             nameWidth = 0.5f * rect->w;
-  char              name[ MAX_NAME_LENGTH + 2 ];
+  char              name[ MAX_COLORFUL_NAME_LENGTH + 2 ];
   int               maxDisplayCount = 0;
   int               displayCount = 0;
   float             nameMaxX, nameMaxXCp;

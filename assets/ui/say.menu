@@ -15,8 +15,8 @@
   menuDef
   {
     name say
-    fullScreen false
-    visible false
+    fullScreen MENU_FALSE
+    visible MENU_FALSE
     rect X Y W H
     aspectBias ALIGN_LEFT
     focusColor 1 1 1 1
@@ -24,6 +24,20 @@
     onOpen
     {
       setfocus say_field;
+    }
+
+    itemDef
+    {
+      name window
+      rect -10 165 (W+175) 105
+      style WINDOW_STYLE_FILLED
+      backcolor 0 0 0 0.7
+      visible MENU_TRUE
+      decoration
+
+      border WINDOW_BORDER_FULL
+      borderSize 1.0
+      borderColor 0.5 0.5 0.5 1
     }
 
     itemDef
@@ -40,7 +54,7 @@
       textstyle ITEM_TEXTSTYLE_SHADOWED
       textscale .4
       forecolor 0.93 0.93 0.92 1
-      visible true
+      visible MENU_TRUE
       onCharEntry
       {
         uiScript SayKeyDown;
@@ -51,14 +65,94 @@
         close say;
       }
     }
+
+    //player mentions
+  itemDef
+    {
+      name say_mentions
+      rect 0 -50 100 H
+      type ITEM_TYPE_TEXT
+      text "Use @ for Player Mentions & Tab Completion"
+      textalign ALIGN_LEFT
+      textvalign VALIGN_CENTER
+      textstyle ITEM_TEXTSTYLE_SHADOWEDMORE
+      textscale .333
+      forecolor 0.93 0.93 0.92 1
+      visible MENU_TRUE
+      decoration
+    }
+
+    //page up
+  itemDef
+    {
+      name say_pgup
+      rect 0 -25 100 H
+      type ITEM_TYPE_TEXT
+      text "Page Up for Prev Message Mode"
+      textalign ALIGN_LEFT
+      textvalign VALIGN_CENTER
+      textstyle ITEM_TEXTSTYLE_SHADOWEDMORE
+      textscale .333
+      forecolor 0.93 0.93 0.92 1
+      visible MENU_TRUE
+      decoration
+    }
+
+    //page down
+  itemDef
+    {
+      name say_pgdwn
+      rect 0 25 100 H
+      type ITEM_TYPE_TEXT
+      text "Page Down for Next Message Mode"
+      textalign ALIGN_LEFT
+      textvalign VALIGN_CENTER
+      textstyle ITEM_TEXTSTYLE_SHADOWEDMORE
+      textscale .333
+      forecolor 0.93 0.93 0.92 1
+      visible MENU_TRUE
+      decoration
+    }
+
+    //arrow up
+  itemDef
+    {
+      name say_up
+      rect 640 -25 100 H
+      type ITEM_TYPE_TEXT
+      text "Arrow Up for Prev Input"
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textstyle ITEM_TEXTSTYLE_SHADOWEDMORE
+      textscale .333
+      forecolor 0.93 0.93 0.92 1
+      visible MENU_TRUE
+      decoration
+    }
+
+    //page down
+  itemDef
+    {
+      name say_dwn
+      rect 640 25 100 H
+      type ITEM_TYPE_TEXT
+      text "Arrow Down for Next Input"
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textstyle ITEM_TEXTSTYLE_SHADOWEDMORE
+      textscale .333
+      forecolor 0.93 0.93 0.92 1
+      visible MENU_TRUE
+      decoration
+    }
   }
 
   // Say to Team
   menuDef
   {
     name say_team
-    fullScreen false
-    visible false
+    fullScreen MENU_FALSE
+    visible MENU_FALSE
     rect X Y W H
     aspectBias ALIGN_LEFT
     focusColor 1 1 1 1
@@ -66,6 +160,20 @@
     onOpen
     {
       setfocus say_field
+    }
+
+    itemDef
+    {
+      name window
+      rect -10 165 (W+175) 105
+      style WINDOW_STYLE_FILLED
+      backcolor 0 0 0 0.7
+      visible MENU_TRUE
+      decoration
+
+      border WINDOW_BORDER_FULL
+      borderSize 1.0
+      borderColor 0.5 0.5 0.5 1
     }
 
     itemDef
@@ -82,7 +190,7 @@
       textstyle ITEM_TEXTSTYLE_SHADOWED
       textscale .4
       forecolor 0.93 0.93 0.92 1
-      visible true
+      visible MENU_TRUE
       onCharEntry
       {
         uiScript SayKeyDown;
@@ -93,14 +201,94 @@
         close say_team;
       }
     }
+
+    //player mentions
+  itemDef
+    {
+      name say_mentions
+      rect 0 -50 100 H
+      type ITEM_TYPE_TEXT
+      text "Use @ for Player Mentions & Tab Completion"
+      textalign ALIGN_LEFT
+      textvalign VALIGN_CENTER
+      textstyle ITEM_TEXTSTYLE_SHADOWEDMORE
+      textscale .333
+      forecolor 0.93 0.93 0.92 1
+      visible MENU_TRUE
+      decoration
+    }
+
+    //page up
+  itemDef
+    {
+      name say_pgup
+      rect 0 -25 100 H
+      type ITEM_TYPE_TEXT
+      text "Page Up for Prev Message Mode"
+      textalign ALIGN_LEFT
+      textvalign VALIGN_CENTER
+      textstyle ITEM_TEXTSTYLE_SHADOWEDMORE
+      textscale .333
+      forecolor 0.93 0.93 0.92 1
+      visible MENU_TRUE
+      decoration
+    }
+
+    //page down
+  itemDef
+    {
+      name say_pgdwn
+      rect 0 25 100 H
+      type ITEM_TYPE_TEXT
+      text "Page Down for Next Message Mode"
+      textalign ALIGN_LEFT
+      textvalign VALIGN_CENTER
+      textstyle ITEM_TEXTSTYLE_SHADOWEDMORE
+      textscale .333
+      forecolor 0.93 0.93 0.92 1
+      visible MENU_TRUE
+      decoration
+    }
+
+    //arrow up
+  itemDef
+    {
+      name say_up
+      rect 640 -25 100 H
+      type ITEM_TYPE_TEXT
+      text "Arrow Up for Prev Input"
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textstyle ITEM_TEXTSTYLE_SHADOWEDMORE
+      textscale .333
+      forecolor 0.93 0.93 0.92 1
+      visible MENU_TRUE
+      decoration
+    }
+
+    //page down
+  itemDef
+    {
+      name say_dwn
+      rect 640 25 100 H
+      type ITEM_TYPE_TEXT
+      text "Arrow Down for Next Input"
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textstyle ITEM_TEXTSTYLE_SHADOWEDMORE
+      textscale .333
+      forecolor 0.93 0.93 0.92 1
+      visible MENU_TRUE
+      decoration
+    }
   }
-  
-  // Command
+
+  // Say to Admins
   menuDef
   {
-    name say_command
-    fullScreen false
-    visible false
+    name say_admins
+    fullScreen MENU_FALSE
+    visible MENU_FALSE
     rect X Y W H
     aspectBias ALIGN_LEFT
     focusColor 1 1 1 1
@@ -112,44 +300,16 @@
 
     itemDef
     {
-      name say_field
-      type ITEM_TYPE_SAYFIELD
-      style WINDOW_STYLE_EMPTY
-      text "Command:"
-      cvar "ui_sayBuffer"
-      maxchars 128
-      rect 0 0 W H
-      textalign ALIGN_LEFT
-      textvalign VALIGN_CENTER
-      textstyle ITEM_TEXTSTYLE_SHADOWED
-      textscale .4
-      forecolor 0.93 0.93 0.92 1
-      visible true
-      onCharEntry
-      {
-        uiScript SayKeyDown;
-      }
-      onTextEntry
-      {
-        uiScript Say;
-        close say_command;
-      }
-    }
-  }
+      name window
+      rect -10 165 (W+175) 105
+      style WINDOW_STYLE_FILLED
+      backcolor 0 0 0 0.7
+      visible MENU_TRUE
+      decoration
 
-  // Say to Admins 
-  menuDef
-  {
-    name say_admin
-    fullScreen false
-    visible false
-    rect X Y W H
-    aspectBias ALIGN_LEFT
-    focusColor 1 1 1 1
-    style WINDOW_STYLE_EMPTY
-    onOpen
-    {
-      setfocus say_field
+      border WINDOW_BORDER_FULL
+      borderSize 1.0
+      borderColor 0.5 0.5 0.5 1
     }
 
     itemDef
@@ -166,7 +326,7 @@
       textstyle ITEM_TEXTSTYLE_SHADOWED
       textscale .4
       forecolor 0.93 0.93 0.92 1
-      visible true
+      visible MENU_TRUE
       onCharEntry
       {
         uiScript SayKeyDown;
@@ -174,8 +334,360 @@
       onTextEntry
       {
         uiScript Say;
-        close say_admin;
+        close say_admins;
       }
+    }
+
+    //player mentions
+  itemDef
+    {
+      name say_mentions
+      rect 0 -50 100 H
+      type ITEM_TYPE_TEXT
+      text "Use @ for Player Mentions & Tab Completion"
+      textalign ALIGN_LEFT
+      textvalign VALIGN_CENTER
+      textstyle ITEM_TEXTSTYLE_SHADOWEDMORE
+      textscale .333
+      forecolor 0.93 0.93 0.92 1
+      visible MENU_TRUE
+      decoration
+    }
+
+    //page up
+  itemDef
+    {
+      name say_pgup
+      rect 0 -25 100 H
+      type ITEM_TYPE_TEXT
+      text "Page Up for Prev Message Mode"
+      textalign ALIGN_LEFT
+      textvalign VALIGN_CENTER
+      textstyle ITEM_TEXTSTYLE_SHADOWEDMORE
+      textscale .333
+      forecolor 0.93 0.93 0.92 1
+      visible MENU_TRUE
+      decoration
+    }
+
+    //page down
+  itemDef
+    {
+      name say_pgdwn
+      rect 0 25 100 H
+      type ITEM_TYPE_TEXT
+      text "Page Down for Next Message Mode"
+      textalign ALIGN_LEFT
+      textvalign VALIGN_CENTER
+      textstyle ITEM_TEXTSTYLE_SHADOWEDMORE
+      textscale .333
+      forecolor 0.93 0.93 0.92 1
+      visible MENU_TRUE
+      decoration
+    }
+
+    //arrow up
+  itemDef
+    {
+      name say_up
+      rect 640 -25 100 H
+      type ITEM_TYPE_TEXT
+      text "Arrow Up for Prev Input"
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textstyle ITEM_TEXTSTYLE_SHADOWEDMORE
+      textscale .333
+      forecolor 0.93 0.93 0.92 1
+      visible MENU_TRUE
+      decoration
+    }
+
+    //page down
+  itemDef
+    {
+      name say_dwn
+      rect 640 25 100 H
+      type ITEM_TYPE_TEXT
+      text "Arrow Down for Next Input"
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textstyle ITEM_TEXTSTYLE_SHADOWEDMORE
+      textscale .333
+      forecolor 0.93 0.93 0.92 1
+      visible MENU_TRUE
+      decoration
+    }
+  }
+
+  // Say to Clan
+  menuDef
+  {
+    name say_clan
+    fullScreen MENU_FALSE
+    visible MENU_FALSE
+    rect X Y W H
+    aspectBias ALIGN_LEFT
+    focusColor 1 1 1 1
+    style WINDOW_STYLE_EMPTY
+    onOpen
+    {
+      setfocus say_field
+    }
+
+    itemDef
+    {
+      name window
+      rect -10 165 (W+175) 105
+      style WINDOW_STYLE_FILLED
+      backcolor 0 0 0 0.7
+      visible MENU_TRUE
+      decoration
+
+      border WINDOW_BORDER_FULL
+      borderSize 1.0
+      borderColor 0.5 0.5 0.5 1
+    }
+
+    itemDef
+    {
+      name say_field
+      type ITEM_TYPE_SAYFIELD
+      style WINDOW_STYLE_EMPTY
+      text "Say to Clan:"
+      cvar "ui_sayBuffer"
+      maxchars 128
+      rect 0 0 W H
+      textalign ALIGN_LEFT
+      textvalign VALIGN_CENTER
+      textstyle ITEM_TEXTSTYLE_SHADOWED
+      textscale .4
+      forecolor 0.93 0.93 0.92 1
+      visible MENU_TRUE
+      onCharEntry
+      {
+        uiScript SayKeyDown;
+      }
+      onTextEntry
+      {
+        uiScript Say;
+        close say_clan;
+      }
+    }
+
+    //player mentions
+  itemDef
+    {
+      name say_mentions
+      rect 0 -50 100 H
+      type ITEM_TYPE_TEXT
+      text "Use @ for Player Mentions & Tab Completion"
+      textalign ALIGN_LEFT
+      textvalign VALIGN_CENTER
+      textstyle ITEM_TEXTSTYLE_SHADOWEDMORE
+      textscale .333
+      forecolor 0.93 0.93 0.92 1
+      visible MENU_TRUE
+      decoration
+    }
+
+    //page up
+  itemDef
+    {
+      name say_pgup
+      rect 0 -25 100 H
+      type ITEM_TYPE_TEXT
+      text "Page Up for Prev Message Mode"
+      textalign ALIGN_LEFT
+      textvalign VALIGN_CENTER
+      textstyle ITEM_TEXTSTYLE_SHADOWEDMORE
+      textscale .333
+      forecolor 0.93 0.93 0.92 1
+      visible MENU_TRUE
+      decoration
+    }
+
+    //page down
+  itemDef
+    {
+      name say_pgdwn
+      rect 0 25 100 H
+      type ITEM_TYPE_TEXT
+      text "Page Down for Next Message Mode"
+      textalign ALIGN_LEFT
+      textvalign VALIGN_CENTER
+      textstyle ITEM_TEXTSTYLE_SHADOWEDMORE
+      textscale .333
+      forecolor 0.93 0.93 0.92 1
+      visible MENU_TRUE
+      decoration
+    }
+
+    //arrow up
+  itemDef
+    {
+      name say_up
+      rect 640 -25 100 H
+      type ITEM_TYPE_TEXT
+      text "Arrow Up for Prev Input"
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textstyle ITEM_TEXTSTYLE_SHADOWEDMORE
+      textscale .333
+      forecolor 0.93 0.93 0.92 1
+      visible MENU_TRUE
+      decoration
+    }
+
+    //page down
+  itemDef
+    {
+      name say_dwn
+      rect 640 25 100 H
+      type ITEM_TYPE_TEXT
+      text "Arrow Down for Next Input"
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textstyle ITEM_TEXTSTYLE_SHADOWEDMORE
+      textscale .333
+      forecolor 0.93 0.93 0.92 1
+      visible MENU_TRUE
+      decoration
+    }
+  }
+
+  // Command
+  menuDef
+  {
+    name say_command
+    fullScreen MENU_FALSE
+    visible MENU_FALSE
+    rect X Y W H
+    aspectBias ALIGN_LEFT
+    focusColor 1 1 1 1
+    style WINDOW_STYLE_EMPTY
+    onOpen
+    {
+      setfocus say_field
+    }
+
+    itemDef
+    {
+      name window
+      rect -10 165 (W+175) 105
+      style WINDOW_STYLE_FILLED
+      backcolor 0 0 0 0.7
+      visible MENU_TRUE
+      decoration
+
+      border WINDOW_BORDER_FULL
+      borderSize 1.0
+      borderColor 0.5 0.5 0.5 1
+    }
+
+    itemDef
+    {
+      name say_field
+      type ITEM_TYPE_SAYFIELD
+      style WINDOW_STYLE_EMPTY
+      text "Command:"
+      cvar "ui_sayBuffer"
+      maxchars 128
+      rect 0 0 W H
+      textalign ALIGN_LEFT
+      textvalign VALIGN_CENTER
+      textstyle ITEM_TEXTSTYLE_SHADOWED
+      textscale .4
+      forecolor 0.93 0.93 0.92 1
+      visible MENU_TRUE
+      onCharEntry
+      {
+        uiScript SayKeyDown;
+      }
+      onTextEntry
+      {
+        uiScript Say;
+        close say_command;
+      }
+    }
+
+    //player mentions
+  itemDef
+    {
+      name say_mentions
+      rect 0 -50 100 H
+      type ITEM_TYPE_TEXT
+      text "Use @ for Player Mentions & Tab Completion"
+      textalign ALIGN_LEFT
+      textvalign VALIGN_CENTER
+      textstyle ITEM_TEXTSTYLE_SHADOWEDMORE
+      textscale .333
+      forecolor 0.93 0.93 0.92 1
+      visible MENU_TRUE
+      decoration
+    }
+
+    //page up
+  itemDef
+    {
+      name say_pgup
+      rect 0 -25 100 H
+      type ITEM_TYPE_TEXT
+      text "Page Up for Prev Message Mode"
+      textalign ALIGN_LEFT
+      textvalign VALIGN_CENTER
+      textstyle ITEM_TEXTSTYLE_SHADOWEDMORE
+      textscale .333
+      forecolor 0.93 0.93 0.92 1
+      visible MENU_TRUE
+      decoration
+    }
+
+    //page down
+  itemDef
+    {
+      name say_pgdwn
+      rect 0 25 100 H
+      type ITEM_TYPE_TEXT
+      text "Page Down for Next Message Mode"
+      textalign ALIGN_LEFT
+      textvalign VALIGN_CENTER
+      textstyle ITEM_TEXTSTYLE_SHADOWEDMORE
+      textscale .333
+      forecolor 0.93 0.93 0.92 1
+      visible MENU_TRUE
+      decoration
+    }
+
+    //arrow up
+  itemDef
+    {
+      name say_up
+      rect 640 -25 100 H
+      type ITEM_TYPE_TEXT
+      text "Arrow Up for Prev Input"
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textstyle ITEM_TEXTSTYLE_SHADOWEDMORE
+      textscale .333
+      forecolor 0.93 0.93 0.92 1
+      visible MENU_TRUE
+      decoration
+    }
+
+    //page down
+  itemDef
+    {
+      name say_dwn
+      rect 640 25 100 H
+      type ITEM_TYPE_TEXT
+      text "Arrow Down for Next Input"
+      textalign ALIGN_RIGHT
+      textvalign VALIGN_CENTER
+      textstyle ITEM_TEXTSTYLE_SHADOWEDMORE
+      textscale .333
+      forecolor 0.93 0.93 0.92 1
+      visible MENU_TRUE
+      decoration
     }
   }
 }

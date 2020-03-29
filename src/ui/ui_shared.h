@@ -538,4 +538,39 @@ int trap_Parse_SourceFileAndLine(int handle, char *filename, int *line);
 void BindingFromName(const char *cvar);
 extern char g_nameBind1[32];
 extern char g_nameBind2[32];
+
+typedef enum
+{
+  CHAT_GLOBAL = 0,
+  CHAT_TEAM,
+  CHAT_ADMINS,
+  CHAT_CLAN,
+
+  NUM_CHAT_MODES
+} chatMode_t;
+
+extern int key_pressed_onCharEntry; // used by onCharEntry
+extern qboolean ctrl_held;
+
+#define MAX_SAY_HISTORY_LINES 32
+
+typedef struct chatInfo_s
+{
+  chatMode_t chat_mode;
+  int        chat_mode_blink_time;
+
+  qboolean   say_history_current;
+  qboolean   say_make_current_line_blank;
+  char       say_unsubmitted_line[MAX_CVAR_VALUE_STRING];
+  char       say_history_lines[MAX_SAY_HISTORY_LINES][MAX_CVAR_VALUE_STRING];
+  int        nextHistoryLine; // the last line in the history buffer, not masked
+  int        historyLine;     // the line being displayed from history buffer
+                              // will be <= chatInfo.nextHistoryLine
+  int        *say_cursor_pos;
+  int        say_max_chars;
+  int        say_length;
+} chatInfo_t;
+
+extern chatInfo_t chatInfo;
+
 #endif

@@ -739,7 +739,7 @@ typedef struct
 {
   qboolean    infoValid;
 
-  char        name[ MAX_NAME_LENGTH ];
+  char        name[ MAX_COLORFUL_NAME_LENGTH ];
   team_t      team;
 
   int         score;                      // updated by score servercmds
@@ -1022,7 +1022,7 @@ typedef struct
   qboolean      showScores;
   qboolean      scoreBoardShowing;
   int           scoreFadeTime;
-  char          killerName[ MAX_NAME_LENGTH ];
+  char          killerName[ MAX_COLORFUL_NAME_LENGTH ];
   char          spectatorList[ MAX_STRING_CHARS ];  // list of names
   int           spectatorTime;                      // next time to offset
   float         spectatorOffset;                    // current offset from start
@@ -1347,6 +1347,7 @@ typedef struct
   qboolean      loaded;
 } buildStat_t;
 
+#define MAX_KILLMSG_CHARS MAX_COLORFUL_NAME_LENGTH*3+1
 
 // The client game static (cgs) structure hold everything
 // loaded or calculated from the gamestate.  It will NOT
@@ -1374,7 +1375,7 @@ typedef struct
   int           voteTime[ NUM_TEAMS ];
   int           voteYes[ NUM_TEAMS ];
   int           voteNo[ NUM_TEAMS ];
-  char          voteCaller[ NUM_TEAMS ][ MAX_NAME_LENGTH ];
+  char          voteCaller[ NUM_TEAMS ][ MAX_COLORFUL_NAME_LENGTH ];
   qboolean      voteModified[ NUM_TEAMS ];// beep whenever changed
   char          voteString[ NUM_TEAMS ][ MAX_STRING_TOKENS ];
 
@@ -1431,8 +1432,8 @@ typedef struct
   clientList_t  ignoreList;
 
   // Kill Message
-  char          killMsgKillers[ TEAMCHAT_HEIGHT ][ 33*3+1 ];
-  char          killMsgVictims[ TEAMCHAT_HEIGHT ][ 33*3+1 ];
+  char          killMsgKillers[ TEAMCHAT_HEIGHT ][ MAX_KILLMSG_CHARS ];
+  char          killMsgVictims[ TEAMCHAT_HEIGHT ][ MAX_KILLMSG_CHARS ];
   int           killMsgWeapons[ TEAMCHAT_HEIGHT ];
   int           killMsgMsgTimes[ TEAMCHAT_HEIGHT ];
   int           killMsgPos;

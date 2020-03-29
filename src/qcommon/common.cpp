@@ -359,6 +359,111 @@ void QDECL Com_Error( int code, const char *fmt, ... )
     Sys_Error("%s", com_errorMessage);
 }
 
+
+typedef struct com_color_defs_s
+{
+    char const *name;
+    char const *code;
+} com_color_defs_t;
+
+static const com_color_defs_t color_definitions[] =
+{
+    {"Black", "0"},
+    {"Red", "1"},
+    {"Green", "2"},
+    {"Yellow", "3"},
+    {"Blue", "4"},
+    {"Cyan", "5"},
+    {"Magenta", "6"},
+    {"White", "7"},
+    {"Gray", "8"},
+    {"Orange", "9"},
+    {"Rose Bud", "a"},
+    {"Pale Green", "b"},
+    {"Pale Golden", "c"},
+    {"Columbia Blue", "d"},
+    {"Pale Turquoise", "e"},
+    {"Pale Violet Red", "f"},
+    {"Palace Pale White" , "g"},
+    {"Olive", "h"},
+    {"Tomato", "i"},
+    {"Lime", "j"},
+    {"Lemon", "k"},
+    {"Blue Berry", "l"},
+    {"Turquoise", "m"},
+    {"Wild Watermelon", "n"},
+    {"Saltpan", "o"},
+    {"Gray Chateau", "p"},
+    {"Rust", "q"},
+    {"Copper Green", "r"},
+    {"Gold", "s"},
+    {"Steel Blue", "t"},
+    {"Steel Gray", "u"},
+    {"Bronze", "v"},
+    {"Silver", "w"},
+    {"Dark Gray", "x"},
+    {"Dark Orange", "y"},
+    {"Dark Green", "z"},
+    {"Red Orange", "A"},
+    {"Forest Green", "B"},
+    {"Bright Sun", "C"},
+    {"Medium Slate Blue", "D"},
+    {"Celeste", "E"},
+    {"Ironstone", "F"},
+    {"Timberwolf", "G"},
+    {"Onyx", "H"},
+    {"Rosewood", "I"},
+    {"Kokoda", "J"},
+    {"Porsche", "K"},
+    {"Cloud Burst", "L"},
+    {"Blue Diane", "M"},
+    {"Rope", "N"},
+    {"Blonde", "O"},
+    {"Smokey Black", "P"},
+    {"American Rose", "Q"},
+    {"Neon Green", "R"},
+    {"Neon Yellow", "S"},
+    {"Ultramarine", "T"},
+    {"Turquoise Blue", "U"},
+    {"Dark Magenta", "V"},
+    {"Magic Mint", "W"},
+    {"Light Gray", "X"},
+    {"Light Salmon", "Y"},
+    {"Light Green", "Z"},
+};
+
+static int color_definitions_length = ARRAY_LEN(color_definitions);
+
+/*
+==============
+Com_Colors_f
+==============
+*/
+void Com_Colors_f(void) {
+    int row, i, j;
+
+    Com_Printf("^3 %-20s %-6s %-20s %-6s^7\n\n", "Color", "Code", "Color", "Code");
+
+    for(row = 0; row < ((int)ceilf(((float)color_definitions_length) / 2.0f)); row++) {
+        for(i = (row * 2), j = 0; i < color_definitions_length && j < 2; i++, j++) {
+            Com_Printf(
+                " ^%s%-20s ^^%-5s",
+                color_definitions[i].code,
+                color_definitions[i].name,
+                color_definitions[i].code);
+        }
+        Com_Printf("^7\n");
+    }
+
+    Com_Printf("\n^3 %-20s %-6s %-20s %-6s^7\n\n", "Color", "Code", "Color", "Code");
+
+    Com_Printf("\n^3To escape from the color code escape and print ^5^^^3 as and ordinary character, use ^5^^^^^3.\n\n");
+    Com_Printf("^3The format for the hardcoded standard color codes is ^5^^x^3, where x is alphanumeric (^7[^50-9^7][^5a-z^7][^5A-Z^7]^3).\n\n");
+    Com_Printf("^3The short format for custom hexadecimal defined color codes is ^5^^#xxx^3, where x is a hexadecimal (^7[^50-9^7][^5a-f^7][^5A-F^7]^3).\n\n");
+    Com_Printf("^3The long format for custom hexadecimal defined color codes (which has even more possible colors) is ^5^^##xxxxxx^3, where x is a hexadecimal (^7[^50-9^7][^5a-f^7][^5A-F^7]^3).^7\n\n\n");
+}
+
+
 /*
 =============
 Com_Quit_f
@@ -2599,6 +2704,7 @@ void Com_Init( char *commandLine )
         Cmd_AddCommand ("freeze", Com_Freeze_f);
     }
     Cmd_AddCommand ("quit", Com_Quit_f);
+    Cmd_AddCommand ("colors", Com_Colors_f);
     Cmd_AddCommand ("changeVectors", MSG_ReportChangeVectors_f );
     Cmd_AddCommand ("writeconfig", Com_WriteConfig_f );
     Cmd_SetCommandCompletionFunc( "writeconfig", Cmd_CompleteCfgName );
@@ -3494,6 +3600,87 @@ bool Com_IsVoipTarget(uint8_t *voipTargets, int voipTargetsSize, int clientNum)
         return (bool)(voipTargets[i] & (1 << (clientNum & 0x07)));
 
     return false;
+}
+
+/*
+==================
+Com_rgb_to_hsl
+
+Converts from the red green blue color space to hue saturation luminosity
+==================
+*/
+void Com_rgb_to_hsl(vec4_t rgb, vec4_t hsl) {
+    float max_color, min_color, chroma;
+
+    //keep the alpha the same
+    hsl[3] = rgb[3];
+
+    max_color = MAX(MAX(rgb[0], rgb[1]), rgb[2]);
+    min_color = MIN(MIN(rgb[0], rgb[1]), rgb[2]);
+    chroma = max_color - min_color;
+
+    //calc luminosity
+    hsl[2] = (max_color + min_color) / 2;
+
+    //calc hue and saturation
+    if(chroma == 0) {
+        //0 chroma means this color is grey, so hue and saturation are 0
+        hsl[0] = 0;
+        hsl[1] = 0;
+    } else {
+        if(max_color == rgb[0]) {
+            hsl[0] = fmod(((rgb[1] - rgb[2]) / chroma), 6);
+            if(hsl[0] < 0) {
+                hsl[0] = (6 - fmod(fabs(hsl[0]), 6));
+            }
+        } else if(max_color == rgb[1]) {
+            hsl[0] = (rgb[2] - rgb[0]) / chroma + 2;
+        } else {
+            hsl[0] = (rgb[0] - rgb[1]) / chroma + 4;
+        }
+        
+        hsl[0] = hsl[0] / 6;
+        hsl[1] = 1 - fabs(2 * hsl[2] - 1);
+	}
+}
+
+/*
+==================
+Com_hsl_to_rgb
+
+Converts from the hue saturation luminosity color space to red green blue
+==================
+*/
+void Com_hsl_to_rgb(vec4_t hsl, vec4_t rgb) {
+	
+    //keep the alpha the same
+    rgb[3] = hsl[3];
+
+    if(hsl[1] == 0) {
+        // 0 saturation means this color is grey
+        VectorSet(rgb, hsl[2], hsl[2], hsl[2]);
+    } else {
+        float chroma, h_, x, m;
+
+        chroma = (1 - fabs(2 * hsl[2] - 1)) * hsl[1];
+        h_ = hsl[0] * 6;
+        x = chroma * (1 - fabs((fmod(h_, 2)) - 1));
+        m = hsl[2] - roundf((chroma/2) * 10000000000) / 10000000000.0;
+
+        if(h_ >= 0 && h_ < 1) {
+            VectorSet(rgb, (chroma + m), (x + m), m);
+        } else if(h_ >= 1 && h_ < 2) {
+            VectorSet(rgb, (x + m), (chroma + m), m);
+        } else if(h_ >= 2 && h_ < 3) {
+            VectorSet(rgb, m, (chroma + m), (x + m));
+        } else if(h_ >= 3 && h_ < 4) {
+            VectorSet(rgb, m, (x + m), (chroma + m));
+        } else if(h_ >= 4 && h_ < 5) {
+            VectorSet(rgb, (x + m), m, (chroma + m));
+        } else if(h_ >= 5 && h_ < 6) {
+            VectorSet(rgb, (chroma + m), m, (x + m));
+        }
+    }
 }
 
 /*

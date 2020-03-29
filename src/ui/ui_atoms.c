@@ -151,6 +151,19 @@ static void UI_MessageMode_f(void)
 {
     char *arg = UI_Argv(0);
 
+    if(!chatInfo.say_make_current_line_blank) {
+        char buffer[ MAX_CVAR_VALUE_STRING ];
+
+        trap_Cvar_VariableStringBuffer("ui_sayBuffer", buffer, sizeof(buffer));
+
+        if(buffer[0]) {
+            chatInfo.historyLine = chatInfo.nextHistoryLine;
+            chatInfo.say_history_current = qtrue;
+            chatInfo.say_make_current_line_blank = qtrue;
+            trap_Cvar_Set("ui_sayBuffer", "");
+        }
+    }
+
     trap_Cvar_Set("ui_sayBuffer", "");
 
     switch (arg[11])
@@ -158,23 +171,53 @@ static void UI_MessageMode_f(void)
         default:
         case '\0':
             // Global
-            uiInfo.chatTeam = qfalse;
+            chatInfo.chat_mode = CHAT_GLOBAL;
             break;
 
         case '2':
             // Team
-            uiInfo.chatTeam = qtrue;
+            chatInfo.chat_mode = CHAT_TEAM;
+            break;
+
+        case '5':
+            // Admins
+            chatInfo.chat_mode = CHAT_ADMINS;
+            break;
+
+        case '6':
+            // Clan
+            chatInfo.chat_mode = CHAT_CLAN;
             break;
     }
 
     trap_Key_SetCatcher(KEYCATCH_UI);
     Menus_CloseByName("say");
     Menus_CloseByName("say_team");
+    Menus_CloseByName( "say_admins" );
+    Menus_CloseByName( "say_clan" );
 
-    if (uiInfo.chatTeam)
-        Menus_ActivateByName("say_team");
-    else
-        Menus_ActivateByName("say");
+    switch (chatInfo.chat_mode) {
+        case CHAT_GLOBAL:
+            Menus_ActivateByName( "say" );
+            break;
+
+        case CHAT_TEAM:
+            Menus_ActivateByName( "say_team" );
+            break;
+
+        case CHAT_ADMINS:
+            Menus_ActivateByName( "say_admins" );
+            break;
+
+        case CHAT_CLAN:
+            Menus_ActivateByName( "say_clan" );
+            break;
+
+        case NUM_CHAT_MODES:
+            chatInfo.chat_mode = CHAT_GLOBAL;
+            Menus_ActivateByName( "say" );
+            break;
+  }
 }
 
 static void UI_Me_f(void)
@@ -196,6 +239,8 @@ struct uicmd {
     {"menu", UI_Menu_f},
     {"messagemode", UI_MessageMode_f},
     {"messagemode2", UI_MessageMode_f},
+    { "messagemode5", UI_MessageMode_f },
+    { "messagemode6", UI_MessageMode_f },
     {"ui_cache", UI_Cache_f},
     {"ui_load", UI_Load},
     {"ui_report", UI_Report}

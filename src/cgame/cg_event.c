@@ -37,7 +37,6 @@ void CG_AddToKillMsg( const char* killername, const char* victimname, int icon )
   int   klen, vlen, index;
   char  *kls, *vls;
   char  *k, *v;
-  int   lastcolor;
   int   chatHeight;
 
   if( cg_killMsgHeight.integer < TEAMCHAT_HEIGHT )
@@ -61,8 +60,6 @@ void CG_AddToKillMsg( const char* killername, const char* victimname, int icon )
   memset( v, '\0', sizeof(cgs.killMsgVictims[index]));
   kls = vls = NULL;
 
-  lastcolor = '7';
-
   // Killers name
   while( *killername )
   {
@@ -78,24 +75,28 @@ void CG_AddToKillMsg( const char* killername, const char* victimname, int icon )
       k = cgs.killMsgKillers[index];
       *k = 0;
       *k++ = Q_COLOR_ESCAPE;
-      *k++ = lastcolor;
+      *k++ = COLOR_WHITE;
       klen = 0;
       kls = NULL;
-    }
-
-    if( Q_IsColorString( killername ) )
-    {
-      *k++ = *killername++;
-      lastcolor = *killername;
-      *k++ = *killername++;
-      continue;
+      break;
     }
 
     if( *killername == ' ' )
       kls = k;
+    else
+      kls = NULL;
 
-    *k++ = *killername++;
-    klen++;
+    if(Q_IsColorString(killername)) {
+      const int color_string_len = Q_ColorStringLength(killername);
+      int       i;
+
+      for(i = 0; i < color_string_len; i++) {
+        *k++ = *killername++;
+      }
+    } else {
+      *k++ = *killername++;
+      klen++;
+    }
   }
 
   // Victims name
@@ -113,24 +114,28 @@ void CG_AddToKillMsg( const char* killername, const char* victimname, int icon )
           v = cgs.killMsgVictims[index];
           *v = 0;
           *v++ = Q_COLOR_ESCAPE;
-          *v++ = lastcolor;
+          *v++ = COLOR_WHITE;
           vlen = 0;
           vls = NULL;
-        }
-
-        if( Q_IsColorString( victimname ) )
-        {
-          *v++ = *victimname++;
-          lastcolor = *victimname;
-          *v++ = *victimname++;
-          continue;
+          break;
         }
 
         if( *victimname == ' ' )
           vls = v;
+        else
+          vls = NULL;
 
-        *v++ = *victimname++;
-        vlen++;
+        if(Q_IsColorString(killername)) {
+          const int color_string_len = Q_ColorStringLength(killername);
+          int       i;
+
+          for(i = 0; i < color_string_len; i++) {
+            *v++ = *victimname++;
+          }
+        } else {
+          *v++ = *victimname++;
+          vlen++;
+        }
       }
 
   cgs.killMsgMsgTimes[ index ] = cg.time;
@@ -153,8 +158,8 @@ static void CG_Obituary( entityState_t *ent )
   char          *message2;
   const char    *targetInfo;
   const char    *attackerInfo;
-  char          targetName[ MAX_NAME_LENGTH ];
-  char          attackerName[ MAX_NAME_LENGTH ];
+  char          targetName[ MAX_COLORFUL_NAME_LENGTH ];
+  char          attackerName[ MAX_COLORFUL_NAME_LENGTH ];
   char          className[ 64 ];
   gender_t      gender;
   clientInfo_t  *ci;

@@ -918,28 +918,93 @@ CG_Say
 */
 static void CG_Say( int clientNum, saymode_t mode, const char *text )
 {
-  char *name;
-  char prefix[ 11 ] = "";
-  char *ignore = "";
+  char       *name;
+  char       prefix[ 13 ] = "";
+  char       mention[7] = "";
+  char       *ignore = "";
   const char *location = "";
-  char *color;
-  char *maybeColon;
+  char       *color;
+  char       *maybeColon;
+  char       *tmsgcolor = S_COLOR_YELLOW;
+  const char *text_ptr;
+
+  text_ptr = text;
+  while( *text_ptr )
+  {
+    //check if this is a mention
+    if( *text_ptr == '@' ){
+      const char    *s = text_ptr + 1;
+      char          n2[MAX_COLORFUL_NAME_LENGTH] = {""};
+      char          n2_temp[MAX_COLORFUL_NAME_LENGTH] = {""};
+      qboolean      name_match = qtrue;
+      unsigned long length = 0;
+
+      Q_strncpyz(n2_temp, cgs.clientinfo[cg.clientNum].name, sizeof(n2_temp));
+      Q_CleanStr(n2_temp);
+      Q_StringToLower(n2_temp, n2, sizeof(n2));
+
+      if(!(*s)) {
+        name_match = qfalse;
+      } else {
+        while(*s && n2[length]) {
+          if ( Q_IsColorString( s ) ) {
+            s += Q_ColorStringLength(s) - 1;
+          }
+          else if ( s[0] >= 0x20 && s[0] <= 0x7E ) {
+            if(Q_IsColorEscapeEscape(s)) {
+              s++;
+            }
+          }
+          if(tolower(s[0]) != n2[length]) {
+            name_match = qfalse;
+            break;
+          }
+
+          s++;
+          length++;
+        }
+
+        if(length != strlen(n2)) {
+          name_match = qfalse;
+        }
+      }
+
+      if(name_match) {
+        Q_strncpyz(mention, "^3> ^7", sizeof(mention));
+        break;
+      }
+    }
+
+    text_ptr++;
+  }
 
   if( clientNum >= 0 && clientNum < MAX_CLIENTS )
   {
     clientInfo_t *ci = &cgs.clientinfo[ clientNum ];
     char         *tcolor = S_COLOR_WHITE;
+    char         *tbcolor = S_COLOR_YELLOW;
 
     name = ci->name;
 
+    if( !( ci->team == TEAM_NONE ) )
+      tmsgcolor = S_COLOR_CYAN;
+
     if( ci->team == TEAM_ALIENS )
-      tcolor = S_COLOR_RED;
+    {
+      tcolor = S_COLOR_MAGENTA;
+      tbcolor = S_COLOR_RED;
+    }
     else if( ci->team == TEAM_HUMANS )
+    {
       tcolor = S_COLOR_CYAN;
+      tbcolor = S_COLOR_BLUE;
+    }
 
     if( cg_chatTeamPrefix.integer )
-      Com_sprintf( prefix, sizeof( prefix ), "[%s%c" S_COLOR_WHITE "] ",
-                   tcolor, toupper( *( BG_TeamName( ci->team ) ) ) );
+      Com_sprintf( prefix, sizeof( prefix ), "%s[%s%c%s]" S_COLOR_WHITE " ",
+                   tbcolor, tcolor,
+                   toupper( *( BG_TeamName( ci->team ) ) ),
+                   tbcolor );
 
     if( ( mode == SAY_TEAM || mode == SAY_AREA ) &&
         cg.snap->ps.pm_type != PM_INTERMISSION )
@@ -989,43 +1054,43 @@ static void CG_Say( int clientNum, saymode_t mode, const char *text )
         ignore = "[skipnotify]";
 
 #ifdef MODULE_INTERFACE_11
-      CG_Printf( "%s%s%s" S_COLOR_WHITE "%s " S_COLOR_GREEN "%s\n",
-                 ignore, prefix, name, maybeColon, text );
+      CG_Printf( "%s%s%s%s" S_COLOR_WHITE "%s " S_COLOR_GREEN "%s\n",
+                 ignore, mention, prefix, name, maybeColon, text );
 #else
-      CG_Printf( "%s%s%s" S_COLOR_WHITE "%s %c" S_COLOR_GREEN "%s\n",
-                 ignore, prefix, name, maybeColon, INDENT_MARKER, text );
+      CG_Printf( "%s%s%s%s" S_COLOR_WHITE "%s %c" S_COLOR_GREEN "%s\n",
+                 ignore, mention, prefix, name, maybeColon, INDENT_MARKER, text );
 #endif
       break;
     case SAY_TEAM:
 #ifdef MODULE_INTERFACE_11
-      CG_Printf( "%s%s(%s" S_COLOR_WHITE ")%s%s " S_COLOR_CYAN "%s\n",
-                 ignore, prefix, name, location, maybeColon, text );
+      CG_Printf( "%s%s%s(%s" S_COLOR_WHITE ")%s%s %s%s\n",
+                 ignore, mention, prefix, name, location, maybeColon, tmsgcolor, text );
 #else
-      CG_Printf( "%s%s(%s" S_COLOR_WHITE ")%s%s %c" S_COLOR_CYAN "%s\n",
-                 ignore, prefix, name, location, maybeColon, INDENT_MARKER, text );
+      CG_Printf( "%s%s%s(%s" S_COLOR_WHITE ")%s%s %c%s%s\n",
+                 ignore, mention, prefix, name, location, maybeColon, INDENT_MARKER, tmsgcolor, text );
 #endif
       break;
     case SAY_ADMINS:
     case SAY_ADMINS_PUBLIC:
 #ifdef MODULE_INTERFACE_11
-      CG_Printf( "%s%s%s%s" S_COLOR_WHITE "%s " S_COLOR_MAGENTA "%s\n",
-                 ignore, prefix,
+      CG_Printf( "%s%s%s%s%s" S_COLOR_WHITE "%s " S_COLOR_MAGENTA "%s\n",
+                 ignore, mention, prefix,
                  ( mode == SAY_ADMINS ) ? "[ADMIN]" : "[PLAYER]",
                  name, maybeColon, text );
 #else
-      CG_Printf( "%s%s%s%s" S_COLOR_WHITE "%s %c" S_COLOR_MAGENTA "%s\n",
-                 ignore, prefix,
+      CG_Printf( "%s%s%s%s%s" S_COLOR_WHITE "%s %c" S_COLOR_MAGENTA "%s\n",
+                 ignore, mention, prefix,
                  ( mode == SAY_ADMINS ) ? "[ADMIN]" : "[PLAYER]",
                  name, maybeColon, INDENT_MARKER, text );
 #endif
       break;
     case SAY_AREA:
 #ifdef MODULE_INTERFACE_11
-      CG_Printf( "%s%s<%s" S_COLOR_WHITE ">%s%s " S_COLOR_BLUE "%s\n",
-                 ignore, prefix, name, location, maybeColon, text );
+      CG_Printf( "%s%s%s<%s" S_COLOR_WHITE ">%s%s " S_COLOR_BLUE "%s\n",
+                 ignore, mention, prefix, name, location, maybeColon, text );
 #else
-      CG_Printf( "%s%s<%s" S_COLOR_WHITE ">%s%s %c" S_COLOR_BLUE "%s\n",
-                 ignore, prefix, name, location, maybeColon, INDENT_MARKER, text );
+      CG_Printf( "%s%s%s<%s" S_COLOR_WHITE ">%s%s %c" S_COLOR_BLUE "%s\n",
+                 ignore, mention, prefix, name, location, maybeColon, INDENT_MARKER, text );
 #endif
       break;
     case SAY_PRIVMSG:

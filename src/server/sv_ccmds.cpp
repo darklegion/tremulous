@@ -274,9 +274,9 @@ static void SV_Status_f(void) {
 		s = NET_AdrToString(cl->netchan.remoteAddress);
 
 		// extend the name length by couting extra color characters to keep well formated output
-		maxNameLength = sizeof(cl->name) + (strlen(cl->name) - Q_PrintStrlen(cl->name)) + 1;
+		maxNameLength = sizeof(cl->name_ansi) + (strlen(cl->name_ansi) - Q_PrintStrlen(cl->name_ansi)) + 1;
 
-		Com_Printf("%-*s %7i %-21s %5i %5i %i\n", maxNameLength, rc(cl->name), svs.time - cl->lastPacketTime, s, cl->netchan.qport, cl->rate, svs.time - cl->lastConnectTime);
+		Com_Printf("%-*s %7i %-21s %5i %5i %i\n", maxNameLength, rc(cl->name_ansi), svs.time - cl->lastPacketTime, s, cl->netchan.qport, cl->rate, svs.time - cl->lastConnectTime);
 	}
 
 	Com_Printf("\n");

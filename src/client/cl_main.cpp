@@ -4948,7 +4948,9 @@ void CL_Init(void)
     cl_clantag = Cvar_Get ("cl_clantag", "", CVAR_ARCHIVE);
 
     // userinfo
-    Cvar_Get("name", "UnnamedPlayer", CVAR_USERINFO | CVAR_ARCHIVE);
+    Cvar_Get(
+      "name", "UnnamedPlayer",
+      CVAR_USERINFO | CVAR_ARCHIVE| CVAR_REMOVE_UNUSED_COLOR_STRINGS);
     cl_rate = Cvar_Get("rate", "25000", CVAR_USERINFO | CVAR_ARCHIVE);
     Cvar_Get("snaps", "40", CVAR_USERINFO | CVAR_ARCHIVE);
     Cvar_Get("color1", "4", CVAR_USERINFO | CVAR_ARCHIVE);

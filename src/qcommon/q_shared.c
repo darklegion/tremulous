@@ -920,8 +920,10 @@ int Q_PrintStrlen( const char *string ) {
 	p = string;
 	while( *p ) {
 		if( Q_IsColorString( p ) ) {
-			p += 2;
+			p += Q_ColorStringLength(p);
 			continue;
+		} else if(Q_IsColorEscapeEscape(p)) {
+			p++;
 		}
 		p++;
 		len++;
@@ -940,9 +942,13 @@ char *Q_CleanStr( char *string ) {
 	d = string;
 	while ((c = *s) != 0 ) {
 		if ( Q_IsColorString( s ) ) {
-			s++;
+			s += Q_ColorStringLength(s) - 1;
 		}		
 		else if ( c >= 0x20 && c <= 0x7E ) {
+			if(Q_IsColorEscapeEscape(s)) {
+				s++;
+				c = *s;
+			}
 			*d++ = c;
 		}
 		s++;
@@ -950,6 +956,207 @@ char *Q_CleanStr( char *string ) {
 	*d = '\0';
 
 	return string;
+}
+
+void Q_ApproxStrHexColors(
+	const char *in_string, char *out_string,
+	const size_t in_string_length, const size_t out_string_length) {
+	int		i, j, c;
+	int   total_color_length = 0;
+
+	i = j = 0;
+	while((i < in_string_length) && (j < out_string_length) && (in_string[i] != 0) ) {
+		c = in_string[i];
+		if ( Q_IsColorString(in_string + i) ) {
+			if((i + 1) >= in_string_length) {
+				break;
+			}
+			if(Q_IsHexColor(in_string + i + 1)) {
+				vec3_t color;
+				int    hex_length = Q_ColorStringLength(in_string + i);
+				int    approx_ansi_color_index;
+				char   long_color_code[10];
+				char   short_color_code[6];
+
+				//convert to the closest hardcoded ansi color code
+				if(Q_IsShortHexColor(in_string + i + 1)) {
+					if((i + sizeof(short_color_code)) >= in_string_length) {
+						break;
+					}
+
+					Q_strncpyz(short_color_code, in_string + i, sizeof(short_color_code));
+					Q_GetVectFromHexColor(short_color_code, color);
+				} else {
+					if((i + sizeof(long_color_code)) >= in_string_length) {
+						break;
+					}
+
+					Q_strncpyz(long_color_code, in_string + i, sizeof(long_color_code));
+					Q_GetVectFromHexColor(long_color_code, color);
+				}
+				approx_ansi_color_index = Q_ApproxBasicColorIndexFromVectColor(color);
+
+				//copy over the resulting color code
+				out_string[j] = Q_COLOR_ESCAPE;
+				j++;
+				if(j >= out_string_length) {
+					j = out_string_length - 1;
+					break;
+				}
+				c = '0' + approx_ansi_color_index;
+				out_string[j] = c;
+				j++;
+				if(j >= out_string_length) {
+					j = out_string_length - 1;
+					break;
+				}
+				i += hex_length - 1;
+				if(i >= in_string_length) {
+					i = in_string_length - 1;
+					break;
+				}
+				total_color_length += 2;
+			} else {
+				// copy over the hardcoded color code
+				out_string[j] = c;
+				j++;
+				if(j >= out_string_length) {
+					j = out_string_length - 1;
+					break;
+				}
+				i++;
+				if(i >= in_string_length) {
+					i = in_string_length - 1;
+					break;
+				}
+				c = in_string[i];
+				out_string[j] = c;
+				j++;
+				if(j >= out_string_length) {
+					j = out_string_length - 1;
+					break;
+				}
+
+				total_color_length += 2;
+			}
+		}	 else if ( c >= 0x20 && c <= 0x7E ) {
+			if(Q_IsColorEscapeEscape(in_string + i)) {
+				i++;
+				if(i >= in_string_length) {
+					i = in_string_length - 1;
+					break;
+				}
+				c = in_string[i];
+			}
+
+			if((j - total_color_length) >= MAX_NAME_LENGTH) {
+				break;
+			}
+
+			out_string[j] = c;
+			j++;
+			if(j >= out_string_length) {
+				j = out_string_length - 1;
+				break;
+			}
+		}
+		i++;
+		if(i >= in_string_length) {
+			i = in_string_length - 1;
+			break;
+		}
+	}
+	out_string[j] = '\0';
+}
+
+void Q_StringToLower(char *in, char *out, int len) {
+	len--;
+
+	while(*in && len > 0) {
+		*out++ = tolower(*in);
+		len--;
+		in++;
+	}
+	*out = 0;
+}
+
+void Q_RemoveUnusedColorStrings(char *in, char *out, int outSize) {
+	int len = 0;
+
+	outSize--;
+
+	for(; *in; in++) {
+		if( Q_IsColorString( in ) )
+		{
+			int color_string_length = Q_ColorStringLength(in);
+			int checked_index = color_string_length;
+			qboolean skip = qfalse;
+			const char *temp_ptr = in;
+
+			//remove unused color strings
+			while(1) {
+				if( Q_IsColorString( temp_ptr + checked_index ) )
+				{
+					skip = qtrue;
+					break;
+				} else if(*(temp_ptr + checked_index) == ' ') {
+					//spaces don't use the color strings
+					checked_index++;
+
+					if(!(*(temp_ptr + checked_index))) {
+						//reached the end of the name without using this string
+						skip = qtrue;
+						break;
+					}
+					continue;
+				}
+
+				if(!(*(temp_ptr + checked_index))) {
+					//reached the end of the name without using this string
+					skip = qtrue;
+					break;
+				}
+
+				//this color string is used
+				break;
+			}
+
+			if(skip) {
+				in += (color_string_length - 1);
+				continue;
+			}
+
+			in++;
+
+			// make sure room in dest for both chars
+			if( len > outSize - color_string_length )
+				break;
+
+				*out++ = Q_COLOR_ESCAPE;
+
+			if(Q_IsHardcodedColor(in - 1)) {
+				*out++ = *in;
+			} else {
+				int i;
+ 
+				for(i = 0; i < (color_string_length - 1); i++) {
+					*out++ = *(in + i);
+				}
+				in += color_string_length - 2;
+			}
+
+			len += color_string_length;
+			continue;
+		} else if(Q_IsColorEscapeEscape(in)) {
+			*out++ = *in;
+			in++;
+			len++;
+		}
+
+		*out++ = *in;
+		len++;
+	}
+	*out = 0;
 }
 
 int Q_CountChar(const char *string, char tocount)

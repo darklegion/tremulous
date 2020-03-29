@@ -298,9 +298,13 @@ int CG_DrawStrlen( const char *str )
   while( *s )
   {
     if( Q_IsColorString( s ) )
-      s += 2;
+      s += Q_ColorStringLength(s);
     else
     {
+      if( Q_IsColorEscapeEscape(s) )
+      {
+        s++;
+      }
       count++;
       s++;
     }

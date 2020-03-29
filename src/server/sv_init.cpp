@@ -308,6 +308,11 @@ void SV_SetUserinfo(int idx, const char *val)
 
     Q_strncpyz(svs.clients[idx].userinfo, val, sizeof(svs.clients[idx].userinfo));
     Q_strncpyz(svs.clients[idx].name, Info_ValueForKey(val, "name"), sizeof(svs.clients[idx].name));
+    //for backwards compatibility approx hex color codes to hardcoded ansi
+    //color codes
+    Q_ApproxStrHexColors(
+      svs.clients[idx].name, svs.clients[idx].name_ansi,
+      sizeof(svs.clients[idx].name), sizeof(svs.clients[idx].name_ansi));
 }
 
 /*

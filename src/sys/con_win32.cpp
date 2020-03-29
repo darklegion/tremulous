@@ -55,22 +55,23 @@ static HANDLE qconsole_hin;
 
 /*
 ==================
-CON_ColorCharToAttrib
+CON_ColorVecToAttrib
 
 Convert Quake color character to Windows text attrib
 ==================
 */
-static WORD CON_ColorCharToAttrib( char color ) {
+static WORD CON_ColorVecToAttrib( const vec4_t color ) {
 	WORD attrib;
+	int	color_index = Q_ApproxBasicColorIndexFromVectColor(color);
 
-	if ( color == COLOR_WHITE )
+	if ( color_index == ColorIndex(COLOR_WHITE) )
 	{
 		// use console's foreground and background colors
 		attrib = qconsole_attrib;
 	}
 	else
 	{
-		float *rgba = g_color_table[ ColorIndex( color ) ];
+		float *rgba = g_color_table[color_index];
 
 		// set foreground color
 		attrib = ( rgba[0] >= 0.5 ? FOREGROUND_RED		: 0 ) |
@@ -209,15 +210,24 @@ static void CON_Show( void )
 	writeArea.Right = MAX_EDIT_LINE;
 
 	// set color to white
-	attrib = CON_ColorCharToAttrib( COLOR_WHITE );
+	attrib = CON_ColorVecToAttrib( g_color_table[ColorIndex(COLOR_WHITE)] );
 
 	// build a space-padded CHAR_INFO array
 	for( i = 0; i < MAX_EDIT_LINE; i++ )
 	{
 		if( i < qconsole_linelen )
 		{
-			if( i + 1 < qconsole_linelen && Q_IsColorString( qconsole_line + i ) )
-				attrib = CON_ColorCharToAttrib( *( qconsole_line + i + 1 ) );
+			if( i + 1 < qconsole_linelen && Q_IsColorString( qconsole_line + i ) ) {
+				vec4_t color;
+
+				if(Q_IsHardcodedColor(qconsole_line + i)) {
+					Vector4Copy(g_color_table[ColorIndex(*(qconsole_line + i + 1 ))], color);
+				} else {
+					Q_GetVectFromHexColor(qconsole_line + i, color);
+				}
+
+				attrib = CON_ColorVecToAttrib( color );
+			}
 
 			line[ i ].Char.AsciiChar = qconsole_line[ i ];
 		}
@@ -324,7 +334,7 @@ void CON_Init( void )
 		qconsole_history[ i ][ 0 ] = '\0';
 
 	// set text color to white
-	SetConsoleTextAttribute( qconsole_hout, CON_ColorCharToAttrib( COLOR_WHITE ) );
+	SetConsoleTextAttribute( qconsole_hout, CON_ColorVecToAttrib( g_color_table[ColorIndex(COLOR_WHITE)] ) );
 }
 
 /*
@@ -513,21 +523,36 @@ void CON_WindowsColorPrint( const char *msg )
 			if( *msg == '\n' )
 			{
 				// Reset color and then add the newline
-				SetConsoleTextAttribute( qconsole_hout, CON_ColorCharToAttrib( COLOR_WHITE ) );
+				if( qconsole_hout != INVALID_HANDLE_VALUE )
+					SetConsoleTextAttribute( qconsole_hout, CON_ColorVecToAttrib( g_color_table[ColorIndex(COLOR_WHITE)] ) );
 				fputs( "\n", stderr );
 				msg++;
 			}
 			else
 			{
 				// Set the color
-				SetConsoleTextAttribute( qconsole_hout, CON_ColorCharToAttrib( *( msg + 1 ) ) );
-				msg += 2;
+				if( qconsole_hout != INVALID_HANDLE_VALUE ) {
+					vec4_t color;
+
+					if(Q_IsHardcodedColor(msg)) {
+						Vector4Copy(g_color_table[ColorIndex(*(msg + 1 ))], color);
+					} else {
+						Q_GetVectFromHexColor(msg, color);
+					}
+
+					SetConsoleTextAttribute( qconsole_hout, CON_ColorVecToAttrib( color ) );
+				}
+				msg += Q_ColorStringLength(msg);
 			}
 		}
 		else
 		{
 			if( length >= MAXPRINTMSG - 1 )
 				break;
+
+			if(Q_IsColorEscapeEscape(msg)) {
+				msg++;
+			}
 
 			buffer[ length ] = *msg;
 			length++;
