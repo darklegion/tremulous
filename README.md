@@ -156,3 +156,7 @@ This also includes voice menus branch
  - (0.0f - 1.0f) default 0.0f
 * New Cvar `scr_colorAlpha` console transparency.
  - (0.0f - 1.0f) default 0.8f
+
+# Acknowledgments
+
+In loving memory of *<{dGr8LookinSparky, who was a great community builder and developer for Tremulous.
