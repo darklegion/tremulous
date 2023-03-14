@@ -304,11 +304,14 @@ static particle_t *CG_SpawnNewParticle( baseParticle_t *bp, particleEjector_t *p
         }
       }
 
-      break;
+      return p;
     }
   }
 
-  return p;
+  if( cg_debugParticles.integer >= 1 )
+    CG_Printf( "MAX_PARTICLES\n" );
+
+  return NULL;
 }
 
 
@@ -426,11 +429,14 @@ static particleEjector_t *CG_SpawnNewParticleEjector( baseParticleEjector_t *bpe
       if( cg_debugParticles.integer >= 1 )
         CG_Printf( "PE %s created\n", ps->class->name );
 
-      break;
+      return pe;
     }
   }
 
-  return pe;
+  if( cg_debugParticles.integer >= 1 )
+    CG_Printf( "MAX_PARTICLE_EJECTORS\n" );
+
+  return NULL;
 }
 
 
@@ -473,11 +479,14 @@ particleSystem_t *CG_SpawnNewParticleSystem( qhandle_t psHandle )
       if( cg_debugParticles.integer >= 1 )
         CG_Printf( "PS %s created\n", bps->name );
 
-      break;
+      return ps;
     }
   }
 
-  return ps;
+  if( cg_debugParticles.integer >= 1 )
+    CG_Printf( "MAX_PARTICLE_SYSTEMS\n" );
+
+  return NULL;
 }
 
 /*
